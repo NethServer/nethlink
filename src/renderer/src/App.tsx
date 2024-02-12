@@ -1,35 +1,35 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import { Routes, Route, Outlet, HashRouter } from 'react-router-dom'
+import { useInitialize } from './hooks/useInitialize'
+import { LoginPage, SettingsPage, TrayPage } from './pages'
 
-function App(): JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-
+function Layout() {
   return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">
-        Build an Electron app with <span className="react">React</span>
-        &nbsp;and <span className="ts">TypeScript</span>
-      </div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to open the devTool
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-      </div>
-      <Versions></Versions>
-    </>
+    <div>
+      <Outlet />
+    </div>
   )
 }
 
-export default App
+function RoutesWrapper() {
+  useInitialize(() => {
+    console.log(location.hash)
+  })
+
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route path="traypage" element={<TrayPage />} />
+        <Route path="splahscreenpage" element={<SettingsPage />} />
+        <Route path="loginpage" element={<LoginPage />} />
+      </Route>
+    </Routes>
+  )
+}
+
+export default function App() {
+  return (
+    <HashRouter>
+      <RoutesWrapper />
+    </HashRouter>
+  )
+}
