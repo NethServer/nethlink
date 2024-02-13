@@ -15,7 +15,7 @@ export class TrayGenerator {
   _getWindow() {
     if (!this.mainWindow) {
       this.size = { w: 300, h: 400 }
-      this.mainWindow = createWindow('tray', {
+      this.mainWindow = createWindow('traypage', {
         width: this.size.w,
         height: this.size.h,
         show: false,

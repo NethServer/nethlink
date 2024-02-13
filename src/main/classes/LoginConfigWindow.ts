@@ -4,7 +4,7 @@ export class LoginConfigWindow {
   private _window: Electron.CrossProcessExports.BrowserWindow
   constructor() {
     const size = { w: 300, h: 400 }
-    this._window = createWindow('loginconfig', {
+    this._window = createWindow('loginpage', {
       width: size.w,
       height: size.h,
       show: false,

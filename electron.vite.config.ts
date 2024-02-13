@@ -11,18 +11,13 @@ export default defineConfig({
         '@/classes': resolve('src/main/classes'),
         '@shared': resolve('src/shared')
       }
-    },
-    build: {
-      rollupOptions: {
-        external: 'NonExistingPath'
-      }
     }
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
-    build: {
-      rollupOptions: {
-        external: 'NonExistingPath'
+    resolve: {
+      alias: {
+        '@shared': resolve('src/shared')
       }
     }
   },
@@ -34,16 +29,11 @@ export default defineConfig({
         '@shared': resolve('src/shared'),
         '@/hooks': resolve('src/renderer/src/hooks'),
         '@/assets': resolve('src/renderer/src/assets'),
-        '@/store': resolve('src/renderer/src/store'),
+        '@/pages': resolve('src/renderer/src/pages'),
         '@/components': resolve('src/renderer/src/components'),
-        '@/mocks': resolve('src/renderer/src/mocks')
+        '@/utils': resolve('src/renderer/src/utils')
       }
     },
-    plugins: [react()],
-    build: {
-      rollupOptions: {
-        external: 'NonExistingPath'
-      }
-    }
+    plugins: [react()]
   }
 })

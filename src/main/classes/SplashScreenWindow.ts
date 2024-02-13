@@ -3,7 +3,7 @@ import { createWindow } from '@/lib/windowConstructor'
 export class SplashScreenWindow {
   constructor(onClose: () => void, timer: number = 2000) {
     const size = { w: 300, h: 400 }
-    const mainWindow = createWindow('splashscreen', {
+    const mainWindow = createWindow('splahscreenpage', {
       width: size.w,
       height: size.h,
       show: true,

@@ -1,6 +1,6 @@
 import { Routes, Route, Outlet, HashRouter } from 'react-router-dom'
-import { useInitialize } from './hooks/useInitialize'
-import { LoginPage, SettingsPage, TrayPage } from './pages'
+import { useInitialize } from '@/hooks/useInitialize'
+import { LoginPage, SettingsPage, TrayPage } from '@/pages'
 
 function Layout() {
   return (

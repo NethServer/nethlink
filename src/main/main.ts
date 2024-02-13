@@ -1,6 +1,6 @@
 import { app } from 'electron'
 import { AccountController, LoginConfigWindow, SplashScreenWindow, TrayGenerator } from '@/classes'
-import { registerIpcEvents } from './lib/ipcEvents'
+import { registerIpcEvents } from '@/lib/ipcEvents'
 import { Account } from '@shared/types'
 
 new AccountController(app)
@@ -13,7 +13,7 @@ registerIpcEvents()
 app.whenReady().then(() => {
   // Set app user model id for windows
   //app.setAppUserModelId('com.electron')
-
+  showTray()
   //check the presence of config file in appdata folder
   AC.onAccountChange((account: Account) => {
     console.log(account)
@@ -25,7 +25,7 @@ app.whenReady().then(() => {
     showTray()
   })
   const loginWindow = new LoginConfigWindow()
-  if (AC.hasConfigsFolder()) {
+  if (!AC.hasConfigsFolder()) {
     new SplashScreenWindow(() => {
       loginWindow.show()
     })

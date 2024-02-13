@@ -23,8 +23,8 @@ export function createWindow(
     ...(process.platform === 'linux' ? (config.icon ? { icon: config.icon } : {}) : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: true, //test
-      contextIsolation: true, //test
+      sandbox: false, //test
+      contextIsolation: false, //test
       nodeIntegration: true
     }
   })
