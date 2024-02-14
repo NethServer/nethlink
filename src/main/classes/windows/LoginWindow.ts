@@ -1,8 +1,8 @@
 import { createWindow } from '@/lib/windowConstructor'
+import { BaseWindow } from './BaseWindow'
 
-export class LoginConfigWindow {
-  private _window: Electron.CrossProcessExports.BrowserWindow
-  constructor() {
+export class LoginWindow extends BaseWindow {
+  buildWindow(): void {
     const size = { w: 300, h: 400 }
     this._window = createWindow('loginpage', {
       width: size.w,
@@ -31,13 +31,5 @@ export class LoginConfigWindow {
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
-  }
-
-  close() {
-    this._window.close()
-  }
-
-  show() {
-    this._window.show()
   }
 }

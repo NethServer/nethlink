@@ -12,7 +12,7 @@ export function LoginPage() {
 
   return (
     <form onSubmit={submit}>
-      <div className="flex flex-col">
+      <div className="flex flex-col h-full w-full bg-black p-5">
         <input name="host" value="https://cti.demo-heron.sf.nethserver.net" />
         <input name="username" value="lorenzo" />
         <input name="password" value="NethVoice,1234" />

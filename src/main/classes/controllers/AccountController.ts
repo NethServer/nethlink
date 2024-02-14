@@ -3,6 +3,16 @@ import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
 
+const defaultConfig: ConfigFile = {
+  lastUser: undefined,
+  accounts: {
+    lorenzo: {
+      host: 'https://cti.demo-heron.sf.nethserver.net',
+      username: 'lorenzo'
+    }
+  }
+}
+
 export class AccountController {
   listAvailableAccounts(): any {
     throw new Error('Method not implemented.')
@@ -61,31 +71,30 @@ export class AccountController {
 
   hasConfigsFolder() {
     const { CONFIG_PATH } = this._getPaths()
-    return !fs.existsSync(CONFIG_PATH)
+    console.log(CONFIG_PATH)
+    return fs.existsSync(CONFIG_PATH)
   }
-  getConfigFile(): ConfigFile {
+
+  createConfigFile() {
     const { CONFIG_PATH, CONFIG_FILE } = this._getPaths()
-    const defaultConfig: ConfigFile = {
-      lastUser: undefined,
-      accounts: {
-        lorenzo: {
-          host: 'https://cti.demo-heron.sf.nethserver.net',
-          username: 'lorenzo'
-        }
-      }
-    }
     //Controllo se la cartella configs esiste, altrimenti la creo
-    try {
-      if (this.hasConfigsFolder()) {
-        fs.mkdirSync(CONFIG_PATH)
-        fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig), 'utf-8')
-        this.config = defaultConfig
-      } else {
-        const data = fs.readFileSync(CONFIG_FILE, { encoding: 'utf-8' })
-        this.config = JSON.parse(data)
-      }
+
+    if (!this.hasConfigsFolder()) {
+      fs.mkdirSync(CONFIG_PATH)
+      fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig), 'utf-8')
+    } else {
+      throw new Error(`Unable to overwrite ${CONFIG_FILE}`)
+    }
+  }
+
+  getConfigFile(): ConfigFile {
+    const { CONFIG_FILE } = this._getPaths()
+
+    if (this.hasConfigsFolder()) {
+      const data = fs.readFileSync(CONFIG_FILE, { encoding: 'utf-8' })
+      this.config = JSON.parse(data)
       return this.config!
-    } catch (e) {
+    } else {
       throw new Error(`Unable to find ${CONFIG_FILE}`)
     }
   }

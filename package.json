@@ -29,7 +29,8 @@
     "electron-updater": "^6.1.7",
     "moment": "^2.30.1",
     "react-router-dom": "^6.21.3",
-    "usb": "^2.11.0"
+    "usb": "^2.11.0",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",

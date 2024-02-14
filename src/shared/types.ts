@@ -13,5 +13,3 @@ export type ConfigFile = {
     [username: string]: Account
   }
 }
-
-export const test = 'asdsa'

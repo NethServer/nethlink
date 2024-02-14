@@ -1,6 +1,6 @@
 import { Routes, Route, Outlet, HashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
-import { LoginPage, SettingsPage, TrayPage } from '@/pages'
+import { LoginPage, PhoneIslandPage, SettingsPage, TrayPage } from '@/pages'
 
 function Layout() {
   return (
@@ -21,6 +21,8 @@ function RoutesWrapper() {
         <Route path="traypage" element={<TrayPage />} />
         <Route path="splahscreenpage" element={<SettingsPage />} />
         <Route path="loginpage" element={<LoginPage />} />
+        <Route path="settingspage" element={<SettingsPage />} />
+        <Route path="phoneislandpage" element={<PhoneIslandPage />} />
       </Route>
     </Routes>
   )

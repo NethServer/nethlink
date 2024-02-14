@@ -28,11 +28,7 @@ export function SearchBox({ handleSearch, handleReset }: SearchBoxProps) {
 
   return (
     <div className="flex flex-row items-center relative">
-      <MenuButton
-        Icon={<FontAwesomeIcon icon="folder-magnifying-glass" />}
-        invert
-        onClick={submit}
-      />
+      <MenuButton Icon={<div />} invert onClick={submit} />
       <input
         ref={inputRef}
         type="text"
@@ -50,7 +46,7 @@ export function SearchBox({ handleSearch, handleReset }: SearchBoxProps) {
         }}
       ></input>
       <MenuButton
-        Icon={<FontAwesomeIcon icon="fax" />}
+        Icon={<div />}
         className={`absolute right-[0] ${showReset ? 'visible' : 'hidden'}`}
         invert
         onClick={reset}

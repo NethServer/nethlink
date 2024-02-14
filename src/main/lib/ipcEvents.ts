@@ -1,4 +1,4 @@
-import { AccountController, NethVoiceAPI } from '@/classes'
+import { AccountController, NethVoiceAPI } from '@/classes/controllers'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
 import { ipcMain, shell } from 'electron'

@@ -1,4 +1,3 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { AvatarButton, MenuButton, SearchBox } from '@renderer/components'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { Account } from '@shared/types'
@@ -45,11 +44,7 @@ export function TrayPage() {
           <div className="flex flex-row justify-between gap-2">
             <SearchBox handleSearch={handleSearch} handleReset={handleReset} />
             <div className="flex flex-row justify-end gap-1 items-center mr-1">
-              <MenuButton
-                Icon={<FontAwesomeIcon icon={'function'} />}
-                invert={true}
-                onClick={openSettings}
-              ></MenuButton>
+              <MenuButton Icon={<div />} invert={true} onClick={openSettings}></MenuButton>
               <AvatarButton />
             </div>
           </div>
