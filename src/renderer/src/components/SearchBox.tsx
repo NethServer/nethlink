@@ -1,43 +1,41 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MenuButton } from './MenuButton'
 import { createRef, useState } from 'react'
+import { faSearch, faX } from '@fortawesome/free-solid-svg-icons'
+import { TextInput } from './common/TextInput'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { icon } from '@fortawesome/fontawesome-svg-core'
 
-export type SearchBoxProps = {
+export interface SearchBoxProps {
   handleSearch: (searchText: string) => Promise<void>
   handleReset: () => void
 }
 
-export function SearchBox({ handleSearch, handleReset }: SearchBoxProps) {
+export function SearchBox({ handleSearch, handleReset }: SearchBoxProps): JSX.Element {
   const [showReset, setShowReset] = useState(false)
 
   const inputRef = createRef<HTMLInputElement>()
 
-  function testReset() {
+  function testReset(): void {
     setShowReset(!!inputRef.current?.value)
   }
 
-  function reset() {
+  function reset(): void {
     inputRef.current!.value = ''
     handleReset()
     testReset()
   }
 
-  function submit() {
+  function submit(): void {
     handleSearch(inputRef.current!.value)
   }
 
   return (
-    <div className="flex flex-row items-center relative">
-      <MenuButton
-        Icon={<FontAwesomeIcon icon="folder-magnifying-glass" />}
-        invert
-        onClick={submit}
-      />
-      <input
+    <div className="relative flex flex-row items-center">
+      <TextInput
         ref={inputRef}
-        type="text"
-        placeholder="Search"
-        className={`text-white bg-transparent focus-visible:outline-none w-full mr-8`}
+        placeholder="Call or compose..."
+        size="small"
+        className="min-h-[38px] min-w-[222px]"
+        icon={faSearch}
         onChange={(e) => {
           inputRef.current!.value = e.target.value
           testReset()
@@ -48,11 +46,11 @@ export function SearchBox({ handleSearch, handleReset }: SearchBoxProps) {
             submit()
           }
         }}
-      ></input>
-      <MenuButton
-        Icon={<FontAwesomeIcon icon="fax" />}
-        className={`absolute right-[0] ${showReset ? 'visible' : 'hidden'}`}
-        invert
+      />
+      <FontAwesomeIcon
+        className={`absolute right-2 ${showReset ? 'visible' : 'hidden'}`}
+        style={{ fontSize: '16px' }}
+        icon={faX}
         onClick={reset}
       />
     </div>
