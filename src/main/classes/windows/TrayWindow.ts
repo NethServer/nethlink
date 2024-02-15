@@ -11,33 +11,34 @@ export class TrayWindow extends BaseWindow {
   }
 
   buildWindow(): void {
-    this.size = { w: 300, h: 400 }
+    this.size = { w: 400, h: 371 }
     this._window = createWindow('traypage', {
       width: this.size.w,
       height: this.size.h,
-      show: false,
-      fullscreenable: false,
-      autoHideMenuBar: true,
-      closable: true,
-      alwaysOnTop: true,
-      minimizable: false,
-      maximizable: false,
-      movable: false,
-      resizable: false,
-      skipTaskbar: true,
-      titleBarStyle: 'hidden',
-      roundedCorners: false,
-      parent: undefined,
-      transparent: true,
-      hiddenInMissionControl: true,
-      hasShadow: false,
-      center: true,
-      fullscreen: false,
-      acceptFirstMouse: false,
-      frame: false,
-      //tabbingIdentifier: 'nethconnector',
-      thickFrame: false,
-      trafficLightPosition: { x: 0, y: 0 }
+      alwaysOnTop: true
+      // show: false,
+      // fullscreenable: false,
+      // autoHideMenuBar: true,
+      // closable: true,
+      // alwaysOnTop: true,
+      // minimizable: false,
+      // maximizable: false,
+      // movable: false,
+      // resizable: false,
+      // skipTaskbar: true,
+      // titleBarStyle: 'hidden',
+      // roundedCorners: false,
+      // parent: undefined,
+      // transparent: true,
+      // hiddenInMissionControl: true,
+      // hasShadow: false,
+      // center: true,
+      // fullscreen: false,
+      // acceptFirstMouse: false,
+      // frame: false,
+      // //tabbingIdentifier: 'nethconnector',
+      // thickFrame: false,
+      // trafficLightPosition: { x: 0, y: 0 }
     })
   }
 

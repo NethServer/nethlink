@@ -41,11 +41,11 @@ export function createWindow(
     })
   }
 
-  // if (is.dev) {
-  //   mainWindow.webContents.openDevTools({
-  //     mode: 'detach'
-  //   })
-  // }
+  if (is.dev) {
+    mainWindow.webContents.openDevTools({
+      mode: 'detach'
+    })
+  }
 
   return mainWindow
 }

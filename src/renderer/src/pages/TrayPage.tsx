@@ -1,12 +1,9 @@
-import { AvatarButton, MenuButton, SearchBox } from '@renderer/components'
-import { useInitialize } from '@renderer/hooks/useInitialize'
+import { Navbar } from '../components/Navbar'
+import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
+import { SpeedDialsBox } from '../components/SpeedDialsBox'
+import { useInitialize } from '../hooks/useInitialize'
 import { Account } from '@shared/types'
 import { useState } from 'react'
-
-enum MENU_ELEMENT {
-  PHONE,
-  EMAIL
-}
 
 export function TrayPage() {
   const [search, setSearch] = useState('')
@@ -36,35 +33,46 @@ export function TrayPage() {
     window.electron.ipcRenderer.send('openWindow', 'settings')
   }
 
+  function createSpeedDials(): void {
+    alert('Deve reindirizzare alla pagina per creare un nuovo speed dial')
+  }
+
+  function callUser(): void {
+    alert("Deve chiamare l'utente selezionato.")
+  }
+
+  function showNumberDetails(): void {
+    alert("La funzione dovrebbe mostrare i dettagli dell' utente selezionato.")
+  }
+
+  function showSignOutModal(): void {
+    alert('La funzione deve mostrare il modal di Signout.')
+  }
+
   return (
-    <div className="absolute pb-1 container text-red-50 w-full h-full overflow-hidden flex flex-col justify-end items-center">
-      {/* <Versions></Versions> */}
-      <div className="bg-gray-900 w-full p-2 z-10 rounded-lg">
-        <div className="flex flex-col gap-1">
-          <div className="flex flex-row justify-between gap-2">
-            <SearchBox handleSearch={handleSearch} handleReset={handleReset} />
-            <div className="flex flex-row justify-end gap-1 items-center mr-1">
-              <MenuButton Icon={<div />} invert={true} onClick={openSettings}></MenuButton>
-              <AvatarButton />
-            </div>
-          </div>
-          <button onClick={async () => console.log(await window.api.getSpeeddials())}>
-            getSpeeddials
-          </button>
-          <button onClick={async () => window.api.openAllSpeeddials()}>create speeddials</button>
-          <button onClick={async () => window.api.openAddToPhonebook()}>add to phonebook</button>
-          <button onClick={async () => console.log(await window.api.getLastCalls())}>
-            get last calls
-          </button>
-          <button onClick={async () => window.api.openAllCalls()}>view all calls</button>
-          {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
-          <div className="">{search}</div>
+    <div
+      className="absolute pt-[9px] container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
+      style={{ fontSize: '14px', lineHeight: '20px' }}
+    >
+      <div className="absolute rotate-45 origin-center w-[14px] h-[14px] bg-gray-900 top-[4px] rounded-[1px]"></div>
+      <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
+        <div className="flex flex-col gap-4 pt-2 pr-4 pb-4 pl-4 min-w-[350px]">
+          <Navbar
+            openSettings={openSettings}
+            handleSearch={handleSearch}
+            handleReset={handleReset}
+            showSignOutModal={showSignOutModal}
+          />
+          <SpeedDialsBox
+            title="Speed Dials"
+            onClick={createSpeedDials}
+            callUser={callUser}
+            showNumberDetails={showNumberDetails}
+            label="Create"
+          />
         </div>
+        <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
       </div>
-      {
-        //todo: set della posizione in base al tray
-      }
-      <div className="absolute rotate-45 origin-center w-[8px] h-[8px] bg-gray-900 bottom-[2px] z-0 rounded-[1px]"></div>
     </div>
   )
 }

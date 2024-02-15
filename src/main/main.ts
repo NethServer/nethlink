@@ -29,27 +29,28 @@ app.whenReady().then(() => {
 
   function toggleWindow() {
     // La tray deve chiudere solamente o la loginpage o la traypage, quindi il controllo viene eseguito solo su di loro
-    if (trayWindow.isOpen() || loginWindow.isOpen()) {
-      trayWindow.hide()
-      loginWindow.close()
-    } else {
-      if (!accountController.hasConfigsFolder()) {
-        splashScreenWindow.show()
-        accountController.createConfigFile()
-        setTimeout(() => {
-          splashScreenWindow.close()
-          loginWindow.show()
-        }, 2500)
-      } else {
-        accountController.getConfigFile()
-        accountController
-          .autologin(true)
-          .then(() => trayWindow.show())
-          .catch(() => {
-            loginWindow.show()
-          })
-      }
-    }
+    // if (trayWindow.isOpen() || loginWindow.isOpen()) {
+    //   trayWindow.hide()
+    //   loginWindow.close()
+    // } else {
+    //   if (!accountController.hasConfigsFolder()) {
+    //     splashScreenWindow.show()
+    //     accountController.createConfigFile()
+    //     setTimeout(() => {
+    //       splashScreenWindow.close()
+    //       loginWindow.show()
+    //     }, 2500)
+    //   } else {
+    //     accountController.getConfigFile()
+    //     accountController
+    //       .autologin(true)
+    //       .then(() => trayWindow.show())
+    //       .catch(() => {
+    //         loginWindow.show()
+    //       })
+    //   }
+    // }
+    trayWindow.show()
   }
 
   toggleWindow()
