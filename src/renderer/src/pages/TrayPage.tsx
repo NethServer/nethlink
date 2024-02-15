@@ -57,6 +57,8 @@ export function TrayPage() {
             get last calls
           </button>
           <button onClick={async () => window.api.openAllCalls()}>view all calls</button>
+          <button onClick={async () => window.api.openPhoneIsland(search)}>Open Phone Island</button>
+          <button onClick={async () => window.api.logout()}>Logout</button>
           {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
           <div className="">{search}</div>
         </div>

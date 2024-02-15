@@ -69,13 +69,67 @@ export class NethVoiceAPI {
     },
     logout: async () => {
       try {
-        const res = axios.post(this._joinUrl('/webrest/authentication/logout'), undefined, {
+        const res = await axios.post(this._joinUrl('/webrest/authentication/logout'), undefined, {
           headers: {
             ...this._getAuthHeader()
           }
         })
         console.log(res)
         this._account = undefined
+        return true
+      } catch (e) {
+        console.error(e)
+        throw e
+      }
+    },
+    phoneIslandTokenLogin: async (): Promise<{ token: string; username: string }> => {
+      try {
+        const res = await axios.post(
+          this._joinUrl('/webrest/authentication/phone_island_token_login'),
+          undefined,
+          {
+            headers: {
+              ...this._getAuthHeader()
+            }
+          }
+        )
+        return res.data
+      } catch (e) {
+        console.error(e)
+        throw e
+      }
+    },
+    persistantTokenRemove: async () => {
+      try {
+        const res = await axios.post(
+          this._joinUrl('/webrest/authentication/persistent_token_remove'),
+          {
+            type: 'phone-island'
+          },
+          {
+            headers: {
+              ...this._getAuthHeader()
+            }
+          }
+        )
+        console.log(res.data)
+        return true
+      } catch (e) {
+        console.error(e)
+        throw e
+      }
+    },
+    phoneIslandTokenChack: async () => {
+      try {
+        const res = await axios.get(
+          this._joinUrl('/webrest/authentication/phone_island_token_exists'),
+          {
+            headers: {
+              ...this._getAuthHeader()
+            }
+          }
+        )
+        console.log(res.data)
         return true
       } catch (e) {
         console.error(e)

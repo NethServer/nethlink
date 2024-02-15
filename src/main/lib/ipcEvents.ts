@@ -1,4 +1,5 @@
 import { AccountController, NethVoiceAPI } from '@/classes/controllers'
+import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
 import { ipcMain, shell } from 'electron'
@@ -65,5 +66,8 @@ export function registerIpcEvents() {
     console.log('get OPEN_ADD_TO_PHONEBOOK_PAGE')
     const account = AccountController.instance.getLoggedAccount()
     shell.openExternal(join(account.host, 'phonebook'))
+  })
+  ipcMain.on(IPC_EVENTS.OPEN_PHONE_ISLAND, async (event, phoneNumber) => {
+    console.log('get OPEN_PHONE_ISLAND', phoneNumber)
   })
 }

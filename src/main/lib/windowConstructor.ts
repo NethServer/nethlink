@@ -15,7 +15,8 @@ export function createWindow(
     show: false,
     fullscreenable: false,
     devPath: undefined
-  }
+  },
+  params?: Record<string, string>
 ): BrowserWindow {
   const mainWindow = new BrowserWindow({
     parent: undefined,
@@ -30,22 +31,28 @@ export function createWindow(
   })
 
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    const devServerURL = `${process.env['ELECTRON_RENDERER_URL']!}/#/${id}`
+    const propsUrl = params
+      ? Object.entries(params).reduce((p, c) => `${p}${p !== '&' ? '?' : ''}${c[0]}=${c[1]}`, '')
+      : ''
+    const devServerURL = `${process.env['ELECTRON_RENDERER_URL']!}/#/${id}${propsUrl}`
     console.log('DEV', devServerURL, id)
-    mainWindow.loadURL(devServerURL)
+    mainWindow.loadURL(devServerURL, {})
   } else {
     const fileRoute = join(__dirname, '../renderer/index.html')
     console.log('PROD', fileRoute, id)
     mainWindow.loadFile(fileRoute, {
-      hash: id
+      hash: id,
+      query: params
     })
   }
 
-  // if (is.dev) {
-  //   mainWindow.webContents.openDevTools({
-  //     mode: 'detach'
-  //   })
-  // }
+  mainWindow.on('show', () => {
+    if (is.dev) {
+      mainWindow.webContents.openDevTools({
+        mode: 'detach'
+      })
+    }
+  })
 
   return mainWindow
 }

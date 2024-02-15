@@ -25,6 +25,7 @@
     "@electron-toolkit/utils": "^3.0.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
+    "@nethesis/phone-island": "^0.7.118",
     "axios": "^1.6.7",
     "electron-updater": "^6.1.7",
     "moment": "^2.30.1",

@@ -7,25 +7,19 @@ import {
   TrayWindow
 } from '@/classes/windows'
 import { registerIpcEvents } from '@/lib/ipcEvents'
-import path from 'path'
-import { AccountController } from './classes/controllers'
+import { AccountController, NethVoiceAPI } from './classes/controllers'
+import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
+import { Account } from '@shared/types'
 
 new AccountController(app)
+new PhoneIslandController()
 const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
-  const tray = new Tray(path.join(__dirname, '../../resources/TrayLogo.png'))
-  tray.setIgnoreDoubleClickEvents(true)
-  tray.on('click', toggleWindow)
-  tray.on('right-click', () => trayRightMenu(tray))
-
   const loginWindow = new LoginWindow()
-  const phoneIslandWindow = new PhoneIslandWindow()
   const splashScreenWindow = new SplashScreenWindow()
-  const trayWindow = new TrayWindow(tray)
-  trayWindow.setBounds()
-  const settingsWindow = new SettingsWindow(/** trayWindow */)
+  const trayWindow = new TrayWindow(toggleWindow)
 
   function toggleWindow() {
     // La tray deve chiudere solamente o la loginpage o la traypage, quindi il controllo viene eseguito solo su di loro
@@ -34,8 +28,8 @@ app.whenReady().then(() => {
       loginWindow.close()
     } else {
       if (!accountController.hasConfigsFolder()) {
-        splashScreenWindow.show()
         accountController.createConfigFile()
+        splashScreenWindow.show()
         setTimeout(() => {
           splashScreenWindow.close()
           loginWindow.show()
@@ -54,25 +48,19 @@ app.whenReady().then(() => {
 
   toggleWindow()
 
-  accountController.onAccountChange(() => {
+  accountController.onAccountChange(async (account: Account | undefined) => {
     try {
       loginWindow.close()
     } catch (e) {
       console.log(e)
     }
     trayWindow.show()
+    const phoneIslandTokenLoginResponse =
+      await NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin()
+    console.log(phoneIslandTokenLoginResponse)
+    PhoneIslandController.instance.open(phoneIslandTokenLoginResponse.token)
   })
 })
-
-function trayRightMenu(tray: Tray) {
-  const menu: (MenuItemConstructorOptions | MenuItem)[] = [
-    {
-      role: 'quit',
-      accelerator: 'Command+Q'
-    }
-  ]
-  tray.popUpContextMenu(Menu.buildFromTemplate(menu))
-}
 
 app.on('window-all-closed', () => {
   app.dock?.hide()

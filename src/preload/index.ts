@@ -15,6 +15,7 @@ export interface IElectronAPI {
   getLastCalls(): Promise<any>
   openAllCalls(): void
   openAddToPhonebook(): void
+  openPhoneIsland(phoneNumber: string): void
 }
 
 // Custom APIs for renderer
@@ -27,7 +28,8 @@ const api: IElectronAPI = {
   openAllSpeeddials: () => ipcRenderer.send(IPC_EVENTS.OPEN_SPEEDDIALS_PAGE),
   getLastCalls: () => ipcRenderer.sendSync(IPC_EVENTS.GET_LAST_CALLS),
   openAllCalls: () => ipcRenderer.send(IPC_EVENTS.OPEN_ALL_CALLS_PAGE),
-  openAddToPhonebook: () => ipcRenderer.send(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE)
+  openAddToPhonebook: () => ipcRenderer.send(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE),
+  openPhoneIsland: (...args) => ipcRenderer.send(IPC_EVENTS.OPEN_PHONE_ISLAND, ...args)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -3,7 +3,7 @@ import { BaseWindow } from './BaseWindow'
 
 export class SplashScreenWindow extends BaseWindow {
   buildWindow() {
-    const size = { w: 300, h: 400 }
+    const size = { w: 400, h: 600 }
     this._window = createWindow('splahscreenpage', {
       width: size.w,
       height: size.h,
