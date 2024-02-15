@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
-import { NumberBox } from './NumberBox'
+import { NumberBox } from './Number'
 import { Button } from '@nethesis/react-components/src/components/common'
 
 export interface SpeedDialsBoxProps {

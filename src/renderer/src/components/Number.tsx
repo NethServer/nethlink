@@ -19,7 +19,7 @@ export function NumberBox({
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
-        <AvatarImage />
+        <AvatarImage className="min-w-10 min-h-10" />
         <div className="flex flex-col gap-1">
           <p className="text-gray-50">{name}</p>
           <Button className="gap-2 pt-0 pr-0 pb-0 pl-0">

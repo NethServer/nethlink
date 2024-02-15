@@ -1,3 +1,4 @@
+import { MissedCallsBox } from '@renderer/components/MissedCallsBox'
 import { Navbar } from '../components/Navbar'
 import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
@@ -8,6 +9,7 @@ import { useState } from 'react'
 export function TrayPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useState<Account>()
+  const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.PHONE)
 
   useInitialize(() => {
     initialize()
@@ -18,8 +20,6 @@ export function TrayPage() {
     const account = await window.api.getAccount()
     setAccount(() => account)
   }
-
-  const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.PHONE)
 
   async function handleSearch(searchText: string) {
     console.log(searchText)
@@ -49,6 +49,10 @@ export function TrayPage() {
     alert('La funzione deve mostrare il modal di Signout.')
   }
 
+  function viewAllMissedCalls(): void {
+    alert('Deve reindirizzare alla pagina per vedere tutte le chiamate perse.')
+  }
+
   return (
     <div
       className="absolute pt-[9px] container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
@@ -63,13 +67,21 @@ export function TrayPage() {
             handleReset={handleReset}
             showSignOutModal={showSignOutModal}
           />
-          <SpeedDialsBox
-            title="Speed Dials"
-            onClick={createSpeedDials}
-            callUser={callUser}
-            showNumberDetails={showNumberDetails}
-            label="Create"
-          />
+          {selectedMenu === MENU_ELEMENT.ZAP ? (
+            <SpeedDialsBox
+              title="Speed Dials"
+              onClick={createSpeedDials}
+              callUser={callUser}
+              showNumberDetails={showNumberDetails}
+              label="Create"
+            />
+          ) : (
+            <MissedCallsBox
+              title="Missed Calls (3)"
+              label="View all"
+              onClick={viewAllMissedCalls}
+            />
+          )}
         </div>
         <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
       </div>
