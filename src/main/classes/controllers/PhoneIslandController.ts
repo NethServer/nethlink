@@ -1,6 +1,8 @@
 import { PhoneIslandConfig } from '@shared/types'
 import { PhoneIslandWindow } from '../windows'
 import { AccountController } from './AccountController'
+import { IPC_EVENTS } from '@shared/constants'
+import { ipcMain } from 'electron'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -35,5 +37,9 @@ export class PhoneIslandController {
     } else {
       throw new Error('Incorrect configuration for the logged user')
     }
+  }
+
+  call(number: string) {
+    this.phoneIslandWindow?.getWindow()?.webContents.send(IPC_EVENTS.EMIT_START_CALL, number)
   }
 }

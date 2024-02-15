@@ -1,5 +1,6 @@
 import { AvatarButton, MenuButton, SearchBox } from '@renderer/components'
 import { useInitialize } from '@renderer/hooks/useInitialize'
+import { IPC_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
 import { useState } from 'react'
 
@@ -27,6 +28,7 @@ export function TrayPage() {
   async function handleSearch(searchText: string) {
     console.log(searchText)
     setSearch(() => searchText)
+    window.api.startCall(searchText)
   }
   async function handleReset() {
     setSearch(() => '')
@@ -57,7 +59,6 @@ export function TrayPage() {
             get last calls
           </button>
           <button onClick={async () => window.api.openAllCalls()}>view all calls</button>
-          <button onClick={async () => window.api.openPhoneIsland(search)}>Open Phone Island</button>
           <button onClick={async () => window.api.logout()}>Logout</button>
           {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
           <div className="">{search}</div>

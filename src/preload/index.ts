@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { Account } from '@shared/types'
 import { IPC_EVENTS } from '@shared/constants'
@@ -15,7 +15,8 @@ export interface IElectronAPI {
   getLastCalls(): Promise<any>
   openAllCalls(): void
   openAddToPhonebook(): void
-  openPhoneIsland(phoneNumber: string): void
+  startCall(phoneNumber: string): void
+  onStartCall(callback: (event: IpcRendererEvent, ...args: any[]) => void): void
 }
 
 // Custom APIs for renderer
@@ -29,7 +30,8 @@ const api: IElectronAPI = {
   getLastCalls: () => ipcRenderer.sendSync(IPC_EVENTS.GET_LAST_CALLS),
   openAllCalls: () => ipcRenderer.send(IPC_EVENTS.OPEN_ALL_CALLS_PAGE),
   openAddToPhonebook: () => ipcRenderer.send(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE),
-  openPhoneIsland: (...args) => ipcRenderer.send(IPC_EVENTS.OPEN_PHONE_ISLAND, ...args)
+  startCall: (...args) => ipcRenderer.send(IPC_EVENTS.START_CALL, ...args),
+  onStartCall: (callback) => ipcRenderer.on(IPC_EVENTS.EMIT_START_CALL, callback)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -67,7 +67,8 @@ export function registerIpcEvents() {
     const account = AccountController.instance.getLoggedAccount()
     shell.openExternal(join(account.host, 'phonebook'))
   })
-  ipcMain.on(IPC_EVENTS.OPEN_PHONE_ISLAND, async (event, phoneNumber) => {
+  ipcMain.on(IPC_EVENTS.START_CALL, async (event, phoneNumber) => {
     console.log('get OPEN_PHONE_ISLAND', phoneNumber)
+    PhoneIslandController.instance.call(phoneNumber)
   })
 }

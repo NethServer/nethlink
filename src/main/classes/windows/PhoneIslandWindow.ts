@@ -17,8 +17,8 @@ export class PhoneIslandWindow extends BaseWindow {
     this._window = createWindow(
       'phoneislandpage',
       {
-        width: 418,
-        height: 96,
+        width: 600,
+        height: 600,
         show: false,
         fullscreenable: false,
         autoHideMenuBar: true,
@@ -50,6 +50,9 @@ export class PhoneIslandWindow extends BaseWindow {
     this._window.show()
   }
 
+  getWindow() {
+    return this._window
+  }
   show(...args: any): void {
     const display = screen.getPrimaryDisplay()
     display.bounds.x
