@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+  -webkit-app-region: no-drag;
+}
+
+.pi-absolute:nth-child(1), .pi-pointer-events-auto {
+  transform: none !important;
+  -webkit-app-region: drag !important;
+}
+
+/* @layer base {
+  #root {
+    @apply h-full;
+  }
+
+  html,
+  body {
+    @apply h-full;
+
+    @apply select-none;
+
+    @apply overflow-hidden;
+  }
+} */

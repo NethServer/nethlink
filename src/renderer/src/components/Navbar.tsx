@@ -1,9 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchBox } from './SearchBox'
 import { faSliders } from '@fortawesome/free-solid-svg-icons'
-import { Button } from './common/Button'
-import { Avatar } from './common/Avatar'
-
+import { Button, Avatar } from '@nethesis/react-components/src/components/common'
 export interface NavabarProps {
   openSettings: () => void
   handleSearch: (searchText: string) => Promise<void>

@@ -1,6 +1,6 @@
 import { createRef, useState } from 'react'
 import { faSearch, faX } from '@fortawesome/free-solid-svg-icons'
-import { TextInput } from './common/TextInput'
+import { TextInput } from '@nethesis/react-components/src/components/common'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { icon } from '@fortawesome/fontawesome-svg-core'
 
@@ -33,7 +33,7 @@ export function SearchBox({ handleSearch, handleReset }: SearchBoxProps): JSX.El
       <TextInput
         ref={inputRef}
         placeholder="Call or compose..."
-        size="small"
+        size="base"
         className="min-h-[38px] min-w-[222px]"
         icon={faSearch}
         onChange={(e) => {

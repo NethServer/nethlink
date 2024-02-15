@@ -27,13 +27,16 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@tailwindcss/forms": "^0.5.7",
+    "@nethesis/phone-island": "^0.7.118",
+    "@nethesis/react-components": "git+https://github.com/AIDAPT/nethesis-react-components.git#main",
     "axios": "^1.6.7",
     "classnames": "^2.5.1",
     "electron-updater": "^6.1.7",
     "moment": "^2.30.1",
     "react-router-dom": "^6.21.3",
     "tailwind-scrollbar": "^3.1.0",
-    "usb": "^2.11.0"
+    "usb": "^2.11.0",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",

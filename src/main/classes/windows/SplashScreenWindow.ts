@@ -1,12 +1,13 @@
 import { createWindow } from '@/lib/windowConstructor'
+import { BaseWindow } from './BaseWindow'
 
-export class SplashScreenWindow {
-  constructor(onClose: () => void, timer: number = 2000) {
-    const size = { w: 300, h: 400 }
-    const mainWindow = createWindow('splahscreenpage', {
+export class SplashScreenWindow extends BaseWindow {
+  buildWindow() {
+    const size = { w: 400, h: 600 }
+    this._window = createWindow('splahscreenpage', {
       width: size.w,
       height: size.h,
-      show: true,
+      show: false,
       fullscreenable: false,
       autoHideMenuBar: true,
       closable: true,
@@ -30,10 +31,5 @@ export class SplashScreenWindow {
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
-
-    setTimeout(() => {
-      mainWindow.close()
-      onClose()
-    }, timer)
   }
 }

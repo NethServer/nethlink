@@ -27,13 +27,4 @@
       }
     }
   ],
-  "compounds": [
-    {
-      "name": "Debug All",
-      "configurations": ["Debug Main Process", "Debug Renderer Process"],
-      "presentation": {
-        "order": 1
-      }
-    }
-  ]
 }
