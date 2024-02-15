@@ -7,8 +7,8 @@ import {
   TrayWindow
 } from '@/classes/windows'
 import { registerIpcEvents } from '@/lib/ipcEvents'
-import path from 'path'
 import { AccountController } from './classes/controllers'
+import path from 'path'
 
 new AccountController(app)
 const accountController = AccountController.instance
