@@ -1,30 +1,32 @@
-import { PhoneIsland } from "@nethesis/phone-island";
-import { useInitialize } from "@renderer/hooks/useInitialize";
-import { IPC_EVENTS } from "@shared/constants";
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
-
+import { PhoneIsland } from '@nethesis/phone-island'
+import { useInitialize } from '@renderer/hooks/useInitialize'
+import { useState } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
 
-  const locationDom = useLocation()
   useInitialize(() => {
-    const data = locationDom.search.split('dataConfig=')[1]
-    console.log(data)
-    setDataConfig(() => data)
-
+    window.api.onDataConfigChange(updateDataConfig)
     window.api.onStartCall((e, phoneNumber) => {
       console.log('received number', phoneNumber)
-      window.dispatchEvent(new CustomEvent('phone-island-call-start', {
-        detail: {
-          number: phoneNumber
-        }
-      }))
+      window.dispatchEvent(
+        new CustomEvent('phone-island-call-start', {
+          detail: {
+            number: phoneNumber
+          }
+        })
+      )
     })
   })
 
-  return <div id={'draggable-phone-island'} className="h-[100vh] w-[100vw] *:bg-slate-50">
-    {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
-  </div>
+  function updateDataConfig(e, dataConfig: string | undefined) {
+    console.log(dataConfig)
+    setDataConfig(() => dataConfig)
+  }
+
+  return (
+    <div className="bg-white h-full w-full">
+      {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
+    </div>
+  )
 }

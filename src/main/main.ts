@@ -11,9 +11,9 @@ import { AccountController, NethVoiceAPI } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
 import { Account } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
+import { IPC_EVENTS } from '@shared/constants'
 
 new AccountController(app)
-new PhoneIslandController()
 const accountController = AccountController.instance
 registerIpcEvents()
 
@@ -23,7 +23,12 @@ app.whenReady().then(() => {
   const splashScreenWindow = new SplashScreenWindow()
   const nethConnectorWindow = new NethConnectorWindow()
 
-  function toggleWindow() {
+  const phoneIslandWindow = new PhoneIslandWindow()
+  const settingsWindow = new SettingsWindow()
+  new PhoneIslandController(phoneIslandWindow)
+
+  function toggleWindow(isOpening = false) {
+    console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
     if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
       nethConnectorWindow.hide()
@@ -41,7 +46,7 @@ app.whenReady().then(() => {
           nethConnectorWindow.show()
         } else {
           accountController
-            .autologin(true)
+            .autologin(isOpening)
             .then(() => nethConnectorWindow.show())
             .catch(() => {
               loginWindow.show()
@@ -51,19 +56,27 @@ app.whenReady().then(() => {
     }
   }
 
-  toggleWindow()
-
   accountController.onAccountChange(async (account: Account | undefined) => {
-    try {
-      loginWindow.close()
-    } catch (e) {
-      console.log(e)
+    console.log('ACCOUNT_CHANGE', account)
+    nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
+    if (account) {
+      try {
+        loginWindow.close()
+      } catch (e) {
+        console.log(e)
+      }
+      const phoneIslandTokenLoginResponse =
+        await NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin()
+      console.log(phoneIslandTokenLoginResponse)
+      PhoneIslandController.instance.updateDataConfig(phoneIslandTokenLoginResponse.token)
+    } else {
+      console.log('phonisland logout')
+      PhoneIslandController.instance.logout()
     }
-    nethConnectorWindow.show()
-    const phoneIslandTokenLoginResponse =
-      await NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin()
-    console.log(phoneIslandTokenLoginResponse)
-    PhoneIslandController.instance.open(phoneIslandTokenLoginResponse.token)
+  })
+
+  nethConnectorWindow.addOnBuildListener(() => {
+    toggleWindow(true)
   })
 })
 

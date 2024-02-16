@@ -128,6 +128,6 @@ export class AccountController {
     if (!this.config.lastUser) throw error
     const account = this.config.accounts[this.config.lastUser]
     if (!account) throw error
-    return this._tokenLogin(account, isOpening)
+    return await this._tokenLogin(account, isOpening)
   }
 }

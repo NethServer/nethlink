@@ -2,9 +2,9 @@ import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
 
 export class LoginWindow extends BaseWindow {
-  buildWindow(): void {
+  constructor() {
     const size = { w: 300, h: 400 }
-    this._window = createWindow('loginpage', {
+    super('loginpage', {
       width: size.w,
       height: size.h,
       show: false,

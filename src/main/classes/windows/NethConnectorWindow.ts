@@ -6,12 +6,7 @@ export class NethConnectorWindow extends BaseWindow {
   size: { w: number; h: number } | undefined
   constructor() {
     const size = { w: 400, h: 371 }
-    super(size)
-    this.size = size
-  }
-
-  buildWindow(size: { w: number; h: number }): void {
-    this._window = createWindow('nethconnectorpage', {
+    super('nethconnectorpage', {
       width: size.w,
       height: size.h,
       show: false,
@@ -38,6 +33,7 @@ export class NethConnectorWindow extends BaseWindow {
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
+    this.size = size
   }
 
   _setBounds() {

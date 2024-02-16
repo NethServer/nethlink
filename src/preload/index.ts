@@ -4,6 +4,13 @@ import { Account } from '@shared/types'
 import { IPC_EVENTS } from '@shared/constants'
 
 export interface IElectronAPI {
+  sendInitializationCompleted(id: string): unknown
+  onAccountChange(
+    updateAccount: (e: IpcRendererEvent, account: Account | undefined) => void
+  ): unknown
+  onDataConfigChange(
+    updateDataConfig: (event: IpcRendererEvent, dataConfig: string | undefined) => void
+  ): void
   login: (host: string, username: string, password: string) => Promise<Account>
   logout: () => void
   loadAccounts: () => Promise<Account[]>
@@ -31,7 +38,11 @@ const api: IElectronAPI = {
   openAllCalls: () => ipcRenderer.send(IPC_EVENTS.OPEN_ALL_CALLS_PAGE),
   openAddToPhonebook: () => ipcRenderer.send(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE),
   startCall: (...args) => ipcRenderer.send(IPC_EVENTS.START_CALL, ...args),
-  onStartCall: (callback) => ipcRenderer.on(IPC_EVENTS.EMIT_START_CALL, callback)
+  onStartCall: (callback) => ipcRenderer.on(IPC_EVENTS.EMIT_START_CALL, callback),
+  onDataConfigChange: (updateDataConfig) =>
+    ipcRenderer.on(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, updateDataConfig),
+  onAccountChange: (updateAccount) => ipcRenderer.on(IPC_EVENTS.ACCOUNT_CHANGE, updateAccount),
+  sendInitializationCompleted: (id) => ipcRenderer.send(IPC_EVENTS.INITIALIZATION_COMPELTED, id)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

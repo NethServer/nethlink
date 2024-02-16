@@ -2,9 +2,9 @@ import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
 
 export class SettingsWindow extends BaseWindow {
-  buildWindow() {
+  constructor() {
     const size = { w: 300, h: 400 }
-    this._window = createWindow('settingspage', {
+    super('settingspage', {
       width: size.w,
       height: size.h,
       show: false,
