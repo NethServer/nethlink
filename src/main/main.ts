@@ -23,8 +23,6 @@ app.whenReady().then(() => {
   const splashScreenWindow = new SplashScreenWindow()
   const nethConnectorWindow = new NethConnectorWindow()
 
-  nethConnectorWindow.show()
-
   function toggleWindow() {
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
     if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
@@ -39,18 +37,21 @@ app.whenReady().then(() => {
           loginWindow.show()
         }, 2500)
       } else {
-        accountController.getConfigFile()
-        accountController
-          .autologin(true)
-          .then(() => nethConnectorWindow.show())
-          .catch(() => {
-            loginWindow.show()
-          })
+        if (accountController.getLoggedAccount()) {
+          nethConnectorWindow.show()
+        } else {
+          accountController
+            .autologin(true)
+            .then(() => nethConnectorWindow.show())
+            .catch(() => {
+              loginWindow.show()
+            })
+        }
       }
     }
   }
 
-  //toggleWindow()
+  toggleWindow()
 
   accountController.onAccountChange(async (account: Account | undefined) => {
     try {
