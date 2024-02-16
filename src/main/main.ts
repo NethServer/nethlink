@@ -1,10 +1,10 @@
 import { Menu, MenuItem, MenuItemConstructorOptions, Tray, app } from 'electron'
 import {
   LoginWindow,
+  NethConnectorWindow,
   PhoneIslandWindow,
   SettingsWindow,
-  SplashScreenWindow,
-  TrayWindow
+  SplashScreenWindow
 } from '@/classes/windows'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
@@ -23,8 +23,8 @@ app.whenReady().then(() => {
   const loginWindow = new LoginWindow()
   const phoneIslandWindow = new PhoneIslandWindow()
   const splashScreenWindow = new SplashScreenWindow()
-  const trayWindow = new TrayWindow(tray)
-  trayWindow.setBounds()
+  const nethConnectorWindow = new NethConnectorWindow(tray)
+  nethConnectorWindow.setBounds()
   const settingsWindow = new SettingsWindow(/** trayWindow */)
 
   function toggleWindow() {
@@ -50,7 +50,7 @@ app.whenReady().then(() => {
     //       })
     //   }
     // }
-    trayWindow.show()
+    nethConnectorWindow.show()
   }
 
   toggleWindow()
@@ -61,7 +61,7 @@ app.whenReady().then(() => {
     } catch (e) {
       console.log(e)
     }
-    trayWindow.show()
+    nethConnectorWindow.show()
   })
 })
 

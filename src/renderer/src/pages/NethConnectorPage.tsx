@@ -6,7 +6,7 @@ import { useInitialize } from '../hooks/useInitialize'
 import { Account } from '@shared/types'
 import { useState } from 'react'
 
-export function TrayPage() {
+export function NethConnectorPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useState<Account>()
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.PHONE)

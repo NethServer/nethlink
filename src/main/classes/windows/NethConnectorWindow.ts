@@ -2,7 +2,7 @@ import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
 import { Tray } from 'electron'
 
-export class TrayWindow extends BaseWindow {
+export class NethConnectorWindow extends BaseWindow {
   tray: Tray
   size: { w: number; h: number } | undefined
   constructor(tray: Tray) {
@@ -12,7 +12,7 @@ export class TrayWindow extends BaseWindow {
 
   buildWindow(): void {
     this.size = { w: 400, h: 371 }
-    this._window = createWindow('traypage', {
+    this._window = createWindow('nethconnectorpage', {
       width: this.size.w,
       height: this.size.h,
       alwaysOnTop: true
