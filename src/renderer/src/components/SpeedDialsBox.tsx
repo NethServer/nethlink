@@ -22,13 +22,11 @@ export function SpeedDialsBox({
 }: SpeedDialsBoxProps): JSX.Element {
   const [speeddials, setSpeeddials] = useState<any[]>()
   useInitialize(() => {
-    getSpeeddials()
+    window.api.onReceiveSpeeddials(saveSpeeddials)
   })
 
-  async function getSpeeddials() {
-    const response = await window.api.getSpeeddials()
-    console.log(response)
-    setSpeeddials(() => response)
+  async function saveSpeeddials(speeddialsResponse: any) {
+    setSpeeddials(() => speeddialsResponse)
   }
 
   return (

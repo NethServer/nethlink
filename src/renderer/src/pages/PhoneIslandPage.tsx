@@ -1,5 +1,6 @@
 import { PhoneIsland } from '@nethesis/phone-island'
 import { useInitialize } from '@renderer/hooks/useInitialize'
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { useState } from 'react'
 
 export function PhoneIslandPage() {
@@ -17,6 +18,25 @@ export function PhoneIslandPage() {
         })
       )
     })
+
+    console.log(window.api)
+
+    const events = [
+      PHONE_ISLAND_EVENTS['phone-island-main-presence'],
+      PHONE_ISLAND_EVENTS['phone-island-conversations'],
+      PHONE_ISLAND_EVENTS['phone-island-queue-update'],
+      PHONE_ISLAND_EVENTS['phone-island-queue-member-update'],
+      PHONE_ISLAND_EVENTS['phone-island-user-already-login'],
+      PHONE_ISLAND_EVENTS['phone-island-server-reloaded'],
+      PHONE_ISLAND_EVENTS['phone-island-server-disconnected'],
+      PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'],
+      PHONE_ISLAND_EVENTS['phone-island-parking-update'],
+    ]
+    events.forEach((e) => {
+      //console.log('register', e, window.api[e])
+      window.addEventListener(e, (ev) => window.api[e](ev['detail']))
+
+    })
   })
 
   function updateDataConfig(e, dataConfig: string | undefined) {
@@ -30,3 +50,4 @@ export function PhoneIslandPage() {
     </div>
   )
 }
+

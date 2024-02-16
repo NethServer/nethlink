@@ -1,5 +1,11 @@
 import { app } from 'electron'
-import { LoginWindow, NethConnectorWindow, SplashScreenWindow } from '@/classes/windows'
+import {
+  LoginWindow,
+  NethConnectorWindow,
+  PhoneIslandWindow,
+  SettingsWindow,
+  SplashScreenWindow
+} from '@/classes/windows'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, NethVoiceAPI } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'

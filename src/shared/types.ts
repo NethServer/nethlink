@@ -84,3 +84,32 @@ export type UserSettings = {
   open_ccard: 'enabled' | 'disabled'
   chat_notifications: true
 }
+
+export type HistoryCallData = {
+  count: number
+  rows: CallData[]
+}
+export type CallData = {
+  time: number
+  channel: string
+  dstchannel: string
+  uniqueid: string
+  linkedid: string
+  userfield: string
+  duration: number
+  billsec: number
+  disposition: string
+  dcontext: string
+  lastapp: string
+  recordingfile: string
+  cnum: string
+  cnam: string
+  ccompany: string
+  src: string
+  dst: string
+  dst_cnam: string
+  dst_ccompany: string
+  clid: string
+  direction: string
+  queue: null
+}

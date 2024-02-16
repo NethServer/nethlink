@@ -45,6 +45,10 @@ export class BaseWindow {
   async addOnBuildListener(callback: () => void) {
     this._callbacks.push(callback)
   }
+
+  async addListener(event: string, callback: (...args: any[]) => void) {
+    this._window!.webContents.ipc.on(event, callback)
+  }
 }
 
 async function timer(time) {

@@ -1,48 +1,95 @@
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { Account } from '@shared/types'
-import { IPC_EVENTS } from '@shared/constants'
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 
 export interface IElectronAPI {
   sendInitializationCompleted(id: string): unknown
   onAccountChange(
-    updateAccount: (e: IpcRendererEvent, account: Account | undefined) => void
+    updateAccount: (
+      e: IpcRendererEvent,
+      account: import('@shared/types').Account | undefined
+    ) => void
   ): unknown
   onDataConfigChange(
     updateDataConfig: (event: IpcRendererEvent, dataConfig: string | undefined) => void
   ): void
-  login: (host: string, username: string, password: string) => Promise<Account>
+  onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => Promise<void>): unknown
+  onReciveLastCalls(
+    saveMissedCalls: (historyResponse: import('@shared/types').HistoryCallData) => Promise<void>
+  ): unknown
+  login: (
+    host: string,
+    username: string,
+    password: string
+  ) => Promise<import('@shared/types').Account>
   logout: () => void
-  loadAccounts: () => Promise<Account[]>
-  getAccount: () => Promise<Account>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getSpeeddials(): Promise<any>
-  openAllSpeeddials(): void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getLastCalls(): Promise<any>
-  openAllCalls(): void
-  openAddToPhonebook(): void
+  loadAccounts: () => Promise<import('@shared/types').Account[]>
   startCall(phoneNumber: string): void
   onStartCall(callback: (event: IpcRendererEvent, ...args: any[]) => void): void
+
+  (funcName: PHONE_ISLAND_EVENTS): () => void
 }
 
+function addListener(event) {
+  return (callback) => ipcRenderer.on(event, callback)
+}
+
+function setEmitterSync(event) {
+  return (...args) => ipcRenderer.sendSync(event, ...args)
+}
+
+function setEmitter(event) {
+  return (...args) => {
+    ipcRenderer.send(event, ...args)
+  }
+}
+// @ts-ignore (define in dts)
 // Custom APIs for renderer
 const api: IElectronAPI = {
-  login: (...args) => ipcRenderer.sendSync(IPC_EVENTS.LOGIN, ...args),
-  logout: () => ipcRenderer.send(IPC_EVENTS.LOGOUT),
-  getAccount: () => ipcRenderer.sendSync(IPC_EVENTS.GET_ACCOUNT),
-  loadAccounts: () => ipcRenderer.sendSync(IPC_EVENTS.LOAD_ACCOUNTS),
-  getSpeeddials: () => ipcRenderer.sendSync(IPC_EVENTS.GET_SPEED_DIALS),
-  openAllSpeeddials: () => ipcRenderer.send(IPC_EVENTS.OPEN_SPEEDDIALS_PAGE),
-  getLastCalls: () => ipcRenderer.sendSync(IPC_EVENTS.GET_LAST_CALLS),
-  openAllCalls: () => ipcRenderer.send(IPC_EVENTS.OPEN_ALL_CALLS_PAGE),
-  openAddToPhonebook: () => ipcRenderer.send(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE),
-  startCall: (...args) => ipcRenderer.send(IPC_EVENTS.START_CALL, ...args),
-  onStartCall: (callback) => ipcRenderer.on(IPC_EVENTS.EMIT_START_CALL, callback),
-  onDataConfigChange: (updateDataConfig) =>
-    ipcRenderer.on(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, updateDataConfig),
-  onAccountChange: (updateAccount) => ipcRenderer.on(IPC_EVENTS.ACCOUNT_CHANGE, updateAccount),
-  sendInitializationCompleted: (id) => ipcRenderer.send(IPC_EVENTS.INITIALIZATION_COMPELTED, id)
+  //SYNC EMITTERS - expect response
+  login: setEmitterSync(IPC_EVENTS.LOGIN),
+  loadAccounts: setEmitterSync(IPC_EVENTS.LOAD_ACCOUNTS),
+
+  //EMITTER - only emit, no response
+  logout: setEmitter(IPC_EVENTS.LOGOUT),
+  startCall: setEmitter(IPC_EVENTS.START_CALL),
+  sendInitializationCompleted: setEmitter(IPC_EVENTS.INITIALIZATION_COMPELTED),
+
+  //LISTENERS - receive data async
+  onStartCall: addListener(IPC_EVENTS.EMIT_START_CALL),
+  onDataConfigChange: addListener(IPC_EVENTS.ON_DATA_CONFIG_CHANGE),
+  onAccountChange: addListener(IPC_EVENTS.ACCOUNT_CHANGE),
+  onReceiveSpeeddials: addListener(IPC_EVENTS.RECEIVE_SPEEDDIALS),
+  onReciveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
+
+  //PHONE ISLAND EVENTS:
+  [`${PHONE_ISLAND_EVENTS['phone-island-main-presence']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-main-presence']
+  ),
+  [`${PHONE_ISLAND_EVENTS['phone-island-conversations']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-conversations']
+  ),
+  [`${PHONE_ISLAND_EVENTS['phone-island-queue-update']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-queue-update']
+  ),
+  [`${PHONE_ISLAND_EVENTS['phone-island-queue-member-update']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-queue-member-update']
+  ),
+  [`${PHONE_ISLAND_EVENTS['phone-island-user-already-login']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-user-already-login']
+  ),
+  [`${PHONE_ISLAND_EVENTS['phone-island-server-reloaded']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-server-reloaded']
+  ),
+  [`${PHONE_ISLAND_EVENTS['phone-island-server-disconnected']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-server-disconnected']
+  ),
+  [`${PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']
+  ),
+  [`${PHONE_ISLAND_EVENTS['phone-island-parking-update']}`]: setEmitter(
+    PHONE_ISLAND_EVENTS['phone-island-parking-update']
+  )
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

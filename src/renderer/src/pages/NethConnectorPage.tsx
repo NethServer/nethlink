@@ -30,6 +30,7 @@ export function NethConnectorPage() {
     console.log(searchText)
     setSearch(() => searchText)
     window.api.startCall(searchText)
+    console.log()
   }
   async function handleReset() {
     setSearch(() => '')
@@ -93,17 +94,7 @@ export function NethConnectorPage() {
                   onClick={viewAllMissedCalls}
                 />
               )}
-              <button onClick={async () => console.log()}>getSpeeddials</button>
-              <button onClick={async () => window.api.openAllSpeeddials()}>
-                create speeddials
-              </button>
-              <button onClick={async () => window.api.openAddToPhonebook()}>
-                add to phonebook
-              </button>
-              <button onClick={async () => console.log(await window.api.getLastCalls())}>
-                get last calls
-              </button>
-              <button onClick={async () => window.api.openAllCalls()}>view all calls</button>
+
               <button onClick={async () => window.api.logout()}>Logout</button>
               {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
               <div className="">{search}</div>

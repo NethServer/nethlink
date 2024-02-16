@@ -6,8 +6,8 @@ import { MissedCallIcon } from '@renderer/icons/MissedCallIcon'
 
 export interface MissedCallProps {
   name: string
-  number: number
-  time: string
+  number: string
+  time: number
 }
 
 export function MissedCall({ name, number, time }: MissedCallProps): JSX.Element {

@@ -14,6 +14,7 @@ const defaultConfig: ConfigFile = {
 }
 
 export class AccountController {
+  private _authPollingInterval: NodeJS.Timeout | undefined
   listAvailableAccounts(): any {
     throw new Error('Method not implemented.')
   }
@@ -129,5 +130,24 @@ export class AccountController {
     const account = this.config.accounts[this.config.lastUser]
     if (!account) throw error
     return await this._tokenLogin(account, isOpening)
+  }
+
+  startAuthPolling() {
+    if (!this._authPollingInterval) {
+      this._authPollingInterval = setInterval(
+        () => {
+          const account = this.config!.accounts[this.config!.lastUser!]
+          this._tokenLogin(account)
+          // Set timer to 45 minutes
+        },
+        1000 * 45 * 60
+      )
+    } else {
+      throw new Error('Auth Polling is already started')
+    }
+  }
+
+  stopAuthPolling() {
+    clearInterval(this._authPollingInterval)
   }
 }
