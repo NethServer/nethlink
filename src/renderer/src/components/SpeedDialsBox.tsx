@@ -1,14 +1,16 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
-import { NumberBox } from './Number'
+import { NumberBox } from './NumberBox'
 import { Button } from '@nethesis/react-components/src/components/common'
+import { useInitialize } from '@renderer/hooks/useInitialize'
+import { useState } from 'react'
 
 export interface SpeedDialsBoxProps {
   title: string
   label?: string
   onClick?: () => void
-  callUser: () => void
-  showNumberDetails: () => void
+  callUser: (phoneNumber: string) => void
+  showNumberDetails: (elem: any) => void
 }
 
 export function SpeedDialsBox({
@@ -18,6 +20,17 @@ export function SpeedDialsBox({
   callUser,
   showNumberDetails
 }: SpeedDialsBoxProps): JSX.Element {
+  const [speeddials, setSpeeddials] = useState<any[]>()
+  useInitialize(() => {
+    getSpeeddials()
+  })
+
+  async function getSpeeddials() {
+    const response = await window.api.getSpeeddials()
+    console.log(response)
+    setSpeeddials(() => response)
+  }
+
   return (
     <div className="flex flex-col gap-4 min-h-[284px]">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 border-gray-700 font-semibold max-h-[28px]">
@@ -28,36 +41,19 @@ export function SpeedDialsBox({
         </Button>
       </div>
       <div className="flex flex-col gap-2 p-2 min-h-[240px]">
-        <div className="border-b pb-2 border-gray-700">
-          <NumberBox
-            name="Nome Utente"
-            number={3275757265}
-            callUser={callUser}
-            showNumberDetails={showNumberDetails}
-          />
-        </div>
-        <div className="border-b pb-2 border-gray-700">
-          <NumberBox
-            name="Nome Utente"
-            number={3275757265}
-            callUser={callUser}
-            showNumberDetails={showNumberDetails}
-          />
-        </div>
-        <div className="border-b pb-2 border-gray-700">
-          <NumberBox
-            name="Nome Utente"
-            number={3275757265}
-            callUser={callUser}
-            showNumberDetails={showNumberDetails}
-          />
-        </div>
-        <NumberBox
-          name="Nome Utente"
-          number={3275757265}
-          callUser={callUser}
-          showNumberDetails={showNumberDetails}
-        />
+        {/**Aggiungere props */}
+        {speeddials?.map((e, idx) => {
+          return (
+            <div className="border-b pb-2 border-gray-700" key={idx}>
+              <NumberBox
+                name={e.name}
+                number={e.speeddial_num}
+                callUser={() => callUser(e.speeddial_num)}
+                showNumberDetails={() => showNumberDetails(e)}
+              />
+            </div>
+          )
+        })}
       </div>
     </div>
   )

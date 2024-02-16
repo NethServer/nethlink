@@ -1,61 +1,102 @@
 import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
-import { Tray } from 'electron'
+import { BrowserWindow, Menu, MenuItem, screen } from 'electron'
 
 export class NethConnectorWindow extends BaseWindow {
-  tray: Tray
   size: { w: number; h: number } | undefined
-  constructor(tray: Tray) {
-    super()
-    this.tray = tray
+  constructor() {
+    const size = { w: 400, h: 371 }
+    super(size)
+    this.size = size
   }
 
-  buildWindow(): void {
-    this.size = { w: 400, h: 371 }
+  buildWindow(size: { w: number; h: number }): void {
     this._window = createWindow('nethconnectorpage', {
-      width: this.size.w,
-      height: this.size.h,
-      alwaysOnTop: true
-      // show: false,
-      // fullscreenable: false,
-      // autoHideMenuBar: true,
-      // closable: true,
-      // alwaysOnTop: true,
-      // minimizable: false,
-      // maximizable: false,
-      // movable: false,
-      // resizable: false,
-      // skipTaskbar: true,
-      // titleBarStyle: 'hidden',
-      // roundedCorners: false,
-      // parent: undefined,
-      // transparent: true,
-      // hiddenInMissionControl: true,
-      // hasShadow: false,
-      // center: true,
-      // fullscreen: false,
-      // acceptFirstMouse: false,
-      // frame: false,
-      // //tabbingIdentifier: 'nethconnector',
-      // thickFrame: false,
-      // trafficLightPosition: { x: 0, y: 0 }
+      width: size.w,
+      height: size.h,
+      show: false,
+      fullscreenable: false,
+      autoHideMenuBar: true,
+      closable: true,
+      alwaysOnTop: true,
+      minimizable: false,
+      maximizable: false,
+      movable: false,
+      resizable: false,
+      skipTaskbar: true,
+      titleBarStyle: 'hidden',
+      roundedCorners: false,
+      parent: undefined,
+      transparent: true,
+      hiddenInMissionControl: true,
+      hasShadow: false,
+      center: false,
+      fullscreen: false,
+      acceptFirstMouse: false,
+      frame: false,
+      //tabbingIdentifier: 'nethconnector',
+      thickFrame: false,
+      trafficLightPosition: { x: 0, y: 0 }
     })
   }
 
-  setBounds() {
-    const trayBounds = this.tray.getBounds()
-    const x = Math.round(trayBounds.x + trayBounds.width / 2)
-    const y = Math.round(trayBounds.y)
+  _setBounds() {
+    const primaryDisply = screen.getPrimaryDisplay()
+    const screenBounds = primaryDisply.bounds
+    console.log(screenBounds)
+    //const trayBounds = this.tray.getBounds()
     const { w, h } = this.size!
+    const x = Math.round(screenBounds.width - w - 8)
+    const y = Math.round(screenBounds.height - 50)
+    //if (y > 100 && !shown) {
+    //  //shown = true
+    //  this.tray.displayBalloon({
+    //    title: 'NethConnector',
+    //    content:
+    //      "Neth Connector é stato avviato. Ricordati di impostare la visibilità dell'icona a 'sempre visibile'"
+    //  })
+    //}
     const bound = {
-      x: x - w / 2,
+      x: x,
       y: y + h * (process.platform === 'win32' ? -1 : 1),
       w,
       h
     }
+    console.log(bound)
     this._window?.setBounds(bound, false)
+  }
+
+  show(): void {
+    this._setBounds()
+    super.show()
     this._window?.setVisibleOnAllWorkspaces(true)
     this._window?.focus()
     this._window?.setVisibleOnAllWorkspaces(false)
   }
+}
+
+const item: MenuItem = {
+  role: 'services',
+  checked: false,
+  click: _makePriorityIcon,
+  commandId: 0,
+  enabled: false,
+  id: '',
+  label: 'Rendi sempre visibile',
+  menu: new Menu(),
+  registerAccelerator: false,
+  sublabel: '',
+  toolTip: '',
+  type: 'normal',
+  userAccelerator: null,
+  visible: false,
+  sharingItem: {}
+}
+
+function _makePriorityIcon(
+  menuItem: MenuItem,
+  browserWindow: BrowserWindow | undefined,
+  event: KeyboardEvent
+): void {
+  throw new Error('Function not implemented.')
 }

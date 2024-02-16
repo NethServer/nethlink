@@ -24,28 +24,32 @@ export function NethConnectorPage() {
   async function handleSearch(searchText: string) {
     console.log(searchText)
     setSearch(() => searchText)
+    window.api.startCall(searchText)
   }
   async function handleReset() {
     setSearch(() => '')
   }
 
   function openSettings() {
-    window.electron.ipcRenderer.send('openWindow', 'settings')
+    alert('aprire modale')
+    //window.electron.ipcRenderer.send('openWindow', 'settings')
   }
 
   function createSpeedDials(): void {
     alert('Deve reindirizzare alla pagina per creare un nuovo speed dial')
   }
 
-  function callUser(): void {
-    alert("Deve chiamare l'utente selezionato.")
+  function callUser(phoneNumber: string): void {
+    //window.api.startCall(phoneNumber)
+    alert(`Deve chiamare l'utente selezionato. ${phoneNumber}`)
   }
 
-  function showNumberDetails(): void {
-    alert("La funzione dovrebbe mostrare i dettagli dell' utente selezionato.")
+  function showNumberDetails(e: any): void {
+    alert(`La funzione dovrebbe mostrare i dettagli dell' utente selezionato. ${e}`)
   }
 
   function showSignOutModal(): void {
+    //window.api.logout()
     alert('La funzione deve mostrare il modal di Signout.')
   }
 
@@ -82,6 +86,16 @@ export function NethConnectorPage() {
               onClick={viewAllMissedCalls}
             />
           )}
+          <button onClick={async () => console.log()}>getSpeeddials</button>
+          <button onClick={async () => window.api.openAllSpeeddials()}>create speeddials</button>
+          <button onClick={async () => window.api.openAddToPhonebook()}>add to phonebook</button>
+          <button onClick={async () => console.log(await window.api.getLastCalls())}>
+            get last calls
+          </button>
+          <button onClick={async () => window.api.openAllCalls()}>view all calls</button>
+          <button onClick={async () => window.api.logout()}>Logout</button>
+          {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
+          <div className="">{search}</div>
         </div>
         <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
       </div>

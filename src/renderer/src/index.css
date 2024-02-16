@@ -2,7 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
+* {
+  -webkit-app-region: no-drag;
+}
+
+.pi-absolute:nth-child(1), .pi-pointer-events-auto {
+  transform: none !important;
+  -webkit-app-region: drag !important;
+}
+
+/* @layer base {
   #root {
     @apply h-full;
   }
@@ -15,4 +24,4 @@
 
     @apply overflow-hidden;
   }
-}
+} */

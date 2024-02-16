@@ -31,7 +31,7 @@ export function SearchBox({ handleSearch, handleReset }: SearchBoxProps): JSX.El
     //TODO guardare come modificare il colore
     <TextInput
       rounded="base"
-      icon={faSearch}
+      //icon={faSearch}
       ref={inputRef}
       type="text"
       placeholder="Call or compose..."

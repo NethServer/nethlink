@@ -1,6 +1,6 @@
 import { join } from 'path'
 import fs from 'fs'
-import { Account, ConfigFile } from '@shared/types'
+import { Account, ConfigFile, AccountData } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
 
 const defaultConfig: ConfigFile = {
@@ -17,11 +17,21 @@ export class AccountController {
   listAvailableAccounts(): any {
     throw new Error('Method not implemented.')
   }
-  logout() {
-    throw new Error('Method not implemented.')
+  async logout() {
+    const account = this.getLoggedAccount()
+    const api = new NethVoiceAPI(account!.host, account)
+    api.Authentication.logout()
+      .then((response) => {
+        if (response) console.log(`${account!.username} logout succesfully`)
+        else console.log(`an error occurred when logout`)
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+    this._saveNewAccountData(undefined, false)
   }
   _app: Electron.App | undefined
-  _onAccountChange: ((account: Account) => void) | undefined
+  _onAccountChange: ((account: Account | undefined) => void) | undefined
   config: ConfigFile | undefined
   static instance: AccountController
 
@@ -37,21 +47,33 @@ export class AccountController {
     return { BASE_URL, CONFIG_PATH, CONFIG_FILE }
   }
 
-  _saveNewAccountData(account: Account, isOpening: boolean) {
+  _saveNewAccountData(account: Account | undefined, isOpening: boolean) {
     const { CONFIG_FILE } = this._getPaths()
-    console.log('save account', this.config!.lastUser, account.username, isOpening)
-    if (this.config!.lastUser !== account.username || isOpening) {
-      this._onAccountChange!(account)
+    const config = this._getConfigFile()
+    console.log('save account', config.lastUser, account?.username, isOpening)
+    if (account) {
+      if (config.lastUser !== account.username || isOpening) {
+        this._onAccountChange!(account)
+      }
+      config.accounts[account.username] = account
+      config.lastUser = account.username
+    } else {
+      if (config.lastUser) {
+        config.accounts[config.lastUser].accessToken = undefined
+      }
+      config.lastUser = undefined
     }
-    this.config!.accounts[account.username] = account
-    this.config!.lastUser = account.username
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(this.config), 'utf-8')
+    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config), 'utf-8')
+    this.config = config
   }
 
   getLoggedAccount() {
-    return this.config!.accounts[this.config!.lastUser!]
+    if (this.config?.lastUser) {
+      return this.config!.accounts[this.config!.lastUser!]
+    }
+    return undefined
   }
-  async _tokenLogin(account: Account, isOpening: boolean = false): Promise<Account> {
+  async _tokenLogin(account: Account, isOpening = false): Promise<Account> {
     const api = new NethVoiceAPI(account.host, account)
     const loggedAccount = await api.User.me()
     this._saveNewAccountData(loggedAccount, isOpening)
@@ -65,7 +87,7 @@ export class AccountController {
     return loggedAccount
   }
 
-  onAccountChange(callback: (account: Account) => void) {
+  onAccountChange(callback: (account: Account | undefined) => void) {
     this._onAccountChange = callback
   }
 
@@ -87,7 +109,7 @@ export class AccountController {
     }
   }
 
-  getConfigFile(): ConfigFile {
+  _getConfigFile(): ConfigFile {
     const { CONFIG_FILE } = this._getPaths()
 
     if (this.hasConfigsFolder()) {
@@ -99,7 +121,8 @@ export class AccountController {
     }
   }
 
-  async autologin(isOpening: boolean = false): Promise<Account> {
+  async autologin(isOpening = false): Promise<Account> {
+    this._getConfigFile()
     const error = new Error('Unable to login')
     if (!this.config) throw error
     if (!this.config.lastUser) throw error

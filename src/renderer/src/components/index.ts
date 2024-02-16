@@ -1,2 +1,2 @@
-export * from './AvatarImage'
+export * from './AvatarButton'
 export * from './SearchBox'

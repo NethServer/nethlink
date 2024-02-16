@@ -7,73 +7,65 @@ import {
   SplashScreenWindow
 } from '@/classes/windows'
 import { registerIpcEvents } from '@/lib/ipcEvents'
-import { AccountController } from './classes/controllers'
-import path from 'path'
+import { AccountController, NethVoiceAPI } from './classes/controllers'
+import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
+import { Account } from '@shared/types'
+import { TrayController } from './classes/controllers/TrayController'
 
 new AccountController(app)
+new PhoneIslandController()
 const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
-  const tray = new Tray(path.join(__dirname, '../../resources/TrayLogo.png'))
-  tray.setIgnoreDoubleClickEvents(true)
-  tray.on('click', toggleWindow)
-  tray.on('right-click', () => trayRightMenu(tray))
-
+  const trayController = new TrayController(toggleWindow)
   const loginWindow = new LoginWindow()
-  const phoneIslandWindow = new PhoneIslandWindow()
   const splashScreenWindow = new SplashScreenWindow()
-  const nethConnectorWindow = new NethConnectorWindow(tray)
-  nethConnectorWindow.setBounds()
-  const settingsWindow = new SettingsWindow(/** trayWindow */)
+  const nethConnectorWindow = new NethConnectorWindow()
 
   function toggleWindow() {
-    // La tray deve chiudere solamente o la loginpage o la traypage, quindi il controllo viene eseguito solo su di loro
-    // if (trayWindow.isOpen() || loginWindow.isOpen()) {
-    //   trayWindow.hide()
-    //   loginWindow.close()
-    // } else {
-    //   if (!accountController.hasConfigsFolder()) {
-    //     splashScreenWindow.show()
-    //     accountController.createConfigFile()
-    //     setTimeout(() => {
-    //       splashScreenWindow.close()
-    //       loginWindow.show()
-    //     }, 2500)
-    //   } else {
-    //     accountController.getConfigFile()
-    //     accountController
-    //       .autologin(true)
-    //       .then(() => trayWindow.show())
-    //       .catch(() => {
-    //         loginWindow.show()
-    //       })
-    //   }
-    // }
-    nethConnectorWindow.show()
+    // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
+    if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
+      nethConnectorWindow.hide()
+      loginWindow.close()
+    } else {
+      if (!accountController.hasConfigsFolder()) {
+        accountController.createConfigFile()
+        splashScreenWindow.show()
+        setTimeout(() => {
+          splashScreenWindow.close()
+          loginWindow.show()
+        }, 2500)
+      } else {
+        if (accountController.getLoggedAccount()) {
+          nethConnectorWindow.show()
+        } else {
+          accountController
+            .autologin(true)
+            .then(() => nethConnectorWindow.show())
+            .catch(() => {
+              loginWindow.show()
+            })
+        }
+      }
+    }
   }
 
   toggleWindow()
 
-  accountController.onAccountChange(() => {
+  accountController.onAccountChange(async (account: Account | undefined) => {
     try {
       loginWindow.close()
     } catch (e) {
       console.log(e)
     }
     nethConnectorWindow.show()
+    const phoneIslandTokenLoginResponse =
+      await NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin()
+    console.log(phoneIslandTokenLoginResponse)
+    PhoneIslandController.instance.open(phoneIslandTokenLoginResponse.token)
   })
 })
-
-function trayRightMenu(tray: Tray) {
-  const menu: (MenuItemConstructorOptions | MenuItem)[] = [
-    {
-      role: 'quit',
-      accelerator: 'Command+Q'
-    }
-  ]
-  tray.popUpContextMenu(Menu.buildFromTemplate(menu))
-}
 
 app.on('window-all-closed', () => {
   app.dock?.hide()

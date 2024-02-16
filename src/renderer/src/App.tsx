@@ -1,6 +1,12 @@
 import { Routes, Route, Outlet, HashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
-import { LoginPage, NethConnectorPage, PhoneIslandPage, SettingsPage } from '@/pages'
+import {
+  LoginPage,
+  PhoneIslandPage,
+  SettingsPage,
+  SplashScreenPage,
+  NethConnectorPage
+} from '@/pages'
 
 function Layout() {
   return (
@@ -19,7 +25,7 @@ function RoutesWrapper() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route path="nethconnectorpage" element={<NethConnectorPage />} />
-        <Route path="splahscreenpage" element={<SettingsPage />} />
+        <Route path="splahscreenpage" element={<SplashScreenPage />} />
         <Route path="loginpage" element={<LoginPage />} />
         <Route path="settingspage" element={<SettingsPage />} />
         <Route path="phoneislandpage" element={<PhoneIslandPage />} />
