@@ -2,9 +2,9 @@ import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
 
 export class SplashScreenWindow extends BaseWindow {
-  buildWindow() {
+  constructor() {
     const size = { w: 400, h: 600 }
-    this._window = createWindow('splahscreenpage', {
+    super('splahscreenpage', {
       width: size.w,
       height: size.h,
       show: false,

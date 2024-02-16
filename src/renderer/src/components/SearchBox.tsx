@@ -1,56 +1,49 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MenuButton } from './MenuButton'
 import { createRef, useState } from 'react'
+import { TextInput } from '@nethesis/react-components/src/components/common'
 
-export type SearchBoxProps = {
+export interface SearchBoxProps {
   handleSearch: (searchText: string) => Promise<void>
   handleReset: () => void
 }
 
-export function SearchBox({ handleSearch, handleReset }: SearchBoxProps) {
+export function SearchBox({ handleSearch, handleReset }: SearchBoxProps): JSX.Element {
   const [showReset, setShowReset] = useState(false)
 
   const inputRef = createRef<HTMLInputElement>()
 
-  function testReset() {
+  function testReset(): void {
     setShowReset(!!inputRef.current?.value)
   }
 
-  function reset() {
+  function reset(): void {
     inputRef.current!.value = ''
     handleReset()
     testReset()
   }
 
-  function submit() {
+  function submit(): void {
     handleSearch(inputRef.current!.value)
   }
 
   return (
-    <div className="flex flex-row items-center relative">
-      <MenuButton Icon={<div />} invert onClick={submit} />
-      <input
-        ref={inputRef}
-        type="text"
-        placeholder="Search"
-        className={`text-white bg-transparent focus-visible:outline-none w-full mr-8`}
-        onChange={(e) => {
-          inputRef.current!.value = e.target.value
-          testReset()
-        }}
-        onSubmit={submit}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            submit()
-          }
-        }}
-      ></input>
-      <MenuButton
-        Icon={<div />}
-        className={`absolute right-[0] ${showReset ? 'visible' : 'hidden'}`}
-        invert
-        onClick={reset}
-      />
-    </div>
+    //TODO guardare come modificare il colore
+    <TextInput
+      rounded="base"
+      //icon={faSearch}
+      ref={inputRef}
+      type="text"
+      placeholder="Call or compose..."
+      onChange={(e) => {
+        inputRef.current!.value = e.target.value
+        testReset()
+      }}
+      onSubmit={submit}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          submit()
+        }
+      }}
+      className="min-w-[222px] focus-visible:outline-none"
+    />
   )
 }

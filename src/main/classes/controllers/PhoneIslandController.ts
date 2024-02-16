@@ -7,21 +7,22 @@ import { ipcMain } from 'electron'
 export class PhoneIslandController {
   static instance: PhoneIslandController
 
-  phoneIslandWindow: PhoneIslandWindow | undefined
+  phoneIslandWindow: PhoneIslandWindow
 
-  constructor() {
+  constructor(phoneIslandWindow: PhoneIslandWindow) {
     PhoneIslandController.instance = this
+    this.phoneIslandWindow = phoneIslandWindow
+    this._addListeners()
   }
 
-  open(token: string) {
-    if (this.phoneIslandWindow) this.phoneIslandWindow.close()
+  updateDataConfig(token: string) {
     const account = AccountController.instance.getLoggedAccount()
-    const webRTCExtension = account.data!.endpoints.extension.find((el) => el.type === 'webrtc')
+    const webRTCExtension = account!.data!.endpoints.extension.find((el) => el.type === 'webrtc')
     if (webRTCExtension) {
-      const hostname = account.host.split('://')[1]
+      const hostname = account!.host.split('://')[1]
       const config: PhoneIslandConfig = {
         hostname,
-        username: account.username,
+        username: account!.username,
         authToken: token,
         sipExten: webRTCExtension.id,
         sipSecret: webRTCExtension.secret,
@@ -32,14 +33,19 @@ export class PhoneIslandController {
       const dataConfig = btoa(
         `${config.hostname}:${config.username}:${config.authToken}:${config.sipExten}:${config.sipSecret}:${config.sipHost}:${config.sipPort}`
       )
-      this.phoneIslandWindow = new PhoneIslandWindow({ dataConfig })
-      this.phoneIslandWindow.show()
+      this.phoneIslandWindow.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, dataConfig)
     } else {
       throw new Error('Incorrect configuration for the logged user')
     }
   }
 
   call(number: string) {
-    this.phoneIslandWindow?.getWindow()?.webContents.send(IPC_EVENTS.EMIT_START_CALL, number)
+    this.phoneIslandWindow.emit(IPC_EVENTS.EMIT_START_CALL, number)
   }
+
+  logout() {
+    this.phoneIslandWindow.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined)
+  }
+
+  _addListeners() {}
 }

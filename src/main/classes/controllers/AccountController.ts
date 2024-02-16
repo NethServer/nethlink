@@ -14,15 +14,16 @@ const defaultConfig: ConfigFile = {
 }
 
 export class AccountController {
+  private _authPollingInterval: NodeJS.Timeout | undefined
   listAvailableAccounts(): any {
     throw new Error('Method not implemented.')
   }
   async logout() {
     const account = this.getLoggedAccount()
-    const api = new NethVoiceAPI(account.host, account)
+    const api = new NethVoiceAPI(account!.host, account)
     api.Authentication.logout()
       .then((response) => {
-        if (response) console.log(`${account.username} logout succesfully`)
+        if (response) console.log(`${account!.username} logout succesfully`)
         else console.log(`an error occurred when logout`)
       })
       .catch((e) => {
@@ -49,7 +50,7 @@ export class AccountController {
 
   _saveNewAccountData(account: Account | undefined, isOpening: boolean) {
     const { CONFIG_FILE } = this._getPaths()
-    const config = this.getConfigFile()
+    const config = this._getConfigFile()
     console.log('save account', config.lastUser, account?.username, isOpening)
     if (account) {
       if (config.lastUser !== account.username || isOpening) {
@@ -68,9 +69,12 @@ export class AccountController {
   }
 
   getLoggedAccount() {
-    return this.config!.accounts[this.config!.lastUser!]
+    if (this.config?.lastUser) {
+      return this.config!.accounts[this.config!.lastUser!]
+    }
+    return undefined
   }
-  async _tokenLogin(account: Account, isOpening: boolean = false): Promise<Account> {
+  async _tokenLogin(account: Account, isOpening = false): Promise<Account> {
     const api = new NethVoiceAPI(account.host, account)
     const loggedAccount = await api.User.me()
     this._saveNewAccountData(loggedAccount, isOpening)
@@ -106,7 +110,7 @@ export class AccountController {
     }
   }
 
-  getConfigFile(): ConfigFile {
+  _getConfigFile(): ConfigFile {
     const { CONFIG_FILE } = this._getPaths()
 
     if (this.hasConfigsFolder()) {
@@ -118,12 +122,32 @@ export class AccountController {
     }
   }
 
-  async autologin(isOpening: boolean = false): Promise<Account> {
+  async autologin(isOpening = false): Promise<Account> {
+    this._getConfigFile()
     const error = new Error('Unable to login')
     if (!this.config) throw error
     if (!this.config.lastUser) throw error
     const account = this.config.accounts[this.config.lastUser]
     if (!account) throw error
-    return this._tokenLogin(account, isOpening)
+    return await this._tokenLogin(account, isOpening)
+  }
+
+  startAuthPolling() {
+    if (!this._authPollingInterval) {
+      this._authPollingInterval = setInterval(
+        () => {
+          const account = this.config!.accounts[this.config!.lastUser!]
+          this._tokenLogin(account)
+          // Set timer to 45 minutes
+        },
+        1000 * 45 * 60
+      )
+    } else {
+      throw new Error('Auth Polling is already started')
+    }
+  }
+
+  stopAuthPolling() {
+    clearInterval(this._authPollingInterval)
   }
 }

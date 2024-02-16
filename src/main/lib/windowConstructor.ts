@@ -21,6 +21,7 @@ export function createWindow(
   const mainWindow = new BrowserWindow({
     parent: undefined,
     ...config,
+    transparent: false,
     ...(process.platform === 'linux' ? (config.icon ? { icon: config.icon } : {}) : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -29,7 +30,6 @@ export function createWindow(
       nodeIntegration: true
     }
   })
-
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     const propsUrl = params
       ? Object.entries(params).reduce((p, c) => `${p}${p !== '&' ? '?' : ''}${c[0]}=${c[1]}`, '')
@@ -46,13 +46,13 @@ export function createWindow(
     })
   }
 
-  mainWindow.on('show', () => {
-    if (is.dev) {
-      mainWindow.webContents.openDevTools({
-        mode: 'detach'
-      })
-    }
-  })
+  //mainWindow.on('show', () => {
+  if (is.dev) {
+    mainWindow.webContents.openDevTools({
+      mode: 'detach'
+    })
+  }
+  //})
 
   return mainWindow
 }

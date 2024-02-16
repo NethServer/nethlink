@@ -1,34 +1,12 @@
 import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
-import { BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, Tray, screen } from 'electron'
-import { join } from 'path'
-let shown = false
-export class TrayWindow extends BaseWindow {
-  tray: Tray
+import { BrowserWindow, Menu, MenuItem, screen } from 'electron'
+
+export class NethConnectorWindow extends BaseWindow {
   size: { w: number; h: number } | undefined
-  constructor(onTrayIconClick: () => void) {
-    const size = { w: 300, h: 400 }
-    super(size)
-    this.size = size
-
-    this.tray = new Tray(join(__dirname, '../../resources/TrayLogo.png'))
-    this.tray.setIgnoreDoubleClickEvents(true)
-    this.tray.on('click', onTrayIconClick)
-    const menu: (MenuItemConstructorOptions | MenuItem)[] = [
-      item,
-      {
-        role: 'quit',
-        //accelerator: 'Command+Q',
-        commandId: 1
-      }
-    ]
-    this.tray.on('right-click', () => {
-      this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
-    })
-  }
-
-  buildWindow(size: { w: number; h: number }): void {
-    this._window = createWindow('traypage', {
+  constructor() {
+    const size = { w: 400, h: 371 }
+    super('nethconnectorpage', {
       width: size.w,
       height: size.h,
       show: false,
@@ -55,15 +33,9 @@ export class TrayWindow extends BaseWindow {
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
+    this.size = size
   }
 
-  show(): void {
-    this._setBounds()
-    super.show()
-    this._window?.setVisibleOnAllWorkspaces(true)
-    this._window?.focus()
-    this._window?.setVisibleOnAllWorkspaces(false)
-  }
   _setBounds() {
     const primaryDisply = screen.getPrimaryDisplay()
     const screenBounds = primaryDisply.bounds
@@ -88,6 +60,14 @@ export class TrayWindow extends BaseWindow {
     }
     console.log(bound)
     this._window?.setBounds(bound, false)
+  }
+
+  show(): void {
+    this._setBounds()
+    super.show()
+    this._window?.setVisibleOnAllWorkspaces(true)
+    this._window?.focus()
+    this._window?.setVisibleOnAllWorkspaces(false)
   }
 }
 
