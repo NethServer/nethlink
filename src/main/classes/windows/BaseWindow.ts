@@ -1,12 +1,28 @@
-import { BrowserWindow } from 'electron'
+import { WindowOptions, createWindow } from '@/lib/windowConstructor'
+import { IPC_EVENTS } from '@shared/constants'
+import { BrowserWindow, ipcMain, ipcRenderer } from 'electron'
 
+type Callback = (...args: any) => any
 export class BaseWindow {
   protected _window: BrowserWindow | undefined
-  protected _buildArgs: any
+  protected _callbacks: Callback[] = []
 
-  constructor(...args: any) {
-    this._buildArgs = args
-    this.buildWindow(...this._buildArgs)
+  constructor(id: string, config?: WindowOptions, params?: Record<string, string>) {
+    this._window = createWindow(id, config, params)
+    this._window.webContents.ipc.on(
+      IPC_EVENTS.INITIALIZATION_COMPELTED,
+      async (e, completed_id) => {
+        if (id === completed_id) {
+          console.log(completed_id)
+          this._callbacks.forEach((c) => c())
+        }
+      }
+    )
+  }
+
+  emit(event: IPC_EVENTS, ...args: any[]) {
+    console.log(event, args)
+    this._window?.webContents.send(event, ...args)
   }
 
   hide(...args: any) {
@@ -14,7 +30,6 @@ export class BaseWindow {
   }
 
   show(...args: any) {
-    if (!this._window) this.buildWindow(...(args || this._buildArgs))
     this._window!.show()
   }
 
@@ -27,7 +42,11 @@ export class BaseWindow {
     return this._window?.isVisible()
   }
 
-  buildWindow(...args: any) {
-    throw new Error('This function is not implemented')
+  async addOnBuildListener(callback: () => void) {
+    this._callbacks.push(callback)
   }
+}
+
+async function timer(time) {
+  await new Promise((resolve) => setTimeout(resolve, time))
 }

@@ -32,12 +32,6 @@ export function registerIpcEvents() {
     console.log('CREATE_NEW_ACCOUNT')
   })
 
-  ipcMain.on(IPC_EVENTS.GET_ACCOUNT, async (event) => {
-    console.log('get account')
-    const account = await AccountController.instance.autologin()
-    event.returnValue = account
-  })
-
   ipcMain.on(IPC_EVENTS.GET_SPEED_DIALS, async (event) => {
     console.log('get GET_SPEED_DIALS')
     const speeddials = await NethVoiceAPI.instance.Phonebook.speeddials()
@@ -47,7 +41,7 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.OPEN_SPEEDDIALS_PAGE, async (event) => {
     console.log('get OPEN_SPEEDDIALS_PAGE')
     const account = AccountController.instance.getLoggedAccount()
-    shell.openExternal(join(account.host, 'phonebook'))
+    shell.openExternal(join(account!.host, 'phonebook'))
   })
 
   ipcMain.on(IPC_EVENTS.GET_LAST_CALLS, async (event) => {
@@ -59,13 +53,13 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.OPEN_ALL_CALLS_PAGE, async (event) => {
     console.log('get OPEN_ALL_CALLS_PAGE')
     const account = AccountController.instance.getLoggedAccount()
-    shell.openExternal(join(account.host, 'history'))
+    shell.openExternal(join(account!.host, 'history'))
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE, async (event) => {
     console.log('get OPEN_ADD_TO_PHONEBOOK_PAGE')
     const account = AccountController.instance.getLoggedAccount()
-    shell.openExternal(join(account.host, 'phonebook'))
+    shell.openExternal(join(account!.host, 'phonebook'))
   })
   ipcMain.on(IPC_EVENTS.START_CALL, async (event, phoneNumber) => {
     console.log('get OPEN_PHONE_ISLAND', phoneNumber)

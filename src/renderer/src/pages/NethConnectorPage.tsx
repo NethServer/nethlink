@@ -15,9 +15,14 @@ export function NethConnectorPage() {
     initialize()
   })
 
-  async function initialize() {
+  function initialize() {
     console.log('initialize')
-    const account = await window.api.getAccount()
+    window.api.onAccountChange(updateAccount)
+    window.api.sendInitializationCompleted('nethconnectorpage')
+  }
+
+  function updateAccount(e, account: Account | undefined) {
+    console.log(account)
     setAccount(() => account)
   }
 
@@ -58,47 +63,55 @@ export function NethConnectorPage() {
   }
 
   return (
-    <div
-      className="absolute pt-[9px] container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
-      style={{ fontSize: '14px', lineHeight: '20px' }}
-    >
-      <div className="absolute rotate-45 origin-center w-[14px] h-[14px] bg-gray-900 top-[4px] rounded-[1px]"></div>
-      <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
-        <div className="flex flex-col gap-4 pt-2 pr-4 pb-4 pl-4 min-w-[350px]">
-          <Navbar
-            openSettings={openSettings}
-            handleSearch={handleSearch}
-            handleReset={handleReset}
-            showSignOutModal={showSignOutModal}
-          />
-          {selectedMenu === MENU_ELEMENT.ZAP ? (
-            <SpeedDialsBox
-              title="Speed Dials"
-              onClick={createSpeedDials}
-              callUser={callUser}
-              showNumberDetails={showNumberDetails}
-              label="Create"
-            />
-          ) : (
-            <MissedCallsBox
-              title="Missed Calls (3)"
-              label="View all"
-              onClick={viewAllMissedCalls}
-            />
-          )}
-          <button onClick={async () => console.log()}>getSpeeddials</button>
-          <button onClick={async () => window.api.openAllSpeeddials()}>create speeddials</button>
-          <button onClick={async () => window.api.openAddToPhonebook()}>add to phonebook</button>
-          <button onClick={async () => console.log(await window.api.getLastCalls())}>
-            get last calls
-          </button>
-          <button onClick={async () => window.api.openAllCalls()}>view all calls</button>
-          <button onClick={async () => window.api.logout()}>Logout</button>
-          {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
-          <div className="">{search}</div>
+    <div>
+      {account && (
+        <div
+          className="absolute pt-[9px] container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
+          style={{ fontSize: '14px', lineHeight: '20px' }}
+        >
+          <div className="absolute rotate-45 origin-center w-[14px] h-[14px] bg-gray-900 top-[4px] rounded-[1px]"></div>
+          <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
+            <div className="flex flex-col gap-4 pt-2 pr-4 pb-4 pl-4 min-w-[350px]">
+              <Navbar
+                openSettings={openSettings}
+                handleSearch={handleSearch}
+                handleReset={handleReset}
+                showSignOutModal={showSignOutModal}
+              />
+              {selectedMenu === MENU_ELEMENT.ZAP ? (
+                <SpeedDialsBox
+                  title="Speed Dials"
+                  onClick={createSpeedDials}
+                  callUser={callUser}
+                  showNumberDetails={showNumberDetails}
+                  label="Create"
+                />
+              ) : (
+                <MissedCallsBox
+                  title="Missed Calls (3)"
+                  label="View all"
+                  onClick={viewAllMissedCalls}
+                />
+              )}
+              <button onClick={async () => console.log()}>getSpeeddials</button>
+              <button onClick={async () => window.api.openAllSpeeddials()}>
+                create speeddials
+              </button>
+              <button onClick={async () => window.api.openAddToPhonebook()}>
+                add to phonebook
+              </button>
+              <button onClick={async () => console.log(await window.api.getLastCalls())}>
+                get last calls
+              </button>
+              <button onClick={async () => window.api.openAllCalls()}>view all calls</button>
+              <button onClick={async () => window.api.logout()}>Logout</button>
+              {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
+              <div className="">{search}</div>
+            </div>
+            <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
+          </div>
         </div>
-        <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
-      </div>
+      )}
     </div>
   )
 }
