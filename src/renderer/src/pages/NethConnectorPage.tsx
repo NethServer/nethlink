@@ -3,7 +3,7 @@ import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { Navbar } from '../components/Navbar'
 
-export function TrayPage(): JSX.Element {
+export function NethConnectorPage(): JSX.Element {
   const hasInitialized = useRef(false)
 
   const [search, setSearch] = useState('')
@@ -62,9 +62,7 @@ export function TrayPage(): JSX.Element {
             showNumberDetails={showNumberDetails}
             label="Create"
           />
-          <button onClick={async () => console.log()}>
-            getSpeeddials
-          </button>
+          <button onClick={async () => console.log()}>getSpeeddials</button>
           <button onClick={async () => window.api.openAllSpeeddials()}>create speeddials</button>
           <button onClick={async () => window.api.openAddToPhonebook()}>add to phonebook</button>
           <button onClick={async () => console.log(await window.api.getLastCalls())}>

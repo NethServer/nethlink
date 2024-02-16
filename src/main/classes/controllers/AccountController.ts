@@ -70,7 +70,7 @@ export class AccountController {
   getLoggedAccount() {
     return this.config!.accounts[this.config!.lastUser!]
   }
-  async _tokenLogin(account: Account, isOpening: boolean = false): Promise<Account> {
+  async _tokenLogin(account: Account, isOpening = false): Promise<Account> {
     const api = new NethVoiceAPI(account.host, account)
     const loggedAccount = await api.User.me()
     this._saveNewAccountData(loggedAccount, isOpening)
@@ -118,7 +118,7 @@ export class AccountController {
     }
   }
 
-  async autologin(isOpening: boolean = false): Promise<Account> {
+  async autologin(isOpening = false): Promise<Account> {
     const error = new Error('Unable to login')
     if (!this.config) throw error
     if (!this.config.lastUser) throw error

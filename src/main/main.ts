@@ -4,12 +4,13 @@ import {
   PhoneIslandWindow,
   SettingsWindow,
   SplashScreenWindow,
-  TrayWindow
+  NethConnectorWindow
 } from '@/classes/windows'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, NethVoiceAPI } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
 import { Account } from '@shared/types'
+import { TrayController } from './classes/controllers/TrayController'
 
 new AccountController(app)
 new PhoneIslandController()
@@ -17,14 +18,17 @@ const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
+  const trayController = new TrayController(toggleWindow)
   const loginWindow = new LoginWindow()
   const splashScreenWindow = new SplashScreenWindow()
-  const trayWindow = new TrayWindow(toggleWindow)
+  const nethConnectorWindow = new NethConnectorWindow()
+
+  nethConnectorWindow.show()
 
   function toggleWindow() {
-    // La tray deve chiudere solamente o la loginpage o la traypage, quindi il controllo viene eseguito solo su di loro
-    if (trayWindow.isOpen() || loginWindow.isOpen()) {
-      trayWindow.hide()
+    // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
+    if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
+      nethConnectorWindow.hide()
       loginWindow.close()
     } else {
       if (!accountController.hasConfigsFolder()) {
@@ -38,7 +42,7 @@ app.whenReady().then(() => {
         accountController.getConfigFile()
         accountController
           .autologin(true)
-          .then(() => trayWindow.show())
+          .then(() => nethConnectorWindow.show())
           .catch(() => {
             loginWindow.show()
           })
@@ -46,7 +50,7 @@ app.whenReady().then(() => {
     }
   }
 
-  toggleWindow()
+  //toggleWindow()
 
   accountController.onAccountChange(async (account: Account | undefined) => {
     try {
@@ -54,7 +58,7 @@ app.whenReady().then(() => {
     } catch (e) {
       console.log(e)
     }
-    trayWindow.show()
+    nethConnectorWindow.show()
     const phoneIslandTokenLoginResponse =
       await NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin()
     console.log(phoneIslandTokenLoginResponse)
