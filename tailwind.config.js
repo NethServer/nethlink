@@ -18,16 +18,7 @@ export default {
         'gray-200': '#E5E7EB',
         'gray-50': '#F9FAFB',
         'blue-500': '#3B82F6',
-        'red-600': '#DC2626',
-        primary: '#047857', // emerald-700
-        primaryHover: '#065f46', // emerald-800
-        primaryFocus: '#10b981', // emerald-500
-        primaryLighter: '#ecfdf5', // emerald-100
-        primaryLight: '#10b981', // emerald-500
-        primaryDark: '#10b981', // emerald-500
-        primaryDarkHover: '#6ee7b7', // emerald-300
-        primaryDarkFocus: '#a7f3d0', // emerald-200
-        primaryDarker: '#064e3b' // emerald-900
+        'red-600': '#DC2626'
       },
       screens: {
         '3xl': '1792px',
