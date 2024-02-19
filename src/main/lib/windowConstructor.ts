@@ -53,5 +53,9 @@ export function createWindow(
   //   }
   // })
 
+  mainWindow.on('hide', () => {
+    //mainWindow.webContents.closeDevTools()
+  })
+
   return mainWindow
 }
