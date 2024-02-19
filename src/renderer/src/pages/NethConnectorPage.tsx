@@ -5,6 +5,7 @@ import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
 import { Account } from '@shared/types'
 import { useState } from 'react'
+import { SearchNumberContainer } from '@renderer/components/SearchNumberContainer'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
@@ -29,7 +30,7 @@ export function NethConnectorPage() {
   async function handleSearch(searchText: string) {
     console.log(searchText)
     setSearch(() => searchText)
-    window.api.startCall(searchText)
+    //window.api.startCall(searchText)
     console.log()
   }
   async function handleReset() {
@@ -72,32 +73,42 @@ export function NethConnectorPage() {
         >
           <div className="absolute rotate-45 origin-center w-[14px] h-[14px] bg-gray-900 top-[4px] rounded-[1px]"></div>
           <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
-            <div className="flex flex-col gap-4 pt-2 pr-4 pb-4 pl-4 min-w-[350px]">
+            <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
               <Navbar
                 openSettings={openSettings}
                 handleSearch={handleSearch}
                 handleReset={handleReset}
                 showSignOutModal={showSignOutModal}
               />
-              {selectedMenu === MENU_ELEMENT.ZAP ? (
-                <SpeedDialsBox
-                  title="Speed Dials"
-                  onClick={createSpeedDials}
-                  callUser={callUser}
-                  showNumberDetails={showNumberDetails}
-                  label="Create"
-                />
-              ) : (
-                <MissedCallsBox
-                  title="Missed Calls (3)"
-                  label="View all"
-                  onClick={viewAllMissedCalls}
-                />
-              )}
+              {/* TODO aggiungere il controllo ed il componente delle chiamate */}
+              <div className="relative w-full h-full">
+                <div className="px-4 w-full h-full">
+                  {selectedMenu === MENU_ELEMENT.ZAP ? (
+                    <SpeedDialsBox
+                      title="Speed Dials"
+                      onClick={createSpeedDials}
+                      callUser={callUser}
+                      showNumberDetails={showNumberDetails}
+                      label="Create"
+                    />
+                  ) : (
+                    <MissedCallsBox
+                      title="Missed Calls (3)"
+                      label="View all"
+                      onClick={viewAllMissedCalls}
+                    />
+                  )}
+                </div>
+                {search !== '' ? (
+                  <div className="absolute top-0 bg-gray-900 h-full w-full">
+                    <SearchNumberContainer searchText={search} callUser={callUser} />
+                  </div>
+                ) : null}
+              </div>
 
-              <button onClick={async () => window.api.logout()}>Logout</button>
-              {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
-              <div className="">{search}</div>
+              {/* <button onClick={async () => window.api.logout()}>Logout</button>
+              <button onClick={() => window.api.getSpeeddials()}></button>
+              <div className="">{search}</div> */}
             </div>
             <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
           </div>
