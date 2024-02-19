@@ -1,10 +1,10 @@
-import { AvatarButton } from './AvatarButton'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhone, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
+import { Avatar } from '@nethesis/react-components/src/components/common'
 
 export interface NumberBoxProps {
   name: string
-  number: number
+  number: string
   callUser: () => void
   showNumberDetails: () => void
 }
@@ -18,7 +18,7 @@ export function NumberBox({
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
-        <AvatarButton className="min-w-10 min-h-10"></AvatarButton>
+        <Avatar size="base" className="bg-white" />
         <div className="flex flex-col gap-1">
           <p className="text-gray-50">{name}</p>
           <div className="flex gap-2 items-center">
