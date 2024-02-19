@@ -90,26 +90,62 @@ export type HistoryCallData = {
   rows: CallData[]
 }
 export type CallData = {
-  time: number
-  channel: string
-  dstchannel: string
-  uniqueid: string
-  linkedid: string
-  userfield: string
-  duration: number
-  billsec: number
-  disposition: string
-  dcontext: string
-  lastapp: string
-  recordingfile: string
-  cnum: string
-  cnam: string
-  ccompany: string
-  src: string
-  dst: string
-  dst_cnam: string
-  dst_ccompany: string
-  clid: string
-  direction: string
-  queue: null
+  time?: number
+  channel?: string
+  dstchannel?: string
+  uniqueid?: string
+  linkedid?: string
+  userfield?: string
+  duration?: number
+  billsec?: number
+  disposition?: string
+  dcontext?: string
+  lastapp?: string
+  recordingfile?: string
+  cnum?: string
+  cnam?: string
+  ccompany?: string
+  src?: string
+  dst?: string
+  dst_cnam?: string
+  dst_ccompany?: string
+  clid?: string
+  direction?: string
+  queue?: null
+}
+
+export type HistorySpeedDialType = {
+  count: number
+  rows: SpeedDialType[]
+}
+
+export type SpeedDialType = {
+  id?: string | number
+  owner_id?: string
+  type?: string
+  homeemail?: string
+  workemail?: string
+  homephone?: string
+  workphone?: string
+  cellphone?: string
+  fax?: string
+  title?: string
+  company?: string
+  notes?: string
+  name?: string
+  homestreet?: string
+  homepob?: string
+  homecity?: string
+  homeprovince?: string
+  homepostalcode?: string
+  homecountry?: string
+  workstreet?: string
+  workpob?: string
+  workcity?: string
+  workprovince?: string
+  workpostalcode?: string
+  workcountry?: string
+  url?: string
+  extension?: string
+  speeddial_num?: string
 }
