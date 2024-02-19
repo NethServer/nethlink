@@ -1,7 +1,6 @@
 import { createRef, useState } from 'react'
 import { TextInput } from '@nethesis/react-components/src/components/common'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch, faX } from '@fortawesome/free-solid-svg-icons'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
 export interface SearchBoxProps {
   handleSearch: (searchText: string) => Promise<void>
