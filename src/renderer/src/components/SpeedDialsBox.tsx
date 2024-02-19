@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
-import { NumberBox } from './NumberBox'
+import { SpeedDialNumber } from './SpeedDialNumber'
 import { Button } from '@nethesis/react-components/src/components/common'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useState } from 'react'
@@ -56,7 +56,7 @@ export function SpeedDialsBox({
               className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 border-gray-700`}`}
               key={idx}
             >
-              <NumberBox
+              <SpeedDialNumber
                 name={e.name!}
                 number={e.speeddial_num!}
                 callUser={() => callUser(e.speeddial_num!)}
