@@ -3,6 +3,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 
 export interface IElectronAPI {
+  resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): unknown
   onAccountChange(
     updateAccount: (
@@ -54,6 +55,7 @@ const api: IElectronAPI = {
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   startCall: setEmitter(IPC_EVENTS.START_CALL),
   sendInitializationCompleted: setEmitter(IPC_EVENTS.INITIALIZATION_COMPELTED),
+  resizePhoneIsland: setEmitter(IPC_EVENTS.PHONE_ISLAND_RESIZE),
 
   //LISTENERS - receive data async
   onStartCall: addListener(IPC_EVENTS.EMIT_START_CALL),

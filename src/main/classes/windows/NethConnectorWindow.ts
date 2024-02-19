@@ -1,6 +1,5 @@
-import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
-import { BrowserWindow, Menu, MenuItem, screen } from 'electron'
+import { screen } from 'electron'
 
 export class NethConnectorWindow extends BaseWindow {
   size: { w: number; h: number } | undefined
@@ -40,14 +39,17 @@ export class NethConnectorWindow extends BaseWindow {
     const screenBounds = screen.getPrimaryDisplay().size
     console.log(screenBounds)
     const { w, h } = this.size!
-    const x = Math.round(screenBounds.width - w - screenBounds.width * 0.01)
+    const x =
+      process.platform === 'linux'
+        ? screen.getCursorScreenPoint().x - 210
+        : Math.round(screenBounds.width - w - screenBounds.width * 0.02)
     const y =
       process.platform === 'win32'
         ? Math.round(screenBounds.height - h - screenBounds.height * 0.02)
-        : Math.round(screenBounds.height * 0.2)
+        : Math.round(screenBounds.height * 0.02)
     const bound = {
-      x: screen.getCursorScreenPoint().x - 210,
-      y: 0,
+      x: x,
+      y: y,
       w,
       h
     }

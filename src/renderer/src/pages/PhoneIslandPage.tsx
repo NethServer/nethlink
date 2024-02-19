@@ -1,7 +1,7 @@
 import { PhoneIsland } from '@nethesis/phone-island'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { useState } from 'react'
+import { createRef, useEffect, useRef, useState } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
@@ -31,11 +31,12 @@ export function PhoneIslandPage() {
       PHONE_ISLAND_EVENTS['phone-island-server-disconnected'],
       PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'],
       PHONE_ISLAND_EVENTS['phone-island-parking-update'],
+      PHONE_ISLAND_EVENTS['phone-island-attach'],
+      PHONE_ISLAND_EVENTS['']
     ]
     events.forEach((e) => {
       //console.log('register', e, window.api[e])
       window.addEventListener(e, (ev) => window.api[e](ev['detail']))
-
     })
   })
 
@@ -44,10 +45,38 @@ export function PhoneIslandPage() {
     setDataConfig(() => dataConfig)
   }
 
+  const ref = createRef<HTMLDivElement>()
+  const initialize = useRef<boolean>(false)
+  useEffect(() => {
+    if (ref.current && !initialize.current) {
+      initialize.current = true
+      console.log('ciao')
+      const elementToObserve = ref.current
+
+      const observer = new MutationObserver(function (mutationsList, observer) {
+        const elem = mutationsList[0].target as HTMLDivElement
+        if (elem.className.includes('pi-pointer-events-auto')) {
+          console.log(elem)
+          console.log(elem.offsetWidth, elem.offsetHeight)
+          window.api.resizePhoneIsland(elem.offsetWidth, elem.offsetHeight)
+        } else if (elem.className.includes('hidden')) {
+          window.api.resizePhoneIsland(0, 0)
+        }
+      })
+
+      observer.observe(elementToObserve, {
+        characterData: false,
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['style']
+      })
+    }
+  }, [ref.current])
+
   return (
-    <div className="bg-white h-full w-full">
+    <div className="bg-white h-[100vh] w-[100vw]" ref={ref}>
       {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
     </div>
   )
 }
-

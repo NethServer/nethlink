@@ -66,6 +66,11 @@ export function registerIpcEvents() {
     PhoneIslandController.instance.call(phoneNumber)
   })
 
+  ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (e, w: number, h: number) => {
+    console.log(e, w, h)
+    PhoneIslandController.instance.resize(w, h)
+  })
+
   ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-main-presence'], (ev, ...args) => {
     console.log(PHONE_ISLAND_EVENTS['phone-island-main-presence'], args)
   })

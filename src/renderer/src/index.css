@@ -2,11 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
+button {
   -webkit-app-region: no-drag;
 }
 
-.pi-absolute:nth-child(1), .pi-pointer-events-auto {
+.pi-absolute:nth-child(1),
+.pi-pointer-events-auto {
   transform: none !important;
   -webkit-app-region: drag !important;
 }

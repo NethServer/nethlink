@@ -45,13 +45,13 @@ export function createWindow(
     })
   }
 
-  //mainWindow.on('show', () => {
-  // if (is.dev) {
-  //   mainWindow.webContents.openDevTools({
-  //     mode: 'detach'
-  //   })
-  // }
-  //})
+  // mainWindow.on('show', () => {
+  //   if (is.dev) {
+  mainWindow.webContents.openDevTools({
+    mode: 'detach'
+  })
+  //   }
+  // })
 
   return mainWindow
 }

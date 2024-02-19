@@ -18,7 +18,7 @@ const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
-  const trayController = new TrayController(toggleWindow)
+  const trayController = new TrayController(() => toggleWindow(false))
   const loginWindow = new LoginWindow()
   const splashScreenWindow = new SplashScreenWindow()
   const nethConnectorWindow = new NethConnectorWindow()
@@ -26,7 +26,14 @@ app.whenReady().then(() => {
   const settingsWindow = new SettingsWindow()
   new PhoneIslandController(phoneIslandWindow)
 
-  function toggleWindow(isOpening = false) {
+  // Su linux impediamo l'apertura della NethConnectorPage all'avvio perchè prende la posizione del mouse e al primo avvio non si trova sulla tray
+  function openNethConnectorPage(isOpening: boolean) {
+    if (process.platform != 'linux' || !isOpening) {
+      nethConnectorWindow.show()
+    }
+  }
+
+  function toggleWindow(isOpening: boolean) {
     console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
     if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
@@ -42,11 +49,11 @@ app.whenReady().then(() => {
         }, 2500)
       } else {
         if (accountController.getLoggedAccount()) {
-          nethConnectorWindow.show()
+          openNethConnectorPage(isOpening)
         } else {
           accountController
             .autologin(isOpening)
-            .then(() => nethConnectorWindow.show())
+            .then(() => openNethConnectorPage(isOpening))
             .catch(() => {
               loginWindow.show()
             })

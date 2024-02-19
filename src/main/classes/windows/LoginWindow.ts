@@ -1,9 +1,8 @@
-import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
 
 export class LoginWindow extends BaseWindow {
   constructor() {
-    const size = { w: 300, h: 400 }
+    const size = { w: 500, h: 570 }
     super('loginpage', {
       width: size.w,
       height: size.h,
@@ -18,7 +17,7 @@ export class LoginWindow extends BaseWindow {
       resizable: false,
       skipTaskbar: true,
       titleBarStyle: 'hidden',
-      roundedCorners: false,
+      roundedCorners: true,
       parent: undefined,
       transparent: true,
       hiddenInMissionControl: true,
@@ -28,8 +27,7 @@ export class LoginWindow extends BaseWindow {
       acceptFirstMouse: false,
       frame: false,
       //tabbingIdentifier: 'nethconnector',
-      thickFrame: false,
-      trafficLightPosition: { x: 0, y: 0 }
+      thickFrame: false
     })
   }
 }

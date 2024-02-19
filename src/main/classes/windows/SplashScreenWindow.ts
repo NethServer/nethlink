@@ -1,9 +1,8 @@
-import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
 
 export class SplashScreenWindow extends BaseWindow {
   constructor() {
-    const size = { w: 400, h: 600 }
+    const size = { w: 400, h: 450 }
     super('splahscreenpage', {
       width: size.w,
       height: size.h,
@@ -18,7 +17,7 @@ export class SplashScreenWindow extends BaseWindow {
       resizable: false,
       skipTaskbar: true,
       titleBarStyle: 'hidden',
-      roundedCorners: false,
+      roundedCorners: true,
       parent: undefined,
       transparent: true,
       hiddenInMissionControl: true,
