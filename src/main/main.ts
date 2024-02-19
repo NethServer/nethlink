@@ -22,7 +22,6 @@ app.whenReady().then(() => {
   const loginWindow = new LoginWindow()
   const splashScreenWindow = new SplashScreenWindow()
   const nethConnectorWindow = new NethConnectorWindow()
-
   const phoneIslandWindow = new PhoneIslandWindow()
   const settingsWindow = new SettingsWindow()
   new PhoneIslandController(phoneIslandWindow)

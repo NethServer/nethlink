@@ -20,7 +20,7 @@ export class PhoneIslandWindow extends BaseWindow {
       titleBarStyle: 'hidden',
       roundedCorners: false,
       parent: undefined,
-      transparent: true,
+      transparent: false,
       hiddenInMissionControl: true,
       hasShadow: false,
       center: true,

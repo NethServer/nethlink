@@ -21,7 +21,6 @@ export function createWindow(
   const mainWindow = new BrowserWindow({
     parent: undefined,
     ...config,
-    transparent: false,
     ...(process.platform === 'linux' ? (config.icon ? { icon: config.icon } : {}) : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -47,11 +46,11 @@ export function createWindow(
   }
 
   //mainWindow.on('show', () => {
-  if (is.dev) {
-    mainWindow.webContents.openDevTools({
-      mode: 'detach'
-    })
-  }
+  // if (is.dev) {
+  //   mainWindow.webContents.openDevTools({
+  //     mode: 'detach'
+  //   })
+  // }
   //})
 
   return mainWindow
