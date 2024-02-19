@@ -66,31 +66,12 @@ export function registerIpcEvents() {
     PhoneIslandController.instance.call(phoneNumber)
   })
 
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-main-presence'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-main-presence'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-conversations'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-conversations'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-queue-update'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-queue-update'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-server-reloaded'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-server-reloaded'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-parking-update'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-parking-update'], args)
+  //SEND BACK ALL PHONE ISLAND EVENTS
+  Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
+    console.log(ev)
+    ipcMain.on(ev, (event, ...args) => {
+      console.log(ev, args)
+      ipcMain.emit(`on-${ev}`, ...args)
+    })
   })
 }

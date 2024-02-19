@@ -5,6 +5,7 @@ import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
 import { Account } from '@shared/types'
 import { useState } from 'react'
+import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
@@ -19,6 +20,12 @@ export function NethConnectorPage() {
     console.log('initialize')
     window.api.onAccountChange(updateAccount)
     window.api.sendInitializationCompleted('nethconnectorpage')
+    window.api.addPhoneIslandListener(PHONE_ISLAND_EVENTS['phone-island-main-presence'], onMainPresence)
+  }
+
+  function onMainPresence(...args) {
+    console.log('onMainPresence', args)
+
   }
 
   function updateAccount(e, account: Account | undefined) {
