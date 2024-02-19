@@ -16,7 +16,7 @@ export function Navbar({
   showSignOutModal
 }: NavabarProps): JSX.Element {
   return (
-    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px]">
+    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4">
       <SearchBox handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <Button onClick={openSettings} className="min-w-8 min-h-8 border-none pt-0 pr-0 pb-0 pl-0">
