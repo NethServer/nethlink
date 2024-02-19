@@ -1,5 +1,7 @@
 import { createRef, useState } from 'react'
 import { TextInput } from '@nethesis/react-components/src/components/common'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch, faX } from '@fortawesome/free-solid-svg-icons'
 
 export interface SearchBoxProps {
   handleSearch: (searchText: string) => Promise<void>
@@ -26,10 +28,9 @@ export function SearchBox({ handleSearch, handleReset }: SearchBoxProps): JSX.El
   }
 
   return (
-    //TODO guardare come modificare il colore
     <TextInput
       rounded="base"
-      //icon={faSearch}
+      icon={faSearch}
       ref={inputRef}
       type="text"
       placeholder="Call or compose..."
