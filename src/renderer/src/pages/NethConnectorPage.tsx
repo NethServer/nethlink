@@ -5,7 +5,7 @@ import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
 import { Account } from '@shared/types'
 import { useState } from 'react'
-import { SearchNumberContainer } from '@renderer/components/SearchNumberContainer'
+import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
@@ -101,7 +101,7 @@ export function NethConnectorPage() {
                 </div>
                 {search !== '' ? (
                   <div className="absolute top-0 bg-gray-900 h-full w-full">
-                    <SearchNumberContainer searchText={search} callUser={callUser} />
+                    <SearchNumberBox searchText={search} callUser={callUser} />
                   </div>
                 ) : null}
               </div>

@@ -2,22 +2,28 @@ import { faPhone, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 
-export interface SearchNumberContainerProps {
+export interface SearchNumberBoxProps {
   searchText: string
   callUser: (phoneNumber: string) => void
 }
 
 //TODO aggiungere le funzioni per i due div di aggiungere e chiamare il numero, inoltre guardare l'effeto hover
 
-export function SearchNumberContainer({ searchText, callUser }: SearchNumberContainerProps) {
+export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) {
   return (
     <div className="flex flex-col">
-      <div className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start">
+      <div
+        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start"
+        onClick={() => alert('La funzione deve chiamare il numero.')}
+      >
         <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faPhone} />
         <p>Call {searchText.toString()}</p>
       </div>
 
-      <div className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9">
+      <div
+        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9"
+        onClick={() => alert('La funzione deve aggiungere il numero.')}
+      >
         <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faUserPlus} />
         <p>Add {searchText.toString()} to Phonebook</p>
       </div>
