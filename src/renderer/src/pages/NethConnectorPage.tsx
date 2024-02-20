@@ -38,10 +38,11 @@ export function NethConnectorPage() {
 
   async function handleSearch(searchText: string) {
     setSearch(() => searchText)
-    //window.api.startCall(searchText)
+    window.api.startCall(searchText)
   }
 
   async function handleTextChange(searchText: string) {
+    console.log(searchText)
     setSearch(() => searchText)
   }
 
@@ -90,6 +91,7 @@ export function NethConnectorPage() {
                 openSettings={openSettings}
                 handleSearch={handleSearch}
                 handleReset={handleReset}
+                handleTextChange={handleTextChange}
                 showSignOutModal={showSignOutModal}
               />
               {/* TODO aggiungere il controllo ed il componente delle chiamate */}
