@@ -15,8 +15,8 @@ const defaultConfig: ConfigFile = {
 
 export class AccountController {
   private _authPollingInterval: NodeJS.Timeout | undefined
-  listAvailableAccounts(): any {
-    throw new Error('Method not implemented.')
+  listAvailableAccounts(): { [username: string]: Account } | undefined {
+    return this.config?.accounts
   }
   async logout() {
     const account = this.getLoggedAccount()
@@ -33,7 +33,7 @@ export class AccountController {
   }
   _app: Electron.App | undefined
   _onAccountChange: ((account: Account | undefined) => void) | undefined
-  config: ConfigFile | undefined
+  private config: ConfigFile | undefined
   static instance: AccountController
 
   constructor(app: Electron.App) {

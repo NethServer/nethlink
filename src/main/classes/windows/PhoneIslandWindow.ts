@@ -34,9 +34,6 @@ export class PhoneIslandWindow extends BaseWindow {
     })
   }
 
-  getWindow() {
-    return this._window
-  }
   show(..._args: any): void {
     const display = screen.getPrimaryDisplay()
     display.bounds.x
