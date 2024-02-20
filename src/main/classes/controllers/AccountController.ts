@@ -37,7 +37,6 @@ export class AccountController {
   static instance: AccountController
 
   constructor(app: Electron.App) {
-    store.user = { peppinio: 1 }
     this._app = app
     AccountController.instance = this
   }
