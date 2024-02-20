@@ -27,7 +27,7 @@ export function NumberBox({
               icon={faPhone}
               onClick={callUser}
             />
-            <p className="text-blue-500 font-normal">{number}</p>
+            <a href={`tel://${number}`} className="text-blue-500 font-normal">{number}</a>
           </div>
         </div>
       </div>

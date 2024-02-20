@@ -2,6 +2,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
+import { store } from './StoreController'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -22,9 +23,8 @@ export class AccountController {
     const account = this.getLoggedAccount()
     const api = new NethVoiceAPI(account!.host, account)
     api.Authentication.logout()
-      .then((response) => {
-        if (response) console.log(`${account!.username} logout succesfully`)
-        else console.log(`an error occurred when logout`)
+      .then(() => {
+        console.log(`${account!.username} logout succesfully`)
       })
       .catch((e) => {
         console.log(e)
@@ -37,6 +37,7 @@ export class AccountController {
   static instance: AccountController
 
   constructor(app: Electron.App) {
+    store.user = { peppinio: 1 }
     this._app = app
     AccountController.instance = this
   }
