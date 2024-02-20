@@ -1,5 +1,5 @@
 import { createRef, useState } from 'react'
-import { TextInput } from '@nethesis/react-components/src/components/common'
+import { TextInput } from './Nethesis/TextInput'
 
 export interface SearchBoxProps {
   handleSearch: (searchText: string) => Promise<void>

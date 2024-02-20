@@ -12,7 +12,7 @@ export class DeviceController {
     this.mainWindow = mainWindow
 
     //let selectBluetoothCallback
-    mainWindow.webContents.session.setBluetoothPairingHandler((details, callback) => {
+    mainWindow.webContents.session.setBluetoothPairingHandler((details, _callback) => {
       //const bluetoothPinCallback = callback
       // Send a message to the renderer to prompt the user to confirm the pairing.
       mainWindow.webContents.send('bluetooth-pairing-request', details)

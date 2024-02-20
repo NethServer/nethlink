@@ -1,6 +1,6 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
 import { IPC_EVENTS } from '@shared/constants'
-import { BrowserWindow, ipcMain, ipcRenderer } from 'electron'
+import { BrowserWindow } from 'electron'
 
 type Callback = (...args: any) => any
 export class BaseWindow {
@@ -11,7 +11,7 @@ export class BaseWindow {
     this._window = createWindow(id, config, params)
     this._window.webContents.ipc.on(
       IPC_EVENTS.INITIALIZATION_COMPELTED,
-      async (e, completed_id) => {
+      async (_e, completed_id) => {
         if (id === completed_id) {
           console.log(completed_id)
           this._callbacks.forEach((c) => c())
@@ -25,20 +25,20 @@ export class BaseWindow {
     this._window?.webContents.send(event, ...args)
   }
 
-  hide(...args: any) {
+  hide(..._args: any) {
     this._window?.hide()
   }
 
-  show(...args: any) {
+  show(..._args: any) {
     this._window!.show()
   }
 
-  close(...args: any) {
+  close(..._args: any) {
     this._window?.close()
     this._window = undefined
   }
 
-  isOpen(...args: any) {
+  isOpen(..._args: any) {
     return this._window?.isVisible()
   }
 
@@ -51,6 +51,6 @@ export class BaseWindow {
   }
 }
 
-async function timer(time) {
-  await new Promise((resolve) => setTimeout(resolve, time))
-}
+// async function timer(time) {
+//   await new Promise((resolve) => setTimeout(resolve, time))
+// }
