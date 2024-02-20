@@ -1,8 +1,8 @@
 import { AvatarImage } from './AvatarImage'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhone } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@nethesis/react-components/src/components/common'
 import { MissedCallIcon } from '@renderer/icons/MissedCallIcon'
+import { Button } from './Nethesis/Button'
 
 export interface MissedCallProps {
   name: string

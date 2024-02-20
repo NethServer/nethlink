@@ -1,6 +1,6 @@
 import { join } from 'path'
 import fs from 'fs'
-import { Account, ConfigFile, AccountData } from '@shared/types'
+import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
 
 const defaultConfig: ConfigFile = {

@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@nethesis/react-components/src/components/common'
 import { MissedCall } from './MissedCall'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useState } from 'react'
 import { CallData, HistoryCallData } from '@shared/types'
+import { Button } from './Nethesis/Button'
 
 export interface MissedCallsBoxProps {
   title: string

@@ -1,7 +1,7 @@
 import { AvatarImage } from './AvatarImage'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhone, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@nethesis/react-components/src/components/common'
+import { Button } from './Nethesis/Button'
 
 export interface NumberBoxProps {
   name: string
