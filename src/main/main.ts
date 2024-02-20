@@ -32,6 +32,8 @@ app.whenReady().then(() => {
     }
   }
 
+  loginWindow.show()
+
   function toggleWindow(isOpening: boolean) {
     console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
@@ -82,7 +84,7 @@ app.whenReady().then(() => {
   })
 
   nethConnectorWindow.addOnBuildListener(() => {
-    toggleWindow(true)
+    //toggleWindow(true)
   })
 
   protocol.handle('tel', (req) => {
