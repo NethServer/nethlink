@@ -5,7 +5,7 @@ import logo from '../assets/splashScreenLogo.svg'
 export function SplashScreenPage() {
   return (
     <div
-      className="h-[100vh] w-[100vw] p-1"
+      className="h-[100vh] w-[100vw] p-1 rounded-[10px]"
       style={{ background: `url('${background}') no-repeat center center fixed` }}
     >
       <div className="h-full w-full flex flex-col items-center p-9">
