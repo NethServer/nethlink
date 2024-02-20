@@ -12,6 +12,7 @@ import { Account } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
 import path from 'path'
+import { LoginController } from './classes/controllers/LoginController'
 
 new AccountController(app)
 const accountController = AccountController.instance
@@ -24,6 +25,7 @@ app.whenReady().then(() => {
   const nethConnectorWindow = new NethConnectorWindow()
   const phoneIslandWindow = new PhoneIslandWindow()
   new PhoneIslandController(phoneIslandWindow)
+  new LoginController(loginWindow)
 
   // Su linux impediamo l'apertura della NethConnectorPage all'avvio perchè prende la posizione del mouse e al primo avvio non si trova sulla tray
   function openNethConnectorPage(isOpening: boolean) {
@@ -31,6 +33,8 @@ app.whenReady().then(() => {
       nethConnectorWindow.show()
     }
   }
+
+  loginWindow.show()
 
   function toggleWindow(isOpening: boolean) {
     console.log('toggle')
@@ -54,6 +58,7 @@ app.whenReady().then(() => {
             .autologin(isOpening)
             .then(() => openNethConnectorPage(isOpening))
             .catch(() => {
+              loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
               loginWindow.show()
             })
         }
@@ -82,7 +87,7 @@ app.whenReady().then(() => {
   })
 
   nethConnectorWindow.addOnBuildListener(() => {
-    toggleWindow(true)
+    //toggleWindow(true)
   })
 
   protocol.handle('tel', (req) => {

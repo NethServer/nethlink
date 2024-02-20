@@ -3,6 +3,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 
 export interface IElectronAPI {
+  resizeLoginWindow(width: number, height: number): void
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): unknown
   onAccountChange(
@@ -24,7 +25,7 @@ export interface IElectronAPI {
     password: string
   ) => Promise<import('@shared/types').Account>
   logout: () => void
-  loadAccounts: () => Promise<import('@shared/types').Account[]>
+  onLoadAccounts(callback: (accounts: import('@shared/types').Account[]) => void)
   startCall(phoneNumber: string): void
   onStartCall(callback: (event: IpcRendererEvent, ...args: any[]) => void): void
 
@@ -54,15 +55,16 @@ function setEmitter(event) {
 const api: IElectronAPI = {
   //SYNC EMITTERS - expect response
   login: setEmitterSync(IPC_EVENTS.LOGIN),
-  loadAccounts: setEmitterSync(IPC_EVENTS.LOAD_ACCOUNTS),
 
   //EMITTER - only emit, no response
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   startCall: setEmitter(IPC_EVENTS.START_CALL),
   sendInitializationCompleted: setEmitter(IPC_EVENTS.INITIALIZATION_COMPELTED),
   resizePhoneIsland: setEmitter(IPC_EVENTS.PHONE_ISLAND_RESIZE),
+  resizeLoginWindow: setEmitter(IPC_EVENTS.LOGIN_WINDOW_RESIZE),
 
   //LISTENERS - receive data async
+  onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),
   onStartCall: addListener(IPC_EVENTS.EMIT_START_CALL),
   onDataConfigChange: addListener(IPC_EVENTS.ON_DATA_CONFIG_CHANGE),
   onAccountChange: addListener(IPC_EVENTS.ACCOUNT_CHANGE),

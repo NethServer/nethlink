@@ -1,4 +1,5 @@
 import { AccountController, NethVoiceAPI } from '@/classes/controllers'
+import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
@@ -21,11 +22,7 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
     console.log('LOGOUT')
     AccountController.instance.logout()
-  })
-
-  ipcMain.on(IPC_EVENTS.LOAD_ACCOUNTS, async (event) => {
-    console.log('LOAD_ACCOUNTS')
-    event.returnValue = AccountController.instance.listAvailableAccounts()
+    ipcMain.emit(IPC_EVENTS.LOAD_ACCOUNTS, AccountController.instance.listAvailableAccounts())
   })
 
   ipcMain.on(IPC_EVENTS.CREATE_NEW_ACCOUNT, async (_event) => {
@@ -68,6 +65,10 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (event, w, h) => {
     console.log(event, w, h)
     PhoneIslandController.instance.resize(w, h)
+  })
+  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, w, h) => {
+    console.log(event, w, h)
+    LoginController.instance.resize(w, h)
   })
 
   //SEND BACK ALL PHONE ISLAND EVENTS
