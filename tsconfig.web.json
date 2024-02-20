@@ -7,10 +7,16 @@
     "src/preload/*.d.ts",
     "src/shared/**/*",
   ],
+  "exclude": [
+    "node_modules"
+  ],
   "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "skipLibCheck": true,
     "composite": true,
     "jsx": "react-jsx",
-    "noUnusedLocals": false,
     "baseUrl": ".",
     "paths": {
       "@renderer/*": [

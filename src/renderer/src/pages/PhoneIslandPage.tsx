@@ -21,21 +21,8 @@ export function PhoneIslandPage() {
 
     console.log(window.api)
 
-    const events = [
-      PHONE_ISLAND_EVENTS['phone-island-main-presence'],
-      PHONE_ISLAND_EVENTS['phone-island-conversations'],
-      PHONE_ISLAND_EVENTS['phone-island-queue-update'],
-      PHONE_ISLAND_EVENTS['phone-island-queue-member-update'],
-      PHONE_ISLAND_EVENTS['phone-island-user-already-login'],
-      PHONE_ISLAND_EVENTS['phone-island-server-reloaded'],
-      PHONE_ISLAND_EVENTS['phone-island-server-disconnected'],
-      PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'],
-      PHONE_ISLAND_EVENTS['phone-island-parking-update'],
-    ]
-    events.forEach((e) => {
-      //console.log('register', e, window.api[e])
-      window.addEventListener(e, (ev) => window.api[e](ev['detail']))
-
+    Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
+      window.addEventListener(ev, (event) => window.api[ev](event['detail']))
     })
   })
 

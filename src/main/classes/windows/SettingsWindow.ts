@@ -1,4 +1,3 @@
-import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
 
 export class SettingsWindow extends BaseWindow {

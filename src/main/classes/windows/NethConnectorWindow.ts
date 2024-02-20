@@ -1,6 +1,5 @@
-import { createWindow } from '@/lib/windowConstructor'
 import { BaseWindow } from './BaseWindow'
-import { BrowserWindow, Menu, MenuItem, screen } from 'electron'
+import { screen } from 'electron'
 
 export class NethConnectorWindow extends BaseWindow {
   size: { w: number; h: number } | undefined
@@ -69,30 +68,4 @@ export class NethConnectorWindow extends BaseWindow {
     this._window?.focus()
     this._window?.setVisibleOnAllWorkspaces(false)
   }
-}
-
-const item: MenuItem = {
-  role: 'services',
-  checked: false,
-  click: _makePriorityIcon,
-  commandId: 0,
-  enabled: false,
-  id: '',
-  label: 'Rendi sempre visibile',
-  menu: new Menu(),
-  registerAccelerator: false,
-  sublabel: '',
-  toolTip: '',
-  type: 'normal',
-  userAccelerator: null,
-  visible: false,
-  sharingItem: {}
-}
-
-function _makePriorityIcon(
-  menuItem: MenuItem,
-  browserWindow: BrowserWindow | undefined,
-  event: KeyboardEvent
-): void {
-  throw new Error('Function not implemented.')
 }
