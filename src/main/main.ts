@@ -65,7 +65,7 @@ app.whenReady().then(() => {
   accountController.onAccountChange(async (account: Account | undefined) => {
     console.log('ACCOUNT_CHANGE', account)
     nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
-    nethConnectorWindow.show()
+    openNethConnectorPage(true)
     if (account) {
       try {
         loginWindow.close()

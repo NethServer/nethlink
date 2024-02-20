@@ -65,6 +65,10 @@ export function registerIpcEvents() {
     console.log('get OPEN_PHONE_ISLAND', phoneNumber)
     PhoneIslandController.instance.call(phoneNumber)
   })
+  ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (event, w, h) => {
+    console.log(event, w, h)
+    PhoneIslandController.instance.resize(w, h)
+  })
 
   //SEND BACK ALL PHONE ISLAND EVENTS
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {

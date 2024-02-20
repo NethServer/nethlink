@@ -32,5 +32,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-server-reloaded' = 'phone-island-server-reloaded',
   'phone-island-server-disconnected' = 'phone-island-server-disconnected',
   'phone-island-socket-disconnected' = 'phone-island-socket-disconnected',
-  'phone-island-parking-update' = 'phone-island-parking-update'
+  'phone-island-parking-update' = 'phone-island-parking-update',
+  'phone-island-detach' = 'phone-island-detach',
+  'phone-island-attach' = 'phone-island-attach',
+  'phone-island-call-start' = 'phone-island-call-start'
 }

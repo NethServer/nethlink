@@ -36,17 +36,19 @@ export function PhoneIslandPage() {
   useEffect(() => {
     if (ref.current && !initialize.current) {
       initialize.current = true
-      console.log('ciao')
       const elementToObserve = ref.current
 
       const observer = new MutationObserver(function (mutationsList, observer) {
         const elem = mutationsList[0].target as HTMLDivElement
+        console.log(elem)
         if (elem.className.includes('pi-pointer-events-auto')) {
-          console.log(elem)
-          console.log(elem.offsetWidth, elem.offsetHeight)
-          window.api.resizePhoneIsland(elem.offsetWidth, elem.offsetHeight)
-        } else if (elem.className.includes('hidden')) {
-          window.api.resizePhoneIsland(0, 0)
+          if (elem.offsetHeight <= 103) {
+            window.api.resizePhoneIsland(420, 98)
+          } else if (elem.offsetHeight > 103 && elem.offsetHeight <= 237) {
+            window.api.resizePhoneIsland(350, 238)
+          } else if (elem.offsetHeight > 237) {
+            window.api.resizePhoneIsland(350, 306)
+          }
         }
       })
 
@@ -61,7 +63,7 @@ export function PhoneIslandPage() {
   }, [ref.current])
 
   return (
-    <div className="bg-white h-[100vh] w-[100vw]" ref={ref}>
+    <div className="h-[100vh] w-[100vw]" ref={ref}>
       {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
     </div>
   )
