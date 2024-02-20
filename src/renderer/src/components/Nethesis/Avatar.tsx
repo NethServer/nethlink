@@ -1,7 +1,7 @@
 import { faBuilding, faHeadset, faStar, faTimes, faUser } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useTheme } from "@renderer/theme/Context"
-import { StatusTypes } from "@renderer/theme/Types"
+import { StatusTypes } from "@shared/types"
 import classNames from "classnames"
 import { ComponentProps, FC } from "react"
 import { StatusDot } from "./StatusDot"

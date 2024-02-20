@@ -16,7 +16,7 @@
 import classNames from 'classnames'
 import { FC, ComponentProps } from 'react'
 import { useTheme } from '../../theme/Context'
-import type { StatusTypes } from '../../theme/Types'
+import type { StatusTypes } from '@shared/types'
 
 export interface BadgeProps extends ComponentProps<'span'> {
   variant: StatusTypes

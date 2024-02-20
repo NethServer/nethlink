@@ -21,13 +21,14 @@ import { ComponentProps, FC, forwardRef } from 'react'
 import { useTheme } from '../../theme/Context'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition } from '@fortawesome/fontawesome-common-types'
+import { IconDefinition as CommonIconDefinition } from '@fortawesome/fontawesome-common-types'
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { cleanClassName } from '@renderer/utils/utils'
 
 export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
   label?: string
   placeholder?: string
-  icon?: IconDefinition
+  icon?: IconDefinition | CommonIconDefinition
   trailingIcon?: boolean
   error?: boolean
   helper?: string

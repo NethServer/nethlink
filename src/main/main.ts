@@ -28,18 +28,16 @@ app.whenReady().then(() => {
   new LoginController(loginWindow)
 
   // Su linux impediamo l'apertura della NethConnectorPage all'avvio perchè prende la posizione del mouse e al primo avvio non si trova sulla tray
-  function openNethConnectorPage(isOpening: boolean) {
+  function openNethConnectorPage(isOpening = false) {
     if (process.platform != 'linux' || !isOpening) {
       nethConnectorWindow.show()
     }
   }
 
-  loginWindow.show()
-
   function toggleWindow(isOpening: boolean) {
     console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
-    if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
+    if (!isOpening && (nethConnectorWindow.isOpen() || loginWindow.isOpen())) {
       nethConnectorWindow.hide()
       loginWindow.close()
     } else {
@@ -69,7 +67,7 @@ app.whenReady().then(() => {
   accountController.onAccountChange(async (account: Account | undefined) => {
     console.log('ACCOUNT_CHANGE', account)
     nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
-    openNethConnectorPage(true)
+    openNethConnectorPage()
     if (account) {
       try {
         loginWindow.close()
@@ -87,11 +85,12 @@ app.whenReady().then(() => {
   })
 
   nethConnectorWindow.addOnBuildListener(() => {
-    //toggleWindow(true)
+    toggleWindow(true)
   })
 
   protocol.handle('tel', (req) => {
-    console.log(req)
+    console.log('PROCESS HANDLE TEL', req)
+    console.table(req)
     return new Promise((resolve) => resolve)
   })
 })
@@ -129,7 +128,7 @@ if (!gotTheLock) {
 }
 
 app.on('open-url', (ev, origin) => {
-  console.log(origin)
+  console.log('TEL:', origin)
 })
 
 app.dock?.hide()

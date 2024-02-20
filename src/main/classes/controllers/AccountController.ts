@@ -16,8 +16,9 @@ const defaultConfig: ConfigFile = {
 
 export class AccountController {
   private _authPollingInterval: NodeJS.Timeout | undefined
-  listAvailableAccounts(): { [username: string]: Account } | undefined {
-    return this.config?.accounts
+  listAvailableAccounts(): Account[] {
+    const accounts = Object.values(this.config?.accounts || {})
+    return accounts
   }
   async logout() {
     const account = this.getLoggedAccount()
