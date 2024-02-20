@@ -2,7 +2,7 @@ import { faUsers } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 /* Badge da aggiungere*/
-import { Avatar, Button } from './Nethesis/'
+import { Avatar, Badge } from './Nethesis/'
 
 export interface MissedCallProps {
   name: string

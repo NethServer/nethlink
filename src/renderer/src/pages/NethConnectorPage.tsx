@@ -37,11 +37,14 @@ export function NethConnectorPage() {
   }
 
   async function handleSearch(searchText: string) {
-    console.log(searchText)
     setSearch(() => searchText)
     //window.api.startCall(searchText)
-    console.log()
   }
+
+  async function handleTextChange(searchText: string) {
+    setSearch(() => searchText)
+  }
+
   async function handleReset() {
     setSearch(() => '')
   }

@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhone, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
-import { Button, Avatar } from './Nethesis/'
+import { Avatar } from './Nethesis/'
 
 export interface SpeedDialNumberProps {
   name: string

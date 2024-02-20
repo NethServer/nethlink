@@ -35,6 +35,7 @@ export function SearchBox({ handleSearch, handleReset }: SearchBoxProps): JSX.El
       placeholder="Call or compose..."
       onChange={(e) => {
         inputRef.current!.value = e.target.value
+        handleSearch(inputRef.current!.value)
         testReset()
       }}
       onSubmit={submit}
