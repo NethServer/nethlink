@@ -3,6 +3,8 @@ import { join } from 'path'
 
 export class TrayController {
   tray: Tray
+
+  static instance: TrayController
   constructor(onTrayIconClick: () => void) {
     this.tray = new Tray(join(__dirname, '../../resources/TrayLogo.png'))
     this.tray.setIgnoreDoubleClickEvents(true)
@@ -17,5 +19,6 @@ export class TrayController {
     this.tray.on('right-click', () => {
       this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
     })
+    TrayController.instance = this
   }
 }

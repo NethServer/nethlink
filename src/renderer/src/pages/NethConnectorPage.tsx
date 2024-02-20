@@ -84,10 +84,9 @@ export function NethConnectorPage() {
     <div>
       {account && (
         <div
-          className="absolute pt-[9px] container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
+          className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
           style={{ fontSize: '14px', lineHeight: '20px' }}
         >
-          <div className="absolute rotate-45 origin-center w-[14px] h-[14px] bg-gray-900 top-[4px] rounded-[1px]"></div>
           <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
             <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
               <Navbar
@@ -130,7 +129,6 @@ export function NethConnectorPage() {
             </div>
             <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
           </div>
-          <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
         </div>
       )}
     </div>
