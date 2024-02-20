@@ -73,20 +73,16 @@ export function NethConnectorPage() {
   return (
     <div>
       {account && (
-        <div
-          className="absolute pt-[9px] container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
-          style={{ fontSize: '14px', lineHeight: '20px' }}
-        >
-          <div className="absolute rotate-45 origin-center w-[14px] h-[14px] bg-gray-900 top-[4px] rounded-[1px]"></div>
-          <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
-            <div className="flex flex-col gap-4 pt-2 pr-4 pb-4 pl-4 min-w-[350px]">
-              <Navbar
-                openSettings={openSettings}
-                handleSearch={handleSearch}
-                handleReset={handleReset}
-                showSignOutModal={showSignOutModal}
-              />
-              {selectedMenu === MENU_ELEMENT.ZAP ? (
+        <div className="flex flex-row bg-gray-900 w-full h-full z-10 rounded-lg overflow-hidden font-poppins text-sm text-gray-200">
+          <div className="flex flex-col gap-4 pt-2 pr-4 pb-4 pl-4">
+            <Navbar
+              openSettings={openSettings}
+              handleSearch={handleSearch}
+              handleReset={handleReset}
+              showSignOutModal={showSignOutModal}
+            />
+            {selectedMenu === MENU_ELEMENT.ZAP && (
+              <div>
                 <SpeedDialsBox
                   title="Speed Dials"
                   onClick={createSpeedDials}
@@ -94,20 +90,30 @@ export function NethConnectorPage() {
                   showNumberDetails={showNumberDetails}
                   label="Create"
                 />
-              ) : (
-                <MissedCallsBox
-                  title="Missed Calls (3)"
-                  label="View all"
-                  onClick={viewAllMissedCalls}
-                />
-              )}
+                {selectedMenu === MENU_ELEMENT.ZAP ? (
+                  <SpeedDialsBox
+                    title="Speed Dials"
+                    onClick={createSpeedDials}
+                    callUser={callUser}
+                    showNumberDetails={showNumberDetails}
+                    label="Create"
+                  />
+                ) : (
+                  <MissedCallsBox
+                    title="Missed Calls (3)"
+                    label="View all"
+                    onClick={viewAllMissedCalls}
+                  />
+                )}
 
-              <button onClick={async () => window.api.logout()}>Logout</button>
-              {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
-              <div className="">{search}</div>
-            </div>
+                <button onClick={async () => window.api.logout()}>Logout</button>
+                {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
+                <div className="">{search}</div>
+              </div>
+            )}
             <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
           </div>
+          <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
         </div>
       )}
     </div>
