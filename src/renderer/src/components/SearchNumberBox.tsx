@@ -28,7 +28,9 @@ export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) 
 
       <div
         className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 hover:bg-gray-700"
-        onClick={() => alert('La funzione deve aggiungere il numero.')}
+        onClick={() =>
+          alert('La funzione deve reinderizzare alla pagina per agigungere il numero.')
+        }
       >
         <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faUserPlus} />
         <p>Add {searchText.toString()} to Phonebook</p>

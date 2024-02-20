@@ -1,6 +1,6 @@
-import { Avatar, Button } from '@nethesis/react-components/src/components/common'
 import { PlaceholderIcon } from '@renderer/icons/PlaceholderIcon'
 import { ReactNode } from 'react'
+import { Avatar, Button } from './Nethesis'
 
 export interface SearchNumberProps {
   name: string

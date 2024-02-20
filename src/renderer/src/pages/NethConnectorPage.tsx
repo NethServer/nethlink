@@ -12,6 +12,7 @@ export function NethConnectorPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useState<Account>()
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.PHONE)
+  const [showLogoutMenu, setShowLogoutMenu] = useState(false)
 
   useInitialize(() => {
     initialize()
@@ -68,9 +69,11 @@ export function NethConnectorPage() {
     alert(`La funzione dovrebbe mostrare i dettagli dell' utente selezionato. ${e}`)
   }
 
-  function showSignOutModal(): void {
+  function showLogoutMenuContext(): void {
+    console.log(showLogoutMenu)
+    setShowLogoutMenu(!showLogoutMenu)
     //window.api.logout()
-    alert('La funzione deve mostrare il modal di Signout.')
+    //alert('La funzione deve mostrare il modal di Signout.')
   }
 
   function viewAllMissedCalls(): void {
@@ -88,11 +91,12 @@ export function NethConnectorPage() {
           <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
             <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
               <Navbar
+                showLogoutMenu={showLogoutMenu}
                 openSettings={openSettings}
                 handleSearch={handleSearch}
                 handleReset={handleReset}
                 handleTextChange={handleTextChange}
-                showSignOutModal={showSignOutModal}
+                showLogoutMenuContext={showLogoutMenuContext}
               />
               {/* TODO aggiungere il controllo ed il componente delle chiamate */}
               <div className="relative w-full h-full">
