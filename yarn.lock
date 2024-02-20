@@ -2035,10 +2035,10 @@
   dependencies:
     "@fortawesome/fontawesome-common-types" "6.2.1"
 
-"@nethesis/phone-island@^0.7.118":
-  version "0.7.118"
-  resolved "https://registry.yarnpkg.com/@nethesis/phone-island/-/phone-island-0.7.118.tgz#7bd8f740cd8f0f80522b4e6756ce5378e91d7508"
-  integrity sha512-ryrwg6i/lOcdhtmg8ZnptosKVSp8twru6aGxycShUvEU5KcUHh7ivDmZLw9KcX6brz9OBTL8ZIIb3noIv1nFBw==
+"@nethesis/phone-island@^0.7.120":
+  version "0.7.120"
+  resolved "https://registry.yarnpkg.com/@nethesis/phone-island/-/phone-island-0.7.120.tgz#04e6e72da96af1c740342aa0a5a5716ede28e7e3"
+  integrity sha512-P4c2qh/RowIqOLVYDiklUICsnBznemHgC9bsTT8gxGiy+Z4K38kzkwSVra4YNntqLM8JVlKQU0mpy7x8Y1lxVg==
   dependencies:
     "@fortawesome/free-solid-svg-icons" "^6.2.1"
     "@fortawesome/react-fontawesome" "^0.2.0"
