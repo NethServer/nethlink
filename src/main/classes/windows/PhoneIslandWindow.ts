@@ -4,8 +4,8 @@ import { screen } from 'electron'
 export class PhoneIslandWindow extends BaseWindow {
   constructor() {
     super('phoneislandpage', {
-      width: 500,
-      height: 500,
+      width: 0,
+      height: 0,
       show: true,
       fullscreenable: false,
       autoHideMenuBar: true,

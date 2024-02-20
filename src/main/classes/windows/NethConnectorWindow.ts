@@ -36,24 +36,20 @@ export class NethConnectorWindow extends BaseWindow {
   }
 
   _setBounds() {
-    const primaryDisply = screen.getPrimaryDisplay()
-    const screenBounds = primaryDisply.bounds
+    const screenBounds = screen.getPrimaryDisplay().size
     console.log(screenBounds)
-    //const trayBounds = this.tray.getBounds()
     const { w, h } = this.size!
-    const x = Math.round(screenBounds.width - w - 8)
-    const y = Math.round(screenBounds.height - 50)
-    //if (y > 100 && !shown) {
-    //  //shown = true
-    //  this.tray.displayBalloon({
-    //    title: 'NethConnector',
-    //    content:
-    //      "Neth Connector é stato avviato. Ricordati di impostare la visibilità dell'icona a 'sempre visibile'"
-    //  })
-    //}
+    const x =
+      process.platform === 'linux'
+        ? screen.getCursorScreenPoint().x - 210
+        : Math.round(screenBounds.width - w - screenBounds.width * 0.02)
+    const y =
+      process.platform === 'win32'
+        ? Math.round(screenBounds.height - h - screenBounds.height * 0.02)
+        : Math.round(screenBounds.height * 0.02)
     const bound = {
       x: x,
-      y: y + h * (process.platform === 'win32' ? -1 : 1),
+      y: y,
       w,
       h
     }
