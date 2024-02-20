@@ -113,3 +113,15 @@ export type CallData = {
   direction: string
   queue: null
 }
+
+export type StatusTypes =
+  | 'available'
+  | 'online'
+  | 'dnd'
+  | 'voicemail'
+  | 'cellphone'
+  | 'callforward'
+  | 'busy'
+  | 'incoming'
+  | 'ringing'
+  | 'offline'
