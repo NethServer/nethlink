@@ -12,7 +12,7 @@ button {
   -webkit-app-region: drag !important;
 }
 
-/* @layer base {
+@layer base {
   #root {
     @apply h-full;
   }
@@ -22,7 +22,5 @@ button {
     @apply h-full;
 
     @apply select-none;
-
-    @apply overflow-hidden;
   }
-} */
+}
