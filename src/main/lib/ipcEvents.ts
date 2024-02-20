@@ -18,7 +18,7 @@ export function registerIpcEvents() {
     event.returnValue = account
   })
 
-  ipcMain.on(IPC_EVENTS.LOGOUT, async (event) => {
+  ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
     console.log('LOGOUT')
     AccountController.instance.logout()
   })
@@ -28,7 +28,7 @@ export function registerIpcEvents() {
     event.returnValue = AccountController.instance.listAvailableAccounts()
   })
 
-  ipcMain.on(IPC_EVENTS.CREATE_NEW_ACCOUNT, async (event) => {
+  ipcMain.on(IPC_EVENTS.CREATE_NEW_ACCOUNT, async (_event) => {
     console.log('CREATE_NEW_ACCOUNT')
   })
 
@@ -38,7 +38,7 @@ export function registerIpcEvents() {
     event.returnValue = speeddials
   })
 
-  ipcMain.on(IPC_EVENTS.OPEN_SPEEDDIALS_PAGE, async (event) => {
+  ipcMain.on(IPC_EVENTS.OPEN_SPEEDDIALS_PAGE, async (_event) => {
     console.log('get OPEN_SPEEDDIALS_PAGE')
     const account = AccountController.instance.getLoggedAccount()
     shell.openExternal(join(account!.host, 'phonebook'))
@@ -50,47 +50,28 @@ export function registerIpcEvents() {
     event.returnValue = last_calls
   })
 
-  ipcMain.on(IPC_EVENTS.OPEN_ALL_CALLS_PAGE, async (event) => {
+  ipcMain.on(IPC_EVENTS.OPEN_ALL_CALLS_PAGE, async (_event) => {
     console.log('get OPEN_ALL_CALLS_PAGE')
     const account = AccountController.instance.getLoggedAccount()
     shell.openExternal(join(account!.host, 'history'))
   })
 
-  ipcMain.on(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE, async (event) => {
+  ipcMain.on(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE, async (_event) => {
     console.log('get OPEN_ADD_TO_PHONEBOOK_PAGE')
     const account = AccountController.instance.getLoggedAccount()
     shell.openExternal(join(account!.host, 'phonebook'))
   })
-  ipcMain.on(IPC_EVENTS.START_CALL, async (event, phoneNumber) => {
+  ipcMain.on(IPC_EVENTS.START_CALL, async (_event, phoneNumber) => {
     console.log('get OPEN_PHONE_ISLAND', phoneNumber)
     PhoneIslandController.instance.call(phoneNumber)
   })
 
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-main-presence'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-main-presence'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-conversations'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-conversations'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-queue-update'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-queue-update'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-server-reloaded'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-server-reloaded'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], args)
-  })
-  ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-parking-update'], (ev, ...args) => {
-    console.log(PHONE_ISLAND_EVENTS['phone-island-parking-update'], args)
+  //SEND BACK ALL PHONE ISLAND EVENTS
+  Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
+    console.log(ev)
+    ipcMain.on(ev, (_event, ...args) => {
+      console.log(ev, args)
+      ipcMain.emit(`on-${ev}`, ...args)
+    })
   })
 }

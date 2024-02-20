@@ -2,7 +2,6 @@ import { PhoneIslandConfig } from '@shared/types'
 import { PhoneIslandWindow } from '../windows'
 import { AccountController } from './AccountController'
 import { IPC_EVENTS } from '@shared/constants'
-import { ipcMain } from 'electron'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController

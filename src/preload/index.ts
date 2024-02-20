@@ -27,6 +27,11 @@ export interface IElectronAPI {
   startCall(phoneNumber: string): void
   onStartCall(callback: (event: IpcRendererEvent, ...args: any[]) => void): void
 
+  addPhoneIslandListener: (
+    event: PHONE_ISLAND_EVENTS,
+    callback: (event: IpcRendererEvent, ...args: any[]) => void
+  ) => void
+
   (funcName: PHONE_ISLAND_EVENTS): () => void
 }
 
@@ -62,34 +67,17 @@ const api: IElectronAPI = {
   onReceiveSpeeddials: addListener(IPC_EVENTS.RECEIVE_SPEEDDIALS),
   onReciveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
 
+  addPhoneIslandListener: (event, callback) => {
+    const listener = addListener(`on-${event}`)
+    return listener(callback)
+  },
+
   //PHONE ISLAND EVENTS:
-  [`${PHONE_ISLAND_EVENTS['phone-island-main-presence']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-main-presence']
-  ),
-  [`${PHONE_ISLAND_EVENTS['phone-island-conversations']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-conversations']
-  ),
-  [`${PHONE_ISLAND_EVENTS['phone-island-queue-update']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-queue-update']
-  ),
-  [`${PHONE_ISLAND_EVENTS['phone-island-queue-member-update']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-queue-member-update']
-  ),
-  [`${PHONE_ISLAND_EVENTS['phone-island-user-already-login']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-user-already-login']
-  ),
-  [`${PHONE_ISLAND_EVENTS['phone-island-server-reloaded']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-server-reloaded']
-  ),
-  [`${PHONE_ISLAND_EVENTS['phone-island-server-disconnected']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-server-disconnected']
-  ),
-  [`${PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']
-  ),
-  [`${PHONE_ISLAND_EVENTS['phone-island-parking-update']}`]: setEmitter(
-    PHONE_ISLAND_EVENTS['phone-island-parking-update']
-  )
+  ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, ev) => {
+    console.log(ev)
+    p[`${ev}`] = setEmitter(ev)
+    return p
+  }, {})
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

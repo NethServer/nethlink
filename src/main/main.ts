@@ -1,9 +1,8 @@
-import { app } from 'electron'
+import { app, protocol } from 'electron'
 import {
   LoginWindow,
   NethConnectorWindow,
   PhoneIslandWindow,
-  SettingsWindow,
   SplashScreenWindow
 } from '@/classes/windows'
 import { registerIpcEvents } from '@/lib/ipcEvents'
@@ -12,19 +11,19 @@ import { PhoneIslandController } from './classes/controllers/PhoneIslandControll
 import { Account } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
+import path from 'path'
 
 new AccountController(app)
 const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
-  const trayController = new TrayController(toggleWindow)
+  new TrayController(toggleWindow)
   const loginWindow = new LoginWindow()
   const splashScreenWindow = new SplashScreenWindow()
   const nethConnectorWindow = new NethConnectorWindow()
 
   const phoneIslandWindow = new PhoneIslandWindow()
-  const settingsWindow = new SettingsWindow()
   new PhoneIslandController(phoneIslandWindow)
 
   function toggleWindow(isOpening = false) {
@@ -59,6 +58,7 @@ app.whenReady().then(() => {
   accountController.onAccountChange(async (account: Account | undefined) => {
     console.log('ACCOUNT_CHANGE', account)
     nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
+    nethConnectorWindow.show()
     if (account) {
       try {
         loginWindow.close()
@@ -78,10 +78,48 @@ app.whenReady().then(() => {
   nethConnectorWindow.addOnBuildListener(() => {
     toggleWindow(true)
   })
+
+  protocol.handle('tel', (req) => {
+    console.log(req)
+    return new Promise((resolve) => resolve)
+  })
 })
 
 app.on('window-all-closed', () => {
   app.dock?.hide()
+})
+
+// remove so we can register each time as we run the app.
+app.removeAsDefaultProtocolClient('tel')
+
+// if we are running a non-packaged version of the app && on windows
+if (process.env.node_env === 'development' && process.platform === 'win32') {
+  // set the path of electron.exe and your app.
+  // these two additional parameters are only available on windows.
+  app.setAsDefaultProtocolClient('tel', process.execPath, [path.resolve(process.argv[1])])
+} else {
+  app.setAsDefaultProtocolClient('tel')
+}
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'tel',
+    privileges: {
+      standard: true,
+      secure: true
+    }
+  }
+])
+
+//windows
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+}
+
+app.on('open-url', (ev, origin) => {
+  console.log(origin)
 })
 
 app.dock?.hide()

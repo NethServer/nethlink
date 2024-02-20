@@ -207,7 +207,7 @@ export class NethVoiceAPI {
 
   Voicemail = {}
 
-  async searchPhonebook(search: string) {
+  async searchPhonebook(_search: string) {
     try {
       const res = axios.post(this._joinUrl('/webrest/phonebook/search'), undefined, {
         headers: {
