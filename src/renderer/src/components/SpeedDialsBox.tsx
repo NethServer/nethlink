@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
-import { NumberBox } from './NumberBox'
+import { SpeedDialNumber } from './SpeedDialNumber'
+import { HistorySpeedDialType, SpeedDialType } from '@shared/types'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useState } from 'react'
 import { Button } from './Nethesis/Button'
@@ -20,13 +21,22 @@ export function SpeedDialsBox({
   callUser,
   showNumberDetails
 }: SpeedDialsBoxProps): JSX.Element {
-  const [speeddials, setSpeeddials] = useState<any[]>()
+  const [speeddials, setSpeeddials] = useState<SpeedDialType[]>()
   useInitialize(() => {
     window.api.onReceiveSpeeddials(saveSpeeddials)
+    saveSpeeddials({
+      count: 4,
+      rows: [
+        { name: 'Edoardo', speeddial_num: '3275757265' },
+        { name: 'Pippo Bica', speeddial_num: '230' },
+        { name: 'Giovanni', speeddial_num: '56789' },
+        { name: 'Alexa', speeddial_num: '27589' }
+      ]
+    })
   })
 
-  async function saveSpeeddials(speeddialsResponse: any) {
-    setSpeeddials(() => speeddialsResponse)
+  async function saveSpeeddials(speeddialsResponse: HistorySpeedDialType) {
+    setSpeeddials(() => speeddialsResponse.rows)
   }
 
   return (
@@ -42,11 +52,14 @@ export function SpeedDialsBox({
         {/**Aggiungere props */}
         {speeddials?.map((e, idx) => {
           return (
-            <div className="border-b pb-2 border-gray-700" key={idx}>
-              <NumberBox
-                name={e.name}
-                number={e.speeddial_num}
-                callUser={() => callUser(e.speeddial_num)}
+            <div
+              className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 border-gray-700`}`}
+              key={idx}
+            >
+              <SpeedDialNumber
+                name={e.name!}
+                number={e.speeddial_num!}
+                callUser={() => callUser(e.speeddial_num!)}
                 showNumberDetails={() => showNumberDetails(e)}
               />
             </div>

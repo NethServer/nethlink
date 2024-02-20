@@ -27,7 +27,6 @@ function RoutesWrapper() {
         <Route path="nethconnectorpage" element={<NethConnectorPage />} />
         <Route path="splahscreenpage" element={<SplashScreenPage />} />
         <Route path="loginpage" element={<LoginPage />} />
-        <Route path="settingspage" element={<SettingsPage />} />
         <Route path="phoneislandpage" element={<PhoneIslandPage />} />
       </Route>
     </Routes>

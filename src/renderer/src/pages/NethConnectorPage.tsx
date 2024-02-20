@@ -5,12 +5,14 @@ import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
 import { Account } from '@shared/types'
 import { useState } from 'react'
+import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useState<Account>()
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.PHONE)
+  const [showLogoutMenu, setShowLogoutMenu] = useState(false)
 
   useInitialize(() => {
     initialize()
@@ -20,12 +22,14 @@ export function NethConnectorPage() {
     console.log('initialize')
     window.api.onAccountChange(updateAccount)
     window.api.sendInitializationCompleted('nethconnectorpage')
-    window.api.addPhoneIslandListener(PHONE_ISLAND_EVENTS['phone-island-main-presence'], onMainPresence)
+    window.api.addPhoneIslandListener(
+      PHONE_ISLAND_EVENTS['phone-island-main-presence'],
+      onMainPresence
+    )
   }
 
   function onMainPresence(...args) {
     console.log('onMainPresence', args)
-
   }
 
   function updateAccount(e, account: Account | undefined) {
@@ -34,11 +38,15 @@ export function NethConnectorPage() {
   }
 
   async function handleSearch(searchText: string) {
-    console.log(searchText)
     setSearch(() => searchText)
     window.api.startCall(searchText)
-    console.log()
   }
+
+  async function handleTextChange(searchText: string) {
+    console.log(searchText)
+    setSearch(() => searchText)
+  }
+
   async function handleReset() {
     setSearch(() => '')
   }
@@ -61,9 +69,11 @@ export function NethConnectorPage() {
     alert(`La funzione dovrebbe mostrare i dettagli dell' utente selezionato. ${e}`)
   }
 
-  function showSignOutModal(): void {
+  function showLogoutMenuContext(): void {
+    console.log(showLogoutMenu)
+    setShowLogoutMenu(!showLogoutMenu)
     //window.api.logout()
-    alert('La funzione deve mostrare il modal di Signout.')
+    //alert('La funzione deve mostrare il modal di Signout.')
   }
 
   function viewAllMissedCalls(): void {
@@ -73,47 +83,52 @@ export function NethConnectorPage() {
   return (
     <div>
       {account && (
-        <div className="flex flex-row bg-gray-900 w-full h-full z-10 rounded-lg overflow-hidden font-poppins text-sm text-gray-200">
-          <div className="flex flex-col gap-4 pt-2 pr-4 pb-4 pl-4">
-            <Navbar
-              openSettings={openSettings}
-              handleSearch={handleSearch}
-              handleReset={handleReset}
-              showSignOutModal={showSignOutModal}
-            />
-            {selectedMenu === MENU_ELEMENT.ZAP && (
-              <div>
-                <SpeedDialsBox
-                  title="Speed Dials"
-                  onClick={createSpeedDials}
-                  callUser={callUser}
-                  showNumberDetails={showNumberDetails}
-                  label="Create"
-                />
-                {selectedMenu === MENU_ELEMENT.ZAP ? (
-                  <SpeedDialsBox
-                    title="Speed Dials"
-                    onClick={createSpeedDials}
-                    callUser={callUser}
-                    showNumberDetails={showNumberDetails}
-                    label="Create"
-                  />
-                ) : (
-                  <MissedCallsBox
-                    title="Missed Calls (3)"
-                    label="View all"
-                    onClick={viewAllMissedCalls}
-                  />
-                )}
-
-                <button onClick={async () => window.api.logout()}>Logout</button>
-                {/* <button onClick={() => window.api.getSpeeddials()}></button> */}
-                <div className="">{search}</div>
+        <div
+          className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
+          style={{ fontSize: '14px', lineHeight: '20px' }}
+        >
+          <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
+            <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
+              <Navbar
+                showLogoutMenu={showLogoutMenu}
+                openSettings={openSettings}
+                handleSearch={handleSearch}
+                handleReset={handleReset}
+                handleTextChange={handleTextChange}
+                showLogoutMenuContext={showLogoutMenuContext}
+              />
+              {/* TODO aggiungere il controllo ed il componente delle chiamate */}
+              <div className="relative w-full h-full">
+                <div className="px-4 w-full h-full">
+                  {selectedMenu === MENU_ELEMENT.ZAP ? (
+                    <SpeedDialsBox
+                      title="Speed Dials"
+                      onClick={createSpeedDials}
+                      callUser={callUser}
+                      showNumberDetails={showNumberDetails}
+                      label="Create"
+                    />
+                  ) : (
+                    <MissedCallsBox
+                      title="Missed Calls (3)"
+                      label="View all"
+                      onClick={viewAllMissedCalls}
+                    />
+                  )}
+                </div>
+                {search !== '' ? (
+                  <div className="absolute top-0 bg-gray-900 h-full w-full">
+                    <SearchNumberBox searchText={search} callUser={callUser} />
+                  </div>
+                ) : null}
               </div>
-            )}
+
+              {/* <button onClick={async () => window.api.logout()}>Logout</button>
+              <button onClick={() => window.api.getSpeeddials()}></button>
+              <div className="">{search}</div> */}
+            </div>
             <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
           </div>
-          <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
         </div>
       )}
     </div>

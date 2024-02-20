@@ -1,24 +1,24 @@
-import { AvatarButton } from './AvatarButton'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhone, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
+import { Avatar } from './Nethesis/'
 
-export interface NumberBoxProps {
+export interface SpeedDialNumberProps {
   name: string
-  number: number
+  number: string
   callUser: () => void
   showNumberDetails: () => void
 }
 
-export function NumberBox({
+export function SpeedDialNumber({
   name,
   number,
   callUser,
   showNumberDetails
-}: NumberBoxProps): JSX.Element {
+}: SpeedDialNumberProps): JSX.Element {
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
-        <AvatarButton className="min-w-10 min-h-10"></AvatarButton>
+        <Avatar size="base" className="bg-white z-0" />
         <div className="flex flex-col gap-1">
           <p className="text-gray-50">{name}</p>
           <div className="flex gap-2 items-center">
@@ -27,7 +27,7 @@ export function NumberBox({
               icon={faPhone}
               onClick={callUser}
             />
-            <p className="text-blue-500 font-normal">{number}</p>
+            <a href={`tel://${number}`} className="text-blue-500 font-normal">{number}</a>
           </div>
         </div>
       </div>

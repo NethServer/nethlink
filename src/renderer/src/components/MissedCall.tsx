@@ -1,31 +1,54 @@
-import { AvatarImage } from './AvatarImage'
+import { faUsers } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPhone } from '@fortawesome/free-solid-svg-icons'
-import { MissedCallIcon } from '@renderer/icons/MissedCallIcon'
-import { Button } from './Nethesis/Button'
+import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
+/* Badge da aggiungere*/
+import { Avatar, Badge } from './Nethesis/'
 
 export interface MissedCallProps {
   name: string
   number: string
   time: number
+  duration: number
+  company?: string
 }
 
-export function MissedCall({ name, number, time }: MissedCallProps): JSX.Element {
+export function MissedCall({
+  name,
+  number,
+  time,
+  duration,
+  company
+}: MissedCallProps): JSX.Element {
+  function truncate(str: string) {
+    return str.length > 15 ? str.substring(0, 14) + '...' : str
+  }
+
   return (
-    <div className="flex flex-row  gap-3 font-semibold min-h-[72px]">
+    <div className="flex flex-grow gap-3 font-semibold max-h-[72px]">
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
-        <AvatarImage className="min-w-6 min-h-6" />
+        <Avatar size="extra_small" placeholder={PlaceholderIcon} />
       </div>
       <div className="flex flex-col gap-1">
-        <p className="text-gray-50">{name}</p>
-        <Button className="gap-2 pt-0 pr-0 pb-0 pl-0">
-          {/* Usare svg */}
+        <p className="text-gray-50">{truncate(name)}</p>
+        <div className="flex flex-row gap-2">
           <MissedCallIcon />
-          {/* <FontAwesomeIcon style={{ fontSize: '16px', color: '#9CA3AF' }} icon={faPhone} /> */}
-          <p className="text-blue-500 font-normal w-full">{number}</p>
-        </Button>
-        <p>{time}</p>
+          <p className="text-blue-500 font-normal">{number}</p>
+        </div>
+        <div className="flex flex-row gap-1">
+          <p>{duration}m</p>
+          <p>({time})</p>
+        </div>
       </div>
+      {company && (
+        <Badge
+          variant="offline"
+          size="small"
+          className="flex flex-row gap-2 py-1 px-[10px] rounded-[10px] max-h-[22px] font-semibold ml-auto text-gray-100"
+        >
+          <FontAwesomeIcon icon={faUsers}></FontAwesomeIcon>
+          {company}
+        </Badge>
+      )}
     </div>
   )
 }

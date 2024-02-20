@@ -21,13 +21,14 @@ import { ComponentProps, FC, forwardRef } from 'react'
 import { useTheme } from '../../theme/Context'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition } from '@fortawesome/fontawesome-common-types'
+import { IconDefinition as CommonIconDefinition } from '@fortawesome/fontawesome-common-types'
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { cleanClassName } from '@renderer/utils/utils'
 
 export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
   label?: string
   placeholder?: string
-  icon?: IconDefinition
+  icon?: IconDefinition | CommonIconDefinition
   trailingIcon?: boolean
   error?: boolean
   helper?: string
@@ -55,7 +56,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       className,
       ...props
     },
-    ref,
+    ref
   ) => {
     const cleanProps = cleanClassName(props)
     const { input: theme } = useTheme().theme
@@ -66,12 +67,12 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             {label}
           </label>
         )}
-        <div className='relative'>
+        <div className="relative">
           {Icon && (
             <div
               className={classNames(
                 theme.icon.base,
-                trailingIcon ? theme.icon.right : theme.icon.left,
+                trailingIcon ? theme.icon.right : theme.icon.left
               )}
             >
               <FontAwesomeIcon
@@ -79,7 +80,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 className={classNames(
                   size === 'large' ? theme.icon.size.large : theme.icon.size.base,
                   error ? theme.icon.red : theme.icon.gray,
-                  onIconClick && 'cursor-pointer',
+                  onIconClick && 'cursor-pointer'
                 )}
                 onClick={() => onIconClick && onIconClick()}
               />
@@ -98,6 +99,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               !error ? theme.colors.gray : theme.colors.error,
               Icon && !trailingIcon && 'pl-10',
               error ? theme.placeholder.error : theme.placeholder.base,
+              'outline-transparent'
             )}
             {...cleanProps}
             ref={ref}
@@ -107,7 +109,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           <p
             className={classNames(
               theme.helper.base,
-              error ? theme.helper.color.error : theme.helper.color.base,
+              error ? theme.helper.color.error : theme.helper.color.base
             )}
           >
             {helper}
@@ -115,7 +117,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         )}
       </div>
     )
-  },
+  }
 )
 
 TextInput.displayName = 'TextInput'

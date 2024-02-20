@@ -12,6 +12,7 @@ import { Account } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
 import path from 'path'
+import { LoginController } from './classes/controllers/LoginController'
 
 new AccountController(app)
 const accountController = AccountController.instance
@@ -24,9 +25,10 @@ app.whenReady().then(() => {
   const nethConnectorWindow = new NethConnectorWindow()
   const phoneIslandWindow = new PhoneIslandWindow()
   new PhoneIslandController(phoneIslandWindow)
+  new LoginController(loginWindow)
 
   // Su linux impediamo l'apertura della NethConnectorPage all'avvio perchè prende la posizione del mouse e al primo avvio non si trova sulla tray
-  function openNethConnectorPage(isOpening: boolean) {
+  function openNethConnectorPage(isOpening = false) {
     if (process.platform != 'linux' || !isOpening) {
       nethConnectorWindow.show()
     }
@@ -35,7 +37,7 @@ app.whenReady().then(() => {
   function toggleWindow(isOpening: boolean) {
     console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
-    if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
+    if (!isOpening && (nethConnectorWindow.isOpen() || loginWindow.isOpen())) {
       nethConnectorWindow.hide()
       loginWindow.close()
     } else {
@@ -54,6 +56,7 @@ app.whenReady().then(() => {
             .autologin(isOpening)
             .then(() => openNethConnectorPage(isOpening))
             .catch(() => {
+              loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
               loginWindow.show()
             })
         }
@@ -64,7 +67,7 @@ app.whenReady().then(() => {
   accountController.onAccountChange(async (account: Account | undefined) => {
     console.log('ACCOUNT_CHANGE', account)
     nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
-    openNethConnectorPage(true)
+    openNethConnectorPage()
     if (account) {
       try {
         loginWindow.close()
@@ -86,7 +89,8 @@ app.whenReady().then(() => {
   })
 
   protocol.handle('tel', (req) => {
-    console.log(req)
+    console.log('PROCESS HANDLE TEL', req)
+    console.table(req)
     return new Promise((resolve) => resolve)
   })
 })
@@ -124,7 +128,7 @@ if (!gotTheLock) {
 }
 
 app.on('open-url', (ev, origin) => {
-  console.log(origin)
+  console.log('TEL:', origin)
 })
 
 app.dock?.hide()

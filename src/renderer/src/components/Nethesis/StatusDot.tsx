@@ -12,7 +12,7 @@
 
 import { ComponentPropsWithRef, forwardRef } from 'react'
 import classNames from 'classnames'
-import { StatusTypes } from '@renderer/theme/Types'
+import { StatusTypes } from '@shared/types'
 import { useTheme } from '@renderer/theme/Context'
 
 export interface statusDotProps extends Omit<ComponentPropsWithRef<'button'>, 'color' | 'style'> {
