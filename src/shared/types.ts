@@ -149,3 +149,56 @@ export type SpeedDialType = {
   extension?: string
   speeddial_num?: string
 }
+
+export type StatusTypes =
+  | 'available'
+  | 'online'
+  | 'dnd'
+  | 'voicemail'
+  | 'cellphone'
+  | 'callforward'
+  | 'busy'
+  | 'incoming'
+  | 'ringing'
+  | 'offline'
+
+export type SpeedDialType = {
+  id?: string | number
+  owner_id?: string
+  type?: string
+  homeemail?: string
+  workemail?: string
+  homephone?: string
+  workphone?: string
+  cellphone?: string
+  fax?: string
+  title?: string
+  company?: string
+  notes?: string
+  name?: string
+  homestreet?: string
+  homepob?: string
+  homecity?: string
+  homeprovince?: string
+  homepostalcode?: string
+  homecountry?: string
+  workstreet?: string
+  workpob?: string
+  workcity?: string
+  workprovince?: string
+  workpostalcode?: string
+  workcountry?: string
+  url?: string
+  extension?: string
+  speeddial_num?: string
+}
+
+export type NewSpeedDialType = {
+  name: string
+  privacy?: string
+  favorite?: boolean
+  selectedPrefNum?: string
+  setInput?: string
+  type?: string
+  speeddial_num?: string
+}

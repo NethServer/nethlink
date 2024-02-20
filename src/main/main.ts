@@ -18,15 +18,21 @@ const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
-  new TrayController(toggleWindow)
+  const trayController = new TrayController(() => toggleWindow(false))
   const loginWindow = new LoginWindow()
   const splashScreenWindow = new SplashScreenWindow()
   const nethConnectorWindow = new NethConnectorWindow()
-
   const phoneIslandWindow = new PhoneIslandWindow()
   new PhoneIslandController(phoneIslandWindow)
 
-  function toggleWindow(isOpening = false) {
+  // Su linux impediamo l'apertura della NethConnectorPage all'avvio perchè prende la posizione del mouse e al primo avvio non si trova sulla tray
+  function openNethConnectorPage(isOpening: boolean) {
+    if (process.platform != 'linux' || !isOpening) {
+      nethConnectorWindow.show()
+    }
+  }
+
+  function toggleWindow(isOpening: boolean) {
     console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
     if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
@@ -42,11 +48,11 @@ app.whenReady().then(() => {
         }, 2500)
       } else {
         if (accountController.getLoggedAccount()) {
-          nethConnectorWindow.show()
+          openNethConnectorPage(isOpening)
         } else {
           accountController
             .autologin(isOpening)
-            .then(() => nethConnectorWindow.show())
+            .then(() => openNethConnectorPage(isOpening))
             .catch(() => {
               loginWindow.show()
             })
@@ -58,7 +64,7 @@ app.whenReady().then(() => {
   accountController.onAccountChange(async (account: Account | undefined) => {
     console.log('ACCOUNT_CHANGE', account)
     nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
-    nethConnectorWindow.show()
+    openNethConnectorPage(true)
     if (account) {
       try {
         loginWindow.close()
@@ -115,7 +121,6 @@ protocol.registerSchemesAsPrivileged([
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
-} else {
 }
 
 app.on('open-url', (ev, origin) => {

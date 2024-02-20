@@ -18,7 +18,8 @@ export enum IPC_EVENTS {
   RECEIVE_HISTORY_CALLS = 'RECEIVE_HISTORY_CALLS',
   UPDATE_MAIN_PRESENCE = 'UPDATE_MAIN_PRESENCE',
   UPDATE_CONVERSATIONS = 'UPDATE_CONVERSATIONS',
-  QUEUE_MEMBER_UPDATE = 'QUEUE_MEMBER_UPDATE'
+  QUEUE_MEMBER_UPDATE = 'QUEUE_MEMBER_UPDATE',
+  PHONE_ISLAND_RESIZE = 'PHONE_ISLAND_RESIZE'
 }
 
 export enum PHONE_ISLAND_EVENTS {
@@ -31,5 +32,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-server-reloaded' = 'phone-island-server-reloaded',
   'phone-island-server-disconnected' = 'phone-island-server-disconnected',
   'phone-island-socket-disconnected' = 'phone-island-socket-disconnected',
-  'phone-island-parking-update' = 'phone-island-parking-update'
+  'phone-island-parking-update' = 'phone-island-parking-update',
+  'phone-island-detach' = 'phone-island-detach',
+  'phone-island-attach' = 'phone-island-attach',
+  'phone-island-call-start' = 'phone-island-call-start'
 }

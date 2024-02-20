@@ -3,6 +3,7 @@ import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
 import { Account } from '@shared/types'
+import { store } from './StoreController'
 
 export class NethVoiceAPI {
   _host: string
@@ -15,6 +16,7 @@ export class NethVoiceAPI {
   }
 
   _joinUrl(url: string) {
+    console.log('join', this._host)
     return join(this._host, url)
   }
 
@@ -27,115 +29,84 @@ export class NethVoiceAPI {
     return hmac.digest('hex')
   }
 
-  _getAuthHeader() {
+  _getHeaders(unauthorized = false) {
     return {
-      Authorization: this._account!.username + ':' + this._account!.accessToken
+      headers: {
+        'Content-Type': 'application/json',
+        ...(unauthorized
+          ? {}
+          : { Authorization: this._account!.username + ':' + this._account!.accessToken })
+      }
     }
   }
 
-  AstProxy = {}
+  async _GET(path: string, unauthorized = false): Promise<any> {
+    try {
+      return (await axios.get(this._joinUrl(path), this._getHeaders(unauthorized))).data
+    } catch (e) {
+      console.error(e)
+      throw e
+    }
+  }
+
+  async _POST(path: string, data?: object, unauthorized = false): Promise<any> {
+    try {
+      console.log(path)
+      return (await axios.post(this._joinUrl(path), data, this._getHeaders(unauthorized))).data
+    } catch (e) {
+      console.error(e)
+      throw e
+    }
+  }
+
+  AstProxy = {
+    groups: async () => await this._GET('webrest/astproxy/opgroups'),
+    extensions: async () => await this._GET('webrest/astproxy/extensions')
+  }
 
   Authentication = {
     login: async (username: string, password: string): Promise<Account> => {
+      const data = {
+        username,
+        password
+      }
       return new Promise((resolve, reject) => {
-        axios
-          .post(this._joinUrl('webrest/authentication/login'), {
-            username,
-            password
-          })
-          .catch(async (reason) => {
-            console.log(reason)
-            if (reason.response.status === 401) {
-              const digest = reason.response.headers['www-authenticate']
-              const nonce = digest.split(' ')[1]
-              console.log(digest, nonce)
-              if (nonce) {
-                const accessToken = this._toHash(username, password, nonce)
-                this._account = {
-                  host: this._host,
-                  username,
-                  accessToken,
-                  lastAccess: moment().toISOString()
-                }
-                await this.User.me()
-                resolve(this._account)
+        this._POST('webrest/authentication/login', data, true).catch(async (reason) => {
+          console.log(reason)
+          if (reason.response.status === 401) {
+            const digest = reason.response.headers['www-authenticate']
+            const nonce = digest.split(' ')[1]
+            console.log(digest, nonce)
+            if (nonce) {
+              const accessToken = this._toHash(username, password, nonce)
+              this._account = {
+                host: this._host,
+                username,
+                accessToken,
+                lastAccess: moment().toISOString()
               }
-            } else {
-              console.error('undefined nonce response')
-              reject(new Error('Unauthorized'))
+              await this.User.me()
+              resolve(this._account)
             }
-          })
+          } else {
+            console.error('undefined nonce response')
+            reject(new Error('Unauthorized'))
+          }
+        })
       })
     },
     logout: async () => {
-      try {
-        const res = await axios.post(this._joinUrl('/webrest/authentication/logout'), undefined, {
-          headers: {
-            ...this._getAuthHeader()
-          }
-        })
-        console.log(res)
-        this._account = undefined
-        return true
-      } catch (e) {
-        console.error(e)
-        throw e
-      }
+      this._account = undefined
+      await this._GET('/webrest/authentication/logout')
     },
-    phoneIslandTokenLogin: async (): Promise<{ token: string; username: string }> => {
-      try {
-        const res = await axios.post(
-          this._joinUrl('/webrest/authentication/phone_island_token_login'),
-          undefined,
-          {
-            headers: {
-              ...this._getAuthHeader()
-            }
-          }
-        )
-        return res.data
-      } catch (e) {
-        console.error(e)
-        throw e
-      }
-    },
-    persistantTokenRemove: async () => {
-      try {
-        const res = await axios.post(
-          this._joinUrl('/webrest/authentication/persistent_token_remove'),
-          {
-            type: 'phone-island'
-          },
-          {
-            headers: {
-              ...this._getAuthHeader()
-            }
-          }
-        )
-        console.log(res.data)
-        return true
-      } catch (e) {
-        console.error(e)
-        throw e
-      }
-    },
-    phoneIslandTokenChack: async () => {
-      try {
-        const res = await axios.get(
-          this._joinUrl('/webrest/authentication/phone_island_token_exists'),
-          {
-            headers: {
-              ...this._getAuthHeader()
-            }
-          }
-        )
-        console.log(res.data)
-        return true
-      } catch (e) {
-        console.error(e)
-        throw e
-      }
-    }
+    phoneIslandTokenLogin: async () =>
+      await this._POST('/webrest/authentication/phone_island_token_login'),
+    persistantTokenRemove: async () =>
+      await this._POST('/webrest/authentication/persistent_token_remove', {
+        type: 'phone-island'
+      }),
+    phoneIslandTokenChack: async () =>
+      await this._GET('/webrest/authentication/phone_island_token_exists')
   }
 
   CustCard = {}
@@ -148,15 +119,8 @@ export class NethVoiceAPI {
       const to = now.format('YYYYMMDD')
       const from = now.subtract(3, 'months').format('YYYYMMDD')
       try {
-        const res = await axios.get(
-          this._joinUrl(
-            `webrest/historycall/interval/user/${this._account!.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
-          ),
-          {
-            headers: {
-              ...this._getAuthHeader()
-            }
-          }
+        const res = await this._GET(
+          `webrest/historycall/interval/user/${this._account!.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
         )
         return res.data
       } catch (e) {
@@ -169,56 +133,43 @@ export class NethVoiceAPI {
   OffHour = {}
 
   Phonebook = {
+    search: async (search: string) => {
+      return await this._POST('/webrest/phonebook/search')
+    },
     speeddials: async () => {
-      try {
-        const res = await axios.get(this._joinUrl('/webrest/phonebook/speeddials'), {
-          headers: {
-            ...this._getAuthHeader()
-          }
-        })
-        return res.data
-      } catch (e) {
-        console.error(e)
-        throw e
-      }
+      return await this._GET('/webrest/phonebook/speeddials')
     }
   }
 
-  Profiling = {}
+  Profiling = {
+    all: async () => {
+      return await this._GET(`/webrest/profiling/all`)
+    }
+  }
 
   Streaming = {}
 
   User = {
     me: async () => {
-      try {
-        const res = await axios.get(this._joinUrl('/webrest/user/me'), {
-          headers: {
-            ...this._getAuthHeader()
-          }
-        })
-        this._account!.data = res.data
-        return this._account!
-      } catch (e) {
-        console.error(e)
-        throw e
-      }
-    }
+      console.log(store.user)
+      this._account!.data = await this._GET('/webrest/user/me')
+      this.fetchOperators()
+      return this._account!
+    },
+    all: () => this._GET('/webrest/user/all'),
+    all_avatars: () => this._GET('/webrest/user/all_avatars'),
+    all_endpoints: () => this._GET('/webrest/user/endpoints/all')
+
+    //all_avatars: () => this._GET('/webrest/user/all_avatars'),
   }
 
   Voicemail = {}
 
-  async searchPhonebook(_search: string) {
-    try {
-      const res = axios.post(this._joinUrl('/webrest/phonebook/search'), undefined, {
-        headers: {
-          ...this._getAuthHeader()
-        }
-      })
-      console.log(res)
-      return true
-    } catch (e) {
-      console.error(e)
-      throw e
-    }
+  fetchOperators = async () => {
+    const endpoints = await this.User.all_endpoints()
+    const groups = await this.AstProxy.groups()
+    const extensions = await this.AstProxy.extensions()
+    const avatars = await this.User.all_avatars()
+    console.log(endpoints, groups, extensions, avatars)
   }
 }

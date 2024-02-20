@@ -130,6 +130,7 @@ export function NethConnectorPage() {
             </div>
             <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
           </div>
+          <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
         </div>
       )}
     </div>

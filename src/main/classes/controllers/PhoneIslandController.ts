@@ -11,7 +11,7 @@ export class PhoneIslandController {
   constructor(phoneIslandWindow: PhoneIslandWindow) {
     PhoneIslandController.instance = this
     this.phoneIslandWindow = phoneIslandWindow
-    this._addListeners()
+    //this._addListeners()
   }
 
   updateDataConfig(token: string) {
@@ -38,6 +38,14 @@ export class PhoneIslandController {
     }
   }
 
+  resize(w: number, h: number) {
+    const windowPhone = this.phoneIslandWindow.getWindow()
+    if (windowPhone) {
+      const bounds = windowPhone.getBounds()
+      windowPhone.setBounds({ ...bounds, width: w, height: h }, false)
+    }
+  }
+
   call(number: string) {
     this.phoneIslandWindow.emit(IPC_EVENTS.EMIT_START_CALL, number)
   }
@@ -46,5 +54,5 @@ export class PhoneIslandController {
     this.phoneIslandWindow.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined)
   }
 
-  _addListeners() {}
+  //_addListeners() {}
 }
