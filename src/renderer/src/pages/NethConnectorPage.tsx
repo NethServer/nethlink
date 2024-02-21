@@ -17,12 +17,11 @@ export function NethConnectorPage() {
 
   useInitialize(() => {
     initialize()
-  })
+  }, true)
 
   function initialize() {
     console.log('initialize')
     window.api.onAccountChange(updateAccount)
-    window.api.sendInitializationCompleted('nethconnectorpage')
     window.api.addPhoneIslandListener(
       PHONE_ISLAND_EVENTS['phone-island-main-presence'],
       onMainPresence
