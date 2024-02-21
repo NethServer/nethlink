@@ -2,6 +2,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
+import { store } from './StoreController'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -15,16 +16,16 @@ const defaultConfig: ConfigFile = {
 
 export class AccountController {
   private _authPollingInterval: NodeJS.Timeout | undefined
-  listAvailableAccounts(): { [username: string]: Account } | undefined {
-    return this.config?.accounts
+  listAvailableAccounts(): Account[] {
+    const accounts = Object.values(this.config?.accounts || {})
+    return accounts
   }
   async logout() {
     const account = this.getLoggedAccount()
     const api = new NethVoiceAPI(account!.host, account)
     api.Authentication.logout()
-      .then((response) => {
-        if (response) console.log(`${account!.username} logout succesfully`)
-        else console.log(`an error occurred when logout`)
+      .then(() => {
+        console.log(`${account!.username} logout succesfully`)
       })
       .catch((e) => {
         console.log(e)

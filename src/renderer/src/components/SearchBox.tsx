@@ -1,12 +1,18 @@
 import { createRef, useState } from 'react'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from './Nethesis/TextInput'
 
 export interface SearchBoxProps {
   handleSearch: (searchText: string) => Promise<void>
+  handleTextChange: (searchText: string) => Promise<void>
   handleReset: () => void
 }
 
-export function SearchBox({ handleSearch, handleReset }: SearchBoxProps): JSX.Element {
+export function SearchBox({
+  handleSearch,
+  handleReset,
+  handleTextChange
+}: SearchBoxProps): JSX.Element {
   const [showReset, setShowReset] = useState(false)
 
   const inputRef = createRef<HTMLInputElement>()
@@ -26,15 +32,15 @@ export function SearchBox({ handleSearch, handleReset }: SearchBoxProps): JSX.El
   }
 
   return (
-    //TODO guardare come modificare il colore
     <TextInput
       rounded="base"
-      //icon={faSearch}
+      icon={faSearch}
       ref={inputRef}
       type="text"
       placeholder="Call or compose..."
       onChange={(e) => {
         inputRef.current!.value = e.target.value
+        handleTextChange(inputRef.current!.value)
         testReset()
       }}
       onSubmit={submit}

@@ -1,3 +1,4 @@
+import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
 
@@ -37,22 +38,18 @@ export class NethConnectorWindow extends BaseWindow {
 
   _setBounds() {
     const screenBounds = screen.getPrimaryDisplay().size
-    console.log(screenBounds)
     const { w, h } = this.size!
-    const x =
-      process.platform === 'linux'
-        ? screen.getCursorScreenPoint().x - 210
-        : Math.round(screenBounds.width - w - screenBounds.width * 0.02)
-    const y =
-      process.platform === 'win32'
-        ? Math.round(screenBounds.height - h - screenBounds.height * 0.02)
-        : Math.round(screenBounds.height * 0.02)
-    const bound = {
-      x: x,
-      y: y,
-      w,
-      h
+    let x = Math.round(screenBounds.width - w - 10)
+    let y = Math.round(screenBounds.height * 0.02)
+    if (process.platform === 'win32') {
+      const trayBounds = TrayController.instance.tray.getBounds()
+      y = Math.round(screenBounds.height - h - trayBounds.height - 16)
     }
+    if (process.platform === 'linux') {
+      x = screen.getCursorScreenPoint().x - 210
+    }
+    console.log(screenBounds)
+    const bound = { x, y, w, h }
     console.log(bound)
     this._window?.setBounds(bound, false)
   }

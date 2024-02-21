@@ -23,12 +23,10 @@ const defaultValue = {
 }
 
 export function LoginPage() {
-  const [displayedAccounts, setDisplayedAccounts] = useState<Account[]>()
+  const [displayedAccounts, setDisplayedAccounts] = useState<Account[]>([])
   const [selectedAccount, setSelectedAccount] = useState<Account | 'New Account'>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isError, setIsError] = useState<boolean>(false)
-
-  window.api.onLoadAccounts((accounts: Account[]) => setDisplayedAccounts(accounts))
 
   function resizeThisWindow(w: number, h: number) {
     window.api.resizeLoginWindow(w, h)
@@ -45,6 +43,7 @@ export function LoginPage() {
     window.api.login(data.host, data.username, data.password).catch(() => {
       setIsLoading(false), setIsError(true)
     })
+    window.api.onLoadAccounts((accounts: Account[]) => setDisplayedAccounts(accounts))
   }
 
   const newAccountForm: ReactNode = (
@@ -89,7 +88,7 @@ export function LoginPage() {
       <div className={classNames('h-full w-full', isLoading ? 'brightness-50' : '')}>
         <div className="flex flex-row justify-between items-end">
           <img src={header}></img>
-          {displayedAccounts && selectedAccount && (
+          {displayedAccounts.length > 0 && selectedAccount && (
             <FontAwesomeIcon
               icon={faArrowLeft}
               className="h-6 w-6 text-gray-50"
@@ -98,7 +97,7 @@ export function LoginPage() {
           )}
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
-          {true ? (
+          {displayedAccounts.length > 0 ? (
             <div>
               {selectedAccount ? (
                 <div>{selectedAccount === 'New Account' ? newAccountForm : <div></div>}</div>
@@ -113,6 +112,9 @@ export function LoginPage() {
                       data: undefined
                     }}
                     imageSrc={avatar}
+                    onClick={function (): void {
+                      throw new Error('Function not implemented.')
+                    }}
                   />
                 </div>
               )}
