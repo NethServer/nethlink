@@ -6,19 +6,17 @@ import { store } from './StoreController'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
-  accounts: {
-    lorenzo: {
-      host: 'https://cti.demo-heron.sf.nethserver.net',
-      username: 'lorenzo'
-    }
-  }
+  accounts: {}
 }
 
 export class AccountController {
   private _authPollingInterval: NodeJS.Timeout | undefined
   listAvailableAccounts(): Account[] {
-    const accounts = Object.values(this.config?.accounts || {})
-    return accounts
+    const accounts = this._getConfigFile()?.accounts
+    if (accounts) {
+      return Object.values(accounts || {})
+    }
+    return []
   }
   async logout() {
     const account = this.getLoggedAccount()
@@ -53,10 +51,10 @@ export class AccountController {
     const { CONFIG_FILE } = this._getPaths()
     const config = this._getConfigFile()
     console.log('save account', config.lastUser, account?.username, isOpening)
+    if (config.lastUser !== account?.username || isOpening) {
+      this._onAccountChange!(account)
+    }
     if (account) {
-      if (config.lastUser !== account.username || isOpening) {
-        this._onAccountChange!(account)
-      }
       config.accounts[account.username] = account
       config.lastUser = account.username
     } else {

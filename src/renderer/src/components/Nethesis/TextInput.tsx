@@ -63,7 +63,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     return (
       <div className={classNames('text-left', 'w-full', className)}>
         {label && (
-          <label className={theme.label} htmlFor={id}>
+          <label className={classNames(error ? theme.label.error : theme.label.base)} htmlFor={id}>
             {label}
           </label>
         )}

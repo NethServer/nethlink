@@ -15,8 +15,10 @@ export function registerIpcEvents() {
       host,
       username
     }
-    const account = await AccountController.instance.login(tempAccount, password)
-    event.returnValue = account
+    await AccountController.instance
+      .login(tempAccount, password)
+      .then((account) => (event.returnValue = account))
+      .catch(() => (event.returnValue = undefined))
   })
 
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
@@ -66,9 +68,9 @@ export function registerIpcEvents() {
     console.log(event, w, h)
     PhoneIslandController.instance.resize(w, h)
   })
-  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, w, h) => {
-    console.log(event, w, h)
-    LoginController.instance.resize(w, h)
+  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
+    console.log(event, h)
+    LoginController.instance.resize(h)
   })
 
   //SEND BACK ALL PHONE ISLAND EVENTS

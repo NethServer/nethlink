@@ -1,31 +1,26 @@
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { rejects } from 'assert'
+import { Account, HistoryCallData } from '@shared/types'
+
+export type SyncResponse<T> = [T, Error]
 
 export interface IElectronAPI {
-  resizeLoginWindow(width: number, height: number): void
+  resizeLoginWindow(height: number): void
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): unknown
   onAccountChange(
-    updateAccount: (
-      e: IpcRendererEvent,
-      account: import('@shared/types').Account | undefined
-    ) => void
+    updateAccount: (e: IpcRendererEvent, account: Account | undefined) => void
   ): unknown
   onDataConfigChange(
     updateDataConfig: (event: IpcRendererEvent, dataConfig: string | undefined) => void
   ): void
   onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => Promise<void>): unknown
-  onReciveLastCalls(
-    saveMissedCalls: (historyResponse: import('@shared/types').HistoryCallData) => Promise<void>
-  ): unknown
-  login: (
-    host: string,
-    username: string,
-    password: string
-  ) => Promise<import('@shared/types').Account>
+  onReciveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => Promise<void>): unknown
+  login: (host: string, username: string, password: string) => Account | undefined
   logout: () => void
-  onLoadAccounts(callback: (accounts: import('@shared/types').Account[]) => void)
+  onLoadAccounts(callback: (event: IpcRendererEvent, accounts: Account[]) => void)
   startCall(phoneNumber: string): void
   onStartCall(callback: (event: IpcRendererEvent, ...args: any[]) => void): void
 
@@ -41,8 +36,10 @@ function addListener(event) {
   return (callback) => ipcRenderer.on(event, callback)
 }
 
-function setEmitterSync(event) {
-  return (...args) => ipcRenderer.sendSync(event, ...args)
+function setEmitterSync<T>(event): () => T {
+  return (...args): T => {
+    return ipcRenderer.sendSync(event, ...args)
+  }
 }
 
 function setEmitter(event) {
@@ -54,7 +51,7 @@ function setEmitter(event) {
 // Custom APIs for renderer
 const api: IElectronAPI = {
   //SYNC EMITTERS - expect response
-  login: setEmitterSync(IPC_EVENTS.LOGIN),
+  login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
 
   //EMITTER - only emit, no response
   logout: setEmitter(IPC_EVENTS.LOGOUT),

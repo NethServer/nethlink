@@ -55,7 +55,13 @@ export function Navbar({
                 </div>
               </Menu.Item>
               <Menu.Item>
-                <p>logout</p>
+                <p
+                  onClick={() => {
+                    window.api.logout()
+                  }}
+                >
+                  logout
+                </p>
               </Menu.Item>
             </Menu.Items>
           </Menu>

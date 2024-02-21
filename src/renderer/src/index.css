@@ -12,6 +12,16 @@ button {
   -webkit-app-region: drag !important;
 }
 
+::-webkit-scrollbar {
+  width: 3px;
+  background-color: #111827;
+}
+
+::-webkit-scrollbar-thumb {
+  width: 3px;
+  background-color: #f9fafb;
+}
+
 @layer base {
   #root {
     @apply h-full;
