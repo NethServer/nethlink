@@ -13,7 +13,8 @@ export function registerIpcEvents() {
     console.log(args)
     const tempAccount: Account = {
       host,
-      username
+      username,
+      theme: 'system'
     }
     const account = await AccountController.instance.login(tempAccount, password)
     event.returnValue = account

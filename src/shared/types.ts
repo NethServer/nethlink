@@ -3,6 +3,7 @@ export type Account = {
   accessToken?: string
   lastAccess?: string
   host: string
+  theme: 'system' | 'light' | 'dark'
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData
 }
@@ -28,7 +29,7 @@ export type AccountData = {
   name: string
   username: string
   mainPresece: string
-  presence: string
+  presence: StatusTypes
   presenceOnBusy: string
   presenceOnUnavailable: string
   recallOnBusy: string

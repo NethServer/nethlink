@@ -9,7 +9,8 @@ const defaultConfig: ConfigFile = {
   accounts: {
     lorenzo: {
       host: 'https://cti.demo-heron.sf.nethserver.net',
-      username: 'lorenzo'
+      username: 'lorenzo',
+      theme: 'system'
     }
   }
 }
@@ -56,6 +57,10 @@ export class AccountController {
     if (account) {
       if (config.lastUser !== account.username || isOpening) {
         this._onAccountChange!(account)
+      }
+      const temp = config.accounts[account.username]
+      if (temp) {
+        account.theme = temp.theme
       }
       config.accounts[account.username] = account
       config.lastUser = account.username
