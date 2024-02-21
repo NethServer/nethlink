@@ -12,9 +12,7 @@ export interface IElectronAPI {
   onAccountChange(
     updateAccount: (account: import('@shared/types').Account | undefined) => void
   ): unknown
-  onDataConfigChange(
-    updateDataConfig: (event: IpcRendererEvent, dataConfig: string | undefined) => void
-  ): void
+  onDataConfigChange(updateDataConfig: (dataConfig: string | undefined) => void): void
   onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => Promise<void>): unknown
   onReceiveLastCalls(saveMissedCalls: (historyResponse: any) => Promise<void>): unknown
   login: (
@@ -77,13 +75,13 @@ const api: IElectronAPI = {
   onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
 
   addPhoneIslandListener: (event, callback) => {
+    console.log(event)
     const listener = addListener(`on-${event}`)
     return listener(callback)
   },
 
   //PHONE ISLAND EVENTS:
   ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, ev) => {
-    console.log(ev)
     p[`${ev}`] = setEmitter(ev)
     return p
   }, {})

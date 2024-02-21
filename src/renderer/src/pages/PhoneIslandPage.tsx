@@ -24,7 +24,7 @@ export function PhoneIslandPage() {
     })
   }, true)
 
-  function updateDataConfig(e, dataConfig: string | undefined) {
+  function updateDataConfig(dataConfig: string | undefined) {
     console.log(dataConfig)
     setDataConfig(() => dataConfig)
   }
