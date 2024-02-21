@@ -28,10 +28,10 @@ export type PhoneIslandConfig = {
 export type AccountData = {
   name: string
   username: string
-  mainPresece: string
+  mainPresece: StatusTypes
   presence: StatusTypes
-  presenceOnBusy: string
-  presenceOnUnavailable: string
+  presenceOnBusy: StatusTypes
+  presenceOnUnavailable: StatusTypes
   recallOnBusy: string
   endpoints: {
     email: BaseEndpoint[]

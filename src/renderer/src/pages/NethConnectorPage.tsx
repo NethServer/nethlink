@@ -3,7 +3,13 @@ import { Navbar } from '../components/Navbar'
 import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
-import { Account } from '@shared/types'
+import {
+  Account,
+  CallData,
+  HistoryCallData,
+  HistorySpeedDialType,
+  SpeedDialType
+} from '@shared/types'
 import { useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
@@ -11,7 +17,9 @@ import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useState<Account>()
-  const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.PHONE)
+  const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.ZAP)
+  const [speeddials, setSpeeddials] = useState<SpeedDialType[]>([])
+  const [missedCalls, setMissedCalls] = useState<CallData[]>([])
 
   useInitialize(() => {
     initialize()
@@ -25,6 +33,32 @@ export function NethConnectorPage() {
       PHONE_ISLAND_EVENTS['phone-island-main-presence'],
       onMainPresence
     )
+    saveSpeeddials({
+      count: 4,
+      rows: [
+        { name: 'Edoardo', speeddial_num: '3275757265' },
+        { name: 'Pippo Bica', speeddial_num: '230' },
+        { name: 'Giovanni', speeddial_num: '56789' },
+        { name: 'Alexa', speeddial_num: '27589' }
+      ]
+    })
+    window.api.onReceiveSpeeddials(saveSpeeddials)
+    //TODO da guardare come passare la tipologia di MissedCall, tipo commercial, customer care...
+    saveMissedCalls({
+      count: 3,
+      rows: [
+        { cnam: 'Tanya Fox', cnum: '530', duration: 1, time: 14 },
+        { cnam: 'Unknown', cnum: '333 756 0091', duration: 10, time: 12, ccompany: 'Commercial' },
+        {
+          cnam: 'Maple office customer service',
+          cnum: '02 3456785',
+          duration: 10,
+          time: 12,
+          ccompany: 'Customer Care'
+        }
+      ]
+    })
+    window.api.onReciveLastCalls(saveMissedCalls)
   }
 
   function onMainPresence(...args) {
@@ -32,19 +66,23 @@ export function NethConnectorPage() {
   }
 
   function updateAccount(e, account: Account | undefined) {
-    console.log('Account: ' + account?.username)
-    console.log('mainPresece: ' + account?.data?.presence)
-    console.log('Theme: ' + account?.theme)
     setAccount(() => account)
+  }
+
+  async function saveSpeeddials(speeddialsResponse: HistorySpeedDialType) {
+    setSpeeddials(() => speeddialsResponse.rows)
+  }
+
+  async function saveMissedCalls(historyResponse: HistoryCallData) {
+    setMissedCalls(() => historyResponse.rows)
   }
 
   async function handleSearch(searchText: string) {
     setSearch(() => searchText)
-    window.api.startCall(searchText)
+    callUser(searchText)
   }
 
   async function handleTextChange(searchText: string) {
-    console.log(searchText)
     setSearch(() => searchText)
   }
 
@@ -52,22 +90,30 @@ export function NethConnectorPage() {
     setSearch(() => '')
   }
 
-  function createSpeedDials(): void {
-    alert('Deve reindirizzare alla pagina per creare un nuovo speed dial')
-  }
-
   function callUser(phoneNumber: string): void {
-    //window.api.startCall(phoneNumber)
-    alert(`Deve chiamare l'utente selezionato. ${phoneNumber}`)
-  }
-
-  function showNumberDetails(e: any): void {
-    alert(`La funzione dovrebbe mostrare i dettagli dell'utente selezionato. ${e}`)
+    window.api.startCall(phoneNumber)
+    console.log('name: ' + account?.data?.name)
+    console.log('username: ' + account?.username)
+    console.log('mainPresece: ' + account?.data?.mainPresece)
+    console.log('presence: ' + account?.data?.presence)
+    console.log('presenceOnBusy: ' + account?.data?.presenceOnBusy)
+    console.log('presenceOnUnavailable: ' + account?.data?.presenceOnUnavailable)
+    console.log('recallOnBusy: ' + account?.data?.recallOnBusy)
+    console.log('Theme: ' + account?.theme)
   }
 
   function logout(): void {
     window.api.logout()
-    //alert('La funzione deve mostrare il modal di Signout.')
+  }
+
+  /* Le seguenti funzioni sono da implementare */
+
+  function createSpeedDials(): void {
+    alert('Deve reindirizzare alla pagina per creare un nuovo speed dial')
+  }
+
+  function showNumberDetails(e: any): void {
+    alert(`La funzione dovrebbe mostrare i dettagli dell'utente selezionato. ${e}`)
   }
 
   function viewAllMissedCalls(): void {
@@ -91,11 +137,11 @@ export function NethConnectorPage() {
                 handleReset={handleReset}
                 handleTextChange={handleTextChange}
               />
-              {/* TODO aggiungere il controllo ed il componente delle chiamate */}
               <div className="relative w-full h-full">
                 <div className="px-4 w-full h-full">
                   {selectedMenu === MENU_ELEMENT.ZAP ? (
                     <SpeedDialsBox
+                      speeddials={speeddials}
                       title="Speed Dials"
                       onClick={createSpeedDials}
                       callUser={callUser}
@@ -104,7 +150,8 @@ export function NethConnectorPage() {
                     />
                   ) : (
                     <MissedCallsBox
-                      title="Missed Calls (3)"
+                      missedCalls={missedCalls}
+                      title={`Missed Calls (${missedCalls.length})`}
                       label="View all"
                       onClick={viewAllMissedCalls}
                     />
@@ -116,10 +163,6 @@ export function NethConnectorPage() {
                   </div>
                 ) : null}
               </div>
-
-              {/* <button onClick={async () => window.api.logout()}>Logout</button>
-              <button onClick={() => window.api.getSpeeddials()}></button>
-              <div className="">{search}</div> */}
             </div>
             <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
           </div>
