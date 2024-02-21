@@ -9,31 +9,15 @@ const defaultConfig: ConfigFile = {
   accounts: {
     lorenzo: {
       host: 'https://cti.demo-heron.sf.nethserver.net',
-      username: 'lorenzo'
+      username: 'lorenzo',
+      theme: 'system'
     }
   }
 }
 
 export class AccountController {
-  private _authPollingInterval: NodeJS.Timeout | undefined
-  listAvailableAccounts(): Account[] {
-    const accounts = Object.values(this.config?.accounts || {})
-    return accounts
-  }
-  async logout() {
-    const account = this.getLoggedAccount()
-    const api = new NethVoiceAPI(account!.host, account)
-    api.Authentication.logout()
-      .then(() => {
-        console.log(`${account!.username} logout succesfully`)
-      })
-      .catch((e) => {
-        console.log(e)
-      })
-    this._saveNewAccountData(undefined, false)
-  }
   _app: Electron.App | undefined
-  _onAccountChange: ((account: Account | undefined) => void) | undefined
+  private _authPollingInterval: NodeJS.Timeout | undefined
   private config: ConfigFile | undefined
   static instance: AccountController
 
@@ -48,15 +32,19 @@ export class AccountController {
     const CONFIG_FILE = join(CONFIG_PATH, 'config.json')
     return { BASE_URL, CONFIG_PATH, CONFIG_FILE }
   }
-
-  _saveNewAccountData(account: Account | undefined, isOpening: boolean) {
+  _onAccountChange: ((account: Account | undefined) => void) | undefined
+  _saveNewAccountData(account: Account | undefined, isOpening = false) {
     const { CONFIG_FILE } = this._getPaths()
     const config = this._getConfigFile()
     console.log('save account', config.lastUser, account?.username, isOpening)
+    if (config.lastUser !== account?.username || isOpening) {
+      this._onAccountChange!(account)
+    }
     if (account) {
-      if (config.lastUser !== account.username || isOpening) {
-        this._onAccountChange!(account)
-      }
+      // const temp = config.accounts[account.username]
+      // if (temp) {
+      //   account.theme = temp.theme
+      // }
       config.accounts[account.username] = account
       config.lastUser = account.username
     } else {
@@ -67,6 +55,23 @@ export class AccountController {
     }
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config), 'utf-8')
     this.config = config
+  }
+
+  listAvailableAccounts(): Account[] {
+    const accounts = Object.values(this.config?.accounts || {})
+    return accounts
+  }
+  async logout() {
+    const account = this.getLoggedAccount()
+    const api = new NethVoiceAPI(account!.host, account)
+    this._saveNewAccountData(undefined, false)
+    api.Authentication.logout()
+      .then(() => {
+        console.log(`${account!.username} logout succesfully`)
+      })
+      .catch((e) => {
+        console.log(e)
+      })
   }
 
   getLoggedAccount() {
@@ -150,5 +155,17 @@ export class AccountController {
 
   stopAuthPolling() {
     clearInterval(this._authPollingInterval)
+  }
+
+  updateTheme(theme: any) {
+    const account = this.getLoggedAccount()
+    account!.theme = theme
+    this._saveNewAccountData(account)
+  }
+
+  updatePhoneIslandPosition(position: { x: number; y: number }) {
+    const account = this.getLoggedAccount()
+    account!.phoneIslandPosition = position
+    this._saveNewAccountData(account)
   }
 }

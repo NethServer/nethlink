@@ -4,9 +4,11 @@ import { ReactNode, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
+import avatar from '../assets/AvatarProvaLoginPage.jpeg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
+import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
 
 type LoginData = {
   host: string
@@ -23,11 +25,8 @@ const defaultValue = {
 export function LoginPage() {
   const [displayedAccounts, setDisplayedAccounts] = useState<Account[]>([])
   const [selectedAccount, setSelectedAccount] = useState<Account | 'New Account'>()
-  const [isNewAccount, setIsNewAccount] = useState<boolean>(true)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isError, setIsError] = useState<boolean>(false)
-
-
 
   function resizeThisWindow(w: number, h: number) {
     window.api.resizeLoginWindow(w, h)
@@ -47,10 +46,6 @@ export function LoginPage() {
     window.api.onLoadAccounts((accounts: Account[]) => setDisplayedAccounts(accounts))
   }
 
-  function toggleBackArrow(): void {
-    throw new Error('Function not implemented.')
-  }
-
   const newAccountForm: ReactNode = (
     <div className="mt-7">
       <p className="text-gray-100 text-xl font-semibold mb-3">Welcome</p>
@@ -59,25 +54,25 @@ export function LoginPage() {
       </p>
       <div className="flex flex-col grow gap-7">
         <TextInput
-          {...register('host')}
+          {...register('host', { required: true })}
           type="text"
           defaultValue={defaultValue.host}
           label="Nethvoice CTI host"
-          error={isError}
+          error={isError || Boolean(errors.host)}
         />
         <TextInput
-          {...register('username')}
+          {...register('username', { required: true })}
           type="text"
           defaultValue={defaultValue.username}
           label="Username"
-          error={isError}
+          error={isError || Boolean(errors.username)}
         />
         <TextInput
-          {...register('password')}
+          {...register('password', { required: true })}
           type="password"
           defaultValue={defaultValue.password}
           label="Password"
-          error={isError}
+          error={isError || Boolean(errors.password)}
         />
         <input
           type="submit"
@@ -97,7 +92,7 @@ export function LoginPage() {
             <FontAwesomeIcon
               icon={faArrowLeft}
               className="h-6 w-6 text-gray-50"
-              onClick={() => toggleBackArrow()}
+              onClick={() => setSelectedAccount(undefined)}
             />
           )}
         </div>
@@ -107,7 +102,21 @@ export function LoginPage() {
               {selectedAccount ? (
                 <div>{selectedAccount === 'New Account' ? newAccountForm : <div></div>}</div>
               ) : (
-                <div></div>
+                <div>
+                  <DisplayedAccountLogin
+                    account={{
+                      username: '',
+                      accessToken: undefined,
+                      lastAccess: undefined,
+                      host: '',
+                      data: undefined
+                    }}
+                    imageSrc={avatar}
+                    onClick={function (): void {
+                      throw new Error('Function not implemented.')
+                    }}
+                  />
+                </div>
               )}
             </div>
           ) : (
