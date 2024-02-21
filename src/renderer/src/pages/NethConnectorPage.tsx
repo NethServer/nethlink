@@ -12,7 +12,6 @@ export function NethConnectorPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useState<Account>()
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.PHONE)
-  const [showLogoutMenu, setShowLogoutMenu] = useState(false)
 
   useInitialize(() => {
     initialize()
@@ -33,7 +32,9 @@ export function NethConnectorPage() {
   }
 
   function updateAccount(e, account: Account | undefined) {
-    console.log(account)
+    console.log('Account: ' + account?.username)
+    console.log('mainPresece: ' + account?.data?.presence)
+    console.log('Theme: ' + account?.theme)
     setAccount(() => account)
   }
 
@@ -51,11 +52,6 @@ export function NethConnectorPage() {
     setSearch(() => '')
   }
 
-  function openSettings() {
-    alert('aprire modale')
-    //window.electron.ipcRenderer.send('openWindow', 'settings')
-  }
-
   function createSpeedDials(): void {
     alert('Deve reindirizzare alla pagina per creare un nuovo speed dial')
   }
@@ -66,13 +62,11 @@ export function NethConnectorPage() {
   }
 
   function showNumberDetails(e: any): void {
-    alert(`La funzione dovrebbe mostrare i dettagli dell' utente selezionato. ${e}`)
+    alert(`La funzione dovrebbe mostrare i dettagli dell'utente selezionato. ${e}`)
   }
 
-  function showLogoutMenuContext(): void {
-    console.log(showLogoutMenu)
-    setShowLogoutMenu(!showLogoutMenu)
-    //window.api.logout()
+  function logout(): void {
+    window.api.logout()
     //alert('La funzione deve mostrare il modal di Signout.')
   }
 
@@ -90,12 +84,12 @@ export function NethConnectorPage() {
           <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
             <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
               <Navbar
-                showLogoutMenu={showLogoutMenu}
-                openSettings={openSettings}
+                account={account}
+                setAccount={setAccount}
+                logout={logout}
                 handleSearch={handleSearch}
                 handleReset={handleReset}
                 handleTextChange={handleTextChange}
-                showLogoutMenuContext={showLogoutMenuContext}
               />
               {/* TODO aggiungere il controllo ed il componente delle chiamate */}
               <div className="relative w-full h-full">
