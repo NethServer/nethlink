@@ -8,18 +8,16 @@ export function PhoneIslandPage() {
 
   useInitialize(() => {
     window.api.onDataConfigChange(updateDataConfig)
-    window.api.onStartCall((e, phoneNumber) => {
-      console.log('received number', phoneNumber)
+    window.api.onStartCall((number: number | string) => {
+      console.log('received number', number)
       window.dispatchEvent(
         new CustomEvent('phone-island-call-start', {
           detail: {
-            number: phoneNumber
+            number
           }
         })
       )
     })
-
-    console.log(window.api)
 
     Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
       window.addEventListener(ev, (event) => window.api[ev](event['detail']))

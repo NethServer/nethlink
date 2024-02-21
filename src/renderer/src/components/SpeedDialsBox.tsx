@@ -31,7 +31,8 @@ export function SpeedDialsBox({
         </Button>
       </div>
       <div className="flex flex-col gap-2 p-2 min-h-[240px]">
-        {speeddials?.map((e, idx) => {
+        {(speeddials?.length || 0 > 0) ? speeddials?.map((e, idx) => {
+          console.log(e)
           return (
             <div
               className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 border-gray-700`}`}
@@ -45,7 +46,7 @@ export function SpeedDialsBox({
               />
             </div>
           )
-        })}
+        }) : <div>No speed dial</div>}
       </div>
     </div>
   )

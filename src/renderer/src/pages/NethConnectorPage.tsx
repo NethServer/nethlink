@@ -5,6 +5,7 @@ import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
 import {
   Account,
+  AvailableThemes,
   CallData,
   HistoryCallData,
   HistorySpeedDialType,
@@ -33,53 +34,56 @@ export function NethConnectorPage() {
       PHONE_ISLAND_EVENTS['phone-island-main-presence'],
       onMainPresence
     )
-    saveSpeeddials({
-      count: 4,
-      rows: [
-        { name: 'Edoardo', speeddial_num: '3275757265' },
-        { name: 'Pippo Bica', speeddial_num: '230' },
-        { name: 'Giovanni', speeddial_num: '56789' },
-        { name: 'Alexa', speeddial_num: '27589' }
-      ]
-    })
+    // saveSpeeddials({
+    //   count: 4,
+    //   rows: [
+    //     { name: 'Edoardo', speeddial_num: '3275757265' },
+    //     { name: 'Pippo Bica', speeddial_num: '230' },
+    //     { name: 'Giovanni', speeddial_num: '56789' },
+    //     { name: 'Alexa', speeddial_num: '27589' }
+    //   ]
+    // })
     window.api.onReceiveSpeeddials(saveSpeeddials)
     //TODO da guardare come passare la tipologia di MissedCall, tipo commercial, customer care...
-    saveMissedCalls({
-      count: 3,
-      rows: [
-        { cnam: 'Tanya Fox', cnum: '530', duration: 1, time: 14 },
-        { cnam: 'Unknown', cnum: '333 756 0091', duration: 10, time: 12, ccompany: 'Commercial' },
-        {
-          cnam: 'Maple office customer service',
-          cnum: '02 3456785',
-          duration: 10,
-          time: 12,
-          ccompany: 'Customer Care'
-        }
-      ]
-    })
-    window.api.onReciveLastCalls(saveMissedCalls)
+    // saveMissedCalls({
+    //   count: 3,
+    //   rows: [
+    //     { cnam: 'Tanya Fox', cnum: '530', duration: 1, time: 14 },
+    //     { cnam: 'Unknown', cnum: '333 756 0091', duration: 10, time: 12, ccompany: 'Commercial' },
+    //     {
+    //       cnam: 'Maple office customer service',
+    //       cnum: '02 3456785',
+    //       duration: 10,
+    //       time: 12,
+    //       ccompany: 'Customer Care'
+    //     }
+    //   ]
+    // })
+    window.api.onReceiveLastCalls(saveMissedCalls)
   }
 
   function onMainPresence(...args) {
     console.log('onMainPresence', args)
   }
 
-  function updateAccount(e, account: Account | undefined) {
+  function updateAccount(account: Account | undefined) {
     setAccount(() => account)
   }
 
-  async function saveSpeeddials(speeddialsResponse: HistorySpeedDialType) {
-    setSpeeddials(() => speeddialsResponse.rows)
+  async function saveSpeeddials(speeddialsResponse: SpeedDialType[] | undefined) {
+    console.log(speeddialsResponse)
+    setSpeeddials(() => speeddialsResponse || [])
   }
 
-  async function saveMissedCalls(historyResponse: HistoryCallData) {
-    setMissedCalls(() => historyResponse.rows)
+  async function saveMissedCalls(historyResponse: HistoryCallData | undefined) {
+    console.log(historyResponse)
+    setMissedCalls(() => historyResponse?.rows || [])
   }
 
   async function handleSearch(searchText: string) {
     setSearch(() => searchText)
-    callUser(searchText)
+    window.api.sendSearchText(searchText)
+    //callUser(searchText)
   }
 
   async function handleTextChange(searchText: string) {
@@ -91,15 +95,8 @@ export function NethConnectorPage() {
   }
 
   function callUser(phoneNumber: string): void {
+    console.log(phoneNumber)
     window.api.startCall(phoneNumber)
-    console.log('name: ' + account?.data?.name)
-    console.log('username: ' + account?.username)
-    console.log('mainPresece: ' + account?.data?.mainPresece)
-    console.log('presence: ' + account?.data?.presence)
-    console.log('presenceOnBusy: ' + account?.data?.presenceOnBusy)
-    console.log('presenceOnUnavailable: ' + account?.data?.presenceOnUnavailable)
-    console.log('recallOnBusy: ' + account?.data?.recallOnBusy)
-    console.log('Theme: ' + account?.theme)
   }
 
   function logout(): void {
@@ -120,6 +117,14 @@ export function NethConnectorPage() {
     alert('Deve reindirizzare alla pagina per vedere tutte le chiamate perse.')
   }
 
+  function handleOnSelectTheme(theme: AvailableThemes) {
+    window.api.changeTheme(theme)
+    setAccount((p) => ({
+      ...p!,
+      theme
+    }))
+  }
+
   return (
     <div>
       {account && (
@@ -131,7 +136,7 @@ export function NethConnectorPage() {
             <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
               <Navbar
                 account={account}
-                setAccount={setAccount}
+                onSelectTheme={handleOnSelectTheme}
                 logout={logout}
                 handleSearch={handleSearch}
                 handleReset={handleReset}

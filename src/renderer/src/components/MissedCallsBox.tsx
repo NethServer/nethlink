@@ -29,7 +29,7 @@ export function MissedCallsBox({
           <p className="text-blue-500">{label}</p>
         </Button>
       </div>
-      <div className="flex flex-col gap-2 p-2 min-h-[240px]">
+      <div className="flex flex-col gap-2 p-2 max-h-[240px] overflow-y-auto">
         {missedCalls?.map((call, idx) => {
           return (
             <div

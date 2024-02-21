@@ -2,8 +2,8 @@ import { join } from 'path'
 import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
-import { Account } from '@shared/types'
-import { store } from '../../../shared/StoreController'
+import { Account, Operator } from '@shared/types'
+import { AccountController } from './AccountController'
 
 export class NethVoiceAPI {
   _host: string
@@ -16,8 +16,9 @@ export class NethVoiceAPI {
   }
 
   _joinUrl(url: string) {
-    console.log('join', this._host)
-    return join(this._host, url)
+    const path = join(this._host, url)
+    console.log('PATH:', path)
+    return path
   }
 
   _toHash(username: string, password: string, nonce: string) {
@@ -60,8 +61,8 @@ export class NethVoiceAPI {
   }
 
   AstProxy = {
-    groups: async () => await this._GET('webrest/astproxy/opgroups'),
-    extensions: async () => await this._GET('webrest/astproxy/extensions')
+    groups: async () => await this._GET('/webrest/astproxy/opgroups'),
+    extensions: async () => await this._GET('/webrest/astproxy/extensions')
   }
 
   Authentication = {
@@ -71,7 +72,7 @@ export class NethVoiceAPI {
         password
       }
       return new Promise((resolve, reject) => {
-        this._POST('webrest/authentication/login', data, true).catch(async (reason) => {
+        this._POST('/webrest/authentication/login', data, true).catch(async (reason) => {
           console.log(reason)
           if (reason.response.status === 401) {
             const digest = reason.response.headers['www-authenticate']
@@ -79,10 +80,12 @@ export class NethVoiceAPI {
             console.log(digest, nonce)
             if (nonce) {
               const accessToken = this._toHash(username, password, nonce)
+              const config = AccountController.instance._getConfigFile()
               this._account = {
                 host: this._host,
                 username,
                 accessToken,
+                theme: config?.accounts[username]?.theme || 'system',
                 lastAccess: moment().toISOString()
               }
               await this.User.me()
@@ -117,12 +120,14 @@ export class NethVoiceAPI {
     interval: async () => {
       const now = moment()
       const to = now.format('YYYYMMDD')
-      const from = now.subtract(3, 'months').format('YYYYMMDD')
+      const from = now.subtract(2, 'months').format('YYYYMMDD')
       try {
         const res = await this._GET(
-          `webrest/historycall/interval/user/${this._account!.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
+          `/webrest/historycall/interval/user/${this._account!.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
         )
-        return res.data
+        //historycall/interval/user/lorenzo/20231221/20240221?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined
+        console.log(res)
+        return res
       } catch (e) {
         console.error(e)
         throw e
@@ -133,8 +138,17 @@ export class NethVoiceAPI {
   OffHour = {}
 
   Phonebook = {
-    search: async (search: string) => {
-      return await this._POST('/webrest/phonebook/search')
+    search: async (
+      search: string,
+      offset = 0,
+      pageSize = 15,
+      view: 'all' | 'company' | 'person' = 'all'
+    ) => {
+      const s = await this._GET(
+        `/webrest/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}`
+      )
+      console.log(s)
+      return s
     },
     speeddials: async () => {
       return await this._GET('/webrest/phonebook/speeddials')
@@ -152,7 +166,6 @@ export class NethVoiceAPI {
   User = {
     me: async () => {
       this._account!.data = await this._GET('/webrest/user/me')
-      this.fetchOperators()
       return this._account!
     },
     all: async () => await this._GET('/webrest/user/all'),
@@ -164,18 +177,17 @@ export class NethVoiceAPI {
 
   Voicemail = {}
 
-  fetchOperators = async () => {
+  fetchOperators = async (): Promise<Operator> => {
     console.log('FETCH')
     const endpoints = await this.User.all_endpoints()
     const groups = await this.AstProxy.groups()
     const extensions = await this.AstProxy.extensions()
     const avatars = await this.User.all_avatars()
-    store.operators.set({
+    return {
       userEndpoints: endpoints,
       extensions,
       groups,
       avatars
-    })
-    console.log('FETCH RES:', endpoints, groups, extensions, avatars)
+    }
   }
 }

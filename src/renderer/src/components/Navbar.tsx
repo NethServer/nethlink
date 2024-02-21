@@ -11,12 +11,12 @@ import {
 import { Avatar } from './Nethesis/Avatar'
 import { Button } from './Nethesis/Button'
 import { Menu } from '@headlessui/react'
-import { Account } from '@shared/types'
+import { Account, AvailableThemes } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
 
 export interface NavabarProps {
   account: Account
-  setAccount: React.Dispatch<React.SetStateAction<Account | undefined>>
+  onSelectTheme: (theme: AvailableThemes) => void
   logout: () => void
   handleSearch: (searchText: string) => Promise<void>
   handleTextChange: (searchText: string) => Promise<void>
@@ -25,15 +25,14 @@ export interface NavabarProps {
 
 export function Navbar({
   account,
-  setAccount,
+  onSelectTheme,
   logout,
   handleSearch,
   handleReset,
   handleTextChange
 }: NavabarProps): JSX.Element {
   function setTheme(theme) {
-    const updateAccount = { ...account, theme: theme }
-    setAccount(updateAccount)
+    onSelectTheme(theme)
     //window.electron.ipcRenderer.send('openWindow', 'settings')
   }
 
@@ -49,9 +48,9 @@ export function Navbar({
           <Menu>
             <div>
               <Menu.Button>
-                <Button className="min-w-8 min-h-8 border-none pt-0 pr-0 pb-0 pl-0">
+                <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon icon={faSliders} className="h-5 w-5" />
-                </Button>
+                </div>
               </Menu.Button>
             </div>
 

@@ -1,6 +1,9 @@
 import { faPhone, faUserPlus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
+import { useInitialize } from '@renderer/hooks/useInitialize'
+import { useState } from 'react'
+import { HistoryCallData, SearchCallData, SearchData } from '@shared/types'
 
 export interface SearchNumberBoxProps {
   searchText: string
@@ -8,13 +11,16 @@ export interface SearchNumberBoxProps {
 }
 
 export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) {
-  const phoneNumbers = [
-    { name: 'Test', number: '200' },
-    { name: 'KZUC', number: '210' },
-    { name: "Doppi'", number: '201' }
-  ]
 
-  const filteredPhoneNumbers = phoneNumbers.filter((element) => element.number.includes(searchText))
+  const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
+
+  useInitialize(() => {
+    window.api.onSearchResult(preparePhoneNumbers)
+  })
+
+  function preparePhoneNumbers(receivedPhoneNumbers: SearchCallData) {
+    setFilteredPhoneNumbers(() => receivedPhoneNumbers.rows)
+  }
 
   return (
     <div className="flex flex-col">
@@ -36,13 +42,13 @@ export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) 
         <p>Add {searchText.toString()} to Phonebook</p>
       </div>
       <div className={`border-b border-gray-700 mx-4`}></div>
-      <div className="px-4">
+      <div className="px-4 overflow-y-auto max-h-[216px]">
         {filteredPhoneNumbers.map((phoneNumber, index) => (
           <SearchNumber
             key={index}
             name={phoneNumber.name}
-            number={phoneNumber.number}
-            callUser={() => callUser(phoneNumber.number)}
+            number={phoneNumber.workphone}
+            callUser={() => callUser(phoneNumber.workphone)}
             searchText={searchText}
           />
         ))}

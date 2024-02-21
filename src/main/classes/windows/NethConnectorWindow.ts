@@ -3,6 +3,7 @@ import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
 
 export class NethConnectorWindow extends BaseWindow {
+  static instance: NethConnectorWindow
   size: { w: number; h: number } | undefined
   constructor() {
     const size = { w: 400, h: 371 }
@@ -34,6 +35,7 @@ export class NethConnectorWindow extends BaseWindow {
       trafficLightPosition: { x: 0, y: 0 }
     })
     this.size = size
+    NethConnectorWindow.instance = this
   }
 
   _setBounds() {

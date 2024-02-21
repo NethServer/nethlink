@@ -1,9 +1,10 @@
+export type AvailableThemes = 'system' | 'light' | 'dark'
 export type Account = {
   username: string
   accessToken?: string
   lastAccess?: string
   host: string
-  theme: 'system' | 'light' | 'dark'
+  theme: AvailableThemes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData
 }
@@ -86,9 +87,44 @@ export type UserSettings = {
   chat_notifications: true
 }
 
-export type HistoryCallData = {
+export type MultipleResponse<T> = {
   count: number
-  rows: CallData[]
+  rows: T[]
+}
+export type HistorySpeedDialType = MultipleResponse<SpeedDialType>
+export type HistoryCallData = MultipleResponse<CallData>
+export type SearchCallData = MultipleResponse<SearchData>
+
+export type SearchData = {
+  cellphone: string
+  company: string
+  extension: string
+  fax: string
+  homecity: string
+  homecountry: string
+  homeemail: string
+  homephone: string
+  homepob: string
+  homepostalcode: string
+  homeprovince: string
+  homestreet: string
+  id: number
+  name: string
+  notes: string
+  owner_id: string
+  source: string
+  speeddial_num: string
+  title: string
+  type: string
+  url: string
+  workcity: string
+  workcountry: string
+  workemail: string
+  workphone: string
+  workpob: string
+  workpostalcode: string
+  workprovince: string
+  workstreet: string
 }
 export type CallData = {
   time?: number
@@ -113,11 +149,6 @@ export type CallData = {
   clid?: string
   direction?: string
   queue?: null
-}
-
-export type HistorySpeedDialType = {
-  count: number
-  rows: SpeedDialType[]
 }
 
 export type StatusTypes =
@@ -171,4 +202,11 @@ export type NewSpeedDialType = {
   setInput?: string
   type?: string
   speeddial_num?: string
+}
+
+export type Operator = {
+  userEndpoints: any
+  extensions: any
+  groups: any
+  avatars: any
 }
