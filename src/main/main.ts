@@ -20,8 +20,6 @@ const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
-  store.authentication = 'pippo'
-  console.log(store.authentication)
   const trayController = new TrayController(() => toggleWindow(false))
   const loginWindow = new LoginWindow()
   const splashScreenWindow = new SplashScreenWindow()
@@ -92,8 +90,10 @@ app.whenReady().then(() => {
   })
 
   protocol.handle('tel', (req) => {
-    console.log('PROCESS HANDLE TEL', req.url.slice('tel:'.length))
-    return new Promise((resolve) => resolve)
+    return handleTelProtocol(req.url)
+  })
+  protocol.handle('callto', (req) => {
+    return handleTelProtocol(req.url)
   })
 })
 
@@ -103,14 +103,17 @@ app.on('window-all-closed', () => {
 
 // remove so we can register each time as we run the app.
 app.removeAsDefaultProtocolClient('tel')
+app.removeAsDefaultProtocolClient('callto')
 
 // if we are running a non-packaged version of the app && on windows
 if (process.env.node_env === 'development' && process.platform === 'win32') {
   // set the path of electron.exe and your app.
   // these two additional parameters are only available on windows.
   app.setAsDefaultProtocolClient('tel', process.execPath, [path.resolve(process.argv[1])])
+  app.setAsDefaultProtocolClient('callto', process.execPath, [path.resolve(process.argv[1])])
 } else {
   app.setAsDefaultProtocolClient('tel')
+  app.setAsDefaultProtocolClient('callto')
 }
 
 protocol.registerSchemesAsPrivileged([
@@ -136,7 +139,17 @@ if (!gotTheLock) {
 }
 
 app.on('open-url', (ev, origin) => {
-  console.log('TEL:', origin)
+  handleTelProtocol(origin)
 })
 
 app.dock?.hide()
+function handleTelProtocol(url: string): Promise<Response> {
+  const tel = decodeURI(url)
+    .replace(/ /g, '')
+    .replace(/tel:\/\//g, '')
+    .replace(/callto:\/\//g, '')
+    .replace(/\//g, '')
+  console.log('TEL:', tel)
+  PhoneIslandController.instance.call(tel)
+  return new Promise((resolve) => resolve)
+}

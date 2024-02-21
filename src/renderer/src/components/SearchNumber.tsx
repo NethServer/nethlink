@@ -1,6 +1,7 @@
-import { PlaceholderIcon } from '@renderer/icons/PlaceholderIcon'
 import { ReactNode } from 'react'
 import { Avatar, Button } from './Nethesis'
+import { NumberCaller } from './NumberCaller'
+import { PlaceholderIcon } from '@renderer/icons/PlaceholderIcon'
 
 export interface SearchNumberProps {
   name: string
@@ -38,7 +39,7 @@ export function SearchNumber({ name, number, callUser, searchText }: SearchNumbe
         <Avatar size="small" placeholder={PlaceholderIcon} bordered={true} />
         <div className="flex flex-col gap-1">
           <p>{name}</p>
-          <a href={`tel:${number}`} >{highlightedNumber}</a>
+          <NumberCaller number={number}>{highlightedNumber}</NumberCaller>
         </div>
       </div>
       <Button variant="ghost" onClick={callUser}>
