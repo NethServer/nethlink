@@ -1,4 +1,5 @@
 import { subscribe } from 'diagnostics_channel'
+import { read } from 'fs'
 import { createStore } from 'zustand/vanilla'
 
 type LocalStorageData = {
@@ -57,11 +58,21 @@ const localStore = createStore<LocalStorageState>((set) => ({
     }))
 }))
 
-type Store = Record<keyof LocalStorageData, any>
+type StoreData = {
+  readonly get: () => any
+  readonly set: (v: any) => void
+}
+type Store = Record<keyof LocalStorageData, StoreData>
 
 export const store: Store = Object.keys(initialData).reduce<Store>((p, c) => {
   const s = localStore.getState()
-  const elem = s[c]
-  p[c] = elem
+  const e = {
+    get: () => s[c],
+    set: (v: any) => {
+      s[c] = v
+      console.log('update c', v)
+    }
+  }
+  p[c] = e
   return p
 }, {} as Store)

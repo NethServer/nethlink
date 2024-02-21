@@ -2,7 +2,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
-import { store } from './StoreController'
+import { store } from '../../../shared/StoreController'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
