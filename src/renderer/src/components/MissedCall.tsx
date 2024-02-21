@@ -32,7 +32,7 @@ export function MissedCall({
         <p className="text-gray-50">{truncate(name)}</p>
         <div className="flex flex-row gap-2">
           <MissedCallIcon />
-          <p className="text-blue-500 font-normal">{number}</p>
+          <a href={`tel:${number}`} className="text-blue-500 font-normal">{number}</a>
         </div>
         <div className="flex flex-row gap-1">
           <p>{duration}m</p>

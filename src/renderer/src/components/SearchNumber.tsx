@@ -38,7 +38,7 @@ export function SearchNumber({ name, number, callUser, searchText }: SearchNumbe
         <Avatar size="small" placeholder={PlaceholderIcon} bordered={true} />
         <div className="flex flex-col gap-1">
           <p>{name}</p>
-          <p>{highlightedNumber}</p>
+          <a href={`tel:${number}`} >{highlightedNumber}</a>
         </div>
       </div>
       <Button variant="ghost" onClick={callUser}>

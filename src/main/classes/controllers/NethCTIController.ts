@@ -3,7 +3,7 @@ import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
 import { Account } from '@shared/types'
-import { store } from './StoreController'
+import { store } from '../../../shared/StoreController'
 
 export class NethVoiceAPI {
   _host: string

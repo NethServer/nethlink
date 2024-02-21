@@ -13,12 +13,15 @@ import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
 import path from 'path'
 import { LoginController } from './classes/controllers/LoginController'
+import { store } from '@shared/StoreController'
 
 new AccountController(app)
 const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
+  store.authentication = 'pippo'
+  console.log(store.authentication)
   const trayController = new TrayController(() => toggleWindow(false))
   const loginWindow = new LoginWindow()
   const splashScreenWindow = new SplashScreenWindow()
@@ -89,8 +92,7 @@ app.whenReady().then(() => {
   })
 
   protocol.handle('tel', (req) => {
-    console.log('PROCESS HANDLE TEL', req)
-    console.table(req)
+    console.log('PROCESS HANDLE TEL', req.url.slice('tel:'.length))
     return new Promise((resolve) => resolve)
   })
 })
@@ -116,7 +118,13 @@ protocol.registerSchemesAsPrivileged([
     scheme: 'tel',
     privileges: {
       standard: true,
-      secure: true
+      secure: true,
+      stream: true,
+      bypassCSP: true,
+      supportFetchAPI: true,
+      codeCache: true,
+      allowServiceWorkers: true,
+      corsEnabled: true
     }
   }
 ])

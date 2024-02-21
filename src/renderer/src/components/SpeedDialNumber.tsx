@@ -27,7 +27,7 @@ export function SpeedDialNumber({
               icon={faPhone}
               onClick={callUser}
             />
-            <a href={`tel://${number}`} className="text-blue-500 font-normal">{number}</a>
+            <a href={`tel:${number}`} className="text-blue-500 font-normal">{number}</a>
           </div>
         </div>
       </div>
