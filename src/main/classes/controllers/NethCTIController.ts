@@ -3,7 +3,7 @@ import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
 import { Account } from '@shared/types'
-import { store } from './StoreController'
+import { store } from '../../../shared/StoreController'
 
 export class NethVoiceAPI {
   _host: string
@@ -151,14 +151,13 @@ export class NethVoiceAPI {
 
   User = {
     me: async () => {
-      console.log(store.user)
       this._account!.data = await this._GET('/webrest/user/me')
       this.fetchOperators()
       return this._account!
     },
-    all: () => this._GET('/webrest/user/all'),
-    all_avatars: () => this._GET('/webrest/user/all_avatars'),
-    all_endpoints: () => this._GET('/webrest/user/endpoints/all')
+    all: async () => await this._GET('/webrest/user/all'),
+    all_avatars: async () => await this._GET('/webrest/user/all_avatars'),
+    all_endpoints: async () => await this._GET('/webrest/user/endpoints/all')
 
     //all_avatars: () => this._GET('/webrest/user/all_avatars'),
   }
@@ -166,10 +165,17 @@ export class NethVoiceAPI {
   Voicemail = {}
 
   fetchOperators = async () => {
+    console.log('FETCH')
     const endpoints = await this.User.all_endpoints()
     const groups = await this.AstProxy.groups()
     const extensions = await this.AstProxy.extensions()
     const avatars = await this.User.all_avatars()
-    console.log(endpoints, groups, extensions, avatars)
+    store.operators.set({
+      userEndpoints: endpoints,
+      extensions,
+      groups,
+      avatars
+    })
+    console.log('FETCH RES:', endpoints, groups, extensions, avatars)
   }
 }

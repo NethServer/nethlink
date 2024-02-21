@@ -73,7 +73,8 @@
     "protocols": {
       "name": "neth-connector-protocols",
       "schemes": [
-        "tel"
+        "tel",
+        "callto"
       ]
     }
   }

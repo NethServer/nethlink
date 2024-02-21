@@ -24,7 +24,7 @@ export function PhoneIslandPage() {
     Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
       window.addEventListener(ev, (event) => window.api[ev](event['detail']))
     })
-  })
+  }, true)
 
   function updateDataConfig(e, dataConfig: string | undefined) {
     console.log(dataConfig)

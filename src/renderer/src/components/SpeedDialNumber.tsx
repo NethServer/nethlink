@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhone, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/'
+import { NumberCaller } from './NumberCaller'
 
 export interface SpeedDialNumberProps {
   name: string
@@ -27,7 +28,7 @@ export function SpeedDialNumber({
               icon={faPhone}
               onClick={callUser}
             />
-            <a href={`tel://${number}`} className="text-blue-500 font-normal">{number}</a>
+            <NumberCaller number={number} className="text-blue-500 font-normal">{number}</NumberCaller>
           </div>
         </div>
       </div>
