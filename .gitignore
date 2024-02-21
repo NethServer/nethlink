@@ -3,4 +3,5 @@ dist
 out
 .DS_Store
 *.log*
+.yarn/install-state.gz
 yarn.lock

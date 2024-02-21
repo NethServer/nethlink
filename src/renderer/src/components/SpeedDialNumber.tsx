@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhone, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/'
+import { PlaceholderIcon } from '@renderer/icons'
 import { NumberCaller } from './NumberCaller'
 
 export interface SpeedDialNumberProps {
@@ -19,7 +20,7 @@ export function SpeedDialNumber({
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
-        <Avatar size="base" className="bg-white z-0" />
+        <Avatar size="base" className="bg-white z-0" placeholder={PlaceholderIcon} />
         <div className="flex flex-col gap-1">
           <p className="text-gray-50">{name}</p>
           <div className="flex gap-2 items-center">
@@ -28,7 +29,9 @@ export function SpeedDialNumber({
               icon={faPhone}
               onClick={callUser}
             />
-            <NumberCaller number={number} className="text-blue-500 font-normal">{number}</NumberCaller>
+            <NumberCaller number={number} className="text-blue-500 font-normal">
+              {number}
+            </NumberCaller>
           </div>
         </div>
       </div>

@@ -71,17 +71,28 @@ app.whenReady().then(() => {
     openNethConnectorPage()
     if (account) {
       try {
-        loginWindow.close()
+        loginWindow.hide()
       } catch (e) {
         console.log(e)
       }
-      const phoneIslandTokenLoginResponse =
-        await NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin()
-      console.log(phoneIslandTokenLoginResponse)
-      PhoneIslandController.instance.updateDataConfig(phoneIslandTokenLoginResponse.token)
+      NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin().then(
+        (phoneIslandTokenLoginResponse) => {
+          console.log(phoneIslandTokenLoginResponse)
+          PhoneIslandController.instance.updateDataConfig(phoneIslandTokenLoginResponse.token)
+        }
+      )
+      //const operators = await NethVoiceAPI.instance.fetchOperators()
+      NethVoiceAPI.instance.HistoryCall.interval().then((lastCalls) =>
+        nethConnectorWindow.emit(IPC_EVENTS.RECEIVE_HISTORY_CALLS, lastCalls)
+      )
+      NethVoiceAPI.instance.Phonebook.speeddials().then((speeddials) =>
+        nethConnectorWindow.emit(IPC_EVENTS.RECEIVE_SPEEDDIALS, speeddials)
+      )
+      //nethConnectorWindow.emit(IPC_EVENTS.)
     } else {
       console.log('phonisland logout')
       PhoneIslandController.instance.logout()
+      nethConnectorWindow.hide()
     }
   })
 

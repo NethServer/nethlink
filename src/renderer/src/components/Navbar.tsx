@@ -1,96 +1,157 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchBox } from './SearchBox'
-import { faSliders, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons'
+import {
+  faSliders,
+  faArrowRightFromBracket,
+  faPalette,
+  faSun,
+  faMoon,
+  faCheck
+} from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/Avatar'
 import { Button } from './Nethesis/Button'
 import { Menu } from '@headlessui/react'
+import { Account, AvailableThemes } from '@shared/types'
+import { PlaceholderIcon } from '@renderer/icons'
 
 export interface NavabarProps {
-  showLogoutMenu: boolean
-  openSettings: () => void
+  account: Account
+  onSelectTheme: (theme: AvailableThemes) => void
+  logout: () => void
   handleSearch: (searchText: string) => Promise<void>
   handleTextChange: (searchText: string) => Promise<void>
   handleReset: () => void
-  showLogoutMenuContext: () => void
 }
 
 export function Navbar({
-  showLogoutMenu,
-  openSettings,
+  account,
+  onSelectTheme,
+  logout,
   handleSearch,
   handleReset,
-  handleTextChange,
-  showLogoutMenuContext
+  handleTextChange
 }: NavabarProps): JSX.Element {
+  function setTheme(theme) {
+    onSelectTheme(theme)
+    //window.electron.ipcRenderer.send('openWindow', 'settings')
+  }
+
   return (
-    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4">
+    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4 text-gray-50">
       <SearchBox
         handleSearch={handleSearch}
         handleReset={handleReset}
         handleTextChange={handleTextChange}
       />
       <div className="flex flex-row min-w-20 gap-4 items-center">
-        <Button onClick={openSettings} className="min-w-8 min-h-8 border-none pt-0 pr-0 pb-0 pl-0">
-          <FontAwesomeIcon icon={faSliders} className="h-5 w-5" />
-        </Button>
+        <div>
+          <Menu>
+            <div>
+              <Menu.Button>
+                <div className="flex items-center justify-center min-w-8 min-h-8">
+                  <FontAwesomeIcon icon={faSliders} className="h-5 w-5" />
+                </div>
+              </Menu.Button>
+            </div>
+
+            <Menu.Items
+              className={`mt-2 fixed border border-gray-700 rounded-lg min-w-[225px] min-h-[145px] bg-gray-900 z-20 translate-x-[calc(-100%+36px)]`}
+            >
+              <p className="text-xs leading-[18px] py-1 px-4 mt-1">THEME</p>
+              <Menu.Item>
+                <div
+                  className={`flex flex-row items-center gap-4 hover:bg-gray-700 mt-2 ${account.theme === 'system' ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
+                  onClick={() => setTheme('system')}
+                >
+                  {account.theme === 'system' && (
+                    <FontAwesomeIcon
+                      className="text-blue-500"
+                      style={{ fontSize: '16px' }}
+                      icon={faCheck}
+                    />
+                  )}
+                  <div className="flex gap-2 items-center">
+                    <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faPalette} />
+                    <p className="font-semibold">System</p>
+                  </div>
+                </div>
+              </Menu.Item>
+              <Menu.Item>
+                <div
+                  className={`flex flex-row items-center gap-4 hover:bg-gray-700 mt-2 ${account.theme === 'light' ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
+                  onClick={() => setTheme('light')}
+                >
+                  {account.theme === 'light' && (
+                    <FontAwesomeIcon
+                      className="text-blue-500"
+                      style={{ fontSize: '16px' }}
+                      icon={faCheck}
+                    />
+                  )}
+                  <div className="flex gap-2 items-center">
+                    <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faSun} />
+                    <p className="font-semibold">Light</p>
+                  </div>
+                </div>
+              </Menu.Item>
+              <Menu.Item>
+                <div
+                  className={`flex flex-row items-center gap-4 hover:bg-gray-700 mt-2 ${account.theme === 'dark' ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
+                  onClick={() => setTheme('dark')}
+                >
+                  {account.theme === 'dark' && (
+                    <FontAwesomeIcon
+                      className="text-blue-500"
+                      style={{ fontSize: '16px' }}
+                      icon={faCheck}
+                    />
+                  )}
+                  <div className="flex gap-2 items-center">
+                    <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faMoon} />
+                    <p className="font-semibold">Dark</p>
+                  </div>
+                </div>
+              </Menu.Item>
+            </Menu.Items>
+          </Menu>
+        </div>
         <div>
           <Menu>
             <div>
               <Menu.Button>
                 <Avatar
                   size="small"
-                  status="online"
-                  className="bg-white"
-                  /* onClick={showLogoutMenuContext} */
+                  status={account.data?.presence}
+                  placeholder={PlaceholderIcon}
                 />
               </Menu.Button>
             </div>
 
             <Menu.Items
-              className={`mt-2 fixed border border-gray-700 rounded-lg min-w-[185px] min-h-[125px] bg-gray-900 z-20 translate-x-[calc(-100%+36px)]`}
+              className={`mt-2 fixed border border-gray-700 rounded-lg min-w-[180px] min-h-[125px] bg-gray-900 z-20 translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
-                <div>
-                  <p>sign in as</p>
+                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] border-gray-600">
+                  <p className="text-gray-400">Sign in as</p>
+                  <div className="flex flex-row gap-4">
+                    <p className="text-gray-50 font-semibold">{account.data?.name}</p>
+                    <p className="text-gray-400">{account.data?.endpoints.mainextension[0].id}</p>
+                  </div>
                 </div>
               </Menu.Item>
               <Menu.Item>
-                <p>logout</p>
+                <div
+                  className="flex flex-row items-center gap-4 py-[10px] px-6 hover:bg-gray-700 mt-2"
+                  onClick={logout}
+                >
+                  <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faArrowRightFromBracket} />
+                  <p className="font-semibold">Logout</p>
+                </div>
               </Menu.Item>
             </Menu.Items>
           </Menu>
         </div>
       </div>
-      {/* {showModal && (
-        <Modal show={showModal} onClose={showSignOutModal} afterLeave={showSignOutModal}>
-          <Modal.Content>
-            <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-red-100 dark:bg-red-900">
-              <FontAwesomeIcon
-                icon={faTriangleExclamation}
-                className="h-6 w-6 text-red-600 dark:text-red-200"
-                aria-hidden="true"
-              />
-            </div>
-            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">
-                hello 1
-              </h3>
-              <div className="mt-3">
-                <p className="text-sm text-gray-500 dark:text-gray-400">hello 2</p>
-              </div>
-            </div>
-          </Modal.Content>
-          <Modal.Actions>
-            <div
-              className="flex items-center gap-4 py-[10px] px-2 w-full min-h-9 hover:bg-gray-700 text-gray-200"
-              onClick={showSignOutModal}
-            >
-              <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faArrowRightFromBracket} />
-              <p>Logout</p>
-            </div>
-          </Modal.Actions>
-        </Modal>
-      )} */}
     </div>
   )
 }

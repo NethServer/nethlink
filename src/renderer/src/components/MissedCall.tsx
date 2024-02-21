@@ -4,6 +4,7 @@ import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 /* Badge da aggiungere*/
 import { Avatar, Badge } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
+import moment from 'moment'
 
 export interface MissedCallProps {
   name: string
@@ -37,7 +38,7 @@ export function MissedCall({
         </div>
         <div className="flex flex-row gap-1">
           <p>{duration}m</p>
-          <p>({time})</p>
+          <p>({moment(time).format('HH:MM')})</p>
         </div>
       </div>
       {company && (
