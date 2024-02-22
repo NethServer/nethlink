@@ -39,12 +39,23 @@ export class PhoneIslandWindow extends BaseWindow {
 
   show(..._args: any): void {
     const display = screen.getPrimaryDisplay()
+    const screensSize = screen.getAllDisplays().reduce<{ x: number; y: number }>(
+      (p, c) => {
+        p = {
+          x: p.x + c.size.width,
+          y: p.y + c.size.height
+        }
+        console.log(c)
+        return p
+      },
+      { x: 0, y: 0 }
+    )
     console.log(display.bounds.x)
     this._window?.setBounds({
       height: 0,
       width: 0,
-      x: 0,
-      y: display.bounds.y
+      x: screensSize.x,
+      y: screensSize.y
     })
     super.show()
   }
