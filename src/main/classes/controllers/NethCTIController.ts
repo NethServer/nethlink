@@ -72,28 +72,31 @@ export class NethVoiceAPI {
         password
       }
       return new Promise((resolve, reject) => {
-        this._POST('/webrest/authentication/login', data, true).catch(async (reason) => {
-          console.log(reason)
-          if (reason.response.status === 401) {
-            const digest = reason.response.headers['www-authenticate']
-            const nonce = digest.split(' ')[1]
-            console.log(digest, nonce)
-            if (nonce) {
-              const accessToken = this._toHash(username, password, nonce)
-              const config = AccountController.instance._getConfigFile()
-              this._account = {
-                host: this._host,
-                username,
-                accessToken,
-                theme: config?.accounts[username]?.theme || 'system',
-                lastAccess: moment().toISOString()
+        this._POST('webrest/authentication/login', data, true).catch(async (reason) => {
+          try {
+            console.log(reason)
+            if (reason.response.status === 401 && reason.response.headers['www-authenticate']) {
+              const digest = reason.response.headers['www-authenticate']
+              const nonce = digest.split(' ')[1]
+              console.log(digest, nonce)
+              if (nonce) {
+                const accessToken = this._toHash(username, password, nonce)
+                this._account = {
+                  host: this._host,
+                  username,
+                  accessToken,
+                  lastAccess: moment().toISOString()
+                }
+                await this.User.me()
+                resolve(this._account)
+
               }
-              await this.User.me()
-              resolve(this._account)
+            } else {
+              console.error('undefined nonce response')
+              reject(new Error('Unauthorized'))
             }
-          } else {
-            console.error('undefined nonce response')
-            reject(new Error('Unauthorized'))
+          } catch (e) {
+            reject(e)
           }
         })
       })

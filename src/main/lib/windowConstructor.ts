@@ -21,7 +21,6 @@ export function createWindow(
   const mainWindow = new BrowserWindow({
     parent: undefined,
     ...config,
-    transparent: false,
     ...(process.platform === 'linux' ? (config.icon ? { icon: config.icon } : {}) : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

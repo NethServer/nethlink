@@ -6,16 +6,31 @@ import { store } from '../../../shared/StoreController'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
-  accounts: {
-    lorenzo: {
-      host: 'https://cti.demo-heron.sf.nethserver.net',
-      username: 'lorenzo',
-      theme: 'system'
-    }
-  }
+  accounts: {}
 }
 
 export class AccountController {
+  private _authPollingInterval: NodeJS.Timeout | undefined
+  listAvailableAccounts(): Account[] {
+    const accounts = this._getConfigFile()?.accounts
+    if (accounts) {
+      return Object.values(accounts || {})
+    }
+    return []
+  }
+  async logout() {
+    const account = this.getLoggedAccount()
+    const api = new NethVoiceAPI(account!.host, account)
+    api.Authentication.logout()
+      .then(() => {
+        console.log(`${account!.username} logout succesfully`)
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+    this._saveNewAccountData(undefined, false)
+  }
+
   _app: Electron.App | undefined
   private _authPollingInterval: NodeJS.Timeout | undefined
   private config: ConfigFile | undefined
@@ -41,10 +56,6 @@ export class AccountController {
       this._onAccountChange!(account)
     }
     if (account) {
-      // const temp = config.accounts[account.username]
-      // if (temp) {
-      //   account.theme = temp.theme
-      // }
       config.accounts[account.username] = account
       config.lastUser = account.username
     } else {

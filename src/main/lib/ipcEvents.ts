@@ -17,8 +17,12 @@ export function registerIpcEvents() {
       username,
       theme: 'system'
     }
-    const account = await AccountController.instance.login(tempAccount, password)
-    event.returnValue = account
+    try {
+      event.returnValue = await AccountController.instance.login(tempAccount, password)
+    } catch (e) {
+      console.log(e)
+      event.returnValue = undefined
+    }
   })
 
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
@@ -68,9 +72,12 @@ export function registerIpcEvents() {
     console.log(event, w, h)
     PhoneIslandController.instance.resize(w, h)
   })
-  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, w, h) => {
-    console.log(event, w, h)
-    LoginController.instance.resize(w, h)
+  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
+    console.log(event, h)
+    LoginController.instance.resize(h)
+  })
+  ipcMain.on(IPC_EVENTS.HIDE_LOGIN_WINDOW, () => {
+    LoginController.instance.hide()
   })
 
   ipcMain.on(IPC_EVENTS.CHANGE_THEME, (event, theme) => {

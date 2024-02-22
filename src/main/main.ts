@@ -41,13 +41,13 @@ app.whenReady().then(() => {
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
     if (!isOpening && (nethConnectorWindow.isOpen() || loginWindow.isOpen())) {
       nethConnectorWindow.hide()
-      loginWindow.close()
+      loginWindow.hide()
     } else {
       if (!accountController.hasConfigsFolder()) {
         accountController.createConfigFile()
         splashScreenWindow.show()
         setTimeout(() => {
-          splashScreenWindow.close()
+          splashScreenWindow.hide()
           loginWindow.show()
         }, 2500)
       } else {
@@ -58,8 +58,13 @@ app.whenReady().then(() => {
             .autologin(isOpening)
             .then(() => openNethConnectorPage(isOpening))
             .catch(() => {
-              loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
-              loginWindow.show()
+              loginWindow.addOnBuildListener(() => {
+                loginWindow.emit(
+                  IPC_EVENTS.LOAD_ACCOUNTS,
+                  accountController.listAvailableAccounts()
+                )
+                loginWindow.show()
+              })
             })
         }
       }
@@ -69,7 +74,7 @@ app.whenReady().then(() => {
   accountController.onAccountChange(async (account: Account | undefined) => {
     console.log('ACCOUNT_CHANGE', account)
     nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
-    openNethConnectorPage()
+    openNethConnectorPage(true)
     if (account) {
       try {
         loginWindow.hide()
@@ -91,6 +96,8 @@ app.whenReady().then(() => {
       )
       //nethConnectorWindow.emit(IPC_EVENTS.)
     } else {
+      loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
+      loginWindow.show()
       console.log('phonisland logout')
       PhoneIslandController.instance.logout()
       nethConnectorWindow.hide()
