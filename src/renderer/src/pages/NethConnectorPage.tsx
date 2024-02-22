@@ -8,13 +8,11 @@ import {
   AvailableThemes,
   CallData,
   HistoryCallData,
-  HistorySpeedDialType,
   SpeedDialType
 } from '@shared/types'
 import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { store } from '@shared/StoreController'
 import { debouncer } from '@shared/utils/utils'
 
 export function NethConnectorPage() {
@@ -33,7 +31,7 @@ export function NethConnectorPage() {
       debouncer('search', () => {
         console.log('debounce')
         window.api.sendSearchText(search)
-      }, 500)
+      }, 250)
     }
   }, [search])
 
@@ -44,31 +42,7 @@ export function NethConnectorPage() {
       PHONE_ISLAND_EVENTS['phone-island-main-presence'],
       onMainPresence
     )
-    // saveSpeeddials({
-    //   count: 4,
-    //   rows: [
-    //     { name: 'Edoardo', speeddial_num: '3275757265' },
-    //     { name: 'Pippo Bica', speeddial_num: '230' },
-    //     { name: 'Giovanni', speeddial_num: '56789' },
-    //     { name: 'Alexa', speeddial_num: '27589' }
-    //   ]
-    // })
     window.api.onReceiveSpeeddials(saveSpeeddials)
-    //TODO da guardare come passare la tipologia di MissedCall, tipo commercial, customer care...
-    // saveMissedCalls({
-    //   count: 3,
-    //   rows: [
-    //     { cnam: 'Tanya Fox', cnum: '530', duration: 1, time: 14 },
-    //     { cnam: 'Unknown', cnum: '333 756 0091', duration: 10, time: 12, ccompany: 'Commercial' },
-    //     {
-    //       cnam: 'Maple office customer service',
-    //       cnum: '02 3456785',
-    //       duration: 10,
-    //       time: 12,
-    //       ccompany: 'Customer Care'
-    //     }
-    //   ]
-    // })
     window.api.onReceiveLastCalls(saveMissedCalls)
   }
 

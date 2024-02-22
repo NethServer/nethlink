@@ -24,7 +24,7 @@ export function LoginPage() {
   const [isError, setIsError] = useState<boolean>(false)
 
   useInitialize(() => {
-    window.api.onLoadAccounts((e: any, accounts: Account[]) => {
+    window.api.onLoadAccounts((accounts: Account[]) => {
       console.log(accounts)
       setDisplayedAccounts(accounts)
     })

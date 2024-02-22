@@ -3,7 +3,6 @@ import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
 import { Account, Operator } from '@shared/types'
-import { AccountController } from './AccountController'
 
 export class NethVoiceAPI {
   _host: string
@@ -85,11 +84,11 @@ export class NethVoiceAPI {
                   host: this._host,
                   username,
                   accessToken,
+                  theme: 'system',
                   lastAccess: moment().toISOString()
                 }
                 await this.User.me()
                 resolve(this._account)
-
               }
             } else {
               console.error('undefined nonce response')

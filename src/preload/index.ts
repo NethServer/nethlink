@@ -13,7 +13,7 @@ export interface IElectronAPI {
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
   onDataConfigChange(updateDataConfig: (dataConfig: string | undefined) => void): void
   onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => void): void
-  onReciveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => void): void
+  onReceiveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => void): void
   onLoadAccounts(callback: (accounts: Account[]) => void): void
   onStartCall(callback: (number: string | number) => void): void
   onSearchResult(callback: (serachResults: SearchCallData) => void): void
@@ -80,7 +80,7 @@ const api: IElectronAPI = {
   onDataConfigChange: addListener(IPC_EVENTS.ON_DATA_CONFIG_CHANGE),
   onAccountChange: addListener(IPC_EVENTS.ACCOUNT_CHANGE),
   onReceiveSpeeddials: addListener(IPC_EVENTS.RECEIVE_SPEEDDIALS),
-  onReciveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
+  onReceiveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
   onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
 
   addPhoneIslandListener: (event, callback) => {
