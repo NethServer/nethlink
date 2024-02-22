@@ -118,10 +118,6 @@ export function NethConnectorPage() {
     alert('Deve reindirizzare alla pagina per creare un nuovo speed dial')
   }
 
-  function showNumberDetails(e: any): void {
-    alert(`La funzione dovrebbe mostrare i dettagli dell'utente selezionato. ${e}`)
-  }
-
   function viewAllMissedCalls(): void {
     alert('Deve reindirizzare alla pagina per vedere tutte le chiamate perse.')
   }
@@ -159,7 +155,6 @@ export function NethConnectorPage() {
                       title="Speed Dials"
                       onClick={createSpeedDials}
                       callUser={callUser}
-                      showNumberDetails={showNumberDetails}
                       label="Create"
                     />
                   ) : (
