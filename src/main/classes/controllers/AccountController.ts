@@ -2,7 +2,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
-import { store } from '../../../shared/StoreController'
+import { platform } from 'os'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -66,23 +66,6 @@ export class AccountController {
     }
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config), 'utf-8')
     this.config = config
-  }
-
-  listAvailableAccounts(): Account[] {
-    const accounts = Object.values(this.config?.accounts || {})
-    return accounts
-  }
-  async logout() {
-    const account = this.getLoggedAccount()
-    const api = new NethVoiceAPI(account!.host, account)
-    this._saveNewAccountData(undefined, false)
-    api.Authentication.logout()
-      .then(() => {
-        console.log(`${account!.username} logout succesfully`)
-      })
-      .catch((e) => {
-        console.log(e)
-      })
   }
 
   getLoggedAccount() {
@@ -178,5 +161,20 @@ export class AccountController {
     const account = this.getLoggedAccount()
     account!.phoneIslandPosition = position
     this._saveNewAccountData(account)
+  }
+
+  linuxAutoLaunch() {
+    const AUTOSTART_PATH = this._app?.getPath('appData')
+    console.log(AUTOSTART_PATH)
+    if (
+      platform() === 'linux' &&
+      !fs.existsSync(`${AUTOSTART_PATH}/autostart/nethconnector.desktop`)
+    ) {
+      fs.writeFileSync(
+        `${AUTOSTART_PATH}/autostart/nethconnector.desktop`,
+        JSON.stringify(defaultConfig),
+        'utf-8'
+      )
+    }
   }
 }

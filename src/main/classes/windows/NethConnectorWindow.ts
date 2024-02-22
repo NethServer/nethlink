@@ -39,16 +39,17 @@ export class NethConnectorWindow extends BaseWindow {
   }
 
   _setBounds() {
-    const screenBounds = screen.getPrimaryDisplay().size
+    const screenBounds = screen.getPrimaryDisplay().bounds
     const { w, h } = this.size!
-    let x = Math.round(screenBounds.width - w - 10)
+    let x = Math.round(screenBounds.width - w - 30)
     let y = Math.round(screenBounds.height * 0.02)
     if (process.platform === 'win32') {
       const trayBounds = TrayController.instance.tray.getBounds()
       y = Math.round(screenBounds.height - h - trayBounds.height - 16)
     }
     if (process.platform === 'linux') {
-      x = screen.getCursorScreenPoint().x - 210
+      x = screenBounds.x + screenBounds.width - w - 30
+      y = screenBounds.y + 55
     }
     console.log(screenBounds)
     const bound = { x, y, w, h }

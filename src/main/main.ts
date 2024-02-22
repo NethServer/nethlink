@@ -13,33 +13,31 @@ import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
 import path from 'path'
 import { LoginController } from './classes/controllers/LoginController'
-import { store } from '@shared/StoreController'
+const AutoLaunch = require('auto-launch')
 
 new AccountController(app)
 const accountController = AccountController.instance
 registerIpcEvents()
+accountController.linuxAutoLaunch()
+
+app.setLoginItemSettings({
+  openAtLogin: true
+})
 
 app.whenReady().then(() => {
   //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
-  const trayController = new TrayController(() => toggleWindow(false))
+  const trayController = new TrayController(toggleWindow)
   const loginWindow = new LoginWindow()
-  const splashScreenWindow = new SplashScreenWindow()
   const nethConnectorWindow = new NethConnectorWindow()
   const phoneIslandWindow = new PhoneIslandWindow()
+  const splashScreenWindow = new SplashScreenWindow()
   new PhoneIslandController(phoneIslandWindow)
   new LoginController(loginWindow)
 
-  // Su linux impediamo l'apertura della NethConnectorPage all'avvio perchè prende la posizione del mouse e al primo avvio non si trova sulla tray
-  function openNethConnectorPage(isOpening = false) {
-    if (process.platform != 'linux' || !isOpening) {
-      nethConnectorWindow.show()
-    }
-  }
-
-  function toggleWindow(isOpening: boolean) {
+  function toggleWindow() {
     console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
-    if (!isOpening && (nethConnectorWindow.isOpen() || loginWindow.isOpen())) {
+    if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
       nethConnectorWindow.hide()
       loginWindow.hide()
     } else {
@@ -47,34 +45,31 @@ app.whenReady().then(() => {
         accountController.createConfigFile()
         splashScreenWindow.show()
         setTimeout(() => {
-          splashScreenWindow.hide()
+          splashScreenWindow.close()
           loginWindow.show()
         }, 2500)
       } else {
         if (accountController.getLoggedAccount()) {
-          openNethConnectorPage(isOpening)
+          nethConnectorWindow.show()
         } else {
-          accountController
-            .autologin(isOpening)
-            .then(() => openNethConnectorPage(isOpening))
-            .catch(() => {
-              loginWindow.addOnBuildListener(() => {
-                loginWindow.emit(
-                  IPC_EVENTS.LOAD_ACCOUNTS,
-                  accountController.listAvailableAccounts()
-                )
-                loginWindow.show()
-              })
-            })
+          loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
+          loginWindow.show()
         }
       }
     }
   }
 
+  nethConnectorWindow.addOnBuildListener(() => {
+    accountController.autologin(true).then(() => toggleWindow())
+  })
+  loginWindow.addOnBuildListener(() => {
+    accountController.autologin(true).catch(() => toggleWindow())
+  })
+
   accountController.onAccountChange(async (account: Account | undefined) => {
     console.log('ACCOUNT_CHANGE', account)
     nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
-    openNethConnectorPage(true)
+    nethConnectorWindow.show()
     if (account) {
       try {
         loginWindow.hide()
@@ -104,16 +99,16 @@ app.whenReady().then(() => {
     }
   })
 
-  nethConnectorWindow.addOnBuildListener(() => {
-    toggleWindow(true)
-  })
-
   protocol.handle('tel', (req) => {
     return handleTelProtocol(req.url)
   })
   protocol.handle('callto', (req) => {
     return handleTelProtocol(req.url)
   })
+
+  setTimeout(() => {
+    splashScreenWindow.close()
+  }, 5000)
 })
 
 app.on('window-all-closed', () => {
