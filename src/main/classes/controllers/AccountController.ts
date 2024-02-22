@@ -162,4 +162,10 @@ export class AccountController {
     account!.theme = theme
     this._saveNewAccountData(account)
   }
+
+  updatePhoneIslandPosition(position: { x: number; y: number }) {
+    const account = this.getLoggedAccount()
+    account!.phoneIslandPosition = position
+    this._saveNewAccountData(account)
+  }
 }

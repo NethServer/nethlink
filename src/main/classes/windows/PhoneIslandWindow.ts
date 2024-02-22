@@ -4,9 +4,9 @@ import { screen } from 'electron'
 export class PhoneIslandWindow extends BaseWindow {
   constructor() {
     super('phoneislandpage', {
-      width: 0,
-      height: 0,
-      show: true,
+      width: 1,
+      height: 1,
+      show: false,
       fullscreenable: false,
       autoHideMenuBar: true,
       closable: false,
@@ -22,21 +22,41 @@ export class PhoneIslandWindow extends BaseWindow {
       transparent: true,
       hiddenInMissionControl: true,
       hasShadow: false,
-      center: true,
+      center: false,
       fullscreen: false,
       frame: false,
       //tabbingIdentifier: 'nethconnector',
-      thickFrame: true,
+      thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 },
       webPreferences: {
         nodeIntegration: true
       }
     })
+    setTimeout(() => {
+      this.show()
+    }, 100)
   }
 
   show(..._args: any): void {
     const display = screen.getPrimaryDisplay()
-    display.bounds.x
-    this._window
+    const screensSize = screen.getAllDisplays().reduce<{ x: number; y: number }>(
+      (p, c) => {
+        p = {
+          x: p.x + c.size.width,
+          y: p.y + c.size.height
+        }
+        console.log(c)
+        return p
+      },
+      { x: 0, y: 0 }
+    )
+    console.log(display.bounds.x)
+    this._window?.setBounds({
+      height: 0,
+      width: 0,
+      x: screensSize.x,
+      y: screensSize.y
+    })
+    super.show()
   }
 }

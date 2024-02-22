@@ -5,6 +5,7 @@ export type Account = {
   lastAccess?: string
   host: string
   theme: AvailableThemes
+  phoneIslandPosition?: { x: number; y: number }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData
 }

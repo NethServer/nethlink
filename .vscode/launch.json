@@ -13,6 +13,9 @@
       "runtimeArgs": ["--sourcemap"],
       "env": {
         "REMOTE_DEBUGGING_PORT": "9222"
+      },
+      "presentation": {
+        "hidden": false
       }
     },
     {
@@ -21,10 +24,19 @@
       "request": "attach",
       "type": "chrome",
       "webRoot": "${workspaceFolder}/src/renderer",
-      "timeout": 60000,
+      "timeout": 15000,
       "presentation": {
         "hidden": true
       }
     }
   ],
+  "compounds": [
+    {
+      "name": "Debug main and renderer processes",
+      "configurations": ["Debug Main Process", "Debug Renderer Process"],
+      "presentation": {
+        "order": 1
+      }
+    }
+  ]
 }
