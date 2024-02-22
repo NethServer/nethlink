@@ -6,7 +6,7 @@ import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
 import avatar from '../assets/AvatarProvaLoginPage.jpeg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faX } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
 import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
 import { useInitialize } from '@renderer/hooks/useInitialize'
@@ -41,15 +41,13 @@ export function LoginPage() {
     window.api.resizeLoginWindow(h)
   }
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors }
-  } = useForm<LoginData>()
-  const onSubmit: SubmitHandler<LoginData> = async (data) => {
+  function hideLoginWindow() {
+    window.api.hideLoginWindow()
+  }
+
+  async function handleLogin(data: LoginData) {
     const returnValue = await window.api.login(data.host, data.username, data.password)
+    console.log(returnValue)
     if (returnValue) {
       setIsError(false)
       setSelectedAccount(undefined)
@@ -57,6 +55,17 @@ export function LoginPage() {
       setIsError(true)
     }
     setIsLoading(false)
+  }
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors }
+  } = useForm<LoginData>()
+  const onSubmit: SubmitHandler<LoginData> = (data) => {
+    handleLogin(data)
   }
 
   useEffect(() => {
@@ -113,11 +122,6 @@ export function LoginPage() {
           type="submit"
           className="w-full bg-blue-500 rounded h-9 font-semibold mt-2 cursor-pointer"
           value="Sign in"
-          onClick={() => {
-            setIsError(false)
-            setIsLoading(true)
-            handleSubmit(onSubmit)
-          }}
         />
       </div>
     </div>
@@ -131,12 +135,26 @@ export function LoginPage() {
           {displayedAccounts.length > 0 && selectedAccount && (
             <FontAwesomeIcon
               icon={faArrowLeft}
-              className="h-6 w-6 text-gray-50"
+              className="h-5 w-5 text-gray-50 ml-12 cursor-pointer"
               onClick={() => setSelectedAccount(undefined)}
             />
           )}
+          <FontAwesomeIcon
+            icon={faX}
+            className="h-5 w-5 text-gray-50 cursor-pointer"
+            onClick={() => hideLoginWindow()}
+          />
         </div>
-        <form>
+        <form
+          onSubmit={async (e) => {
+            setIsError(false)
+            setIsLoading(true)
+            e.preventDefault()
+            setTimeout(() => {
+              handleSubmit(onSubmit)(e)
+            }, 100)
+          }}
+        >
           {displayedAccounts.length > 0 ? (
             <div>
               {selectedAccount ? (
@@ -161,11 +179,6 @@ export function LoginPage() {
                         type="submit"
                         className="w-full bg-blue-500 rounded h-9 font-semibold mt-7 cursor-pointer"
                         value="Sign in"
-                        onClick={() => {
-                          setIsError(false)
-                          setIsLoading(true)
-                          handleSubmit(onSubmit)
-                        }}
                       />
                     </div>
                   )}

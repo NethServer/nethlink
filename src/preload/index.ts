@@ -7,6 +7,7 @@ import { Account, HistoryCallData } from '@shared/types'
 export type SyncResponse<T> = [T, Error]
 
 export interface IElectronAPI {
+  hideLoginWindow(): void
   resizeLoginWindow(height: number): void
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): unknown
@@ -18,7 +19,7 @@ export interface IElectronAPI {
   ): void
   onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => Promise<void>): unknown
   onReciveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => Promise<void>): unknown
-  login: (host: string, username: string, password: string) => Account | undefined
+  login: (host: string, username: string, password: string) => Promise<Account | undefined>
   logout: () => void
   onLoadAccounts(callback: (event: IpcRendererEvent, accounts: Account[]) => void)
   startCall(phoneNumber: string): void
@@ -36,9 +37,12 @@ function addListener(event) {
   return (callback) => ipcRenderer.on(event, callback)
 }
 
-function setEmitterSync<T>(event): () => T {
-  return (...args): T => {
-    return ipcRenderer.sendSync(event, ...args)
+function setEmitterSync<T>(event): () => Promise<T> {
+  return (...args): Promise<T> => {
+    return new Promise((resolve) => {
+      const res = ipcRenderer.sendSync(event, ...args)
+      resolve(res)
+    })
   }
 }
 
@@ -54,6 +58,7 @@ const api: IElectronAPI = {
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
 
   //EMITTER - only emit, no response
+  hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   startCall: setEmitter(IPC_EVENTS.START_CALL),
   sendInitializationCompleted: setEmitter(IPC_EVENTS.INITIALIZATION_COMPELTED),

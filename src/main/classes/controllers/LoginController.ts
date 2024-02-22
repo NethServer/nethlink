@@ -18,4 +18,8 @@ export class LoginController {
       loginPage.center()
     }
   }
+
+  hide() {
+    this.loginWindow.hide()
+  }
 }
