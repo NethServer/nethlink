@@ -37,11 +37,6 @@ export class BaseWindow {
     this._window!.show()
   }
 
-  close(..._args: any) {
-    this._window?.close()
-    this._window = undefined
-  }
-
   isOpen(..._args: any) {
     return this._window?.isVisible()
   }

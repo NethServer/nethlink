@@ -10,12 +10,16 @@ export class LoginController {
     this.loginWindow = loginWindow
   }
 
-  resize(w: number, h: number) {
+  resize(h: number) {
     const loginPage = this.loginWindow.getWindow()
     if (loginPage) {
       const bounds = loginPage.getBounds()
-      loginPage.setBounds({ ...bounds, width: w, height: h }, false)
+      loginPage.setBounds({ ...bounds, width: 500, height: h }, true)
       loginPage.center()
     }
+  }
+
+  hide() {
+    this.loginWindow.hide()
   }
 }
