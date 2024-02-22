@@ -1,32 +1,38 @@
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { Account, HistoryCallData } from '@shared/types'
+import { Account, AvailableThemes, HistoryCallData, SearchCallData } from '@shared/types'
 
 export type SyncResponse<T> = [T, Error]
 
 export interface IElectronAPI {
+  //SYNC EMITTERS - expect response
+  login: (host: string, username: string, password: string) => Promise<Account | undefined>
+
+  //LISTENERS - receive data async
+  onAccountChange(updateAccount: (account: Account | undefined) => void): void
+  onDataConfigChange(updateDataConfig: (dataConfig: string | undefined) => void): void
+  onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => void): void
+  onReceiveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => void): void
+  onLoadAccounts(callback: (accounts: Account[]) => void): void
+  onStartCall(callback: (number: string | number) => void): void
+  onSearchResult(callback: (serachResults: SearchCallData) => void): void
+
+  //EMITTER - only emit, no response
+  logout: () => void
+  startCall(phoneNumber: string): void
+  changeTheme(theme: AvailableThemes): void
+  sendSearchText(search: string): void
   hideLoginWindow(): void
   resizeLoginWindow(height: number): void
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
-  sendInitializationCompleted(id: string): unknown
-  onAccountChange(
-    updateAccount: (e: IpcRendererEvent, account: Account | undefined) => void
-  ): unknown
-  onDataConfigChange(updateDataConfig: (dataConfig: string | undefined) => void): void
-  onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => Promise<void>): unknown
-  onReciveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => Promise<void>): unknown
-  login: (host: string, username: string, password: string) => Promise<Account | undefined>
-  logout: () => void
-  onLoadAccounts(callback: (event: IpcRendererEvent, accounts: Account[]) => void)
-  startCall(phoneNumber: string): void
-  onStartCall(callback: (number: string | number) => void): void
-
+  sendInitializationCompleted(id: string): void
   addPhoneIslandListener: (
     event: PHONE_ISLAND_EVENTS,
     callback: (event: IpcRendererEvent, ...args: any[]) => void
   ) => void
 
+  //PHONE ISLAND EVENTS:
   (funcName: PHONE_ISLAND_EVENTS): () => void
 }
 
