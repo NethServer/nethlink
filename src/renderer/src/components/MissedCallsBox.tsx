@@ -37,7 +37,7 @@ export function MissedCallsBox({
               key={idx}
             >
               <MissedCall
-                name={call.cnam!}
+                username={call.cnam!}
                 number={call.cnum!}
                 time={call.time!}
                 duration={call.duration!}

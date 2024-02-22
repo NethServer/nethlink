@@ -21,11 +21,10 @@ export function PhoneIslandPage() {
     })
 
     Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
-      window.addEventListener(ev, (event) =>
-        debouncer(ev, () => {
-          window.api[ev](event['detail'])
-        }
-        ))
+      window.addEventListener(ev, (event) => {
+        window.api[ev](event['detail'])
+      }
+      )
     })
   }, true)
 

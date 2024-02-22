@@ -32,7 +32,6 @@ export class AccountController {
   }
 
   _app: Electron.App | undefined
-  private _authPollingInterval: NodeJS.Timeout | undefined
   private config: ConfigFile | undefined
   static instance: AccountController
 

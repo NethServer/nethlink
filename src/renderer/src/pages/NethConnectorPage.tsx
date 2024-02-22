@@ -14,6 +14,8 @@ import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
+import { useLocalStore } from '@renderer/store/StoreController'
+import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
@@ -21,7 +23,7 @@ export function NethConnectorPage() {
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.ZAP)
   const [speeddials, setSpeeddials] = useState<SpeedDialType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
-
+  const [_, setOperators] = useLocalStoreState('operators')
   useInitialize(() => {
     initialize()
   }, true)
@@ -46,8 +48,13 @@ export function NethConnectorPage() {
     window.api.onReceiveLastCalls(saveMissedCalls)
   }
 
-  function onMainPresence(...args) {
-    console.log('onMainPresence', args)
+  function onMainPresence(op: any) {
+    Object.entries(op).forEach(([k, v]) => {
+      setOperators(o => ({
+        ...o,
+        [k]: v
+      }))
+    })
   }
 
   function updateAccount(account: Account | undefined) {
