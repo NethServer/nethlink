@@ -20,6 +20,7 @@ const accountController = AccountController.instance
 registerIpcEvents()
 
 app.whenReady().then(() => {
+  //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
   const trayController = new TrayController(() => toggleWindow(false))
   const loginWindow = new LoginWindow()
   const splashScreenWindow = new SplashScreenWindow()

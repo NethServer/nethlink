@@ -11,10 +11,11 @@ import {
   HistorySpeedDialType,
   SpeedDialType
 } from '@shared/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { store } from '@shared/StoreController'
+import { debouncer } from '@shared/utils/utils'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
@@ -26,6 +27,15 @@ export function NethConnectorPage() {
   useInitialize(() => {
     initialize()
   }, true)
+
+  useEffect(() => {
+    if (search) {
+      debouncer('search', () => {
+        console.log('debounce')
+        window.api.sendSearchText(search)
+      }, 500)
+    }
+  }, [search])
 
   function initialize() {
     console.log('initialize')
@@ -82,7 +92,6 @@ export function NethConnectorPage() {
 
   async function handleSearch(searchText: string) {
     setSearch(() => searchText)
-    window.api.sendSearchText(searchText)
     //callUser(searchText)
   }
 

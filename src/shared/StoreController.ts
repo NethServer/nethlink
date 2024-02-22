@@ -3,6 +3,7 @@ import { read } from 'fs'
 import { createStore } from 'zustand/vanilla'
 
 type LocalStorageData = {
+  debounceEvents: {}
   operators: {}
   profilePicture: {}
   customerCards: {}
@@ -29,6 +30,7 @@ type LocalStorageState = {
 } & LocalStorageData
 
 const initialData: LocalStorageData = {
+  debounceEvents: {},
   operators: {},
   profilePicture: {},
   customerCards: {},
