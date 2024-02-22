@@ -10,7 +10,6 @@ export interface SpeedDialsBoxProps {
   label?: string
   onClick?: () => void
   callUser: (phoneNumber: string) => void
-  showNumberDetails: (elem: any) => void
 }
 
 export function SpeedDialsBox({
@@ -18,8 +17,7 @@ export function SpeedDialsBox({
   title,
   label,
   onClick,
-  callUser,
-  showNumberDetails
+  callUser
 }: SpeedDialsBoxProps): JSX.Element {
   return (
     <div className="flex flex-col gap-4 min-h-[284px]">
@@ -31,22 +29,25 @@ export function SpeedDialsBox({
         </Button>
       </div>
       <div className="flex flex-col gap-2 p-2 min-h-[240px]">
-        {(speeddials?.length || 0 > 0) ? speeddials?.map((e, idx) => {
-          console.log(e)
-          return (
-            <div
-              className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 border-gray-700`}`}
-              key={idx}
-            >
-              <SpeedDialNumber
-                name={e.name!}
-                number={e.speeddial_num!}
-                callUser={() => callUser(e.speeddial_num!)}
-                showNumberDetails={() => showNumberDetails(e)}
-              />
-            </div>
-          )
-        }) : <div>No speed dial</div>}
+        {speeddials?.length || 0 > 0 ? (
+          speeddials?.map((e, idx) => {
+            console.log(e)
+            return (
+              <div
+                className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 border-gray-700`}`}
+                key={idx}
+              >
+                <SpeedDialNumber
+                  name={e.name!}
+                  number={e.speeddial_num!}
+                  callUser={() => callUser(e.speeddial_num!)}
+                />
+              </div>
+            )
+          })
+        ) : (
+          <div>No speed dial</div>
+        )}
       </div>
     </div>
   )
