@@ -9,8 +9,7 @@ import {
   faCheck
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/Avatar'
-import { Button } from './Nethesis/Button'
-import { Menu } from '@headlessui/react'
+import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
 
@@ -22,6 +21,12 @@ export interface NavabarProps {
   handleTextChange: (searchText: string) => Promise<void>
   handleReset: () => void
 }
+
+const themeOptions = [
+  { id: 1, name: 'system', icon: faPalette },
+  { id: 2, name: 'light', icon: faSun },
+  { id: 3, name: 'dark', icon: faMoon }
+]
 
 export function Navbar({
   account,
@@ -45,76 +50,44 @@ export function Navbar({
       />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
-          <Menu>
+          <Listbox>
             <div>
-              <Menu.Button>
+              <Listbox.Button>
                 <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon icon={faSliders} className="h-5 w-5" />
                 </div>
-              </Menu.Button>
+              </Listbox.Button>
             </div>
-
-            <Menu.Items
+            <Listbox.Options
               className={`mt-2 fixed border border-gray-700 rounded-lg min-w-[225px] min-h-[145px] bg-gray-900 z-20 translate-x-[calc(-100%+36px)]`}
             >
               <p className="text-xs leading-[18px] py-1 px-4 mt-1">THEME</p>
-              <Menu.Item>
-                <div
-                  className={`flex flex-row items-center gap-4 hover:bg-gray-700 mt-2 ${account.theme === 'system' ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
-                  onClick={() => setTheme('system')}
-                >
-                  {account.theme === 'system' && (
-                    <FontAwesomeIcon
-                      className="text-blue-500"
-                      style={{ fontSize: '16px' }}
-                      icon={faCheck}
-                    />
-                  )}
-                  <div className="flex gap-2 items-center">
-                    <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faPalette} />
-                    <p className="font-semibold">System</p>
+              {themeOptions.map((theme) => (
+                <Listbox.Option key={theme.id} value={theme}>
+                  <div
+                    className={`flex flex-row items-center gap-4 hover:bg-gray-700 mt-2 ${account.theme === theme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
+                    onClick={() => setTheme(theme.name)}
+                  >
+                    {account.theme === theme.name && (
+                      <FontAwesomeIcon
+                        className="text-blue-500"
+                        style={{ fontSize: '16px' }}
+                        icon={faCheck}
+                      />
+                    )}
+                    <div className="flex gap-2 items-center">
+                      <FontAwesomeIcon style={{ fontSize: '16px' }} icon={theme.icon} />
+                      <p className="font-semibold">
+                        {theme.name.charAt(0).toUpperCase() + theme.name.slice(1)}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </Menu.Item>
-              <Menu.Item>
-                <div
-                  className={`flex flex-row items-center gap-4 hover:bg-gray-700 mt-2 ${account.theme === 'light' ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
-                  onClick={() => setTheme('light')}
-                >
-                  {account.theme === 'light' && (
-                    <FontAwesomeIcon
-                      className="text-blue-500"
-                      style={{ fontSize: '16px' }}
-                      icon={faCheck}
-                    />
-                  )}
-                  <div className="flex gap-2 items-center">
-                    <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faSun} />
-                    <p className="font-semibold">Light</p>
-                  </div>
-                </div>
-              </Menu.Item>
-              <Menu.Item>
-                <div
-                  className={`flex flex-row items-center gap-4 hover:bg-gray-700 mt-2 ${account.theme === 'dark' ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
-                  onClick={() => setTheme('dark')}
-                >
-                  {account.theme === 'dark' && (
-                    <FontAwesomeIcon
-                      className="text-blue-500"
-                      style={{ fontSize: '16px' }}
-                      icon={faCheck}
-                    />
-                  )}
-                  <div className="flex gap-2 items-center">
-                    <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faMoon} />
-                    <p className="font-semibold">Dark</p>
-                  </div>
-                </div>
-              </Menu.Item>
-            </Menu.Items>
-          </Menu>
+                </Listbox.Option>
+              ))}
+            </Listbox.Options>
+          </Listbox>
         </div>
+
         <div>
           <Menu>
             <div>
