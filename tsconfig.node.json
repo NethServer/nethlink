@@ -5,7 +5,7 @@
     "src/main/**/*",
     "src/preload/*",
     "src/shared/**/*"
-  ],
+, "src/renderer/src/store/StoreController.ts"  ],
   "exclude": [
     "node_modules"
   ],

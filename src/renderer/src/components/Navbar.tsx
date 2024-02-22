@@ -12,6 +12,9 @@ import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
+import { useLocalStore } from '@renderer/store/StoreController'
+import { useEffect, useState } from 'react'
+import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
 export interface NavabarProps {
   account: Account
@@ -36,6 +39,9 @@ export function Navbar({
   handleReset,
   handleTextChange
 }: NavabarProps): JSX.Element {
+
+  const operators = useSubscriber('operators')
+
   function setTheme(theme) {
     onSelectTheme(theme)
     //window.electron.ipcRenderer.send('openWindow', 'settings')
@@ -94,7 +100,7 @@ export function Navbar({
               <Menu.Button>
                 <Avatar
                   size="small"
-                  status={account.data?.presence}
+                  status={operators[account.username]?.mainPresence || account.data?.mainPresece || 'offline'}
                   placeholder={PlaceholderIcon}
                 />
               </Menu.Button>

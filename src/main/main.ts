@@ -13,7 +13,6 @@ import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
 import path from 'path'
 import { LoginController } from './classes/controllers/LoginController'
-import { store } from '@shared/StoreController'
 
 new AccountController(app)
 const accountController = AccountController.instance

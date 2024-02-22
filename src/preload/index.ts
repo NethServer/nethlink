@@ -27,10 +27,7 @@ export interface IElectronAPI {
   resizeLoginWindow(height: number): void
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): void
-  addPhoneIslandListener: (
-    event: PHONE_ISLAND_EVENTS,
-    callback: (event: IpcRendererEvent, ...args: any[]) => void
-  ) => void
+  addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
 
   //PHONE ISLAND EVENTS:
   (funcName: PHONE_ISLAND_EVENTS): () => void
@@ -84,9 +81,9 @@ const api: IElectronAPI = {
   onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
 
   addPhoneIslandListener: (event, callback) => {
-    console.log(event)
-    const listener = addListener(`on-${event}`)
-    return listener(callback)
+    const evName = `on-${event}`
+    const listener = addListener(evName)
+    listener(callback)
   },
 
   //PHONE ISLAND EVENTS:

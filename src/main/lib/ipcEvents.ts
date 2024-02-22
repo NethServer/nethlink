@@ -4,7 +4,7 @@ import { PhoneIslandController } from '@/classes/controllers/PhoneIslandControll
 import { NethConnectorWindow } from '@/classes/windows'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
-import { ipcMain, shell } from 'electron'
+import { ipcMain, ipcRenderer, shell } from 'electron'
 import { join } from 'path'
 
 export function registerIpcEvents() {
@@ -28,7 +28,6 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
     console.log('LOGOUT')
     AccountController.instance.logout()
-    ipcMain.emit(IPC_EVENTS.LOAD_ACCOUNTS, AccountController.instance.listAvailableAccounts())
   })
 
   ipcMain.on(IPC_EVENTS.CREATE_NEW_ACCOUNT, async (_event) => {
@@ -91,10 +90,10 @@ export function registerIpcEvents() {
 
   //SEND BACK ALL PHONE ISLAND EVENTS
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
-    console.log(ev)
     ipcMain.on(ev, (_event, ...args) => {
-      console.log(ev, args)
-      ipcMain.emit(`on-${ev}`, ...args)
+      const evName = `on-${ev}`
+      console.log('received', evName, args)
+      NethConnectorWindow.instance.emit(evName, ...args)
     })
   })
 }
