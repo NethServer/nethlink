@@ -1,3 +1,6 @@
 export * from './AccountController'
-export * from './DeviceController'
 export * from './NethCTIController'
+export * from './LoginController'
+export * from './OperatorsController'
+export * from './PhoneIslandController'
+export * from './TrayController'

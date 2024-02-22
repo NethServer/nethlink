@@ -13,6 +13,7 @@ import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
 import path from 'path'
 import { LoginController } from './classes/controllers/LoginController'
+import { store } from '@shared/StoreController'
 
 new AccountController(app)
 const accountController = AccountController.instance
@@ -79,15 +80,26 @@ app.whenReady().then(() => {
       } catch (e) {
         console.log(e)
       }
-      const phoneIslandTokenLoginResponse =
-        await NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin()
-      console.log(phoneIslandTokenLoginResponse)
-      PhoneIslandController.instance.updateDataConfig(phoneIslandTokenLoginResponse.token)
+      NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin().then(
+        (phoneIslandTokenLoginResponse) => {
+          console.log(phoneIslandTokenLoginResponse)
+          PhoneIslandController.instance.updateDataConfig(phoneIslandTokenLoginResponse.token)
+        }
+      )
+      //const operators = await NethVoiceAPI.instance.fetchOperators()
+      NethVoiceAPI.instance.HistoryCall.interval().then((lastCalls) =>
+        nethConnectorWindow.emit(IPC_EVENTS.RECEIVE_HISTORY_CALLS, lastCalls)
+      )
+      NethVoiceAPI.instance.Phonebook.speeddials().then((speeddials) =>
+        nethConnectorWindow.emit(IPC_EVENTS.RECEIVE_SPEEDDIALS, speeddials)
+      )
+      //nethConnectorWindow.emit(IPC_EVENTS.)
     } else {
       loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
       loginWindow.show()
       console.log('phonisland logout')
       PhoneIslandController.instance.logout()
+      nethConnectorWindow.hide()
     }
   })
 
@@ -96,9 +108,10 @@ app.whenReady().then(() => {
   })
 
   protocol.handle('tel', (req) => {
-    console.log('PROCESS HANDLE TEL', req)
-    console.table(req)
-    return new Promise((resolve) => resolve)
+    return handleTelProtocol(req.url)
+  })
+  protocol.handle('callto', (req) => {
+    return handleTelProtocol(req.url)
   })
 })
 
@@ -108,14 +121,17 @@ app.on('window-all-closed', () => {
 
 // remove so we can register each time as we run the app.
 app.removeAsDefaultProtocolClient('tel')
+app.removeAsDefaultProtocolClient('callto')
 
 // if we are running a non-packaged version of the app && on windows
 if (process.env.node_env === 'development' && process.platform === 'win32') {
   // set the path of electron.exe and your app.
   // these two additional parameters are only available on windows.
   app.setAsDefaultProtocolClient('tel', process.execPath, [path.resolve(process.argv[1])])
+  app.setAsDefaultProtocolClient('callto', process.execPath, [path.resolve(process.argv[1])])
 } else {
   app.setAsDefaultProtocolClient('tel')
+  app.setAsDefaultProtocolClient('callto')
 }
 
 protocol.registerSchemesAsPrivileged([
@@ -123,7 +139,13 @@ protocol.registerSchemesAsPrivileged([
     scheme: 'tel',
     privileges: {
       standard: true,
-      secure: true
+      secure: true,
+      stream: true,
+      bypassCSP: true,
+      supportFetchAPI: true,
+      codeCache: true,
+      allowServiceWorkers: true,
+      corsEnabled: true
     }
   }
 ])
@@ -135,7 +157,17 @@ if (!gotTheLock) {
 }
 
 app.on('open-url', (ev, origin) => {
-  console.log('TEL:', origin)
+  handleTelProtocol(origin)
 })
 
 app.dock?.hide()
+function handleTelProtocol(url: string): Promise<Response> {
+  const tel = decodeURI(url)
+    .replace(/ /g, '')
+    .replace(/tel:\/\//g, '')
+    .replace(/callto:\/\//g, '')
+    .replace(/\//g, '')
+  console.log('TEL:', tel)
+  PhoneIslandController.instance.call(tel)
+  return new Promise((resolve) => resolve)
+}

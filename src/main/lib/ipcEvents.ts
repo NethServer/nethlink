@@ -1,6 +1,7 @@
 import { AccountController, NethVoiceAPI } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
+import { NethConnectorWindow } from '@/classes/windows'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
 import { ipcMain, shell } from 'electron'
@@ -13,7 +14,8 @@ export function registerIpcEvents() {
     console.log(args)
     const tempAccount: Account = {
       host,
-      username
+      username,
+      theme: 'system'
     }
     try {
       event.returnValue = await AccountController.instance.login(tempAccount, password)
@@ -76,6 +78,15 @@ export function registerIpcEvents() {
   })
   ipcMain.on(IPC_EVENTS.HIDE_LOGIN_WINDOW, () => {
     LoginController.instance.hide()
+  })
+
+  ipcMain.on(IPC_EVENTS.CHANGE_THEME, (event, theme) => {
+    AccountController.instance.updateTheme(theme)
+  })
+
+  ipcMain.on(IPC_EVENTS.SEARCH_TEXT, async (event, searchText) => {
+    const res = await NethVoiceAPI.instance.Phonebook.search(searchText)
+    NethConnectorWindow.instance.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
   })
 
   //SEND BACK ALL PHONE ISLAND EVENTS

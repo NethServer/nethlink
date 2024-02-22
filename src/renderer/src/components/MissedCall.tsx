@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 /* Badge da aggiungere*/
 import { Avatar, Badge } from './Nethesis/'
+import { NumberCaller } from './NumberCaller'
+import moment from 'moment'
 
 export interface MissedCallProps {
   name: string
@@ -32,11 +34,11 @@ export function MissedCall({
         <p className="text-gray-50">{truncate(name)}</p>
         <div className="flex flex-row gap-2">
           <MissedCallIcon />
-          <p className="text-blue-500 font-normal">{number}</p>
+          <NumberCaller number={number} className="text-blue-500 font-normal">{number}</NumberCaller>
         </div>
         <div className="flex flex-row gap-1">
           <p>{duration}m</p>
-          <p>({time})</p>
+          <p>({moment(time).format('HH:MM')})</p>
         </div>
       </div>
       {company && (

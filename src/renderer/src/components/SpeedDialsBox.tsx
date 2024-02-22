@@ -1,12 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import { SpeedDialNumber } from './SpeedDialNumber'
-import { HistorySpeedDialType, SpeedDialType } from '@shared/types'
-import { useInitialize } from '@renderer/hooks/useInitialize'
-import { useState } from 'react'
+import { SpeedDialType } from '@shared/types'
 import { Button } from './Nethesis/Button'
 
 export interface SpeedDialsBoxProps {
+  speeddials: SpeedDialType[] | undefined
   title: string
   label?: string
   onClick?: () => void
@@ -15,30 +14,13 @@ export interface SpeedDialsBoxProps {
 }
 
 export function SpeedDialsBox({
+  speeddials,
   title,
   label,
   onClick,
   callUser,
   showNumberDetails
 }: SpeedDialsBoxProps): JSX.Element {
-  const [speeddials, setSpeeddials] = useState<SpeedDialType[]>()
-  useInitialize(() => {
-    window.api.onReceiveSpeeddials(saveSpeeddials)
-    saveSpeeddials({
-      count: 4,
-      rows: [
-        { name: 'Edoardo', speeddial_num: '3275757265' },
-        { name: 'Pippo Bica', speeddial_num: '230' },
-        { name: 'Giovanni', speeddial_num: '56789' },
-        { name: 'Alexa', speeddial_num: '27589' }
-      ]
-    })
-  })
-
-  async function saveSpeeddials(speeddialsResponse: HistorySpeedDialType) {
-    setSpeeddials(() => speeddialsResponse.rows)
-  }
-
   return (
     <div className="flex flex-col gap-4 min-h-[284px]">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 border-gray-700 font-semibold max-h-[28px]">
@@ -49,8 +31,8 @@ export function SpeedDialsBox({
         </Button>
       </div>
       <div className="flex flex-col gap-2 p-2 min-h-[240px]">
-        {/**Aggiungere props */}
-        {speeddials?.map((e, idx) => {
+        {(speeddials?.length || 0 > 0) ? speeddials?.map((e, idx) => {
+          console.log(e)
           return (
             <div
               className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 border-gray-700`}`}
@@ -64,7 +46,7 @@ export function SpeedDialsBox({
               />
             </div>
           )
-        })}
+        }) : <div>No speed dial</div>}
       </div>
     </div>
   )

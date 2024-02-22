@@ -13,16 +13,14 @@ export interface IElectronAPI {
   onAccountChange(
     updateAccount: (e: IpcRendererEvent, account: Account | undefined) => void
   ): unknown
-  onDataConfigChange(
-    updateDataConfig: (event: IpcRendererEvent, dataConfig: string | undefined) => void
-  ): void
+  onDataConfigChange(updateDataConfig: (dataConfig: string | undefined) => void): void
   onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => Promise<void>): unknown
   onReciveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => Promise<void>): unknown
   login: (host: string, username: string, password: string) => Promise<Account | undefined>
   logout: () => void
   onLoadAccounts(callback: (event: IpcRendererEvent, accounts: Account[]) => void)
   startCall(phoneNumber: string): void
-  onStartCall(callback: (event: IpcRendererEvent, ...args: any[]) => void): void
+  onStartCall(callback: (number: string | number) => void): void
 
   addPhoneIslandListener: (
     event: PHONE_ISLAND_EVENTS,
@@ -32,8 +30,12 @@ export interface IElectronAPI {
   (funcName: PHONE_ISLAND_EVENTS): () => void
 }
 
-function addListener(event) {
-  return (callback) => ipcRenderer.on(event, callback)
+function addListener(channel) {
+  return (callback) => {
+    ipcRenderer.on(channel, (e: Electron.IpcRendererEvent, ...args) => {
+      callback(...args)
+    })
+  }
 }
 
 function setEmitterSync<T>(event): () => Promise<T> {
@@ -63,6 +65,8 @@ const api: IElectronAPI = {
   sendInitializationCompleted: setEmitter(IPC_EVENTS.INITIALIZATION_COMPELTED),
   resizePhoneIsland: setEmitter(IPC_EVENTS.PHONE_ISLAND_RESIZE),
   resizeLoginWindow: setEmitter(IPC_EVENTS.LOGIN_WINDOW_RESIZE),
+  changeTheme: setEmitter(IPC_EVENTS.CHANGE_THEME),
+  sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
 
   //LISTENERS - receive data async
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),
@@ -70,16 +74,17 @@ const api: IElectronAPI = {
   onDataConfigChange: addListener(IPC_EVENTS.ON_DATA_CONFIG_CHANGE),
   onAccountChange: addListener(IPC_EVENTS.ACCOUNT_CHANGE),
   onReceiveSpeeddials: addListener(IPC_EVENTS.RECEIVE_SPEEDDIALS),
-  onReciveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
+  onReceiveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
+  onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
 
   addPhoneIslandListener: (event, callback) => {
+    console.log(event)
     const listener = addListener(`on-${event}`)
     return listener(callback)
   },
 
   //PHONE ISLAND EVENTS:
   ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, ev) => {
-    console.log(ev)
     p[`${ev}`] = setEmitter(ev)
     return p
   }, {})
