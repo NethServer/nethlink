@@ -24,7 +24,7 @@ export class BaseWindow {
     return this._window
   }
 
-  emit(event: IPC_EVENTS, ...args: any[]) {
+  emit(event: IPC_EVENTS | string, ...args: any[]) {
     console.log(event, args)
     this._window?.webContents.send(event, ...args)
   }
