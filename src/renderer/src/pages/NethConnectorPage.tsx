@@ -3,13 +3,7 @@ import { Navbar } from '../components/Navbar'
 import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
-import {
-  Account,
-  AvailableThemes,
-  CallData,
-  HistoryCallData,
-  SpeedDialType
-} from '@shared/types'
+import { Account, AvailableThemes, CallData, HistoryCallData, SpeedDialType } from '@shared/types'
 import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
@@ -30,10 +24,14 @@ export function NethConnectorPage() {
 
   useEffect(() => {
     if (search) {
-      debouncer('search', () => {
-        console.log('debounce')
-        window.api.sendSearchText(search)
-      }, 250)
+      debouncer(
+        'search',
+        () => {
+          console.log('debounce')
+          window.api.sendSearchText(search)
+        },
+        250
+      )
     }
   }, [search])
 
@@ -50,7 +48,7 @@ export function NethConnectorPage() {
 
   function onMainPresence(op: any) {
     Object.entries(op).forEach(([k, v]) => {
-      setOperators(o => ({
+      setOperators((o) => ({
         ...o,
         [k]: v
       }))
@@ -112,7 +110,7 @@ export function NethConnectorPage() {
   }
 
   return (
-    <div>
+    <div className="h-[100vh] w-[100vw] rounded-[10px] overflow-hidden">
       {account && (
         <div
           className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"

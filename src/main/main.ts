@@ -17,7 +17,6 @@ import { LoginController } from './classes/controllers/LoginController'
 new AccountController(app)
 const accountController = AccountController.instance
 registerIpcEvents()
-accountController.linuxAutoLaunch()
 
 app.setLoginItemSettings({
   openAtLogin: true
@@ -44,7 +43,7 @@ app.whenReady().then(() => {
         accountController.createConfigFile()
         splashScreenWindow.show()
         setTimeout(() => {
-          splashScreenWindow.close()
+          splashScreenWindow.hide()
           loginWindow.show()
         }, 2500)
       } else {
@@ -104,10 +103,6 @@ app.whenReady().then(() => {
   protocol.handle('callto', (req) => {
     return handleTelProtocol(req.url)
   })
-
-  setTimeout(() => {
-    splashScreenWindow.close()
-  }, 5000)
 })
 
 app.on('window-all-closed', () => {

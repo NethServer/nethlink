@@ -161,19 +161,4 @@ export class AccountController {
     account!.phoneIslandPosition = position
     this._saveNewAccountData(account)
   }
-
-  linuxAutoLaunch() {
-    const AUTOSTART_PATH = this._app?.getPath('appData')
-    console.log(AUTOSTART_PATH)
-    if (
-      platform() === 'linux' &&
-      !fs.existsSync(`${AUTOSTART_PATH}/autostart/nethconnector.desktop`)
-    ) {
-      fs.writeFileSync(
-        `${AUTOSTART_PATH}/autostart/nethconnector.desktop`,
-        JSON.stringify(defaultConfig),
-        'utf-8'
-      )
-    }
-  }
 }

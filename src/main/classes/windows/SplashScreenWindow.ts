@@ -31,8 +31,4 @@ export class SplashScreenWindow extends BaseWindow {
       trafficLightPosition: { x: 0, y: 0 }
     })
   }
-
-  close() {
-    this._window?.close()
-  }
 }

@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name= nethconnector
-Comment= neth connector autolaunch
-Icon= app_icon
-Exec= your file path 
-Terminal=false
-Type=Application

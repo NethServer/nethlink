@@ -1,7 +1,6 @@
 import { PhoneIsland } from '@nethesis/phone-island'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { debouncer } from '@shared/utils/utils'
+import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { createRef, useEffect, useRef, useState } from 'react'
 
 export function PhoneIslandPage() {
@@ -23,8 +22,7 @@ export function PhoneIslandPage() {
     Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
       window.addEventListener(ev, (event) => {
         window.api[ev](event['detail'])
-      }
-      )
+      })
     })
   }, true)
 
