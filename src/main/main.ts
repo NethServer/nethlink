@@ -24,7 +24,7 @@ app.setLoginItemSettings({
 
 app.whenReady().then(() => {
   //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
-  const trayController = new TrayController(toggleWindow)
+  const trayController = new TrayController(() => toggleWindow(false))
   const loginWindow = new LoginWindow()
   const nethConnectorWindow = new NethConnectorWindow()
   const phoneIslandWindow = new PhoneIslandWindow()
@@ -32,7 +32,7 @@ app.whenReady().then(() => {
   new PhoneIslandController(phoneIslandWindow)
   new LoginController(loginWindow)
 
-  function toggleWindow() {
+  function toggleWindow(isOpening: boolean) {
     console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
     if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
@@ -50,26 +50,29 @@ app.whenReady().then(() => {
         if (accountController.getLoggedAccount()) {
           nethConnectorWindow.show()
         } else {
-          loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
-          loginWindow.show()
+          accountController
+            .autologin(isOpening)
+            .then(() => nethConnectorWindow.show())
+            .catch(() => {
+              console.log('ciao')
+              loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
+              loginWindow.show()
+            })
         }
       }
     }
   }
 
-  nethConnectorWindow.addOnBuildListener(() => {
-    accountController.autologin(true).then(() => toggleWindow())
-  })
   loginWindow.addOnBuildListener(() => {
-    accountController.autologin(true).catch(() => toggleWindow())
+    toggleWindow(true)
   })
 
   accountController.onAccountChange(async (account: Account | undefined) => {
     console.log('ACCOUNT_CHANGE', account)
-    nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
-    nethConnectorWindow.show()
     if (account) {
       try {
+        nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
+        nethConnectorWindow.show()
         loginWindow.hide()
       } catch (e) {
         console.log(e)
