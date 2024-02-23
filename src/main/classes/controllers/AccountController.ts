@@ -128,7 +128,11 @@ export class AccountController {
     if (!this.config.lastUser) throw error
     const account = this.config.accounts[this.config.lastUser]
     if (!account) throw error
-    return await this._tokenLogin(account, isOpening)
+    try {
+      return await this._tokenLogin(account, isOpening)
+    } catch {
+      throw new Error("Can't Autologin")
+    }
   }
 
   startAuthPolling() {
