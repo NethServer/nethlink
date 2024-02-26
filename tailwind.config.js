@@ -19,7 +19,8 @@ export default {
         'gray-200': '#E5E7EB',
         'gray-50': '#F9FAFB',
         'blue-500': '#3B82F6',
-        'red-600': '#DC2626'
+        'red-600': '#DC2626',
+        'green-700': '#15803D'
       },
       screens: {
         '3xl': '1792px',
