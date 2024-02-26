@@ -6,18 +6,18 @@ import { NumberCaller } from './NumberCaller'
 import { Menu } from '@headlessui/react'
 
 export interface SpeedDialNumberProps {
-  name: string
+  username: string
   number: string
   callUser: () => void
 }
 
-export function SpeedDialNumber({ name, number, callUser }: SpeedDialNumberProps): JSX.Element {
+export function SpeedDialNumber({ username, number, callUser }: SpeedDialNumberProps): JSX.Element {
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
         <Avatar size="base" className="bg-white z-0" placeholder={PlaceholderIcon} />
         <div className="flex flex-col gap-1">
-          <p className="text-gray-50">{name}</p>
+          <p className="text-gray-50">{username}</p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
               style={{ fontSize: '16px', color: '#9CA3AF' }}

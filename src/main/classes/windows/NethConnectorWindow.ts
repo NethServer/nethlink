@@ -45,7 +45,7 @@ export class NethConnectorWindow extends BaseWindow {
     let y = 55
     if (process.platform === 'win32') {
       const trayBounds = TrayController.instance.tray.getBounds()
-      y = screenBounds.height - h - trayBounds.height - 16
+      y = screenBounds.height - h - 65
     }
     if (process.platform === 'linux') {
       x = screenBounds.x + screenBounds.width - w - 30
