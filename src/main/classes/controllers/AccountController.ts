@@ -2,7 +2,6 @@ import { join } from 'path'
 import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
-import { store } from '../../../renderer/src/store/StoreController'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -10,27 +9,6 @@ const defaultConfig: ConfigFile = {
 }
 
 export class AccountController {
-  private _authPollingInterval: NodeJS.Timeout | undefined
-  listAvailableAccounts(): Account[] {
-    const accounts = this._getConfigFile()?.accounts
-    if (accounts) {
-      return Object.values(accounts || {})
-    }
-    return []
-  }
-  async logout() {
-    const account = this.getLoggedAccount()
-    const api = new NethVoiceAPI(account!.host, account)
-    api.Authentication.logout()
-      .then(() => {
-        console.log(`${account!.username} logout succesfully`)
-      })
-      .catch((e) => {
-        console.log(e)
-      })
-    this._saveNewAccountData(undefined, false)
-  }
-
   _app: Electron.App | undefined
   private _authPollingInterval: NodeJS.Timeout | undefined
   private config: ConfigFile | undefined
@@ -69,9 +47,13 @@ export class AccountController {
   }
 
   listAvailableAccounts(): Account[] {
-    const accounts = Object.values(this.config?.accounts || {})
-    return accounts
+    const accounts = this._getConfigFile()?.accounts
+    if (accounts) {
+      return Object.values(accounts || {})
+    }
+    return []
   }
+
   async logout() {
     const account = this.getLoggedAccount()
     const api = new NethVoiceAPI(account!.host, account)

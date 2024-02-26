@@ -4,7 +4,6 @@ import { read } from 'fs'
 import { create } from 'zustand'
 
 export type LocalStorageData = {
-  debounceEvents: any
   operators: any
   profilePicture: any
   customerCards: any
@@ -32,7 +31,6 @@ type LocalStorageState = {
 } & LocalStorageData
 
 const initialData: LocalStorageData = {
-  debounceEvents: {},
   operators: {},
   profilePicture: {},
   customerCards: {},
