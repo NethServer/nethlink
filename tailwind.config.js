@@ -5,12 +5,14 @@ export default {
     './src/**/*.{js,jsx,ts,tsx}',
     './node_modules/@nethesis/phone_island/**/*.{js,jsx,ts,tsx}'
   ],
+  //darkMode: 'class',
   theme: {
     extend: {
       colors: {
         'gray-950': '#030712',
         'gray-900': '#111827',
         'gray-700': '#374151',
+        'gray-600': '#4B5563',
         'gray-500': '#6B7280',
         'gray-400': '#9CA3AF',
         'gray-300': '#D1D5DB',
