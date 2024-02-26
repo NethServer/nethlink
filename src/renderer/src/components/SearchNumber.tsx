@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode } from 'react'
 import { Avatar, Button } from './Nethesis'
 import { NumberCaller } from './NumberCaller'
 import { PlaceholderIcon } from '@renderer/icons/PlaceholderIcon'

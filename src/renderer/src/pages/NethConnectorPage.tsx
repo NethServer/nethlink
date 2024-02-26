@@ -3,13 +3,7 @@ import { Navbar } from '../components/Navbar'
 import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
-import {
-  Account,
-  AvailableThemes,
-  CallData,
-  HistoryCallData,
-  SpeedDialType
-} from '@shared/types'
+import { Account, AvailableThemes, CallData, HistoryCallData, SpeedDialType } from '@shared/types'
 import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
@@ -30,10 +24,14 @@ export function NethConnectorPage() {
 
   useEffect(() => {
     if (search) {
-      debouncer('search', () => {
-        console.log('debounce')
-        window.api.sendSearchText(search)
-      }, 250)
+      debouncer(
+        'search',
+        () => {
+          console.log('debounce')
+          window.api.sendSearchText(search)
+        },
+        250
+      )
     }
   }, [search])
 
@@ -50,7 +48,7 @@ export function NethConnectorPage() {
 
   function onMainPresence(op: any) {
     Object.entries(op).forEach(([k, v]) => {
-      setOperators(o => ({
+      setOperators((o) => ({
         ...o,
         [k]: v
       }))
@@ -95,10 +93,6 @@ export function NethConnectorPage() {
 
   /* Le seguenti funzioni sono da implementare */
 
-  function createSpeedDials(): void {
-    alert('Deve reindirizzare alla pagina per creare un nuovo speed dial')
-  }
-
   function viewAllMissedCalls(): void {
     alert('Deve reindirizzare alla pagina per vedere tutte le chiamate perse.')
   }
@@ -131,13 +125,7 @@ export function NethConnectorPage() {
               <div className="relative w-full h-full">
                 <div className="px-4 w-full h-full">
                   {selectedMenu === MENU_ELEMENT.ZAP ? (
-                    <SpeedDialsBox
-                      speeddials={speeddials}
-                      title="Speed Dials"
-                      onClick={createSpeedDials}
-                      callUser={callUser}
-                      label="Create"
-                    />
+                    <SpeedDialsBox speeddials={speeddials} callUser={callUser} label="Create" />
                   ) : (
                     <MissedCallsBox
                       missedCalls={missedCalls}

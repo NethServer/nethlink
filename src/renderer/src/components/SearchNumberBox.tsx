@@ -11,7 +11,6 @@ export interface SearchNumberBoxProps {
 }
 
 export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) {
-
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
 
   useInitialize(() => {
@@ -46,7 +45,7 @@ export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) 
         {filteredPhoneNumbers.map((phoneNumber, index) => (
           <SearchNumber
             key={index}
-            username={phoneNumber.name}
+            name={phoneNumber.name}
             number={phoneNumber.workphone}
             callUser={() => callUser(phoneNumber.workphone)}
             searchText={searchText}
