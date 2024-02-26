@@ -1,10 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faCircleNotch, faCirclePlus } from '@fortawesome/free-solid-svg-icons'
+import { faCheck, faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import { SpeedDialNumber } from './SpeedDialNumber'
 import { SpeedDialType } from '@shared/types'
 import { Button } from './Nethesis/Button'
-import { useRef, useState } from 'react'
-import { TextInput } from './Nethesis'
+import { useState } from 'react'
 import { CreateSpeedDialBox } from './CreateSpeedDialBox'
 
 export interface SpeedDialsBoxProps {
