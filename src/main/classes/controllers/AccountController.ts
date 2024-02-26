@@ -2,6 +2,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
+import { platform } from 'os'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -68,6 +69,7 @@ export class AccountController {
   }
 
   getLoggedAccount() {
+    console.log(this.config?.lastUser)
     if (this.config?.lastUser) {
       return this.config!.accounts[this.config!.lastUser!]
     }
@@ -75,9 +77,15 @@ export class AccountController {
   }
   async _tokenLogin(account: Account, isOpening = false): Promise<Account> {
     const api = new NethVoiceAPI(account.host, account)
-    const loggedAccount = await api.User.me()
+    let loggedAccount: Account | undefined = undefined
+    try {
+      loggedAccount = await api.User.me()
+    } catch {
+      this.config!.lastUser = undefined
+    }
     this._saveNewAccountData(loggedAccount, isOpening)
-    return loggedAccount
+    if (loggedAccount) return loggedAccount
+    throw new Error('UnAuthorized')
   }
 
   async login(account: Account, password: string): Promise<Account> {

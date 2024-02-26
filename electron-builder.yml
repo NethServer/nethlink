@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: neth-connector-electron
+appId: com.nethconnector.app
+productName: NethConnector
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: neth-connector-electron
+  executableName: NethConnector
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
