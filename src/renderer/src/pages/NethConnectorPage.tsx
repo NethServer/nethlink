@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
-import { useLocalStore } from '@renderer/store/StoreController'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 
 export function NethConnectorPage() {
@@ -18,6 +17,7 @@ export function NethConnectorPage() {
   const [speeddials, setSpeeddials] = useState<SpeedDialType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
+  const [isContactSaved, setIsContactSaved] = useState<boolean>(false)
   useInitialize(() => {
     initialize()
   }, true)
@@ -125,19 +125,30 @@ export function NethConnectorPage() {
               <div className="relative w-full h-full">
                 <div className="px-4 w-full h-full">
                   {selectedMenu === MENU_ELEMENT.ZAP ? (
-                    <SpeedDialsBox speeddials={speeddials} callUser={callUser} label="Create" />
+                    <SpeedDialsBox
+                      speeddials={speeddials}
+                      callUser={callUser}
+                      label="Create"
+                      isContactSaved={isContactSaved}
+                    />
                   ) : (
                     <MissedCallsBox
                       missedCalls={missedCalls}
                       title={`Missed Calls (${missedCalls.length})`}
                       label="View all"
                       onClick={viewAllMissedCalls}
+                      isContactSaved={isContactSaved}
                     />
                   )}
                 </div>
                 {search !== '' ? (
                   <div className="absolute top-0 bg-gray-900 h-full w-full">
-                    <SearchNumberBox searchText={search} callUser={callUser} />
+                    <SearchNumberBox
+                      searchText={search}
+                      callUser={callUser}
+                      handleReset={handleReset}
+                      setIsContactSaved={setIsContactSaved}
+                    />
                   </div>
                 ) : null}
               </div>

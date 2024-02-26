@@ -29,6 +29,10 @@ export function CreateSpeedDialBox({
       setName('')
       setPhoneNumber('')
     }, 2000)
+
+    setTimeout(() => {
+      setIsAddedSuccessfully(false)
+    }, 5000)
   }
 
   return (

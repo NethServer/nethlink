@@ -10,14 +10,26 @@ export interface SpeedDialsBoxProps {
   speeddials: SpeedDialType[] | undefined
   label?: string
   callUser: (phoneNumber: string) => void
+  isContactSaved: boolean
 }
 
-export function SpeedDialsBox({ speeddials, label, callUser }: SpeedDialsBoxProps): JSX.Element {
+export function SpeedDialsBox({
+  speeddials,
+  label,
+  callUser,
+  isContactSaved
+}: SpeedDialsBoxProps): JSX.Element {
   const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
   const [isAddedSuccessfully, setIsAddedSuccessfully] = useState<boolean>(false)
 
   return (
     <div className="flex flex-col gap-4 min-h-[284px]">
+      {isContactSaved && (
+        <div className="flex flex-row items-center gap-2 py-1 px-3 rounded-[4px] max-h-6 max-w-[140px] text-gray-100 bg-green-700">
+          <FontAwesomeIcon icon={faCheck} className="text-[16px]" />
+          <p className="font-semibold text-sm">Contact saved</p>
+        </div>
+      )}
       {isAddedSuccessfully && (
         <div className="flex flex-row items-center gap-2 py-1 px-3 rounded-[4px] max-h-6 max-w-[170px] text-gray-100 bg-green-700">
           <FontAwesomeIcon icon={faCheck} className="text-[16px]" />
