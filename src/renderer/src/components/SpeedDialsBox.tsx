@@ -38,7 +38,7 @@ export function SpeedDialsBox({
                 key={idx}
               >
                 <SpeedDialNumber
-                  name={e.name!}
+                  username={e.name!}
                   number={e.speeddial_num!}
                   callUser={() => callUser(e.speeddial_num!)}
                 />

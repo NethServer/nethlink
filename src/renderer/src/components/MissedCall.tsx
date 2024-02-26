@@ -5,9 +5,11 @@ import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 import { Avatar, Badge } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import moment from 'moment'
+import { useLocalStore } from '@renderer/store/StoreController'
+import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
 export interface MissedCallProps {
-  name: string
+  username: string
   number: string
   time: number
   duration: number
@@ -15,12 +17,14 @@ export interface MissedCallProps {
 }
 
 export function MissedCall({
-  name,
+  username,
   number,
   time,
   duration,
   company
 }: MissedCallProps): JSX.Element {
+
+  const operators = useSubscriber('operators')
   function truncate(str: string) {
     return str.length > 15 ? str.substring(0, 14) + '...' : str
   }
@@ -28,10 +32,10 @@ export function MissedCall({
   return (
     <div className="flex flex-grow gap-3 font-semibold max-h-[72px]">
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
-        <Avatar size="extra_small" placeholder={PlaceholderIcon} />
+        <Avatar size="extra_small" placeholder={PlaceholderIcon} status={operators[username]?.mainPresence} />
       </div>
       <div className="flex flex-col gap-1">
-        <p className="text-gray-50">{truncate(name)}</p>
+        <p className="text-gray-50">{truncate(username)}</p>
         <div className="flex flex-row gap-2">
           <MissedCallIcon />
           <NumberCaller number={number} className="text-blue-500 font-normal">{number}</NumberCaller>

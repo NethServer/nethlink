@@ -1,25 +1,20 @@
 import { Account } from '@shared/types'
 import classNames from 'classnames'
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
 import avatar from '../assets/AvatarProvaLoginPage.jpeg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faX } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
 import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
+import { useInitialize } from '@renderer/hooks/useInitialize'
 
 type LoginData = {
   host: string
   username: string
   password: string
-}
-
-const defaultValue = {
-  host: 'https://cti.demo-heron.sf.nethserver.net',
-  username: 'lorenzo',
-  password: 'NethVoice,1234'
 }
 
 export function LoginPage() {
@@ -28,23 +23,75 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isError, setIsError] = useState<boolean>(false)
 
-  function resizeThisWindow(w: number, h: number) {
-    window.api.resizeLoginWindow(w, h)
+  useInitialize(() => {
+    window.api.onLoadAccounts((accounts: Account[]) => {
+      console.log(accounts)
+      setDisplayedAccounts(accounts)
+    })
+    window.api.sendInitializationCompleted('loginpage')
+
+    reset({
+      host: '',
+      password: '',
+      username: ''
+    })
+  })
+
+  function resizeThisWindow(h: number) {
+    window.api.resizeLoginWindow(h)
+  }
+
+  function hideLoginWindow() {
+    window.api.hideLoginWindow()
+  }
+
+  async function handleLogin(data: LoginData) {
+    const returnValue = await window.api.login(data.host, data.username, data.password)
+    console.log(returnValue)
+    if (returnValue) {
+      setIsError(false)
+      setSelectedAccount(undefined)
+    } else {
+      setIsError(true)
+    }
+    setIsLoading(false)
   }
 
   const {
     register,
     handleSubmit,
+    setValue,
+    reset,
     formState: { errors }
   } = useForm<LoginData>()
   const onSubmit: SubmitHandler<LoginData> = (data) => {
-    setIsError(false)
-    setIsLoading(true)
-    window.api.login(data.host, data.username, data.password).catch(() => {
-      setIsLoading(false), setIsError(true)
-    })
-    window.api.onLoadAccounts((accounts: Account[]) => setDisplayedAccounts(accounts))
+    handleLogin(data)
   }
+
+  useEffect(() => {
+    if (selectedAccount) {
+      if (selectedAccount === 'New Account') {
+        resizeThisWindow(570)
+        setValue('host', '')
+        setValue('username', '')
+        setValue('password', '')
+      } else {
+        resizeThisWindow(445)
+        setValue('host', selectedAccount.host)
+        setValue('username', selectedAccount.username)
+        setValue('password', '')
+      }
+    } else {
+      setIsError(false)
+      if (displayedAccounts.length === 1) {
+        resizeThisWindow(375)
+      } else if (displayedAccounts.length === 2) {
+        resizeThisWindow(455)
+      } else if (displayedAccounts.length >= 3) {
+        resizeThisWindow(535)
+      }
+    }
+  }, [displayedAccounts, selectedAccount])
 
   const newAccountForm: ReactNode = (
     <div className="mt-7">
@@ -54,23 +101,20 @@ export function LoginPage() {
       </p>
       <div className="flex flex-col grow gap-7">
         <TextInput
-          {...register('host', { required: true })}
+          {...register('host')}
           type="text"
-          defaultValue={defaultValue.host}
           label="Nethvoice CTI host"
           error={isError || Boolean(errors.host)}
         />
         <TextInput
-          {...register('username', { required: true })}
+          {...register('username')}
           type="text"
-          defaultValue={defaultValue.username}
           label="Username"
           error={isError || Boolean(errors.username)}
         />
         <TextInput
-          {...register('password', { required: true })}
+          {...register('password')}
           type="password"
-          defaultValue={defaultValue.password}
           label="Password"
           error={isError || Boolean(errors.password)}
         />
@@ -91,31 +135,73 @@ export function LoginPage() {
           {displayedAccounts.length > 0 && selectedAccount && (
             <FontAwesomeIcon
               icon={faArrowLeft}
-              className="h-6 w-6 text-gray-50"
+              className="h-5 w-5 text-gray-50 ml-12 cursor-pointer"
               onClick={() => setSelectedAccount(undefined)}
             />
           )}
+          <FontAwesomeIcon
+            icon={faX}
+            className="h-5 w-5 text-gray-50 cursor-pointer"
+            onClick={() => hideLoginWindow()}
+          />
         </div>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+          onSubmit={async (e) => {
+            setIsError(false)
+            setIsLoading(true)
+            e.preventDefault()
+            setTimeout(() => {
+              handleSubmit(onSubmit)(e)
+            }, 100)
+          }}
+        >
           {displayedAccounts.length > 0 ? (
             <div>
               {selectedAccount ? (
-                <div>{selectedAccount === 'New Account' ? newAccountForm : <div></div>}</div>
-              ) : (
                 <div>
-                  <DisplayedAccountLogin
-                    account={{
-                      username: '',
-                      accessToken: undefined,
-                      lastAccess: undefined,
-                      host: '',
-                      data: undefined
-                    }}
-                    imageSrc={avatar}
-                    onClick={function (): void {
-                      throw new Error('Function not implemented.')
-                    }}
-                  />
+                  {selectedAccount === 'New Account' ? (
+                    newAccountForm
+                  ) : (
+                    <div className="w-full mt-7">
+                      <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
+                      <p className="text-gray-100 text-md mb-5">
+                        Choose an account to continue to Nethconnector.
+                      </p>
+                      <DisplayedAccountLogin account={selectedAccount} imageSrc={avatar} />
+                      <TextInput
+                        {...register('password')}
+                        type="password"
+                        label="Password"
+                        error={isError || Boolean(errors.password)}
+                        className="mt-5"
+                      />
+                      <input
+                        type="submit"
+                        className="w-full bg-blue-500 rounded h-9 font-semibold mt-7 cursor-pointer"
+                        value="Sign in"
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="w-full mt-7">
+                  <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
+                  <p className="text-gray-100 text-md mb-8">
+                    Choose an account to continue to Nethconnector.
+                  </p>
+                  <div className="max-h-60 overflow-y-auto">
+                    {displayedAccounts.map((account, idx) => {
+                      return (
+                        <DisplayedAccountLogin
+                          key={idx}
+                          account={account}
+                          imageSrc={avatar}
+                          handleClick={() => setSelectedAccount(account)}
+                        />
+                      )
+                    })}
+                  </div>
+                  <DisplayedAccountLogin handleClick={() => setSelectedAccount('New Account')} />
                 </div>
               )}
             </div>

@@ -46,7 +46,7 @@ export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) 
         {filteredPhoneNumbers.map((phoneNumber, index) => (
           <SearchNumber
             key={index}
-            name={phoneNumber.name}
+            username={phoneNumber.name}
             number={phoneNumber.workphone}
             callUser={() => callUser(phoneNumber.workphone)}
             searchText={searchText}

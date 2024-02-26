@@ -4,7 +4,7 @@ import { PhoneIslandController } from '@/classes/controllers/PhoneIslandControll
 import { NethConnectorWindow } from '@/classes/windows'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
-import { ipcMain, shell } from 'electron'
+import { ipcMain, ipcRenderer, shell } from 'electron'
 import { join } from 'path'
 
 export function registerIpcEvents() {
@@ -17,14 +17,17 @@ export function registerIpcEvents() {
       username,
       theme: 'system'
     }
-    const account = await AccountController.instance.login(tempAccount, password)
-    event.returnValue = account
+    try {
+      event.returnValue = await AccountController.instance.login(tempAccount, password)
+    } catch (e) {
+      console.log(e)
+      event.returnValue = undefined
+    }
   })
 
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
     console.log('LOGOUT')
     AccountController.instance.logout()
-    ipcMain.emit(IPC_EVENTS.LOAD_ACCOUNTS, AccountController.instance.listAvailableAccounts())
   })
 
   ipcMain.on(IPC_EVENTS.CREATE_NEW_ACCOUNT, async (_event) => {
@@ -68,9 +71,12 @@ export function registerIpcEvents() {
     console.log(event, w, h)
     PhoneIslandController.instance.resize(w, h)
   })
-  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, w, h) => {
-    console.log(event, w, h)
-    LoginController.instance.resize(w, h)
+  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
+    console.log(event, h)
+    LoginController.instance.resize(h)
+  })
+  ipcMain.on(IPC_EVENTS.HIDE_LOGIN_WINDOW, () => {
+    LoginController.instance.hide()
   })
 
   ipcMain.on(IPC_EVENTS.CHANGE_THEME, (event, theme) => {
@@ -84,10 +90,10 @@ export function registerIpcEvents() {
 
   //SEND BACK ALL PHONE ISLAND EVENTS
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
-    console.log(ev)
     ipcMain.on(ev, (_event, ...args) => {
-      console.log(ev, args)
-      ipcMain.emit(`on-${ev}`, ...args)
+      const evName = `on-${ev}`
+      console.log('received', evName, args)
+      NethConnectorWindow.instance.emit(evName, ...args)
     })
   })
 }

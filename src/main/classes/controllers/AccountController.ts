@@ -2,17 +2,10 @@ import { join } from 'path'
 import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
-import { store } from '../../../shared/StoreController'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
-  accounts: {
-    lorenzo: {
-      host: 'https://cti.demo-heron.sf.nethserver.net',
-      username: 'lorenzo',
-      theme: 'system'
-    }
-  }
+  accounts: {}
 }
 
 export class AccountController {
@@ -41,10 +34,6 @@ export class AccountController {
       this._onAccountChange!(account)
     }
     if (account) {
-      // const temp = config.accounts[account.username]
-      // if (temp) {
-      //   account.theme = temp.theme
-      // }
       config.accounts[account.username] = account
       config.lastUser = account.username
     } else {
@@ -58,9 +47,13 @@ export class AccountController {
   }
 
   listAvailableAccounts(): Account[] {
-    const accounts = Object.values(this.config?.accounts || {})
-    return accounts
+    const accounts = this._getConfigFile()?.accounts
+    if (accounts) {
+      return Object.values(accounts || {})
+    }
+    return []
   }
+
   async logout() {
     const account = this.getLoggedAccount()
     const api = new NethVoiceAPI(account!.host, account)

@@ -8,13 +8,14 @@ import {
   AvailableThemes,
   CallData,
   HistoryCallData,
-  HistorySpeedDialType,
   SpeedDialType
 } from '@shared/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { store } from '@shared/StoreController'
+import { debouncer } from '@shared/utils/utils'
+import { useLocalStore } from '@renderer/store/StoreController'
+import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
@@ -22,10 +23,19 @@ export function NethConnectorPage() {
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.ZAP)
   const [speeddials, setSpeeddials] = useState<SpeedDialType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
-
+  const [_, setOperators] = useLocalStoreState('operators')
   useInitialize(() => {
     initialize()
   }, true)
+
+  useEffect(() => {
+    if (search) {
+      debouncer('search', () => {
+        console.log('debounce')
+        window.api.sendSearchText(search)
+      }, 250)
+    }
+  }, [search])
 
   function initialize() {
     console.log('initialize')
@@ -34,36 +44,17 @@ export function NethConnectorPage() {
       PHONE_ISLAND_EVENTS['phone-island-main-presence'],
       onMainPresence
     )
-    // saveSpeeddials({
-    //   count: 4,
-    //   rows: [
-    //     { name: 'Edoardo', speeddial_num: '3275757265' },
-    //     { name: 'Pippo Bica', speeddial_num: '230' },
-    //     { name: 'Giovanni', speeddial_num: '56789' },
-    //     { name: 'Alexa', speeddial_num: '27589' }
-    //   ]
-    // })
     window.api.onReceiveSpeeddials(saveSpeeddials)
-    //TODO da guardare come passare la tipologia di MissedCall, tipo commercial, customer care...
-    // saveMissedCalls({
-    //   count: 3,
-    //   rows: [
-    //     { cnam: 'Tanya Fox', cnum: '530', duration: 1, time: 14 },
-    //     { cnam: 'Unknown', cnum: '333 756 0091', duration: 10, time: 12, ccompany: 'Commercial' },
-    //     {
-    //       cnam: 'Maple office customer service',
-    //       cnum: '02 3456785',
-    //       duration: 10,
-    //       time: 12,
-    //       ccompany: 'Customer Care'
-    //     }
-    //   ]
-    // })
     window.api.onReceiveLastCalls(saveMissedCalls)
   }
 
-  function onMainPresence(...args) {
-    console.log('onMainPresence', args)
+  function onMainPresence(op: any) {
+    Object.entries(op).forEach(([k, v]) => {
+      setOperators(o => ({
+        ...o,
+        [k]: v
+      }))
+    })
   }
 
   function updateAccount(account: Account | undefined) {
@@ -82,7 +73,6 @@ export function NethConnectorPage() {
 
   async function handleSearch(searchText: string) {
     setSearch(() => searchText)
-    window.api.sendSearchText(searchText)
     //callUser(searchText)
   }
 

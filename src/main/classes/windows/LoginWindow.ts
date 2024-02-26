@@ -1,11 +1,11 @@
+import { AccountController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
 
 export class LoginWindow extends BaseWindow {
   constructor() {
-    const size = { w: 500, h: 570 }
     super('loginpage', {
-      width: size.w,
-      height: size.h,
+      width: 500,
+      height: 0,
       show: false,
       fullscreenable: false,
       autoHideMenuBar: true,
@@ -29,5 +29,28 @@ export class LoginWindow extends BaseWindow {
       //tabbingIdentifier: 'nethconnector',
       thickFrame: false
     })
+  }
+
+  show(..._args: any): void {
+    let loginWindowHeight = 0
+    switch (AccountController.instance.listAvailableAccounts().length) {
+      case 0:
+        loginWindowHeight = 570
+        break
+      case 1:
+        loginWindowHeight = 375
+        break
+      case 2:
+        loginWindowHeight = 455
+        break
+      default:
+        loginWindowHeight = 535
+        break
+    }
+    const bounds = this._window?.getBounds()
+    this._window!.setBounds({ ...bounds, height: loginWindowHeight }, true)
+    this._window!.center()
+    this._window!.show()
+    super.show(_args)
   }
 }
