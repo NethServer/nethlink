@@ -25,13 +25,13 @@ export function SpeedDialsBox({
   return (
     <div className="flex flex-col gap-4 min-h-[284px]">
       {isContactSaved && (
-        <div className="flex flex-row items-center gap-2 py-1 px-3 rounded-[4px] max-h-6 max-w-[140px] text-gray-100 bg-green-700">
+        <div className="flex flex-row items-center gap-2 py-1 px-3 rounded-[4px] max-h-6 max-w-[140px] dark:text-gray-100 text-gray-100 bg-green-700">
           <FontAwesomeIcon icon={faCheck} className="text-[16px]" />
           <p className="font-semibold text-sm">Contact saved</p>
         </div>
       )}
       {isAddedSuccessfully && (
-        <div className="flex flex-row items-center gap-2 py-1 px-3 rounded-[4px] max-h-6 max-w-[170px] text-gray-100 bg-green-700">
+        <div className="flex flex-row items-center gap-2 py-1 px-3 rounded-[4px] max-h-6 max-w-[170px] dark:text-gray-100 text-gray-100 bg-green-700">
           <FontAwesomeIcon icon={faCheck} className="text-[16px]" />
           <p className="font-semibold text-sm">Speed dial created</p>
         </div>
@@ -43,8 +43,8 @@ export function SpeedDialsBox({
         />
       ) : (
         <>
-          <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 border-gray-700 font-semibold max-h-[28px]">
-            <h1>Speed Dials</h1>
+          <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 font-semibold max-h-[28px]">
+            <h1 className="dark:text-gray-50 text-gray-900">Speed Dials</h1>
             <Button
               className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0"
               onClick={() => {
@@ -52,8 +52,11 @@ export function SpeedDialsBox({
                 setIsCreatingSpeedDial(true)
               }}
             >
-              <FontAwesomeIcon style={{ fontSize: '16px', color: '#3B82F6' }} icon={faCirclePlus} />
-              <p className="text-blue-500">{label}</p>
+              <FontAwesomeIcon
+                className="dark:text-blue-500 text-blue-600 text-base"
+                icon={faCirclePlus}
+              />
+              <p className="dark:text-blue-500 text-blue-600 font-semibold">{label}</p>
             </Button>
           </div>
           <div className="flex flex-col gap-2 p-2 min-h-[240px]">
@@ -62,7 +65,7 @@ export function SpeedDialsBox({
                 console.log(e)
                 return (
                   <div
-                    className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 border-gray-700`}`}
+                    className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 dark:border-gray-700 border-gray-200`}`}
                     key={idx}
                   >
                     <SpeedDialNumber
@@ -74,7 +77,9 @@ export function SpeedDialsBox({
                 )
               })
             ) : (
-              <div>No speed dial</div>
+              <div className="font-semibold dark:text-gray-50 text-gray-900 dark:bg-gray-900 bg-gray-50">
+                No speed dial
+              </div>
             )}
           </div>
         </>

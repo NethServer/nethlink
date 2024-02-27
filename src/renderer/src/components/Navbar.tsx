@@ -13,7 +13,6 @@ import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
 import { useLocalStore } from '@renderer/store/StoreController'
-import { useEffect, useState } from 'react'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
 export interface NavabarProps {
@@ -39,7 +38,6 @@ export function Navbar({
   handleReset,
   handleTextChange
 }: NavabarProps): JSX.Element {
-
   const operators = useSubscriber('operators')
 
   function setTheme(theme) {
@@ -48,7 +46,7 @@ export function Navbar({
   }
 
   return (
-    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4 text-gray-50">
+    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4">
       <SearchBox
         handleSearch={handleSearch}
         handleReset={handleReset}
@@ -60,29 +58,34 @@ export function Navbar({
             <div>
               <Listbox.Button>
                 <div className="flex items-center justify-center min-w-8 min-h-8">
-                  <FontAwesomeIcon icon={faSliders} className="h-5 w-5" />
+                  <FontAwesomeIcon
+                    icon={faSliders}
+                    className="h-5 w-5 dark:text-gray-50 text-gray-700"
+                  />
                 </div>
               </Listbox.Button>
             </div>
             <Listbox.Options
-              className={`mt-2 fixed border border-gray-700 rounded-lg min-w-[225px] min-h-[145px] bg-gray-900 z-20 translate-x-[calc(-100%+36px)]`}
+              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-20 translate-x-[calc(-100%+36px)]`}
             >
-              <p className="text-xs leading-[18px] py-1 px-4 mt-1">THEME</p>
+              <p className="dark:text-gray-50 text-gray-900 text-xs leading-[18px] py-1 px-4 mt-1">
+                THEME
+              </p>
               {themeOptions.map((theme) => (
                 <Listbox.Option key={theme.id} value={theme}>
                   <div
-                    className={`flex flex-row items-center gap-4 hover:bg-gray-700 mt-2 ${account.theme === theme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
+                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2 ${account.theme === theme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
                     onClick={() => setTheme(theme.name)}
                   >
                     {account.theme === theme.name && (
                       <FontAwesomeIcon
-                        className="text-blue-500"
+                        className="dark:text-blue-500 text-blue-600"
                         style={{ fontSize: '16px' }}
                         icon={faCheck}
                       />
                     )}
-                    <div className="flex gap-2 items-center">
-                      <FontAwesomeIcon style={{ fontSize: '16px' }} icon={theme.icon} />
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon className="text-base" icon={theme.icon} />
                       <p className="font-semibold">
                         {theme.name.charAt(0).toUpperCase() + theme.name.slice(1)}
                       </p>
@@ -100,30 +103,38 @@ export function Navbar({
               <Menu.Button>
                 <Avatar
                   size="small"
-                  status={operators[account.username]?.mainPresence || account.data?.mainPresece || 'offline'}
+                  status={
+                    operators[account.username]?.mainPresence ||
+                    account.data?.mainPresece ||
+                    'offline'
+                  }
                   placeholder={PlaceholderIcon}
                 />
               </Menu.Button>
             </div>
 
             <Menu.Items
-              className={`mt-2 fixed border border-gray-700 rounded-lg min-w-[180px] min-h-[125px] bg-gray-900 z-20 translate-x-[calc(-100%+36px)]`}
+              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200  mt-2 fixed rounded-lg min-w-[180px] min-h-[125px] z-20 translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
-                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] border-gray-600">
-                  <p className="text-gray-400">Sign in as</p>
+                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-600">
+                  <p className="dark:text-gray-400 text-gray-700">Sign in as</p>
                   <div className="flex flex-row gap-4">
-                    <p className="text-gray-50 font-semibold">{account.data?.name}</p>
-                    <p className="text-gray-400">{account.data?.endpoints.mainextension[0].id}</p>
+                    <p className="dark:text-gray-50 text-gray-900 font-semibold">
+                      {account.data?.name}
+                    </p>
+                    <p className="dark:text-gray-400 text-gray-700">
+                      {account.data?.endpoints.mainextension[0].id}
+                    </p>
                   </div>
                 </div>
               </Menu.Item>
               <Menu.Item>
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6 hover:bg-gray-700 mt-2"
+                  className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
                   onClick={logout}
                 >
-                  <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faArrowRightFromBracket} />
+                  <FontAwesomeIcon className="text-base" icon={faArrowRightFromBracket} />
                   <p className="font-semibold">Logout</p>
                 </div>
               </Menu.Item>

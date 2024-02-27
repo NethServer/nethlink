@@ -71,7 +71,7 @@ export class NethVoiceAPI {
         password
       }
       return new Promise((resolve, reject) => {
-        this._POST('webrest/authentication/login', data, true).catch(async (reason) => {
+        this._POST('/webrest/authentication/login', data, true).catch(async (reason) => {
           try {
             console.log(reason)
             if (reason.response.status === 401 && reason.response.headers['www-authenticate']) {

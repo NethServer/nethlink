@@ -49,7 +49,7 @@ export function SearchBox({
           submit()
         }
       }}
-      className="min-w-[222px] focus-visible:outline-none"
+      className="min-w-[222px] focus-visible:outline-none dark:text-gray-50 text-gray-900"
     />
   )
 }

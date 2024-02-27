@@ -4,18 +4,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 
 export interface AddToPhonebookBoxProps {
+  initialPhoneNumber?: string
   setIsAddingToPhonebook: (isAdding: boolean) => void
   setIsContactSaved: (isSaved: boolean) => void
   handleReset: () => void
 }
 
 export function AddToPhonebookBox({
+  initialPhoneNumber = '',
   setIsAddingToPhonebook,
   setIsContactSaved,
   handleReset
 }: AddToPhonebookBoxProps) {
   const [name, setName] = useState<string>('')
-  const [phoneNumber, setPhoneNumber] = useState<string>('')
+  const [phoneNumber, setPhoneNumber] = useState<string>(initialPhoneNumber)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [visibility, setVisibility] = useState('')
   const [type, setType] = useState('')
@@ -45,15 +47,15 @@ export function AddToPhonebookBox({
 
   return (
     <div className="px-4 w-full h-full">
-      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 border-gray-700 max-h-[28px]">
+      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 max-h-[28px]">
         <h1 className="font-semibold">Add to Phonebook</h1>
       </div>
-      <div className="flex flex-col gap-2 p-2 min-h-[240px]">
-        <div>
-          <label className="font-semibold">Visibility</label>
-          <div className="flex flex-row gap-8">
-            <div className="flex gap-2">
-              <input
+      <div className="flex flex-col gap-4 p-2 min-h-[240px] h-full overflow-y-auto">
+        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
+          <p>Visibility</p>
+          <div className="flex flex-row gap-8 items-center">
+            <div className="flex flex-row gap-2 items-center">
+              <TextInput
                 ref={visibilityRef}
                 type="radio"
                 value="Everybody"
@@ -61,10 +63,10 @@ export function AddToPhonebookBox({
                 onChange={() => setVisibility('Everybody')}
                 name="visibility"
               />
-              Everybody
+              <p className="whitespace-nowrap">Everybody</p>
             </div>
-            <div className="flex gap-2">
-              <input
+            <div className="flex flex-row gap-2 items-center">
+              <TextInput
                 ref={visibilityRef}
                 type="radio"
                 value="Only me"
@@ -72,16 +74,16 @@ export function AddToPhonebookBox({
                 onChange={() => setVisibility('Only me')}
                 name="visibility"
               />
-              Only me
+              <p className="whitespace-nowrap">Only me</p>
             </div>
           </div>
-        </div>
+        </label>
 
-        <div>
-          <label className="font-semibold">Type</label>
-          <div className="flex flex-row gap-8">
-            <div className="flex gap-2">
-              <input
+        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
+          <p>Type</p>
+          <div className="flex flex-row gap-8 items-center">
+            <div className="flex flex-row gap-2 items-center">
+              <TextInput
                 ref={typeRef}
                 type="radio"
                 value="Person"
@@ -89,10 +91,10 @@ export function AddToPhonebookBox({
                 onChange={() => setType('Person')}
                 name="type"
               />
-              Person
+              <p className="whitespace-nowrap">Person</p>
             </div>
-            <div className="flex gap-2">
-              <input
+            <div className="flex flex-row gap-2 items-center">
+              <TextInput
                 ref={typeRef}
                 type="radio"
                 value="Company"
@@ -100,51 +102,58 @@ export function AddToPhonebookBox({
                 onChange={() => setType('Company')}
                 name="type"
               />
-              Company
+              <p className="whitespace-nowrap">Company</p>
             </div>
           </div>
-        </div>
+        </label>
 
-        <TextInput
-          ref={nameRef}
-          type="text"
-          label="Name"
-          value={name}
-          onChange={(e) => {
-            nameRef.current!.value = e.target.value
-            setName(() => nameRef.current!.value)
-          }}
-        />
-        <TextInput
-          ref={phoneNumberRef}
-          type="tel"
-          label="Phone number"
-          pattern="[0-9]*"
-          minLength={3}
-          value={phoneNumber}
-          onChange={(e) => {
-            const value = e.target.value
-            const cleanedValue = value.replace(/\D/g, '')
+        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
+          <p className="whitespace-nowrap">Name</p>
+          <TextInput
+            ref={nameRef}
+            type="text"
+            value={name}
+            onChange={(e) => {
+              nameRef.current!.value = e.target.value
+              setName(() => nameRef.current!.value)
+            }}
+            className="font-normal"
+          />
+        </label>
 
-            if (phoneNumberRef.current) {
-              phoneNumberRef.current.value = cleanedValue
-            }
-            setPhoneNumber(cleanedValue)
-          }}
-        />
-        <div className="flex flex-row gap-4 justify-end">
+        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
+          <p className="whitespace-nowrap">Phone number</p>
+          <TextInput
+            ref={phoneNumberRef}
+            type="tel"
+            pattern="[0-9]*"
+            minLength={3}
+            value={phoneNumber}
+            onChange={(e) => {
+              const value = e.target.value
+              const cleanedValue = value.replace(/\D/g, '')
+
+              if (phoneNumberRef.current) {
+                phoneNumberRef.current.value = cleanedValue
+              }
+              setPhoneNumber(cleanedValue)
+            }}
+            className="font-normal"
+          />
+        </label>
+
+        <div className="flex flex-row gap-4 justify-end mb-5">
           <Button
             variant="ghost"
-            className="text-blue-500"
             onClick={() => {
               setIsAddingToPhonebook(false)
               handleReset()
             }}
           >
-            <p className="text-blue-500 font-semibold">Cancel</p>
+            <p className="dark:text-blue-500 text-blue-600 font-semibold">Cancel</p>
           </Button>
           <Button
-            className="bg-blue-500 gap-3"
+            className="dark:bg-blue-500 bg-blue-600 gap-3"
             disabled={
               name.trim().length === 0 ||
               phoneNumber.trim().length < 3 ||
@@ -153,8 +162,14 @@ export function AddToPhonebookBox({
             }
             onClick={handleSaveToPhonebook}
           >
-            <p className="text-black font-semibold">Save</p>
-            {isLoading && <FontAwesomeIcon icon={faCircleNotch} className="text-black" spin />}
+            <p className="dark:text-gray-900 text-gray-50 font-semibold">Save</p>
+            {isLoading && (
+              <FontAwesomeIcon
+                icon={faCircleNotch}
+                className="dark:text-gray-900 text-gray-50"
+                spin
+              />
+            )}
           </Button>
         </div>
       </div>

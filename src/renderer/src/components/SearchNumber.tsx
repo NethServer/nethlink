@@ -20,7 +20,7 @@ export function SearchNumber({ name, number, callUser, searchText }: SearchNumbe
     while (index !== -1) {
       parts.push(number.substring(lastIndex, index))
       parts.push(
-        <span className="text-blue-500 font-semibold">
+        <span className="dark:text-blue-500 text-blue-600 font-semibold">
           {number.substring(index, index + searchText.length)}
         </span>
       )
@@ -34,16 +34,18 @@ export function SearchNumber({ name, number, callUser, searchText }: SearchNumbe
   const highlightedNumber = highlightMatch(number, searchText)
 
   return (
-    <div className="flex justify-between w-full min-h-14 px-2 py-2 text-gray-200">
+    <div className="flex justify-between w-full min-h-14 px-2 py-2 dark:text-gray-50 text-gray-900">
       <div className="flex gap-3 items-center">
         <Avatar size="small" placeholder={PlaceholderIcon} bordered={true} />
         <div className="flex flex-col gap-1">
-          <p>{name}</p>
+          <p className="font-semibold">{name}</p>
           <NumberCaller number={number}>{highlightedNumber}</NumberCaller>
         </div>
       </div>
       <Button variant="ghost" onClick={callUser}>
-        <p className="text-blue-500 font-semibold">Call</p>
+        <p className="dark:text-blue-500 text-blue-600 font-semibold dark:hover:bg-gray-700 hover:bg-gray-200">
+          Call
+        </p>
       </Button>
     </div>
   )

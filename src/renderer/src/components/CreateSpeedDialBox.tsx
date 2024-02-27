@@ -37,51 +37,58 @@ export function CreateSpeedDialBox({
 
   return (
     <>
-      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 border-gray-700 max-h-[28px]">
-        <h1 className="font-semibold">Create speed dial</h1>
+      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px]">
+        <h1 className="font-semibold dark:text-gray-50 text-gray-900">Create speed dial</h1>
       </div>
-      <TextInput
-        ref={nameRef}
-        type="text"
-        label="Name"
-        value={name}
-        onChange={(e) => {
-          nameRef.current!.value = e.target.value
-          setName(() => nameRef.current!.value)
-        }}
-      />
-      <TextInput
-        ref={phoneNumberRef}
-        type="tel"
-        label="Phone number"
-        pattern="[0-9]*"
-        minLength={3}
-        value={phoneNumber}
-        onChange={(e) => {
-          const value = e.target.value
-          const cleanedValue = value.replace(/\D/g, '')
+      <label className="flex flex-col gap-2">
+        <p className="dark:text-gray-50 text-gray-900 font-semibold">Name</p>
+        <TextInput
+          ref={nameRef}
+          type="text"
+          value={name}
+          onChange={(e) => {
+            nameRef.current!.value = e.target.value
+            setName(() => nameRef.current!.value)
+          }}
+        />
+      </label>
+      <label className="flex flex-col gap-2">
+        <p className="dark:text-gray-50 text-gray-900 font-semibold">Phone number</p>
+        <TextInput
+          ref={phoneNumberRef}
+          type="tel"
+          pattern="[0-9]*"
+          minLength={3}
+          value={phoneNumber}
+          onChange={(e) => {
+            const value = e.target.value
+            const cleanedValue = value.replace(/\D/g, '')
 
-          if (phoneNumberRef.current) {
-            phoneNumberRef.current.value = cleanedValue
-          }
-          setPhoneNumber(cleanedValue)
-        }}
-      />
+            if (phoneNumberRef.current) {
+              phoneNumberRef.current.value = cleanedValue
+            }
+            setPhoneNumber(cleanedValue)
+          }}
+        />
+      </label>
+
       <div className="flex flex-row gap-4 justify-end mt-2">
-        <Button
-          variant="ghost"
-          className="text-blue-500"
-          onClick={() => setIsCreatingSpeedDial(false)}
-        >
-          <p className="text-blue-500 font-semibold">Cancel</p>
+        <Button variant="ghost" onClick={() => setIsCreatingSpeedDial(false)}>
+          <p className="dark:text-blue-500 text-blue-600 font-semibold">Cancel</p>
         </Button>
         <Button
-          className="bg-blue-500 gap-3"
+          className="dark:bg-blue-500 bg-blue-600 gap-3"
           disabled={name.trim().length === 0 || phoneNumber.trim().length < 3}
           onClick={handleCreateSpeedDial}
         >
-          <p className="text-black font-semibold">Create</p>
-          {isLoading && <FontAwesomeIcon icon={faCircleNotch} className="text-black" spin />}
+          <p className="dark:text-gray-900 text-gray-50 font-semibold">Create</p>
+          {isLoading && (
+            <FontAwesomeIcon
+              icon={faCircleNotch}
+              className="dark:text-gray-900 text-gray-50"
+              spin
+            />
+          )}
         </Button>
       </div>
     </>

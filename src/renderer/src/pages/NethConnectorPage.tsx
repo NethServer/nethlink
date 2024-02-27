@@ -18,6 +18,7 @@ export function NethConnectorPage() {
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
   const [isContactSaved, setIsContactSaved] = useState<boolean>(false)
+  const [isAddingToPhonebook, setIsAddingToPhonebook] = useState<boolean>(false)
   useInitialize(() => {
     initialize()
   }, true)
@@ -109,10 +110,10 @@ export function NethConnectorPage() {
     <div>
       {account && (
         <div
-          className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm text-gray-200"
+          className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900"
           style={{ fontSize: '14px', lineHeight: '20px' }}
         >
-          <div className="flex flex-row bg-gray-900 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
+          <div className="flex flex-row dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
             <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
               <Navbar
                 account={account}
@@ -142,8 +143,10 @@ export function NethConnectorPage() {
                   )}
                 </div>
                 {search !== '' ? (
-                  <div className="absolute top-0 bg-gray-900 h-full w-full">
+                  <div className="absolute top-0 dark:bg-gray-900 bg-gray-50 h-full w-full">
                     <SearchNumberBox
+                      isAddingToPhonebook={isAddingToPhonebook}
+                      setIsAddingToPhonebook={setIsAddingToPhonebook}
                       searchText={search}
                       callUser={callUser}
                       handleReset={handleReset}
