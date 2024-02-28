@@ -37,6 +37,7 @@ export function SearchNumberBox({
     <>
       {isAddingToPhonebook ? (
         <AddToPhonebookBox
+          searchText={searchText}
           handleAddContactToPhonebook={handleAddContactToPhonebook}
           handleContactSavedStatus={handleContactSavedStatus}
           handleReset={handleReset}

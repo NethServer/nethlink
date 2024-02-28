@@ -1,23 +1,23 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button, TextInput } from './Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 
 export interface AddToPhonebookBoxProps {
-  initialPhoneNumber?: string
+  searchText: string
   handleAddContactToPhonebook: (boolean) => void
   handleContactSavedStatus: (boolean) => void
   handleReset: () => void
 }
 
 export function AddToPhonebookBox({
-  initialPhoneNumber = '',
+  searchText,
   handleAddContactToPhonebook,
   handleContactSavedStatus,
   handleReset
 }: AddToPhonebookBoxProps) {
   const [name, setName] = useState<string>('')
-  const [phoneNumber, setPhoneNumber] = useState<string>(initialPhoneNumber)
+  const [phoneNumber, setPhoneNumber] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [visibility, setVisibility] = useState('')
   const [type, setType] = useState('')
@@ -44,6 +44,18 @@ export function AddToPhonebookBox({
       handleContactSavedStatus(false)
     }, 5000)
   }
+
+  function containsOnlyNumber(text: string) {
+    return /^\d+$/.test(text)
+  }
+
+  useEffect(() => {
+    if (containsOnlyNumber(searchText)) {
+      setPhoneNumber(searchText)
+    } else {
+      setName(searchText)
+    }
+  }, [])
 
   return (
     <div className="px-4 w-full h-full">
