@@ -23,6 +23,9 @@ export function NethConnectorPage() {
     initialize()
   }, true)
 
+  //Potrebbe non servire
+  const [theme, setTheme] = useState<AvailableThemes | undefined>()
+
   useEffect(() => {
     if (search) {
       debouncer(
@@ -35,6 +38,20 @@ export function NethConnectorPage() {
       )
     }
   }, [search])
+
+  /* Problema con il tema del sistema se cambio il tema del sistema non viene effettutato  */
+
+  /* useEffect(() => {
+    if (account) {
+      if (account.theme === 'system') {
+        setTheme(() => {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        })
+      } else {
+        setTheme(() => account.theme)
+      }
+    }
+  }, [account]) */
 
   function initialize() {
     console.log('initialize')
@@ -92,10 +109,16 @@ export function NethConnectorPage() {
     window.api.logout()
   }
 
-  /* Le seguenti funzioni sono da implementare */
+  function handleAddContactToPhonebook(state: boolean): void {
+    setIsAddingToPhonebook(state)
+  }
 
-  function viewAllMissedCalls(): void {
-    alert('Deve reindirizzare alla pagina per vedere tutte le chiamate perse.')
+  function handleContactSavedStatus(state: boolean): void {
+    setIsContactSaved(state)
+  }
+
+  function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
+    setSelectedMenu(menuElement)
   }
 
   function handleOnSelectTheme(theme: AvailableThemes) {
@@ -106,60 +129,76 @@ export function NethConnectorPage() {
     }))
   }
 
+  /* Le seguenti funzioni sono da implementare */
+
+  function viewAllMissedCalls(): void {
+    alert('Deve reindirizzare alla pagina per vedere tutte le chiamate perse.')
+  }
+
   return (
-    <div>
+    <>
       {account && (
         <div
-          className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900"
-          style={{ fontSize: '14px', lineHeight: '20px' }}
+          className={
+            account.theme === 'system'
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : account.theme
+          }
         >
-          <div className="flex flex-row dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
-            <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
-              <Navbar
-                account={account}
-                onSelectTheme={handleOnSelectTheme}
-                logout={logout}
-                handleSearch={handleSearch}
-                handleReset={handleReset}
-                handleTextChange={handleTextChange}
-              />
-              <div className="relative w-full h-full">
-                <div className="px-4 w-full h-full">
-                  {selectedMenu === MENU_ELEMENT.ZAP ? (
-                    <SpeedDialsBox
-                      speeddials={speeddials}
-                      callUser={callUser}
-                      label="Create"
-                      isContactSaved={isContactSaved}
-                    />
-                  ) : (
-                    <MissedCallsBox
-                      missedCalls={missedCalls}
-                      title={`Missed Calls (${missedCalls.length})`}
-                      label="View all"
-                      onClick={viewAllMissedCalls}
-                      isContactSaved={isContactSaved}
-                    />
-                  )}
-                </div>
-                {search !== '' ? (
-                  <div className="absolute top-0 dark:bg-gray-900 bg-gray-50 h-full w-full">
-                    <SearchNumberBox
-                      isAddingToPhonebook={isAddingToPhonebook}
-                      setIsAddingToPhonebook={setIsAddingToPhonebook}
-                      searchText={search}
-                      callUser={callUser}
-                      handleReset={handleReset}
-                      setIsContactSaved={setIsContactSaved}
-                    />
+          <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
+            <div className="flex flex-row dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
+              <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
+                <Navbar
+                  account={account}
+                  onSelectTheme={handleOnSelectTheme}
+                  logout={logout}
+                  handleSearch={handleSearch}
+                  handleReset={handleReset}
+                  handleTextChange={handleTextChange}
+                />
+                <div className="relative w-full h-full">
+                  <div className="px-4 w-full h-full">
+                    {selectedMenu === MENU_ELEMENT.ZAP ? (
+                      <SpeedDialsBox
+                        speeddials={speeddials}
+                        isContactSaved={isContactSaved}
+                        callUser={callUser}
+                        label="Create"
+                      />
+                    ) : (
+                      <MissedCallsBox
+                        missedCalls={missedCalls}
+                        isContactSaved={isContactSaved}
+                        title={`Missed Calls (${missedCalls.length})`}
+                        label="View all"
+                        viewAllMissedCalls={viewAllMissedCalls}
+                      />
+                    )}
                   </div>
-                ) : null}
+                  {search !== '' ? (
+                    <div className="absolute top-0 dark:bg-gray-900 bg-gray-50 h-full w-full">
+                      <SearchNumberBox
+                        searchText={search}
+                        isAddingToPhonebook={isAddingToPhonebook}
+                        handleAddContactToPhonebook={handleAddContactToPhonebook}
+                        callUser={callUser}
+                        handleReset={handleReset}
+                        handleContactSavedStatus={handleContactSavedStatus}
+                      />
+                    </div>
+                  ) : null}
+                </div>
               </div>
+              <Sidebar
+                selectedMenu={selectedMenu}
+                handleSidebarMenuSelection={handleSidebarMenuSelection}
+              />
             </div>
-            <Sidebar selectedMenu={selectedMenu} setSelectedMenu={setSelectedMenu} />
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }

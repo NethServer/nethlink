@@ -8,7 +8,7 @@ export interface MissedCallsBoxProps {
   missedCalls: CallData[]
   title: string
   label?: string
-  onClick?: () => void
+  viewAllMissedCalls?: () => void
   isContactSaved: boolean
 }
 
@@ -16,7 +16,7 @@ export function MissedCallsBox({
   missedCalls,
   title,
   label,
-  onClick,
+  viewAllMissedCalls,
   isContactSaved
 }: MissedCallsBoxProps): JSX.Element {
   return (
@@ -30,7 +30,10 @@ export function MissedCallsBox({
         )}
         <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 font-semibold max-h-[28px]">
           <h1>{title}</h1>
-          <Button className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0" onClick={onClick}>
+          <Button
+            className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0"
+            onClick={viewAllMissedCalls}
+          >
             <FontAwesomeIcon
               className="text-base dark:text-blue-500 text-blue-600"
               icon={faArrowUpRightFromSquare}

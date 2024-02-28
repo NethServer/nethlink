@@ -10,18 +10,18 @@ export interface SearchNumberBoxProps {
   searchText: string
   callUser: (phoneNumber: string) => void
   handleReset: () => void
-  setIsContactSaved: (boolean) => void
   isAddingToPhonebook: boolean
-  setIsAddingToPhonebook: (boolean) => void
+  handleAddContactToPhonebook: (boolean) => void
+  handleContactSavedStatus: (boolean) => void
 }
 
 export function SearchNumberBox({
   searchText,
   callUser,
   handleReset,
-  setIsContactSaved,
   isAddingToPhonebook,
-  setIsAddingToPhonebook
+  handleAddContactToPhonebook,
+  handleContactSavedStatus
 }: SearchNumberBoxProps) {
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
 
@@ -37,8 +37,8 @@ export function SearchNumberBox({
     <>
       {isAddingToPhonebook ? (
         <AddToPhonebookBox
-          setIsAddingToPhonebook={setIsAddingToPhonebook}
-          setIsContactSaved={setIsContactSaved}
+          handleAddContactToPhonebook={handleAddContactToPhonebook}
+          handleContactSavedStatus={handleContactSavedStatus}
           handleReset={handleReset}
         />
       ) : (
@@ -53,7 +53,7 @@ export function SearchNumberBox({
 
           <div
             className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 dark:hover:bg-gray-700 hover:bg-gray-200 cursor-pointer"
-            onClick={() => setIsAddingToPhonebook(true)}
+            onClick={() => handleAddContactToPhonebook(true)}
           >
             <FontAwesomeIcon
               className="text-base dark:text-gray-50 text-gray-600"

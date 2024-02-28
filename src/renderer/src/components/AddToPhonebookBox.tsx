@@ -5,15 +5,15 @@ import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 
 export interface AddToPhonebookBoxProps {
   initialPhoneNumber?: string
-  setIsAddingToPhonebook: (isAdding: boolean) => void
-  setIsContactSaved: (isSaved: boolean) => void
+  handleAddContactToPhonebook: (boolean) => void
+  handleContactSavedStatus: (boolean) => void
   handleReset: () => void
 }
 
 export function AddToPhonebookBox({
   initialPhoneNumber = '',
-  setIsAddingToPhonebook,
-  setIsContactSaved,
+  handleAddContactToPhonebook,
+  handleContactSavedStatus,
   handleReset
 }: AddToPhonebookBoxProps) {
   const [name, setName] = useState<string>('')
@@ -32,16 +32,16 @@ export function AddToPhonebookBox({
     setIsLoading(true)
     console.log('Add to Phonebook', { name, phoneNumber })
     setTimeout(() => {
-      setIsContactSaved(true)
+      handleContactSavedStatus(true)
       setIsLoading(false)
-      setIsAddingToPhonebook(false)
+      handleAddContactToPhonebook(false)
       setName('')
       setPhoneNumber('')
       handleReset()
     }, 2000)
 
     setTimeout(() => {
-      setIsContactSaved(false)
+      handleContactSavedStatus(false)
     }, 5000)
   }
 
@@ -146,7 +146,7 @@ export function AddToPhonebookBox({
           <Button
             variant="ghost"
             onClick={() => {
-              setIsAddingToPhonebook(false)
+              handleAddContactToPhonebook(false)
               handleReset()
             }}
           >
