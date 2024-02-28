@@ -88,6 +88,10 @@ export function registerIpcEvents() {
     NethConnectorWindow.instance.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
   })
 
+  ipcMain.on(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE, (event, url) => {
+    shell.openExternal(url)
+  })
+
   //SEND BACK ALL PHONE ISLAND EVENTS
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
     ipcMain.on(ev, (_event, ...args) => {

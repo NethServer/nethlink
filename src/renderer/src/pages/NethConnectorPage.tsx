@@ -132,7 +132,8 @@ export function NethConnectorPage() {
   /* Le seguenti funzioni sono da implementare */
 
   function viewAllMissedCalls(): void {
-    alert('Deve reindirizzare alla pagina per vedere tutte le chiamate perse.')
+    window.api.openMissedCallsPage('https://cti.demo-heron.sf.nethserver.net/operators')
+    //alert('Deve reindirizzare alla pagina per vedere tutte le chiamate perse.')
   }
 
   return (
