@@ -17,6 +17,7 @@ export interface IElectronAPI {
   onLoadAccounts(callback: (accounts: Account[]) => void): void
   onStartCall(callback: (number: string | number) => void): void
   onSearchResult(callback: (serachResults: SearchCallData) => void): void
+  onSystemThemeChange(callback: (theme: AvailableThemes) => void): void
 
   //EMITTER - only emit, no response
   logout: () => void
@@ -81,6 +82,7 @@ const api: IElectronAPI = {
   onReceiveSpeeddials: addListener(IPC_EVENTS.RECEIVE_SPEEDDIALS),
   onReceiveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
   onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
+  onSystemThemeChange: addListener(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME),
 
   addPhoneIslandListener: (event, callback) => {
     const evName = `on-${event}`

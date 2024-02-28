@@ -4,7 +4,7 @@ import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
 import { Account, AvailableThemes, CallData, HistoryCallData, SpeedDialType } from '@shared/types'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
@@ -12,19 +12,20 @@ import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
-  const [account, setAccount] = useState<Account>()
+  const [account, setAccount] = useLocalStoreState<Account>('user')
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.ZAP)
   const [speeddials, setSpeeddials] = useState<SpeedDialType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
   const [isContactSaved, setIsContactSaved] = useState<boolean>(false)
   const [isAddingToPhonebook, setIsAddingToPhonebook] = useState<boolean>(false)
+
   useInitialize(() => {
     initialize()
   }, true)
 
   //Potrebbe non servire
-  const [theme, setTheme] = useState<AvailableThemes | undefined>()
+  const [theme, setTheme] = useState<AvailableThemes | undefined>('dark')
 
   useEffect(() => {
     if (search) {
@@ -41,7 +42,7 @@ export function NethConnectorPage() {
 
   /* Problema con il tema del sistema se cambio il tema del sistema non viene effettutato  */
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (account) {
       if (account.theme === 'system') {
         setTheme(() => {
@@ -51,7 +52,7 @@ export function NethConnectorPage() {
         setTheme(() => account.theme)
       }
     }
-  }, [account]) */
+  }, [account])
 
   function initialize() {
     console.log('initialize')
@@ -62,6 +63,16 @@ export function NethConnectorPage() {
     )
     window.api.onReceiveSpeeddials(saveSpeeddials)
     window.api.onReceiveLastCalls(saveMissedCalls)
+    window.api.onSystemThemeChange((theme) => {
+      updateTheme(theme)
+    })
+  }
+
+  const updateTheme = (theme: AvailableThemes) => {
+    console.log(account)
+    if (account.theme === 'system') {
+      setTheme(() => theme)
+    }
   }
 
   function onMainPresence(op: any) {
@@ -138,15 +149,7 @@ export function NethConnectorPage() {
   return (
     <>
       {account && (
-        <div
-          className={
-            account.theme === 'system'
-              ? window.matchMedia('(prefers-color-scheme: dark)').matches
-                ? 'dark'
-                : 'light'
-              : account.theme
-          }
-        >
+        <div className={theme}>
           <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
             <div className="flex flex-row dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
               <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
