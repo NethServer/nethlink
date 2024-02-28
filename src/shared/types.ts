@@ -6,6 +6,8 @@ export type Account = {
   host: string
   theme: AvailableThemes
   phoneIslandPosition?: { x: number; y: number }
+  sipPort?: string
+  sipHost?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData
 }

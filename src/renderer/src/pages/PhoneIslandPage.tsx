@@ -1,10 +1,14 @@
 import { PhoneIsland } from '@nethesis/phone-island'
 import { useInitialize } from '@renderer/hooks/useInitialize'
+import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { Account } from '@shared/types'
 import { createRef, useEffect, useRef, useState } from 'react'
+import { useStore } from 'zustand'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
+  const [loggedAccount, setLoggedAccount] = useLocalStoreState<Account | undefined>('user')
 
   useInitialize(() => {
     window.api.onDataConfigChange(updateDataConfig)
@@ -19,6 +23,22 @@ export function PhoneIslandPage() {
       )
     })
 
+    window.api.onAccountChange((account: Account | undefined) => {
+      console.log('account change', account)
+      if (!account) {
+        console.log(loggedAccount)
+        // window.dispatchEvent(
+        //   new CustomEvent('phone-island-detach', {
+        //     detail: {
+        //       number
+        //     }
+        //   })
+        // )
+      }
+      setLoggedAccount(account)
+    })
+
+    console.log('INITIALIZE')
     Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
       window.addEventListener(ev, (event) => {
         window.api[ev](event['detail'])

@@ -15,7 +15,7 @@ export class NethVoiceAPI {
   }
 
   _joinUrl(url: string) {
-    const path = join(this._host, url)
+    const path = `${this._host}${url}`
     console.log('PATH:', path)
     return path
   }
@@ -71,7 +71,7 @@ export class NethVoiceAPI {
         password
       }
       return new Promise((resolve, reject) => {
-        this._POST('webrest/authentication/login', data, true).catch(async (reason) => {
+        this._POST('/webrest/authentication/login', data, true).catch(async (reason) => {
           try {
             console.log(reason)
             if (reason.response.status === 401 && reason.response.headers['www-authenticate']) {
@@ -88,6 +88,12 @@ export class NethVoiceAPI {
                   lastAccess: moment().toISOString()
                 }
                 await this.User.me()
+                const res = await this._GET('/config/config.production.js')
+                const SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim()
+                const SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim()
+                console.log('CONFIG', SIP_HOST, SIP_PORT)
+                this._account.sipHost = SIP_HOST
+                this._account.sipPort = SIP_PORT
                 resolve(this._account)
               }
             } else {

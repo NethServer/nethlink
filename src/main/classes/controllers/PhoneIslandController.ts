@@ -22,16 +22,16 @@ export class PhoneIslandController {
   updateDataConfig(token: string) {
     const account = AccountController.instance.getLoggedAccount()
     const webRTCExtension = account!.data!.endpoints.extension.find((el) => el.type === 'webrtc')
-    if (webRTCExtension) {
+    if (webRTCExtension && account) {
       const hostname = account!.host.split('://')[1]
       const config: PhoneIslandConfig = {
         hostname,
-        username: account!.username,
+        username: account.username,
         authToken: token,
         sipExten: webRTCExtension.id,
         sipSecret: webRTCExtension.secret,
-        sipHost: '127.0.0.1',
-        sipPort: '20107'
+        sipHost: account.sipHost || '',
+        sipPort: account.sipPort || ''
       }
       console.log(config)
       const dataConfig = btoa(

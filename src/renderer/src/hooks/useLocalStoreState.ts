@@ -1,11 +1,11 @@
 import { LocalStorageData, useLocalStore } from '@renderer/store/StoreController'
 import { useSubscriber } from './useSubscriber'
 
-export const useLocalStoreState = (
+export function useLocalStoreState<T>(
   selector: keyof LocalStorageData
-): [any, (pre: any) => any | any] => {
+): [any, (pre: any) => any | any] {
   const store = useLocalStore()
-  const subscribedData = useSubscriber(selector)
+  const subscribedData = useSubscriber(selector) as T
   const setter = (newValue: (pre: any) => any | any) => {
     const o = store.getData(selector)()
     let v
