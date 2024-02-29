@@ -13,18 +13,19 @@ export function SearchBox({
   handleReset,
   handleTextChange
 }: SearchBoxProps): JSX.Element {
-  const [showReset, setShowReset] = useState(false)
+  //const [showReset, setShowReset] = useState(false)
 
   const inputRef = createRef<HTMLInputElement>()
 
-  function testReset(): void {
+  /* function testReset(): void {
     setShowReset(!!inputRef.current?.value)
-  }
+  } */
 
   function reset(): void {
-    inputRef.current!.value = ''
-    handleReset()
-    testReset()
+    if (inputRef.current!.value === '') {
+      handleReset()
+      //testReset()
+    }
   }
 
   function submit(): void {
@@ -41,7 +42,7 @@ export function SearchBox({
       onChange={(e) => {
         inputRef.current!.value = e.target.value
         handleTextChange(inputRef.current!.value)
-        testReset()
+        reset()
       }}
       onSubmit={submit}
       onKeyDown={(e) => {

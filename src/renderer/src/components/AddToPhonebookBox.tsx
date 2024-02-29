@@ -158,7 +158,7 @@ export function AddToPhonebookBox({
           <Button
             variant="ghost"
             onClick={() => {
-              handleAddContactToPhonebook(false)
+              //handleAddContactToPhonebook(false)
               handleReset()
             }}
           >
@@ -172,7 +172,7 @@ export function AddToPhonebookBox({
               visibility === '' ||
               type === ''
             }
-            onClick={handleSaveToPhonebook}
+            onClick={() => handleSaveToPhonebook()}
           >
             <p className="dark:text-gray-900 text-gray-50 font-semibold">Save</p>
             {isLoading && (

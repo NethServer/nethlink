@@ -100,7 +100,6 @@ export function NethConnectorPage() {
 
   async function handleSearch(searchText: string) {
     setSearch(() => searchText)
-    //callUser(searchText)
   }
 
   async function handleTextChange(searchText: string) {
@@ -109,6 +108,7 @@ export function NethConnectorPage() {
 
   async function handleReset() {
     setSearch(() => '')
+    setIsAddingToPhonebook(() => false)
   }
 
   function callUser(phoneNumber: string): void {
@@ -121,15 +121,15 @@ export function NethConnectorPage() {
   }
 
   function handleAddContactToPhonebook(state: boolean): void {
-    setIsAddingToPhonebook(state)
+    setIsAddingToPhonebook(() => state)
   }
 
   function handleContactSavedStatus(state: boolean): void {
-    setIsContactSaved(state)
+    setIsContactSaved(() => state)
   }
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
-    setSelectedMenu(menuElement)
+    setSelectedMenu(() => menuElement)
   }
 
   function handleOnSelectTheme(theme: AvailableThemes) {
