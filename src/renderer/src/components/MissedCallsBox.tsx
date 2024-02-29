@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowUpRightFromSquare, faCheck } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
 import { MissedCall } from './MissedCall'
 import { CallData } from '@shared/types'
 import { Button } from './Nethesis/Button'
@@ -9,13 +9,17 @@ export interface MissedCallsBoxProps {
   title: string
   label?: string
   viewAllMissedCalls?: () => void
+  isAddingToPhonebook: boolean
+  handleAddContactToPhonebook: (boolean) => void
 }
 
 export function MissedCallsBox({
   missedCalls,
   title,
   label,
-  viewAllMissedCalls
+  viewAllMissedCalls,
+  isAddingToPhonebook,
+  handleAddContactToPhonebook
 }: MissedCallsBoxProps): JSX.Element {
   return (
     <>
@@ -40,12 +44,17 @@ export function MissedCallsBox({
                 className={`${idx === missedCalls.length - 1 ? `` : `border-b pb-2 dark:border-gray-700 border-gray-200`}`}
                 key={idx}
               >
+                {/* Prova per forzare il button create */}
                 <MissedCall
-                  username={call.cnam!}
+                  username={'Unknown'}
+                  //username={call.cnam!}
                   number={call.cnum!}
                   time={call.time!}
                   duration={call.duration!}
-                  company={call.ccompany!}
+                  company={'Customer care'}
+                  isAddingToPhonebook={isAddingToPhonebook}
+                  handleAddContactToPhonebook={handleAddContactToPhonebook}
+                  //company={call.ccompany!}
                 />
               </div>
             )
