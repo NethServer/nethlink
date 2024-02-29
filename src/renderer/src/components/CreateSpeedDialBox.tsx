@@ -5,13 +5,9 @@ import { useRef, useState } from 'react'
 
 export interface CreateSpeedDialProps {
   setIsCreatingSpeedDial: (isCreating: boolean) => void
-  setIsAddedSuccessfully: (isAdded: boolean) => void
 }
 
-export function CreateSpeedDialBox({
-  setIsCreatingSpeedDial,
-  setIsAddedSuccessfully
-}: CreateSpeedDialProps) {
+export function CreateSpeedDialBox({ setIsCreatingSpeedDial }: CreateSpeedDialProps) {
   const [name, setName] = useState<string>('')
   const [phoneNumber, setPhoneNumber] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -23,16 +19,11 @@ export function CreateSpeedDialBox({
     setIsLoading(true)
     console.log('Creating speed dial', { name, phoneNumber })
     setTimeout(() => {
-      setIsAddedSuccessfully(true)
       setIsLoading(false)
       setIsCreatingSpeedDial(false)
       setName('')
       setPhoneNumber('')
     }, 2000)
-
-    setTimeout(() => {
-      setIsAddedSuccessfully(false)
-    }, 5000)
   }
 
   return (

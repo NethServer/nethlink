@@ -38,7 +38,7 @@ export function Navbar({
   handleSearch,
   handleReset
 }: NavabarProps): JSX.Element {
-  const operators = useSubscriber('operators')
+  const operators: any = useSubscriber('operators')
 
   function setTheme(theme) {
     onSelectTheme(theme)

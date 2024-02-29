@@ -12,7 +12,6 @@ export interface SearchNumberBoxProps {
   handleReset: () => void
   isAddingToPhonebook: boolean
   handleAddContactToPhonebook: (boolean) => void
-  handleContactSavedStatus: (boolean) => void
 }
 
 export function SearchNumberBox({
@@ -20,8 +19,7 @@ export function SearchNumberBox({
   callUser,
   handleReset,
   isAddingToPhonebook,
-  handleAddContactToPhonebook,
-  handleContactSavedStatus
+  handleAddContactToPhonebook
 }: SearchNumberBoxProps) {
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
 
@@ -39,7 +37,6 @@ export function SearchNumberBox({
         <AddToPhonebookBox
           searchText={searchText}
           handleAddContactToPhonebook={handleAddContactToPhonebook}
-          handleContactSavedStatus={handleContactSavedStatus}
           handleReset={handleReset}
         />
       ) : (

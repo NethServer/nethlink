@@ -17,7 +17,6 @@ export function NethConnectorPage() {
   const [speeddials, setSpeeddials] = useState<SpeedDialType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
-  const [isContactSaved, setIsContactSaved] = useState<boolean>(false)
   const [isAddingToPhonebook, setIsAddingToPhonebook] = useState<boolean>(false)
 
   useInitialize(() => {
@@ -120,10 +119,6 @@ export function NethConnectorPage() {
     setIsAddingToPhonebook(() => state)
   }
 
-  function handleContactSavedStatus(state: boolean): void {
-    setIsContactSaved(() => state)
-  }
-
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
   }
@@ -160,16 +155,10 @@ export function NethConnectorPage() {
                 <div className="relative w-full h-full">
                   <div className="px-4 w-full h-full">
                     {selectedMenu === MENU_ELEMENT.ZAP ? (
-                      <SpeedDialsBox
-                        speeddials={speeddials}
-                        isContactSaved={isContactSaved}
-                        callUser={callUser}
-                        label="Create"
-                      />
+                      <SpeedDialsBox speeddials={speeddials} callUser={callUser} label="Create" />
                     ) : (
                       <MissedCallsBox
                         missedCalls={missedCalls}
-                        isContactSaved={isContactSaved}
                         title={`Missed Calls (${missedCalls.length})`}
                         label="View all"
                         viewAllMissedCalls={viewAllMissedCalls}
@@ -184,7 +173,6 @@ export function NethConnectorPage() {
                         handleAddContactToPhonebook={handleAddContactToPhonebook}
                         callUser={callUser}
                         handleReset={handleReset}
-                        handleContactSavedStatus={handleContactSavedStatus}
                       />
                     </div>
                   ) : null}

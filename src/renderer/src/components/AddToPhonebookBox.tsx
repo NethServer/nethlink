@@ -6,14 +6,12 @@ import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 export interface AddToPhonebookBoxProps {
   searchText: string
   handleAddContactToPhonebook: (boolean) => void
-  handleContactSavedStatus: (boolean) => void
   handleReset: () => void
 }
 
 export function AddToPhonebookBox({
   searchText,
   handleAddContactToPhonebook,
-  handleContactSavedStatus,
   handleReset
 }: AddToPhonebookBoxProps) {
   const [name, setName] = useState<string>('')
@@ -32,17 +30,12 @@ export function AddToPhonebookBox({
     setIsLoading(true)
     console.log('Add to Phonebook', { name, phoneNumber })
     setTimeout(() => {
-      handleContactSavedStatus(true)
       setIsLoading(false)
       handleAddContactToPhonebook(false)
       setName('')
       setPhoneNumber('')
       handleReset()
     }, 2000)
-
-    setTimeout(() => {
-      handleContactSavedStatus(false)
-    }, 5000)
   }
 
   function containsOnlyNumber(text: string) {
