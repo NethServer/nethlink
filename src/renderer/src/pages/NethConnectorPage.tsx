@@ -9,6 +9,7 @@ import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
+import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
@@ -121,6 +122,10 @@ export function NethConnectorPage() {
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
+    //Aggiunto il fatto che se seleziono un menu faccio il reset della
+    //SearchBox e dello stato di aggiunta di un numero su Phonebook
+    setSearch(() => '')
+    setIsAddingToPhonebook(() => false)
   }
 
   function handleOnSelectTheme(theme: AvailableThemes) {
@@ -162,16 +167,25 @@ export function NethConnectorPage() {
                         title={`Missed Calls (${missedCalls.length})`}
                         label="View all"
                         viewAllMissedCalls={viewAllMissedCalls}
+                        isAddingToPhonebook={isAddingToPhonebook}
+                        handleAddContactToPhonebook={handleAddContactToPhonebook}
                       />
                     )}
                   </div>
-                  {search !== '' ? (
+                  {search !== '' && !isAddingToPhonebook ? (
                     <div className="absolute top-0 dark:bg-gray-900 bg-gray-50 h-full w-full">
                       <SearchNumberBox
                         searchText={search}
-                        isAddingToPhonebook={isAddingToPhonebook}
                         handleAddContactToPhonebook={handleAddContactToPhonebook}
                         callUser={callUser}
+                      />
+                    </div>
+                  ) : null}
+                  {isAddingToPhonebook ? (
+                    <div className="absolute top-0 dark:bg-gray-900 bg-gray-50 h-full w-full">
+                      <AddToPhonebookBox
+                        searchText={search}
+                        handleAddContactToPhonebook={handleAddContactToPhonebook}
                         handleReset={handleReset}
                       />
                     </div>
