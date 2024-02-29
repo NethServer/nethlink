@@ -4,14 +4,14 @@ import { TextInput } from './Nethesis/TextInput'
 
 export interface SearchBoxProps {
   handleSearch: (searchText: string) => Promise<void>
-  handleTextChange: (searchText: string) => Promise<void>
+  //handleTextChange: (searchText: string) => Promise<void>
   handleReset: () => void
 }
 
 export function SearchBox({
   handleSearch,
-  handleReset,
-  handleTextChange
+  handleReset
+  //handleTextChange
 }: SearchBoxProps): JSX.Element {
   //const [showReset, setShowReset] = useState(false)
 
@@ -41,7 +41,7 @@ export function SearchBox({
       placeholder="Call or compose..."
       onChange={(e) => {
         inputRef.current!.value = e.target.value
-        handleTextChange(inputRef.current!.value)
+        handleSearch(inputRef.current!.value)
         reset()
       }}
       onSubmit={submit}

@@ -20,7 +20,6 @@ export interface NavabarProps {
   onSelectTheme: (theme: AvailableThemes) => void
   logout: () => void
   handleSearch: (searchText: string) => Promise<void>
-  handleTextChange: (searchText: string) => Promise<void>
   handleReset: () => void
 }
 
@@ -35,8 +34,7 @@ export function Navbar({
   onSelectTheme,
   logout,
   handleSearch,
-  handleReset,
-  handleTextChange
+  handleReset
 }: NavabarProps): JSX.Element {
   const operators = useSubscriber('operators')
 
@@ -47,11 +45,7 @@ export function Navbar({
 
   return (
     <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4">
-      <SearchBox
-        handleSearch={handleSearch}
-        handleReset={handleReset}
-        handleTextChange={handleTextChange}
-      />
+      <SearchBox handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>

@@ -102,10 +102,6 @@ export function NethConnectorPage() {
     setSearch(() => searchText)
   }
 
-  async function handleTextChange(searchText: string) {
-    setSearch(() => searchText)
-  }
-
   async function handleReset() {
     setSearch(() => '')
     setIsAddingToPhonebook(() => false)
@@ -159,7 +155,6 @@ export function NethConnectorPage() {
                   logout={logout}
                   handleSearch={handleSearch}
                   handleReset={handleReset}
-                  handleTextChange={handleTextChange}
                 />
                 <div className="relative w-full h-full">
                   <div className="px-4 w-full h-full">
