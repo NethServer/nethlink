@@ -16,6 +16,7 @@ import { useLocalStore } from '@renderer/store/StoreController'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
 export interface NavabarProps {
+  search: string
   account: Account
   onSelectTheme: (theme: AvailableThemes) => void
   logout: () => void
@@ -30,6 +31,7 @@ const themeOptions = [
 ]
 
 export function Navbar({
+  search,
   account,
   onSelectTheme,
   logout,
@@ -45,7 +47,7 @@ export function Navbar({
 
   return (
     <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4">
-      <SearchBox handleSearch={handleSearch} handleReset={handleReset} />
+      <SearchBox search={search} handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>

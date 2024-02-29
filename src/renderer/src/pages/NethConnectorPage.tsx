@@ -150,6 +150,7 @@ export function NethConnectorPage() {
             <div className="flex flex-row dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
               <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
                 <Navbar
+                  search={search}
                   account={account}
                   onSelectTheme={handleOnSelectTheme}
                   logout={logout}
