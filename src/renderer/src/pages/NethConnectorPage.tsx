@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
-import { useLocalStore } from '@renderer/store/StoreController'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 
 export function NethConnectorPage() {

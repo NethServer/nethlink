@@ -25,21 +25,133 @@ export enum IPC_EVENTS {
   HIDE_LOGIN_WINDOW = 'HIDE_LOGIN_WINDOW',
   CHANGE_THEME = 'CHANGE_THEME',
   RECEIVE_SEARCH_RESULT = 'RECEIVE_SEARCH_RESULT',
-  SEARCH_TEXT = 'SEARCH_TEXT'
+  SEARCH_TEXT = 'SEARCH_TEXT',
+  MOUSE_OVER_PHONE_ISLAND = 'MOUSE_OVER_PHONE_ISLAND'
 }
 
+//PHONE ISLAND EVENTS
 export enum PHONE_ISLAND_EVENTS {
-  //PHONE ISLAND EVENTS
+  // Listen Phone-Island Events: phone-island*
+  'phone-island-attach' = 'phone-island-attach',
+  'phone-island-detach' = 'phone-island-detach',
+  'phone-island-audio-input-change' = 'phone-island-audio-input-change',
+  'phone-island-audio-output-change' = 'phone-island-audio-output-change',
+  // Dispatch Phone-Island Events: phone-island*
+  'phone-island-attached' = 'phone-island-attached',
+  'phone-island-detached' = 'phone-island-detached',
+  'phone-island-audio-input-changed' = 'phone-island-audio-input-changed',
+  'phone-island-audio-output-changed' = 'phone-island-audio-output-changed',
+  // Listen Call Events: phone-island-call*
+  'phone-island-call-start' = 'phone-island-call-start',
+  'phone-island-call-answer' = 'phone-island-call-answer',
+  'phone-island-call-end' = 'phone-island-call-end',
+  'phone-island-call-hold' = 'phone-island-call-hold',
+  'phone-island-call-unhold' = 'phone-island-call-unhold',
+  'phone-island-call-mute' = 'phone-island-call-mute',
+  'phone-island-call-unmute' = 'phone-island-call-unmute',
+  'phone-island-call-transfer-open' = 'phone-island-call-transfer-open',
+  'phone-island-call-transfer-close' = 'phone-island-call-transfer-close',
+  'phone-island-call-transfer-switch' = 'phone-island-call-transfer-switch',
+  'phone-island-call-transfer-cancel' = 'phone-island-call-transfer-cancel',
+  'phone-island-call-transfer' = 'phone-island-call-transfer',
+  'phone-island-call-keypad-open' = 'phone-island-call-keypad-open',
+  'phone-island-call-keypad-close' = 'phone-island-call-keypad-close',
+  'phone-island-call-keypad-send' = 'phone-island-call-keypad-send',
+  'phone-island-call-park' = 'phone-island-call-park',
+  'phone-island-call-intrude' = 'phone-island-call-intrude',
+  'phone-island-call-listen' = 'phone-island-call-listen',
+  'phone-island-call-audio-input-switch' = 'phone-island-call-audio-input-switch',
+  'phone-island-call-audio-output-switch' = 'phone-island-call-audio-output-switch',
+  // Dispatch Call Event: phone-island-call-*
+  'phone-island-call-ringing' = 'phone-island-call-ringing',
+  'phone-island-call-started' = 'phone-island-call-started',
+  'phone-island-call-answered' = 'phone-island-call-answered',
+  'phone-island-call-ended' = 'phone-island-call-ended',
+  'phone-island-call-held' = 'phone-island-call-held',
+  'phone-island-call-unheld' = 'phone-island-call-unheld',
+  'phone-island-call-muted' = 'phone-island-call-muted',
+  'phone-island-call-unmuted' = 'phone-island-call-unmuted',
+  'phone-island-call-transfer-opened' = 'phone-island-call-transfer-opened',
+  'phone-island-call-transfer-closed' = 'phone-island-call-transfer-closed',
+  'phone-island-call-transfer-switched' = 'phone-island-call-transfer-switched',
+  'phone-island-call-transfer-canceled' = 'phone-island-call-transfer-canceled',
+  'phone-island-call-transfered' = 'phone-island-call-transfered',
+  'phone-island-call-keypad-opened' = 'phone-island-call-keypad-opened',
+  'phone-island-call-keypad-closed' = 'phone-island-call-keypad-closed',
+  'phone-island-call-keypad-sent' = 'phone-island-call-keypad-sent',
+  'phone-island-call-parked' = 'phone-island-call-parked',
+  'phone-island-call-listened' = 'phone-island-call-listened',
+  'phone-island-call-intruded' = 'phone-island-call-intruded',
+  'phone-island-call-audio-input-switched' = 'phone-island-call-audio-input-switched',
+  'phone-island-call-audio-output-switched' = 'phone-island-call-audio-output-switched',
+  // Listen Recording Event: phone-island-recording-*
+  'phone-island-recording-open' = 'phone-island-recording-open',
+  'phone-island-recording-close' = 'phone-island-recording-close',
+  'phone-island-recording-start' = 'phone-island-recording-start',
+  'phone-island-recording-stop' = 'phone-island-recording-stop',
+  'phone-island-recording-play' = 'phone-island-recording-play',
+  'phone-island-recording-pause' = 'phone-island-recording-pause',
+  'phone-island-recording-save' = 'phone-island-recording-save',
+  'phone-island-recording-delete' = 'phone-island-recording-delete',
+  // Dispatch Recording Event: phone-island-recording-*
+  'phone-island-recording-opened' = 'phone-island-recording-opened',
+  'phone-island-recording-closed' = 'phone-island-recording-closed',
+  'phone-island-recording-started' = 'phone-island-recording-started',
+  'phone-island-recording-stopped' = 'phone-island-recording-stopped',
+  'phone-island-recording-played' = 'phone-island-recording-played',
+  'phone-island-recording-paused' = 'phone-island-recording-paused',
+  'phone-island-recording-saved' = 'phone-island-recording-saved',
+  'phone-island-recording-deleted' = 'phone-island-recording-deleted',
+  // Listen Audio Player Event: phone-island-audio-player-*
+  'phone-island-audio-player-start' = 'phone-island-audio-player-start',
+  'phone-island-audio-player-play' = 'phone-island-audio-player-play',
+  'phone-island-audio-player-pause' = 'phone-island-audio-player-pause',
+  'phone-island-audio-player-close' = 'phone-island-audio-player-close',
+  // Dispatch Audio Player Event: phone-island-audio-player-*
+  'phone-island-audio-player-started' = 'phone-island-audio-player-started',
+  'phone-island-audio-player-played' = 'phone-island-audio-player-played',
+  'phone-island-audio-player-paused' = 'phone-island-audio-player-paused',
+  'phone-island-audio-player-closed' = 'phone-island-audio-player-closed',
+  // General Dispatch Events
+  'phone-island-user-already-login' = 'phone-island-user-already-login',
   'phone-island-main-presence' = 'phone-island-main-presence',
   'phone-island-conversations' = 'phone-island-conversations',
   'phone-island-queue-update' = 'phone-island-queue-update',
   'phone-island-queue-member-update' = 'phone-island-queue-member-update',
-  'phone-island-user-already-login' = 'phone-island-user-already-login',
+  'phone-island-parking-update' = 'phone-island-parking-update',
+  // Server and Socket Dispatch Event: phone-island-server-* | phone-island-socket-*
   'phone-island-server-reloaded' = 'phone-island-server-reloaded',
   'phone-island-server-disconnected' = 'phone-island-server-disconnected',
+  'phone-island-socket-connected' = 'phone-island-socket-connected',
   'phone-island-socket-disconnected' = 'phone-island-socket-disconnected',
-  'phone-island-parking-update' = 'phone-island-parking-update',
-  'phone-island-detach' = 'phone-island-detach',
-  'phone-island-attach' = 'phone-island-attach',
-  'phone-island-call-start' = 'phone-island-call-start'
+  'phone-island-socket-reconnected' = 'phone-island-socket-reconnected'
 }
+
+export const PHONE_ISLAND_SIZES = new Map<string, { w: number; h: number }>([
+  ['phone-island-call-ringing', { w: 420, h: 98 }],
+  ['phone-island-call-ringing-resize', { w: 170, h: 42 }], //evento da implementare
+  ['phone-island-call-start', { w: 350, h: 238 }],
+  ['phone-island-call-started', { w: 350, h: 238 }],
+  ['phone-island-call-answer', { w: 350, h: 238 }], //problema: quando rispondi la phone island si apre o espansa o ridotta a seconda di come si è chiusa l'ultima volta
+  ['phone-island-call-answered', { w: 350, h: 238 }],
+  ['phone-island-call-end', { w: 1, h: 1 }],
+  ['phone-island-call-ended', { w: 1, h: 1 }],
+  ['phone-island-call-expanded', { w: 350, h: 306 }], //evento da implementare
+  ['phone-island-call-reduced', { w: 350, h: 238 }], //evento da implementare
+  ['phone-island-call-transfer-open', { w: 450, h: 412 }],
+  ['phone-island-call-transfer-opened', { w: 450, h: 412 }],
+  ['phone-island-call-transfer-close', { w: 350, h: 238 }],
+  ['phone-island-call-transfer-closed', { w: 350, h: 238 }],
+  ['phone-island-call-transfer-switch', { w: 388, h: 304 }], // non funziona il tasto
+  ['phone-island-call-transfer-switched', { w: 1, h: 1 }], // non funziona il tasto
+  ['phone-island-call-transfer-cancel', { w: 10, h: 10 }], // non funziona il tasto
+  ['phone-island-call-transfer-canceled', { w: 10, h: 10 }], // non funziona il tasto
+  ['phone-island-call-transfer', { w: 10, h: 10 }],
+  ['phone-island-call-transfered', { w: 10, h: 10 }],
+  ['phone-island-call-keypad-open', { w: 10, h: 10 }],
+  ['phone-island-call-keypad-opened', { w: 10, h: 10 }],
+  ['phone-island-call-keypad-close', { w: 10, h: 10 }],
+  ['phone-island-call-keypad-closed', { w: 10, h: 10 }],
+  ['phone-island-call-park', { w: 1, h: 1 }],
+  ['phone-island-call-parked', { w: 1, h: 1 }]
+])

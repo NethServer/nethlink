@@ -2,9 +2,9 @@ import { AccountController, NethVoiceAPI } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { NethConnectorWindow } from '@/classes/windows'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { IPC_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
-import { ipcMain, ipcRenderer, shell } from 'electron'
+import { ipcMain, shell } from 'electron'
 import { join } from 'path'
 
 export function registerIpcEvents() {
@@ -71,6 +71,10 @@ export function registerIpcEvents() {
     console.log(event, w, h)
     PhoneIslandController.instance.resize(w, h)
   })
+  ipcMain.on(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND, (event, isOver) => {
+    console.log(isOver)
+    PhoneIslandController.instance.phoneIslandWindow.ignoreMouseEvents(isOver)
+  })
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
     console.log(event, h)
     LoginController.instance.resize(h)
@@ -86,14 +90,5 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.SEARCH_TEXT, async (event, searchText) => {
     const res = await NethVoiceAPI.instance.Phonebook.search(searchText)
     NethConnectorWindow.instance.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
-  })
-
-  //SEND BACK ALL PHONE ISLAND EVENTS
-  Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
-    ipcMain.on(ev, (_event, ...args) => {
-      const evName = `on-${ev}`
-      console.log('received', evName, args)
-      NethConnectorWindow.instance.emit(evName, ...args)
-    })
   })
 }

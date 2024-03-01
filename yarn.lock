@@ -1474,8 +1474,10 @@
   dependencies:
     "@fortawesome/fontawesome-common-types" "6.2.1"
 
-"@nethesis/phone-island@^0.7.120":
-  version "0.7.120"
+"@nethesis/phone-island@^0.7.125":
+  version "0.7.125"
+  resolved "https://registry.npmjs.org/@nethesis/phone-island/-/phone-island-0.7.125.tgz"
+  integrity sha512-vD/AbZ2oz4hH50A3n1N3SDotW5gaDbHf/Xv2/dwPY0n4Pzxtjihbs728Ixi5YL6b1QjBG1gcbvWZgNQPjb52pA==
   dependencies:
     "@fortawesome/free-solid-svg-icons" "^6.2.1"
     "@fortawesome/react-fontawesome" "^0.2.0"

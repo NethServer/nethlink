@@ -6,6 +6,7 @@ import { Account, AvailableThemes, HistoryCallData, SearchCallData } from '@shar
 export type SyncResponse<T> = [T, Error]
 
 export interface IElectronAPI {
+  onMouseOverPhoneIsland(isOver: boolean): void
   //SYNC EMITTERS - expect response
   login: (host: string, username: string, password: string) => Promise<Account | undefined>
 
@@ -28,9 +29,6 @@ export interface IElectronAPI {
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): void
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
-
-  //PHONE ISLAND EVENTS:
-  (funcName: PHONE_ISLAND_EVENTS): () => void
 }
 
 function addListener(channel) {
@@ -62,6 +60,7 @@ const api: IElectronAPI = {
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
 
   //EMITTER - only emit, no response
+  onMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   startCall: setEmitter(IPC_EVENTS.START_CALL),
@@ -84,13 +83,7 @@ const api: IElectronAPI = {
     const evName = `on-${event}`
     const listener = addListener(evName)
     listener(callback)
-  },
-
-  //PHONE ISLAND EVENTS:
-  ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, ev) => {
-    p[`${ev}`] = setEmitter(ev)
-    return p
-  }, {})
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
