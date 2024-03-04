@@ -14,6 +14,7 @@ import { Account, AvailableThemes } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
 import { useLocalStore } from '@renderer/store/StoreController'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { t } from 'i18next'
 
 export interface NavabarProps {
   search: string
@@ -114,7 +115,7 @@ export function Navbar({
             >
               <Menu.Item>
                 <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-600">
-                  <p className="dark:text-gray-400 text-gray-700">Sign in as</p>
+                  <p className="dark:text-gray-400 text-gray-700">{t('TopBar.Signed in as')}</p>
                   <div className="flex flex-row gap-4">
                     <p className="dark:text-gray-50 text-gray-900 font-semibold">
                       {account.data?.name}

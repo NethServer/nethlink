@@ -36,6 +36,7 @@
     "electron-updater": "^6.1.7",
     "i18next": "^22.4.9",
     "i18next-browser-languagedetector": "^7.0.1",
+    "i18next-electron-fs-backend": "^3.0.1",
     "i18next-http-backend": "^2.1.1",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",

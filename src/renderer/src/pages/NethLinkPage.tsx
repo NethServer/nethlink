@@ -15,7 +15,7 @@ import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useLocalStoreState<Account>('user')
-  const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.ZAP)
+  const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
   const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
@@ -171,7 +171,7 @@ export function NethLinkPage() {
                 />
                 <div className="relative w-full h-full">
                   <div className="px-4 w-full h-full z-1">
-                    {selectedMenu === MENU_ELEMENT.ZAP ? (
+                    {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
                       isCreatingSpeedDial ? (
                         <CreateSpeedDialBox
                           handleAddContactToSpeedDials={handleAddContactToSpeedDials}
