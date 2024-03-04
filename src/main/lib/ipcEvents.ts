@@ -4,9 +4,9 @@ import { PhoneIslandController } from '@/classes/controllers/PhoneIslandControll
 import { NethConnectorWindow } from '@/classes/windows'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
-import { ipcMain, ipcRenderer, shell } from 'electron'
+import { ipcMain, shell } from 'electron'
 import { join } from 'path'
-import { SyncPromise, SyncResponse } from 'src/preload'
+import { SyncResponse } from 'src/preload'
 
 function onSyncEmitter<T>(channel, asyncCallback: (...args: any[]) => Promise<T>): void {
   ipcMain.on(channel, async (event, ...args) => {
@@ -86,6 +86,10 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (event, w, h) => {
     console.log(event, w, h)
     PhoneIslandController.instance.resize(w, h)
+  })
+  ipcMain.on(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND, (event, isOver) => {
+    console.log(isOver)
+    PhoneIslandController.instance.phoneIslandWindow.ignoreMouseEvents(isOver)
   })
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
     console.log(event, h)

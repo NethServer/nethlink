@@ -19,6 +19,7 @@ export interface IElectronAPI {
   //TRANSLATIONS
   i18nextElectronBackend: any
 
+  onMouseOverPhoneIsland(isOver: boolean): void
   //SYNC EMITTERS - expect response
   login: (host: string, username: string, password: string) => SyncPromise<Account>
   addContactToPhonebook(contact: NewContactType): SyncPromise<void>
@@ -82,6 +83,7 @@ const api: IElectronAPI = {
   addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
 
   //EMITTER - only emit, no response
+  onMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   startCall: setEmitter(IPC_EVENTS.START_CALL),
@@ -106,13 +108,7 @@ const api: IElectronAPI = {
     const evName = `on-${event}`
     const listener = addListener(evName)
     listener(callback)
-  },
-
-  //PHONE ISLAND EVENTS:
-  ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, ev) => {
-    p[`${ev}`] = setEmitter(ev)
-    return p
-  }, {})
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
