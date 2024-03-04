@@ -52,22 +52,10 @@ export class PhoneIslandController {
   }
 
   call(number: string) {
-    const account = AccountController.instance.getLoggedAccount()
-    const window = this.phoneIslandWindow.getWindow()!
-    let position = account!.phoneIslandPosition!
-    if (!position) {
-      window.center()
-      const [x, y] = window.getPosition()
-      position = { x, y }
-      AccountController.instance.updatePhoneIslandPosition(position)
-    }
-    window?.setPosition(position.x, position.y, true)
     this.phoneIslandWindow.emit(IPC_EVENTS.EMIT_START_CALL, number)
   }
 
   logout() {
     this.phoneIslandWindow.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined)
   }
-
-  //_addListeners() {}
 }

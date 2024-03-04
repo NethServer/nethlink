@@ -1,5 +1,4 @@
 import { BaseWindow } from './BaseWindow'
-import { screen } from 'electron'
 
 export class PhoneIslandWindow extends BaseWindow {
   constructor() {
@@ -7,7 +6,7 @@ export class PhoneIslandWindow extends BaseWindow {
       width: 800,
       height: 800,
       show: false,
-      fullscreenable: false,
+      fullscreenable: true,
       autoHideMenuBar: true,
       closable: false,
       alwaysOnTop: true,
@@ -24,6 +23,7 @@ export class PhoneIslandWindow extends BaseWindow {
       hasShadow: false,
       center: true,
       fullscreen: false,
+      enableLargerThanScreen: true,
       frame: false,
       //tabbingIdentifier: 'nethconnector',
       thickFrame: false,
@@ -34,6 +34,7 @@ export class PhoneIslandWindow extends BaseWindow {
     })
     setTimeout(() => {
       this.show()
+      //this._window?.setIgnoreMouseEvents(true, { forward: true })
     }, 100)
     this._window?.webContents.openDevTools({ mode: 'detach' })
   }
@@ -46,28 +47,5 @@ export class PhoneIslandWindow extends BaseWindow {
       console.log('not over')
       this._window?.setIgnoreMouseEvents(true, { forward: true })
     }
-  }
-
-  show(..._args: any): void {
-    // const display = screen.getPrimaryDisplay()
-    // const screensSize = screen.getAllDisplays().reduce<{ x: number; y: number }>(
-    //   (p, c) => {
-    //     p = {
-    //       x: p.x + c.size.width,
-    //       y: p.y + c.size.height
-    //     }
-    //     console.log(c)
-    //     return p
-    //   },
-    //   { x: 0, y: 0 }
-    // )
-    // console.log(display.bounds.x)
-    // this._window?.setBounds({
-    //   height: 0,
-    //   width: 0,
-    //   x: screensSize.x,
-    //   y: screensSize.y
-    // })
-    super.show()
   }
 }
