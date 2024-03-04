@@ -3,15 +3,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useState } from 'react'
-import { HistoryCallData, SearchCallData, SearchData } from '@shared/types'
+import { SearchCallData, SearchData } from '@shared/types'
 
 export interface SearchNumberBoxProps {
   searchText: string
   callUser: (phoneNumber: string) => void
+  showAddContactToPhonebook: () => void
 }
 
-export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) {
-
+export function SearchNumberBox({
+  searchText,
+  callUser,
+  showAddContactToPhonebook
+}: SearchNumberBoxProps) {
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
 
   useInitialize(() => {
@@ -23,30 +27,28 @@ export function SearchNumberBox({ searchText, callUser }: SearchNumberBoxProps) 
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col dark:text-gray-50 text-gray-900 dark:bg-gray-900 bg-gray-50">
       <div
-        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start hover:bg-gray-700 cursor-pointer"
+        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start dark:hover:bg-gray-700 hover:bg-gray-200 cursor-pointer"
         onClick={() => callUser(searchText)}
       >
-        <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faPhone} />
-        <p>Call {searchText}</p>
+        <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={faPhone} />
+        <p className="font-semibold">Call {searchText}</p>
       </div>
 
       <div
-        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 hover:bg-gray-700 cursor-pointer"
-        onClick={() =>
-          alert('La funzione deve reinderizzare alla pagina per agigungere il numero.')
-        }
+        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 dark:hover:bg-gray-700 hover:bg-gray-200 cursor-pointer"
+        onClick={showAddContactToPhonebook}
       >
-        <FontAwesomeIcon style={{ fontSize: '16px' }} icon={faUserPlus} />
-        <p>Add {searchText.toString()} to Phonebook</p>
+        <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={faUserPlus} />
+        <p className="font-semibold">Add {searchText.toString()} to Phonebook</p>
       </div>
-      <div className={`border-b border-gray-700 mx-4`}></div>
+      <div className={`border-b dark:border-gray-700 border-gray-200 mx-4`}></div>
       <div className="px-4 overflow-y-auto max-h-[216px]">
         {filteredPhoneNumbers.map((phoneNumber, index) => (
           <SearchNumber
             key={index}
-            username={phoneNumber.name}
+            name={phoneNumber.name}
             number={phoneNumber.workphone}
             callUser={() => callUser(phoneNumber.workphone)}
             searchText={searchText}

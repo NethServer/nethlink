@@ -17,6 +17,7 @@ export interface IElectronAPI {
   onLoadAccounts(callback: (accounts: Account[]) => void): void
   onStartCall(callback: (number: string | number) => void): void
   onSearchResult(callback: (serachResults: SearchCallData) => void): void
+  onSystemThemeChange(callback: (theme: AvailableThemes) => void): void
 
   //EMITTER - only emit, no response
   logout: () => void
@@ -28,6 +29,7 @@ export interface IElectronAPI {
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): void
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
+  openMissedCallsPage: (url: string) => void
 
   //PHONE ISLAND EVENTS:
   (funcName: PHONE_ISLAND_EVENTS): () => void
@@ -70,6 +72,7 @@ const api: IElectronAPI = {
   resizeLoginWindow: setEmitter(IPC_EVENTS.LOGIN_WINDOW_RESIZE),
   changeTheme: setEmitter(IPC_EVENTS.CHANGE_THEME),
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
+  openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
 
   //LISTENERS - receive data async
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),
@@ -79,6 +82,7 @@ const api: IElectronAPI = {
   onReceiveSpeeddials: addListener(IPC_EVENTS.RECEIVE_SPEEDDIALS),
   onReceiveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
   onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
+  onSystemThemeChange: addListener(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME),
 
   addPhoneIslandListener: (event, callback) => {
     const evName = `on-${event}`

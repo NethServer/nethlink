@@ -1,4 +1,4 @@
-import { app, protocol } from 'electron'
+import { app, protocol, nativeTheme } from 'electron'
 import {
   LoginWindow,
   NethConnectorWindow,
@@ -8,7 +8,7 @@ import {
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, NethVoiceAPI } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
-import { Account } from '@shared/types'
+import { Account, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
 import path from 'path'
@@ -98,6 +98,14 @@ app.whenReady().then(() => {
       PhoneIslandController.instance.logout()
       nethConnectorWindow.hide()
     }
+  })
+
+  nethConnectorWindow.addOnBuildListener(() => {
+    toggleWindow(true)
+    nativeTheme.on('updated', () => {
+      const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+      nethConnectorWindow.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+    })
   })
 
   protocol.handle('tel', (req) => {

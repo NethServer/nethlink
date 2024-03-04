@@ -12,12 +12,22 @@ button {
   -webkit-app-region: drag !important;
 }
 
-::-webkit-scrollbar {
+.light ::-webkit-scrollbar {
+  width: 3px;
+  background-color: #f9fafb;
+}
+
+.light ::-webkit-scrollbar-thumb {
   width: 3px;
   background-color: #111827;
 }
 
-::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar {
+  width: 3px;
+  background-color: #111827;
+}
+
+.dark ::-webkit-scrollbar-thumb {
   width: 3px;
   background-color: #f9fafb;
 }
