@@ -2,17 +2,18 @@ import { useState, useRef, useEffect } from 'react'
 import { Button, TextInput } from './Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
+import { SpeedDialType } from '@shared/types'
 
 export interface AddToPhonebookBoxProps {
-  searchText: string
-  handleAddContactToPhonebook: (boolean) => void
-  handleReset: () => void
+  searchText?: string
+  onCancel: () => void
+  handleAddContactToPhonebook: (contact: SpeedDialType) => Promise<void>
 }
 
 export function AddToPhonebookBox({
   searchText,
-  handleAddContactToPhonebook,
-  handleReset
+  onCancel,
+  handleAddContactToPhonebook
 }: AddToPhonebookBoxProps) {
   const [name, setName] = useState<string>('')
   const [phoneNumber, setPhoneNumber] = useState<string>('')
@@ -20,35 +21,38 @@ export function AddToPhonebookBox({
   const [visibility, setVisibility] = useState('')
   const [type, setType] = useState('')
 
-  const nameRef = useRef<HTMLInputElement>(null)
-  const phoneNumberRef = useRef<HTMLInputElement>(null)
   const visibilityRef = useRef<HTMLInputElement>(null)
   const typeRef = useRef<HTMLInputElement>(null)
-
-  /* TODO da aggiungere una chiamata alle api in cui si aggiunge il nuovo numero*/
-  async function handleSaveToPhonebook() {
-    setIsLoading(true)
-    console.log('Add to Phonebook', { name, phoneNumber })
-    setTimeout(() => {
-      setIsLoading(false)
-      handleAddContactToPhonebook(false)
-      setName('')
-      setPhoneNumber('')
-      handleReset()
-    }, 2000)
-  }
 
   function containsOnlyNumber(text: string) {
     return /^\d+$/.test(text)
   }
 
   useEffect(() => {
-    if (containsOnlyNumber(searchText)) {
-      setPhoneNumber(searchText)
-    } else {
-      setName(searchText)
+    if (searchText !== undefined) {
+      if (containsOnlyNumber(searchText)) {
+        setPhoneNumber(searchText)
+      } else {
+        setName(searchText)
+      }
     }
   }, [])
+
+  function handleSave(_event: React.MouseEvent) {
+    setIsLoading(true)
+    //Da aggiungere la visibility
+    handleAddContactToPhonebook({ name: name, speeddial_num: phoneNumber, type: type })
+      .catch((error) => {
+        console.log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+        setName('')
+        setPhoneNumber('')
+        setType('')
+        setVisibility('')
+      })
+  }
 
   return (
     <div className="px-4 w-full h-full">
@@ -115,12 +119,10 @@ export function AddToPhonebookBox({
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
           <p className="whitespace-nowrap">Name</p>
           <TextInput
-            ref={nameRef}
             type="text"
             value={name}
             onChange={(e) => {
-              nameRef.current!.value = e.target.value
-              setName(() => nameRef.current!.value)
+              setName(() => e.target.value)
             }}
             className="font-normal"
           />
@@ -129,17 +131,14 @@ export function AddToPhonebookBox({
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
           <p className="whitespace-nowrap">Phone number</p>
           <TextInput
-            ref={phoneNumberRef}
             type="tel"
             pattern="[0-9]*"
             minLength={3}
             value={phoneNumber}
             onChange={(e) => {
-              const value = e.target.value
-              const cleanedValue = value.replace(/\D/g, '')
-
-              if (phoneNumberRef.current) {
-                phoneNumberRef.current.value = cleanedValue
+              const cleanedValue = e.target.value.replace(/\D/g, '')
+              if (phoneNumber) {
+                setPhoneNumber(() => cleanedValue)
               }
               setPhoneNumber(cleanedValue)
             }}
@@ -148,12 +147,7 @@ export function AddToPhonebookBox({
         </label>
 
         <div className="flex flex-row gap-4 justify-end mb-5">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              handleAddContactToPhonebook(false)
-            }}
-          >
+          <Button variant="ghost" onClick={() => onCancel()}>
             <p className="dark:text-blue-500 text-blue-600 font-semibold">Cancel</p>
           </Button>
           <Button
@@ -164,7 +158,7 @@ export function AddToPhonebookBox({
               visibility === '' ||
               type === ''
             }
-            onClick={() => handleSaveToPhonebook()}
+            onClick={handleSave}
           >
             <p className="dark:text-gray-900 text-gray-50 font-semibold">Save</p>
             {isLoading && (

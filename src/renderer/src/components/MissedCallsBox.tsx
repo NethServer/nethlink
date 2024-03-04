@@ -9,8 +9,8 @@ export interface MissedCallsBoxProps {
   title: string
   label?: string
   viewAllMissedCalls?: () => void
-  isAddingToPhonebook: boolean
-  handleAddContactToPhonebook: (boolean) => void
+  //isAddingToPhonebook: boolean
+  showAddContactToPhonebook: () => void
 }
 
 export function MissedCallsBox({
@@ -18,8 +18,8 @@ export function MissedCallsBox({
   title,
   label,
   viewAllMissedCalls,
-  isAddingToPhonebook,
-  handleAddContactToPhonebook
+  showAddContactToPhonebook
+  //isAddingToPhonebook
 }: MissedCallsBoxProps): JSX.Element {
   return (
     <>
@@ -52,8 +52,8 @@ export function MissedCallsBox({
                   time={call.time!}
                   duration={call.duration!}
                   company={'Customer care'}
-                  isAddingToPhonebook={isAddingToPhonebook}
-                  handleAddContactToPhonebook={handleAddContactToPhonebook}
+                  showAddContactToPhonebook={showAddContactToPhonebook}
+                  //isAddingToPhonebook={isAddingToPhonebook}
                   //company={call.ccompany!}
                 />
               </div>

@@ -8,13 +8,13 @@ import { SearchCallData, SearchData } from '@shared/types'
 export interface SearchNumberBoxProps {
   searchText: string
   callUser: (phoneNumber: string) => void
-  handleAddContactToPhonebook: (boolean) => void
+  showAddContactToPhonebook: () => void
 }
 
 export function SearchNumberBox({
   searchText,
   callUser,
-  handleAddContactToPhonebook
+  showAddContactToPhonebook
 }: SearchNumberBoxProps) {
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
 
@@ -38,7 +38,7 @@ export function SearchNumberBox({
 
       <div
         className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 dark:hover:bg-gray-700 hover:bg-gray-200 cursor-pointer"
-        onClick={() => handleAddContactToPhonebook(true)}
+        onClick={showAddContactToPhonebook}
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={faUserPlus} />
         <p className="font-semibold">Add {searchText.toString()} to Phonebook</p>

@@ -13,8 +13,8 @@ export interface MissedCallProps {
   time: number
   duration: number
   company?: string
-  isAddingToPhonebook: boolean
-  handleAddContactToPhonebook: (boolean) => void
+  //isAddingToPhonebook: boolean
+  showAddContactToPhonebook: () => void
 }
 
 export function MissedCall({
@@ -23,8 +23,8 @@ export function MissedCall({
   time,
   duration,
   company,
-  isAddingToPhonebook,
-  handleAddContactToPhonebook
+  //isAddingToPhonebook,
+  showAddContactToPhonebook
 }: MissedCallProps): JSX.Element {
   const operators: any = useSubscriber('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
@@ -70,11 +70,11 @@ export function MissedCall({
             <p className="text-[12x] leading-[18px]">{company}</p>
           </div>
         )}
-        {showCreateButton && !isAddingToPhonebook && (
-          <Button
+        {showCreateButton && (
+          /* !isAddingToPhonebook &&  */ <Button
             variant="ghost"
             className="flex gap-3 items-center py-2 px-3 border dark:border-gray-500 ml-auto"
-            onClick={() => handleAddContactToPhonebook(true)}
+            onClick={showAddContactToPhonebook}
           >
             <FontAwesomeIcon
               className="text-base dark:text-blue-500 text-blue-600"

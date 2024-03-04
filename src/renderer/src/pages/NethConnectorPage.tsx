@@ -4,12 +4,13 @@ import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
 import { Account, AvailableThemes, CallData, HistoryCallData, SpeedDialType } from '@shared/types'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
+import { CreateSpeedDialBox } from '@renderer/components/CreateSpeedDialBox'
 
 export function NethConnectorPage() {
   const [search, setSearch] = useState('')
@@ -19,6 +20,7 @@ export function NethConnectorPage() {
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
   const [isAddingToPhonebook, setIsAddingToPhonebook] = useState<boolean>(false)
+  const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
 
   useInitialize(() => {
     initialize()
@@ -104,7 +106,6 @@ export function NethConnectorPage() {
 
   async function handleReset() {
     setSearch(() => '')
-    setIsAddingToPhonebook(() => false)
   }
 
   function callUser(phoneNumber: string): void {
@@ -116,8 +117,36 @@ export function NethConnectorPage() {
     window.api.logout()
   }
 
-  function handleAddContactToPhonebook(state: boolean): void {
-    setIsAddingToPhonebook(() => state)
+  function mockAddAddContactToPhonebook() {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve()
+      }, 2000)
+    })
+  }
+
+  function mockAddAddContactSpeedDials() {
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve()
+      }, 2000)
+    })
+  }
+
+  async function handleAddContactToPhonebook(contact: SpeedDialType) {
+    // da aggiungere funzionalita' api per salvare il nuovo contatto
+    setSpeeddials((p) => [...p, contact])
+    await mockAddAddContactToPhonebook()
+    setIsAddingToPhonebook(() => false)
+    setSearch(() => '')
+  }
+
+  async function handleAddContactToSpeedDials(contact: SpeedDialType) {
+    // da aggiungere funzionalita' api per salvare il nuovo speedDial
+    setSpeeddials((p) => [...p, contact])
+    await mockAddAddContactSpeedDials()
+    setIsCreatingSpeedDial(() => false)
+    setSearch(() => '')
   }
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
@@ -135,8 +164,6 @@ export function NethConnectorPage() {
       theme
     }))
   }
-
-  /* Le seguenti funzioni sono da implementare */
 
   function viewAllMissedCalls(): void {
     window.api.openMissedCallsPage('https://cti.demo-heron.sf.nethserver.net/history')
@@ -158,35 +185,46 @@ export function NethConnectorPage() {
                   handleReset={handleReset}
                 />
                 <div className="relative w-full h-full">
-                  <div className="px-4 w-full h-full">
+                  <div className="px-4 w-full h-full z-1">
                     {selectedMenu === MENU_ELEMENT.ZAP ? (
-                      <SpeedDialsBox speeddials={speeddials} callUser={callUser} label="Create" />
+                      isCreatingSpeedDial ? (
+                        <CreateSpeedDialBox
+                          handleAddContactToSpeedDials={handleAddContactToSpeedDials}
+                          onCancel={() => setIsCreatingSpeedDial(false)}
+                        />
+                      ) : (
+                        <SpeedDialsBox
+                          speeddials={speeddials}
+                          callUser={callUser}
+                          label="Create"
+                          showCreateSpeedDial={() => setIsCreatingSpeedDial(true)}
+                        />
+                      )
                     ) : (
                       <MissedCallsBox
                         missedCalls={missedCalls}
                         title={`Missed Calls (${missedCalls.length})`}
                         label="View all"
                         viewAllMissedCalls={viewAllMissedCalls}
-                        isAddingToPhonebook={isAddingToPhonebook}
-                        handleAddContactToPhonebook={handleAddContactToPhonebook}
+                        showAddContactToPhonebook={() => setIsAddingToPhonebook(true)}
                       />
                     )}
                   </div>
                   {search !== '' && !isAddingToPhonebook ? (
-                    <div className="absolute top-0 dark:bg-gray-900 bg-gray-50 h-full w-full">
+                    <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                       <SearchNumberBox
                         searchText={search}
-                        handleAddContactToPhonebook={handleAddContactToPhonebook}
+                        showAddContactToPhonebook={() => setIsAddingToPhonebook(true)}
                         callUser={callUser}
                       />
                     </div>
                   ) : null}
                   {isAddingToPhonebook ? (
-                    <div className="absolute top-0 dark:bg-gray-900 bg-gray-50 h-full w-full">
+                    <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                       <AddToPhonebookBox
                         searchText={search}
                         handleAddContactToPhonebook={handleAddContactToPhonebook}
-                        handleReset={handleReset}
+                        onCancel={() => setIsAddingToPhonebook(false)}
                       />
                     </div>
                   ) : null}
