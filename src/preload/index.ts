@@ -19,7 +19,6 @@ export interface IElectronAPI {
   //TRANSLATIONS
   i18nextElectronBackend: any
 
-  onMouseOverPhoneIsland(isOver: boolean): void
   //SYNC EMITTERS - expect response
   login: (host: string, username: string, password: string) => SyncPromise<Account>
   addContactToPhonebook(contact: NewContactType): SyncPromise<void>
@@ -46,6 +45,8 @@ export interface IElectronAPI {
   sendInitializationCompleted(id: string): void
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
   openMissedCallsPage: (url: string) => void
+
+  emitMouseOverPhoneIsland(isOver: boolean): void
 
   //PHONE ISLAND EVENTS:
   (funcName: PHONE_ISLAND_EVENTS): () => void
@@ -83,7 +84,6 @@ const api: IElectronAPI = {
   addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
 
   //EMITTER - only emit, no response
-  onMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   startCall: setEmitter(IPC_EVENTS.START_CALL),
@@ -93,6 +93,7 @@ const api: IElectronAPI = {
   changeTheme: setEmitter(IPC_EVENTS.CHANGE_THEME),
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
   openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
+  emitMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
 
   //LISTENERS - receive data async
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),

@@ -1,10 +1,21 @@
+import { s } from 'vite/dist/node/types.d-jgA8ss1A'
 import { BaseWindow } from './BaseWindow'
+import { screen } from 'electron'
 
 export class PhoneIslandWindow extends BaseWindow {
   constructor() {
+    const size = screen.getAllDisplays().reduce(
+      (p, c) => {
+        return {
+          x: p.x + c.size.width,
+          y: p.y + c.size.height
+        }
+      },
+      { x: 0, y: 0 }
+    )
     super('phoneislandpage', {
-      width: 800,
-      height: 800,
+      width: size.x,
+      height: size.y,
       show: false,
       fullscreenable: true,
       autoHideMenuBar: true,
@@ -34,18 +45,15 @@ export class PhoneIslandWindow extends BaseWindow {
     })
     setTimeout(() => {
       this.show()
-      //this._window?.setIgnoreMouseEvents(true, { forward: true })
+      //this.ignoreMouseEvents(false)
     }, 100)
     this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
-  ignoreMouseEvents(isOver: boolean) {
-    if (isOver) {
-      console.log('over')
-      this._window?.setIgnoreMouseEvents(false)
-    } else {
-      console.log('not over')
-      this._window?.setIgnoreMouseEvents(true, { forward: true })
-    }
+  ignoreMouseEvents(ignoreEvents: boolean) {
+    console.log(ignoreEvents)
+    this._window?.setIgnoreMouseEvents(ignoreEvents, {
+      forward: true
+    })
   }
 }

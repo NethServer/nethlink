@@ -2,10 +2,12 @@ import { PhoneIsland } from '@nethesis/phone-island'
 import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { useState } from 'react'
+import { debouncer } from '@shared/utils/utils'
+import { useState, useEffect } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
+  const [isMouseOver, setIsMouseOver] = useState(false)
 
   useInitialize(() => {
     window.api.onDataConfigChange(updateDataConfig)
@@ -26,25 +28,43 @@ export function PhoneIslandPage() {
     setDataConfig(() => dataConfig)
   }
 
+  useEffect(() => {
+    debouncer('updateMouse', () => {
+      window.api.emitMouseOverPhoneIsland(isMouseOver)
+    }, 250)
+    const root = document.getElementById('test')!
+    root.className = isMouseOver ? root.className.replace('bg-green-500', 'bg-red-500') : root.className.replace('bg-red-500', 'bg-green-500')
+  }, [isMouseOver])
+
+
+  const getPhoneIslandElement = () => {
+    return document.getElementById('phone-island-container')?.children[0]?.children[0] as HTMLDivElement | undefined
+  }
+
+  const addOverEvent = (element: HTMLDivElement) => {
+
+    element.onmouseenter = (event) => {
+      setIsMouseOver(true)
+    }
+    element.onmouseleave = (event) => {
+      setIsMouseOver(false)
+    }
+
+    const intervel = setInterval(() => {
+      const el = getPhoneIslandElement()
+      const eq = element === el
+      console.log(eq, element, el)
+      if (!eq) {
+        clearInterval(intervel)
+        setIsMouseOver(false)
+      }
+    }, 1000)
+  }
   const listenPhoneIsland = () => {
-    const phoneIslandContainer = document.getElementById('phone-island-container')?.children[0]
-    const elementToObserve = phoneIslandContainer?.children[0]
     setTimeout(() => {
+      const elementToObserve = getPhoneIslandElement()
       console.log('DIV', elementToObserve)
-      // elementToObserve.onmouseenter = () => {
-      //   window.api.onMouseOverPhoneIsland(true)
-      // }
-      // elementToObserve.onmouseleave = () => {
-      //   window.api.onMouseOverPhoneIsland(false)
-      // }
-      elementToObserve!.addEventListener('mouseenter', (event) => {
-        console.log('is Over')
-        window.api.onMouseOverPhoneIsland(true)
-      })
-      elementToObserve!.addEventListener('mouseleave', (event) => {
-        console.log('is Not Over')
-        window.api.onMouseOverPhoneIsland(false)
-      })
+      if (elementToObserve) addOverEvent(elementToObserve)
     }, 1000)
   }
 
@@ -62,23 +82,17 @@ export function PhoneIslandPage() {
     })
   }, true)
 
-  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], () => {
-    setTimeout(() => {
-      listenPhoneIsland()
-    }, 1000)
-  })
-  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], () => {
-    setTimeout(() => {
-      listenPhoneIsland()
-    }, 1000)
-  })
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], () => debouncer('listenPhoneIsland', listenPhoneIsland, 100))
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], () => debouncer('listenPhoneIsland', listenPhoneIsland, 100))
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ended'], () => {
-    window.api.onMouseOverPhoneIsland(true)
+    console.log("END CALL")
+    setIsMouseOver(false)
   })
 
   return (
-    <div className="h-[100vh] w-[100vw]" id="phone-island-container">
+    <div className="h-[100vh] w-[100vw] bg-[#ffffff60]" id="phone-island-container">
       {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
+      <div id='test' className='h-[140px] w-[140px] relative top-[10px] left-[10px] bg-red-500'></div>
     </div>
   )
 }
