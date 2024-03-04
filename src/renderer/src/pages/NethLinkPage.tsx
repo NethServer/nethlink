@@ -3,20 +3,20 @@ import { Navbar } from '../components/Navbar'
 import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
-import { Account, AvailableThemes, CallData, HistoryCallData, SpeedDialType } from '@shared/types'
+import { Account, AvailableThemes, CallData, HistoryCallData, NewContactType, ContactType } from '@shared/types'
 import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
-import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { CreateSpeedDialBox } from '@renderer/components/CreateSpeedDialBox'
+import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 
-export function NethConnectorPage() {
+export function NethLinkPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useLocalStoreState<Account>('user')
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.ZAP)
-  const [speeddials, setSpeeddials] = useState<SpeedDialType[]>([])
+  const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
   const [isAddingToPhonebook, setIsAddingToPhonebook] = useState<boolean>(false)
@@ -90,7 +90,7 @@ export function NethConnectorPage() {
     setAccount(() => account)
   }
 
-  async function saveSpeeddials(speeddialsResponse: SpeedDialType[] | undefined) {
+  async function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
     console.log(speeddialsResponse)
     setSpeeddials(() => speeddialsResponse || [])
   }
@@ -117,34 +117,19 @@ export function NethConnectorPage() {
     window.api.logout()
   }
 
-  function mockAddAddContactToPhonebook() {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve()
-      }, 2000)
-    })
-  }
 
-  function mockAddAddContactSpeedDials() {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve()
-      }, 2000)
-    })
-  }
-
-  async function handleAddContactToPhonebook(contact: SpeedDialType) {
+  async function handleAddContactToPhonebook(contact: NewContactType) {
     // da aggiungere funzionalita' api per salvare il nuovo contatto
-    setSpeeddials((p) => [...p, contact])
-    await mockAddAddContactToPhonebook()
+    const [_, err] = await window.api.addContactToPhonebook(contact)
+    if (!!err) throw err
     setIsAddingToPhonebook(() => false)
     setSearch(() => '')
   }
 
-  async function handleAddContactToSpeedDials(contact: SpeedDialType) {
+  async function handleAddContactToSpeedDials(contact: NewContactType) {
     // da aggiungere funzionalita' api per salvare il nuovo speedDial
-    setSpeeddials((p) => [...p, contact])
-    await mockAddAddContactSpeedDials()
+    const [_, err] = await window.api.addContactSpeedDials(contact)
+    if (!!err) throw err
     setIsCreatingSpeedDial(() => false)
     setSearch(() => '')
   }

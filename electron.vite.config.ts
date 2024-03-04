@@ -23,6 +23,7 @@ export default defineConfig({
   },
   renderer: {
     assetsInclude: 'src/renderer/assets/**',
+    publicDir: 'src/renderer/public/**',
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),

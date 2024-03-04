@@ -94,7 +94,7 @@ export type MultipleResponse<T> = {
   count: number
   rows: T[]
 }
-export type HistorySpeedDialType = MultipleResponse<SpeedDialType>
+export type HistorySpeedDialType = MultipleResponse<ContactType>
 export type HistoryCallData = MultipleResponse<CallData>
 export type SearchCallData = MultipleResponse<SearchData>
 
@@ -166,7 +166,7 @@ export type StatusTypes =
   | 'ringing'
   | 'offline'
 
-export type SpeedDialType = {
+export type ContactType = {
   id?: string | number
   owner_id?: string
   type?: string
@@ -195,9 +195,13 @@ export type SpeedDialType = {
   url?: string
   extension?: string
   speeddial_num?: string
+  source?: string
+  privacy?: string
+  favorite?: boolean
+  selectedPrefNum?: string
 }
 
-export type NewSpeedDialType = {
+export type NewContactType = {
   name: string
   privacy?: string
   favorite?: boolean

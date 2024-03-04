@@ -1,5 +1,4 @@
 export * from './LoginPage'
-export * from './SettingsPage'
-export * from './NethConnectorPage'
+export * from './NethLinkPage'
 export * from './PhoneIslandPage'
 export * from './SplashScreenPage'

@@ -1,13 +1,25 @@
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { Account, AvailableThemes, HistoryCallData, SearchCallData } from '@shared/types'
+import {
+  Account,
+  AvailableThemes,
+  HistoryCallData,
+  NewContactType,
+  SearchCallData
+} from '@shared/types'
 
-export type SyncResponse<T> = [T, Error]
+export type SyncResponse<T> = [T | undefined, Error | undefined]
+export type SyncPromise<T> = Promise<SyncResponse<T>>
 
 export interface IElectronAPI {
+  // Use `contextBridge` APIs to expose Electron APIs to
+  // renderer only if context isolation is enabled, otherwise
+  // just add to the DOM global.
   //SYNC EMITTERS - expect response
-  login: (host: string, username: string, password: string) => Promise<Account | undefined>
+  login: (host: string, username: string, password: string) => SyncPromise<Account>
+  addContactToPhonebook(contact: NewContactType): SyncPromise<void>
+  addContactSpeedDials(contact: NewContactType): SyncPromise<void>
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
@@ -43,8 +55,8 @@ function addListener(channel) {
   }
 }
 
-function setEmitterSync<T>(event): () => Promise<T> {
-  return (...args): Promise<T> => {
+function setEmitterSync<T>(event): () => SyncPromise<T> {
+  return (...args): SyncPromise<T> => {
     return new Promise((resolve) => {
       const res = ipcRenderer.sendSync(event, ...args)
       resolve(res)
@@ -62,6 +74,8 @@ function setEmitter(event) {
 const api: IElectronAPI = {
   //SYNC EMITTERS - expect response
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
+  addContactSpeedDials: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
+  addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
 
   //EMITTER - only emit, no response
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),

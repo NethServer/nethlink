@@ -2,7 +2,7 @@ import { join } from 'path'
 import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
-import { Account, Operator } from '@shared/types'
+import { Account, NewContactType, Operator, ContactType } from '@shared/types'
 
 export class NethVoiceAPI {
   _host: string
@@ -160,6 +160,51 @@ export class NethVoiceAPI {
     },
     speeddials: async () => {
       return await this._GET('/webrest/phonebook/speeddials')
+    },
+    ///SPEEDDIALS
+    createSpeeddial: async (create: NewContactType) => {
+      const newSpeedDial: NewContactType = {
+        name: create.name,
+        privacy: 'private',
+        favorite: true,
+        selectedPrefNum: 'extension',
+        setInput: '',
+        type: 'speeddial',
+        speeddial_num: create.speeddial_num
+      }
+      await this._POST(`/webrest/phonebook/create`, newSpeedDial)
+      return newSpeedDial
+    },
+    updateSpeeddial: async (edit: NewContactType, current: ContactType) => {
+      if (current.name && current.speeddial_num) {
+        const newSpeedDial = Object.assign({}, current)
+        newSpeedDial.speeddial_num = edit.speeddial_num
+        newSpeedDial.name = edit.name
+        newSpeedDial.id = newSpeedDial.id?.toString()
+        await this._POST(`/webrest/phonebook/modify_cticontact`, newSpeedDial)
+        return current
+      }
+    },
+    deleteSpeeddial: async (obj: { id: string }) => {
+      await this._POST(`/webrest/phonebook/delete_cticontact`, obj)
+    },
+    ///CONTACTS
+    createContact: async (create: NewContactType) => {
+      await this._POST(`/webrest/phonebook/create`, create)
+      return create
+    },
+    updateContact: async (edit: NewContactType, current: ContactType) => {
+      if (current.name && current.speeddial_num) {
+        const newSpeedDial = Object.assign({}, current)
+        newSpeedDial.speeddial_num = edit.speeddial_num
+        newSpeedDial.name = edit.name
+        newSpeedDial.id = newSpeedDial.id?.toString()
+        await this._POST(`/webrest/phonebook/modify_cticontact`, newSpeedDial)
+        return current
+      }
+    },
+    deleteContact: async (obj: { id: string }) => {
+      await this._POST(`/webrest/phonebook/delete_cticontact`, obj)
     }
   }
 

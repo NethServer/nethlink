@@ -3,10 +3,10 @@ import { useInitialize } from '@/hooks/useInitialize'
 import {
   LoginPage,
   PhoneIslandPage,
-  SettingsPage,
   SplashScreenPage,
-  NethConnectorPage
+  NethLinkPage
 } from '@/pages'
+import { loadI18n } from './lib/i18n'
 
 function Layout() {
   return (
@@ -19,12 +19,13 @@ function Layout() {
 function RoutesWrapper() {
   useInitialize(() => {
     console.log(location.hash)
+    loadI18n()
   })
 
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route path="nethconnectorpage" element={<NethConnectorPage />} />
+        <Route path="nethconnectorpage" element={<NethLinkPage />} />
         <Route path="splahscreenpage" element={<SplashScreenPage />} />
         <Route path="loginpage" element={<LoginPage />} />
         <Route path="phoneislandpage" element={<PhoneIslandPage />} />

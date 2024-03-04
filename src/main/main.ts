@@ -11,8 +11,8 @@ import { PhoneIslandController } from './classes/controllers/PhoneIslandControll
 import { Account, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
-import path from 'path'
 import { LoginController } from './classes/controllers/LoginController'
+import { resolve } from 'path'
 
 new AccountController(app)
 const accountController = AccountController.instance
@@ -128,8 +128,8 @@ app.removeAsDefaultProtocolClient('callto')
 if (process.env.node_env === 'development' && process.platform === 'win32') {
   // set the path of electron.exe and your app.
   // these two additional parameters are only available on windows.
-  app.setAsDefaultProtocolClient('tel', process.execPath, [path.resolve(process.argv[1])])
-  app.setAsDefaultProtocolClient('callto', process.execPath, [path.resolve(process.argv[1])])
+  app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
+  app.setAsDefaultProtocolClient('callto', process.execPath, [resolve(process.argv[1])])
 } else {
   app.setAsDefaultProtocolClient('tel')
   app.setAsDefaultProtocolClient('callto')

@@ -6,9 +6,23 @@ import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
 import { ipcMain, ipcRenderer, shell } from 'electron'
 import { join } from 'path'
+import { SyncPromise, SyncResponse } from 'src/preload'
+
+function onSyncEmitter<T>(channel, asyncCallback: (...args: any[]) => Promise<T>): void {
+  ipcMain.on(channel, async (event, ...args) => {
+    const syncResponse = [undefined, undefined] as SyncResponse<T>
+    try {
+      const response = await asyncCallback(...args)
+      event.returnValue = [response, undefined]
+    } catch (e: unknown) {
+      console.log(e)
+      event.returnValue = [undefined, e as Error | undefined]
+    }
+  })
+}
 
 export function registerIpcEvents() {
-  ipcMain.on(IPC_EVENTS.LOGIN, async (event, ...args) => {
+  onSyncEmitter(IPC_EVENTS.LOGIN, async (...args) => {
     console.log('LOGIN')
     const [host, username, password] = args
     console.log(args)
@@ -17,13 +31,15 @@ export function registerIpcEvents() {
       username,
       theme: 'system'
     }
-    try {
-      event.returnValue = await AccountController.instance.login(tempAccount, password)
-    } catch (e) {
-      console.log(e)
-      event.returnValue = undefined
-    }
+    await AccountController.instance.login(tempAccount, password)
   })
+
+  onSyncEmitter(IPC_EVENTS.ADD_CONTACT_PHONEBOOK, (contact) =>
+    NethVoiceAPI.instance.Phonebook.createContact(contact)
+  )
+  onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, (contact) =>
+    NethVoiceAPI.instance.Phonebook.createSpeeddial(contact)
+  )
 
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
     console.log('LOGOUT')

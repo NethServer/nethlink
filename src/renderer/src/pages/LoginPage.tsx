@@ -46,14 +46,10 @@ export function LoginPage() {
   }
 
   async function handleLogin(data: LoginData) {
-    const returnValue = await window.api.login(data.host, data.username, data.password)
+    const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
     console.log(returnValue)
-    if (returnValue) {
-      setIsError(false)
-      setSelectedAccount(undefined)
-    } else {
-      setIsError(true)
-    }
+    setIsError(!!err)
+    !err && setSelectedAccount(undefined)
     setIsLoading(false)
   }
 
