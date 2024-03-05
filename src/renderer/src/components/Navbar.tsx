@@ -6,7 +6,9 @@ import {
   faPalette,
   faSun,
   faMoon,
-  faCheck
+  faCheck,
+  faArrowUpRightFromSquare,
+  faChevronRight
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
@@ -15,6 +17,7 @@ import { PlaceholderIcon } from '@renderer/icons'
 import { useLocalStore } from '@renderer/store/StoreController'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { t } from 'i18next'
+import { StatusDot } from './Nethesis'
 
 export interface NavabarProps {
   search: string
@@ -23,6 +26,7 @@ export interface NavabarProps {
   logout: () => void
   handleSearch: (searchText: string) => Promise<void>
   handleReset: () => void
+  goToNethVoicePage: () => void
 }
 
 const themeOptions = [
@@ -37,7 +41,8 @@ export function Navbar({
   onSelectTheme,
   logout,
   handleSearch,
-  handleReset
+  handleReset,
+  goToNethVoicePage
 }: NavabarProps): JSX.Element {
   const operators: any = useSubscriber('operators')
 
@@ -111,7 +116,7 @@ export function Navbar({
             </div>
 
             <Menu.Items
-              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200  mt-2 fixed rounded-lg min-w-[180px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
+              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
                 <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-600">
@@ -124,6 +129,39 @@ export function Navbar({
                       {account.data?.endpoints.mainextension[0].id}
                     </p>
                   </div>
+                </div>
+              </Menu.Item>
+              <Menu.Item>
+                <div
+                  className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200"
+                  onClick={goToNethVoicePage}
+                >
+                  <FontAwesomeIcon className="text-base" icon={faArrowUpRightFromSquare} />
+                  <p className="font-semibold inline">Go to Nethvoice CTI</p>
+                </div>
+              </Menu.Item>
+              <Menu.Item>
+                <div
+                  className="flex flex-row items-center py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 border-b-[1px] dark:border-gray-600"
+                  onClick={() =>
+                    alert('Deve mostrare qualcosa per cambiare stato da chiedere a nethesis')
+                  }
+                >
+                  <div className="flex flex-row items-center gap-4">
+                    <div className="flex items-center justify-center w-4 h-4">
+                      <StatusDot
+                        status={
+                          operators[account.username]?.mainPresence ||
+                          account.data?.mainPresece ||
+                          'offline'
+                        }
+                      />
+                    </div>
+
+                    <p className="font-semibold">Presence</p>
+                  </div>
+
+                  <FontAwesomeIcon className="text-sm ml-auto" icon={faChevronRight} />
                 </div>
               </Menu.Item>
               <Menu.Item>
