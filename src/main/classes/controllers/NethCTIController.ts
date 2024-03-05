@@ -190,8 +190,18 @@ export class NethVoiceAPI {
     },
     ///CONTACTS
     createContact: async (create: NewContactType) => {
-      await this._POST(`/webrest/phonebook/create`, create)
-      return create
+      const newSpeedDial: NewContactType = {
+        name: create.name,
+        privacy: 'private',
+        favorite: true,
+        selectedPrefNum: 'extension',
+        setInput: '',
+        type: 'speeddial',
+        speeddial_num: create.speeddial_num,
+        company: create.company
+      }
+      await this._POST(`/webrest/phonebook/create`, newSpeedDial)
+      return newSpeedDial
     },
     updateContact: async (edit: NewContactType, current: ContactType) => {
       if (current.name && current.speeddial_num) {
