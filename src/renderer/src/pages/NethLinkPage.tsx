@@ -3,7 +3,14 @@ import { Navbar } from '../components/Navbar'
 import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
-import { Account, AvailableThemes, CallData, HistoryCallData, NewContactType, ContactType } from '@shared/types'
+import {
+  Account,
+  AvailableThemes,
+  CallData,
+  HistoryCallData,
+  NewContactType,
+  ContactType
+} from '@shared/types'
 import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
@@ -21,6 +28,7 @@ export function NethLinkPage() {
   const [_, setOperators] = useLocalStoreState('operators')
   const [isAddingToPhonebook, setIsAddingToPhonebook] = useState<boolean>(false)
   const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
+  const [selectedMissedCall, setSelectedMissedCall] = useState({ number: '', company: '' })
 
   useInitialize(() => {
     initialize()
@@ -117,6 +125,12 @@ export function NethLinkPage() {
     window.api.logout()
   }
 
+  //FUNZIONE PER IL CASO IN CUI SI AGGIUNGE UN NUOVO CONTATTO DA CREATE IN MISSEDCALL
+  function handleSelectedMissedCall(number: string, company) {
+    setIsAddingToPhonebook(() => true)
+    setSelectedMissedCall(() => ({ number: number, company: company }))
+    console.log('SELECTED MISSED CALL', selectedMissedCall)
+  }
 
   async function handleAddContactToPhonebook(contact: NewContactType) {
     // da aggiungere funzionalita' api per salvare il nuovo contatto
@@ -124,6 +138,7 @@ export function NethLinkPage() {
     if (!!err) throw err
     setIsAddingToPhonebook(() => false)
     setSearch(() => '')
+    setSelectedMissedCall(() => ({ number: '', company: '' }))
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
@@ -191,7 +206,7 @@ export function NethLinkPage() {
                         title={`Missed Calls (${missedCalls.length})`}
                         label="View all"
                         viewAllMissedCalls={viewAllMissedCalls}
-                        showAddContactToPhonebook={() => setIsAddingToPhonebook(true)}
+                        handleSelectedMissedCall={handleSelectedMissedCall}
                       />
                     )}
                   </div>
@@ -208,8 +223,13 @@ export function NethLinkPage() {
                     <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                       <AddToPhonebookBox
                         searchText={search}
+                        selectedNumber={selectedMissedCall.number}
+                        selectedCompany={selectedMissedCall.company}
                         handleAddContactToPhonebook={handleAddContactToPhonebook}
-                        onCancel={() => setIsAddingToPhonebook(false)}
+                        onCancel={() => {
+                          setIsAddingToPhonebook(false)
+                          setSelectedMissedCall(() => ({ number: '', company: '' }))
+                        }}
                       />
                     </div>
                   ) : null}
