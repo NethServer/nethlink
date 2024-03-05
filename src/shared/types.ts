@@ -209,6 +209,7 @@ export type NewContactType = {
   setInput?: string
   type?: string
   speeddial_num?: string
+  company?: string
 }
 
 export type Operator = {
