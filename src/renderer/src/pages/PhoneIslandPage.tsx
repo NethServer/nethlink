@@ -3,16 +3,17 @@ import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
   const [isMouseOver, setIsMouseOver] = useState(false)
+  const ref = useRef(0)
 
   useInitialize(() => {
     window.api.onDataConfigChange(updateDataConfig)
     window.api.onStartCall((number: number | string) => {
-      console.log('received number', number)
+      debounceListener()
       window.dispatchEvent(
         new CustomEvent('phone-island-call-start', {
           detail: {
@@ -50,44 +51,47 @@ export function PhoneIslandPage() {
       setIsMouseOver(false)
     }
 
-    const intervel = setInterval(() => {
+    const interval = setInterval(() => {
       const el = getPhoneIslandElement()
       const eq = element === el
       console.log(eq, element, el)
       if (!eq) {
-        clearInterval(intervel)
+        clearInterval(interval)
         setIsMouseOver(false)
       }
     }, 1000)
   }
-  const listenPhoneIsland = () => {
-    setTimeout(() => {
-      const elementToObserve = getPhoneIslandElement()
-      console.log('DIV', elementToObserve)
-      if (elementToObserve) addOverEvent(elementToObserve)
-    }, 1000)
+
+  const listenPhoneIsland = (stop = false) => {
+    if (!stop) {
+      setTimeout(() => {
+        const elementToObserve = getPhoneIslandElement()
+        console.log('DIV', elementToObserve)
+        if (elementToObserve && elementToObserve.className.includes('pi-absolute')) {
+          ref.current = 0
+          addOverEvent(elementToObserve)
+        } else {
+          ref.current++
+          listenPhoneIsland(ref.current > 10)
+        }
+      }, 250)
+    } else {
+      console.error('PHONE ISLAND NON TROVATA')
+    }
   }
 
-  useInitialize(() => {
-    window.api.onDataConfigChange(updateDataConfig)
-    window.api.onStartCall((phoneNumber) => {
-      console.log('received number', phoneNumber)
-      window.dispatchEvent(
-        new CustomEvent('phone-island-call-start', {
-          detail: {
-            number: phoneNumber
-          }
-        })
-      )
-    })
-  }, true)
 
-  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], () => debouncer('listenPhoneIsland', listenPhoneIsland, 100))
-  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], () => debouncer('listenPhoneIsland', listenPhoneIsland, 100))
+
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], debounceListener)
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], debounceListener)
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ended'], () => {
     console.log("END CALL")
     setIsMouseOver(false)
   })
+
+  function debounceListener() {
+    debouncer('listenPhoneIsland', listenPhoneIsland, 100)
+  }
 
   return (
     <div className="h-[100vh] w-[100vw] bg-[#ffffff60]" id="phone-island-container">
