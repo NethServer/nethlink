@@ -1,13 +1,28 @@
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { Account, AvailableThemes, HistoryCallData, SearchCallData } from '@shared/types'
-
-export type SyncResponse<T> = [T, Error]
+import {
+  Account,
+  AvailableThemes,
+  HistoryCallData,
+  NewContactType,
+  SearchCallData
+} from '@shared/types'
+import { preloadBindings } from 'i18next-electron-fs-backend'
+export type SyncResponse<T> = [T | undefined, Error | undefined]
+export type SyncPromise<T> = Promise<SyncResponse<T>>
 
 export interface IElectronAPI {
+  // Use `contextBridge` APIs to expose Electron APIs to
+  // renderer only if context isolation is enabled, otherwise
+  // just add to the DOM global.
+  //TRANSLATIONS
+  i18nextElectronBackend: any
+
   //SYNC EMITTERS - expect response
-  login: (host: string, username: string, password: string) => Promise<Account | undefined>
+  login: (host: string, username: string, password: string) => SyncPromise<Account>
+  addContactToPhonebook(contact: NewContactType): SyncPromise<void>
+  addContactSpeedDials(contact: NewContactType): SyncPromise<void>
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
@@ -31,6 +46,8 @@ export interface IElectronAPI {
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
   openMissedCallsPage: (url: string) => void
 
+  emitMouseOverPhoneIsland(isOver: boolean): void
+
   //PHONE ISLAND EVENTS:
   (funcName: PHONE_ISLAND_EVENTS): () => void
 }
@@ -43,8 +60,8 @@ function addListener(channel) {
   }
 }
 
-function setEmitterSync<T>(event): () => Promise<T> {
-  return (...args): Promise<T> => {
+function setEmitterSync<T>(event): () => SyncPromise<T> {
+  return (...args): SyncPromise<T> => {
     return new Promise((resolve) => {
       const res = ipcRenderer.sendSync(event, ...args)
       resolve(res)
@@ -60,8 +77,11 @@ function setEmitter(event) {
 // @ts-ignore (define in dts)
 // Custom APIs for renderer
 const api: IElectronAPI = {
+  i18nextElectronBackend: preloadBindings(ipcRenderer, process),
   //SYNC EMITTERS - expect response
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
+  addContactSpeedDials: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
+  addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
 
   //EMITTER - only emit, no response
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
@@ -73,6 +93,7 @@ const api: IElectronAPI = {
   changeTheme: setEmitter(IPC_EVENTS.CHANGE_THEME),
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
   openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
+  emitMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
 
   //LISTENERS - receive data async
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),
@@ -88,13 +109,7 @@ const api: IElectronAPI = {
     const evName = `on-${event}`
     const listener = addListener(evName)
     listener(callback)
-  },
-
-  //PHONE ISLAND EVENTS:
-  ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, ev) => {
-    p[`${ev}`] = setEmitter(ev)
-    return p
-  }, {})
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -2,12 +2,12 @@ import { useState, useRef, useEffect } from 'react'
 import { Button, TextInput } from './Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
-import { SpeedDialType } from '@shared/types'
+import { NewContactType } from '@shared/types'
 
 export interface AddToPhonebookBoxProps {
   searchText?: string
   onCancel: () => void
-  handleAddContactToPhonebook: (contact: SpeedDialType) => Promise<void>
+  handleAddContactToPhonebook: (contact: NewContactType) => Promise<void>
 }
 
 export function AddToPhonebookBox({

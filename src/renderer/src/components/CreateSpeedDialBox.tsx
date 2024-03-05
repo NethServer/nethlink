@@ -2,11 +2,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, TextInput } from './Nethesis'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
-import { SpeedDialType } from '@shared/types'
+import { NewContactType } from '@shared/types'
 
 export interface CreateSpeedDialProps {
   onCancel: () => void
-  handleAddContactToSpeedDials: (contact: SpeedDialType) => Promise<void>
+  handleAddContactToSpeedDials: (contact: NewContactType) => Promise<void>
 }
 
 export function CreateSpeedDialBox({

@@ -2,7 +2,7 @@ import { join } from 'path'
 import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
-import { Account, Operator } from '@shared/types'
+import { Account, NewContactType, Operator, ContactType } from '@shared/types'
 
 export class NethVoiceAPI {
   _host: string
@@ -15,7 +15,7 @@ export class NethVoiceAPI {
   }
 
   _joinUrl(url: string) {
-    const path = join(this._host, url)
+    const path = `${this._host}${url}`
     console.log('PATH:', path)
     return path
   }
@@ -88,6 +88,12 @@ export class NethVoiceAPI {
                   lastAccess: moment().toISOString()
                 }
                 await this.User.me()
+                const res = await this._GET('/config/config.production.js')
+                const SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim()
+                const SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim()
+                console.log('CONFIG', SIP_HOST, SIP_PORT)
+                this._account.sipHost = SIP_HOST
+                this._account.sipPort = SIP_PORT
                 resolve(this._account)
               }
             } else {
@@ -154,6 +160,51 @@ export class NethVoiceAPI {
     },
     speeddials: async () => {
       return await this._GET('/webrest/phonebook/speeddials')
+    },
+    ///SPEEDDIALS
+    createSpeeddial: async (create: NewContactType) => {
+      const newSpeedDial: NewContactType = {
+        name: create.name,
+        privacy: 'private',
+        favorite: true,
+        selectedPrefNum: 'extension',
+        setInput: '',
+        type: 'speeddial',
+        speeddial_num: create.speeddial_num
+      }
+      await this._POST(`/webrest/phonebook/create`, newSpeedDial)
+      return newSpeedDial
+    },
+    updateSpeeddial: async (edit: NewContactType, current: ContactType) => {
+      if (current.name && current.speeddial_num) {
+        const newSpeedDial = Object.assign({}, current)
+        newSpeedDial.speeddial_num = edit.speeddial_num
+        newSpeedDial.name = edit.name
+        newSpeedDial.id = newSpeedDial.id?.toString()
+        await this._POST(`/webrest/phonebook/modify_cticontact`, newSpeedDial)
+        return current
+      }
+    },
+    deleteSpeeddial: async (obj: { id: string }) => {
+      await this._POST(`/webrest/phonebook/delete_cticontact`, obj)
+    },
+    ///CONTACTS
+    createContact: async (create: NewContactType) => {
+      await this._POST(`/webrest/phonebook/create`, create)
+      return create
+    },
+    updateContact: async (edit: NewContactType, current: ContactType) => {
+      if (current.name && current.speeddial_num) {
+        const newSpeedDial = Object.assign({}, current)
+        newSpeedDial.speeddial_num = edit.speeddial_num
+        newSpeedDial.name = edit.name
+        newSpeedDial.id = newSpeedDial.id?.toString()
+        await this._POST(`/webrest/phonebook/modify_cticontact`, newSpeedDial)
+        return current
+      }
+    },
+    deleteContact: async (obj: { id: string }) => {
+      await this._POST(`/webrest/phonebook/delete_cticontact`, obj)
     }
   }
 

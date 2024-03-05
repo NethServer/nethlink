@@ -22,16 +22,16 @@ export class PhoneIslandController {
   updateDataConfig(token: string) {
     const account = AccountController.instance.getLoggedAccount()
     const webRTCExtension = account!.data!.endpoints.extension.find((el) => el.type === 'webrtc')
-    if (webRTCExtension) {
+    if (webRTCExtension && account) {
       const hostname = account!.host.split('://')[1]
       const config: PhoneIslandConfig = {
         hostname,
-        username: account!.username,
+        username: account.username,
         authToken: token,
         sipExten: webRTCExtension.id,
         sipSecret: webRTCExtension.secret,
-        sipHost: '127.0.0.1',
-        sipPort: '20107'
+        sipHost: account.sipHost || '',
+        sipPort: account.sipPort || ''
       }
       console.log(config)
       const dataConfig = btoa(
@@ -52,22 +52,10 @@ export class PhoneIslandController {
   }
 
   call(number: string) {
-    const account = AccountController.instance.getLoggedAccount()
-    const window = this.phoneIslandWindow.getWindow()!
-    let position = account!.phoneIslandPosition!
-    if (!position) {
-      window.center()
-      const [x, y] = window.getPosition()
-      position = { x, y }
-      AccountController.instance.updatePhoneIslandPosition(position)
-    }
-    window?.setPosition(position.x, position.y, true)
     this.phoneIslandWindow.emit(IPC_EVENTS.EMIT_START_CALL, number)
   }
 
   logout() {
     this.phoneIslandWindow.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined)
   }
-
-  //_addListeners() {}
 }

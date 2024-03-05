@@ -1,19 +1,29 @@
+import { s } from 'vite/dist/node/types.d-jgA8ss1A'
 import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
 
 export class PhoneIslandWindow extends BaseWindow {
   constructor() {
+    const size = screen.getAllDisplays().reduce(
+      (p, c) => {
+        return {
+          x: p.x + c.size.width,
+          y: p.y + c.size.height
+        }
+      },
+      { x: 0, y: 0 }
+    )
     super('phoneislandpage', {
-      width: 1,
-      height: 1,
+      width: size.x,
+      height: size.y,
       show: false,
-      fullscreenable: false,
+      fullscreenable: true,
       autoHideMenuBar: true,
       closable: false,
       alwaysOnTop: true,
       minimizable: false,
       maximizable: false,
-      movable: true,
+      movable: false,
       resizable: false,
       skipTaskbar: true,
       titleBarStyle: 'hidden',
@@ -22,8 +32,9 @@ export class PhoneIslandWindow extends BaseWindow {
       transparent: true,
       hiddenInMissionControl: true,
       hasShadow: false,
-      center: false,
+      center: true,
       fullscreen: false,
+      enableLargerThanScreen: true,
       frame: false,
       //tabbingIdentifier: 'nethconnector',
       thickFrame: false,
@@ -34,29 +45,15 @@ export class PhoneIslandWindow extends BaseWindow {
     })
     setTimeout(() => {
       this.show()
+      //this.ignoreMouseEvents(false)
     }, 100)
+    this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
-  show(..._args: any): void {
-    const display = screen.getPrimaryDisplay()
-    const screensSize = screen.getAllDisplays().reduce<{ x: number; y: number }>(
-      (p, c) => {
-        p = {
-          x: p.x + c.size.width,
-          y: p.y + c.size.height
-        }
-        console.log(c)
-        return p
-      },
-      { x: 0, y: 0 }
-    )
-    console.log(display.bounds.x)
-    this._window?.setBounds({
-      height: 0,
-      width: 0,
-      x: screensSize.x,
-      y: screensSize.y
+  ignoreMouseEvents(ignoreEvents: boolean) {
+    console.log(ignoreEvents)
+    this._window?.setIgnoreMouseEvents(ignoreEvents, {
+      forward: true
     })
-    super.show()
   }
 }

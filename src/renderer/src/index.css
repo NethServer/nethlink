@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-button {
+/* button {
   -webkit-app-region: no-drag;
 }
 
@@ -10,7 +10,7 @@ button {
 .pi-pointer-events-auto {
   transform: none !important;
   -webkit-app-region: drag !important;
-}
+} */
 
 .light ::-webkit-scrollbar {
   width: 3px;

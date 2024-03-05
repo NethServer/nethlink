@@ -4,13 +4,13 @@ import { NumberCaller } from './NumberCaller'
 import { PlaceholderIcon } from '@renderer/icons/PlaceholderIcon'
 
 export interface SearchNumberProps {
-  name: string
+  username: string
   number: string
   callUser: () => void
   searchText: string
 }
 
-export function SearchNumber({ name, number, callUser, searchText }: SearchNumberProps) {
+export function SearchNumber({ username, number, callUser, searchText }: SearchNumberProps) {
   function highlightMatch(number: string, searchText: string): ReactNode[] {
     const parts: ReactNode[] = []
     let lastIndex = 0
@@ -38,7 +38,7 @@ export function SearchNumber({ name, number, callUser, searchText }: SearchNumbe
       <div className="flex gap-3 items-center">
         <Avatar size="small" placeholder={PlaceholderIcon} bordered={true} />
         <div className="flex flex-col gap-1">
-          <p className="font-semibold">{name}</p>
+          <p className="font-semibold">{username}</p>
           <NumberCaller number={number}>{highlightedNumber}</NumberCaller>
         </div>
       </div>

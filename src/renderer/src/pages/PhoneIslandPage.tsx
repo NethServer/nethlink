@@ -1,11 +1,13 @@
 import { PhoneIsland } from '@nethesis/phone-island'
+import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
-import { createRef, useEffect, useRef, useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
+  const [isMouseOver, setIsMouseOver] = useState(false)
 
   useInitialize(() => {
     window.api.onDataConfigChange(updateDataConfig)
@@ -19,13 +21,6 @@ export function PhoneIslandPage() {
         })
       )
     })
-
-    Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
-      window.addEventListener(ev, (event) => {
-        window.api[ev](event['detail'])
-      }
-      )
-    })
   }, true)
 
   function updateDataConfig(dataConfig: string | undefined) {
@@ -33,40 +28,71 @@ export function PhoneIslandPage() {
     setDataConfig(() => dataConfig)
   }
 
-  const ref = createRef<HTMLDivElement>()
-  const initialize = useRef<boolean>(false)
   useEffect(() => {
-    if (ref.current && !initialize.current) {
-      initialize.current = true
-      const elementToObserve = ref.current
+    debouncer('updateMouse', () => {
+      window.api.emitMouseOverPhoneIsland(isMouseOver)
+    }, 250)
+    const root = document.getElementById('test')!
+    root.className = isMouseOver ? root.className.replace('bg-green-500', 'bg-red-500') : root.className.replace('bg-red-500', 'bg-green-500')
+  }, [isMouseOver])
 
-      const observer = new MutationObserver(function (mutationsList, observer) {
-        const elem = mutationsList[0].target as HTMLDivElement
-        console.log(elem)
-        if (elem.className.includes('pi-pointer-events-auto')) {
-          if (elem.offsetHeight <= 103) {
-            window.api.resizePhoneIsland(420, 98)
-          } else if (elem.offsetHeight > 103 && elem.offsetHeight <= 237) {
-            window.api.resizePhoneIsland(350, 238)
-          } else if (elem.offsetHeight > 237) {
-            window.api.resizePhoneIsland(350, 306)
-          }
-        }
-      })
 
-      observer.observe(elementToObserve, {
-        characterData: false,
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['style']
-      })
+  const getPhoneIslandElement = () => {
+    return document.getElementById('phone-island-container')?.children[0]?.children[0] as HTMLDivElement | undefined
+  }
+
+  const addOverEvent = (element: HTMLDivElement) => {
+
+    element.onmouseenter = (event) => {
+      setIsMouseOver(true)
     }
-  }, [ref.current])
+    element.onmouseleave = (event) => {
+      setIsMouseOver(false)
+    }
+
+    const intervel = setInterval(() => {
+      const el = getPhoneIslandElement()
+      const eq = element === el
+      console.log(eq, element, el)
+      if (!eq) {
+        clearInterval(intervel)
+        setIsMouseOver(false)
+      }
+    }, 1000)
+  }
+  const listenPhoneIsland = () => {
+    setTimeout(() => {
+      const elementToObserve = getPhoneIslandElement()
+      console.log('DIV', elementToObserve)
+      if (elementToObserve) addOverEvent(elementToObserve)
+    }, 1000)
+  }
+
+  useInitialize(() => {
+    window.api.onDataConfigChange(updateDataConfig)
+    window.api.onStartCall((phoneNumber) => {
+      console.log('received number', phoneNumber)
+      window.dispatchEvent(
+        new CustomEvent('phone-island-call-start', {
+          detail: {
+            number: phoneNumber
+          }
+        })
+      )
+    })
+  }, true)
+
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], () => debouncer('listenPhoneIsland', listenPhoneIsland, 100))
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], () => debouncer('listenPhoneIsland', listenPhoneIsland, 100))
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ended'], () => {
+    console.log("END CALL")
+    setIsMouseOver(false)
+  })
 
   return (
-    <div className="h-[100vh] w-[100vw]" ref={ref}>
+    <div className="h-[100vh] w-[100vw] bg-[#ffffff60]" id="phone-island-container">
       {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
+      <div id='test' className='h-[140px] w-[140px] relative top-[10px] left-[10px] bg-red-500'></div>
     </div>
   )
 }

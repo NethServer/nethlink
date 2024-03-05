@@ -1,6 +1,7 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
 import { IPC_EVENTS } from '@shared/constants'
 import { BrowserWindow } from 'electron'
+import { AccountController } from '../controllers'
 
 type Callback = (...args: any) => any
 export class BaseWindow {
@@ -18,6 +19,9 @@ export class BaseWindow {
         }
       }
     )
+    this._window.on('close', () => {
+      this._window = createWindow(id, config, params)
+    })
   }
 
   getWindow() {

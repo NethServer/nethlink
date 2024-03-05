@@ -1,6 +1,8 @@
 import { is } from '@electron-toolkit/utils'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
+import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
+import fs from 'fs'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -47,15 +49,17 @@ export function createWindow(
 
   // mainWindow.on('show', () => {
   //   if (is.dev) {
-  mainWindow.webContents.openDevTools({
-    mode: 'detach'
-  })
+  // mainWindow.webContents.openDevTools({
+  //   mode: 'detach'
+  // })
   //   }
   // })
 
   mainWindow.on('hide', () => {
     //mainWindow.webContents.closeDevTools()
   })
+
+  mainBindings(ipcMain, mainWindow, fs)
 
   return mainWindow
 }

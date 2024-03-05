@@ -1,11 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
 import { SpeedDialNumber } from './SpeedDialNumber'
-import { SpeedDialType } from '@shared/types'
+import { ContactType } from '@shared/types'
 import { Button } from './Nethesis/Button'
 
 export interface SpeedDialsBoxProps {
-  speeddials: SpeedDialType[] | undefined
+  speeddials: ContactType[] | undefined
   label?: string
   callUser: (phoneNumber: string) => void
   showCreateSpeedDial: () => void
@@ -44,7 +44,7 @@ export function SpeedDialsBox({
                 key={idx}
               >
                 <SpeedDialNumber
-                  name={e.name!}
+                  username={e.name!}
                   number={e.speeddial_num!}
                   callUser={() => callUser(e.speeddial_num!)}
                 />

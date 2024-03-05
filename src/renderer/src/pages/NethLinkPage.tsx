@@ -3,20 +3,20 @@ import { Navbar } from '../components/Navbar'
 import { MENU_ELEMENT, Sidebar } from '../components/Sidebar'
 import { SpeedDialsBox } from '../components/SpeedDialsBox'
 import { useInitialize } from '../hooks/useInitialize'
-import { Account, AvailableThemes, CallData, HistoryCallData, SpeedDialType } from '@shared/types'
+import { Account, AvailableThemes, CallData, HistoryCallData, NewContactType, ContactType } from '@shared/types'
 import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
-import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { CreateSpeedDialBox } from '@renderer/components/CreateSpeedDialBox'
+import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 
-export function NethConnectorPage() {
+export function NethLinkPage() {
   const [search, setSearch] = useState('')
   const [account, setAccount] = useLocalStoreState<Account>('user')
-  const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.ZAP)
-  const [speeddials, setSpeeddials] = useState<SpeedDialType[]>([])
+  const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
+  const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
   const [isAddingToPhonebook, setIsAddingToPhonebook] = useState<boolean>(false)
@@ -90,7 +90,7 @@ export function NethConnectorPage() {
     setAccount(() => account)
   }
 
-  async function saveSpeeddials(speeddialsResponse: SpeedDialType[] | undefined) {
+  async function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
     console.log(speeddialsResponse)
     setSpeeddials(() => speeddialsResponse || [])
   }
@@ -117,34 +117,19 @@ export function NethConnectorPage() {
     window.api.logout()
   }
 
-  function mockAddAddContactToPhonebook() {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve()
-      }, 2000)
-    })
-  }
 
-  function mockAddAddContactSpeedDials() {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        resolve()
-      }, 2000)
-    })
-  }
-
-  async function handleAddContactToPhonebook(contact: SpeedDialType) {
+  async function handleAddContactToPhonebook(contact: NewContactType) {
     // da aggiungere funzionalita' api per salvare il nuovo contatto
-    setSpeeddials((p) => [...p, contact])
-    await mockAddAddContactToPhonebook()
+    const [_, err] = await window.api.addContactToPhonebook(contact)
+    if (!!err) throw err
     setIsAddingToPhonebook(() => false)
     setSearch(() => '')
   }
 
-  async function handleAddContactToSpeedDials(contact: SpeedDialType) {
+  async function handleAddContactToSpeedDials(contact: NewContactType) {
     // da aggiungere funzionalita' api per salvare il nuovo speedDial
-    setSpeeddials((p) => [...p, contact])
-    await mockAddAddContactSpeedDials()
+    const [_, err] = await window.api.addContactSpeedDials(contact)
+    if (!!err) throw err
     setIsCreatingSpeedDial(() => false)
     setSearch(() => '')
   }
@@ -170,7 +155,7 @@ export function NethConnectorPage() {
   }
 
   return (
-    <>
+    <div className="h-[100vh] w-[100vw] rounded-[10px] overflow-hidden">
       {account && (
         <div className={theme}>
           <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
@@ -186,7 +171,7 @@ export function NethConnectorPage() {
                 />
                 <div className="relative w-full h-full">
                   <div className="px-4 w-full h-full z-1">
-                    {selectedMenu === MENU_ELEMENT.ZAP ? (
+                    {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
                       isCreatingSpeedDial ? (
                         <CreateSpeedDialBox
                           handleAddContactToSpeedDials={handleAddContactToSpeedDials}
@@ -238,6 +223,6 @@ export function NethConnectorPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

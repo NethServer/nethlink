@@ -1,4 +1,4 @@
-import clsx, { ClassValue } from 'clsx'
+import { ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { MD5 } from 'crypto-js'
 import { PropsWithChildren } from 'react'
