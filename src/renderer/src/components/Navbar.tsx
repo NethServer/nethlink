@@ -63,7 +63,7 @@ export function Navbar({
               </Listbox.Button>
             </div>
             <Listbox.Options
-              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-20 translate-x-[calc(-100%+36px)]`}
+              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <p className="dark:text-gray-50 text-gray-900 text-xs leading-[18px] py-1 px-4 mt-1">
                 THEME
@@ -111,7 +111,7 @@ export function Navbar({
             </div>
 
             <Menu.Items
-              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200  mt-2 fixed rounded-lg min-w-[180px] min-h-[125px] z-20 translate-x-[calc(-100%+36px)]`}
+              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200  mt-2 fixed rounded-lg min-w-[180px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
                 <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-600">
