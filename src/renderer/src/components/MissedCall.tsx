@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
-import moment from 'moment'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { useState } from 'react'
+import moment = require('moment')
 
 export interface MissedCallProps {
   username: string
@@ -13,8 +13,7 @@ export interface MissedCallProps {
   time: number
   duration: number
   company?: string
-  //isAddingToPhonebook: boolean
-  showAddContactToPhonebook: () => void
+  handleSelectedMissedCall: (number: string, company: string) => void
 }
 
 export function MissedCall({
@@ -23,8 +22,7 @@ export function MissedCall({
   time,
   duration,
   company,
-  //isAddingToPhonebook,
-  showAddContactToPhonebook
+  handleSelectedMissedCall
 }: MissedCallProps): JSX.Element {
   const operators: any = useSubscriber('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
@@ -71,10 +69,10 @@ export function MissedCall({
           </div>
         )}
         {showCreateButton && (
-          /* !isAddingToPhonebook &&  */ <Button
+          <Button
             variant="ghost"
             className="flex gap-3 items-center py-2 px-3 border dark:border-gray-500 ml-auto"
-            onClick={showAddContactToPhonebook}
+            onClick={() => handleSelectedMissedCall(number, company)}
           >
             <FontAwesomeIcon
               className="text-base dark:text-blue-500 text-blue-600"

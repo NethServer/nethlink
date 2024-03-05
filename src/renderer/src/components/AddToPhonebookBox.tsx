@@ -6,23 +6,25 @@ import { NewContactType } from '@shared/types'
 
 export interface AddToPhonebookBoxProps {
   searchText?: string
+  selectedNumber?: string
+  selectedCompany?: string
   onCancel: () => void
   handleAddContactToPhonebook: (contact: NewContactType) => Promise<void>
 }
 
 export function AddToPhonebookBox({
   searchText,
+  selectedNumber,
+  selectedCompany,
   onCancel,
   handleAddContactToPhonebook
 }: AddToPhonebookBoxProps) {
   const [name, setName] = useState<string>('')
-  const [phoneNumber, setPhoneNumber] = useState<string>('')
+  const [phoneNumber, setPhoneNumber] = useState<string>(selectedNumber)
+  const [company, setCompany] = useState<string>(selectedCompany)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [visibility, setVisibility] = useState('')
-  const [type, setType] = useState('')
-
-  const visibilityRef = useRef<HTMLInputElement>(null)
-  const typeRef = useRef<HTMLInputElement>(null)
+  const [visibility, setVisibility] = useState('Everybody')
+  const [type, setType] = useState('Person')
 
   function containsOnlyNumber(text: string) {
     return /^\d+$/.test(text)
@@ -36,12 +38,20 @@ export function AddToPhonebookBox({
         setName(searchText)
       }
     }
+    if (company !== '') {
+      setType(() => 'Company')
+    }
   }, [])
 
   function handleSave(_event: React.MouseEvent) {
     setIsLoading(true)
-    //Da aggiungere la visibility
-    handleAddContactToPhonebook({ name: name, speeddial_num: phoneNumber, type: type })
+    handleAddContactToPhonebook({
+      name: name,
+      speeddial_num: phoneNumber,
+      type: type,
+      company: company,
+      privacy: visibility
+    })
       .catch((error) => {
         console.log(error)
       })
@@ -65,7 +75,6 @@ export function AddToPhonebookBox({
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput
-                ref={visibilityRef}
                 type="radio"
                 value="Everybody"
                 checked={visibility === 'Everybody'}
@@ -76,7 +85,6 @@ export function AddToPhonebookBox({
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput
-                ref={visibilityRef}
                 type="radio"
                 value="Only me"
                 checked={visibility === 'Only me'}
@@ -93,18 +101,19 @@ export function AddToPhonebookBox({
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput
-                ref={typeRef}
                 type="radio"
                 value="Person"
                 checked={type === 'Person'}
-                onChange={() => setType('Person')}
+                onChange={() => {
+                  setType('Person')
+                  setCompany('')
+                }}
                 name="type"
               />
               <p className="whitespace-nowrap">Person</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput
-                ref={typeRef}
                 type="radio"
                 value="Company"
                 checked={type === 'Company'}
@@ -127,6 +136,23 @@ export function AddToPhonebookBox({
             className="font-normal"
           />
         </label>
+
+        {/* DA CHIEDERE QUALI ALTRI DATI SONO DA INSERIRE */}
+        {type === 'Company' ? (
+          <>
+            <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
+              <p className="whitespace-nowrap">Company</p>
+              <TextInput
+                type="text"
+                value={company}
+                onChange={(e) => {
+                  setCompany(() => e.target.value)
+                }}
+                className="font-normal"
+              />
+            </label>
+          </>
+        ) : null}
 
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
           <p className="whitespace-nowrap">Phone number</p>
@@ -155,8 +181,7 @@ export function AddToPhonebookBox({
             disabled={
               name.trim().length === 0 ||
               phoneNumber.trim().length < 3 ||
-              visibility === '' ||
-              type === ''
+              (type === 'Company' && company.trim().length === 0)
             }
             onClick={handleSave}
           >
