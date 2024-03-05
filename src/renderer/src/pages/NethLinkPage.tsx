@@ -169,6 +169,11 @@ export function NethLinkPage() {
     window.api.openMissedCallsPage('https://cti.demo-heron.sf.nethserver.net/history')
   }
 
+  function goToNethVoicePage(): void {
+    //non funziona
+    window.api.openNethVoicePage('https://cti.demo-heron.sf.nethserver.net')
+  }
+
   return (
     <div className="h-[100vh] w-[100vw] rounded-[10px] overflow-hidden">
       {account && (
@@ -183,6 +188,7 @@ export function NethLinkPage() {
                   logout={logout}
                   handleSearch={handleSearch}
                   handleReset={handleReset}
+                  goToNethVoicePage={goToNethVoicePage}
                 />
                 <div className="relative w-full h-full">
                   <div className="px-4 w-full h-full z-1">
