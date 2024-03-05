@@ -45,6 +45,7 @@ export interface IElectronAPI {
   sendInitializationCompleted(id: string): void
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
   openMissedCallsPage: (url: string) => void
+  openNethVoicePage: (url: string) => void
 
   emitMouseOverPhoneIsland(isOver: boolean): void
 
@@ -93,6 +94,7 @@ const api: IElectronAPI = {
   changeTheme: setEmitter(IPC_EVENTS.CHANGE_THEME),
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
   openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
+  openNethVoicePage: setEmitter(IPC_EVENTS.OPEN_NETHVOICE_PAGE),
   emitMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
 
   //LISTENERS - receive data async
