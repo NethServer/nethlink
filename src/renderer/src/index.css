@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-button {
+/* button {
   -webkit-app-region: no-drag;
 }
 
@@ -10,14 +10,24 @@ button {
 .pi-pointer-events-auto {
   transform: none !important;
   -webkit-app-region: drag !important;
+} */
+
+.light ::-webkit-scrollbar {
+  width: 3px;
+  background-color: #f9fafb;
 }
 
-::-webkit-scrollbar {
+.light ::-webkit-scrollbar-thumb {
   width: 3px;
   background-color: #111827;
 }
 
-::-webkit-scrollbar-thumb {
+.dark ::-webkit-scrollbar {
+  width: 3px;
+  background-color: #111827;
+}
+
+.dark ::-webkit-scrollbar-thumb {
   width: 3px;
   background-color: #f9fafb;
 }

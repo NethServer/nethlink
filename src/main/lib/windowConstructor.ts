@@ -1,6 +1,8 @@
 import { is } from '@electron-toolkit/utils'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
+import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
+import fs from 'fs'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -34,11 +36,9 @@ export function createWindow(
       ? Object.entries(params).reduce((p, c) => `${p}${p !== '&' ? '?' : ''}${c[0]}=${c[1]}`, '')
       : ''
     const devServerURL = `${process.env['ELECTRON_RENDERER_URL']!}/#/${id}${propsUrl}`
-    console.log('DEV', devServerURL, id)
     mainWindow.loadURL(devServerURL, {})
   } else {
     const fileRoute = join(__dirname, '../renderer/index.html')
-    console.log('PROD', fileRoute, id)
     mainWindow.loadFile(fileRoute, {
       hash: id,
       query: params
@@ -47,15 +47,17 @@ export function createWindow(
 
   // mainWindow.on('show', () => {
   //   if (is.dev) {
-  mainWindow.webContents.openDevTools({
-    mode: 'detach'
-  })
+  // mainWindow.webContents.openDevTools({
+  //   mode: 'detach'
+  // })
   //   }
   // })
 
   mainWindow.on('hide', () => {
     //mainWindow.webContents.closeDevTools()
   })
+
+  mainBindings(ipcMain, mainWindow, fs)
 
   return mainWindow
 }

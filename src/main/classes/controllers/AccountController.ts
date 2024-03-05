@@ -2,7 +2,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
-import { platform } from 'os'
+import { log } from '@shared/utils/logger'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -30,7 +30,7 @@ export class AccountController {
   _saveNewAccountData(account: Account | undefined, isOpening = false) {
     const { CONFIG_FILE } = this._getPaths()
     const config = this._getConfigFile()
-    console.log('save account', config.lastUser, account?.username, isOpening)
+    log('save account', config.lastUser, account?.username, isOpening)
     if (config.lastUser !== account?.username || isOpening) {
       this._onAccountChange!(account)
     }
@@ -60,16 +60,15 @@ export class AccountController {
     const api = new NethVoiceAPI(account!.host, account)
     this._saveNewAccountData(undefined, false)
     api.Authentication.logout()
-      .then(() => {
-        console.log(`${account!.username} logout succesfully`)
-      })
+      // .then(() => {
+      //   console.log(`${account!.username} logout succesfully`)
+      // })
       .catch((e) => {
-        console.log(e)
+        console.error(e)
       })
   }
 
   getLoggedAccount() {
-    console.log(this.config?.lastUser)
     if (this.config?.lastUser) {
       return this.config!.accounts[this.config!.lastUser!]
     }
@@ -101,7 +100,7 @@ export class AccountController {
 
   hasConfigsFolder() {
     const { CONFIG_PATH } = this._getPaths()
-    console.log(CONFIG_PATH)
+    log('CONFIG_PATH', CONFIG_PATH)
     return fs.existsSync(CONFIG_PATH)
   }
 

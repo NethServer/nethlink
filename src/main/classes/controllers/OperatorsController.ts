@@ -1,13 +1,13 @@
 export const buildOperators = (operatorsStore: any) => {
-  let operators = [...operatorsStore.userEndpoints]
+  const operators = [...operatorsStore.userEndpoints]
 
   // groups
 
-  for (let [groupName, groupData] of Object.entries(operatorsStore.groups)) {
+  for (const [groupName, groupData] of Object.entries(operatorsStore.groups)) {
     // @ts-ignore
     for (const username of groupData.users) {
       if (operators[username]) {
-        let groups = operators[username].groups || []
+        const groups = operators[username].groups || []
         groups.push(groupName)
         operators[username].groups = groups
       }
@@ -24,7 +24,7 @@ export const buildOperators = (operatorsStore: any) => {
       })
 
       if (opFound) {
-        let conversations = opFound.conversations || []
+        const conversations = opFound.conversations || []
 
         // @ts-ignore
         Object.values(extData.conversations).forEach((conv) => {
@@ -37,6 +37,7 @@ export const buildOperators = (operatorsStore: any) => {
 
   // favorites
 
+  // eslint-disable-next-line no-unsafe-optional-chaining
   for (const username of operatorsStore?.favorites) {
     if (operators[username]) {
       operators[username].favorite = true

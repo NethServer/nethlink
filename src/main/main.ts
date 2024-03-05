@@ -1,18 +1,19 @@
-import { app, protocol } from 'electron'
+import { app, protocol, nativeTheme } from 'electron'
 import {
   LoginWindow,
-  NethConnectorWindow,
+  NethLinkWindow,
   PhoneIslandWindow,
   SplashScreenWindow
 } from '@/classes/windows'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, NethVoiceAPI } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
-import { Account } from '@shared/types'
+import { Account, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { IPC_EVENTS } from '@shared/constants'
-import path from 'path'
 import { LoginController } from './classes/controllers/LoginController'
+import { resolve } from 'path'
+import { log } from '@shared/utils/logger'
 
 new AccountController(app)
 const accountController = AccountController.instance
@@ -26,17 +27,16 @@ app.whenReady().then(() => {
   //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
   const trayController = new TrayController(() => toggleWindow(false))
   const loginWindow = new LoginWindow()
-  const nethConnectorWindow = new NethConnectorWindow()
+  const nethLinkWindow = new NethLinkWindow(() => toggleWindow(false))
   const phoneIslandWindow = new PhoneIslandWindow()
   const splashScreenWindow = new SplashScreenWindow()
   new PhoneIslandController(phoneIslandWindow)
   new LoginController(loginWindow)
 
   function toggleWindow(isOpening: boolean) {
-    console.log('toggle')
     // La tray deve chiudere solamente o la loginpage o la nethconnectorpage, quindi il controllo viene eseguito solo su di loro
-    if (nethConnectorWindow.isOpen() || loginWindow.isOpen()) {
-      nethConnectorWindow.hide()
+    if (nethLinkWindow.isOpen() || loginWindow.isOpen()) {
+      nethLinkWindow.hide()
       loginWindow.hide()
     } else {
       if (!accountController.hasConfigsFolder()) {
@@ -48,13 +48,12 @@ app.whenReady().then(() => {
         }, 2500)
       } else {
         if (accountController.getLoggedAccount()) {
-          nethConnectorWindow.show()
+          nethLinkWindow.show()
         } else {
           accountController
             .autologin(isOpening)
-            .then(() => nethConnectorWindow.show())
+            .then(() => nethLinkWindow.show())
             .catch(() => {
-              console.log('ciao')
               loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
               loginWindow.show()
             })
@@ -68,36 +67,41 @@ app.whenReady().then(() => {
   })
 
   accountController.onAccountChange(async (account: Account | undefined) => {
-    console.log('ACCOUNT_CHANGE', account)
     if (account) {
       try {
-        nethConnectorWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
-        nethConnectorWindow.show()
+        nethLinkWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
+        nethLinkWindow.show()
         loginWindow.hide()
       } catch (e) {
-        console.log(e)
+        console.error(e)
       }
       NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin().then(
         (phoneIslandTokenLoginResponse) => {
-          console.log(phoneIslandTokenLoginResponse)
           PhoneIslandController.instance.updateDataConfig(phoneIslandTokenLoginResponse.token)
         }
       )
       //const operators = await NethVoiceAPI.instance.fetchOperators()
       NethVoiceAPI.instance.HistoryCall.interval().then((lastCalls) =>
-        nethConnectorWindow.emit(IPC_EVENTS.RECEIVE_HISTORY_CALLS, lastCalls)
+        nethLinkWindow.emit(IPC_EVENTS.RECEIVE_HISTORY_CALLS, lastCalls)
       )
       NethVoiceAPI.instance.Phonebook.speeddials().then((speeddials) =>
-        nethConnectorWindow.emit(IPC_EVENTS.RECEIVE_SPEEDDIALS, speeddials)
+        nethLinkWindow.emit(IPC_EVENTS.RECEIVE_SPEEDDIALS, speeddials)
       )
       //nethConnectorWindow.emit(IPC_EVENTS.)
     } else {
       loginWindow.emit(IPC_EVENTS.LOAD_ACCOUNTS, accountController.listAvailableAccounts())
       loginWindow.show()
-      console.log('phonisland logout')
       PhoneIslandController.instance.logout()
-      nethConnectorWindow.hide()
+      nethLinkWindow.hide()
     }
+  })
+
+  nethLinkWindow.addOnBuildListener(() => {
+    toggleWindow(true)
+    nativeTheme.on('updated', () => {
+      const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+      nethLinkWindow.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+    })
   })
 
   protocol.handle('tel', (req) => {
@@ -120,8 +124,8 @@ app.removeAsDefaultProtocolClient('callto')
 if (process.env.node_env === 'development' && process.platform === 'win32') {
   // set the path of electron.exe and your app.
   // these two additional parameters are only available on windows.
-  app.setAsDefaultProtocolClient('tel', process.execPath, [path.resolve(process.argv[1])])
-  app.setAsDefaultProtocolClient('callto', process.execPath, [path.resolve(process.argv[1])])
+  app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
+  app.setAsDefaultProtocolClient('callto', process.execPath, [resolve(process.argv[1])])
 } else {
   app.setAsDefaultProtocolClient('tel')
   app.setAsDefaultProtocolClient('callto')
@@ -160,7 +164,7 @@ function handleTelProtocol(url: string): Promise<Response> {
     .replace(/tel:\/\//g, '')
     .replace(/callto:\/\//g, '')
     .replace(/\//g, '')
-  console.log('TEL:', tel)
+  log('TEL:', tel)
   PhoneIslandController.instance.call(tel)
   return new Promise((resolve) => resolve)
 }

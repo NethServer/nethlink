@@ -25,7 +25,6 @@ export function LoginPage() {
 
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
-      console.log(accounts)
       setDisplayedAccounts(accounts)
     })
     window.api.sendInitializationCompleted('loginpage')
@@ -46,14 +45,9 @@ export function LoginPage() {
   }
 
   async function handleLogin(data: LoginData) {
-    const returnValue = await window.api.login(data.host, data.username, data.password)
-    console.log(returnValue)
-    if (returnValue) {
-      setIsError(false)
-      setSelectedAccount(undefined)
-    } else {
-      setIsError(true)
-    }
+    const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
+    setIsError(!!err)
+    !err && setSelectedAccount(undefined)
     setIsLoading(false)
   }
 
@@ -94,7 +88,7 @@ export function LoginPage() {
   }, [displayedAccounts, selectedAccount])
 
   const newAccountForm: ReactNode = (
-    <div className="mt-7">
+    <div className="dark mt-7">
       <p className="text-gray-100 text-xl font-semibold mb-3">Welcome</p>
       <p className="text-gray-100 text-md mb-8">
         Sign in to Nethconnector with your Nethvoice CTI username and password.
@@ -162,7 +156,7 @@ export function LoginPage() {
                   {selectedAccount === 'New Account' ? (
                     newAccountForm
                   ) : (
-                    <div className="w-full mt-7">
+                    <div className="dark w-full mt-7">
                       <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
                       <p className="text-gray-100 text-md mb-5">
                         Choose an account to continue to Nethconnector.

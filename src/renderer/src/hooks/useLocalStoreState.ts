@@ -3,9 +3,9 @@ import { useSubscriber } from './useSubscriber'
 
 export function useLocalStoreState<T>(
   selector: keyof LocalStorageData
-): [any, (pre: any) => any | any] {
+): [T, (pre: any) => any | any] {
   const store = useLocalStore()
-  const subscribedData = useSubscriber(selector) as T
+  const subscribedData = useSubscriber<T>(selector)
   const setter = (newValue: (pre: any) => any | any) => {
     const o = store.getData(selector)()
     let v

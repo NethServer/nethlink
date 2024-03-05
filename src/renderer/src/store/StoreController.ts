@@ -1,6 +1,3 @@
-import { subscribe } from 'diagnostics_channel'
-import { read } from 'fs'
-//import { createStore } from 'zustand/vanilla'
 import { create } from 'zustand'
 
 export type LocalStorageData = {
