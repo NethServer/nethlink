@@ -6,23 +6,17 @@ import { NumberCaller } from './NumberCaller'
 import moment from 'moment'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { useState } from 'react'
+import { CallData } from '@shared/types'
+import { t } from 'i18next'
 
 export interface MissedCallProps {
-  username: string
-  number: string
-  time: number
-  duration: number
-  company?: string
+  call: CallData,
   //isAddingToPhonebook: boolean
   showAddContactToPhonebook: () => void
 }
 
 export function MissedCall({
-  username,
-  number,
-  time,
-  duration,
-  company,
+  call,
   //isAddingToPhonebook,
   showAddContactToPhonebook
 }: MissedCallProps): JSX.Element {
@@ -37,7 +31,8 @@ export function MissedCall({
     <div
       className="flex flex-grow gap-3 font-semibold max-h-[72px]"
       onMouseEnter={() => {
-        if (username === 'Unknown') {
+        //TODO: capire come lo identificano
+        if (call.cnam === 'Unknown') {
           setShowCreateButton(() => true)
         }
       }}
@@ -47,31 +42,34 @@ export function MissedCall({
         <Avatar
           size="extra_small"
           placeholder={PlaceholderIcon}
-          status={operators[username]?.mainPresence}
+          status={operators[call.cnam!]?.mainPresence}
         />
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
-        <p>{truncate(username)}</p>
+        <p>{truncate(call.cnam!)}</p>
         <div className="flex flex-row gap-2 items-center">
           <MissedCallIcon />
-          <NumberCaller number={number} className="dark:text-blue-500 text-blue-600 font-normal">
-            {number}
+          <NumberCaller number={call.cnum!} className="dark:text-blue-500 text-blue-600 font-normal">
+            {call.cnum}
           </NumberCaller>
         </div>
         <div className="flex flex-row gap-1">
-          <p>{duration}m</p>
-          <p>({moment(time).format('HH:MM')})</p>
+          {//TODO: Controllare il metodo di conversione del tempo
+          }
+          <p>{call.duration!}m</p>
+          <p>({moment(call.time!).format('HH:MM')})</p>
         </div>
       </div>
       <div className="flex flex-col gap-2 ml-auto">
-        {company && (
+        {call.ccompany && (
           <div className="flex flex-row items-center gap-2 py-1 px-[10px] rounded-[10px] max-h-[22px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600">
             <FontAwesomeIcon icon={faUsers}></FontAwesomeIcon>
-            <p className="text-[12x] leading-[18px]">{company}</p>
+            <p className="text-[12x] leading-[18px]">{call.ccompany}</p>
           </div>
         )}
         {showCreateButton && (
-          /* !isAddingToPhonebook &&  */ <Button
+          /* !isAddingToPhonebook &&  */
+          <Button
             variant="ghost"
             className="flex gap-3 items-center py-2 px-3 border dark:border-gray-500 ml-auto"
             onClick={showAddContactToPhonebook}
@@ -80,7 +78,7 @@ export function MissedCall({
               className="text-base dark:text-blue-500 text-blue-600"
               icon={faUserPlus}
             />
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">Create</p>
+            <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('SpeedDial.Create')}</p>
           </Button>
         )}
       </div>

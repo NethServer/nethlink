@@ -3,6 +3,7 @@ import { Button, TextInput } from './Nethesis'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
 import { NewContactType } from '@shared/types'
+import { log } from '@shared/utils/logger'
 
 export interface CreateSpeedDialProps {
   onCancel: () => void
@@ -22,7 +23,7 @@ export function CreateSpeedDialBox({
     //Da aggiungere la visibility
     handleAddContactToSpeedDials({ name: name, speeddial_num: phoneNumber })
       .catch((error) => {
-        console.log(error)
+        log(error)
       })
       .finally(() => {
         setIsLoading(false)

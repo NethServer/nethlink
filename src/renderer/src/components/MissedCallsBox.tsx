@@ -46,15 +46,11 @@ export function MissedCallsBox({
               >
                 {/* Prova per forzare il button create */}
                 <MissedCall
-                  username={'Unknown'}
-                  //username={call.cnam!}
-                  number={call.cnum!}
-                  time={call.time!}
-                  duration={call.duration!}
-                  company={'Customer care'}
+                  //username={'Unknown'}
+                  call={call}
                   showAddContactToPhonebook={showAddContactToPhonebook}
-                  //isAddingToPhonebook={isAddingToPhonebook}
-                  //company={call.ccompany!}
+                //isAddingToPhonebook={isAddingToPhonebook}
+                //company={call.ccompany!}
                 />
               </div>
             )

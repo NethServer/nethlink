@@ -7,6 +7,6 @@ type NumberCallerProps = {
 }
 export const NumberCaller = ({ number, children, ...args }: NumberCallerProps) => {
   return (
-    <a href={`tel://${('' + number).replace(/ /g, '')}`} {...args} > {children}</a >
+    <a href={`callto://${('' + number).replace(/ /g, '')}`} {...args} >{children}</a >
   )
 }

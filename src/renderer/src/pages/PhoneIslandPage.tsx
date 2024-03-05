@@ -2,6 +2,7 @@ import { PhoneIsland } from '@nethesis/phone-island'
 import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { log } from '@shared/utils/logger'
 import { debouncer } from '@shared/utils/utils'
 import { useState, useEffect, useRef } from 'react'
 
@@ -25,7 +26,6 @@ export function PhoneIslandPage() {
   }, true)
 
   function updateDataConfig(dataConfig: string | undefined) {
-    console.log(dataConfig)
     setDataConfig(() => dataConfig)
   }
 
@@ -33,8 +33,8 @@ export function PhoneIslandPage() {
     debouncer('updateMouse', () => {
       window.api.emitMouseOverPhoneIsland(isMouseOver)
     }, 250)
-    const root = document.getElementById('test')!
-    root.className = isMouseOver ? root.className.replace('bg-green-500', 'bg-red-500') : root.className.replace('bg-red-500', 'bg-green-500')
+    // const root = document.getElementById('test')!
+    // root.className = isMouseOver ? root.className.replace('bg-green-500', 'bg-red-500') : root.className.replace('bg-red-500', 'bg-green-500')
   }, [isMouseOver])
 
 
@@ -54,7 +54,6 @@ export function PhoneIslandPage() {
     const interval = setInterval(() => {
       const el = getPhoneIslandElement()
       const eq = element === el
-      console.log(eq, element, el)
       if (!eq) {
         clearInterval(interval)
         setIsMouseOver(false)
@@ -66,7 +65,6 @@ export function PhoneIslandPage() {
     if (!stop) {
       setTimeout(() => {
         const elementToObserve = getPhoneIslandElement()
-        console.log('DIV', elementToObserve)
         if (elementToObserve && elementToObserve.className.includes('pi-absolute')) {
           ref.current = 0
           addOverEvent(elementToObserve)
@@ -85,18 +83,33 @@ export function PhoneIslandPage() {
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], debounceListener)
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], debounceListener)
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ended'], () => {
-    console.log("END CALL")
     setIsMouseOver(false)
   })
+
+  function redirectEventToMain(event: PHONE_ISLAND_EVENTS) {
+    //mi sottoscrivo all'evento che arriva sulla window della phone island
+    useEventListener(event, (e) => {
+      log(event, e)
+      //giro l'evento al main di electron -> poi il main propaga l'evento alle altre window che avranno attivato il corrispondente listener
+      window.api[event](e)
+    })
+  }
+
+  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-main-presence'])
+  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-conversations'])
+  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-update'])
+  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'])
 
   function debounceListener() {
     debouncer('listenPhoneIsland', listenPhoneIsland, 100)
   }
 
   return (
-    <div className="h-[100vh] w-[100vw] bg-[#ffffff60]" id="phone-island-container">
+    <div className="h-[100vh] w-[100vw] bg-[#ffffff00]" id="phone-island-container">
       {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
-      <div id='test' className='h-[140px] w-[140px] relative top-[10px] left-[10px] bg-red-500'></div>
+      {
+        //<div id='test' className='h-[140px] w-[140px] relative top-[10px] left-[10px] bg-red-500'></div>
+      }
     </div>
   )
 }

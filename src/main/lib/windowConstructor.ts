@@ -36,11 +36,9 @@ export function createWindow(
       ? Object.entries(params).reduce((p, c) => `${p}${p !== '&' ? '?' : ''}${c[0]}=${c[1]}`, '')
       : ''
     const devServerURL = `${process.env['ELECTRON_RENDERER_URL']!}/#/${id}${propsUrl}`
-    console.log('DEV', devServerURL, id)
     mainWindow.loadURL(devServerURL, {})
   } else {
     const fileRoute = join(__dirname, '../renderer/index.html')
-    console.log('PROD', fileRoute, id)
     mainWindow.loadFile(fileRoute, {
       hash: id,
       query: params

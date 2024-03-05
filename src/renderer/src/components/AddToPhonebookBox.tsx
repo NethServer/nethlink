@@ -43,7 +43,8 @@ export function AddToPhonebookBox({
     //Da aggiungere la visibility
     handleAddContactToPhonebook({ name: name, speeddial_num: phoneNumber, type: type })
       .catch((error) => {
-        console.log(error)
+        //TODO: gestione errore inserimento
+        console.error(error)
       })
       .finally(() => {
         setIsLoading(false)

@@ -9,6 +9,7 @@ import {
   SearchCallData
 } from '@shared/types'
 import { preloadBindings } from 'i18next-electron-fs-backend'
+import { log } from '@shared/utils/logger'
 export type SyncResponse<T> = [T | undefined, Error | undefined]
 export type SyncPromise<T> = Promise<SyncResponse<T>>
 
@@ -45,6 +46,7 @@ export interface IElectronAPI {
   sendInitializationCompleted(id: string): void
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
   openMissedCallsPage: (url: string) => void
+  hideNethLink: () => void
 
   emitMouseOverPhoneIsland(isOver: boolean): void
 
@@ -56,6 +58,7 @@ function addListener(channel) {
   return (callback) => {
     ipcRenderer.on(channel, (e: Electron.IpcRendererEvent, ...args) => {
       callback(...args)
+      log('listener', channel, ...args)
     })
   }
 }
@@ -64,6 +67,7 @@ function setEmitterSync<T>(event): () => SyncPromise<T> {
   return (...args): SyncPromise<T> => {
     return new Promise((resolve) => {
       const res = ipcRenderer.sendSync(event, ...args)
+      log('sync emitter', event, res)
       resolve(res)
     })
   }
@@ -72,6 +76,7 @@ function setEmitterSync<T>(event): () => SyncPromise<T> {
 function setEmitter(event) {
   return (...args) => {
     ipcRenderer.send(event, ...args)
+    log('emitter', event)
   }
 }
 // @ts-ignore (define in dts)
@@ -94,6 +99,7 @@ const api: IElectronAPI = {
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
   openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
   emitMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
+  hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
 
   //LISTENERS - receive data async
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),
@@ -109,8 +115,17 @@ const api: IElectronAPI = {
     const evName = `on-${event}`
     const listener = addListener(evName)
     listener(callback)
-  }
+  },
+
+  ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, event) => {
+    return {
+      ...p,
+      [event]: setEmitter(event)
+    }
+  }, {})
 }
+
+log(api)
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
