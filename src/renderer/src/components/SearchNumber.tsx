@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { Avatar, Button } from './Nethesis'
 import { NumberCaller } from './NumberCaller'
 import { PlaceholderIcon } from '@renderer/icons/PlaceholderIcon'
+import { t } from 'i18next'
 
 export interface SearchNumberProps {
   username: string
@@ -44,7 +45,7 @@ export function SearchNumber({ username, number, callUser, searchText }: SearchN
       </div>
       <Button variant="ghost" onClick={callUser}>
         <p className="dark:text-blue-500 text-blue-600 font-semibold dark:hover:bg-gray-700 hover:bg-gray-200">
-          Call
+          {t('Operators.Call')}
         </p>
       </Button>
     </div>

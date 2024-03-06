@@ -1,5 +1,6 @@
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from './Nethesis/TextInput'
+import { t } from 'i18next'
 
 export interface SearchBoxProps {
   search: string
@@ -24,7 +25,7 @@ export function SearchBox({ search, handleSearch, handleReset }: SearchBoxProps)
       icon={faSearch}
       type="text"
       value={search}
-      placeholder="Call or compose..."
+      placeholder={t('Common.Call or compose') as string}
       onChange={(e) => {
         handleSearch(e.target.value)
         reset(e.target.value)

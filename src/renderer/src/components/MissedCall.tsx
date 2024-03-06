@@ -3,22 +3,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
-import moment from 'moment'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { useState } from 'react'
+import moment from 'moment'
+
 import { CallData } from '@shared/types'
 import { t } from 'i18next'
 
 export interface MissedCallProps {
   call: CallData,
   //isAddingToPhonebook: boolean
-  showAddContactToPhonebook: () => void
+  handleSelectedMissedCall: (number, company) => void
 }
 
 export function MissedCall({
   call,
   //isAddingToPhonebook,
-  showAddContactToPhonebook
+  handleSelectedMissedCall
 }: MissedCallProps): JSX.Element {
   const operators: any = useSubscriber('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
@@ -68,17 +69,18 @@ export function MissedCall({
           </div>
         )}
         {showCreateButton && (
-          /* !isAddingToPhonebook &&  */
           <Button
             variant="ghost"
             className="flex gap-3 items-center py-2 px-3 border dark:border-gray-500 ml-auto"
-            onClick={showAddContactToPhonebook}
+            onClick={() => handleSelectedMissedCall(call.cnum, call.ccompany)}
           >
             <FontAwesomeIcon
               className="text-base dark:text-blue-500 text-blue-600"
               icon={faUserPlus}
             />
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('SpeedDial.Create')}</p>
+            <p className="dark:text-blue-500 text-blue-600 font-semibold">
+              {t('SpeedDial.Create')}
+            </p>
           </Button>
         )}
       </div>

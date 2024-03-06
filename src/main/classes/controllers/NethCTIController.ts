@@ -181,9 +181,21 @@ export class NethVoiceAPI {
       await this._POST(`/webrest/phonebook/delete_cticontact`, obj)
     },
     ///CONTACTS
-    createContact: async (create: NewContactType) => {
-      await this._POST(`/webrest/phonebook/create`, create)
-      return create
+    //PROVA A METTERE IL CONTACTTYPE E NON IL NEWCONTACTTYPE
+    createContact: async (create: ContactType) => {
+      //L"API VUOLE IL PARAMETRO setInput
+      const newContact: ContactType & { setInput: string } = {
+        name: create.name,
+        privacy: 'private',
+        favorite: true,
+        selectedPrefNum: 'extension',
+        setInput: '',
+        type: 'speeddial',
+        speeddial_num: create.speeddial_num,
+        company: create.company
+      }
+      await this._POST(`/webrest/phonebook/create`, newContact)
+      return newContact
     },
     updateContact: async (edit: NewContactType, current: ContactType) => {
       if (current.name && current.speeddial_num) {

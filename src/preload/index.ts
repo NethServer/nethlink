@@ -4,6 +4,7 @@ import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import {
   Account,
   AvailableThemes,
+  ContactType,
   HistoryCallData,
   NewContactType,
   SearchCallData
@@ -22,7 +23,7 @@ export interface IElectronAPI {
 
   //SYNC EMITTERS - expect response
   login: (host: string, username: string, password: string) => SyncPromise<Account>
-  addContactToPhonebook(contact: NewContactType): SyncPromise<void>
+  addContactToPhonebook(contact: ContactType): SyncPromise<void>
   addContactSpeedDials(contact: NewContactType): SyncPromise<void>
 
   //LISTENERS - receive data async
@@ -47,6 +48,7 @@ export interface IElectronAPI {
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
   openMissedCallsPage: (url: string) => void
   hideNethLink: () => void
+  openNethVoicePage: (url: string) => void
 
   emitMouseOverPhoneIsland(isOver: boolean): void
 
@@ -98,6 +100,7 @@ const api: IElectronAPI = {
   changeTheme: setEmitter(IPC_EVENTS.CHANGE_THEME),
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
   openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
+  openNethVoicePage: setEmitter(IPC_EVENTS.OPEN_NETHVOICE_PAGE),
   emitMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
   hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
 
