@@ -9,16 +9,18 @@ export interface SpeedDialsBoxProps {
   label?: string
   callUser: (phoneNumber: string) => void
   showCreateSpeedDial: () => void
+  handleModifySpeedDial: () => void
+  handleDeleteSpeedDial: () => void
 }
 
 export function SpeedDialsBox({
   speeddials,
   label,
   callUser,
-  showCreateSpeedDial
+  showCreateSpeedDial,
+  handleModifySpeedDial,
+  handleDeleteSpeedDial
 }: SpeedDialsBoxProps): JSX.Element {
-  //const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
-
   return (
     <div className="flex flex-col gap-4 min-h-[284px]">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 font-semibold max-h-[28px]">
@@ -47,6 +49,8 @@ export function SpeedDialsBox({
                   username={e.name!}
                   number={e.speeddial_num!}
                   callUser={() => callUser(e.speeddial_num!)}
+                  handleModifySpeedDial={handleModifySpeedDial}
+                  handleDeleteSpeedDial={handleDeleteSpeedDial}
                 />
               </div>
             )
