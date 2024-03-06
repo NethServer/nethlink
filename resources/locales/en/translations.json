@@ -53,7 +53,9 @@
     "ago": "ago",
     "Unknown": "Unknown",
     "Confirm": "Confirm",
-    "Example": "Example"
+    "Example": "Example",
+    "View all": "View all",
+    "Call or compose": "Call or compose"
   },
   "Login": {
     "User": "User",

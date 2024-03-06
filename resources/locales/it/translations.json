@@ -37,7 +37,9 @@
     "ago": "fa",
     "Unknown": "Sconosciuto",
     "Confirm": "Conferma",
-    "Example": "Esempio"
+    "Example": "Esempio",
+    "View all": "Mostra tutte",
+    "Call or compose": "Chiama o componi"
   },
   "Login": {
     "User": "Utente",
