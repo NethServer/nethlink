@@ -231,7 +231,7 @@ export function NethLinkPage() {
                         />
                       )}
                     </div>
-                    {search !== '' && selectedMissedCall ? (
+                    {(search !== '' && !selectedMissedCall) ? (
                       <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                         <SearchNumberBox
                           searchText={search}
@@ -260,7 +260,7 @@ export function NethLinkPage() {
                   handleSidebarMenuSelection={handleSidebarMenuSelection}
                 />
               </div>
-              <div className='flex justify-center items-center pt-1 pb-1 w-full hover:bg-gray-600' onClick={hideNethLink}>
+              <div className='absolute bottom-2 flex justify-center items-center pt-0 pb-0 w-full bg-gray-900 hover:bg-gray-600 z-[100]' onClick={hideNethLink}>
                 <FontAwesomeIcon className='dark:text-white' icon={faChevronDown} />
               </div>
             </div>
