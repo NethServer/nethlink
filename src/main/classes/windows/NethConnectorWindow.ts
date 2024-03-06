@@ -36,6 +36,11 @@ export class NethConnectorWindow extends BaseWindow {
     })
     this.size = size
     NethConnectorWindow.instance = this
+    setTimeout(() => {
+      this.show()
+      //this.ignoreMouseEvents(false)
+    }, 100)
+    this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
   _setBounds() {
