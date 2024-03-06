@@ -105,6 +105,10 @@ export function registerIpcEvents() {
     shell.openExternal(url)
   })
 
+  ipcMain.on(IPC_EVENTS.OPEN_NETHVOICE_PAGE, (event, url) => {
+    shell.openExternal(url)
+  })
+
   //SEND BACK ALL PHONE ISLAND EVENTS
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
     ipcMain.on(ev, (_event, ...args) => {

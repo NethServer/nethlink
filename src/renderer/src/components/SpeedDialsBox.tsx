@@ -7,19 +7,19 @@ import { t } from 'i18next'
 
 export interface SpeedDialsBoxProps {
   speeddials: ContactType[] | undefined
-  label?: string
   callUser: (phoneNumber: string) => void
   showCreateSpeedDial: () => void
+  handleModifySpeedDial: () => void
+  handleDeleteSpeedDial: () => void
 }
 
 export function SpeedDialsBox({
   speeddials,
-  label,
   callUser,
-  showCreateSpeedDial
+  showCreateSpeedDial,
+  handleModifySpeedDial,
+  handleDeleteSpeedDial
 }: SpeedDialsBoxProps): JSX.Element {
-  //const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
-
   return (
     <div className="flex flex-col gap-4 min-h-[284px]">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 font-semibold max-h-[28px]">
@@ -32,7 +32,7 @@ export function SpeedDialsBox({
             className="dark:text-blue-500 text-blue-600 text-base"
             icon={faCirclePlus}
           />
-          <p className="dark:text-blue-500 text-blue-600 font-semibold">{label}</p>
+          <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('SpeedDial.Create')}</p>
         </Button>
       </div>
       <div className="flex flex-col gap-2 p-2 max-h-[240px] overflow-y-auto">
@@ -46,6 +46,8 @@ export function SpeedDialsBox({
                 <SpeedDialNumber
                   user={e}
                   callUser={() => callUser(e.speeddial_num!)}
+                  handleModifySpeedDial={handleModifySpeedDial}
+                  handleDeleteSpeedDial={handleDeleteSpeedDial}
                 />
               </div>
             )

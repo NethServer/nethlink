@@ -10,9 +10,11 @@ import { t } from 'i18next'
 export interface SpeedDialNumberProps {
   user: ContactType
   callUser: () => void
+  handleModifySpeedDial: () => void
+  handleDeleteSpeedDial: () => void
 }
 
-export function SpeedDialNumber({ user, callUser }: SpeedDialNumberProps): JSX.Element {
+export function SpeedDialNumber({ user, callUser, handleModifySpeedDial, handleDeleteSpeedDial }: SpeedDialNumberProps): JSX.Element {
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
@@ -50,7 +52,7 @@ export function SpeedDialNumber({ user, callUser }: SpeedDialNumberProps): JSX.E
               <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
-                  onClick={() => alert('Modifica il numero.')}
+                  onClick={handleModifySpeedDial}
                 >
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
@@ -64,7 +66,7 @@ export function SpeedDialNumber({ user, callUser }: SpeedDialNumberProps): JSX.E
               <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mb-2"
-                  onClick={() => alert('Elimina ')}
+                  onClick={handleDeleteSpeedDial}
                 >
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon

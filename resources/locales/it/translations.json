@@ -37,7 +37,11 @@
     "ago": "fa",
     "Unknown": "Sconosciuto",
     "Confirm": "Conferma",
-    "Example": "Esempio"
+    "Example": "Esempio",
+    "View all": "Mostra tutte",
+    "Call or compose": "Chiama o componi",
+    "Add": "Aggiungi",
+    "to": "a"
   },
   "Login": {
     "User": "Utente",
@@ -80,7 +84,9 @@
     "Email": "Email",
     "Work phone": "Telefono lavoro",
     "Notes": "Note",
-    "Extension": "Interno"
+    "Extension": "Interno",
+    "Phone number": "Numero telefonico",
+    "Add to Phonebook": "Aggiungi a Phonebook"
   },
   "History": {
     "History": "Storico",

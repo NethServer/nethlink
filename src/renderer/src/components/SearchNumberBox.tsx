@@ -4,6 +4,7 @@ import { SearchNumber } from './SearchNumber'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useState } from 'react'
 import { SearchCallData, SearchData } from '@shared/types'
+import { t } from 'i18next'
 
 export interface SearchNumberBoxProps {
   searchText: string
@@ -33,7 +34,9 @@ export function SearchNumberBox({
         onClick={() => callUser(searchText)}
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={faPhone} />
-        <p className="font-semibold">Call {searchText}</p>
+        <p className="font-semibold">
+          {t('Operators.Call')} {searchText}
+        </p>
       </div>
 
       <div
@@ -41,7 +44,9 @@ export function SearchNumberBox({
         onClick={showAddContactToPhonebook}
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={faUserPlus} />
-        <p className="font-semibold">Add {searchText.toString()} to Phonebook</p>
+        <p className="font-semibold">
+          {t('Common.Add')} {searchText.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
+        </p>
       </div>
       <div className={`border-b dark:border-gray-700 border-gray-200 mx-4`}></div>
       <div className="px-4 overflow-y-auto max-h-[216px]">
