@@ -5,7 +5,7 @@ import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { useState } from 'react'
-import moment = require('moment')
+import moment from 'moment'
 
 export interface MissedCallProps {
   username: string
@@ -13,7 +13,7 @@ export interface MissedCallProps {
   time: number
   duration: number
   company?: string
-  handleSelectedMissedCall: (number: string, company: string) => void
+  handleSelectedMissedCall: (number: string, company: string | undefined) => void
 }
 
 export function MissedCall({

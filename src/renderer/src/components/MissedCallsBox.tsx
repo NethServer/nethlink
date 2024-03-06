@@ -9,7 +9,7 @@ export interface MissedCallsBoxProps {
   title: string
   label?: string
   viewAllMissedCalls?: () => void
-  handleSelectedMissedCall: (number: string, company: string) => void
+  handleSelectedMissedCall: (number: string, company: string | undefined) => void
 }
 
 export function MissedCallsBox({
