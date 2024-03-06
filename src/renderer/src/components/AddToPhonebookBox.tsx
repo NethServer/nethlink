@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Button, TextInput } from './Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 import { NewContactType } from '@shared/types'
+import { useForm, SubmitHandler } from 'react-hook-form'
 
 export interface AddToPhonebookBoxProps {
   searchText?: string
@@ -19,48 +20,61 @@ export function AddToPhonebookBox({
   onCancel,
   handleAddContactToPhonebook
 }: AddToPhonebookBoxProps) {
-  const [name, setName] = useState<string>('')
-  const [phoneNumber, setPhoneNumber] = useState<string>(selectedNumber)
-  const [company, setCompany] = useState<string>(selectedCompany)
+  const { register, watch, handleSubmit, setValue, reset } = useForm<NewContactType>()
+  const onSubmit: SubmitHandler<NewContactType> = (data) => {
+    handleSave(data)
+  }
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [visibility, setVisibility] = useState('Everybody')
-  const [type, setType] = useState('Person')
+  const watchType = watch('type')
 
   function containsOnlyNumber(text: string) {
     return /^\d+$/.test(text)
   }
 
   useEffect(() => {
+    setValue('privacy', 'Everybody')
+    setValue('type', 'Person')
+    setValue('name', '')
+    setValue('company', '')
+    setValue('speeddial_num', '')
+
     if (searchText !== undefined) {
       if (containsOnlyNumber(searchText)) {
-        setPhoneNumber(searchText)
+        setValue('speeddial_num', searchText)
       } else {
-        setName(searchText)
+        setValue('name', searchText)
       }
     }
-    if (company !== '') {
-      setType(() => 'Company')
+    //Caso in cui ho selezionato da create in MISSEDCALL
+    if (selectedCompany !== '') {
+      setValue('company', selectedCompany)
+    }
+    if (selectedNumber !== '') {
+      setValue('speeddial_num', selectedNumber)
     }
   }, [])
 
-  function handleSave(_event: React.MouseEvent) {
+  function handleSave(data: NewContactType) {
     setIsLoading(true)
     handleAddContactToPhonebook({
-      name: name,
-      speeddial_num: phoneNumber,
-      type: type,
-      company: company,
-      privacy: visibility
+      name: data.name,
+      speeddial_num: data.speeddial_num,
+      type: data.type,
+      company: data.company,
+      privacy: data.privacy
     })
       .catch((error) => {
         console.log(error)
       })
       .finally(() => {
         setIsLoading(false)
-        setName('')
-        setPhoneNumber('')
-        setType('')
-        setVisibility('')
+        reset({
+          privacy: '',
+          type: '',
+          name: '',
+          company: '',
+          speeddial_num: ''
+        })
       })
   }
 
@@ -69,28 +83,26 @@ export function AddToPhonebookBox({
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 max-h-[28px]">
         <h1 className="font-semibold">Add to Phonebook</h1>
       </div>
-      <div className="flex flex-col gap-4 p-2 min-h-[240px] h-full overflow-y-auto">
+      <form
+        className="flex flex-col gap-4 p-2 min-h-[240px] h-full overflow-y-auto"
+        onSubmit={(e) => {
+          handleSubmit(onSubmit)(e)
+        }}
+      >
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
           <p>Visibility</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput
+                {...register('privacy')}
                 type="radio"
                 value="Everybody"
-                checked={visibility === 'Everybody'}
-                onChange={() => setVisibility('Everybody')}
                 name="visibility"
               />
               <p className="whitespace-nowrap">Everybody</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
-              <TextInput
-                type="radio"
-                value="Only me"
-                checked={visibility === 'Only me'}
-                onChange={() => setVisibility('Only me')}
-                name="visibility"
-              />
+              <TextInput {...register('privacy')} type="radio" value="Only me" name="visibility" />
               <p className="whitespace-nowrap">Only me</p>
             </div>
           </div>
@@ -100,73 +112,38 @@ export function AddToPhonebookBox({
           <p>Type</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
-              <TextInput
-                type="radio"
-                value="Person"
-                checked={type === 'Person'}
-                onChange={() => {
-                  setType('Person')
-                  setCompany('')
-                }}
-                name="type"
-              />
+              <TextInput {...register('type')} type="radio" value="Person" name="type" />
               <p className="whitespace-nowrap">Person</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
-              <TextInput
-                type="radio"
-                value="Company"
-                checked={type === 'Company'}
-                onChange={() => setType('Company')}
-                name="type"
-              />
+              <TextInput {...register('type')} type="radio" value="Company" name="type" />
               <p className="whitespace-nowrap">Company</p>
             </div>
           </div>
         </label>
 
-        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-          <p className="whitespace-nowrap">Name</p>
-          <TextInput
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(() => e.target.value)
-            }}
-            className="font-normal"
-          />
-        </label>
-
-        {/* DA CHIEDERE QUALI ALTRI DATI SONO DA INSERIRE */}
-        {type === 'Company' ? (
+        {watchType === 'Person' ? (
           <>
             <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-              <p className="whitespace-nowrap">Company</p>
-              <TextInput
-                type="text"
-                value={company}
-                onChange={(e) => {
-                  setCompany(() => e.target.value)
-                }}
-                className="font-normal"
-              />
+              <p className="whitespace-nowrap">Name</p>
+              <TextInput {...register('name')} type="text" className="font-normal" />
             </label>
           </>
         ) : null}
 
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
+          <p className="whitespace-nowrap">Company</p>
+          <TextInput {...register('company')} type="text" className="font-normal" />
+        </label>
+
+        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
           <p className="whitespace-nowrap">Phone number</p>
           <TextInput
+            {...register('speeddial_num')}
             type="tel"
-            pattern="[0-9]*"
             minLength={3}
-            value={phoneNumber}
             onChange={(e) => {
-              const cleanedValue = e.target.value.replace(/\D/g, '')
-              if (phoneNumber) {
-                setPhoneNumber(() => cleanedValue)
-              }
-              setPhoneNumber(cleanedValue)
+              setValue('speeddial_num', e.target.value.replace(/\D/g, ''))
             }}
             className="font-normal"
           />
@@ -177,13 +154,13 @@ export function AddToPhonebookBox({
             <p className="dark:text-blue-500 text-blue-600 font-semibold">Cancel</p>
           </Button>
           <Button
+            type="submit"
             className="dark:bg-blue-500 bg-blue-600 gap-3"
             disabled={
-              name.trim().length === 0 ||
-              phoneNumber.trim().length < 3 ||
-              (type === 'Company' && company.trim().length === 0)
+              watchType === 'Person'
+                ? !watch('name') || !watch('company') || !watch('speeddial_num')
+                : !watch('company') || !watch('speeddial_num')
             }
-            onClick={handleSave}
           >
             <p className="dark:text-gray-900 text-gray-50 font-semibold">Save</p>
             {isLoading && (
@@ -195,7 +172,7 @@ export function AddToPhonebookBox({
             )}
           </Button>
         </div>
-      </div>
+      </form>
     </div>
   )
 }
