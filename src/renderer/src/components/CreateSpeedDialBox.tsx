@@ -28,17 +28,20 @@ export function CreateSpeedDialBox({
 
   function handleSave(data) {
     setIsLoading(true)
-    handleAddContactToSpeedDials({ name: data.name, speeddial_num: data.speeddial_num })
-      .catch((error) => {
-        console.log(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-        reset({
-          name: '',
-          speeddial_num: ''
+    //Simulazione del salvataggio
+    setTimeout(() => {
+      handleAddContactToSpeedDials({ name: data.name, speeddial_num: data.speeddial_num })
+        .catch((error) => {
+          console.log(error)
         })
-      })
+        .finally(() => {
+          setIsLoading(false)
+          reset({
+            name: '',
+            speeddial_num: ''
+          })
+        })
+    }, 1000)
   }
 
   return (
