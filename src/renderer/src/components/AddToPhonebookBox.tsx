@@ -149,7 +149,7 @@ export function AddToPhonebookBox({
             setValue('speeddial_num', e.target.value.replace(/\D/g, ''))
           }}
           className="font-normal"
-          label="Phone number"
+          label={t('Phonebook.Phone number') as string}
         />
 
         <div className="flex flex-row gap-4 justify-end mb-5">
