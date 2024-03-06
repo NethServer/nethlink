@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Button, TextInput } from './Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
-import { NewContactType } from '@shared/types'
+import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { t } from 'i18next'
 
@@ -11,7 +11,7 @@ export interface AddToPhonebookBoxProps {
   selectedNumber?: string
   selectedCompany?: string
   onCancel: () => void
-  handleAddContactToPhonebook: (contact: NewContactType) => Promise<void>
+  handleAddContactToPhonebook: (contact: ContactType) => Promise<void>
 }
 
 export function AddToPhonebookBox({
@@ -21,8 +21,8 @@ export function AddToPhonebookBox({
   onCancel,
   handleAddContactToPhonebook
 }: AddToPhonebookBoxProps) {
-  const { register, watch, handleSubmit, setValue, reset } = useForm<NewContactType>()
-  const onSubmit: SubmitHandler<NewContactType> = (data) => {
+  const { register, watch, handleSubmit, setValue, reset } = useForm<ContactType>()
+  const onSubmit: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
   }
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -47,42 +47,45 @@ export function AddToPhonebookBox({
       }
     }
     //Caso in cui ho selezionato da create in MISSEDCALL
-    if (selectedCompany !== '') {
+    if (selectedCompany) {
       setValue('company', selectedCompany)
     }
-    if (selectedNumber !== '') {
+    if (selectedNumber) {
       setValue('speeddial_num', selectedNumber)
     }
   }, [])
 
-  function handleSave(data: NewContactType) {
+  function handleSave(data: ContactType) {
     setIsLoading(true)
-    handleAddContactToPhonebook({
-      name: data.name,
-      speeddial_num: data.speeddial_num,
-      type: data.type,
-      company: data.company,
-      privacy: data.privacy
-    })
-      .catch((error) => {
-        console.log(error)
+
+    setTimeout(() => {
+      handleAddContactToPhonebook({
+        name: data.name,
+        speeddial_num: data.speeddial_num,
+        type: data.type,
+        company: data.company,
+        privacy: data.privacy
       })
-      .finally(() => {
-        setIsLoading(false)
-        reset({
-          privacy: '',
-          type: '',
-          name: '',
-          company: '',
-          speeddial_num: ''
+        .catch((error) => {
+          console.log(error)
         })
-      })
+        .finally(() => {
+          setIsLoading(false)
+          reset({
+            privacy: '',
+            type: '',
+            name: '',
+            company: '',
+            speeddial_num: ''
+          })
+        })
+    }, 1000)
   }
 
   return (
     <div className="px-4 w-full h-full">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 max-h-[28px]">
-        <h1 className="font-semibold">Add to Phonebook</h1>
+        <h1 className="font-semibold">{t('Phonebook.Add to Phonebook')}</h1>
       </div>
       <form
         className="flex flex-col gap-4 p-2 min-h-[240px] h-full overflow-y-auto"

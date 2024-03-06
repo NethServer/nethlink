@@ -4,6 +4,7 @@ import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import {
   Account,
   AvailableThemes,
+  ContactType,
   HistoryCallData,
   NewContactType,
   SearchCallData
@@ -21,7 +22,7 @@ export interface IElectronAPI {
 
   //SYNC EMITTERS - expect response
   login: (host: string, username: string, password: string) => SyncPromise<Account>
-  addContactToPhonebook(contact: NewContactType): SyncPromise<void>
+  addContactToPhonebook(contact: ContactType): SyncPromise<void>
   addContactSpeedDials(contact: NewContactType): SyncPromise<void>
 
   //LISTENERS - receive data async

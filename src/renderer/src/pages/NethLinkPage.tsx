@@ -136,7 +136,7 @@ export function NethLinkPage() {
     console.log('SELECTED MISSED CALL', selectedMissedCall)
   }
 
-  async function handleAddContactToPhonebook(contact: NewContactType) {
+  async function handleAddContactToPhonebook(contact: ContactType) {
     // da aggiungere funzionalita' api per salvare il nuovo contatto
     const [_, err] = await window.api.addContactToPhonebook(contact)
     if (!!err) throw err
@@ -241,12 +241,8 @@ export function NethLinkPage() {
                     <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                       <AddToPhonebookBox
                         searchText={search}
-                        selectedNumber={
-                          selectedMissedCall.number === null ? '' : selectedMissedCall.number
-                        }
-                        selectedCompany={
-                          selectedMissedCall.company === null ? '' : selectedMissedCall.company
-                        }
+                        selectedNumber={selectedMissedCall.number}
+                        selectedCompany={selectedMissedCall.company}
                         handleAddContactToPhonebook={handleAddContactToPhonebook}
                         onCancel={() => {
                           setSelectedMissedCall(() => null)
