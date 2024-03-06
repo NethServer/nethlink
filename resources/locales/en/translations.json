@@ -55,7 +55,9 @@
     "Confirm": "Confirm",
     "Example": "Example",
     "View all": "View all",
-    "Call or compose": "Call or compose"
+    "Call or compose": "Call or compose",
+    "Add": "Add",
+    "to": "to"
   },
   "Login": {
     "User": "User",
@@ -110,7 +112,8 @@
     "Show contact": "Show contact",
     "Add phone number": "Add phone number",
     "Edit contact": "Edit contact",
-    "Phone number": "Phone number"
+    "Phone number": "Phone number",
+    "Add to Phonebook": "Add to Phonebook"
   },
   "History": {
     "History": "History",
