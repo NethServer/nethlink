@@ -71,7 +71,7 @@ export function Navbar({
               className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <p className="dark:text-gray-50 text-gray-900 text-xs leading-[18px] py-1 px-4 mt-1">
-                THEME
+                {t('Settings.Theme')}
               </p>
               {themeOptions.map((theme) => (
                 <Listbox.Option key={theme.id} value={theme}>
@@ -89,7 +89,11 @@ export function Navbar({
                     <div className="flex items-center gap-2">
                       <FontAwesomeIcon className="text-base" icon={theme.icon} />
                       <p className="font-semibold">
-                        {theme.name.charAt(0).toUpperCase() + theme.name.slice(1)}
+                        {theme.name === 'system'
+                          ? t('Settings.System')
+                          : theme.name === 'light'
+                            ? t('Settings.Light')
+                            : t('Settings.Dark')}
                       </p>
                     </div>
                   </div>
@@ -158,7 +162,7 @@ export function Navbar({
                       />
                     </div>
 
-                    <p className="font-semibold">Presence</p>
+                    <p className="font-semibold">{t('TopBar.Presence')}</p>
                   </div>
 
                   <FontAwesomeIcon className="text-sm ml-auto" icon={faChevronRight} />
@@ -170,7 +174,7 @@ export function Navbar({
                   onClick={logout}
                 >
                   <FontAwesomeIcon className="text-base" icon={faArrowRightFromBracket} />
-                  <p className="font-semibold">Logout</p>
+                  <p className="font-semibold">{t('TopBar.Logout')}</p>
                 </div>
               </Menu.Item>
             </Menu.Items>

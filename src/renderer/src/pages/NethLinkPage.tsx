@@ -18,6 +18,7 @@ import { debouncer } from '@shared/utils/utils'
 import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { CreateSpeedDialBox } from '@renderer/components/CreateSpeedDialBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
+import { t } from 'i18next'
 
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
@@ -213,7 +214,6 @@ export function NethLinkPage() {
                         <SpeedDialsBox
                           speeddials={speeddials}
                           callUser={callUser}
-                          label="Create"
                           showCreateSpeedDial={() => setIsCreatingSpeedDial(true)}
                           handleModifySpeedDial={handleModifySpeedDial}
                           handleDeleteSpeedDial={handleDeleteSpeedDial}
@@ -222,8 +222,7 @@ export function NethLinkPage() {
                     ) : (
                       <MissedCallsBox
                         missedCalls={missedCalls}
-                        title={`Missed Calls (${missedCalls.length})`}
-                        label="View all"
+                        title={`${t('QueueManager.Missed calls')} (${missedCalls.length})`}
                         viewAllMissedCalls={viewAllMissedCalls}
                         handleSelectedMissedCall={handleSelectedMissedCall}
                       />

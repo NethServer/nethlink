@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 import { NewContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
+import { t } from 'i18next'
 
 export interface AddToPhonebookBoxProps {
   searchText?: string
@@ -90,7 +91,7 @@ export function AddToPhonebookBox({
         }}
       >
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-          <p>Visibility</p>
+          <p>{t('Phonebook.Visibility')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput
@@ -103,55 +104,57 @@ export function AddToPhonebookBox({
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('privacy')} type="radio" value="Only me" name="visibility" />
-              <p className="whitespace-nowrap">Only me</p>
+              <p className="whitespace-nowrap">{t('Phonebook.Only me')}</p>
             </div>
           </div>
         </label>
 
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-          <p>Type</p>
+          <p>{t('Phonebook.Type')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('type')} type="radio" value="Person" name="type" />
-              <p className="whitespace-nowrap">Person</p>
+              <p className="whitespace-nowrap">{t('Phonebook.Person')}</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('type')} type="radio" value="Company" name="type" />
-              <p className="whitespace-nowrap">Company</p>
+              <p className="whitespace-nowrap">{t('Phonebook.Company')}</p>
             </div>
           </div>
         </label>
 
         {watchType === 'Person' ? (
           <>
-            <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-              <p className="whitespace-nowrap">Name</p>
-              <TextInput {...register('name')} type="text" className="font-normal" />
-            </label>
+            <TextInput
+              {...register('name')}
+              type="text"
+              className="font-normal"
+              label={t('Phonebook.Name') as string}
+            />
           </>
         ) : null}
 
-        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-          <p className="whitespace-nowrap">Company</p>
-          <TextInput {...register('company')} type="text" className="font-normal" />
-        </label>
+        <TextInput
+          {...register('company')}
+          type="text"
+          className="font-normal"
+          label={t('Phonebook.Company') as string}
+        />
 
-        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-          <p className="whitespace-nowrap">Phone number</p>
-          <TextInput
-            {...register('speeddial_num')}
-            type="tel"
-            minLength={3}
-            onChange={(e) => {
-              setValue('speeddial_num', e.target.value.replace(/\D/g, ''))
-            }}
-            className="font-normal"
-          />
-        </label>
+        <TextInput
+          {...register('speeddial_num')}
+          type="tel"
+          minLength={3}
+          onChange={(e) => {
+            setValue('speeddial_num', e.target.value.replace(/\D/g, ''))
+          }}
+          className="font-normal"
+          label="Phone number"
+        />
 
         <div className="flex flex-row gap-4 justify-end mb-5">
           <Button variant="ghost" onClick={() => onCancel()}>
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">Cancel</p>
+            <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.Cancel')}</p>
           </Button>
           <Button
             type="submit"
@@ -162,7 +165,7 @@ export function AddToPhonebookBox({
                 : !watch('company') || !watch('speeddial_num')
             }
           >
-            <p className="dark:text-gray-900 text-gray-50 font-semibold">Save</p>
+            <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('Common.Save')}</p>
             {isLoading && (
               <FontAwesomeIcon
                 icon={faCircleNotch}

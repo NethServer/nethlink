@@ -6,6 +6,7 @@ import { NumberCaller } from './NumberCaller'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { useState } from 'react'
 import moment from 'moment'
+import { t } from 'i18next'
 
 export interface MissedCallProps {
   username: string
@@ -78,7 +79,9 @@ export function MissedCall({
               className="text-base dark:text-blue-500 text-blue-600"
               icon={faUserPlus}
             />
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">Create</p>
+            <p className="dark:text-blue-500 text-blue-600 font-semibold">
+              {t('SpeedDial.Create')}
+            </p>
           </Button>
         )}
       </div>

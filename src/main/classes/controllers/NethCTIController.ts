@@ -189,6 +189,7 @@ export class NethVoiceAPI {
       await this._POST(`/webrest/phonebook/delete_cticontact`, obj)
     },
     ///CONTACTS
+    //PROVA A METTERE IL CONTACTTYPE E NON IL NEWCONTACTTYPE
     createContact: async (create: NewContactType) => {
       const newSpeedDial: NewContactType = {
         name: create.name,

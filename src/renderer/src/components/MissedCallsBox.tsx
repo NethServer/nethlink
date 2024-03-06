@@ -3,11 +3,11 @@ import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
 import { MissedCall } from './MissedCall'
 import { CallData } from '@shared/types'
 import { Button } from './Nethesis/Button'
+import { t } from 'i18next'
 
 export interface MissedCallsBoxProps {
   missedCalls: CallData[]
   title: string
-  label?: string
   viewAllMissedCalls?: () => void
   handleSelectedMissedCall: (number: string, company: string | undefined) => void
 }
@@ -15,7 +15,6 @@ export interface MissedCallsBoxProps {
 export function MissedCallsBox({
   missedCalls,
   title,
-  label,
   viewAllMissedCalls,
   handleSelectedMissedCall
 }: MissedCallsBoxProps): JSX.Element {
@@ -32,7 +31,7 @@ export function MissedCallsBox({
               className="text-base dark:text-blue-500 text-blue-600"
               icon={faArrowUpRightFromSquare}
             />
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">{label}</p>
+            <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.View all')}</p>
           </Button>
         </div>
         <div className="flex flex-col gap-2 p-2 max-h-[240px] overflow-y-auto">
