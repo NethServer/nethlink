@@ -26,9 +26,11 @@ export function NethLinkPage() {
   const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [_, setOperators] = useLocalStoreState('operators')
-  const [isAddingToPhonebook, setIsAddingToPhonebook] = useState<boolean>(false)
   const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
-  const [selectedMissedCall, setSelectedMissedCall] = useState({ number: '', company: '' })
+  const [selectedMissedCall, setSelectedMissedCall] = useState<{
+    number?: string
+    company?: string
+  } | null>(null)
 
   useInitialize(() => {
     initialize()
@@ -126,9 +128,10 @@ export function NethLinkPage() {
   }
 
   //FUNZIONE PER IL CASO IN CUI SI AGGIUNGE UN NUOVO CONTATTO DA CREATE IN MISSEDCALL
-  function handleSelectedMissedCall(number: string, company) {
-    setIsAddingToPhonebook(() => true)
-    setSelectedMissedCall(() => ({ number: number, company: company }))
+  function handleSelectedMissedCall(number: string, company: string | undefined) {
+    if (company === undefined) {
+      setSelectedMissedCall(() => ({ number, company: '' }))
+    } else setSelectedMissedCall(() => ({ number, company }))
     console.log('SELECTED MISSED CALL', selectedMissedCall)
   }
 
@@ -136,9 +139,8 @@ export function NethLinkPage() {
     // da aggiungere funzionalita' api per salvare il nuovo contatto
     const [_, err] = await window.api.addContactToPhonebook(contact)
     if (!!err) throw err
-    setIsAddingToPhonebook(() => false)
     setSearch(() => '')
-    setSelectedMissedCall(() => ({ number: '', company: '' }))
+    setSelectedMissedCall(() => null)
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
@@ -154,7 +156,7 @@ export function NethLinkPage() {
     //Aggiunto il fatto che se seleziono un menu faccio il reset della
     //SearchBox e dello stato di aggiunta di un numero su Phonebook
     setSearch(() => '')
-    setIsAddingToPhonebook(() => false)
+    setSelectedMissedCall(() => null)
   }
 
   function handleOnSelectTheme(theme: AvailableThemes) {
@@ -170,8 +172,17 @@ export function NethLinkPage() {
   }
 
   function goToNethVoicePage(): void {
-    //non funziona
     window.api.openNethVoicePage('https://cti.demo-heron.sf.nethserver.net')
+  }
+
+  function handleModifySpeedDial(): void {
+    //Da aggiungere window.api
+    alert('Modifica il numero.')
+  }
+
+  function handleDeleteSpeedDial(): void {
+    //Da aggiungere window.api
+    alert('Elimina')
   }
 
   return (
@@ -204,6 +215,8 @@ export function NethLinkPage() {
                           callUser={callUser}
                           label="Create"
                           showCreateSpeedDial={() => setIsCreatingSpeedDial(true)}
+                          handleModifySpeedDial={handleModifySpeedDial}
+                          handleDeleteSpeedDial={handleDeleteSpeedDial}
                         />
                       )
                     ) : (
@@ -216,25 +229,28 @@ export function NethLinkPage() {
                       />
                     )}
                   </div>
-                  {search !== '' && !isAddingToPhonebook ? (
+                  {search !== '' && !selectedMissedCall ? (
                     <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                       <SearchNumberBox
                         searchText={search}
-                        showAddContactToPhonebook={() => setIsAddingToPhonebook(true)}
+                        showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
                         callUser={callUser}
                       />
                     </div>
                   ) : null}
-                  {isAddingToPhonebook ? (
+                  {selectedMissedCall ? (
                     <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                       <AddToPhonebookBox
                         searchText={search}
-                        selectedNumber={selectedMissedCall.number}
-                        selectedCompany={selectedMissedCall.company}
+                        selectedNumber={
+                          selectedMissedCall.number === null ? '' : selectedMissedCall.number
+                        }
+                        selectedCompany={
+                          selectedMissedCall.company === null ? '' : selectedMissedCall.company
+                        }
                         handleAddContactToPhonebook={handleAddContactToPhonebook}
                         onCancel={() => {
-                          setIsAddingToPhonebook(false)
-                          setSelectedMissedCall(() => ({ number: '', company: '' }))
+                          setSelectedMissedCall(() => null)
                         }}
                       />
                     </div>
