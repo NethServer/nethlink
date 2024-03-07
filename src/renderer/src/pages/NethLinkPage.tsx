@@ -9,7 +9,8 @@ import {
   CallData,
   HistoryCallData,
   NewContactType,
-  ContactType
+  ContactType,
+  NewSpeedDialType
 } from '@shared/types'
 import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
@@ -22,6 +23,7 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
+import { EditSpeedDialBox } from '@renderer/components/EditSpeedDialBox'
 
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
@@ -34,6 +36,12 @@ export function NethLinkPage() {
   const [selectedMissedCall, setSelectedMissedCall] = useState<{
     number?: string
     company?: string
+  } | null>(null)
+  const [isEditingSpeedDial, setIsEditingSpeedDial] = useState<boolean>(false)
+  const [selectedSpeedDial, setSelectedSpeedDial] = useState<{
+    id?: string
+    name?: string
+    speeddial_num?: string
   } | null>(null)
 
   useInitialize(() => {
@@ -134,8 +142,12 @@ export function NethLinkPage() {
     console.log('SELECTED MISSED CALL', selectedMissedCall)
   }
 
+  function handleSelectedSpeedDial(id: string, name: string, speeddial_num: string) {
+    setIsEditingSpeedDial(true)
+    setSelectedSpeedDial(() => ({ id: id, name: name, speeddial_num: speeddial_num }))
+  }
+
   async function handleAddContactToPhonebook(contact: ContactType) {
-    // da aggiungere funzionalita' api per salvare il nuovo contatto
     const [_, err] = await window.api.addContactToPhonebook(contact)
     if (!!err) throw err
     setSearch(() => '')
@@ -143,11 +155,20 @@ export function NethLinkPage() {
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
-    // da aggiungere funzionalita' api per salvare il nuovo speedDial
     const [_, err] = await window.api.addContactSpeedDials(contact)
     if (!!err) throw err
     setIsCreatingSpeedDial(() => false)
     setSearch(() => '')
+  }
+
+  async function handleEditContactToSpeedDials(
+    editContact: NewSpeedDialType,
+    currentContact: ContactType
+  ) {
+    const [_, err] = await window.api.editSpeedDialContact(editContact, currentContact)
+    if (!!err) throw err
+    setIsEditingSpeedDial(false)
+    setSelectedSpeedDial(() => null)
   }
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
@@ -175,11 +196,6 @@ export function NethLinkPage() {
   }
   function goToNethVoicePage(): void {
     window.api.openNethVoicePage('https://cti.demo-heron.sf.nethserver.net')
-  }
-
-  function handleModifySpeedDial(): void {
-    //Da aggiungere window.api
-    alert('Modifica il numero.')
   }
 
   function handleDeleteSpeedDial(): void {
@@ -212,12 +228,24 @@ export function NethLinkPage() {
                             handleAddContactToSpeedDials={handleAddContactToSpeedDials}
                             onCancel={() => setIsCreatingSpeedDial(false)}
                           />
+                        ) : isEditingSpeedDial && selectedSpeedDial ? (
+                          <EditSpeedDialBox
+                            selectedId={selectedSpeedDial.id}
+                            selectedName={selectedSpeedDial.name}
+                            selectedNumber={selectedSpeedDial.speeddial_num}
+                            onCancel={() => {
+                              setIsEditingSpeedDial(false)
+                              setSelectedSpeedDial(null)
+                            }}
+                            handleEditContactToSpeedDials={handleEditContactToSpeedDials}
+                            // Passa qui le prop necessarie per il componente EditSpeedDialBox
+                          />
                         ) : (
                           <SpeedDialsBox
                             speeddials={speeddials}
                             callUser={callUser}
                             showCreateSpeedDial={() => setIsCreatingSpeedDial(true)}
-                            handleModifySpeedDial={handleModifySpeedDial}
+                            handleSelectedSpeedDial={handleSelectedSpeedDial}
                             handleDeleteSpeedDial={handleDeleteSpeedDial}
                           />
                         )

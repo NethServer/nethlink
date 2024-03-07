@@ -9,7 +9,7 @@ export interface SpeedDialsBoxProps {
   speeddials: ContactType[] | undefined
   callUser: (phoneNumber: string) => void
   showCreateSpeedDial: () => void
-  handleModifySpeedDial: () => void
+  handleSelectedSpeedDial: (id: string, name: string, speeddial_num: string) => void
   handleDeleteSpeedDial: () => void
 }
 
@@ -17,7 +17,7 @@ export function SpeedDialsBox({
   speeddials,
   callUser,
   showCreateSpeedDial,
-  handleModifySpeedDial,
+  handleSelectedSpeedDial,
   handleDeleteSpeedDial
 }: SpeedDialsBoxProps): JSX.Element {
   return (
@@ -46,7 +46,7 @@ export function SpeedDialsBox({
                 <SpeedDialNumber
                   user={e}
                   callUser={() => callUser(e.speeddial_num!)}
-                  handleModifySpeedDial={handleModifySpeedDial}
+                  handleSelectedSpeedDial={handleSelectedSpeedDial}
                   handleDeleteSpeedDial={handleDeleteSpeedDial}
                 />
               </div>
