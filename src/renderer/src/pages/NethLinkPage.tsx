@@ -187,13 +187,12 @@ export function NethLinkPage() {
     alert('Elimina')
   }
 
-
   return (
     <div className="h-[100vh] w-[100vw] rounded-[10px] overflow-hidden">
       {account && theme && (
         <div className={theme}>
           <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
-            <div className="flex flex-col dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[380px] h-full z-10 rounded-md items-center justify-center">
+            <div className="flex flex-col dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[380px] h-full z-10 rounded-md items-center justify-between">
               <div className="flex flex-row ">
                 <div className="flex flex-col gap-4 w-full">
                   <Navbar
@@ -231,7 +230,7 @@ export function NethLinkPage() {
                         />
                       )}
                     </div>
-                    {(search !== '' && !selectedMissedCall) ? (
+                    {search !== '' && !selectedMissedCall ? (
                       <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                         <SearchNumberBox
                           searchText={search}
@@ -260,15 +259,16 @@ export function NethLinkPage() {
                   handleSidebarMenuSelection={handleSidebarMenuSelection}
                 />
               </div>
-              <div className='absolute bottom-2 flex justify-center items-center pt-0 pb-0 w-full bg-gray-900 hover:bg-gray-600 z-[100]' onClick={hideNethLink}>
-                <FontAwesomeIcon className='dark:text-white' icon={faChevronDown} />
+              <div
+                className="absolute bottom-2 flex justify-center items-center pt-0 pb-0 w-full bg-gray-900 hover:bg-gray-600 z-[100]"
+                onClick={hideNethLink}
+              >
+                <FontAwesomeIcon className="dark:text-white" icon={faChevronDown} />
               </div>
             </div>
           </div>
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   )
 }
-

@@ -52,7 +52,7 @@ export function Navbar({
   }
 
   return (
-    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4">
+    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4 py-2">
       <SearchBox search={search} handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
