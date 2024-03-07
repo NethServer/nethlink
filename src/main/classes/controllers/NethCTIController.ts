@@ -185,14 +185,20 @@ export class NethVoiceAPI {
     createContact: async (create: ContactType) => {
       //L"API VUOLE IL PARAMETRO setInput
       const newContact: ContactType & { setInput: string } = {
-        name: create.name,
-        privacy: 'private',
-        favorite: true,
-        selectedPrefNum: 'extension',
-        setInput: '',
+        privacy: create.privacy,
+        /* DA GUARDARE BENE INSIEME A LOPRE' CON IL CODICE DI LORO SOTTO */
         type: 'speeddial',
+        name: create.name,
+        company: create.company,
         speeddial_num: create.speeddial_num,
-        company: create.company
+        workphone: create.workphone,
+        cellphone: create.cellphone,
+        workemail: create.workemail,
+        notes: create.notes,
+        //DEFAULT VALUES
+        favorite: false,
+        selectedPrefNum: 'extension',
+        setInput: ''
       }
       await this._POST(`/webrest/phonebook/create`, newContact)
       return newContact
