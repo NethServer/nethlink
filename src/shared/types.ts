@@ -212,6 +212,16 @@ export type NewContactType = {
   company?: string
 }
 
+export type NewSpeedDialType = {
+  name: string
+  privacy?: string
+  favorite?: boolean
+  selectedPrefNum?: string
+  setInput?: string
+  type?: string
+  speeddial_num?: string
+}
+
 export type Operator = {
   userEndpoints: any
   extensions: any
