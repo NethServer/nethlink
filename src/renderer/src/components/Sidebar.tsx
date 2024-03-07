@@ -17,7 +17,7 @@ export function Sidebar({ selectedMenu, handleSidebarMenuSelection }: SidebarPro
       <SidebarButton
         icon={faBolt}
         focus={selectedMenu === MENU_ELEMENT.SPEEDDIALS}
-        hasNotification={true}
+        hasNotification={false}
         onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.SPEEDDIALS)}
       />
       <SidebarButton
