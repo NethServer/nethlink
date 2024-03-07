@@ -38,6 +38,9 @@ export function registerIpcEvents() {
   onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, (contact) =>
     NethVoiceAPI.instance.Phonebook.createSpeeddial(contact)
   )
+  onSyncEmitter(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT, (editContact, currentContact) =>
+    NethVoiceAPI.instance.Phonebook.updateSpeeddial(editContact, currentContact)
+  )
 
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
     AccountController.instance.logout()

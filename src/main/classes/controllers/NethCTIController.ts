@@ -2,7 +2,7 @@ import { join } from 'path'
 import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
-import { Account, NewContactType, Operator, ContactType } from '@shared/types'
+import { Account, NewContactType, Operator, ContactType, NewSpeedDialType } from '@shared/types'
 
 export class NethVoiceAPI {
   _host: string
@@ -167,13 +167,16 @@ export class NethVoiceAPI {
       await this._POST(`/webrest/phonebook/create`, newSpeedDial)
       return newSpeedDial
     },
-    updateSpeeddial: async (edit: NewContactType, current: ContactType) => {
+    updateSpeeddial: async (edit: NewSpeedDialType, current: ContactType) => {
+      console.log(edit)
+
       if (current.name && current.speeddial_num) {
-        const newSpeedDial = Object.assign({}, current)
-        newSpeedDial.speeddial_num = edit.speeddial_num
-        newSpeedDial.name = edit.name
-        newSpeedDial.id = newSpeedDial.id?.toString()
-        await this._POST(`/webrest/phonebook/modify_cticontact`, newSpeedDial)
+        const editedSpeedDial = Object.assign({}, current)
+        editedSpeedDial.speeddial_num = edit.speeddial_num
+        editedSpeedDial.name = edit.name
+        editedSpeedDial.id = editedSpeedDial.id?.toString()
+        console.log('Edited speedDial', editedSpeedDial)
+        await this._POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
         return current
       }
     },
