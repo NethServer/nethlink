@@ -41,16 +41,9 @@ export function MissedCallsBox({
                 className={`${idx === missedCalls.length - 1 ? `` : `border-b pb-2 dark:border-gray-700 border-gray-200`}`}
                 key={idx}
               >
-                {/* Prova per forzare il button create */}
                 <MissedCall
-                  username={'Unknown'}
-                  //username={call.cnam!}
-                  number={call.cnum!}
-                  time={call.time!}
-                  duration={call.duration!}
-                  company={'Customer care'}
+                  call={call}
                   handleSelectedMissedCall={handleSelectedMissedCall}
-                  //company={call.ccompany!}
                 />
               </div>
             )

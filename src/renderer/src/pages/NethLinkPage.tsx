@@ -18,6 +18,9 @@ import { debouncer } from '@shared/utils/utils'
 import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { CreateSpeedDialBox } from '@renderer/components/CreateSpeedDialBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { log } from '@shared/utils/logger'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
 
 export function NethLinkPage() {
@@ -38,14 +41,13 @@ export function NethLinkPage() {
   }, true)
 
   //Potrebbe non servire
-  const [theme, setTheme] = useState<AvailableThemes | undefined>('dark')
+  const [theme, setTheme] = useState<AvailableThemes | undefined>(undefined)
 
   useEffect(() => {
     if (search) {
       debouncer(
         'search',
         () => {
-          console.log('debounce')
           window.api.sendSearchText(search)
         },
         250
@@ -68,7 +70,6 @@ export function NethLinkPage() {
   }, [account])
 
   function initialize() {
-    console.log('initialize')
     window.api.onAccountChange(updateAccount)
     window.api.addPhoneIslandListener(
       PHONE_ISLAND_EVENTS['phone-island-main-presence'],
@@ -82,7 +83,6 @@ export function NethLinkPage() {
   }
 
   const updateTheme = (theme: AvailableThemes) => {
-    console.log(account)
     if (account.theme === 'system') {
       setTheme(() => theme)
     }
@@ -102,12 +102,10 @@ export function NethLinkPage() {
   }
 
   async function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
-    console.log(speeddialsResponse)
     setSpeeddials(() => speeddialsResponse || [])
   }
 
   async function saveMissedCalls(historyResponse: HistoryCallData | undefined) {
-    console.log(historyResponse)
     setMissedCalls(() => historyResponse?.rows || [])
   }
 
@@ -120,7 +118,7 @@ export function NethLinkPage() {
   }
 
   function callUser(phoneNumber: string): void {
-    console.log(phoneNumber)
+    log(phoneNumber)
     window.api.startCall(phoneNumber)
   }
 
@@ -172,6 +170,9 @@ export function NethLinkPage() {
     window.api.openMissedCallsPage('https://cti.demo-heron.sf.nethserver.net/history')
   }
 
+  function hideNethLink() {
+    window.api.hideNethLink()
+  }
   function goToNethVoicePage(): void {
     window.api.openNethVoicePage('https://cti.demo-heron.sf.nethserver.net')
   }
@@ -186,80 +187,88 @@ export function NethLinkPage() {
     alert('Elimina')
   }
 
+
   return (
     <div className="h-[100vh] w-[100vw] rounded-[10px] overflow-hidden">
-      {account && (
+      {account && theme && (
         <div className={theme}>
           <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
-            <div className="flex flex-row dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[362px] h-full z-10 rounded-md">
-              <div className="flex flex-col gap-4 pt-2 pb-4 w-full">
-                <Navbar
-                  search={search}
-                  account={account}
-                  onSelectTheme={handleOnSelectTheme}
-                  logout={logout}
-                  handleSearch={handleSearch}
-                  handleReset={handleReset}
-                  goToNethVoicePage={goToNethVoicePage}
-                />
-                <div className="relative w-full h-full">
-                  <div className="px-4 w-full h-full z-1">
-                    {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
-                      isCreatingSpeedDial ? (
-                        <CreateSpeedDialBox
-                          handleAddContactToSpeedDials={handleAddContactToSpeedDials}
-                          onCancel={() => setIsCreatingSpeedDial(false)}
-                        />
+            <div className="flex flex-col dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[380px] h-full z-10 rounded-md items-center justify-center">
+              <div className="flex flex-row ">
+                <div className="flex flex-col gap-4 w-full">
+                  <Navbar
+                    search={search}
+                    account={account}
+                    onSelectTheme={handleOnSelectTheme}
+                    logout={logout}
+                    handleSearch={handleSearch}
+                    handleReset={handleReset}
+                    goToNethVoicePage={goToNethVoicePage}
+                  />
+                  <div className="relative w-full h-full">
+                    <div className="px-4 w-full h-full z-1">
+                      {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
+                        isCreatingSpeedDial ? (
+                          <CreateSpeedDialBox
+                            handleAddContactToSpeedDials={handleAddContactToSpeedDials}
+                            onCancel={() => setIsCreatingSpeedDial(false)}
+                          />
+                        ) : (
+                          <SpeedDialsBox
+                            speeddials={speeddials}
+                            callUser={callUser}
+                            showCreateSpeedDial={() => setIsCreatingSpeedDial(true)}
+                            handleModifySpeedDial={handleModifySpeedDial}
+                            handleDeleteSpeedDial={handleDeleteSpeedDial}
+                          />
+                        )
                       ) : (
-                        <SpeedDialsBox
-                          speeddials={speeddials}
-                          callUser={callUser}
-                          showCreateSpeedDial={() => setIsCreatingSpeedDial(true)}
-                          handleModifySpeedDial={handleModifySpeedDial}
-                          handleDeleteSpeedDial={handleDeleteSpeedDial}
+                        <MissedCallsBox
+                          missedCalls={missedCalls}
+                          title={`${t('QueueManager.Missed calls')} (${missedCalls.length})`}
+                          viewAllMissedCalls={viewAllMissedCalls}
+                          handleSelectedMissedCall={handleSelectedMissedCall}
                         />
-                      )
-                    ) : (
-                      <MissedCallsBox
-                        missedCalls={missedCalls}
-                        title={`${t('QueueManager.Missed calls')} (${missedCalls.length})`}
-                        viewAllMissedCalls={viewAllMissedCalls}
-                        handleSelectedMissedCall={handleSelectedMissedCall}
-                      />
-                    )}
+                      )}
+                    </div>
+                    {(search !== '' && !selectedMissedCall) ? (
+                      <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
+                        <SearchNumberBox
+                          searchText={search}
+                          showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
+                          callUser={callUser}
+                        />
+                      </div>
+                    ) : null}
+                    {selectedMissedCall ? (
+                      <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
+                        <AddToPhonebookBox
+                          searchText={search}
+                          selectedNumber={selectedMissedCall.number}
+                          selectedCompany={selectedMissedCall.company}
+                          handleAddContactToPhonebook={handleAddContactToPhonebook}
+                          onCancel={() => {
+                            setSelectedMissedCall(() => null)
+                          }}
+                        />
+                      </div>
+                    ) : null}
                   </div>
-                  {search !== '' && !selectedMissedCall ? (
-                    <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
-                      <SearchNumberBox
-                        searchText={search}
-                        showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
-                        callUser={callUser}
-                      />
-                    </div>
-                  ) : null}
-                  {selectedMissedCall ? (
-                    <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
-                      <AddToPhonebookBox
-                        searchText={search}
-                        selectedNumber={selectedMissedCall.number}
-                        selectedCompany={selectedMissedCall.company}
-                        handleAddContactToPhonebook={handleAddContactToPhonebook}
-                        onCancel={() => {
-                          setSelectedMissedCall(() => null)
-                        }}
-                      />
-                    </div>
-                  ) : null}
                 </div>
+                <Sidebar
+                  selectedMenu={selectedMenu}
+                  handleSidebarMenuSelection={handleSidebarMenuSelection}
+                />
               </div>
-              <Sidebar
-                selectedMenu={selectedMenu}
-                handleSidebarMenuSelection={handleSidebarMenuSelection}
-              />
+              <div className='absolute bottom-2 flex justify-center items-center pt-0 pb-0 w-full bg-gray-900 hover:bg-gray-600 z-[100]' onClick={hideNethLink}>
+                <FontAwesomeIcon className='dark:text-white' icon={faChevronDown} />
+              </div>
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 }
+

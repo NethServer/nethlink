@@ -14,7 +14,6 @@ export class BaseWindow {
       IPC_EVENTS.INITIALIZATION_COMPELTED,
       async (_e, completed_id) => {
         if (id === completed_id) {
-          console.log(completed_id)
           this._callbacks.forEach((c) => c())
         }
       }
@@ -29,7 +28,6 @@ export class BaseWindow {
   }
 
   emit(event: IPC_EVENTS | string, ...args: any[]) {
-    console.log(event, args)
     this._window?.webContents.send(event, ...args)
   }
 

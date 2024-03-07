@@ -3,6 +3,7 @@ import { Button, TextInput } from './Nethesis'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useState } from 'react'
 import { NewContactType } from '@shared/types'
+import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
@@ -28,20 +29,18 @@ export function CreateSpeedDialBox({
 
   function handleSave(data) {
     setIsLoading(true)
-    //Simulazione del salvataggio
-    setTimeout(() => {
-      handleAddContactToSpeedDials({ name: data.name, speeddial_num: data.speeddial_num })
-        .catch((error) => {
-          console.log(error)
+    //Da aggiungere la visibility
+    handleAddContactToSpeedDials(data)
+      .catch((error) => {
+        log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+        reset({
+          name: '',
+          speeddial_num: ''
         })
-        .finally(() => {
-          setIsLoading(false)
-          reset({
-            name: '',
-            speeddial_num: ''
-          })
-        })
-    }, 1000)
+      })
   }
 
   return (

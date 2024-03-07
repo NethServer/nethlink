@@ -7,6 +7,7 @@ import {
   NethLinkPage
 } from '@/pages'
 import { loadI18n } from './lib/i18n'
+import { log } from '@shared/utils/logger'
 
 function Layout() {
   return (
@@ -18,7 +19,7 @@ function Layout() {
 
 function RoutesWrapper() {
   useInitialize(() => {
-    console.log(location.hash)
+    log(location.hash)
     loadI18n()
   })
 

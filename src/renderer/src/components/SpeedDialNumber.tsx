@@ -4,36 +4,31 @@ import { Avatar } from './Nethesis/'
 import { PlaceholderIcon } from '@renderer/icons'
 import { NumberCaller } from './NumberCaller'
 import { Menu } from '@headlessui/react'
+import { ContactType } from '@shared/types'
+import { t } from 'i18next'
 
 export interface SpeedDialNumberProps {
-  username: string
-  number: string
+  user: ContactType
   callUser: () => void
   handleModifySpeedDial: () => void
   handleDeleteSpeedDial: () => void
 }
 
-export function SpeedDialNumber({
-  username,
-  number,
-  callUser,
-  handleModifySpeedDial,
-  handleDeleteSpeedDial
-}: SpeedDialNumberProps): JSX.Element {
+export function SpeedDialNumber({ user, callUser, handleModifySpeedDial, handleDeleteSpeedDial }: SpeedDialNumberProps): JSX.Element {
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
         <Avatar size="base" className="z-0" placeholder={PlaceholderIcon} />
         <div className="flex flex-col gap-1">
-          <p className="dark:text-gray-50 text-gray-900">{username}</p>
+          <p className="dark:text-gray-50 text-gray-900">{user.name!}</p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
               className="dark:text-gray-400 text-gray-600 text-base"
               icon={faPhone}
               onClick={callUser}
             />
-            <NumberCaller number={number} className="dark:text-blue-500 text-blue-600 font-normal">
-              {number}
+            <NumberCaller number={user.speeddial_num!} className="dark:text-blue-500 text-blue-600 font-normal">
+              {user.speeddial_num!}
             </NumberCaller>
           </div>
         </div>
@@ -64,7 +59,7 @@ export function SpeedDialNumber({
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={faPen}
                     />
-                    <p className="font-semibold dark:text-gray-50 text-gray-900">Modifica</p>
+                    <p className="font-semibold dark:text-gray-50 text-gray-900">{t('Common.Edit')}</p>
                   </div>
                 </div>
               </Menu.Item>
@@ -78,7 +73,7 @@ export function SpeedDialNumber({
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={faTrashCan}
                     />
-                    <p className="font-semibold dark:text-gray-50 text-gray-900">Elimina</p>
+                    <p className="font-semibold dark:text-gray-50 text-gray-900">{t('Common.Delete')}</p>
                   </div>
                 </div>
               </Menu.Item>

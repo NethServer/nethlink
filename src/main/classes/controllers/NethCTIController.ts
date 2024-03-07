@@ -16,7 +16,6 @@ export class NethVoiceAPI {
 
   _joinUrl(url: string) {
     const path = `${this._host}${url}`
-    console.log('PATH:', path)
     return path
   }
 
@@ -51,7 +50,6 @@ export class NethVoiceAPI {
 
   async _POST(path: string, data?: object, unauthorized = false): Promise<any> {
     try {
-      console.log(path)
       return (await axios.post(this._joinUrl(path), data, this._getHeaders(unauthorized))).data
     } catch (e) {
       console.error(e)
@@ -73,11 +71,9 @@ export class NethVoiceAPI {
       return new Promise((resolve, reject) => {
         this._POST('/webrest/authentication/login', data, true).catch(async (reason) => {
           try {
-            console.log(reason)
             if (reason.response.status === 401 && reason.response.headers['www-authenticate']) {
               const digest = reason.response.headers['www-authenticate']
               const nonce = digest.split(' ')[1]
-              console.log(digest, nonce)
               if (nonce) {
                 const accessToken = this._toHash(username, password, nonce)
                 this._account = {
@@ -91,7 +87,6 @@ export class NethVoiceAPI {
                 const res = await this._GET('/config/config.production.js')
                 const SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim()
                 const SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim()
-                console.log('CONFIG', SIP_HOST, SIP_PORT)
                 this._account.sipHost = SIP_HOST
                 this._account.sipPort = SIP_PORT
                 resolve(this._account)
@@ -133,8 +128,6 @@ export class NethVoiceAPI {
         const res = await this._GET(
           `/webrest/historycall/interval/user/${this._account!.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
         )
-        //historycall/interval/user/lorenzo/20231221/20240221?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined
-        console.log(res)
         return res
       } catch (e) {
         console.error(e)
@@ -155,7 +148,6 @@ export class NethVoiceAPI {
       const s = await this._GET(
         `/webrest/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}`
       )
-      console.log(s)
       return s
     },
     speeddials: async () => {
@@ -243,7 +235,6 @@ export class NethVoiceAPI {
   Voicemail = {}
 
   fetchOperators = async (): Promise<Operator> => {
-    console.log('FETCH')
     const endpoints = await this.User.all_endpoints()
     const groups = await this.AstProxy.groups()
     const extensions = await this.AstProxy.extensions()

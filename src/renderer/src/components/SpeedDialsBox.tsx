@@ -38,15 +38,13 @@ export function SpeedDialsBox({
       <div className="flex flex-col gap-2 p-2 max-h-[240px] overflow-y-auto">
         {speeddials?.length || 0 > 0 ? (
           speeddials?.map((e, idx) => {
-            console.log(e)
             return (
               <div
                 className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 dark:border-gray-700 border-gray-200`}`}
                 key={idx}
               >
                 <SpeedDialNumber
-                  username={e.name!}
-                  number={e.speeddial_num!}
+                  user={e}
                   callUser={() => callUser(e.speeddial_num!)}
                   handleModifySpeedDial={handleModifySpeedDial}
                   handleDeleteSpeedDial={handleDeleteSpeedDial}

@@ -33,7 +33,6 @@ export class PhoneIslandController {
         sipHost: account.sipHost || '',
         sipPort: account.sipPort || ''
       }
-      console.log(config)
       const dataConfig = btoa(
         `${config.hostname}:${config.username}:${config.authToken}:${config.sipExten}:${config.sipSecret}:${config.sipHost}:${config.sipPort}`
       )

@@ -57,29 +57,22 @@ export function AddToPhonebookBox({
 
   function handleSave(data: ContactType) {
     setIsLoading(true)
-
-    setTimeout(() => {
-      handleAddContactToPhonebook({
-        name: data.name,
-        speeddial_num: data.speeddial_num,
-        type: data.type,
-        company: data.company,
-        privacy: data.privacy
+    //Da aggiungere la visibility
+    handleAddContactToPhonebook(data)
+      .catch((error) => {
+        //TODO: gestione errore inserimento
+        console.error(error)
       })
-        .catch((error) => {
-          console.log(error)
+      .finally(() => {
+        setIsLoading(false)
+        reset({
+          privacy: '',
+          type: '',
+          name: '',
+          company: '',
+          speeddial_num: ''
         })
-        .finally(() => {
-          setIsLoading(false)
-          reset({
-            privacy: '',
-            type: '',
-            name: '',
-            company: '',
-            speeddial_num: ''
-          })
-        })
-    }, 1000)
+      })
   }
 
   return (

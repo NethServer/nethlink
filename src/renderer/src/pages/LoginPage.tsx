@@ -25,7 +25,6 @@ export function LoginPage() {
 
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
-      console.log(accounts)
       setDisplayedAccounts(accounts)
     })
     window.api.sendInitializationCompleted('loginpage')
@@ -47,7 +46,6 @@ export function LoginPage() {
 
   async function handleLogin(data: LoginData) {
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
-    console.log(returnValue)
     setIsError(!!err)
     !err && setSelectedAccount(undefined)
     setIsLoading(false)
