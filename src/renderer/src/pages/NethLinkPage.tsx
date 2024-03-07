@@ -188,7 +188,7 @@ export function NethLinkPage() {
   }
 
   return (
-    <div className="h-[100vh] w-[100vw] rounded-[10px] overflow-hidden">
+    <div className="h-[100vh] w-[100vw] overflow-hidden">
       {account && theme && (
         <div className={theme}>
           <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
@@ -260,7 +260,7 @@ export function NethLinkPage() {
                 />
               </div>
               <div
-                className="absolute bottom-2 flex justify-center items-center pt-0 pb-0 w-full bg-gray-900 hover:bg-gray-600 z-[100]"
+                className="absolute bottom-0 flex justify-center items-center py-[2px] w-full bg-gray-900 hover:bg-gray-600 z-[100] rounded-b-md"
                 onClick={hideNethLink}
               >
                 <FontAwesomeIcon className="dark:text-white" icon={faChevronDown} />
