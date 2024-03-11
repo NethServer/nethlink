@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
-import { Account, AvailableThemes } from '@shared/types'
+import { Account, AvailableThemes, OperatorData } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
 import { useLocalStore } from '@renderer/store/StoreController'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
@@ -44,7 +44,7 @@ export function Navbar({
   handleReset,
   goToNethVoicePage
 }: NavabarProps): JSX.Element {
-  const operators: any = useSubscriber('operators')
+  const operators: OperatorData = useSubscriber('operators')
 
   function setTheme(theme) {
     onSelectTheme(theme)
@@ -110,9 +110,12 @@ export function Navbar({
                 <Avatar
                   size="small"
                   status={
-                    operators[account.username]?.mainPresence ||
+                    operators?.operators?.[account.username]?.mainPresence ||
                     account.data?.mainPresece ||
                     'offline'
+                  }
+                  src={
+                    operators?.avatars?.[account.username]
                   }
                   placeholder={PlaceholderIcon}
                 />

@@ -8,6 +8,7 @@ import {
   HistoryCallData,
   NewContactType,
   NewSpeedDialType,
+  OperatorData,
   SearchCallData
 } from '@shared/types'
 import { preloadBindings } from 'i18next-electron-fs-backend'
@@ -40,6 +41,7 @@ export interface IElectronAPI {
   onStartCall(callback: (number: string | number) => void): void
   onSearchResult(callback: (serachResults: SearchCallData) => void): void
   onSystemThemeChange(callback: (theme: AvailableThemes) => void): void
+  onOperatorsChange(callback: (updateOperators: OperatorData) => void): void
 
   //EMITTER - only emit, no response
   logout: () => void
@@ -114,11 +116,27 @@ const api: IElectronAPI = {
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),
   onStartCall: addListener(IPC_EVENTS.EMIT_START_CALL),
   onDataConfigChange: addListener(IPC_EVENTS.ON_DATA_CONFIG_CHANGE),
-  onAccountChange: addListener(IPC_EVENTS.ACCOUNT_CHANGE),
+  onAccountChange: (callback) => {
+    addListener(IPC_EVENTS.ACCOUNT_CHANGE)((account: Account | undefined) => {
+      const API = account?.host.split('://') || ['', '']
+      // @ts-ignore (define in dts)
+      window.CONFIG = {
+        PRODUCT_NAME: 'NethLink',
+        COMPANY_NAME: 'Nethesis',
+        COMPANY_SUBNAME: 'CTI',
+        COMPANY_URL: 'https://www.nethesis.it/',
+        API_ENDPOINT: account?.host,
+        API_SCHEME: API[0] + '://',
+        WS_ENDPOINT: 'wss://' + API[1] + 'ws'
+      }
+      callback(account)
+    })
+  },
   onReceiveSpeeddials: addListener(IPC_EVENTS.RECEIVE_SPEEDDIALS),
   onReceiveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
   onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
   onSystemThemeChange: addListener(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME),
+  onOperatorsChange: addListener(IPC_EVENTS.OPERATORS_CHANGE),
 
   addPhoneIslandListener: (event, callback) => {
     const evName = `on-${event}`

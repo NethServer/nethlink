@@ -3,6 +3,7 @@ import { PhoneIslandWindow } from '../windows'
 import { AccountController } from './AccountController'
 import { IPC_EVENTS } from '@shared/constants'
 import { screen } from 'electron'
+import { log } from '@shared/utils/logger'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -33,9 +34,11 @@ export class PhoneIslandController {
         sipHost: account.sipHost || '',
         sipPort: account.sipPort || ''
       }
+      //;('dm9pY2UuZGVtby1oZXJvbi5zZi5uZXRoc2VydmVyLm5ldDpsb3JlbnpvOmExN2ZjZDBjYTg1NDc2ZDZmOTQxZGRiM2QyNWVmMDZmMzM2M2I3ZDU6MjA5OjQ0MTYzMGYwOGJhMWY4ODdjYTU4MTUxOWFkNmJhM2Q5OjEyNy4wLjAuMToyMDEwNw==')
       const dataConfig = btoa(
         `${config.hostname}:${config.username}:${config.authToken}:${config.sipExten}:${config.sipSecret}:${config.sipHost}:${config.sipPort}`
       )
+      log('INIT PHONE-ISLAND', config.hostname, dataConfig)
       this.phoneIslandWindow.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, dataConfig)
     } else {
       throw new Error('Incorrect configuration for the logged user')

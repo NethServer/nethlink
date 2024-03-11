@@ -2,7 +2,7 @@ import { join } from 'path'
 import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
-import { Account, NewContactType, Operator, ContactType, NewSpeedDialType } from '@shared/types'
+import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType } from '@shared/types'
 
 export class NethVoiceAPI {
   _host: string
@@ -15,7 +15,10 @@ export class NethVoiceAPI {
   }
 
   _joinUrl(url: string) {
-    const path = `${this._host}${url}`
+    //TODO: modifica forzatura (in questo momento serve per far collegare a phone island)
+    //'https://nethvoice.nethesis.it' //'https://cti.demo-heron.sf.nethserver.net' //
+    const host = this._host
+    const path = `${host}${url}`
     return path
   }
 
@@ -84,9 +87,16 @@ export class NethVoiceAPI {
                   lastAccess: moment().toISOString()
                 }
                 await this.User.me()
-                const res = await this._GET('/config/config.production.js')
-                const SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim()
-                const SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim()
+                //importo il file config di questo host per prelevare le informazioni su SIP_host e port
+                //TODO: ripristinare
+                //const res = await this._GET('/config/config.production.js')
+                // const res = (
+                //   await axios.get(
+                //     'https://cti.demo-heron.sf.nethserver.net/config/config.production.js'
+                //   )
+                // ).data
+                const SIP_HOST = '127.0.0.1' //res.split("SIP_HOST: '")[1].split("',")[0].trim()
+                const SIP_PORT = '5060' //res.split("SIP_PORT: '")[1].split("',")[0].trim()
                 this._account.sipHost = SIP_HOST
                 this._account.sipPort = SIP_PORT
                 resolve(this._account)
@@ -243,13 +253,14 @@ export class NethVoiceAPI {
 
   Voicemail = {}
 
-  fetchOperators = async (): Promise<Operator> => {
-    const endpoints = await this.User.all_endpoints()
-    const groups = await this.AstProxy.groups()
+  fetchOperators = async (): Promise<OperatorData> => {
+    const endpoints = await this.User.all_endpoints() //tutti i dispositivi
+    const groups = await this.AstProxy.groups() //
     const extensions = await this.AstProxy.extensions()
     const avatars = await this.User.all_avatars()
     return {
-      userEndpoints: endpoints,
+      userEndpoints: endpoints, //posso rimuoverlo
+      operators: endpoints,
       extensions,
       groups,
       avatars

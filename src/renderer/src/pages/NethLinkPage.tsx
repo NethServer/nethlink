@@ -10,7 +10,8 @@ import {
   HistoryCallData,
   NewContactType,
   ContactType,
-  NewSpeedDialType
+  NewSpeedDialType,
+  OperatorData
 } from '@shared/types'
 import { useEffect, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
@@ -31,7 +32,7 @@ export function NethLinkPage() {
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
   const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
-  const [_, setOperators] = useLocalStoreState('operators')
+  const [operators, setOperators] = useLocalStoreState<OperatorData>('operators')
   const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
   const [selectedMissedCall, setSelectedMissedCall] = useState<{
     number?: string
@@ -85,24 +86,23 @@ export function NethLinkPage() {
     )
     window.api.onReceiveSpeeddials(saveSpeeddials)
     window.api.onReceiveLastCalls(saveMissedCalls)
+    window.api.onOperatorsChange(updateOperators)
     window.api.onSystemThemeChange((theme) => {
       updateTheme(theme)
     })
   }
 
   const updateTheme = (theme: AvailableThemes) => {
-    if (account.theme === 'system') {
+    log('FROM WINDOW', theme)
+    if (account!.theme === 'system') {
       setTheme(() => theme)
     }
   }
 
   function onMainPresence(op: any) {
-    Object.entries(op).forEach(([k, v]) => {
-      setOperators((o) => ({
-        ...o,
-        [k]: v
-      }))
-    })
+    //TODO: edit
+    log(operators, op)
+
   }
 
   function updateAccount(account: Account | undefined) {
@@ -115,6 +115,10 @@ export function NethLinkPage() {
 
   async function saveMissedCalls(historyResponse: HistoryCallData | undefined) {
     setMissedCalls(() => historyResponse?.rows || [])
+  }
+
+  function updateOperators(updateOperators: OperatorData | undefined): void {
+    setOperators(() => updateOperators)
   }
 
   async function handleSearch(searchText: string) {
@@ -238,7 +242,7 @@ export function NethLinkPage() {
                               setSelectedSpeedDial(null)
                             }}
                             handleEditContactToSpeedDials={handleEditContactToSpeedDials}
-                            // Passa qui le prop necessarie per il componente EditSpeedDialBox
+                          // Passa qui le prop necessarie per il componente EditSpeedDialBox
                           />
                         ) : (
                           <SpeedDialsBox
@@ -300,3 +304,5 @@ export function NethLinkPage() {
     </div>
   )
 }
+
+

@@ -35,8 +35,9 @@ export class AccountController {
       this._onAccountChange!(account)
     }
     if (account) {
-      config.accounts[account.username] = account
-      config.lastUser = account.username
+      const uniqueAccountName = `${account.host}@${account.username}`
+      config.accounts[uniqueAccountName] = account
+      config.lastUser = uniqueAccountName
     } else {
       if (config.lastUser) {
         config.accounts[config.lastUser].accessToken = undefined

@@ -3,14 +3,15 @@ import { useSubscriber } from './useSubscriber'
 
 export function useLocalStoreState<T>(
   selector: keyof LocalStorageData
-): [T, (pre: any) => any | any] {
+): [T | undefined, (arg?: ((pre?: T) => T | undefined) | T) => void] {
   const store = useLocalStore()
   const subscribedData = useSubscriber<T>(selector)
-  const setter = (newValue: (pre: any) => any | any) => {
+
+  const setter = (newValue?: ((pre?: T) => T | undefined) | T) => {
     const o = store.getData(selector)()
     let v
     if (typeof newValue === 'function') {
-      v = newValue(o)
+      v = (newValue as (pre?: T) => T | undefined)(o)
     } else {
       v = newValue
     }

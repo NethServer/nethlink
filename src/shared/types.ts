@@ -222,9 +222,10 @@ export type NewSpeedDialType = {
   speeddial_num?: string
 }
 
-export type Operator = {
+export type OperatorData = {
   userEndpoints: any
   extensions: any
+  operators: any
   groups: any
   avatars: any
 }

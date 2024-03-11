@@ -4,8 +4,9 @@ import { Avatar } from './Nethesis/'
 import { PlaceholderIcon } from '@renderer/icons'
 import { NumberCaller } from './NumberCaller'
 import { Menu } from '@headlessui/react'
-import { ContactType } from '@shared/types'
-import { t, use } from 'i18next'
+import { ContactType, OperatorData } from '@shared/types'
+import { t } from 'i18next'
+import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
 export interface SpeedDialNumberProps {
   user: ContactType
@@ -20,10 +21,24 @@ export function SpeedDialNumber({
   handleSelectedSpeedDial,
   handleDeleteSpeedDial
 }: SpeedDialNumberProps): JSX.Element {
+  const operators: OperatorData = useSubscriber('operators')
+
+  //const username = user.speeddial_num ? operators.extensions[user.speeddial_num]?.username : undefined
+
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
-        <Avatar size="base" className="z-0" placeholder={PlaceholderIcon} />
+        <Avatar
+          size="base"
+          src={
+            operators?.avatars?.[user.name!]
+          }
+          status={
+            operators?.operators?.[user.name!]?.mainPresence || 'offline'
+          }
+          className="z-0"
+          placeholder={PlaceholderIcon}
+        />
         <div className="flex flex-col gap-1">
           <p className="dark:text-gray-50 text-gray-900">{user.name!}</p>
           <div className="flex gap-2 items-center">

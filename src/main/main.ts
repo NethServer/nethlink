@@ -66,12 +66,20 @@ app.whenReady().then(() => {
     toggleWindow(true)
   })
 
+  let operatorsInterval: NodeJS.Timeout | undefined = undefined
   accountController.onAccountChange(async (account: Account | undefined) => {
     if (account) {
       try {
         nethLinkWindow.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
         nethLinkWindow.show()
         loginWindow.hide()
+
+        const fetchOperatorsAndEmit = async () => {
+          const operators = await NethVoiceAPI.instance.fetchOperators()
+          nethLinkWindow.emit(IPC_EVENTS.OPERATORS_CHANGE, operators)
+        }
+        fetchOperatorsAndEmit()
+        operatorsInterval = setInterval(fetchOperatorsAndEmit, 1000 * 60 * 60 * 24)
       } catch (e) {
         console.error(e)
       }
@@ -80,7 +88,6 @@ app.whenReady().then(() => {
           PhoneIslandController.instance.updateDataConfig(phoneIslandTokenLoginResponse.token)
         }
       )
-      //const operators = await NethVoiceAPI.instance.fetchOperators()
       NethVoiceAPI.instance.HistoryCall.interval().then((lastCalls) =>
         nethLinkWindow.emit(IPC_EVENTS.RECEIVE_HISTORY_CALLS, lastCalls)
       )
@@ -93,6 +100,7 @@ app.whenReady().then(() => {
       loginWindow.show()
       PhoneIslandController.instance.logout()
       nethLinkWindow.hide()
+      operatorsInterval && clearInterval(operatorsInterval)
     }
   })
 
@@ -100,6 +108,7 @@ app.whenReady().then(() => {
     toggleWindow(true)
     nativeTheme.on('updated', () => {
       const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+      log(updatedSystemTheme)
       nethLinkWindow.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
     })
   })
@@ -131,21 +140,21 @@ if (process.env.node_env === 'development' && process.platform === 'win32') {
   app.setAsDefaultProtocolClient('callto')
 }
 
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: 'tel',
-    privileges: {
-      standard: true,
-      secure: true,
-      stream: true,
-      bypassCSP: true,
-      supportFetchAPI: true,
-      codeCache: true,
-      allowServiceWorkers: true,
-      corsEnabled: true
-    }
-  }
-])
+// protocol.registerSchemesAsPrivileged([
+//   {
+//     scheme: 'tel',
+//     privileges: {
+//       standard: true,
+//       secure: true,
+//       stream: true,
+//       bypassCSP: true,
+//       supportFetchAPI: true,
+//       codeCache: true,
+//       allowServiceWorkers: true,
+//       corsEnabled: true
+//     }
+//   }
+// ])
 
 //windows
 const gotTheLock = app.requestSingleInstanceLock()
@@ -158,6 +167,7 @@ app.on('open-url', (ev, origin) => {
 })
 
 app.dock?.hide()
+
 function handleTelProtocol(url: string): Promise<Response> {
   const tel = decodeURI(url)
     .replace(/ /g, '')

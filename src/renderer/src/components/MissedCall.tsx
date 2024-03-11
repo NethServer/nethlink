@@ -7,8 +7,9 @@ import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { useState } from 'react'
 import moment from 'moment'
 
-import { CallData } from '@shared/types'
+import { CallData, OperatorData } from '@shared/types'
 import { t } from 'i18next'
+import { CallsDate } from './Nethesis/CallsDate'
 
 export interface MissedCallProps {
   call: CallData,
@@ -21,7 +22,7 @@ export function MissedCall({
   //isAddingToPhonebook,
   handleSelectedMissedCall
 }: MissedCallProps): JSX.Element {
-  const operators: any = useSubscriber('operators')
+  const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
 
   function truncate(str: string) {
@@ -42,8 +43,9 @@ export function MissedCall({
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
         <Avatar
           size="extra_small"
+          src={operators?.avatars?.[call.cnam!]}
           placeholder={PlaceholderIcon}
-          status={operators[call.cnam!]?.mainPresence}
+          status={operators?.operators?.[call.cnam!]?.mainPresence || 'offline'}
         />
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
@@ -57,8 +59,7 @@ export function MissedCall({
         <div className="flex flex-row gap-1">
           {//TODO: Controllare il metodo di conversione del tempo
           }
-          <p>{call.duration!}m</p>
-          <p>({moment(call.time!).format('HH:MM')})</p>
+          <CallsDate call={call} />
         </div>
       </div>
       <div className="flex flex-col gap-2 ml-auto">
