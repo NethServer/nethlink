@@ -144,10 +144,10 @@ export function Navbar({
                   onClick={goToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={faArrowUpRightFromSquare} />
-                  <p className="font-semibold inline">Go to Nethvoice CTI</p>
+                  <p className="font-semibold inline">{t('Profile.Go to Nethvoice CTI')}</p>
                 </div>
               </Menu.Item>
-              <Menu.Item>
+              {/* <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 border-b-[1px] dark:border-gray-600"
                   onClick={() =>
@@ -170,7 +170,7 @@ export function Navbar({
 
                   <FontAwesomeIcon className="text-sm ml-auto" icon={faChevronRight} />
                 </div>
-              </Menu.Item>
+              </Menu.Item> */}
               <Menu.Item>
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
