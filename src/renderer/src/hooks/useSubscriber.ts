@@ -1,18 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useInitialize } from './useInitialize'
 import { LocalStorageData, useLocalStore } from '@renderer/store/StoreController'
+import { log } from '@shared/utils/logger'
 
 export function useSubscriber<T>(selector: keyof LocalStorageData) {
-  const [data, setData] = useState({})
+  const data = useLocalStore<T>((s) => s[selector])
 
-  useInitialize(() => {
-    const clearSubscription = useLocalStore.subscribe((s) => {
-      setData(s[selector])
-    })
-    return () => {
-      clearSubscription()
-    }
-  })
-
-  return data as T
+  return data
 }

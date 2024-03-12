@@ -18,14 +18,15 @@ export function SidebarButton({
   hasNotification,
   onClick
 }: SidebarButtonProps): JSX.Element {
+  //DA GUARDARE COME AGIIUNGERE IL DOT QUANDO L"ELEMENTO HA UNA NOTIFICA
   return (
     <div
       className={`relative w-[32px] h-[32px] rounded-lg flex flex-row justify-center items-center cursor-pointer ${focus ? 'dark:bg-gray-700 bg-gray-100' : 'bg-transparent dark:text-gray-700 text-gray-600'} ${className}`}
       onClick={onClick}
     >
-      {(notificable || hasNotification) && (
+      {focus && (
         <div
-          className={`${hasNotification ? 'visible' : 'opacity-0'} absolute top-1/2 right-0 -translate-y-1/2 min-w-[3px] min-h-[20px] dark:bg-blue-500 bg-blue-600 rounded-l-[4px]`}
+          className={`${focus ? 'visible' : 'opacity-0'} absolute top-1/2 right-0 -translate-y-1/2 min-w-[3px] min-h-[20px] dark:bg-blue-500 bg-blue-600 rounded-l-[4px]`}
         />
       )}
       <div className="absolute inset-0 flex items-center justify-center">

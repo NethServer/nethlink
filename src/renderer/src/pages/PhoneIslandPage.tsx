@@ -1,6 +1,7 @@
 import { PhoneIsland } from '@nethesis/phone-island'
 import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
+import loadI18n from '@renderer/lib/i18n'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { debouncer } from '@shared/utils/utils'
@@ -82,6 +83,12 @@ export function PhoneIslandPage() {
 
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], debounceListener)
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], debounceListener)
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], () => {
+    log('phone-island-server-disconnected')
+  })
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], () => {
+    log('phone-island-socket-disconnected')
+  })
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ended'], () => {
     setIsMouseOver(false)
   })
@@ -105,8 +112,10 @@ export function PhoneIslandPage() {
   }
 
   return (
-    <div className="h-[100vh] w-[100vw] bg-[#ffffff00]" id="phone-island-container">
-      {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
+    <div className="h-[100vh] w-[100vw] " id="phone-island-container">
+      {
+        dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoader={loadI18n} />
+      }
       {
         //<div id='test' className='h-[140px] w-[140px] relative top-[10px] left-[10px] bg-red-500'></div>
       }

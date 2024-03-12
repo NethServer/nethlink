@@ -33,11 +33,15 @@ export function AddToPhonebookBox({
   }
 
   useEffect(() => {
-    setValue('privacy', 'Everybody')
-    setValue('type', 'Person')
+    setValue('privacy', 'public')
+    setValue('type', 'person')
     setValue('name', '')
     setValue('company', '')
     setValue('speeddial_num', '')
+    setValue('workphone', '')
+    setValue('cellphone', '')
+    setValue('workemail', '')
+    setValue('notes', '')
 
     if (searchText !== undefined) {
       if (containsOnlyNumber(searchText)) {
@@ -57,7 +61,6 @@ export function AddToPhonebookBox({
 
   function handleSave(data: ContactType) {
     setIsLoading(true)
-    //Da aggiungere la visibility
     handleAddContactToPhonebook(data)
       .catch((error) => {
         //TODO: gestione errore inserimento
@@ -70,7 +73,11 @@ export function AddToPhonebookBox({
           type: '',
           name: '',
           company: '',
-          speeddial_num: ''
+          speeddial_num: '',
+          workphone: '',
+          cellphone: '',
+          workemail: '',
+          notes: ''
         })
       })
   }
@@ -90,16 +97,11 @@ export function AddToPhonebookBox({
           <p>{t('Phonebook.Visibility')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
-              <TextInput
-                {...register('privacy')}
-                type="radio"
-                value="Everybody"
-                name="visibility"
-              />
-              <p className="whitespace-nowrap">Everybody</p>
+              <TextInput {...register('privacy')} type="radio" value="public" name="visibility" />
+              <p className="whitespace-nowrap">{t('Phonebook.Everybody')}</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
-              <TextInput {...register('privacy')} type="radio" value="Only me" name="visibility" />
+              <TextInput {...register('privacy')} type="radio" value="private" name="visibility" />
               <p className="whitespace-nowrap">{t('Phonebook.Only me')}</p>
             </div>
           </div>
@@ -109,17 +111,17 @@ export function AddToPhonebookBox({
           <p>{t('Phonebook.Type')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
-              <TextInput {...register('type')} type="radio" value="Person" name="type" />
+              <TextInput {...register('type')} type="radio" value="person" name="type" />
               <p className="whitespace-nowrap">{t('Phonebook.Person')}</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
-              <TextInput {...register('type')} type="radio" value="Company" name="type" />
+              <TextInput {...register('type')} type="radio" value="company" name="type" />
               <p className="whitespace-nowrap">{t('Phonebook.Company')}</p>
             </div>
           </div>
         </label>
 
-        {watchType === 'Person' ? (
+        {watchType === 'person' ? (
           <>
             <TextInput
               {...register('name')}
@@ -146,6 +148,42 @@ export function AddToPhonebookBox({
           }}
           className="font-normal"
           label={t('Phonebook.Phone number') as string}
+        />
+
+        <TextInput
+          {...register('workphone')}
+          type="tel"
+          minLength={3}
+          onChange={(e) => {
+            setValue('workphone', e.target.value.replace(/\D/g, ''))
+          }}
+          className="font-normal"
+          label={t('Phonebook.Work phone') as string}
+        />
+
+        <TextInput
+          {...register('cellphone')}
+          type="tel"
+          minLength={3}
+          onChange={(e) => {
+            setValue('cellphone', e.target.value.replace(/\D/g, ''))
+          }}
+          className="font-normal"
+          label={t('Phonebook.Mobile phone') as string}
+        />
+
+        <TextInput
+          {...register('workemail')}
+          type="email"
+          className="font-normal"
+          label={t('Phonebook.Email') as string}
+        />
+
+        <TextInput
+          {...register('notes')}
+          type="text"
+          className="font-normal"
+          label={t('Phonebook.Notes') as string}
         />
 
         <div className="flex flex-row gap-4 justify-end mb-5">

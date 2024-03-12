@@ -7,6 +7,8 @@ import {
   ContactType,
   HistoryCallData,
   NewContactType,
+  NewSpeedDialType,
+  OperatorData,
   SearchCallData
 } from '@shared/types'
 import { preloadBindings } from 'i18next-electron-fs-backend'
@@ -25,6 +27,10 @@ export interface IElectronAPI {
   login: (host: string, username: string, password: string) => SyncPromise<Account>
   addContactToPhonebook(contact: ContactType): SyncPromise<void>
   addContactSpeedDials(contact: NewContactType): SyncPromise<void>
+  editSpeedDialContact(
+    editContact: NewSpeedDialType,
+    currentContact: ContactType
+  ): SyncPromise<void>
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
@@ -35,6 +41,7 @@ export interface IElectronAPI {
   onStartCall(callback: (number: string | number) => void): void
   onSearchResult(callback: (serachResults: SearchCallData) => void): void
   onSystemThemeChange(callback: (theme: AvailableThemes) => void): void
+  onOperatorsChange(callback: (updateOperators: OperatorData) => void): void
 
   //EMITTER - only emit, no response
   logout: () => void
@@ -76,7 +83,7 @@ function setEmitterSync<T>(event): () => SyncPromise<T> {
 }
 
 function setEmitter(event) {
-  return (...args) => {
+  return (...args: any[]) => {
     ipcRenderer.send(event, ...args)
     log('emitter', event)
   }
@@ -89,6 +96,7 @@ const api: IElectronAPI = {
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
   addContactSpeedDials: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
   addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
+  editSpeedDialContact: setEmitterSync<void>(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT),
 
   //EMITTER - only emit, no response
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
@@ -108,16 +116,31 @@ const api: IElectronAPI = {
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),
   onStartCall: addListener(IPC_EVENTS.EMIT_START_CALL),
   onDataConfigChange: addListener(IPC_EVENTS.ON_DATA_CONFIG_CHANGE),
-  onAccountChange: addListener(IPC_EVENTS.ACCOUNT_CHANGE),
+  onAccountChange: (callback) => {
+    addListener(IPC_EVENTS.ACCOUNT_CHANGE)((account: Account | undefined) => {
+      const API = account?.host.split('://') || ['', '']
+      // @ts-ignore (define in dts)
+      window.CONFIG = {
+        PRODUCT_NAME: 'NethLink',
+        COMPANY_NAME: 'Nethesis',
+        COMPANY_SUBNAME: 'CTI',
+        COMPANY_URL: 'https://www.nethesis.it/',
+        API_ENDPOINT: account?.host,
+        API_SCHEME: API[0] + '://',
+        WS_ENDPOINT: 'wss://' + API[1] + 'ws'
+      }
+      callback(account)
+    })
+  },
   onReceiveSpeeddials: addListener(IPC_EVENTS.RECEIVE_SPEEDDIALS),
   onReceiveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
   onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
   onSystemThemeChange: addListener(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME),
+  onOperatorsChange: addListener(IPC_EVENTS.OPERATORS_CHANGE),
 
   addPhoneIslandListener: (event, callback) => {
     const evName = `on-${event}`
-    const listener = addListener(evName)
-    listener(callback)
+    addListener(evName)(callback)
   },
 
   ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, event) => {

@@ -1,29 +1,35 @@
 import { AccountController, NethVoiceAPI } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
-import { NethLinkWindow } from '@/classes/windows'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
 import { ipcMain, shell } from 'electron'
 import { join } from 'path'
 import { SyncResponse } from 'src/preload'
 import { log } from '@shared/utils/logger'
+import { cloneDeep } from 'lodash'
+import { NethLinkController } from '@/classes/controllers/NethLinkController'
 
-function onSyncEmitter<T>(channel, asyncCallback: (...args: any[]) => Promise<T>): void {
+function onSyncEmitter<T>(
+  channel: IPC_EVENTS,
+  asyncCallback: (...args: any[]) => Promise<T>
+): void {
   ipcMain.on(channel, async (event, ...args) => {
-    const syncResponse = [undefined, undefined] as SyncResponse<T>
+    let syncResponse = [undefined, undefined] as SyncResponse<T>
     try {
       const response = await asyncCallback(...args)
-      event.returnValue = [response, undefined]
+      syncResponse = [response, undefined]
     } catch (e: unknown) {
-      event.returnValue = [undefined, e as Error | undefined]
+      syncResponse = [undefined, cloneDeep(e as Error | undefined)]
     }
+    event.returnValue = syncResponse
   })
 }
 
 export function registerIpcEvents() {
   onSyncEmitter(IPC_EVENTS.LOGIN, async (...args) => {
     const [host, username, password] = args
+    //log(args)
     const tempAccount: Account = {
       host,
       username,
@@ -37,6 +43,9 @@ export function registerIpcEvents() {
   )
   onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, (contact) =>
     NethVoiceAPI.instance.Phonebook.createSpeeddial(contact)
+  )
+  onSyncEmitter(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT, (editContact, currentContact) =>
+    NethVoiceAPI.instance.Phonebook.updateSpeeddial(editContact, currentContact)
   )
 
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
@@ -53,7 +62,7 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.HIDE_NETH_LINK, async (event) => {
-    NethLinkWindow.instance.hideWindowFromRenderer()
+    NethLinkController.instance.window.hideWindowFromRenderer()
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_SPEEDDIALS_PAGE, async (_event) => {
@@ -83,7 +92,7 @@ export function registerIpcEvents() {
   })
   ipcMain.on(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND, (event, isOver) => {
     const isMouseEventDisabled = !isOver
-    PhoneIslandController.instance.phoneIslandWindow.ignoreMouseEvents(isMouseEventDisabled)
+    PhoneIslandController.instance.setMouseEventDisabled(isMouseEventDisabled)
   })
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
     LoginController.instance.resize(h)
@@ -98,7 +107,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.SEARCH_TEXT, async (event, searchText) => {
     const res = await NethVoiceAPI.instance.Phonebook.search(searchText)
-    NethLinkWindow.instance.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
+    NethLinkController.instance.window.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE, (event, url) => {
@@ -113,7 +122,8 @@ export function registerIpcEvents() {
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
     ipcMain.on(ev, (_event, ...args) => {
       const evName = `on-${ev}`
-      NethLinkWindow.instance.emit(evName, ...args)
+      log('send back', evName, ...args)
+      NethLinkController.instance.window.emit(evName, ...args)
     })
   })
 }

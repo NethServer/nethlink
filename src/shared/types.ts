@@ -212,9 +212,20 @@ export type NewContactType = {
   company?: string
 }
 
-export type Operator = {
+export type NewSpeedDialType = {
+  name: string
+  privacy?: string
+  favorite?: boolean
+  selectedPrefNum?: string
+  setInput?: string
+  type?: string
+  speeddial_num?: string
+}
+
+export type OperatorData = {
   userEndpoints: any
   extensions: any
+  operators: any
   groups: any
   avatars: any
 }

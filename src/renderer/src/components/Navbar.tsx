@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
-import { Account, AvailableThemes } from '@shared/types'
+import { Account, AvailableThemes, OperatorData } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
 import { useLocalStore } from '@renderer/store/StoreController'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
@@ -44,7 +44,7 @@ export function Navbar({
   handleReset,
   goToNethVoicePage
 }: NavabarProps): JSX.Element {
-  const operators: any = useSubscriber('operators')
+  const operators = useSubscriber<OperatorData>('operators')
 
   function setTheme(theme) {
     onSelectTheme(theme)
@@ -52,7 +52,7 @@ export function Navbar({
   }
 
   return (
-    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4">
+    <div className="flex flex-row justify-between gap-4 min-w-[318px] min-h-[38px] px-4 py-2">
       <SearchBox search={search} handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
@@ -110,9 +110,12 @@ export function Navbar({
                 <Avatar
                   size="small"
                   status={
-                    operators[account.username]?.mainPresence ||
+                    operators?.operators?.[account.username]?.mainPresence ||
                     account.data?.mainPresece ||
                     'offline'
+                  }
+                  src={
+                    operators?.avatars?.[account.username]
                   }
                   placeholder={PlaceholderIcon}
                 />
@@ -141,10 +144,10 @@ export function Navbar({
                   onClick={goToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={faArrowUpRightFromSquare} />
-                  <p className="font-semibold inline">Go to Nethvoice CTI</p>
+                  <p className="font-semibold inline">{t('Profile.Go to Nethvoice CTI')}</p>
                 </div>
               </Menu.Item>
-              <Menu.Item>
+              {/* <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 border-b-[1px] dark:border-gray-600"
                   onClick={() =>
@@ -167,7 +170,7 @@ export function Navbar({
 
                   <FontAwesomeIcon className="text-sm ml-auto" icon={faChevronRight} />
                 </div>
-              </Menu.Item>
+              </Menu.Item> */}
               <Menu.Item>
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"

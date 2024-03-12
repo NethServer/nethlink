@@ -9,9 +9,11 @@ import {
   CallData,
   HistoryCallData,
   NewContactType,
-  ContactType
+  ContactType,
+  NewSpeedDialType,
+  OperatorData
 } from '@shared/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
@@ -22,6 +24,7 @@ import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
+import { EditSpeedDialBox } from '@renderer/components/EditSpeedDialBox'
 
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
@@ -29,11 +32,18 @@ export function NethLinkPage() {
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
   const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
-  const [_, setOperators] = useLocalStoreState('operators')
+  const [operators, setOperators] = useLocalStoreState<OperatorData>('operators')
+  const operatorsRef = useRef<OperatorData | undefined>()
   const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
   const [selectedMissedCall, setSelectedMissedCall] = useState<{
     number?: string
     company?: string
+  } | null>(null)
+  const [isEditingSpeedDial, setIsEditingSpeedDial] = useState<boolean>(false)
+  const [selectedSpeedDial, setSelectedSpeedDial] = useState<{
+    id?: string
+    name?: string
+    speeddial_num?: string
   } | null>(null)
 
   useInitialize(() => {
@@ -69,6 +79,11 @@ export function NethLinkPage() {
     }
   }, [account])
 
+  useEffect(() => {
+    log(operatorsRef.current)
+    setOperators(operatorsRef.current)
+  }, [operatorsRef.current])
+
   function initialize() {
     window.api.onAccountChange(updateAccount)
     window.api.addPhoneIslandListener(
@@ -77,28 +92,31 @@ export function NethLinkPage() {
     )
     window.api.onReceiveSpeeddials(saveSpeeddials)
     window.api.onReceiveLastCalls(saveMissedCalls)
+    window.api.onOperatorsChange(saveOperators)
     window.api.onSystemThemeChange((theme) => {
       updateTheme(theme)
     })
   }
 
   const updateTheme = (theme: AvailableThemes) => {
-    if (account.theme === 'system') {
+    log('FROM WINDOW', theme)
+    if (account!.theme === 'system') {
       setTheme(() => theme)
     }
   }
 
-  function onMainPresence(op: any) {
-    Object.entries(op).forEach(([k, v]) => {
-      setOperators((o) => ({
-        ...o,
-        [k]: v
-      }))
-    })
+  function onMainPresence(op: { [username: string]: any }) {
+    log('onMainPresence', operatorsRef.current, op)
+    if (operatorsRef.current?.hasOwnProperty('operators')) {
+      for (let [username, operator] of Object.entries(op)) {
+        log('presence of operators', operatorsRef.current.operators[username].mainPresence, operator.mainPresence)
+        operatorsRef.current.operators[username].mainPresence = operator.mainPresence
+      }
+    }
   }
 
   function updateAccount(account: Account | undefined) {
-    setAccount(() => account)
+    setAccount(account)
   }
 
   async function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
@@ -107,6 +125,12 @@ export function NethLinkPage() {
 
   async function saveMissedCalls(historyResponse: HistoryCallData | undefined) {
     setMissedCalls(() => historyResponse?.rows || [])
+  }
+
+  function saveOperators(updateOperators: OperatorData | undefined): void {
+    //log('UPDATE OPERATORS', operators, updateOperators)
+    setOperators(updateOperators)
+    operatorsRef.current = updateOperators
   }
 
   async function handleSearch(searchText: string) {
@@ -134,8 +158,12 @@ export function NethLinkPage() {
     console.log('SELECTED MISSED CALL', selectedMissedCall)
   }
 
+  function handleSelectedSpeedDial(id: string, name: string, speeddial_num: string) {
+    setIsEditingSpeedDial(true)
+    setSelectedSpeedDial(() => ({ id: id, name: name, speeddial_num: speeddial_num }))
+  }
+
   async function handleAddContactToPhonebook(contact: ContactType) {
-    // da aggiungere funzionalita' api per salvare il nuovo contatto
     const [_, err] = await window.api.addContactToPhonebook(contact)
     if (!!err) throw err
     setSearch(() => '')
@@ -143,11 +171,20 @@ export function NethLinkPage() {
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
-    // da aggiungere funzionalita' api per salvare il nuovo speedDial
     const [_, err] = await window.api.addContactSpeedDials(contact)
     if (!!err) throw err
     setIsCreatingSpeedDial(() => false)
     setSearch(() => '')
+  }
+
+  async function handleEditContactToSpeedDials(
+    editContact: NewSpeedDialType,
+    currentContact: ContactType
+  ) {
+    const [_, err] = await window.api.editSpeedDialContact(editContact, currentContact)
+    if (!!err) throw err
+    setIsEditingSpeedDial(false)
+    setSelectedSpeedDial(() => null)
   }
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
@@ -160,10 +197,8 @@ export function NethLinkPage() {
 
   function handleOnSelectTheme(theme: AvailableThemes) {
     window.api.changeTheme(theme)
-    setAccount((p) => ({
-      ...p!,
-      theme
-    }))
+    account!.theme = theme
+    setAccount(account)
   }
 
   function viewAllMissedCalls(): void {
@@ -177,23 +212,17 @@ export function NethLinkPage() {
     window.api.openNethVoicePage('https://cti.demo-heron.sf.nethserver.net')
   }
 
-  function handleModifySpeedDial(): void {
-    //Da aggiungere window.api
-    alert('Modifica il numero.')
-  }
-
   function handleDeleteSpeedDial(): void {
     //Da aggiungere window.api
     alert('Elimina')
   }
 
-
   return (
-    <div className="h-[100vh] w-[100vw] rounded-[10px] overflow-hidden">
+    <div className="h-[100vh] w-[100vw] overflow-hidden">
       {account && theme && (
         <div className={theme}>
           <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
-            <div className="flex flex-col dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[380px] h-full z-10 rounded-md items-center justify-center">
+            <div className="flex flex-col dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[380px] h-full z-10 rounded-md items-center justify-between">
               <div className="flex flex-row ">
                 <div className="flex flex-col gap-4 w-full">
                   <Navbar
@@ -213,12 +242,24 @@ export function NethLinkPage() {
                             handleAddContactToSpeedDials={handleAddContactToSpeedDials}
                             onCancel={() => setIsCreatingSpeedDial(false)}
                           />
+                        ) : isEditingSpeedDial && selectedSpeedDial ? (
+                          <EditSpeedDialBox
+                            selectedId={selectedSpeedDial.id}
+                            selectedName={selectedSpeedDial.name}
+                            selectedNumber={selectedSpeedDial.speeddial_num}
+                            onCancel={() => {
+                              setIsEditingSpeedDial(false)
+                              setSelectedSpeedDial(null)
+                            }}
+                            handleEditContactToSpeedDials={handleEditContactToSpeedDials}
+                          // Passa qui le prop necessarie per il componente EditSpeedDialBox
+                          />
                         ) : (
                           <SpeedDialsBox
                             speeddials={speeddials}
                             callUser={callUser}
                             showCreateSpeedDial={() => setIsCreatingSpeedDial(true)}
-                            handleModifySpeedDial={handleModifySpeedDial}
+                            handleSelectedSpeedDial={handleSelectedSpeedDial}
                             handleDeleteSpeedDial={handleDeleteSpeedDial}
                           />
                         )
@@ -231,7 +272,7 @@ export function NethLinkPage() {
                         />
                       )}
                     </div>
-                    {(search !== '' && !selectedMissedCall) ? (
+                    {search !== '' && !selectedMissedCall ? (
                       <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                         <SearchNumberBox
                           searchText={search}
@@ -260,15 +301,18 @@ export function NethLinkPage() {
                   handleSidebarMenuSelection={handleSidebarMenuSelection}
                 />
               </div>
-              <div className='absolute bottom-2 flex justify-center items-center pt-0 pb-0 w-full bg-gray-900 hover:bg-gray-600 z-[100]' onClick={hideNethLink}>
-                <FontAwesomeIcon className='dark:text-white' icon={faChevronDown} />
+              <div
+                className="absolute bottom-0 flex justify-center items-center py-[2px] w-full bg-gray-900 hover:bg-gray-600 z-[100] rounded-b-md"
+                onClick={hideNethLink}
+              >
+                <FontAwesomeIcon className="dark:text-white" icon={faChevronDown} />
               </div>
             </div>
           </div>
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   )
 }
+
 

@@ -16,3 +16,9 @@ function applyDebouncer(eventId: string, event: () => any, debouncer: number) {
     debounceEvents[`${eventId}_timer`] = undefined
   }, debouncer)
 }
+
+export async function delay(duration) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, duration)
+  })
+}

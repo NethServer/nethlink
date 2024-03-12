@@ -1,8 +1,12 @@
+import { useInitialize } from '@renderer/hooks/useInitialize'
 import background from '../assets/splashScreenBackground.svg'
 import header from '../assets/splashScreenHeader.svg'
 import logo from '../assets/splashScreenLogo.svg'
 
 export function SplashScreenPage() {
+
+  useInitialize(() => { }, true)
+
   return (
     <div
       className="h-[100vh] w-[100vw] p-1 rounded-[10px]"

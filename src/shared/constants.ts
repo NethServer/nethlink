@@ -32,7 +32,9 @@ export enum IPC_EVENTS {
   ADD_CONTACT_SPEEDDIAL = 'ADD_CONTACT_SPEEDDIAL',
   ADD_CONTACT_PHONEBOOK = 'ADD_CONTACT_PHONEBOOK',
   MOUSE_OVER_PHONE_ISLAND = 'MOUSE_OVER_PHONE_ISLAND',
-  HIDE_NETH_LINK = 'HIDE_NETH_LINK'
+  HIDE_NETH_LINK = 'HIDE_NETH_LINK',
+  EDIT_SPEEDDIAL_CONTACT = 'EDIT_SPEEDDIAL_CONTACT',
+  OPERATORS_CHANGE = 'OPERATORS_CHANGE'
 }
 
 //PHONE ISLAND EVENTS
@@ -96,7 +98,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-recording-start' = 'phone-island-recording-start',
   'phone-island-recording-stop' = 'phone-island-recording-stop',
   'phone-island-recording-play' = 'phone-island-recording-play',
-  'phone-island-recording-pause' = 'phone-island-recording-pause',
+  'phone-island-recording-pause' = 'phone-island-recreateContactcording-pause',
   'phone-island-recording-save' = 'phone-island-recording-save',
   'phone-island-recording-delete' = 'phone-island-recording-delete',
   // Dispatch Recording Event: phone-island-recording-*

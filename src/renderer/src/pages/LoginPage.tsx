@@ -10,6 +10,7 @@ import { faArrowLeft, faX } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
 import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
 import { useInitialize } from '@renderer/hooks/useInitialize'
+import { log } from '@shared/utils/logger'
 
 type LoginData = {
   host: string
@@ -27,14 +28,8 @@ export function LoginPage() {
     window.api.onLoadAccounts((accounts: Account[]) => {
       setDisplayedAccounts(accounts)
     })
-    window.api.sendInitializationCompleted('loginpage')
 
-    reset({
-      host: '',
-      password: '',
-      username: ''
-    })
-  })
+  }, true)
 
   function resizeThisWindow(h: number) {
     window.api.resizeLoginWindow(h)
@@ -45,7 +40,10 @@ export function LoginPage() {
   }
 
   async function handleLogin(data: LoginData) {
+    if (data.host.slice(-1) === '/')
+      data.host = data.host.slice(0, data.host.length - 2)
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
+    log(data, returnValue, err)
     setIsError(!!err)
     !err && setSelectedAccount(undefined)
     setIsLoading(false)
@@ -57,7 +55,15 @@ export function LoginPage() {
     setValue,
     reset,
     formState: { errors }
-  } = useForm<LoginData>()
+  } = useForm<LoginData>(
+    {
+      defaultValues: {
+        host: '',
+        username: '',
+        password: ''
+      }
+    }
+  )
   const onSubmit: SubmitHandler<LoginData> = (data) => {
     handleLogin(data)
   }
@@ -149,59 +155,64 @@ export function LoginPage() {
             }, 100)
           }}
         >
-          {displayedAccounts.length > 0 ? (
-            <div>
-              {selectedAccount ? (
-                <div>
-                  {selectedAccount === 'New Account' ? (
-                    newAccountForm
-                  ) : (
-                    <div className="dark w-full mt-7">
+          {
+            //quando esiste almeno un account allora mostro la lista di selezione
+            displayedAccounts.length > 0 ? (
+              <div>
+                {selectedAccount ? (
+                  <div>
+                    {selectedAccount === 'New Account' ? (
+                      newAccountForm
+                    ) : (
+                      <div className="dark w-full mt-7">
+                        <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
+                        <p className="text-gray-100 text-md mb-5">
+                          Choose an account to continue to Nethconnector.
+                        </p>
+                        <DisplayedAccountLogin account={selectedAccount} imageSrc={avatar} />
+                        <TextInput
+                          {...register('password')}
+                          type="password"
+                          label="Password"
+                          error={isError || Boolean(errors.password)}
+                          className="mt-5"
+                        />
+                        <input
+                          type="submit"
+                          className="w-full bg-blue-500 rounded h-9 font-semibold mt-7 cursor-pointer"
+                          value="Sign in"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )
+                  :
+                  //altrimenti mostro la finestra per la creazione del primo account
+                  (
+                    <div className="w-full mt-7">
                       <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
-                      <p className="text-gray-100 text-md mb-5">
+                      <p className="text-gray-100 text-md mb-8">
                         Choose an account to continue to Nethconnector.
                       </p>
-                      <DisplayedAccountLogin account={selectedAccount} imageSrc={avatar} />
-                      <TextInput
-                        {...register('password')}
-                        type="password"
-                        label="Password"
-                        error={isError || Boolean(errors.password)}
-                        className="mt-5"
-                      />
-                      <input
-                        type="submit"
-                        className="w-full bg-blue-500 rounded h-9 font-semibold mt-7 cursor-pointer"
-                        value="Sign in"
-                      />
+                      <div className="max-h-60 overflow-y-auto">
+                        {displayedAccounts.map((account, idx) => {
+                          return (
+                            <DisplayedAccountLogin
+                              key={idx}
+                              account={account}
+                              imageSrc={avatar}
+                              handleClick={() => setSelectedAccount(account)}
+                            />
+                          )
+                        })}
+                      </div>
+                      <DisplayedAccountLogin handleClick={() => setSelectedAccount('New Account')} />
                     </div>
                   )}
-                </div>
-              ) : (
-                <div className="w-full mt-7">
-                  <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
-                  <p className="text-gray-100 text-md mb-8">
-                    Choose an account to continue to Nethconnector.
-                  </p>
-                  <div className="max-h-60 overflow-y-auto">
-                    {displayedAccounts.map((account, idx) => {
-                      return (
-                        <DisplayedAccountLogin
-                          key={idx}
-                          account={account}
-                          imageSrc={avatar}
-                          handleClick={() => setSelectedAccount(account)}
-                        />
-                      )
-                    })}
-                  </div>
-                  <DisplayedAccountLogin handleClick={() => setSelectedAccount('New Account')} />
-                </div>
-              )}
-            </div>
-          ) : (
-            newAccountForm
-          )}
+              </div>
+            ) : (
+              newAccountForm
+            )}
         </form>
       </div>
       {isLoading && (

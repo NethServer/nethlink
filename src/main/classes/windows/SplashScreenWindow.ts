@@ -3,10 +3,10 @@ import { BaseWindow } from './BaseWindow'
 export class SplashScreenWindow extends BaseWindow {
   constructor() {
     const size = { w: 400, h: 450 }
-    super('splahscreenpage', {
+    super('splashscreenpage', {
       width: size.w,
       height: size.h,
-      show: false,
+      show: true,
       fullscreenable: false,
       autoHideMenuBar: true,
       closable: true,
@@ -30,5 +30,6 @@ export class SplashScreenWindow extends BaseWindow {
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
+    //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 }

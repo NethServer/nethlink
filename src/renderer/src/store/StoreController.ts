@@ -51,11 +51,7 @@ const initialData: LocalStorageData = {
 
 export const useLocalStore = create<LocalStorageState>((set, get) => ({
   ...initialData,
-  getData: (key: keyof LocalStorageData) => {
-    return () => {
-      return get()[key]
-    }
-  },
+  getData: (key: keyof LocalStorageData) => get()[key],
   setData: (key: keyof LocalStorageData) => (value: any | any[]) =>
     set((store: LocalStorageState) => ({
       ...store,
