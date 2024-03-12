@@ -5,8 +5,7 @@ import { screen } from 'electron'
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
   size: { w: number; h: number } | undefined
-  onHide: () => void
-  constructor(onHide: () => void) {
+  constructor() {
     const size = { w: 400, h: 380 }
     super('nethconnectorpage', {
       width: size.w,
@@ -36,7 +35,6 @@ export class NethLinkWindow extends BaseWindow {
       trafficLightPosition: { x: 0, y: 0 }
     })
     this.size = size
-    this.onHide = onHide
     NethLinkWindow.instance = this
     //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
@@ -67,6 +65,6 @@ export class NethLinkWindow extends BaseWindow {
   }
 
   hideWindowFromRenderer() {
-    this.onHide()
+    super.hide()
   }
 }

@@ -83,7 +83,7 @@ function setEmitterSync<T>(event): () => SyncPromise<T> {
 }
 
 function setEmitter(event) {
-  return (...args) => {
+  return (...args: any[]) => {
     ipcRenderer.send(event, ...args)
     log('emitter', event)
   }
@@ -140,8 +140,7 @@ const api: IElectronAPI = {
 
   addPhoneIslandListener: (event, callback) => {
     const evName = `on-${event}`
-    const listener = addListener(evName)
-    listener(callback)
+    addListener(evName)(callback)
   },
 
   ...Object.keys(PHONE_ISLAND_EVENTS).reduce((p, event) => {

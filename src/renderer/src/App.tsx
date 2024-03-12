@@ -26,10 +26,10 @@ function RoutesWrapper() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route path="nethconnectorpage" element={<NethLinkPage />} />
-        <Route path="splahscreenpage" element={<SplashScreenPage />} />
+        <Route path="splashscreenpage" element={<SplashScreenPage />} />
         <Route path="loginpage" element={<LoginPage />} />
         <Route path="phoneislandpage" element={<PhoneIslandPage />} />
+        <Route path="nethconnectorpage" element={<NethLinkPage />} />
       </Route>
     </Routes>
   )

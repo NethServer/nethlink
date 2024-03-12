@@ -21,7 +21,7 @@ export function SpeedDialNumber({
   handleSelectedSpeedDial,
   handleDeleteSpeedDial
 }: SpeedDialNumberProps): JSX.Element {
-  const operators: OperatorData = useSubscriber('operators')
+  const operators = useSubscriber<OperatorData>('operators')
 
   //const username = user.speeddial_num ? operators.extensions[user.speeddial_num]?.username : undefined
 

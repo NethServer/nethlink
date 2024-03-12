@@ -36,6 +36,7 @@ export class PhoneIslandWindow extends BaseWindow {
         nodeIntegration: true
       }
     })
+    this.ignoreMouseEvents(true)
     setTimeout(() => {
       this.show()
       //this.ignoreMouseEvents(false)

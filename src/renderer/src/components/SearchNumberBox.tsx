@@ -50,12 +50,11 @@ export function SearchNumberBox({
       </div>
       <div className={`border-b dark:border-gray-700 border-gray-200 mx-4`}></div>
       <div className="px-4 overflow-y-auto max-h-[216px]">
-        {filteredPhoneNumbers.map((phoneNumber, index) => (
+        {filteredPhoneNumbers.map((user, index) => (
           <SearchNumber
             key={index}
-            username={phoneNumber.name}
-            number={phoneNumber.workphone}
-            callUser={() => callUser(phoneNumber.workphone)}
+            user={user}
+            callUser={callUser}
             searchText={searchText}
           />
         ))}

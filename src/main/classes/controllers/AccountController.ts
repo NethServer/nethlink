@@ -9,11 +9,23 @@ const defaultConfig: ConfigFile = {
   accounts: {}
 }
 
+type EventCallback = (...args: any[]) => void | Promise<void>
+type EventListenerCallback = {
+  event: keyof typeof AccountEvents
+  callback: EventCallback
+}
+export enum AccountEvents {
+  LOGIN = 'LOGIN',
+  LOGOUT = 'LOGOUT'
+}
+
 export class AccountController {
   _app: Electron.App | undefined
   private _authPollingInterval: NodeJS.Timeout | undefined
   private config: ConfigFile | undefined
   static instance: AccountController
+
+  private eventListenerCallbacks: EventListenerCallback[] = []
 
   constructor(app: Electron.App) {
     this._app = app
@@ -26,13 +38,19 @@ export class AccountController {
     const CONFIG_FILE = join(CONFIG_PATH, 'config.json')
     return { BASE_URL, CONFIG_PATH, CONFIG_FILE }
   }
-  _onAccountChange: ((account: Account | undefined) => void) | undefined
+  private fireEvent(event: keyof typeof AccountEvents, ...args: any[]) {
+    for (const listener of this.eventListenerCallbacks.filter((e) => e.event === event)) {
+      listener.callback(...args)
+    }
+  }
+
+  //salva i dati dell'account nel file config.json
   _saveNewAccountData(account: Account | undefined, isOpening = false) {
     const { CONFIG_FILE } = this._getPaths()
     const config = this._getConfigFile()
     log('save account', config.lastUser, account?.username, isOpening)
     if (config.lastUser !== account?.username || isOpening) {
-      this._onAccountChange!(account)
+      this.fireEvent(account ? 'LOGIN' : 'LOGOUT', account)
     }
     if (account) {
       const uniqueAccountName = `${account.host}@${account.username}`
@@ -75,12 +93,14 @@ export class AccountController {
     }
     return undefined
   }
+
   async _tokenLogin(account: Account, isOpening = false): Promise<Account> {
     const api = new NethVoiceAPI(account.host, account)
     let loggedAccount: Account | undefined = undefined
     try {
       loggedAccount = await api.User.me()
     } catch {
+      //se fallisce, il token era scaduto, lo rimuovo come ultimo utente in modo che non provi ulteriomente a loggarsi con il token
       this.config!.lastUser = undefined
     }
     this._saveNewAccountData(loggedAccount, isOpening)
@@ -95,8 +115,18 @@ export class AccountController {
     return loggedAccount
   }
 
-  onAccountChange(callback: (account: Account | undefined) => void) {
-    this._onAccountChange = callback
+  addEventListener(event: keyof typeof AccountEvents, callback: EventCallback) {
+    this.eventListenerCallbacks.push({
+      event,
+      callback
+    })
+  }
+
+  removeEventListener(event: keyof typeof AccountEvents, callback: EventCallback) {
+    const idx = this.eventListenerCallbacks.findIndex(
+      (e) => e.event === event && e.callback === callback
+    )
+    this.eventListenerCallbacks.splice(idx, 1)
   }
 
   hasConfigsFolder() {

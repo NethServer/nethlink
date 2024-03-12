@@ -13,7 +13,7 @@ import {
   NewSpeedDialType,
   OperatorData
 } from '@shared/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
@@ -33,6 +33,7 @@ export function NethLinkPage() {
   const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [operators, setOperators] = useLocalStoreState<OperatorData>('operators')
+  const operatorsRef = useRef<OperatorData | undefined>()
   const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
   const [selectedMissedCall, setSelectedMissedCall] = useState<{
     number?: string
@@ -78,6 +79,11 @@ export function NethLinkPage() {
     }
   }, [account])
 
+  useEffect(() => {
+    log(operatorsRef.current)
+    setOperators(operatorsRef.current)
+  }, [operatorsRef.current])
+
   function initialize() {
     window.api.onAccountChange(updateAccount)
     window.api.addPhoneIslandListener(
@@ -86,7 +92,7 @@ export function NethLinkPage() {
     )
     window.api.onReceiveSpeeddials(saveSpeeddials)
     window.api.onReceiveLastCalls(saveMissedCalls)
-    window.api.onOperatorsChange(updateOperators)
+    window.api.onOperatorsChange(saveOperators)
     window.api.onSystemThemeChange((theme) => {
       updateTheme(theme)
     })
@@ -99,14 +105,18 @@ export function NethLinkPage() {
     }
   }
 
-  function onMainPresence(op: any) {
-    //TODO: edit
-    log(operators, op)
-
+  function onMainPresence(op: { [username: string]: any }) {
+    log('onMainPresence', operatorsRef.current, op)
+    if (operatorsRef.current?.hasOwnProperty('operators')) {
+      for (let [username, operator] of Object.entries(op)) {
+        log('presence of operators', operatorsRef.current.operators[username].mainPresence, operator.mainPresence)
+        operatorsRef.current.operators[username].mainPresence = operator.mainPresence
+      }
+    }
   }
 
   function updateAccount(account: Account | undefined) {
-    setAccount(() => account)
+    setAccount(account)
   }
 
   async function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
@@ -117,8 +127,10 @@ export function NethLinkPage() {
     setMissedCalls(() => historyResponse?.rows || [])
   }
 
-  function updateOperators(updateOperators: OperatorData | undefined): void {
-    setOperators(() => updateOperators)
+  function saveOperators(updateOperators: OperatorData | undefined): void {
+    //log('UPDATE OPERATORS', operators, updateOperators)
+    setOperators(updateOperators)
+    operatorsRef.current = updateOperators
   }
 
   async function handleSearch(searchText: string) {
@@ -185,10 +197,8 @@ export function NethLinkPage() {
 
   function handleOnSelectTheme(theme: AvailableThemes) {
     window.api.changeTheme(theme)
-    setAccount((p) => ({
-      ...p!,
-      theme
-    }))
+    account!.theme = theme
+    setAccount(account)
   }
 
   function viewAllMissedCalls(): void {

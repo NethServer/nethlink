@@ -43,7 +43,7 @@ export class BaseWindow {
     return this._window?.isVisible()
   }
 
-  async addOnBuildListener(callback: () => void) {
+  addOnBuildListener(callback: () => void) {
     this._callbacks.push(callback)
   }
 

@@ -44,7 +44,7 @@ export function Navbar({
   handleReset,
   goToNethVoicePage
 }: NavabarProps): JSX.Element {
-  const operators: OperatorData = useSubscriber('operators')
+  const operators = useSubscriber<OperatorData>('operators')
 
   function setTheme(theme) {
     onSelectTheme(theme)
