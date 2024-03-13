@@ -12,7 +12,7 @@ export class TrayController {
   constructor() {
     this.tray = new Tray(join(__dirname, '../../public/TrayLogo.png'))
     this.tray.setIgnoreDoubleClickEvents(true)
-    this.tray.on('click', () => this.onTrayIconClick(this.enableClick))
+    this.tray.on('click',this.onTrayIconClick)
     const menu: (MenuItemConstructorOptions | MenuItem)[] = [
       {
         role: 'quit',
@@ -26,8 +26,8 @@ export class TrayController {
     TrayController.instance = this
   }
 
-  private onTrayIconClick(enable: boolean) {
-    if (enable) {
+  private onTrayIconClick() {
+    if (this.enableClick) {
       if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
       else if (NethLinkController.instance.window.isOpen()) NethLinkController.instance.hide()
       else if (AccountController.instance.getLoggedAccount()) NethLinkController.instance.show()
