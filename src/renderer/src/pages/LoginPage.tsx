@@ -72,14 +72,12 @@ export function LoginPage() {
     if (selectedAccount) {
       if (selectedAccount === 'New Account') {
         resizeThisWindow(570)
-        setValue('host', '')
-        setValue('username', '')
-        setValue('password', '')
+        reset()
       } else {
         resizeThisWindow(445)
+        reset()
         setValue('host', selectedAccount.host)
         setValue('username', selectedAccount.username)
-        setValue('password', '')
       }
     } else {
       setIsError(false)

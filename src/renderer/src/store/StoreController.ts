@@ -1,7 +1,8 @@
+import { OperatorsType, QueuesType } from '@shared/types'
 import { create } from 'zustand'
 
 export type LocalStorageData = {
-  operators: any
+  operators: OperatorsType
   profilePicture: any
   customerCards: any
   speedDial: any
@@ -11,7 +12,7 @@ export type LocalStorageData = {
   notifications: any
   userActions: any
   globalSearch: any
-  queues: any
+  queues: QueuesType
   queueManagerQueues: any
   ctiStatus: any
   sideDrawer: any

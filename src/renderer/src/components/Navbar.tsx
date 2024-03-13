@@ -111,7 +111,7 @@ export function Navbar({
                   size="small"
                   status={
                     operators?.operators?.[account.username]?.mainPresence ||
-                    account.data?.mainPresece ||
+                    account.data?.mainPresence ||
                     'offline'
                   }
                   src={

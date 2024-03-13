@@ -29,10 +29,10 @@ export type PhoneIslandConfig = {
   sipPort: string
 }
 
-export type AccountData = {
+export type BaseAccountData = {
   name: string
   username: string
-  mainPresece: StatusTypes
+  mainPresence: StatusTypes
   presence: StatusTypes
   presenceOnBusy: StatusTypes
   presenceOnUnavailable: StatusTypes
@@ -45,6 +45,8 @@ export type AccountData = {
     voicemail: BaseEndpoint[]
     mainextension: BaseEndpoint[]
   }
+}
+export type AccountData = BaseAccountData & {
   profile: {
     id: string
     name: string
@@ -223,9 +225,80 @@ export type NewSpeedDialType = {
 }
 
 export type OperatorData = {
-  userEndpoints: any
-  extensions: any
-  operators: any
-  groups: any
-  avatars: any
+  userEndpoints: UserEndpointsType
+  extensions: ExtensionsType
+  operators: OperatorsType
+  groups: GroupsType
+  avatars: AvatarType
+}
+
+export type UserEndpointsType = {
+  [username: string]: BaseAccountData & {
+    avatarBase64?: string
+  }
+}
+
+export type OperatorsType = {
+  [username: string]: BaseAccountData
+}
+
+export type GroupsType = {
+  [groupName: string]: {
+    users: string[] // contiene gli username
+  }
+}
+
+export type ExtensionsType = {
+  [phoneNumber: string]: {
+    cf: string
+    cfVm: string
+    cfb: string
+    cfbVm: string
+    cfu: string
+    cfuVm: string
+    chanType: string
+    codecs: string[]
+    context: string
+    conversations: {}
+    dnd: false
+    exten: string
+    ip: string
+    mac: string
+    name: string
+    port: string
+    sipuseragent: string
+    status: string
+    username: string
+  }
+}
+
+export type AvatarType = {
+  [username: string]: string //se presente c'è il base64
+}
+
+export type QueuesType = {
+  [username: string]: {
+    name: string
+    queue: string
+    members: {
+      [user: string]: {
+        callsTakenCount: number
+        lastCallTimestamp: number
+        lastPausedInReason: string
+        lastPausedInTimestamp: number
+        lastPausedOutTimestamp: number
+        loggedIn: boolean
+        member: string
+        name: string
+        paused: boolean
+        queue: string
+        type: string
+      }
+    }
+    avgHoldTime: string
+    avgTalkTime: string
+    serviceLevelPercentage: string
+    serviceLevelTimePeriod: string
+    waitingCallers: object
+  }
 }
