@@ -6,6 +6,7 @@ import { NethLinkController } from './NethLinkController'
 
 export class TrayController {
   tray: Tray
+  enableClick: boolean = false
 
   static instance: TrayController
   constructor() {
@@ -26,9 +27,11 @@ export class TrayController {
   }
 
   private onTrayIconClick() {
-    if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
-    else if (NethLinkController.instance.window.isOpen()) NethLinkController.instance.hide()
-    else if (AccountController.instance.getLoggedAccount()) NethLinkController.instance.show()
-    else LoginController.instance.show()
+    if (this.enableClick) {
+      if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
+      else if (NethLinkController.instance.window.isOpen()) NethLinkController.instance.hide()
+      else if (AccountController.instance.getLoggedAccount()) NethLinkController.instance.show()
+      else LoginController.instance.show()
+    }
   }
 }
