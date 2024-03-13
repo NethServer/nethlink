@@ -6,13 +6,13 @@ import { NethLinkController } from './NethLinkController'
 
 export class TrayController {
   tray: Tray
-  enableClick: boolean = false
+  enableClick = false
 
   static instance: TrayController
   constructor() {
     this.tray = new Tray(join(__dirname, '../../public/TrayLogo.png'))
     this.tray.setIgnoreDoubleClickEvents(true)
-    this.tray.on('click', this.onTrayIconClick)
+    this.tray.on('click',this.onTrayIconClick)
     const menu: (MenuItemConstructorOptions | MenuItem)[] = [
       {
         role: 'quit',

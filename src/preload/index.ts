@@ -26,7 +26,7 @@ export interface IElectronAPI {
   //SYNC EMITTERS - expect response
   login: (host: string, username: string, password: string) => SyncPromise<Account>
   addContactToPhonebook(contact: ContactType): SyncPromise<void>
-  addContactSpeedDials(contact: NewContactType): SyncPromise<void>
+  addContactSpeedDials(contact: NewContactType): SyncPromise<ContactType>
   editSpeedDialContact(
     editContact: NewSpeedDialType,
     currentContact: ContactType
@@ -94,7 +94,7 @@ const api: IElectronAPI = {
   i18nextElectronBackend: preloadBindings(ipcRenderer, process),
   //SYNC EMITTERS - expect response
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
-  addContactSpeedDials: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
+  addContactSpeedDials: setEmitterSync<ContactType>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
   addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
   editSpeedDialContact: setEmitterSync<ContactType>(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT),
 

@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, TextInput } from './Nethesis'
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
+import { faCircleNotch, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useState } from 'react'
 import { ContactType, NewSpeedDialType } from '@shared/types'
 import { log } from '@shared/utils/logger'
@@ -21,7 +21,12 @@ export function EditSpeedDialBox({
   handleEditContactToSpeedDials,
   onCancel
 }: EditSpeedDialProps) {
-  const { register, watch, handleSubmit, setValue, reset } = useForm<NewSpeedDialType>()
+  const { register, watch, handleSubmit, setValue, reset } = useForm<NewSpeedDialType>({
+    defaultValues: {
+      name: '',
+      speeddial_num: ''
+    }
+  })
   const onSubmit: SubmitHandler<NewSpeedDialType> = (data) => {
     handleEdit(data)
   }
@@ -33,17 +38,13 @@ export function EditSpeedDialBox({
   }, [])
 
   function handleEdit(data) {
-    setIsLoading(true)
     handleEditContactToSpeedDials(data, selectedSpeedDial)
       .catch((error) => {
         log(error)
       })
       .finally(() => {
         setIsLoading(false)
-        reset({
-          name: '',
-          speeddial_num: ''
-        })
+        reset()
       })
   }
 
@@ -52,7 +53,16 @@ export function EditSpeedDialBox({
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px]">
         <h1 className="font-semibold dark:text-gray-50 text-gray-900">Edit speed dial</h1>
       </div>
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={async (e) => {
+          setIsLoading(true)
+          e.preventDefault()
+          setTimeout(() => {
+            handleSubmit(onSubmit)(e)
+          }, 100)
+        }}
+      >
         <TextInput
           {...register('name')}
           type="text"
@@ -81,9 +91,8 @@ export function EditSpeedDialBox({
             <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('Common.Edit')}</p>
             {isLoading && (
               <FontAwesomeIcon
-                icon={faCircleNotch}
-                className="dark:text-gray-900 text-gray-50"
-                spin
+                icon={faSpinner}
+                className="dark:text-gray-900 text-gray-50 animate-spin"
               />
             )}
           </Button>

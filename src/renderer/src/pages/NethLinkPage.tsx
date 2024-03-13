@@ -103,8 +103,9 @@ export function NethLinkPage() {
 
   function onMainPresence(op: { [username: string]: any }) {
     log('onMainPresence', operatorsRef.current, op)
+    // eslint-disable-next-line no-prototype-builtins
     if (operatorsRef.current?.hasOwnProperty('operators')) {
-      for (let [username, operator] of Object.entries(op)) {
+      for (const [username, operator] of Object.entries(op)) {
         log(
           'presence of operators',
           operatorsRef.current.operators[username].mainPresence,
@@ -177,14 +178,15 @@ export function NethLinkPage() {
 
   async function handleAddContactToPhonebook(contact: ContactType) {
     const [_, err] = await window.api.addContactToPhonebook(contact)
-    if (!!err) throw err
+    if (err) throw err
     setSearch(() => '')
     setSelectedMissedCall(() => null)
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
-    const [_, err] = await window.api.addContactSpeedDials(contact)
-    if (!!err) throw err
+    const [createdSpeedDial, err] = await window.api.addContactSpeedDials(contact)
+    if (err) throw err
+    setSpeeddials(() => [...speeddials, createdSpeedDial as ContactType])
     setIsCreatingSpeedDial(() => false)
     setSearch(() => '')
   }
@@ -198,7 +200,7 @@ export function NethLinkPage() {
       editContact,
       currentContact
     )
-    if (!!err) throw err
+    if (err) throw err
     console.log('llll', editedSpeedDial)
     const newSpeedDials = speeddials.map((speedDial) => {
       if (speedDial.id?.toString() === editedSpeedDial?.id) {
