@@ -6,13 +6,13 @@ import { NethLinkController } from './NethLinkController'
 
 export class TrayController {
   tray: Tray
-  enableClick: boolean = false
+  enableClick = false
 
   static instance: TrayController
   constructor() {
     this.tray = new Tray(join(__dirname, '../../public/TrayLogo.png'))
     this.tray.setIgnoreDoubleClickEvents(true)
-    this.tray.on('click', this.onTrayIconClick)
+    this.tray.on('click', () => this.onTrayIconClick(this.enableClick))
     const menu: (MenuItemConstructorOptions | MenuItem)[] = [
       {
         role: 'quit',
@@ -26,8 +26,8 @@ export class TrayController {
     TrayController.instance = this
   }
 
-  private onTrayIconClick() {
-    if (this.enableClick) {
+  private onTrayIconClick(enable: boolean) {
+    if (enable) {
       if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
       else if (NethLinkController.instance.window.isOpen()) NethLinkController.instance.hide()
       else if (AccountController.instance.getLoggedAccount()) NethLinkController.instance.show()

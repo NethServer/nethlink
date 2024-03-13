@@ -36,7 +36,7 @@ export class NethLinkWindow extends BaseWindow {
     })
     this.size = size
     NethLinkWindow.instance = this
-    //this._window?.webContents.openDevTools({ mode: 'detach' })
+    this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
   _setBounds() {

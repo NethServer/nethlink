@@ -28,7 +28,6 @@ export function LoginPage() {
     window.api.onLoadAccounts((accounts: Account[]) => {
       setDisplayedAccounts(accounts)
     })
-
   }, true)
 
   function resizeThisWindow(h: number) {
@@ -40,8 +39,7 @@ export function LoginPage() {
   }
 
   async function handleLogin(data: LoginData) {
-    if (data.host.slice(-1) === '/')
-      data.host = data.host.slice(0, data.host.length - 2)
+    if (data.host.slice(-1) === '/') data.host = data.host.slice(0, data.host.length - 2)
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
     log(data, returnValue, err)
     setIsError(!!err)
@@ -55,15 +53,13 @@ export function LoginPage() {
     setValue,
     reset,
     formState: { errors }
-  } = useForm<LoginData>(
-    {
-      defaultValues: {
-        host: '',
-        username: '',
-        password: ''
-      }
+  } = useForm<LoginData>({
+    defaultValues: {
+      host: '',
+      username: '',
+      password: ''
     }
-  )
+  })
   const onSubmit: SubmitHandler<LoginData> = (data) => {
     handleLogin(data)
   }
@@ -183,34 +179,33 @@ export function LoginPage() {
                       </div>
                     )}
                   </div>
-                )
-                  :
+                ) : (
                   //altrimenti mostro la finestra per la creazione del primo account
-                  (
-                    <div className="w-full mt-7">
-                      <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
-                      <p className="text-gray-100 text-md mb-8">
-                        Choose an account to continue to Nethconnector.
-                      </p>
-                      <div className="max-h-60 overflow-y-auto">
-                        {displayedAccounts.map((account, idx) => {
-                          return (
-                            <DisplayedAccountLogin
-                              key={idx}
-                              account={account}
-                              imageSrc={avatar}
-                              handleClick={() => setSelectedAccount(account)}
-                            />
-                          )
-                        })}
-                      </div>
-                      <DisplayedAccountLogin handleClick={() => setSelectedAccount('New Account')} />
+                  <div className="w-full mt-7">
+                    <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
+                    <p className="text-gray-100 text-md mb-8">
+                      Choose an account to continue to Nethconnector.
+                    </p>
+                    <div className="max-h-60 overflow-y-auto">
+                      {displayedAccounts.map((account, idx) => {
+                        return (
+                          <DisplayedAccountLogin
+                            key={idx}
+                            account={account}
+                            imageSrc={avatar}
+                            handleClick={() => setSelectedAccount(account)}
+                          />
+                        )
+                      })}
                     </div>
-                  )}
+                    <DisplayedAccountLogin handleClick={() => setSelectedAccount('New Account')} />
+                  </div>
+                )}
               </div>
             ) : (
               newAccountForm
-            )}
+            )
+          }
         </form>
       </div>
       {isLoading && (
