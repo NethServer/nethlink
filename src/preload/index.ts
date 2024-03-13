@@ -30,7 +30,7 @@ export interface IElectronAPI {
   editSpeedDialContact(
     editContact: NewSpeedDialType,
     currentContact: ContactType
-  ): SyncPromise<void>
+  ): SyncPromise<ContactType>
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
@@ -96,7 +96,7 @@ const api: IElectronAPI = {
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
   addContactSpeedDials: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
   addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
-  editSpeedDialContact: setEmitterSync<void>(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT),
+  editSpeedDialContact: setEmitterSync<ContactType>(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT),
 
   //EMITTER - only emit, no response
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),

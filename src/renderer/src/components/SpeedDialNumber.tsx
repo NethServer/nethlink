@@ -9,14 +9,14 @@ import { t } from 'i18next'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
 export interface SpeedDialNumberProps {
-  user: ContactType
+  speedDial: ContactType
   callUser: () => void
-  handleSelectedSpeedDial: (id: string, name: string, speeddial_num: string) => void
+  handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
   handleDeleteSpeedDial: () => void
 }
 
 export function SpeedDialNumber({
-  user,
+  speedDial,
   callUser,
   handleSelectedSpeedDial,
   handleDeleteSpeedDial
@@ -30,17 +30,13 @@ export function SpeedDialNumber({
       <div className="flex gap-6 items-center">
         <Avatar
           size="base"
-          src={
-            operators?.avatars?.[user.name!]
-          }
-          status={
-            operators?.operators?.[user.name!]?.mainPresence || 'offline'
-          }
+          src={operators?.avatars?.[speedDial.name!]}
+          status={operators?.operators?.[speedDial.name!]?.mainPresence || 'offline'}
           className="z-0"
           placeholder={PlaceholderIcon}
         />
         <div className="flex flex-col gap-1">
-          <p className="dark:text-gray-50 text-gray-900">{user.name!}</p>
+          <p className="dark:text-gray-50 text-gray-900">{speedDial.name!}</p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
               className="dark:text-gray-400 text-gray-600 text-base"
@@ -48,10 +44,10 @@ export function SpeedDialNumber({
               onClick={callUser}
             />
             <NumberCaller
-              number={user.speeddial_num!}
+              number={speedDial.speeddial_num!}
               className="dark:text-blue-500 text-blue-600 font-normal"
             >
-              {user.speeddial_num!}
+              {speedDial.speeddial_num!}
             </NumberCaller>
           </div>
         </div>
@@ -76,7 +72,7 @@ export function SpeedDialNumber({
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
                   onClick={() => {
-                    handleSelectedSpeedDial(user.id! as string, user.name!, user.speeddial_num!)
+                    handleSelectedSpeedDial(speedDial)
                   }}
                 >
                   <div className="flex gap-3 items-center">

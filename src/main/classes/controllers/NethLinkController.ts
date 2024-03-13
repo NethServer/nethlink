@@ -40,7 +40,7 @@ export class NethLinkController {
   }
 
   private async fetchSpeeddialsAndEmit() {
-    const speeddials = NethVoiceAPI.instance.Phonebook.speeddials()
+    const speeddials = await NethVoiceAPI.instance.Phonebook.speeddials()
     this.window.emit(IPC_EVENTS.RECEIVE_SPEEDDIALS, speeddials)
   }
 

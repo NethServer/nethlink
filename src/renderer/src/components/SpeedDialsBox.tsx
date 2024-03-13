@@ -9,7 +9,7 @@ export interface SpeedDialsBoxProps {
   speeddials: ContactType[] | undefined
   callUser: (phoneNumber: string) => void
   showCreateSpeedDial: () => void
-  handleSelectedSpeedDial: (id: string, name: string, speeddial_num: string) => void
+  handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
   handleDeleteSpeedDial: () => void
 }
 
@@ -36,7 +36,7 @@ export function SpeedDialsBox({
         </Button>
       </div>
       <div className="flex flex-col gap-2 p-2 max-h-[240px] overflow-y-auto">
-        {speeddials?.length || 0 > 0 ? (
+        {speeddials && speeddials.length > 0 ? (
           speeddials?.map((e, idx) => {
             return (
               <div
@@ -44,7 +44,7 @@ export function SpeedDialsBox({
                 key={idx}
               >
                 <SpeedDialNumber
-                  user={e}
+                  speedDial={e}
                   callUser={() => callUser(e.speeddial_num!)}
                   handleSelectedSpeedDial={handleSelectedSpeedDial}
                   handleDeleteSpeedDial={handleDeleteSpeedDial}

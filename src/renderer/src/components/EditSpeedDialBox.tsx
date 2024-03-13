@@ -8,9 +8,7 @@ import { t } from 'i18next'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
 export interface EditSpeedDialProps {
-  selectedId?: string
-  selectedName?: string
-  selectedNumber?: string
+  selectedSpeedDial: ContactType
   handleEditContactToSpeedDials: (
     editContact: NewSpeedDialType,
     currentContact: ContactType
@@ -19,9 +17,7 @@ export interface EditSpeedDialProps {
 }
 
 export function EditSpeedDialBox({
-  selectedId,
-  selectedName,
-  selectedNumber,
+  selectedSpeedDial,
   handleEditContactToSpeedDials,
   onCancel
 }: EditSpeedDialProps) {
@@ -32,18 +28,13 @@ export function EditSpeedDialBox({
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   useEffect(() => {
-    setValue('name', selectedName as string)
-    setValue('speeddial_num', selectedNumber as string)
+    setValue('name', selectedSpeedDial.name!)
+    setValue('speeddial_num', selectedSpeedDial.speeddial_num)
   }, [])
 
   function handleEdit(data) {
-    const oldData: ContactType = {
-      id: selectedId,
-      name: selectedName,
-      speeddial_num: selectedNumber
-    }
     setIsLoading(true)
-    handleEditContactToSpeedDials(data, oldData)
+    handleEditContactToSpeedDials(data, selectedSpeedDial)
       .catch((error) => {
         log(error)
       })
@@ -61,12 +52,7 @@ export function EditSpeedDialBox({
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px]">
         <h1 className="font-semibold dark:text-gray-50 text-gray-900">Edit speed dial</h1>
       </div>
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={(e) => {
-          handleSubmit(onSubmit)(e)
-        }}
-      >
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <TextInput
           {...register('name')}
           type="text"

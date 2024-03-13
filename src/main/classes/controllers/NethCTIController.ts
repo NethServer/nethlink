@@ -185,9 +185,9 @@ export class NethVoiceAPI {
         editedSpeedDial.speeddial_num = edit.speeddial_num
         editedSpeedDial.name = edit.name
         editedSpeedDial.id = editedSpeedDial.id?.toString()
-        console.log('Edited speedDial', editedSpeedDial)
+        console.log('Edited speedDial', editedSpeedDial, current)
         await this._POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
-        return current
+        return editedSpeedDial
       }
     },
     deleteSpeeddial: async (obj: { id: string }) => {

@@ -16,16 +16,27 @@ export function CreateSpeedDialBox({
   handleAddContactToSpeedDials,
   onCancel
 }: CreateSpeedDialProps) {
-  const { register, watch, handleSubmit, setValue, reset } = useForm<NewContactType>()
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors }
+  } = useForm<NewContactType>({
+    defaultValues: {
+      name: '',
+      speeddial_num: ''
+    }
+  })
   const onSubmit: SubmitHandler<NewContactType> = (data) => {
     handleSave(data)
   }
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  useEffect(() => {
+  /* useEffect(() => {
     setValue('name', '')
     setValue('speeddial_num', '')
-  }, [])
+  }, []) */
 
   function handleSave(data) {
     setIsLoading(true)
@@ -36,10 +47,7 @@ export function CreateSpeedDialBox({
       })
       .finally(() => {
         setIsLoading(false)
-        reset({
-          name: '',
-          speeddial_num: ''
-        })
+        reset()
       })
   }
 
@@ -57,13 +65,14 @@ export function CreateSpeedDialBox({
         }}
       >
         <TextInput
-          {...register('name')}
+          {...register('name', { required: true })}
           type="text"
           className="font-normal"
           label={t('Phonebook.Name') as string}
+          error={Boolean(errors.name)}
         />
         <TextInput
-          {...register('speeddial_num')}
+          {...register('speeddial_num', { required: true })}
           type="tel"
           minLength={3}
           onChange={(e) => {
@@ -71,16 +80,13 @@ export function CreateSpeedDialBox({
           }}
           className="font-normal"
           label={t('Phonebook.Phone number') as string}
+          error={Boolean(errors.speeddial_num)}
         />
         <div className="absolute bottom-0 right-0 flex flex-row gap-4">
           <Button variant="ghost" onClick={onCancel}>
             <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.Cancel')}</p>
           </Button>
-          <Button
-            type="submit"
-            className="dark:bg-blue-500 bg-blue-600 gap-3"
-            disabled={!watch('name') || !watch('speeddial_num')}
-          >
+          <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3">
             <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('SpeedDial.Create')}</p>
             {isLoading && (
               <FontAwesomeIcon

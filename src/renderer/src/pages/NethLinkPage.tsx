@@ -41,11 +41,7 @@ export function NethLinkPage() {
     company?: string
   } | null>(null)
   const [isEditingSpeedDial, setIsEditingSpeedDial] = useState<boolean>(false)
-  const [selectedSpeedDial, setSelectedSpeedDial] = useState<{
-    id?: string
-    name?: string
-    speeddial_num?: string
-  } | null>(null)
+  const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
 
   useInitialize(() => {
     initialize()
@@ -109,7 +105,11 @@ export function NethLinkPage() {
     log('onMainPresence', operatorsRef.current, op)
     if (operatorsRef.current?.hasOwnProperty('operators')) {
       for (let [username, operator] of Object.entries(op)) {
-        log('presence of operators', operatorsRef.current.operators[username].mainPresence, operator.mainPresence)
+        log(
+          'presence of operators',
+          operatorsRef.current.operators[username].mainPresence,
+          operator.mainPresence
+        )
         operatorsRef.current.operators[username].mainPresence = operator.mainPresence
       }
       debouncer('onMainPresence', () => setOperators(operatorsRef.current))
@@ -131,10 +131,12 @@ export function NethLinkPage() {
 
   async function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
     setSpeeddials(() => speeddialsResponse || [])
+    console.log('Speed dials', speeddialsResponse)
   }
 
   async function saveMissedCalls(historyResponse: HistoryCallData | undefined) {
     setMissedCalls(() => historyResponse?.rows || [])
+    console.log('MissedCalls', historyResponse)
   }
 
   function saveOperators(updateOperators: OperatorData | undefined): void {
@@ -156,6 +158,7 @@ export function NethLinkPage() {
   }
 
   function logout(): void {
+    setSearch(() => '')
     window.api.logout()
   }
 
@@ -167,9 +170,9 @@ export function NethLinkPage() {
     console.log('SELECTED MISSED CALL', selectedMissedCall)
   }
 
-  function handleSelectedSpeedDial(id: string, name: string, speeddial_num: string) {
+  function handleSelectedSpeedDial(selectedSpeedDial: ContactType) {
     setIsEditingSpeedDial(true)
-    setSelectedSpeedDial(() => ({ id: id, name: name, speeddial_num: speeddial_num }))
+    setSelectedSpeedDial(() => selectedSpeedDial)
   }
 
   async function handleAddContactToPhonebook(contact: ContactType) {
@@ -190,10 +193,23 @@ export function NethLinkPage() {
     editContact: NewSpeedDialType,
     currentContact: ContactType
   ) {
-    const [_, err] = await window.api.editSpeedDialContact(editContact, currentContact)
+    console.log('aaaaa', currentContact)
+    const [editedSpeedDial, err] = await window.api.editSpeedDialContact(
+      editContact,
+      currentContact
+    )
     if (!!err) throw err
+    console.log('llll', editedSpeedDial)
+    const newSpeedDials = speeddials.map((speedDial) => {
+      if (speedDial.id?.toString() === editedSpeedDial?.id) {
+        return editedSpeedDial!
+      }
+      return speedDial
+    })
+    console.log(newSpeedDials)
+    setSpeeddials(() => newSpeedDials)
     setIsEditingSpeedDial(false)
-    setSelectedSpeedDial(() => null)
+    setSelectedSpeedDial(undefined)
   }
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
@@ -201,6 +217,7 @@ export function NethLinkPage() {
     //Aggiunto il fatto che se seleziono un menu faccio il reset della
     //SearchBox e dello stato di aggiunta di un numero su Phonebook
     setSearch(() => '')
+    setIsCreatingSpeedDial(false)
     setSelectedMissedCall(() => null)
   }
 
@@ -253,15 +270,13 @@ export function NethLinkPage() {
                           />
                         ) : isEditingSpeedDial && selectedSpeedDial ? (
                           <EditSpeedDialBox
-                            selectedId={selectedSpeedDial.id}
-                            selectedName={selectedSpeedDial.name}
-                            selectedNumber={selectedSpeedDial.speeddial_num}
+                            selectedSpeedDial={selectedSpeedDial}
                             onCancel={() => {
                               setIsEditingSpeedDial(false)
-                              setSelectedSpeedDial(null)
+                              setSelectedSpeedDial(undefined)
                             }}
                             handleEditContactToSpeedDials={handleEditContactToSpeedDials}
-                          // Passa qui le prop necessarie per il componente EditSpeedDialBox
+                            // Passa qui le prop necessarie per il componente EditSpeedDialBox
                           />
                         ) : (
                           <SpeedDialsBox
@@ -323,5 +338,3 @@ export function NethLinkPage() {
     </div>
   )
 }
-
-

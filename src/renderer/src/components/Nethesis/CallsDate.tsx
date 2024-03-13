@@ -3,9 +3,7 @@ import { formatDistance } from 'date-fns'
 import { format } from 'date-fns-tz'
 import { utcToZonedTime } from 'date-fns-tz'
 import { enGB, it } from 'date-fns/locale'
-import {
-  getTimeDifference,
-} from '../../lib/dateTime'
+import { getTimeDifference } from '../../lib/dateTime'
 import i18next from 'i18next'
 
 interface CallsDateProps {
@@ -61,15 +59,15 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
       differenceBetweenTimezone = getDifferenceBetweenTimezone(false)
     }
     return (
-      <div className='text-sm font-medium text-gray-600 dark:text-gray-100 leading-5'>
+      <div className="text-sm font-medium text-gray-600 dark:text-gray-100 leading-5">
         {formatDistance(
           utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
           utcToZonedTime(new Date(), localTimeZone),
           {
             addSuffix: true,
             includeSeconds: true,
-            locale: selectedLanguage === 'it' ? it : enGB,
-          },
+            locale: selectedLanguage === 'it' ? it : enGB
+          }
         )}
       </div>
     )
@@ -83,15 +81,11 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
       differenceBetweenTimezone = getDifferenceBetweenTimezone(false)
     }
 
-
     return (
-      <div className='text-sm text-gray-600 dark:text-gray-100 font-normal leading-5'>
-        (
-        {format(utcToZonedTime(call?.time * 1000, differenceBetweenTimezone), 'd MMM yyyy HH:mm')}
-        )
+      <div className="text-sm text-gray-600 dark:text-gray-100 font-normal leading-5">
+        ({format(utcToZonedTime(call?.time * 1000, differenceBetweenTimezone), 'd MMM yyyy HH:mm')})
       </div>
     )
-
   }
 
   // check browser language and set the selected language
@@ -104,7 +98,9 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
 
   return (
     <>
-      <div className={`flex flex-col justify-center flex-shrink-0 ${spaced ? 'gap-1.5' : ''}`}>
+      <div
+        className={`flex flex-row gap-2 justify-center flex-shrink-0 ${spaced ? 'gap-1.5' : ''}`}
+      >
         {getHeader(call)}
         {getBody(call)}
       </div>

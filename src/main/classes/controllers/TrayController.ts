@@ -28,8 +28,7 @@ export class TrayController {
   private onTrayIconClick() {
     if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
     else if (NethLinkController.instance.window.isOpen()) NethLinkController.instance.hide()
-    else if (AccountController.instance.getLoggedAccount())
-      NethLinkController.instance.window.show()
+    else if (AccountController.instance.getLoggedAccount()) NethLinkController.instance.show()
     else LoginController.instance.show()
   }
 }

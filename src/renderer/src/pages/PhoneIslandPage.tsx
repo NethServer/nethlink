@@ -31,20 +31,24 @@ export function PhoneIslandPage() {
   }
 
   useEffect(() => {
-    debouncer('updateMouse', () => {
-      window.api.emitMouseOverPhoneIsland(isMouseOver)
-    }, 250)
+    debouncer(
+      'updateMouse',
+      () => {
+        window.api.emitMouseOverPhoneIsland(isMouseOver)
+      },
+      250
+    )
     // const root = document.getElementById('test')!
     // root.className = isMouseOver ? root.className.replace('bg-green-500', 'bg-red-500') : root.className.replace('bg-red-500', 'bg-green-500')
   }, [isMouseOver])
 
-
   const getPhoneIslandElement = () => {
-    return document.getElementById('phone-island-container')?.children[0]?.children[0] as HTMLDivElement | undefined
+    return document.getElementById('phone-island-container')?.children[0]?.children[0] as
+      | HTMLDivElement
+      | undefined
   }
 
   const addOverEvent = (element: HTMLDivElement) => {
-
     element.onmouseenter = (event) => {
       setIsMouseOver(true)
     }
@@ -79,8 +83,6 @@ export function PhoneIslandPage() {
     }
   }
 
-
-
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], debounceListener)
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], debounceListener)
   useEventListener(PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], () => {
@@ -113,9 +115,7 @@ export function PhoneIslandPage() {
 
   return (
     <div className="h-[100vh] w-[100vw] " id="phone-island-container">
-      {
-        dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoader={loadI18n} />
-      }
+      {dataConfig && <PhoneIsland dataConfig={dataConfig} /* i18nLoader={loadI18n} */ />}
       {
         //<div id='test' className='h-[140px] w-[140px] relative top-[10px] left-[10px] bg-red-500'></div>
       }

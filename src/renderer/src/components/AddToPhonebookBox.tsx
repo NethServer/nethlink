@@ -21,7 +21,26 @@ export function AddToPhonebookBox({
   onCancel,
   handleAddContactToPhonebook
 }: AddToPhonebookBoxProps) {
-  const { register, watch, handleSubmit, setValue, reset } = useForm<ContactType>()
+  const {
+    register,
+    watch,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors }
+  } = useForm<ContactType>({
+    defaultValues: {
+      privacy: '',
+      type: '',
+      name: '',
+      company: '',
+      speeddial_num: '',
+      workphone: '',
+      cellphone: '',
+      workemail: '',
+      notes: ''
+    }
+  })
   const onSubmit: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
   }
@@ -33,15 +52,9 @@ export function AddToPhonebookBox({
   }
 
   useEffect(() => {
+    reset()
     setValue('privacy', 'public')
     setValue('type', 'person')
-    setValue('name', '')
-    setValue('company', '')
-    setValue('speeddial_num', '')
-    setValue('workphone', '')
-    setValue('cellphone', '')
-    setValue('workemail', '')
-    setValue('notes', '')
 
     if (searchText !== undefined) {
       if (containsOnlyNumber(searchText)) {
@@ -68,17 +81,7 @@ export function AddToPhonebookBox({
       })
       .finally(() => {
         setIsLoading(false)
-        reset({
-          privacy: '',
-          type: '',
-          name: '',
-          company: '',
-          speeddial_num: '',
-          workphone: '',
-          cellphone: '',
-          workemail: '',
-          notes: ''
-        })
+        reset()
       })
   }
 
@@ -124,19 +127,20 @@ export function AddToPhonebookBox({
         {watchType === 'person' ? (
           <>
             <TextInput
-              {...register('name')}
+              {...register('name', { required: true })}
               type="text"
               className="font-normal"
               label={t('Phonebook.Name') as string}
+              error={Boolean(errors.name)}
             />
           </>
         ) : null}
-
         <TextInput
-          {...register('company')}
+          {...register('company', { required: !(watchType === 'person') })}
           type="text"
           className="font-normal"
           label={t('Phonebook.Company') as string}
+          error={Boolean(errors.company)}
         />
 
         <TextInput
@@ -190,15 +194,7 @@ export function AddToPhonebookBox({
           <Button variant="ghost" onClick={() => onCancel()}>
             <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.Cancel')}</p>
           </Button>
-          <Button
-            type="submit"
-            className="dark:bg-blue-500 bg-blue-600 gap-3"
-            disabled={
-              watchType === 'Person'
-                ? !watch('name') || !watch('company') || !watch('speeddial_num')
-                : !watch('company') || !watch('speeddial_num')
-            }
-          >
+          <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3">
             <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('Common.Save')}</p>
             {isLoading && (
               <FontAwesomeIcon
