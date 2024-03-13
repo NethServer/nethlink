@@ -19,7 +19,7 @@ export const loadI18n = () => {
     .use(initReactI18next)
     .init({
       backend: {
-        loadPath: './resources/locales/{{lng}}/translations.json',
+        loadPath: './public/locales/{{lng}}/translations.json',
         contextBridgeApiKey: 'api'
       },
       fallbackLng,
