@@ -47,7 +47,7 @@ export class AccountController {
   //salva i dati dell'account nel file config.json
   _saveNewAccountData(account: Account | undefined, isOpening = false) {
     const { CONFIG_FILE } = this._getPaths()
-    const config = this._getConfigFile()
+    const config = this._getConfigFile(isOpening)
     log('save account', config.lastUser, account?.username, isOpening)
     if (config.lastUser !== account?.username || isOpening) {
       this.fireEvent(account ? 'LOGIN' : 'LOGOUT', account)
@@ -67,11 +67,15 @@ export class AccountController {
   }
 
   listAvailableAccounts(): Account[] {
-    const accounts = this._getConfigFile()?.accounts
-    if (accounts) {
+    let accounts
+    try {
+      const config = this._getConfigFile()
+      accounts = config.accounts
       return Object.values(accounts || {})
+    } catch (e) {
+      log(e)
+      return []
     }
-    return []
   }
 
   async logout() {
@@ -147,7 +151,7 @@ export class AccountController {
     }
   }
 
-  _getConfigFile(): ConfigFile {
+  _getConfigFile(isOpeninig: boolean = false): ConfigFile {
     const { CONFIG_FILE } = this._getPaths()
 
     if (this.hasConfigsFolder()) {
@@ -155,7 +159,10 @@ export class AccountController {
       this.config = JSON.parse(data)
       return this.config!
     } else {
-      throw new Error(`Unable to find ${CONFIG_FILE}`)
+      if (isOpeninig) {
+        this.createConfigFile()
+        return this._getConfigFile()
+      } else throw new Error(`Unable to find ${CONFIG_FILE}`)
     }
   }
 
