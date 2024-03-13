@@ -8,8 +8,8 @@ export class TrayController {
   tray: Tray
 
   static instance: TrayController
-  constructor() {
-    this.tray = new Tray(join(__dirname, '../../resources/TrayLogo.png'))
+  constructor(onTrayIconClick: () => void) {
+    this.tray = new Tray(join(__dirname, '../../public/TrayLogo.png'))
     this.tray.setIgnoreDoubleClickEvents(true)
     this.tray.on('click', this.onTrayIconClick)
     const menu: (MenuItemConstructorOptions | MenuItem)[] = [
