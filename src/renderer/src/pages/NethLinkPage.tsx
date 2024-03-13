@@ -11,7 +11,8 @@ import {
   NewContactType,
   ContactType,
   NewSpeedDialType,
-  OperatorData
+  OperatorData,
+  QueuesType
 } from '@shared/types'
 import { useEffect, useRef, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
@@ -32,8 +33,8 @@ export function NethLinkPage() {
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
   const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
-  const [operators, setOperators] = useLocalStoreState<OperatorData>('operators')
-  const operatorsRef = useRef<OperatorData | undefined>()
+  const [operators, setOperators, operatorsRef] = useLocalStoreState<OperatorData>('operators')
+  const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
   const [selectedMissedCall, setSelectedMissedCall] = useState<{
     number?: string
@@ -79,16 +80,15 @@ export function NethLinkPage() {
     }
   }, [account])
 
-  useEffect(() => {
-    log(operatorsRef.current)
-    setOperators(operatorsRef.current)
-  }, [operatorsRef.current])
-
   function initialize() {
     window.api.onAccountChange(updateAccount)
     window.api.addPhoneIslandListener(
       PHONE_ISLAND_EVENTS['phone-island-main-presence'],
       onMainPresence
+    )
+    window.api.addPhoneIslandListener(
+      PHONE_ISLAND_EVENTS['phone-island-queue-update'],
+      onQueueUpdate
     )
     window.api.onReceiveSpeeddials(saveSpeeddials)
     window.api.onReceiveLastCalls(saveMissedCalls)
@@ -112,7 +112,17 @@ export function NethLinkPage() {
         log('presence of operators', operatorsRef.current.operators[username].mainPresence, operator.mainPresence)
         operatorsRef.current.operators[username].mainPresence = operator.mainPresence
       }
+      debouncer('onMainPresence', () => setOperators(operatorsRef.current))
     }
+  }
+
+  function onQueueUpdate(queues: { [queueId: string]: any }) {
+    log('onQueueUpdate', queuesRef.current, queues)
+    queuesRef.current = {
+      ...queuesRef.current,
+      ...queues
+    }
+    debouncer('onQueueUpdate', () => setQueues(queuesRef.current))
   }
 
   function updateAccount(account: Account | undefined) {
@@ -130,7 +140,6 @@ export function NethLinkPage() {
   function saveOperators(updateOperators: OperatorData | undefined): void {
     //log('UPDATE OPERATORS', operators, updateOperators)
     setOperators(updateOperators)
-    operatorsRef.current = updateOperators
   }
 
   async function handleSearch(searchText: string) {
