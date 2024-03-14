@@ -10,9 +10,18 @@ export class TrayController {
 
   static instance: TrayController
   constructor() {
+    TrayController.instance = this
+
     this.tray = new Tray(join(__dirname, '../../public/TrayLogo.png'))
     this.tray.setIgnoreDoubleClickEvents(true)
-    this.tray.on('click',this.onTrayIconClick)
+    this.tray.on('click', () => {
+      if (this.enableClick) {
+        if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
+        else if (NethLinkController.instance.window.isOpen()) NethLinkController.instance.hide()
+        else if (AccountController.instance.getLoggedAccount()) NethLinkController.instance.show()
+        else LoginController.instance.show()
+      }
+    })
     const menu: (MenuItemConstructorOptions | MenuItem)[] = [
       {
         role: 'quit',
@@ -23,15 +32,5 @@ export class TrayController {
     this.tray.on('right-click', () => {
       this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
     })
-    TrayController.instance = this
-  }
-
-  private onTrayIconClick() {
-    if (this.enableClick) {
-      if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
-      else if (NethLinkController.instance.window.isOpen()) NethLinkController.instance.hide()
-      else if (AccountController.instance.getLoggedAccount()) NethLinkController.instance.show()
-      else LoginController.instance.show()
-    }
   }
 }

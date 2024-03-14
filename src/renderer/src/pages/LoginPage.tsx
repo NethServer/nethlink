@@ -6,7 +6,7 @@ import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
 import avatar from '../assets/AvatarProvaLoginPage.jpeg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft, faX } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faEye, faEyeSlash, faX } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
 import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
 import { useInitialize } from '@renderer/hooks/useInitialize'
@@ -23,6 +23,7 @@ export function LoginPage() {
   const [selectedAccount, setSelectedAccount] = useState<Account | 'New Account'>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isError, setIsError] = useState<boolean>(false)
+  const [pwdVisible, setPwdVisible] = useState<boolean>(false)
 
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
@@ -108,9 +109,12 @@ export function LoginPage() {
         />
         <TextInput
           {...register('password')}
-          type="password"
           label="Password"
           error={isError || Boolean(errors.password)}
+          type={pwdVisible ? 'text' : 'password'}
+          icon={pwdVisible ? faEye : faEyeSlash}
+          onIconClick={() => setPwdVisible(!pwdVisible)}
+          trailingIcon={true}
         />
         <input
           type="submit"
@@ -166,10 +170,13 @@ export function LoginPage() {
                         <DisplayedAccountLogin account={selectedAccount} imageSrc={avatar} />
                         <TextInput
                           {...register('password')}
-                          type="password"
                           label="Password"
                           error={isError || Boolean(errors.password)}
                           className="mt-5"
+                          type={pwdVisible ? 'text' : 'password'}
+                          icon={pwdVisible ? faEye : faEyeSlash}
+                          onIconClick={() => setPwdVisible(!pwdVisible)}
+                          trailingIcon={true}
                         />
                         <input
                           type="submit"
