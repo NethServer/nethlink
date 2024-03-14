@@ -52,7 +52,7 @@ export function Navbar({
   }
 
   return (
-    <div className="flex flex-row items-center justify-between gap-4 min-w-[318px] min-h-[38px] px-4 py-4">
+    <div className="flex flex-row items-center justify-between gap-4 min-w-[318px] px-4 py-2">
       <SearchBox search={search} handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
@@ -145,30 +145,6 @@ export function Navbar({
                   <p className="font-semibold inline">{t('Profile.Go to Nethvoice CTI')}</p>
                 </div>
               </Menu.Item>
-              {/* <Menu.Item>
-                <div
-                  className="flex flex-row items-center py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 border-b-[1px] dark:border-gray-600"
-                  onClick={() =>
-                    alert('Deve mostrare qualcosa per cambiare stato da chiedere a nethesis')
-                  }
-                >
-                  <div className="flex flex-row items-center gap-4">
-                    <div className="flex items-center justify-center w-4 h-4">
-                      <StatusDot
-                        status={
-                          operators[account.username]?.mainPresence ||
-                          account.data?.mainPresece ||
-                          'offline'
-                        }
-                      />
-                    </div>
-
-                    <p className="font-semibold">{t('TopBar.Presence')}</p>
-                  </div>
-
-                  <FontAwesomeIcon className="text-sm ml-auto" icon={faChevronRight} />
-                </div>
-              </Menu.Item> */}
               <Menu.Item>
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
