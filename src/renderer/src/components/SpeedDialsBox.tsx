@@ -10,7 +10,7 @@ export interface SpeedDialsBoxProps {
   callUser: (phoneNumber: string) => void
   showCreateSpeedDial: () => void
   handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
-  handleDeleteSpeedDial: () => void
+  handleDeleteSpeedDial: (deleteSpeeddial: ContactType) => void
 }
 
 export function SpeedDialsBox({
