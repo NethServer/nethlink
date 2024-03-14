@@ -14,18 +14,20 @@ import {
   OperatorData,
   QueuesType
 } from '@shared/types'
-import { useEffect, useRef, useState } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
 import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { CreateSpeedDialBox } from '@renderer/components/CreateSpeedDialBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
 import { EditSpeedDialBox } from '@renderer/components/EditSpeedDialBox'
+import { Modal } from '@renderer/components/Modal'
+import { Button, InlineNotification } from '@renderer/components/Nethesis'
 
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
@@ -42,6 +44,9 @@ export function NethLinkPage() {
   } | null>(null)
   const [isEditingSpeedDial, setIsEditingSpeedDial] = useState<boolean>(false)
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
+  const [deleteSpeedDialError, setDeleteSpeedDialError] = useState('')
+  const cancelDeleteButtonRef = useRef() as MutableRefObject<HTMLButtonElement>
 
   useInitialize(() => {
     initialize()
@@ -103,8 +108,9 @@ export function NethLinkPage() {
 
   function onMainPresence(op: { [username: string]: any }) {
     log('onMainPresence', operatorsRef.current, op)
+    // eslint-disable-next-line no-prototype-builtins
     if (operatorsRef.current?.hasOwnProperty('operators')) {
-      for (let [username, operator] of Object.entries(op)) {
+      for (const [username, operator] of Object.entries(op)) {
         log(
           'presence of operators',
           operatorsRef.current.operators[username].mainPresence,
@@ -131,12 +137,10 @@ export function NethLinkPage() {
 
   async function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
     setSpeeddials(() => speeddialsResponse || [])
-    console.log('Speed dials', speeddialsResponse)
   }
 
   async function saveMissedCalls(historyResponse: HistoryCallData | undefined) {
     setMissedCalls(() => historyResponse?.rows || [])
-    console.log('MissedCalls', historyResponse)
   }
 
   function saveOperators(updateOperators: OperatorData | undefined): void {
@@ -177,14 +181,14 @@ export function NethLinkPage() {
 
   async function handleAddContactToPhonebook(contact: ContactType) {
     const [_, err] = await window.api.addContactToPhonebook(contact)
-    if (!!err) throw err
+    if (err) throw err
     setSearch(() => '')
     setSelectedMissedCall(() => null)
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
     const [_, err] = await window.api.addContactSpeedDials(contact)
-    if (!!err) throw err
+    if (err) throw err
     setIsCreatingSpeedDial(() => false)
     setSearch(() => '')
   }
@@ -193,20 +197,17 @@ export function NethLinkPage() {
     editContact: NewSpeedDialType,
     currentContact: ContactType
   ) {
-    console.log('aaaaa', currentContact)
     const [editedSpeedDial, err] = await window.api.editSpeedDialContact(
       editContact,
       currentContact
     )
-    if (!!err) throw err
-    console.log('llll', editedSpeedDial)
+    if (err) throw err
     const newSpeedDials = speeddials.map((speedDial) => {
       if (speedDial.id?.toString() === editedSpeedDial?.id) {
         return editedSpeedDial!
       }
       return speedDial
     })
-    console.log(newSpeedDials)
     setSpeeddials(() => newSpeedDials)
     setIsEditingSpeedDial(false)
     setSelectedSpeedDial(undefined)
@@ -214,8 +215,6 @@ export function NethLinkPage() {
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
-    //Aggiunto il fatto che se seleziono un menu faccio il reset della
-    //SearchBox e dello stato di aggiunta di un numero su Phonebook
     setSearch(() => '')
     setIsCreatingSpeedDial(false)
     setSelectedMissedCall(() => null)
@@ -238,9 +237,23 @@ export function NethLinkPage() {
     window.api.openNethVoicePage('https://cti.demo-heron.sf.nethserver.net')
   }
 
-  function handleDeleteSpeedDial(): void {
-    //Da aggiungere window.api
-    alert('Elimina')
+  function handleDeleteSpeedDial(deleteSpeeddial: ContactType) {
+    setSelectedSpeedDial(deleteSpeeddial)
+    setShowDeleteModal(true)
+  }
+
+  async function confirmDeleteSpeedDial(deleteSpeeddial: ContactType) {
+    try {
+      await window.api.deleteSpeedDial(deleteSpeeddial)
+    } catch (error) {
+      setDeleteSpeedDialError(t('SpeedDial.Cannot delete speed dial') || '')
+      return
+    }
+    let tempSpeedDials = speeddials
+    tempSpeedDials = tempSpeedDials.filter((speeddial) => speeddial.id !== deleteSpeeddial.id)
+    setSpeeddials(tempSpeedDials)
+    setSelectedSpeedDial(undefined)
+    setShowDeleteModal(false)
   }
 
   return (
@@ -276,7 +289,6 @@ export function NethLinkPage() {
                               setSelectedSpeedDial(undefined)
                             }}
                             handleEditContactToSpeedDials={handleEditContactToSpeedDials}
-                            // Passa qui le prop necessarie per il componente EditSpeedDialBox
                           />
                         ) : (
                           <SpeedDialsBox
@@ -319,6 +331,65 @@ export function NethLinkPage() {
                       </div>
                     ) : null}
                   </div>
+                  {/* Modal per l'eliminazione di una speedDials */}
+                  <Modal
+                    show={showDeleteModal}
+                    focus={cancelDeleteButtonRef}
+                    onClose={() => setShowDeleteModal(false)}
+                    afterLeave={() => setSelectedSpeedDial(undefined)}
+                    className={theme}
+                  >
+                    <Modal.Content>
+                      <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-red-100 dark:bg-red-900">
+                        <FontAwesomeIcon
+                          icon={faTriangleExclamation}
+                          className="h-6 w-6 text-red-600 dark:text-red-200"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">
+                          {t('SpeedDial.Delete speed dial')}
+                        </h3>
+                        <div className="mt-3">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {t('SpeedDial.Speed dial delete message', {
+                              deletingName: selectedSpeedDial?.name
+                            })}
+                          </p>
+                        </div>
+                        {/* delete speed dial error */}
+                        {deleteSpeedDialError && (
+                          <InlineNotification
+                            type="error"
+                            title={deleteSpeedDialError}
+                            className="mt-4"
+                          />
+                        )}
+                      </div>
+                    </Modal.Content>
+                    <Modal.Actions>
+                      <Button
+                        variant="danger"
+                        onClick={() => {
+                          setShowDeleteModal(false)
+                          confirmDeleteSpeedDial(selectedSpeedDial!)
+                        }}
+                      >
+                        {t('Common.Delete')}
+                      </Button>
+                      <Button
+                        variant="white"
+                        onClick={() => {
+                          setSelectedSpeedDial(undefined)
+                          setShowDeleteModal(false)
+                        }}
+                        ref={cancelDeleteButtonRef}
+                      >
+                        {t('Common.Cancel')}
+                      </Button>
+                    </Modal.Actions>
+                  </Modal>
                 </div>
                 <Sidebar
                   selectedMenu={selectedMenu}
