@@ -20,6 +20,7 @@ function onSyncEmitter<T>(
       const response = await asyncCallback(...args)
       syncResponse = [response, undefined]
     } catch (e: unknown) {
+      log(e)
       syncResponse = [undefined, cloneDeep(e as Error | undefined)]
     }
     event.returnValue = syncResponse
@@ -46,6 +47,10 @@ export function registerIpcEvents() {
   )
   onSyncEmitter(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT, (editContact, currentContact) =>
     NethVoiceAPI.instance.Phonebook.updateSpeeddial(editContact, currentContact)
+  )
+
+  onSyncEmitter(IPC_EVENTS.DELETE_SPEEDDIAL, (contact) =>
+    NethVoiceAPI.instance.Phonebook.deleteSpeeddial(contact)
   )
 
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
