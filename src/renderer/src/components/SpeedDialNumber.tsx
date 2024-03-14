@@ -22,14 +22,14 @@ export function SpeedDialNumber({
   handleDeleteSpeedDial
 }: SpeedDialNumberProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
-
+    
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
         <Avatar
           size="base"
-          src={operators?.avatars?.[speedDial.name!]}
-          status={operators?.operators?.[speedDial.name!]?.mainPresence || 'offline'}
+          src={operators?.avatars?.[speedDial.name ?? '']}
+          status={operators?.operators?.[speedDial.name ?? '']?.mainPresence || 'offline'}
           className="z-0"
           placeholder={PlaceholderIcon}
         />
