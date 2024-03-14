@@ -27,7 +27,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
 import { EditSpeedDialBox } from '@renderer/components/EditSpeedDialBox'
 import { Modal } from '@renderer/components/Modal'
-import { Button, InlineNotification } from '@renderer/components/Nethesis'
+import { Button } from '@renderer/components/Nethesis'
 
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
@@ -45,7 +45,6 @@ export function NethLinkPage() {
   const [isEditingSpeedDial, setIsEditingSpeedDial] = useState<boolean>(false)
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
-  const [deleteSpeedDialError, setDeleteSpeedDialError] = useState('')
   const cancelDeleteButtonRef = useRef() as MutableRefObject<HTMLButtonElement>
 
   useInitialize(() => {
@@ -243,12 +242,8 @@ export function NethLinkPage() {
   }
 
   async function confirmDeleteSpeedDial(deleteSpeeddial: ContactType) {
-    try {
-      await window.api.deleteSpeedDial(deleteSpeeddial)
-    } catch (error) {
-      setDeleteSpeedDialError(t('SpeedDial.Cannot delete speed dial') || '')
-      return
-    }
+    const [_, err] = await window.api.deleteSpeedDial(deleteSpeeddial)
+    if (err) throw err
     let tempSpeedDials = speeddials
     tempSpeedDials = tempSpeedDials.filter((speeddial) => speeddial.id !== deleteSpeeddial.id)
     setSpeeddials(tempSpeedDials)
@@ -358,14 +353,6 @@ export function NethLinkPage() {
                             })}
                           </p>
                         </div>
-                        {/* delete speed dial error */}
-                        {deleteSpeedDialError && (
-                          <InlineNotification
-                            type="error"
-                            title={deleteSpeedDialError}
-                            className="mt-4"
-                          />
-                        )}
                       </div>
                     </Modal.Content>
                     <Modal.Actions>
