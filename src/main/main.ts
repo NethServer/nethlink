@@ -52,6 +52,7 @@ app.whenReady().then(async () => {
       time++
       //log(time, windowsLoaded)
     }
+    TrayController.instance.enableClick = true
 
     //constollo se esiste il file di config (il file esiste solo se almeno un utente ha effettuato il login)
     if (AccountController.instance.hasConfigsFolder()) {

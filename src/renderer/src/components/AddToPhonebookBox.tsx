@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button, TextInput } from './Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
+import { faCircleNotch, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { t } from 'i18next'
@@ -73,7 +73,6 @@ export function AddToPhonebookBox({
   }, [])
 
   function handleSave(data: ContactType) {
-    setIsLoading(true)
     handleAddContactToPhonebook(data)
       .catch((error) => {
         //TODO: gestione errore inserimento
@@ -93,7 +92,11 @@ export function AddToPhonebookBox({
       <form
         className="flex flex-col gap-4 p-2 min-h-[240px] h-full overflow-y-auto"
         onSubmit={(e) => {
-          handleSubmit(onSubmit)(e)
+          setIsLoading(true)
+          e.preventDefault()
+          setTimeout(() => {
+            handleSubmit(onSubmit)(e)
+          }, 100)
         }}
       >
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
@@ -198,9 +201,8 @@ export function AddToPhonebookBox({
             <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('Common.Save')}</p>
             {isLoading && (
               <FontAwesomeIcon
-                icon={faCircleNotch}
-                className="dark:text-gray-900 text-gray-50"
-                spin
+                icon={faSpinner}
+                className="dark:text-gray-900 text-gray-50 animate-spin"
               />
             )}
           </Button>

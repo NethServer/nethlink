@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, TextInput } from './Nethesis'
-import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
+import { faCircleNotch, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useState } from 'react'
 import { NewContactType } from '@shared/types'
 import { log } from '@shared/utils/logger'
@@ -39,7 +39,6 @@ export function CreateSpeedDialBox({
   }, []) */
 
   function handleSave(data) {
-    setIsLoading(true)
     //Da aggiungere la visibility
     handleAddContactToSpeedDials(data)
       .catch((error) => {
@@ -60,8 +59,12 @@ export function CreateSpeedDialBox({
       </div>
       <form
         className="flex flex-col gap-4"
-        onSubmit={(e) => {
-          handleSubmit(onSubmit)(e)
+        onSubmit={async (e) => {
+          setIsLoading(true)
+          e.preventDefault()
+          setTimeout(() => {
+            handleSubmit(onSubmit)(e)
+          }, 100)
         }}
       >
         <TextInput
@@ -83,16 +86,15 @@ export function CreateSpeedDialBox({
           error={Boolean(errors.speeddial_num)}
         />
         <div className="absolute bottom-0 right-0 flex flex-row gap-4">
-          <Button variant="ghost" onClick={onCancel}>
+          <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
             <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.Cancel')}</p>
           </Button>
-          <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3">
+          <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3" disabled={isLoading}>
             <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('SpeedDial.Create')}</p>
             {isLoading && (
               <FontAwesomeIcon
-                icon={faCircleNotch}
-                className="dark:text-gray-900 text-gray-50"
-                spin
+                icon={faSpinner}
+                className="dark:text-gray-900 text-gray-50 animate-spin"
               />
             )}
           </Button>
