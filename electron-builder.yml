@@ -1,5 +1,6 @@
-appId: com.nethconnector.app
-productName: NethConnector
+appId: "com.nethlink.app"
+productName: "com.nethlink.app"
+copyright: "prova copyright"
 directories:
   buildResources: build
 files:
@@ -13,12 +14,22 @@ asarUnpack:
   - resources/**
 win:
   executableName: NethConnector
+  target:
+    - nsis
+  certificateFile: 'C:\Users\loren\Desktop\workspace\aidapt\neth-connector-electron\certification\nethlinkcert.pfx'
+  certificatePassword: 'aidapt'
+  #certificateSubjectName: AidaptSRL
 nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
 mac:
+  category: public.app-category.developer-tools
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
@@ -26,13 +37,19 @@ mac:
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
+  target:
+    - dmg
+    - zip
+    - mas
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
   target:
-    - AppImage
     - snap
+    - AppImage
     - deb
+    - rpm
+    - zip
   maintainer: electronjs.org
   category: Utility
 appImage:
@@ -43,3 +60,8 @@ publish:
   url: https://example.com/auto-updates
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
+protocols:
+  name: neth-connector-protocols
+  schemes:
+    - tel
+    - callto

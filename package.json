@@ -35,7 +35,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.18",
-    "@nethesis/phone-island": "0.7.133",
+    "@nethesis/phone-island": "^0.8.4",
     "@tailwindcss/forms": "^0.5.7",
     "auto-launch": "^5.0.6",
     "axios": "^1.6.7",
@@ -81,41 +81,6 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.12"
-  },
-  "build": {
-    "appId": "com.nethlink.app",
-    "productName": "com.nethlink.app",
-    "copyright": "prova copyright",
-    "mac": {
-      "category": "public.app-category.developer-tools",
-      "target": [
-        "dmg",
-        "zip",
-        "mas"
-      ]
-    },
-    "linux": {
-      "target": [
-        "snap",
-        "AppImage",
-        "deb",
-        "rpm",
-        "zip"
-      ]
-    },
-    "win": {
-      "target": [
-        "zip",
-        "nsis"
-      ]
-    },
-    "protocols": {
-      "name": "neth-connector-protocols",
-      "schemes": [
-        "tel",
-        "callto"
-      ]
-    }
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"
