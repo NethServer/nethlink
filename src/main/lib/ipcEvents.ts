@@ -20,7 +20,7 @@ function onSyncEmitter<T>(
       const response = await asyncCallback(...args)
       syncResponse = [response, undefined]
     } catch (e: unknown) {
-      log(e)
+      //log(e)
       syncResponse = [undefined, cloneDeep(e as Error | undefined)]
     }
     event.returnValue = syncResponse
