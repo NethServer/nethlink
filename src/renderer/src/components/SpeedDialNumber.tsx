@@ -12,7 +12,7 @@ export interface SpeedDialNumberProps {
   speedDial: ContactType
   callUser: () => void
   handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
-  handleDeleteSpeedDial: () => void
+  handleDeleteSpeedDial: (deletedSpeedDial: ContactType) => void
 }
 
 export function SpeedDialNumber({
@@ -22,16 +22,14 @@ export function SpeedDialNumber({
   handleDeleteSpeedDial
 }: SpeedDialNumberProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
-
-  //const username = user.speeddial_num ? operators.extensions[user.speeddial_num]?.username : undefined
-
+    
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
         <Avatar
           size="base"
-          src={operators?.avatars?.[speedDial.name!]}
-          status={operators?.operators?.[speedDial.name!]?.mainPresence || 'offline'}
+          src={operators?.avatars?.[speedDial.name ?? '']}
+          status={operators?.operators?.[speedDial.name ?? '']?.mainPresence || 'offline'}
           className="z-0"
           placeholder={PlaceholderIcon}
         />
@@ -65,9 +63,7 @@ export function SpeedDialNumber({
                 </div>
               </Menu.Button>
             </div>
-            <Menu.Items
-              className={`mt-2 fixed border dark:border-gray-700 border-gray-200 rounded-lg min-w-[180px] min-h-[84px] dark:bg-gray-900 bg-gray-50 translate-x-[calc(-100%+36px)] z-[110]`}
-            >
+            <Menu.Items className="fixed border dark:border-gray-700 border-gray-200 rounded-lg min-w-[180px] min-h-[84px] dark:bg-gray-900 bg-gray-50 translate-x-[calc(-100%+36px)] translate-y-[calc(-100%+36px)] z-[110]">
               <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
@@ -86,10 +82,12 @@ export function SpeedDialNumber({
                   </div>
                 </div>
               </Menu.Item>
+
+              {/* TODO aggiungere il modal per la conferma */}
               <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mb-2"
-                  onClick={handleDeleteSpeedDial}
+                  onClick={() => handleDeleteSpeedDial(speedDial)}
                 >
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon

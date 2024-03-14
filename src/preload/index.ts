@@ -31,6 +31,7 @@ export interface IElectronAPI {
     editContact: NewSpeedDialType,
     currentContact: ContactType
   ): SyncPromise<ContactType>
+  deleteSpeedDial(contact: ContactType): SyncPromise<string>
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
@@ -56,7 +57,6 @@ export interface IElectronAPI {
   openMissedCallsPage: (url: string) => void
   hideNethLink: () => void
   openNethVoicePage: (url: string) => void
-
   emitMouseOverPhoneIsland(isOver: boolean): void
 
   //PHONE ISLAND EVENTS:
@@ -97,6 +97,7 @@ const api: IElectronAPI = {
   addContactSpeedDials: setEmitterSync<ContactType>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
   addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
   editSpeedDialContact: setEmitterSync<ContactType>(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT),
+  deleteSpeedDial: setEmitterSync<string>(IPC_EVENTS.DELETE_SPEEDDIAL),
 
   //EMITTER - only emit, no response
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
@@ -111,6 +112,8 @@ const api: IElectronAPI = {
   openNethVoicePage: setEmitter(IPC_EVENTS.OPEN_NETHVOICE_PAGE),
   emitMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
   hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
+
+  ///
 
   //LISTENERS - receive data async
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),
