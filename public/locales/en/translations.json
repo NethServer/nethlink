@@ -71,6 +71,24 @@
     "Network connection is lost": "Network connection is lost",
     "Login failed": "Login failed"
   },
+  "Notification": {
+    "contact_created_title": "Contact created!",
+    "contact_created_description": "Contact successfully created",
+    "contact_not_created_title": "Contact not created!",
+    "contact_not_created_description": "Error in creating the contact",
+    "speeddial_created_title": "SpeedDial created!",
+    "speeddial_created_description": "SpeedDial successfully created",
+    "speeddial_not_created_title": "SpeedDial not created!",
+    "speeddial_not_created_description": "Error in creating the SpeedDial",
+    "speeddial_modified_title": "SpeedDial modified!",
+    "speeddial_modified_description": "SpeedDial successfully modified",
+    "speeddial_not_modified_title": "SpeedDial unmodified!",
+    "speeddial_not_modified_description": "Error in editing SpeedDial",
+    "speeddial_deleted_title": "SpeedDial eliminated!",
+    "speeddial_deleted_description": "SpeedDial successfully eliminated",
+    "speeddial_not_deleted_title": "SpeedDial not deleted!",
+    "speeddial_not_deleted_description": "Error in deleting SpeedDial"
+  },
   "Phonebook": {
     "Phonebook": "Phonebook",
     "Create contact": "Create contact",

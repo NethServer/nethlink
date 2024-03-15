@@ -28,6 +28,7 @@ import { t } from 'i18next'
 import { EditSpeedDialBox } from '@renderer/components/EditSpeedDialBox'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Nethesis'
+import avatar from '../assets/TrayLogo.png'
 
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
@@ -180,16 +181,37 @@ export function NethLinkPage() {
 
   async function handleAddContactToPhonebook(contact: ContactType) {
     const [_, err] = await window.api.addContactToPhonebook(contact)
-    if (err) throw err
+    if (err) {
+      sendNotification(
+        t('Notification.contact_not_created_title'),
+        t('Notification.contact_not_created_description')
+      )
+      throw err
+    }
     setSearch(() => '')
     setSelectedMissedCall(() => null)
+    sendNotification(
+      t('Notification.contact_created_title'),
+      t('Notification.contact_created_description')
+    )
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
-    const [_, err] = await window.api.addContactSpeedDials(contact)
-    if (err) throw err
+    const [createdSpeedDial, err] = await window.api.addContactSpeedDials(contact)
+    if (err) {
+      sendNotification(
+        t('Notification.speeddial_not_created_title'),
+        t('Notification.speeddial_not_created_description')
+      )
+      throw err
+    }
+    setSpeeddials(() => [...speeddials, createdSpeedDial as ContactType])
     setIsCreatingSpeedDial(() => false)
     setSearch(() => '')
+    sendNotification(
+      t('Notification.speeddial_created_title'),
+      t('Notification.speeddial_created_description')
+    )
   }
 
   async function handleEditContactToSpeedDials(
@@ -200,7 +222,13 @@ export function NethLinkPage() {
       editContact,
       currentContact
     )
-    if (err) throw err
+    if (err) {
+      sendNotification(
+        t('Notification.speeddial_not_modified_title'),
+        t('Notification.speeddial_not_modified_description')
+      )
+      throw err
+    }
     const newSpeedDials = speeddials.map((speedDial) => {
       if (speedDial.id?.toString() === editedSpeedDial?.id) {
         return editedSpeedDial!
@@ -210,6 +238,10 @@ export function NethLinkPage() {
     setSpeeddials(() => newSpeedDials)
     setIsEditingSpeedDial(false)
     setSelectedSpeedDial(undefined)
+    sendNotification(
+      t('Notification.speeddial_modified_title'),
+      t('Notification.speeddial_modified_description')
+    )
   }
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
@@ -242,13 +274,30 @@ export function NethLinkPage() {
   }
 
   async function confirmDeleteSpeedDial(deleteSpeeddial: ContactType) {
-    const [_, err] = await window.api.deleteSpeedDial(deleteSpeeddial)
-    if (err) throw err
-    let tempSpeedDials = speeddials
-    tempSpeedDials = tempSpeedDials.filter((speeddial) => speeddial.id !== deleteSpeeddial.id)
-    setSpeeddials(tempSpeedDials)
+    const [eliminatedSpeedDial, err] = await window.api.deleteSpeedDial(deleteSpeeddial)
+    if (err) {
+      sendNotification(
+        t('Notification.speeddial_not_deleted_title'),
+        t('Notification.speeddial_not_deleted_description')
+      )
+      throw err
+    }
+    setSpeeddials(() =>
+      speeddials.filter((speeddial) => speeddial.id?.toString() !== eliminatedSpeedDial)
+    )
     setSelectedSpeedDial(undefined)
     setShowDeleteModal(false)
+    sendNotification(
+      t('Notification.speeddial_deleted_title'),
+      t('Notification.speeddial_deleted_description')
+    )
+  }
+
+  function sendNotification(title: string, body: string) {
+    new Notification(title, {
+      body,
+      icon: avatar
+    })
   }
 
   return (
