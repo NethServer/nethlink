@@ -90,6 +90,7 @@ export type UserSettings = {
   desktop_notifications: true
   open_ccard: 'enabled' | 'disabled'
   chat_notifications: true
+  avatar?: string
 }
 
 export type MultipleResponse<T> = {

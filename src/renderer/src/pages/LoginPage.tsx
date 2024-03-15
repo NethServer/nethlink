@@ -4,7 +4,6 @@ import { ReactNode, useEffect, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
-import avatar from '../assets/AvatarProvaLoginPage.jpeg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft, faEye, faEyeSlash, faX } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
@@ -167,7 +166,10 @@ export function LoginPage() {
                         <p className="text-gray-100 text-md mb-5">
                           Choose an account to continue to Nethconnector.
                         </p>
-                        <DisplayedAccountLogin account={selectedAccount} imageSrc={avatar} />
+                        <DisplayedAccountLogin
+                          account={selectedAccount}
+                          imageSrc={selectedAccount.data?.settings.avatar}
+                        />
                         <TextInput
                           {...register('password')}
                           label="Password"
@@ -199,7 +201,7 @@ export function LoginPage() {
                           <DisplayedAccountLogin
                             key={idx}
                             account={account}
-                            imageSrc={avatar}
+                            imageSrc={account.data?.settings.avatar}
                             handleClick={() => setSelectedAccount(account)}
                           />
                         )
