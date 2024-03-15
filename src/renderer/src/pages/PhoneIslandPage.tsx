@@ -115,7 +115,7 @@ export function PhoneIslandPage() {
 
   return (
     <div className="h-[100vh] w-[100vw] " id="phone-island-container">
-      {dataConfig && <PhoneIsland dataConfig={dataConfig} /* i18nLoader={loadI18n} */ />}
+      {dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoader={loadI18n} />}
       {
         //<div id='test' className='h-[140px] w-[140px] relative top-[10px] left-[10px] bg-red-500'></div>
       }

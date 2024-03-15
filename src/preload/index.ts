@@ -1,4 +1,4 @@
-import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import {

@@ -20,7 +20,7 @@
     "dev": "electron-vite dev",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "build": "npm run typecheck && electron-vite build",
+    "build": "del /s /q out && del /s /q dist && npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
@@ -50,6 +50,7 @@
     "i18next-http-backend": "^2.1.1",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
+    "path-browserify": "^1.0.1",
     "react-hook-form": "^7.50.1",
     "react-i18next": "^12.1.5",
     "react-router-dom": "^6.21.3",
@@ -80,7 +81,8 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
-    "vite": "^5.0.12"
+    "vite": "^5.0.12",
+    "vite-plugin-copy": "^0.1.6"
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"
