@@ -54,6 +54,24 @@
     "Network connection is lost": "Connessione di rete persa",
     "Login failed": "Accesso fallito"
   },
+  "Notification": {
+    "contact_created_title": "Contatto creato!",
+    "contact_created_description": "Contatto creato con successo",
+    "contact_not_created_title": "Contatto non creato!",
+    "contact_not_created_description": "Errore nella creazione del contatto",
+    "speeddial_created_title": "SpeedDial creata!",
+    "speeddial_created_description": "SpeedDial creata con successo",
+    "speeddial_not_created_title": "SpeedDial non creata!",
+    "speeddial_not_created_description": "Errore nella creazione della SpeedDial",
+    "speeddial_modified_title": "SpeedDial modificata!",
+    "speeddial_modified_description": "SpeedDial modificata con successo",
+    "speeddial_not_modified_title": "SpeedDial non modificata!",
+    "speeddial_not_modified_description": "Errore nella modifica della SpeedDial",
+    "speeddial_deleted_title": "SpeedDial eliminata!",
+    "speeddial_deleted_description": "SpeedDial eliminata con successo",
+    "speeddial_not_deleted_title": "SpeedDial non eliminata!",
+    "speeddial_not_deleted_description": "Errore nell'eliminazione della SpeedDial"
+  },
   "Phonebook": {
     "Phonebook": "Rubrica",
     "Create contact": "Crea contatto",
