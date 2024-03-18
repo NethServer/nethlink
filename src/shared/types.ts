@@ -154,7 +154,7 @@ export type CallData = {
   dst_ccompany?: string
   clid?: string
   direction?: string
-  queue?: null
+  queue?: string
 }
 
 export type StatusTypes =
