@@ -24,7 +24,7 @@ function Layout({ isDev }: { isDev: boolean }) {
   return (
     <div>
       {
-        isDev && <button onClick={openDevTools} className='absolute bottom-0 left-0 bg-white p-1 z-[1000]'>devtool</button>
+        isDev && <button onClick={openDevTools} className='absolute bottom-0 left-0 bg-white p-1 z-[10000]'>devtool</button>
       }
       <Outlet />
     </div>

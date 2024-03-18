@@ -9,6 +9,8 @@ export class PhoneIslandController {
 
   window: PhoneIslandWindow
 
+  isFirst = true
+
   constructor() {
     PhoneIslandController.instance = this
     this.window = new PhoneIslandWindow()
@@ -53,6 +55,11 @@ export class PhoneIslandController {
     const windowPhone = this.window.getWindow()
     if (windowPhone) {
       const bounds = windowPhone.getBounds()
+      if (this.isFirst) {
+        bounds.x = (bounds.width - w) / 2
+        bounds.y = (bounds.height - h) / 2
+        this.isFirst = false
+      }
       windowPhone.setBounds({ ...bounds, width: w, height: h }, false)
     }
   }

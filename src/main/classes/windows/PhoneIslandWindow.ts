@@ -5,6 +5,8 @@ export class PhoneIslandWindow extends BaseWindow {
     super('phoneislandpage', {
       width: 500,
       height: 500,
+      x: 10000,
+      y: 0,
       show: false,
       fullscreenable: false,
       autoHideMenuBar: true,
