@@ -2,7 +2,7 @@ import { join } from 'path'
 import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
-import { Account, NewContactType, Operator, ContactType } from '@shared/types'
+import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType } from '@shared/types'
 
 export class NethVoiceAPI {
   _host: string
@@ -15,8 +15,10 @@ export class NethVoiceAPI {
   }
 
   _joinUrl(url: string) {
-    const path = `${this._host}${url}`
-    console.log('PATH:', path)
+    //TODO: modifica forzatura (in questo momento serve per far collegare a phone island)
+    //'https://nethvoice.nethesis.it' //'https://cti.demo-heron.sf.nethserver.net' //
+    const host = this._host
+    const path = `${host}${url}`
     return path
   }
 
@@ -51,7 +53,6 @@ export class NethVoiceAPI {
 
   async _POST(path: string, data?: object, unauthorized = false): Promise<any> {
     try {
-      console.log(path)
       return (await axios.post(this._joinUrl(path), data, this._getHeaders(unauthorized))).data
     } catch (e) {
       console.error(e)
@@ -73,11 +74,9 @@ export class NethVoiceAPI {
       return new Promise((resolve, reject) => {
         this._POST('/webrest/authentication/login', data, true).catch(async (reason) => {
           try {
-            console.log(reason)
             if (reason.response.status === 401 && reason.response.headers['www-authenticate']) {
               const digest = reason.response.headers['www-authenticate']
               const nonce = digest.split(' ')[1]
-              console.log(digest, nonce)
               if (nonce) {
                 const accessToken = this._toHash(username, password, nonce)
                 this._account = {
@@ -88,10 +87,16 @@ export class NethVoiceAPI {
                   lastAccess: moment().toISOString()
                 }
                 await this.User.me()
-                const res = await this._GET('/config/config.production.js')
-                const SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim()
-                const SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim()
-                console.log('CONFIG', SIP_HOST, SIP_PORT)
+                //importo il file config di questo host per prelevare le informazioni su SIP_host e port
+                //TODO: ripristinare
+                //const res = await this._GET('/config/config.production.js')
+                // const res = (
+                //   await axios.get(
+                //     'https://cti.demo-heron.sf.nethserver.net/config/config.production.js'
+                //   )
+                // ).data
+                const SIP_HOST = '127.0.0.1' //res.split("SIP_HOST: '")[1].split("',")[0].trim()
+                const SIP_PORT = '5060' //res.split("SIP_PORT: '")[1].split("',")[0].trim()
                 this._account.sipHost = SIP_HOST
                 this._account.sipPort = SIP_PORT
                 resolve(this._account)
@@ -133,8 +138,6 @@ export class NethVoiceAPI {
         const res = await this._GET(
           `/webrest/historycall/interval/user/${this._account!.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
         )
-        //historycall/interval/user/lorenzo/20231221/20240221?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined
-        console.log(res)
         return res
       } catch (e) {
         console.error(e)
@@ -155,7 +158,6 @@ export class NethVoiceAPI {
       const s = await this._GET(
         `/webrest/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}`
       )
-      console.log(s)
       return s
     },
     speeddials: async () => {
@@ -175,23 +177,44 @@ export class NethVoiceAPI {
       await this._POST(`/webrest/phonebook/create`, newSpeedDial)
       return newSpeedDial
     },
-    updateSpeeddial: async (edit: NewContactType, current: ContactType) => {
+    updateSpeeddial: async (edit: NewSpeedDialType, current: ContactType) => {
+      console.log(edit)
+
       if (current.name && current.speeddial_num) {
-        const newSpeedDial = Object.assign({}, current)
-        newSpeedDial.speeddial_num = edit.speeddial_num
-        newSpeedDial.name = edit.name
-        newSpeedDial.id = newSpeedDial.id?.toString()
-        await this._POST(`/webrest/phonebook/modify_cticontact`, newSpeedDial)
-        return current
+        const editedSpeedDial = Object.assign({}, current)
+        editedSpeedDial.speeddial_num = edit.speeddial_num
+        editedSpeedDial.name = edit.name
+        editedSpeedDial.id = editedSpeedDial.id?.toString()
+        console.log('Edited speedDial', editedSpeedDial, current)
+        await this._POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
+        return editedSpeedDial
       }
     },
     deleteSpeeddial: async (obj: { id: string }) => {
-      await this._POST(`/webrest/phonebook/delete_cticontact`, obj)
+      await this._POST(`/webrest/phonebook/delete_cticontact`, { id: '' + obj.id })
     },
     ///CONTACTS
-    createContact: async (create: NewContactType) => {
-      await this._POST(`/webrest/phonebook/create`, create)
-      return create
+    //PROVA A METTERE IL CONTACTTYPE E NON IL NEWCONTACTTYPE
+    createContact: async (create: ContactType) => {
+      //L"API VUOLE IL PARAMETRO setInput
+      const newContact: ContactType & { setInput: string } = {
+        privacy: create.privacy,
+        /* DA GUARDARE BENE INSIEME A LOPRE' CON IL CODICE DI LORO SOTTO */
+        type: 'speeddial',
+        name: create.name,
+        company: create.company,
+        speeddial_num: create.speeddial_num,
+        workphone: create.workphone,
+        cellphone: create.cellphone,
+        workemail: create.workemail,
+        notes: create.notes,
+        //DEFAULT VALUES
+        favorite: false,
+        selectedPrefNum: 'extension',
+        setInput: ''
+      }
+      await this._POST(`/webrest/phonebook/create`, newContact)
+      return newContact
     },
     updateContact: async (edit: NewContactType, current: ContactType) => {
       if (current.name && current.speeddial_num) {
@@ -230,14 +253,14 @@ export class NethVoiceAPI {
 
   Voicemail = {}
 
-  fetchOperators = async (): Promise<Operator> => {
-    console.log('FETCH')
-    const endpoints = await this.User.all_endpoints()
-    const groups = await this.AstProxy.groups()
+  fetchOperators = async (): Promise<OperatorData> => {
+    const endpoints = await this.User.all_endpoints() //tutti i dispositivi
+    const groups = await this.AstProxy.groups() //
     const extensions = await this.AstProxy.extensions()
     const avatars = await this.User.all_avatars()
     return {
-      userEndpoints: endpoints,
+      userEndpoints: endpoints, //posso rimuoverlo
+      operators: endpoints,
       extensions,
       groups,
       avatars

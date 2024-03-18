@@ -1,19 +1,21 @@
 import { PhoneIsland } from '@nethesis/phone-island'
+import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
+import loadI18n from '@renderer/lib/i18n'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { Account } from '@shared/types'
-import { createRef, useEffect, useRef, useState } from 'react'
-import { useStore } from 'zustand'
+import { log } from '@shared/utils/logger'
+import { debouncer } from '@shared/utils/utils'
+import { useState, useEffect, useRef } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
-  const [loggedAccount, setLoggedAccount] = useLocalStoreState<Account | undefined>('user')
+  const [isMouseOver, setIsMouseOver] = useState(false)
+  const ref = useRef(0)
 
   useInitialize(() => {
     window.api.onDataConfigChange(updateDataConfig)
     window.api.onStartCall((number: number | string) => {
-      console.log('received number', number)
+      debounceListener()
       window.dispatchEvent(
         new CustomEvent('phone-island-call-start', {
           detail: {
@@ -22,69 +24,101 @@ export function PhoneIslandPage() {
         })
       )
     })
-
-    window.api.onAccountChange((account: Account | undefined) => {
-      console.log('account change', account)
-      if (!account) {
-        console.log(loggedAccount)
-        // window.dispatchEvent(
-        //   new CustomEvent('phone-island-detach', {
-        //     detail: {
-        //       number
-        //     }
-        //   })
-        // )
-      }
-      setLoggedAccount(account)
-    })
-
-    console.log('INITIALIZE')
-    Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
-      window.addEventListener(ev, (event) => {
-        window.api[ev](event['detail'])
-      })
-    })
   }, true)
 
   function updateDataConfig(dataConfig: string | undefined) {
-    console.log(dataConfig)
     setDataConfig(() => dataConfig)
   }
 
-  const ref = createRef<HTMLDivElement>()
-  const initialize = useRef<boolean>(false)
   useEffect(() => {
-    if (ref.current && !initialize.current) {
-      initialize.current = true
-      const elementToObserve = ref.current
+    debouncer(
+      'updateMouse',
+      () => {
+        window.api.emitMouseOverPhoneIsland(isMouseOver)
+      },
+      250
+    )
+    // const root = document.getElementById('test')!
+    // root.className = isMouseOver ? root.className.replace('bg-green-500', 'bg-red-500') : root.className.replace('bg-red-500', 'bg-green-500')
+  }, [isMouseOver])
 
-      const observer = new MutationObserver(function (mutationsList, observer) {
-        const elem = mutationsList[0].target as HTMLDivElement
-        console.log(elem)
-        if (elem.className.includes('pi-pointer-events-auto')) {
-          if (elem.offsetHeight <= 103) {
-            window.api.resizePhoneIsland(420, 98)
-          } else if (elem.offsetHeight > 103 && elem.offsetHeight <= 237) {
-            window.api.resizePhoneIsland(350, 238)
-          } else if (elem.offsetHeight > 237) {
-            window.api.resizePhoneIsland(350, 306)
-          }
-        }
-      })
+  const getPhoneIslandElement = () => {
+    return document.getElementById('phone-island-container')?.children[0]?.children[0] as
+      | HTMLDivElement
+      | undefined
+  }
 
-      observer.observe(elementToObserve, {
-        characterData: false,
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['style']
-      })
+  const addOverEvent = (element: HTMLDivElement) => {
+    element.onmouseenter = (event) => {
+      setIsMouseOver(true)
     }
-  }, [ref.current])
+    element.onmouseleave = (event) => {
+      setIsMouseOver(false)
+    }
+
+    const interval = setInterval(() => {
+      const el = getPhoneIslandElement()
+      const eq = element === el
+      if (!eq) {
+        clearInterval(interval)
+        setIsMouseOver(false)
+      }
+    }, 1000)
+  }
+
+  const listenPhoneIsland = (stop = false) => {
+    if (!stop) {
+      setTimeout(() => {
+        const elementToObserve = getPhoneIslandElement()
+        if (elementToObserve && elementToObserve.className.includes('pi-absolute')) {
+          ref.current = 0
+          addOverEvent(elementToObserve)
+        } else {
+          ref.current++
+          listenPhoneIsland(ref.current > 10)
+        }
+      }, 250)
+    } else {
+      console.error('PHONE ISLAND NON TROVATA')
+    }
+  }
+
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-started'], debounceListener)
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ringing'], debounceListener)
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], () => {
+    log('phone-island-server-disconnected')
+  })
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], () => {
+    log('phone-island-socket-disconnected')
+  })
+  useEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ended'], () => {
+    setIsMouseOver(false)
+  })
+
+  function redirectEventToMain(event: PHONE_ISLAND_EVENTS) {
+    //mi sottoscrivo all'evento che arriva sulla window della phone island
+    useEventListener(event, (e) => {
+      log(event, e)
+      //giro l'evento al main di electron -> poi il main propaga l'evento alle altre window che avranno attivato il corrispondente listener
+      window.api[event](e)
+    })
+  }
+
+  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-main-presence'])
+  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-conversations'])
+  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-update'])
+  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'])
+
+  function debounceListener() {
+    debouncer('listenPhoneIsland', listenPhoneIsland, 100)
+  }
 
   return (
-    <div className="h-[100vh] w-[100vw]" ref={ref}>
-      {dataConfig && <PhoneIsland dataConfig={dataConfig} />}
+    <div className="h-[100vh] w-[100vw] " id="phone-island-container">
+      {dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoader={loadI18n} />}
+      {
+        //<div id='test' className='h-[140px] w-[140px] relative top-[10px] left-[10px] bg-red-500'></div>
+      }
     </div>
   )
 }

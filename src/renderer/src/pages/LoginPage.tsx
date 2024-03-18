@@ -4,12 +4,12 @@ import { ReactNode, useEffect, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
-import avatar from '../assets/AvatarProvaLoginPage.jpeg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft, faX } from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft, faEye, faEyeSlash, faX } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
 import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
 import { useInitialize } from '@renderer/hooks/useInitialize'
+import { log } from '@shared/utils/logger'
 
 type LoginData = {
   host: string
@@ -22,20 +22,13 @@ export function LoginPage() {
   const [selectedAccount, setSelectedAccount] = useState<Account | 'New Account'>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isError, setIsError] = useState<boolean>(false)
+  const [pwdVisible, setPwdVisible] = useState<boolean>(false)
 
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
-      console.log(accounts)
       setDisplayedAccounts(accounts)
     })
-    window.api.sendInitializationCompleted('loginpage')
-
-    reset({
-      host: '',
-      password: '',
-      username: ''
-    })
-  })
+  }, true)
 
   function resizeThisWindow(h: number) {
     window.api.resizeLoginWindow(h)
@@ -46,8 +39,9 @@ export function LoginPage() {
   }
 
   async function handleLogin(data: LoginData) {
+    if (data.host.slice(-1) === '/') data.host = data.host.slice(0, data.host.length - 2)
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
-    console.log(returnValue)
+    log(data, returnValue, err)
     setIsError(!!err)
     !err && setSelectedAccount(undefined)
     setIsLoading(false)
@@ -59,7 +53,13 @@ export function LoginPage() {
     setValue,
     reset,
     formState: { errors }
-  } = useForm<LoginData>()
+  } = useForm<LoginData>({
+    defaultValues: {
+      host: '',
+      username: '',
+      password: ''
+    }
+  })
   const onSubmit: SubmitHandler<LoginData> = (data) => {
     handleLogin(data)
   }
@@ -68,14 +68,12 @@ export function LoginPage() {
     if (selectedAccount) {
       if (selectedAccount === 'New Account') {
         resizeThisWindow(570)
-        setValue('host', '')
-        setValue('username', '')
-        setValue('password', '')
+        reset()
       } else {
         resizeThisWindow(445)
+        reset()
         setValue('host', selectedAccount.host)
         setValue('username', selectedAccount.username)
-        setValue('password', '')
       }
     } else {
       setIsError(false)
@@ -110,9 +108,12 @@ export function LoginPage() {
         />
         <TextInput
           {...register('password')}
-          type="password"
           label="Password"
           error={isError || Boolean(errors.password)}
+          type={pwdVisible ? 'text' : 'password'}
+          icon={pwdVisible ? faEye : faEyeSlash}
+          onIconClick={() => setPwdVisible(!pwdVisible)}
+          trailingIcon={true}
         />
         <input
           type="submit"
@@ -151,59 +152,69 @@ export function LoginPage() {
             }, 100)
           }}
         >
-          {displayedAccounts.length > 0 ? (
-            <div>
-              {selectedAccount ? (
-                <div>
-                  {selectedAccount === 'New Account' ? (
-                    newAccountForm
-                  ) : (
-                    <div className="dark w-full mt-7">
-                      <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
-                      <p className="text-gray-100 text-md mb-5">
-                        Choose an account to continue to Nethconnector.
-                      </p>
-                      <DisplayedAccountLogin account={selectedAccount} imageSrc={avatar} />
-                      <TextInput
-                        {...register('password')}
-                        type="password"
-                        label="Password"
-                        error={isError || Boolean(errors.password)}
-                        className="mt-5"
-                      />
-                      <input
-                        type="submit"
-                        className="w-full bg-blue-500 rounded h-9 font-semibold mt-7 cursor-pointer"
-                        value="Sign in"
-                      />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="w-full mt-7">
-                  <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
-                  <p className="text-gray-100 text-md mb-8">
-                    Choose an account to continue to Nethconnector.
-                  </p>
-                  <div className="max-h-60 overflow-y-auto">
-                    {displayedAccounts.map((account, idx) => {
-                      return (
+          {
+            //quando esiste almeno un account allora mostro la lista di selezione
+            displayedAccounts.length > 0 ? (
+              <div>
+                {selectedAccount ? (
+                  <div>
+                    {selectedAccount === 'New Account' ? (
+                      newAccountForm
+                    ) : (
+                      <div className="dark w-full mt-7">
+                        <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
+                        <p className="text-gray-100 text-md mb-5">
+                          Choose an account to continue to Nethconnector.
+                        </p>
                         <DisplayedAccountLogin
-                          key={idx}
-                          account={account}
-                          imageSrc={avatar}
-                          handleClick={() => setSelectedAccount(account)}
+                          account={selectedAccount}
+                          imageSrc={selectedAccount.data?.settings.avatar}
                         />
-                      )
-                    })}
+                        <TextInput
+                          {...register('password')}
+                          label="Password"
+                          error={isError || Boolean(errors.password)}
+                          className="mt-5"
+                          type={pwdVisible ? 'text' : 'password'}
+                          icon={pwdVisible ? faEye : faEyeSlash}
+                          onIconClick={() => setPwdVisible(!pwdVisible)}
+                          trailingIcon={true}
+                        />
+                        <input
+                          type="submit"
+                          className="w-full bg-blue-500 rounded h-9 font-semibold mt-7 cursor-pointer"
+                          value="Sign in"
+                        />
+                      </div>
+                    )}
                   </div>
-                  <DisplayedAccountLogin handleClick={() => setSelectedAccount('New Account')} />
-                </div>
-              )}
-            </div>
-          ) : (
-            newAccountForm
-          )}
+                ) : (
+                  //altrimenti mostro la finestra per la creazione del primo account
+                  <div className="w-full mt-7">
+                    <p className="text-gray-100 text-xl font-semibold mb-3">Account list</p>
+                    <p className="text-gray-100 text-md mb-8">
+                      Choose an account to continue to Nethconnector.
+                    </p>
+                    <div className="max-h-60 overflow-y-auto">
+                      {displayedAccounts.map((account, idx) => {
+                        return (
+                          <DisplayedAccountLogin
+                            key={idx}
+                            account={account}
+                            imageSrc={account.data?.settings.avatar}
+                            handleClick={() => setSelectedAccount(account)}
+                          />
+                        )
+                      })}
+                    </div>
+                    <DisplayedAccountLogin handleClick={() => setSelectedAccount('New Account')} />
+                  </div>
+                )}
+              </div>
+            ) : (
+              newAccountForm
+            )
+          }
         </form>
       </div>
       {isLoading && (

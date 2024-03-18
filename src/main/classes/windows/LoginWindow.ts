@@ -13,7 +13,7 @@ export class LoginWindow extends BaseWindow {
       alwaysOnTop: true,
       minimizable: false,
       maximizable: false,
-      movable: false,
+      movable: true,
       resizable: false,
       skipTaskbar: true,
       titleBarStyle: 'hidden',
@@ -29,6 +29,7 @@ export class LoginWindow extends BaseWindow {
       //tabbingIdentifier: 'nethconnector',
       thickFrame: false
     })
+    //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
   show(..._args: any): void {

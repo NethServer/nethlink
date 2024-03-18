@@ -1,7 +1,6 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
 import { IPC_EVENTS } from '@shared/constants'
 import { BrowserWindow } from 'electron'
-import { AccountController } from '../controllers'
 
 type Callback = (...args: any) => any
 export class BaseWindow {
@@ -10,15 +9,13 @@ export class BaseWindow {
 
   constructor(id: string, config?: WindowOptions, params?: Record<string, string>) {
     this._window = createWindow(id, config, params)
-    this._window.webContents.ipc.on(
-      IPC_EVENTS.INITIALIZATION_COMPELTED,
-      async (_e, completed_id) => {
-        if (id === completed_id) {
-          console.log(completed_id)
-          this._callbacks.forEach((c) => c())
-        }
+    const onReady = (_e, completed_id) => {
+      if (id === completed_id) {
+        //log('on build completition of', completed_id)
+        this._callbacks.forEach((c) => c())
       }
-    )
+    }
+    this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
     this._window.on('close', () => {
       this._window = createWindow(id, config, params)
     })
@@ -29,7 +26,6 @@ export class BaseWindow {
   }
 
   emit(event: IPC_EVENTS | string, ...args: any[]) {
-    console.log(event, args)
     this._window?.webContents.send(event, ...args)
   }
 
@@ -45,7 +41,7 @@ export class BaseWindow {
     return this._window?.isVisible()
   }
 
-  async addOnBuildListener(callback: () => void) {
+  addOnBuildListener(callback: () => void) {
     this._callbacks.push(callback)
   }
 

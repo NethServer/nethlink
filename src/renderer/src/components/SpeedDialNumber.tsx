@@ -4,28 +4,48 @@ import { Avatar } from './Nethesis/'
 import { PlaceholderIcon } from '@renderer/icons'
 import { NumberCaller } from './NumberCaller'
 import { Menu } from '@headlessui/react'
+import { ContactType, OperatorData } from '@shared/types'
+import { t } from 'i18next'
+import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
 export interface SpeedDialNumberProps {
-  username: string
-  number: string
+  speedDial: ContactType
   callUser: () => void
+  handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
+  handleDeleteSpeedDial: (deletedSpeedDial: ContactType) => void
 }
 
-export function SpeedDialNumber({ username, number, callUser }: SpeedDialNumberProps): JSX.Element {
+export function SpeedDialNumber({
+  speedDial,
+  callUser,
+  handleSelectedSpeedDial,
+  handleDeleteSpeedDial
+}: SpeedDialNumberProps): JSX.Element {
+  const operators = useSubscriber<OperatorData>('operators')
+    
   return (
     <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
-        <Avatar size="base" className="z-0" placeholder={PlaceholderIcon} />
+        <Avatar
+          size="base"
+          src={operators?.avatars?.[speedDial.name ?? '']}
+          status={operators?.operators?.[speedDial.name ?? '']?.mainPresence || 'offline'}
+          className="z-0"
+          placeholder={PlaceholderIcon}
+        />
         <div className="flex flex-col gap-1">
-          <p className="dark:text-gray-50 text-gray-900">{username}</p>
+          <p className="dark:text-gray-50 text-gray-900">{speedDial.name!}</p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
               className="dark:text-gray-400 text-gray-600 text-base"
               icon={faPhone}
               onClick={callUser}
             />
-            <NumberCaller number={number} className="dark:text-blue-500 text-blue-600 font-normal">
-              {number}
+            <NumberCaller
+              number={speedDial.speeddial_num!}
+              className="dark:text-blue-500 text-blue-600 font-normal"
+            >
+              {speedDial.speeddial_num!}
             </NumberCaller>
           </div>
         </div>
@@ -43,34 +63,40 @@ export function SpeedDialNumber({ username, number, callUser }: SpeedDialNumberP
                 </div>
               </Menu.Button>
             </div>
-            <Menu.Items
-              className={`mt-2 fixed border dark:border-gray-700 border-gray-200 rounded-lg min-w-[180px] min-h-[84px] dark:bg-gray-900 bg-gray-50 z-20 translate-x-[calc(-100%+36px)]`}
-            >
+            <Menu.Items className="fixed border dark:border-gray-700 border-gray-200 rounded-lg min-w-[180px] min-h-[84px] dark:bg-gray-900 bg-gray-50 translate-x-[calc(-100%+36px)] translate-y-[calc(-100%+36px)] z-[110]">
               <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
-                  onClick={() => alert('Modifica il numero.')}
+                  onClick={() => {
+                    handleSelectedSpeedDial(speedDial)
+                  }}
                 >
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={faPen}
                     />
-                    <p className="font-semibold dark:text-gray-50 text-gray-900">Modifica</p>
+                    <p className="font-semibold dark:text-gray-50 text-gray-900">
+                      {t('Common.Edit')}
+                    </p>
                   </div>
                 </div>
               </Menu.Item>
+
+              {/* TODO aggiungere il modal per la conferma */}
               <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mb-2"
-                  onClick={() => alert('Elimina ')}
+                  onClick={() => handleDeleteSpeedDial(speedDial)}
                 >
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={faTrashCan}
                     />
-                    <p className="font-semibold dark:text-gray-50 text-gray-900">Elimina</p>
+                    <p className="font-semibold dark:text-gray-50 text-gray-900">
+                      {t('Common.Delete')}
+                    </p>
                   </div>
                 </div>
               </Menu.Item>

@@ -2,11 +2,11 @@ import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
 
-export class NethConnectorWindow extends BaseWindow {
-  static instance: NethConnectorWindow
+export class NethLinkWindow extends BaseWindow {
+  static instance: NethLinkWindow
   size: { w: number; h: number } | undefined
   constructor() {
-    const size = { w: 400, h: 371 }
+    const size = { w: 400, h: 380 }
     super('nethconnectorpage', {
       width: size.w,
       height: size.h,
@@ -35,7 +35,8 @@ export class NethConnectorWindow extends BaseWindow {
       trafficLightPosition: { x: 0, y: 0 }
     })
     this.size = size
-    NethConnectorWindow.instance = this
+    NethLinkWindow.instance = this
+    //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
   _setBounds() {
@@ -45,15 +46,13 @@ export class NethConnectorWindow extends BaseWindow {
     let y = 55
     if (process.platform === 'win32') {
       const trayBounds = TrayController.instance.tray.getBounds()
-      y = screenBounds.height - h - 65
+      y = screenBounds.height - h - 60
     }
     if (process.platform === 'linux') {
       x = screenBounds.x + screenBounds.width - w - 30
       y = screenBounds.y + 55
     }
-    console.log(screenBounds)
     const bound = { x, y, w, h }
-    console.log(bound)
     this._window?.setBounds(bound, false)
   }
 
@@ -63,5 +62,9 @@ export class NethConnectorWindow extends BaseWindow {
     this._window?.setVisibleOnAllWorkspaces(true)
     this._window?.focus()
     this._window?.setVisibleOnAllWorkspaces(false)
+  }
+
+  hideWindowFromRenderer() {
+    super.hide()
   }
 }

@@ -1,7 +1,8 @@
+import { OperatorsType, QueuesType } from '@shared/types'
 import { create } from 'zustand'
 
 export type LocalStorageData = {
-  operators: any
+  operators: OperatorsType
   profilePicture: any
   customerCards: any
   speedDial: any
@@ -11,7 +12,7 @@ export type LocalStorageData = {
   notifications: any
   userActions: any
   globalSearch: any
-  queues: any
+  queues: QueuesType
   queueManagerQueues: any
   ctiStatus: any
   sideDrawer: any
@@ -51,11 +52,7 @@ const initialData: LocalStorageData = {
 
 export const useLocalStore = create<LocalStorageState>((set, get) => ({
   ...initialData,
-  getData: (key: keyof LocalStorageData) => {
-    return () => {
-      return get()[key]
-    }
-  },
+  getData: (key: keyof LocalStorageData) => get()[key],
   setData: (key: keyof LocalStorageData) => (value: any | any[]) =>
     set((store: LocalStorageState) => ({
       ...store,
