@@ -2,34 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-/* button {
-  -webkit-app-region: no-drag;
-}
-
 .pi-absolute:nth-child(1),
 .pi-pointer-events-auto {
   transform: none !important;
   -webkit-app-region: drag !important;
-} */
+}
+
+button,
+.pi-flex {
+  -webkit-app-region: no-drag;
+}
 
 .light ::-webkit-scrollbar {
   width: 3px;
   background-color: #f9fafb;
+  -webkit-app-region: no-drag;
 }
 
 .light ::-webkit-scrollbar-thumb {
   width: 3px;
   background-color: #111827;
+  -webkit-app-region: no-drag;
 }
 
 .dark ::-webkit-scrollbar {
   width: 3px;
   background-color: #111827;
+  -webkit-app-region: no-drag;
 }
 
 .dark ::-webkit-scrollbar-thumb {
   width: 3px;
   background-color: #f9fafb;
+  -webkit-app-region: no-drag;
 }
 
 @layer base {

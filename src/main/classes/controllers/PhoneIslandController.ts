@@ -1,8 +1,6 @@
 import { Account, PhoneIslandConfig } from '@shared/types'
 import { PhoneIslandWindow } from '../windows'
-import { AccountController } from './AccountController'
 import { IPC_EVENTS } from '@shared/constants'
-import { screen } from 'electron'
 import { log } from '@shared/utils/logger'
 import { NethVoiceAPI } from './NethCTIController'
 
@@ -65,9 +63,5 @@ export class PhoneIslandController {
 
   logout() {
     this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined)
-  }
-
-  setMouseEventDisabled(isMouseEventDisabled: boolean) {
-    this.window.ignoreMouseEvents(isMouseEventDisabled)
   }
 }
