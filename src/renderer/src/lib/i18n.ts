@@ -2,30 +2,33 @@ import i18next, { NewableModule, Module, Newable } from 'i18next'
 import Backend from 'i18next-electron-fs-backend'
 import { initReactI18next } from 'react-i18next'
 import { log } from '@shared/utils/logger'
+import { join } from 'path-browserify'
 
 const fallbackLng = ['en']
 
-const options = {
-  // User language is detected from the navigator
-  order: ['navigator']
-}
 export const loadI18n = () => {
   if (typeof window === 'undefined') {
     return
   }
-  const path = './public/locales/{{lng}}/translations.json'
-  log(path)
+  const dir = __dirname.split('app.asar')[0]
+  const loadPath = join(dir, '/app.asar/public/locales/{{lng}}/translations.json')
+  const addPath = join(dir, '/app.asar/public/locales/{{lng}}/missing.json')
+  log(loadPath, addPath)
   i18next
     .use(Backend)
     .use(initReactI18next)
     .init({
       backend: {
-        loadPath: path,
-        contextBridgeApiKey: 'api'
+        debug: true,
+        loadPath,
+        addPath,
+        contextBridgeApiKey: 'api',
+        ipcRenderer: window.api.i18nextElectronBackend
       },
       fallbackLng,
       debug: true,
-      detection: options,
+      saveMissing: true,
+      saveMissingTo: 'current',
       interpolation: {
         escapeValue: false
       }

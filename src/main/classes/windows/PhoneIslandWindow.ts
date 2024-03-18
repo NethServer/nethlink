@@ -5,8 +5,10 @@ export class PhoneIslandWindow extends BaseWindow {
   constructor() {
     const size = screen.getPrimaryDisplay().bounds
     super('phoneislandpage', {
-      width: size.width,
-      height: size.height,
+      // width: size.width,
+      // height: size.height,
+      width: 400,
+      height: 400,
       x: size.x,
       y: size.y,
       show: false,
@@ -22,7 +24,7 @@ export class PhoneIslandWindow extends BaseWindow {
       titleBarStyle: 'hidden',
       roundedCorners: false,
       parent: undefined,
-      transparent: true,
+      transparent: false,
       hiddenInMissionControl: true,
       hasShadow: false,
       center: true,
@@ -45,7 +47,7 @@ export class PhoneIslandWindow extends BaseWindow {
   }
 
   ignoreMouseEvents(ignoreEvents: boolean) {
-    this._window?.setIgnoreMouseEvents(ignoreEvents, {
+    this._window?.setIgnoreMouseEvents(false, {
       forward: true
     })
   }

@@ -45,6 +45,7 @@ export interface IElectronAPI {
   onOperatorsChange(callback: (updateOperators: OperatorData) => void): void
 
   //EMITTER - only emit, no response
+  openDevTool(hash: string): unknown
   logout: () => void
   startCall(phoneNumber: string): void
   changeTheme(theme: AvailableThemes): void
@@ -100,6 +101,7 @@ const api: IElectronAPI = {
   deleteSpeedDial: setEmitterSync<string>(IPC_EVENTS.DELETE_SPEEDDIAL),
 
   //EMITTER - only emit, no response
+  openDevTool: setEmitter(IPC_EVENTS.OPEN_DEV_TOOLS),
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   startCall: setEmitter(IPC_EVENTS.START_CALL),

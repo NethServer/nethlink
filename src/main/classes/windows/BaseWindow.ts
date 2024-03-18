@@ -1,5 +1,6 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
 import { IPC_EVENTS } from '@shared/constants'
+import { log } from '@shared/utils/logger'
 import { BrowserWindow } from 'electron'
 
 type Callback = (...args: any) => any
@@ -15,7 +16,18 @@ export class BaseWindow {
         this._callbacks.forEach((c) => c())
       }
     }
+
+    const onOpenDevTools = (_e, page_id) => {
+      log('on build completition of', id, page_id, this._window?.webContents.isDevToolsOpened())
+      this._window?.webContents.isDevToolsOpened()
+        ? this._window?.webContents.closeDevTools()
+        : this._window?.webContents.openDevTools({
+            mode: 'detach'
+          })
+    }
+
     this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
+    this._window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
     this._window.on('close', () => {
       this._window = createWindow(id, config, params)
     })

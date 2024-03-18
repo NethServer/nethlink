@@ -16,6 +16,7 @@ win:
   executableName: NethConnector
   target:
     - nsis
+    - zip
   certificateFile: 'C:\Users\loren\Desktop\workspace\aidapt\neth-connector-electron\certification\nethlinkcert.pfx'
   certificatePassword: 'aidapt'
   #certificateSubjectName: AidaptSRL
@@ -38,17 +39,17 @@ mac:
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
   target:
-    - dmg
     - zip
-    - mas
+    #- dmg
+    #- mas
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
   target:
-    - snap
+    #- snap
     - AppImage
-    - deb
-    - rpm
+    #- deb
+    #- rpm
     - zip
   maintainer: electronjs.org
   category: Utility
@@ -61,7 +62,7 @@ publish:
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
 protocols:
-  name: neth-connector-protocols
+  name: neth-link-protocols
   schemes:
     - tel
     - callto

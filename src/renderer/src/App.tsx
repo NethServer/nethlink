@@ -8,10 +8,24 @@ import {
 } from '@/pages'
 import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
+import { is } from '@electron-toolkit/utils'
 
 function Layout() {
+
+  function openDevTools() {
+    let hash = window.location.hash.split('#/')
+    if (hash.length === 1) {
+      hash = window.location.hash.split('#')
+    }
+    const page = hash[1].split('/')[0]
+    window.api.openDevTool(page)
+  }
+
   return (
     <div>
+      {
+        <button onClick={openDevTools} className='absolute bottom-0 left-0 bg-white p-1 z-[1000]'>devtool</button>
+      }
       <Outlet />
     </div>
   )
@@ -22,6 +36,7 @@ function RoutesWrapper() {
     log(location.hash)
     loadI18n()
   })
+
 
   return (
     <Routes>
@@ -36,6 +51,8 @@ function RoutesWrapper() {
 }
 
 export default function App() {
+
+
   return (
     <HashRouter>
       <RoutesWrapper />
