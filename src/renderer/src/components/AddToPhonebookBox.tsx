@@ -104,7 +104,7 @@ export function AddToPhonebookBox({
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('privacy')} type="radio" value="public" name="visibility" />
-              <p className="whitespace-nowrap">{t('Phonebook.Everybody')}</p>
+              <p className="whitespace-nowrap">{t('Phonebook.All')}</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('privacy')} type="radio" value="private" name="visibility" />
