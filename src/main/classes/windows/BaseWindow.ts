@@ -1,4 +1,5 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
+import { is } from '@electron-toolkit/utils'
 import { IPC_EVENTS } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { BrowserWindow } from 'electron'
@@ -9,10 +10,14 @@ export class BaseWindow {
   protected _callbacks: Callback[] = []
 
   constructor(id: string, config?: WindowOptions, params?: Record<string, string>) {
+    params = {
+      ...params,
+      isDev: `${Boolean(is.dev && process.env['ELECTRON_RENDERER_URL'])}`
+    }
     this._window = createWindow(id, config, params)
     const onReady = (_e, completed_id) => {
       if (id === completed_id) {
-        //log('on build completition of', completed_id)
+        log('on build completition of', completed_id)
         this._callbacks.forEach((c) => c())
       }
     }

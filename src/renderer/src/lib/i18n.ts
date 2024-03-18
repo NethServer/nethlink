@@ -10,10 +10,13 @@ export const loadI18n = () => {
   if (typeof window === 'undefined') {
     return
   }
-  const dir = __dirname.split('app.asar')[0]
-  const loadPath = join(dir, '/app.asar/public/locales/{{lng}}/translations.json')
-  const addPath = join(dir, '/app.asar/public/locales/{{lng}}/missing.json')
-  log(loadPath, addPath)
+  log('onload i18n')
+  let dir = __dirname
+  if (__dirname.includes('app.asar')) dir = join(__dirname.split('app.asar')[0], 'app.asar')
+  else if (__dirname.includes('electron.asar')) dir = './'
+  const loadPath = join(dir, '/public/locales/{{lng}}/translations.json')
+  const addPath = join(dir, '/public/locales/{{lng}}/missing.json')
+  log(dir, loadPath, addPath)
   i18next
     .use(Backend)
     .use(initReactI18next)
