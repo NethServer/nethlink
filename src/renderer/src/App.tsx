@@ -8,7 +8,7 @@ import {
 } from '@/pages'
 import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
-import { is } from '@electron-toolkit/utils'
+import { useEffect } from 'react'
 
 function Layout({ isDev }: { isDev: boolean }) {
 
@@ -17,14 +17,20 @@ function Layout({ isDev }: { isDev: boolean }) {
     if (hash.length === 1) {
       hash = window.location.hash.split('#')
     }
-    const page = hash[1].split('/')[0]
+    const page = hash[1].split('?')[0].split('/')[0]
+    console.log('open dev tools', page)
     window.api.openDevTool(page)
   }
+
+  useEffect(() => {
+    openDevTools()
+  }, [])
+
 
   return (
     <div>
       {
-        isDev && <button onClick={openDevTools} className='absolute bottom-0 left-0 bg-white p-1 z-[10000]'>devtool</button>
+        isDev && <div onClick={openDevTools} id='openDevToolButton' className='absolute bottom-0 left-0 bg-white p-1 z-[10000]'>devtool</div>
       }
       <Outlet />
     </div>
