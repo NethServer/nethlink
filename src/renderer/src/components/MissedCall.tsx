@@ -60,7 +60,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
     <div
       className="flex flex-grow gap-3 font-semibold max-h-[72px]"
       onMouseEnter={() => {
-        if (getCallName(call) === 'Unknown' || getCallName(call) === 'Sconosciuto') {
+        if (getCallName(call) === t('Common.Unknown')) {
           setShowCreateButton(() => true)
         }
       }}
