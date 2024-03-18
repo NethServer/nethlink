@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, TextInput } from './Nethesis'
-import { faCircleNotch, faSpinner } from '@fortawesome/free-solid-svg-icons'
-import { useEffect, useState } from 'react'
+import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { useState } from 'react'
 import { NewContactType } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
@@ -79,7 +79,7 @@ export function CreateSpeedDialBox({
           type="tel"
           minLength={3}
           onChange={(e) => {
-            setValue('speeddial_num', e.target.value.replace(/\D/g, ''))
+            setValue('speeddial_num', e.target.value)
           }}
           className="font-normal"
           label={t('Phonebook.Phone number') as string}

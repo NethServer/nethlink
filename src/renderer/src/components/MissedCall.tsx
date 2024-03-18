@@ -5,36 +5,62 @@ import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { useState } from 'react'
-import moment from 'moment'
-
-import { CallData, OperatorData } from '@shared/types'
+import { CallData, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from './Nethesis/CallsDate'
 
 export interface MissedCallProps {
-  call: CallData,
-  //isAddingToPhonebook: boolean
+  call: CallData
   handleSelectedMissedCall: (number, company) => void
 }
 
-export function MissedCall({
-  call,
-  //isAddingToPhonebook,
-  handleSelectedMissedCall
-}: MissedCallProps): JSX.Element {
+export function getCallName(call: CallData): string {
+  return call?.dst_cnam || call?.dst_ccompany || `${t('Common.Unknown')}`
+}
+
+export function getOperatorByPhoneNumber(phoneNumber: string, operators: any) {
+  return Object.values(operators).find((extensions: any) => extensions.id === phoneNumber)
+}
+
+export function getBadge(call: CallData, queues: any) {
+  if (!call.queue) {
+    call.ccompany = ''
+    return
+  }
+
+  const queueKeys = Object.keys(queues)
+
+  for (const key of queueKeys) {
+    const queue = queues[key]
+    if (queue.queue === call.queue.toString()) {
+      call.ccompany = queue.name
+    }
+  }
+}
+
+export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps): JSX.Element {
+  const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
 
-  function truncate(str: string) {
-    return str.length > 15 ? str.substring(0, 14) + '...' : str
+  if (call?.dst_cnam === '') {
+    const operatorFound: any = getOperatorByPhoneNumber(call?.dst as string, operators)
+
+    if (operatorFound) {
+      call.dst_cnam = operatorFound?.name
+    }
+    getBadge(call, queues)
+  }
+
+  function truncate(str: string, maxLength: number) {
+    return str.length > maxLength ? str.substring(0, maxLength - 1) + '...' : str
   }
 
   return (
     <div
       className="flex flex-grow gap-3 font-semibold max-h-[72px]"
       onMouseEnter={() => {
-        //TODO: capire come lo identificano
-        if (call.cnam === 'Unknown') {
+        if (getCallName(call) === t('Common.Unknown')) {
           setShowCreateButton(() => true)
         }
       }}
@@ -49,24 +75,26 @@ export function MissedCall({
         />
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
-        <p>{truncate(call.cnam!)}</p>
+        <p>{truncate(getCallName(call), 15)}</p>
         <div className="flex flex-row gap-2 items-center">
           <MissedCallIcon />
-          <NumberCaller number={call.cnum!} className="dark:text-blue-500 text-blue-600 font-normal">
+          <NumberCaller
+            number={call.cnum!}
+            className="dark:text-blue-500 text-blue-600 font-normal"
+          >
             {call.cnum}
           </NumberCaller>
         </div>
         <div className="flex flex-row gap-1">
-          {//TODO: Controllare il metodo di conversione del tempo
-          }
           <CallsDate call={call} />
         </div>
       </div>
+
       <div className="flex flex-col gap-2 ml-auto">
         {call.ccompany && (
-          <div className="flex flex-row items-center gap-2 py-1 px-[10px] rounded-[10px] max-h-[22px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600">
-            <FontAwesomeIcon icon={faUsers}></FontAwesomeIcon>
-            <p className="text-[12x] leading-[18px]">{call.ccompany}</p>
+          <div className="flex flex-row justify-center items-center gap-2 py-1 px-[10px] rounded-[10px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
+            <FontAwesomeIcon icon={faUsers} />
+            <p className="text-[12x] leading-[18px]">{truncate(call.ccompany, 19)}</p>
           </div>
         )}
         {showCreateButton && (
