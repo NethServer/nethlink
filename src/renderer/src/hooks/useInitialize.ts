@@ -12,7 +12,7 @@ export function useInitialize(callback: () => void, emitCompletition = false) {
         if (hash.length === 1) {
           hash = window.location.hash.split('#')
         }
-        const page = hash[1].split('/')[0]
+        const page = hash[1].split('?')[0].split('/')[0]
         window.api.sendInitializationCompleted(page)
       }
     }

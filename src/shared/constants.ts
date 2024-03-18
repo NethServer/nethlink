@@ -31,25 +31,28 @@ export enum IPC_EVENTS {
   ON_CHANGE_SYSTEM_THEME = 'ON_CHANGE_SYSTEM_THEME',
   ADD_CONTACT_SPEEDDIAL = 'ADD_CONTACT_SPEEDDIAL',
   ADD_CONTACT_PHONEBOOK = 'ADD_CONTACT_PHONEBOOK',
-  MOUSE_OVER_PHONE_ISLAND = 'MOUSE_OVER_PHONE_ISLAND',
   HIDE_NETH_LINK = 'HIDE_NETH_LINK',
   EDIT_SPEEDDIAL_CONTACT = 'EDIT_SPEEDDIAL_CONTACT',
   OPERATORS_CHANGE = 'OPERATORS_CHANGE',
-  DELETE_SPEEDDIAL = 'DELETE_SPEEDDIAL'
+  DELETE_SPEEDDIAL = 'DELETE_SPEEDDIAL',
+  OPEN_DEV_TOOLS = 'OPEN_DEV_TOOLS'
 }
 
 //PHONE ISLAND EVENTS
+
 export enum PHONE_ISLAND_EVENTS {
   // Listen Phone-Island Events: phone-island*
   'phone-island-attach' = 'phone-island-attach',
   'phone-island-detach' = 'phone-island-detach',
   'phone-island-audio-input-change' = 'phone-island-audio-input-change',
   'phone-island-audio-output-change' = 'phone-island-audio-output-change',
+  'phone-island-theme-change' = 'phone-island-theme-change',
   // Dispatch Phone-Island Events: phone-island*
   'phone-island-attached' = 'phone-island-attached',
   'phone-island-detached' = 'phone-island-detached',
   'phone-island-audio-input-changed' = 'phone-island-audio-input-changed',
   'phone-island-audio-output-changed' = 'phone-island-audio-output-changed',
+  'phone-island-theme-changed' = 'phone-island-theme-changed',
   // Listen Call Events: phone-island-call*
   'phone-island-call-start' = 'phone-island-call-start',
   'phone-island-call-answer' = 'phone-island-call-answer',
@@ -136,31 +139,19 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-socket-reconnected' = 'phone-island-socket-reconnected'
 }
 
-export const PHONE_ISLAND_SIZES = new Map<string, { w: number; h: number }>([
-  ['phone-island-call-ringing', { w: 420, h: 98 }],
-  ['phone-island-call-ringing-resize', { w: 170, h: 42 }], //evento da implementare
-  ['phone-island-call-start', { w: 350, h: 238 }],
-  ['phone-island-call-started', { w: 350, h: 238 }],
-  ['phone-island-call-answer', { w: 350, h: 238 }], //problema: quando rispondi la phone island si apre o espansa o ridotta a seconda di come si è chiusa l'ultima volta
-  ['phone-island-call-answered', { w: 350, h: 238 }],
-  ['phone-island-call-end', { w: 1, h: 1 }],
-  ['phone-island-call-ended', { w: 1, h: 1 }],
-  ['phone-island-call-expanded', { w: 350, h: 306 }], //evento da implementare
-  ['phone-island-call-reduced', { w: 350, h: 238 }], //evento da implementare
-  ['phone-island-call-transfer-open', { w: 450, h: 412 }],
-  ['phone-island-call-transfer-opened', { w: 450, h: 412 }],
-  ['phone-island-call-transfer-close', { w: 350, h: 238 }],
-  ['phone-island-call-transfer-closed', { w: 350, h: 238 }],
-  ['phone-island-call-transfer-switch', { w: 388, h: 304 }], // non funziona il tasto
-  ['phone-island-call-transfer-switched', { w: 1, h: 1 }], // non funziona il tasto
-  ['phone-island-call-transfer-cancel', { w: 10, h: 10 }], // non funziona il tasto
-  ['phone-island-call-transfer-canceled', { w: 10, h: 10 }], // non funziona il tasto
-  ['phone-island-call-transfer', { w: 10, h: 10 }],
-  ['phone-island-call-transfered', { w: 10, h: 10 }],
-  ['phone-island-call-keypad-open', { w: 10, h: 10 }],
-  ['phone-island-call-keypad-opened', { w: 10, h: 10 }],
-  ['phone-island-call-keypad-close', { w: 10, h: 10 }],
-  ['phone-island-call-keypad-closed', { w: 10, h: 10 }],
-  ['phone-island-call-park', { w: 1, h: 1 }],
-  ['phone-island-call-parked', { w: 1, h: 1 }]
-])
+export const PHONE_ISLAND_RESIZE = (isCollapsed = true) => {
+  return new Map<string, { w: number; h: number }>([
+    ['phone-island-call-ringing', { w: 420, h: 98 }],
+    ['phone-island-call-started', { w: 420, h: 98 }],
+    ['phone-island-call-answered', isCollapsed ? { w: 350, h: 238 } : { w: 350, h: 306 }],
+    ['phone-island-call-ended', { w: 1, h: 1 }],
+    ['phone-island-call-transfer-opened', { w: 410, h: 460 }],
+    ['phone-island-call-transfer-closed', isCollapsed ? { w: 350, h: 238 } : { w: 350, h: 306 }],
+    ['phone-island-call-transfer-switched', { w: 1, h: 1 }],
+    ['phone-island-call-transfer-canceled', isCollapsed ? { w: 350, h: 238 } : { w: 350, h: 306 }],
+    ['phone-island-call-transfered', { w: 1, h: 1 }],
+    ['phone-island-call-keypad-opened', { w: 340, h: 450 }],
+    ['phone-island-call-keypad-closed', isCollapsed ? { w: 350, h: 238 } : { w: 350, h: 306 }],
+    ['phone-island-call-parked', { w: 1, h: 1 }]
+  ])
+}

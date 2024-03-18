@@ -1,8 +1,6 @@
 import { Account, PhoneIslandConfig } from '@shared/types'
 import { PhoneIslandWindow } from '../windows'
-import { AccountController } from './AccountController'
 import { IPC_EVENTS } from '@shared/constants'
-import { screen } from 'electron'
 import { log } from '@shared/utils/logger'
 import { NethVoiceAPI } from './NethCTIController'
 
@@ -10,6 +8,8 @@ export class PhoneIslandController {
   static instance: PhoneIslandController
 
   window: PhoneIslandWindow
+
+  isFirst = true
 
   constructor() {
     PhoneIslandController.instance = this
@@ -55,6 +55,11 @@ export class PhoneIslandController {
     const windowPhone = this.window.getWindow()
     if (windowPhone) {
       const bounds = windowPhone.getBounds()
+      if (this.isFirst) {
+        bounds.x = (bounds.width - w) / 2
+        bounds.y = (bounds.height - h) / 2
+        this.isFirst = false
+      }
       windowPhone.setBounds({ ...bounds, width: w, height: h }, false)
     }
   }
@@ -65,9 +70,5 @@ export class PhoneIslandController {
 
   logout() {
     this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined)
-  }
-
-  setMouseEventDisabled(isMouseEventDisabled: boolean) {
-    this.window.ignoreMouseEvents(isMouseEventDisabled)
   }
 }

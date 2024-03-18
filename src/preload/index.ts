@@ -45,6 +45,7 @@ export interface IElectronAPI {
   onOperatorsChange(callback: (updateOperators: OperatorData) => void): void
 
   //EMITTER - only emit, no response
+  openDevTool(hash: string): unknown
   logout: () => void
   startCall(phoneNumber: string): void
   changeTheme(theme: AvailableThemes): void
@@ -57,7 +58,6 @@ export interface IElectronAPI {
   openMissedCallsPage: (url: string) => void
   hideNethLink: () => void
   openNethVoicePage: (url: string) => void
-  emitMouseOverPhoneIsland(isOver: boolean): void
 
   //PHONE ISLAND EVENTS:
   (funcName: PHONE_ISLAND_EVENTS): () => void
@@ -100,6 +100,7 @@ const api: IElectronAPI = {
   deleteSpeedDial: setEmitterSync<string>(IPC_EVENTS.DELETE_SPEEDDIAL),
 
   //EMITTER - only emit, no response
+  openDevTool: setEmitter(IPC_EVENTS.OPEN_DEV_TOOLS),
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   startCall: setEmitter(IPC_EVENTS.START_CALL),
@@ -110,10 +111,7 @@ const api: IElectronAPI = {
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
   openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
   openNethVoicePage: setEmitter(IPC_EVENTS.OPEN_NETHVOICE_PAGE),
-  emitMouseOverPhoneIsland: setEmitter(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND),
   hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
-
-  ///
 
   //LISTENERS - receive data async
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),

@@ -74,7 +74,7 @@ export function EditSpeedDialBox({
           type="tel"
           minLength={3}
           onChange={(e) => {
-            setValue('speeddial_num', e.target.value.replace(/\D/g, ''))
+            setValue('speeddial_num', e.target.value)
           }}
           className="font-normal"
           label={t('Phonebook.Phone number') as string}

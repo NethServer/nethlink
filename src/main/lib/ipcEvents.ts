@@ -95,10 +95,6 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (event, w, h) => {
     PhoneIslandController.instance.resize(w, h)
   })
-  ipcMain.on(IPC_EVENTS.MOUSE_OVER_PHONE_ISLAND, (event, isOver) => {
-    const isMouseEventDisabled = !isOver
-    PhoneIslandController.instance.setMouseEventDisabled(isMouseEventDisabled)
-  })
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
     LoginController.instance.resize(h)
   })
