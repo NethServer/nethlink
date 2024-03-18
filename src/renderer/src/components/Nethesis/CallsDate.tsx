@@ -31,7 +31,7 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
 
   // get the local timezone offset in the format +hhmm or -hhmm
   const getLocalTimezoneOffset = () => {
-    let localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     const now = new Date()
     const offset = format(now, 'xx', { timeZone: localTimezone })
     return offset
@@ -46,29 +46,37 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
       differenceValueBetweenTimezone = getTimeDifference(false)
     }
 
-    let diffValueEditedFormat = diffValueConversation(differenceValueBetweenTimezone)
+    const diffValueEditedFormat = diffValueConversation(differenceValueBetweenTimezone)
     return diffValueEditedFormat
   }
 
   const getHeader = (call: any) => {
-    let localTimeZone = getLocalTimezoneOffset()
+    const localTimeZone = getLocalTimezoneOffset()
     let differenceBetweenTimezone = ''
     if (isInQueue) {
       differenceBetweenTimezone = getDifferenceBetweenTimezone(true)
     } else {
       differenceBetweenTimezone = getDifferenceBetweenTimezone(false)
     }
+
+    //TODO da vedere bene se la modifica e' giusta
+    const distance = formatDistance(
+      utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
+      utcToZonedTime(new Date(), localTimeZone),
+      {
+        addSuffix: false,
+        includeSeconds: false,
+        locale: selectedLanguage === 'it' ? it : enGB
+      }
+    ).replace('about ', '')
+
+    const [value, unit] = distance.split(' ')
+
+    const formattedDistance = `${value}${unit[0].toLowerCase()}`
+
     return (
       <div className="text-sm font-medium text-gray-600 dark:text-gray-100 leading-5">
-        {formatDistance(
-          utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
-          utcToZonedTime(new Date(), localTimeZone),
-          {
-            addSuffix: true,
-            includeSeconds: true,
-            locale: selectedLanguage === 'it' ? it : enGB
-          }
-        )}
+        {formattedDistance}
       </div>
     )
   }
@@ -83,7 +91,7 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
 
     return (
       <div className="text-sm text-gray-600 dark:text-gray-100 font-normal leading-5">
-        ({format(utcToZonedTime(call?.time * 1000, differenceBetweenTimezone), 'd MMM yyyy HH:mm')})
+        ({format(utcToZonedTime(call?.time * 1000, differenceBetweenTimezone), 'HH:mm')})
       </div>
     )
   }
@@ -93,7 +101,6 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
     if (i18next?.languages[0] !== '') {
       setSelectedLanguage(i18next?.languages[0])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18next?.languages[0]])
 
   return (
