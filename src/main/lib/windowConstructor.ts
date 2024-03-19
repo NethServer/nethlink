@@ -3,6 +3,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
+import { AccountController } from '@/classes/controllers'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -23,6 +24,7 @@ export function createWindow(
   const mainWindow = new BrowserWindow({
     parent: undefined,
     ...config,
+    titleBarStyle: process.platform === 'darwin' ? 'customButtonsOnHover' : 'hidden',
     ...(process.platform === 'linux' ? (config.icon ? { icon: config.icon } : {}) : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -55,6 +57,10 @@ export function createWindow(
 
   mainWindow.on('hide', () => {
     //mainWindow.webContents.closeDevTools()
+  })
+
+  mainWindow.on('close', () => {
+    AccountController.instance._app?.exit()
   })
 
   mainBindings(ipcMain, mainWindow, fs)

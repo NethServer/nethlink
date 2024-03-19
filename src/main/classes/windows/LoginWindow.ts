@@ -16,7 +16,6 @@ export class LoginWindow extends BaseWindow {
       movable: true,
       resizable: false,
       skipTaskbar: true,
-      titleBarStyle: 'hidden',
       roundedCorners: true,
       parent: undefined,
       transparent: true,

@@ -16,7 +16,6 @@ export class SplashScreenWindow extends BaseWindow {
       movable: false,
       resizable: false,
       skipTaskbar: false,
-      titleBarStyle: 'hidden',
       roundedCorners: true,
       transparent: true,
       hiddenInMissionControl: true,

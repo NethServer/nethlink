@@ -20,7 +20,6 @@ export class NethLinkWindow extends BaseWindow {
       movable: false,
       resizable: false,
       skipTaskbar: true,
-      titleBarStyle: 'hidden',
       roundedCorners: false,
       parent: undefined,
       transparent: true,

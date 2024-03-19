@@ -3,22 +3,15 @@ import { PhoneIslandWindow } from '../windows'
 import { IPC_EVENTS } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { NethVoiceAPI } from './NethCTIController'
+import { AccountController } from './AccountController'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
-
   window: PhoneIslandWindow
-
-  isFirst = true
 
   constructor() {
     PhoneIslandController.instance = this
     this.window = new PhoneIslandWindow()
-    // this.window.getWindow()?.on('moved', (e) => {
-    //   const [x, y] = this.window.getWindow()!.getPosition()
-    //   AccountController.instance.updatePhoneIslandPosition({ x, y })
-    // })
-    //this._addListeners()
   }
 
   async login(account: Account) {
@@ -53,15 +46,30 @@ export class PhoneIslandController {
 
   resize(w: number, h: number) {
     const windowPhone = this.window.getWindow()
-    if (windowPhone) {
-      const bounds = windowPhone.getBounds()
-      if (this.isFirst) {
-        bounds.x = (bounds.width - w) / 2
-        bounds.y = (bounds.height - h) / 2
-        this.isFirst = false
-      }
-      windowPhone.setBounds({ ...bounds, width: w, height: h }, false)
+    windowPhone?.setBounds({ width: w, height: h }, false)
+  }
+
+  showPhoneIsland() {
+    const phoneIslandBounds = AccountController.instance.getPhoneIslandBounds()
+    const windowPhone = this.window.getWindow()
+    if (phoneIslandBounds) {
+      windowPhone?.setBounds({ x: phoneIslandBounds.x, y: phoneIslandBounds.y }, false)
+    } else {
+      windowPhone?.center()
     }
+    windowPhone?.show()
+  }
+
+  hidePhoneIsland() {
+    const windowPhone = this.window.getWindow()
+    const phoneIslandBounds = windowPhone?.getBounds()
+    if (phoneIslandBounds) {
+      AccountController.instance.setPhoneIslandBounds({
+        x: phoneIslandBounds.x,
+        y: phoneIslandBounds.y
+      })
+    }
+    windowPhone?.hide()
   }
 
   call(number: string) {

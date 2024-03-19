@@ -58,6 +58,8 @@ export interface IElectronAPI {
   openMissedCallsPage: (url: string) => void
   hideNethLink: () => void
   openNethVoicePage: (url: string) => void
+  showPhoneIsland: () => void
+  hidePhoneIsland: () => void
 
   //PHONE ISLAND EVENTS:
   (funcName: PHONE_ISLAND_EVENTS): () => void
@@ -112,6 +114,8 @@ const api: IElectronAPI = {
   openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
   openNethVoicePage: setEmitter(IPC_EVENTS.OPEN_NETHVOICE_PAGE),
   hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
+  showPhoneIsland: setEmitter(IPC_EVENTS.SHOW_PHONE_ISLAND),
+  hidePhoneIsland: setEmitter(IPC_EVENTS.HIDE_PHONE_ISLAND),
 
   //LISTENERS - receive data async
   onLoadAccounts: addListener(IPC_EVENTS.LOAD_ACCOUNTS),

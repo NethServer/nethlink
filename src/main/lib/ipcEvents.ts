@@ -95,6 +95,12 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (event, w, h) => {
     PhoneIslandController.instance.resize(w, h)
   })
+  ipcMain.on(IPC_EVENTS.SHOW_PHONE_ISLAND, (event) => {
+    PhoneIslandController.instance.showPhoneIsland()
+  })
+  ipcMain.on(IPC_EVENTS.HIDE_PHONE_ISLAND, (event) => {
+    PhoneIslandController.instance.hidePhoneIsland()
+  })
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
     LoginController.instance.resize(h)
   })
