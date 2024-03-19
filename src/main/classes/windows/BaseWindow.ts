@@ -33,9 +33,9 @@ export class BaseWindow {
 
     this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
     this._window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
-    this._window.on('close', () => {
-      this._window = createWindow(id, config, params)
-    })
+    // this._window.on('close', () => {
+    //   this._window = createWindow(id, config, params)
+    // })
   }
 
   getWindow() {
@@ -64,6 +64,10 @@ export class BaseWindow {
 
   async addListener(event: string, callback: (...args: any[]) => void) {
     this._window!.webContents.ipc.on(event, callback)
+  }
+
+  quit() {
+    this._window?.close()
   }
 }
 

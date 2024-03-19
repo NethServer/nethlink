@@ -45,8 +45,18 @@ export class PhoneIslandController {
   }
 
   resize(w: number, h: number) {
-    const windowPhone = this.window.getWindow()
-    windowPhone?.setBounds({ width: w, height: h }, false)
+    const window = this.window.getWindow()
+    if (window) {
+      const bounds = window.getBounds()
+      if (this.isFirst) {
+        bounds.x = (bounds.width - w) / 2
+        bounds.y = (bounds.height - h) / 2
+        this.isFirst = false
+      }
+      window.setBounds({ ...bounds, width: w, height: h }, false)
+      if (!window?.isVisible()) {
+        window?.show()
+      }
   }
 
   showPhoneIsland() {
@@ -61,15 +71,15 @@ export class PhoneIslandController {
   }
 
   hidePhoneIsland() {
-    const windowPhone = this.window.getWindow()
-    const phoneIslandBounds = windowPhone?.getBounds()
+    const window = this.window.getWindow()
+    const phoneIslandBounds = window?.getBounds()
     if (phoneIslandBounds) {
       AccountController.instance.setPhoneIslandBounds({
         x: phoneIslandBounds.x,
         y: phoneIslandBounds.y
       })
     }
-    windowPhone?.hide()
+     window?.hide()
   }
 
   call(number: string) {

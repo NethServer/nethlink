@@ -1,6 +1,7 @@
 import { Account } from '@shared/types'
 import placeholder from '../assets/AvatarPlaceholderLoginPage.svg'
 import classNames from 'classnames'
+import { t } from 'i18next'
 
 type DisplayedAccountLoginProps = {
   account?: Account
@@ -27,7 +28,7 @@ export function DisplayedAccountLogin({
       <p className="w-[325px] truncate">
         {account
           ? `${account.data?.name} (${account.data?.default_device.username})`
-          : 'Use another account'}
+          : t('Login.Use Another Account')}
       </p>
     </div>
   )

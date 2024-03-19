@@ -64,9 +64,11 @@ export function PhoneIslandPage() {
   redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-update'])
   redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'])
 
+  const path = loadI18n(false)
+
   return (
     <div className="h-[100vh] w-[100vw] " id="phone-island-container">
-      {dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoader={loadI18n} />}
+      {dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={path} />}
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
-import { ipcMain, shell } from 'electron'
+import { app, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import { SyncResponse } from 'src/preload'
 import { log } from '@shared/utils/logger'
@@ -42,6 +42,10 @@ export function registerIpcEvents() {
   onSyncEmitter(IPC_EVENTS.ADD_CONTACT_PHONEBOOK, (contact) =>
     NethVoiceAPI.instance.Phonebook.createContact(contact)
   )
+
+  onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
+    return app.getLocale()
+  })
   onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, (contact) =>
     NethVoiceAPI.instance.Phonebook.createSpeeddial(contact)
   )
