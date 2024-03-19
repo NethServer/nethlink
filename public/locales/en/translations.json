@@ -62,6 +62,8 @@
   "Login": {
     "Welcome": "Welcome",
     "User": "User",
+    "Host": "Nethvoice CTI host",
+    "Username": "Username",
     "Password": "Password",
     "Sign in": "Sign in",
     "The application is open in another window": "The application is open in another window",
@@ -70,7 +72,16 @@
     "Contact administrator for access": "Contact administrator for access",
     "Wrong username or password": "Wrong username or password",
     "Network connection is lost": "Network connection is lost",
-    "Login failed": "Login failed"
+    "Login failed": "Login failed",
+    "Use Another Account": "Use another account",
+    "New Account title": "Welcome",
+    "New Account description": "Sign in to Nethconnector with your Nethvoice CTI username and password.",
+    "Account List title": "Account list",
+    "Account list description": "Choose an account to continue to Nethconnector."
+  },
+  "SplashScreen": {
+    "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",
+    "Initializing": "Initializing the application..."
   },
   "Notification": {
     "contact_created_title": "Contact created!",
@@ -807,10 +818,16 @@
   },
   "DropdownContent": {
     "Microphones": "MICROPHONES",
-    "Speakers": "SPEAKERS"
+    "Speakers": "SPEAKERS",
+    "Theme": "THEME",
+    "Dark": "Dark",
+    "Light": "Light"
   },
   "Call": {
     "In progress...": "In progress...",
     "Outgoing call": "Outgoing call"
+  },
+  "Transfer": {
+    "No users found": "No users found"
   }
 }
