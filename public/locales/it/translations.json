@@ -45,6 +45,8 @@
   },
   "Login": {
     "User": "Utente",
+    "Host": "Host Nethvoice CTI",
+    "Username": "Nome utente",
     "Password": "Password",
     "Sign in": "Accedi",
     "The application is open in another window": "L'applicazione è aperta in un'altra finestra",
@@ -52,7 +54,16 @@
     "Contact administrator for access": "Contatta l' amministratore per l' accesso",
     "Wrong username or password": "Nome utente o password errati",
     "Network connection is lost": "Connessione di rete persa",
-    "Login failed": "Accesso fallito"
+    "Login failed": "Accesso fallito",
+    "Use Another Account": "Usa un altro account",
+    "New Account title": "Ti diamo il benvenuto",
+    "New Account description": "Accedere a Nethconnector con il nome utente e la password di Nethvoice CTI.",
+    "Account List title": "Account disponibili",
+    "Account list description": "Scegliete un account per proseguire con Nethconnector."
+  },
+  "SplashScreen": {
+    "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",
+    "Initializing": "Inizializzazione dell'applicazione..."
   },
   "Notification": {
     "contact_created_title": "Contatto creato!",
@@ -761,10 +772,16 @@
   },
   "DropdownContent": {
     "Microphones": "MICROFONI",
-    "Speakers": "ALTOPARLANTI"
+    "Speakers": "ALTOPARLANTI",
+    "Theme": "THEMA",
+    "Dark": "Scuro",
+    "Light": "Chiaro"
   },
   "Call": {
     "In progress...": "In corso...",
     "Outgoing call": "Chiamata in uscita"
+  },
+  "Transfer": {
+    "No users found": "Nessun utente trovato"
   }
 }
