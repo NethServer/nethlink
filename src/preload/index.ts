@@ -32,6 +32,7 @@ export interface IElectronAPI {
     currentContact: ContactType
   ): SyncPromise<ContactType>
   deleteSpeedDial(contact: ContactType): SyncPromise<string>
+  getLocale(): SyncPromise<string>
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
@@ -98,6 +99,7 @@ const api: IElectronAPI = {
   addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
   editSpeedDialContact: setEmitterSync<ContactType>(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT),
   deleteSpeedDial: setEmitterSync<string>(IPC_EVENTS.DELETE_SPEEDDIAL),
+  getLocale: setEmitterSync<string>(IPC_EVENTS.GET_LOCALE),
 
   //EMITTER - only emit, no response
   openDevTool: setEmitter(IPC_EVENTS.OPEN_DEV_TOOLS),

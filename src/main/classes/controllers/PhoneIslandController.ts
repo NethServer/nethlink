@@ -52,15 +52,18 @@ export class PhoneIslandController {
   }
 
   resize(w: number, h: number) {
-    const windowPhone = this.window.getWindow()
-    if (windowPhone) {
-      const bounds = windowPhone.getBounds()
+    const window = this.window.getWindow()
+    if (window) {
+      const bounds = window.getBounds()
       if (this.isFirst) {
         bounds.x = (bounds.width - w) / 2
         bounds.y = (bounds.height - h) / 2
         this.isFirst = false
       }
-      windowPhone.setBounds({ ...bounds, width: w, height: h }, false)
+      window.setBounds({ ...bounds, width: w, height: h }, false)
+      if (!window?.isVisible()) {
+        window?.show()
+      }
     }
   }
 

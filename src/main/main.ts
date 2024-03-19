@@ -113,6 +113,32 @@ const onLoginFromloginPage = (account: Account) => {
 
 app.on('window-all-closed', () => {
   app.dock?.hide()
+  //i18nextBackend.clearMainBindings(ipcMain);
+})
+
+// remove so we can register each time as we run the app.
+app.removeAsDefaultProtocolClient('tel')
+app.removeAsDefaultProtocolClient('callto')
+
+// if we are running a non-packaged version of the app && on windows
+if (process.env.node_env === 'development' && process.platform === 'win32') {
+  // set the path of electron.exe and your app.
+  // these two additional parameters are only available on windows.
+  app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
+  app.setAsDefaultProtocolClient('callto', process.execPath, [resolve(process.argv[1])])
+} else {
+  app.setAsDefaultProtocolClient('tel')
+  app.setAsDefaultProtocolClient('callto')
+}
+
+//windows
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+}
+
+app.on('open-url', (ev, origin) => {
+  handleTelProtocol(origin)
 })
 
 // remove so we can register each time as we run the app.

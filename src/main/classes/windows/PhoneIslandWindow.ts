@@ -5,8 +5,6 @@ export class PhoneIslandWindow extends BaseWindow {
     super('phoneislandpage', {
       width: 500,
       height: 500,
-      x: 10000,
-      y: 0,
       show: false,
       fullscreenable: false,
       autoHideMenuBar: true,
@@ -35,7 +33,7 @@ export class PhoneIslandWindow extends BaseWindow {
       }
     })
     setTimeout(() => {
-      this.show()
+      this.hide()
     }, 100)
     //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
