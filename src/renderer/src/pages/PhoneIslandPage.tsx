@@ -3,58 +3,55 @@ import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import loadI18n from '@renderer/lib/i18n'
 import { PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
-  const [isCollapsed, setIsCollapsed] = useState<boolean>(true)
-
-  function registerEvents() {
-    Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
-      window.addEventListener(event, () => {
-        console.log('EVENT', event)
-        if (event === PHONE_ISLAND_EVENTS['phone-island-call-ringing']) {
-          window.api.showPhoneIsland()
-        }
-        if (event === PHONE_ISLAND_EVENTS['phone-island-call-ended']) {
-          window.api.hidePhoneIsland()
-        }
-        if (PHONE_ISLAND_RESIZE(isCollapsed).has(event)) {
-          console.log('EVENT RESIZE', event)
-          const size = PHONE_ISLAND_RESIZE(isCollapsed).get(event)!
-          window.api.resizePhoneIsland(size.w, size.h)
-        }
-      })
-    })
-  }
+  const isCollapsed = useRef<boolean>(true)
 
   useInitialize(() => {
     window.api.onDataConfigChange(updateDataConfig)
     window.api.onStartCall((number: number | string) => {
-      window.api.showPhoneIsland()
       window.dispatchEvent(
-        new CustomEvent('phone-island-call-start', {
+        new CustomEvent(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
           detail: {
             number
           }
         })
       )
     })
-    registerEvents()
+    Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
+      window.addEventListener(event, () => {
+        console.log('EVENT', event)
+        switch (event) {
+          case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
+            window.api.showPhoneIsland()
+            break
+          case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
+          case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
+            window.api.hidePhoneIsland()
+            break
+        }
+        if (PHONE_ISLAND_RESIZE.has(event)) {
+          console.log('EVENT RESIZE', event)
+          const size = PHONE_ISLAND_RESIZE.get(event)!(isCollapsed.current)
+          window.api.resizePhoneIsland(size.w, size.h)
+        }
+      })
+    })
   }, true)
 
   window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], () => {
-    setIsCollapsed(false)
+    isCollapsed.current = false
   })
   window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-closed'], () => {
-    setIsCollapsed(true)
+    isCollapsed.current = true
   })
 
-  useEffect(() => {
-    registerEvents()
-  }, [isCollapsed])
-
   function updateDataConfig(dataConfig: string | undefined) {
+    if (!dataConfig) {
+      window.dispatchEvent(new CustomEvent(PHONE_ISLAND_EVENTS['phone-island-call-end']))
+    }
     setDataConfig(() => dataConfig)
   }
 
