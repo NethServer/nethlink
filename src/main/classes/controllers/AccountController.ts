@@ -201,9 +201,20 @@ export class AccountController {
     this._saveNewAccountData(account)
   }
 
-  updatePhoneIslandPosition(position: { x: number; y: number }) {
-    const account = this.getLoggedAccount()
-    account!.phoneIslandPosition = position
-    this._saveNewAccountData(account)
+  getAccountPhoneIslandPosition(): { x: number; y: number } | undefined {
+    const config = this.config
+    if (config?.lastUser) {
+      return config.accounts[config.lastUser].phoneIslandPosition
+    }
+    return undefined
+  }
+
+  setAccountPhoneIslandPosition(phoneIslandPosition: { x: number; y: number }): void {
+    const config = this.config
+    const { CONFIG_FILE } = this._getPaths()
+    if (config?.lastUser) {
+      config.accounts[config.lastUser].phoneIslandPosition = phoneIslandPosition
+      fs.writeFileSync(CONFIG_FILE, JSON.stringify(config), 'utf-8')
+    }
   }
 }

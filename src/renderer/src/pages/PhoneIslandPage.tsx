@@ -12,6 +12,7 @@ export function PhoneIslandPage() {
   useInitialize(() => {
     window.api.onDataConfigChange(updateDataConfig)
     window.api.onStartCall((number: number | string) => {
+      window.api.showPhoneIsland()
       window.dispatchEvent(
         new CustomEvent('phone-island-call-start', {
           detail: {
@@ -23,6 +24,12 @@ export function PhoneIslandPage() {
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
       window.addEventListener(event, () => {
         console.log('EVENT', event)
+        if (event === PHONE_ISLAND_EVENTS['phone-island-call-ringing']) {
+          window.api.showPhoneIsland()
+        }
+        if (event === PHONE_ISLAND_EVENTS['phone-island-call-ended']) {
+          window.api.hidePhoneIsland()
+        }
         if (PHONE_ISLAND_RESIZE(isCollapsed).has(event)) {
           console.log('EVENT RESIZE', event)
           const size = PHONE_ISLAND_RESIZE(isCollapsed).get(event)!
