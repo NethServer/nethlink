@@ -31,9 +31,6 @@ export class PhoneIslandWindow extends BaseWindow {
         nodeIntegration: true
       }
     })
-    setTimeout(() => {
-      this.hide()
-    }, 100)
     //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 }

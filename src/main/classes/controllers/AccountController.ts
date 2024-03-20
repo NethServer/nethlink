@@ -3,7 +3,6 @@ import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
 import { log } from '@shared/utils/logger'
-import { screen } from 'electron'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -202,39 +201,19 @@ export class AccountController {
     this._saveNewAccountData(account)
   }
 
-  updatePhoneIslandPosition(position: { x: number; y: number }) {
-    const account = this.getLoggedAccount()
-    account!.phoneIslandPosition = position
-    this._saveNewAccountData(account)
-  }
-
-  getPhoneIslandBounds(): { x: number; y: number } | undefined {
+  getAccountPhoneIslandPosition(): { x: number; y: number } | undefined {
     const config = this.config
-    if (config?.lastUser && config.accounts[config.lastUser].phoneIslandPosition) {
-      const phoneIslandBounds = config.accounts[config.lastUser].phoneIslandPosition!
-      const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
-        const area = display.workArea
-        return (
-          result ||
-          (phoneIslandBounds.x >= area.x &&
-            phoneIslandBounds.y >= area.y &&
-            phoneIslandBounds.x + 420 < area.x + area.width &&
-            phoneIslandBounds.y + 98 < area.y + area.height)
-        )
-      }, false)
-      if (isPhoneIslandOnDisplay) {
-        return phoneIslandBounds
-      }
-      return undefined
+    if (config?.lastUser) {
+      return config.accounts[config.lastUser].phoneIslandPosition
     }
     return undefined
   }
 
-  setPhoneIslandBounds(phoneIslandBounds: { x: number; y: number }): void {
+  setAccountPhoneIslandPosition(phoneIslandPosition: { x: number; y: number }): void {
     const config = this.config
     const { CONFIG_FILE } = this._getPaths()
     if (config?.lastUser) {
-      config.accounts[config.lastUser].phoneIslandPosition = phoneIslandBounds
+      config.accounts[config.lastUser].phoneIslandPosition = phoneIslandPosition
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(config), 'utf-8')
     }
   }

@@ -4,6 +4,7 @@ import { IPC_EVENTS } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { NethVoiceAPI } from './NethCTIController'
 import { AccountController } from './AccountController'
+import { screen } from 'electron'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -46,40 +47,47 @@ export class PhoneIslandController {
 
   resize(w: number, h: number) {
     const window = this.window.getWindow()
-    if (window) {
-      const bounds = window.getBounds()
-      if (this.isFirst) {
-        bounds.x = (bounds.width - w) / 2
-        bounds.y = (bounds.height - h) / 2
-        this.isFirst = false
-      }
-      window.setBounds({ ...bounds, width: w, height: h }, false)
-      if (!window?.isVisible()) {
-        window?.show()
-      }
+    window?.setBounds({ width: w, height: h }, false)
+    window?.show()
   }
 
   showPhoneIsland() {
-    const phoneIslandBounds = AccountController.instance.getPhoneIslandBounds()
-    const windowPhone = this.window.getWindow()
-    if (phoneIslandBounds) {
-      windowPhone?.setBounds({ x: phoneIslandBounds.x, y: phoneIslandBounds.y }, false)
+    const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
+    const window = this.window.getWindow()
+
+    if (phoneIslandPosition) {
+      const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
+        const area = display.workArea
+        return (
+          result ||
+          (phoneIslandPosition.x >= area.x &&
+            phoneIslandPosition.y >= area.y &&
+            phoneIslandPosition.x + 420 < area.x + area.width &&
+            phoneIslandPosition.y + 98 < area.y + area.height)
+        )
+      }, false)
+      if (isPhoneIslandOnDisplay) {
+        window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
+      } else {
+        window?.center()
+      }
     } else {
-      windowPhone?.center()
+      window?.center()
     }
-    windowPhone?.show()
+
+    window?.show()
   }
 
   hidePhoneIsland() {
     const window = this.window.getWindow()
     const phoneIslandBounds = window?.getBounds()
     if (phoneIslandBounds) {
-      AccountController.instance.setPhoneIslandBounds({
+      AccountController.instance.setAccountPhoneIslandPosition({
         x: phoneIslandBounds.x,
         y: phoneIslandBounds.y
       })
     }
-     window?.hide()
+    window?.hide()
   }
 
   call(number: string) {
