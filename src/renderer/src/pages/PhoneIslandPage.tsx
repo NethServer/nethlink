@@ -28,6 +28,7 @@ export function PhoneIslandPage() {
             window.api.showPhoneIsland()
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
+          case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
             window.api.hidePhoneIsland()
             break
