@@ -9,18 +9,7 @@ export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true)
 
-  useInitialize(() => {
-    window.api.onDataConfigChange(updateDataConfig)
-    window.api.onStartCall((number: number | string) => {
-      window.api.showPhoneIsland()
-      window.dispatchEvent(
-        new CustomEvent('phone-island-call-start', {
-          detail: {
-            number
-          }
-        })
-      )
-    })
+  function registerEvents() {
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
       window.addEventListener(event, () => {
         console.log('EVENT', event)
@@ -37,14 +26,33 @@ export function PhoneIslandPage() {
         }
       })
     })
+  }
+
+  useInitialize(() => {
+    window.api.onDataConfigChange(updateDataConfig)
+    window.api.onStartCall((number: number | string) => {
+      window.api.showPhoneIsland()
+      window.dispatchEvent(
+        new CustomEvent('phone-island-call-start', {
+          detail: {
+            number
+          }
+        })
+      )
+    })
+    registerEvents()
   }, true)
 
-  window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-expanded'], () => {
+  window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], () => {
     setIsCollapsed(false)
   })
-  window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-collapsed'], () => {
+  window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-closed'], () => {
     setIsCollapsed(true)
   })
+
+  useEffect(() => {
+    registerEvents()
+  }, [isCollapsed])
 
   function updateDataConfig(dataConfig: string | undefined) {
     setDataConfig(() => dataConfig)
