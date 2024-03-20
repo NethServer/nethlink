@@ -92,9 +92,11 @@ export class PhoneIslandController {
 
   call(number: string) {
     this.window.emit(IPC_EVENTS.EMIT_START_CALL, number)
+    this.showPhoneIsland()
   }
 
   logout() {
     this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined)
+    this.hidePhoneIsland()
   }
 }

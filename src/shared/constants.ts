@@ -77,6 +77,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-listen' = 'phone-island-call-listen',
   'phone-island-call-audio-input-switch' = 'phone-island-call-audio-input-switch',
   'phone-island-call-audio-output-switch' = 'phone-island-call-audio-output-switch',
+  'phone-island-call-actions-open' = 'phone-island-call-actions-open',
+  'phone-island-call-actions-close' = 'phone-island-call-actions-close',
   // Dispatch Call Event: phone-island-call-*
   'phone-island-call-ringing' = 'phone-island-call-ringing',
   'phone-island-call-started' = 'phone-island-call-started',
@@ -99,6 +101,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-intruded' = 'phone-island-call-intruded',
   'phone-island-call-audio-input-switched' = 'phone-island-call-audio-input-switched',
   'phone-island-call-audio-output-switched' = 'phone-island-call-audio-output-switched',
+  'phone-island-call-actions-opened' = 'phone-island-call-actions-opened',
+  'phone-island-call-actions-closed' = 'phone-island-call-actions-closed',
   // Listen Recording Event: phone-island-recording-*
   'phone-island-recording-open' = 'phone-island-recording-open',
   'phone-island-recording-close' = 'phone-island-recording-close',
@@ -142,19 +146,38 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-socket-reconnected' = 'phone-island-socket-reconnected'
 }
 
-export const PHONE_ISLAND_RESIZE = (isCollapsed = true) => {
-  return new Map<string, { w: number; h: number }>([
-    ['phone-island-call-ringing', { w: 420, h: 98 }],
-    ['phone-island-call-started', { w: 420, h: 98 }],
-    ['phone-island-call-answered', isCollapsed ? { w: 350, h: 238 } : { w: 350, h: 306 }],
-    ['phone-island-call-ended', { w: 1, h: 1 }],
-    ['phone-island-call-transfer-opened', { w: 410, h: 460 }],
-    ['phone-island-call-transfer-closed', isCollapsed ? { w: 350, h: 238 } : { w: 350, h: 306 }],
-    ['phone-island-call-transfer-switched', { w: 1, h: 1 }],
-    ['phone-island-call-transfer-canceled', isCollapsed ? { w: 350, h: 238 } : { w: 350, h: 306 }],
-    ['phone-island-call-transfered', { w: 1, h: 1 }],
-    ['phone-island-call-keypad-opened', { w: 340, h: 450 }],
-    ['phone-island-call-keypad-closed', isCollapsed ? { w: 350, h: 238 } : { w: 350, h: 306 }],
-    ['phone-island-call-parked', { w: 1, h: 1 }]
-  ])
+type Size = { w: number; h: number }
+function getSize(sizeA: Size, sizeB?: Size) {
+  return (isCollapsed: boolean = true): Size => {
+    return isCollapsed ? sizeA : sizeB || sizeA
+  }
 }
+
+export const PHONE_ISLAND_RESIZE = new Map<string, (isCollapsed: boolean) => Size>([
+  [PHONE_ISLAND_EVENTS['phone-island-call-ringing'], getSize({ w: 420, h: 98 })],
+  [PHONE_ISLAND_EVENTS['phone-island-call-started'], getSize({ w: 420, h: 98 })],
+  [PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], getSize({ w: 350, h: 306 })],
+  [PHONE_ISLAND_EVENTS['phone-island-call-actions-closed'], getSize({ w: 350, h: 238 })],
+  [
+    PHONE_ISLAND_EVENTS['phone-island-call-answered'],
+    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
+  ],
+  [PHONE_ISLAND_EVENTS['phone-island-call-ended'], getSize({ w: 1, h: 1 })],
+  [PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened'], getSize({ w: 410, h: 480 })],
+  [
+    PHONE_ISLAND_EVENTS['phone-island-call-transfer-closed'],
+    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
+  ],
+  [PHONE_ISLAND_EVENTS['phone-island-call-transfer-switched'], getSize({ w: 1, h: 1 })],
+  [
+    PHONE_ISLAND_EVENTS['phone-island-call-transfer-canceled'],
+    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
+  ],
+  [PHONE_ISLAND_EVENTS['phone-island-call-transfered'], getSize({ w: 1, h: 1 })],
+  [PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened'], getSize({ w: 340, h: 470 })],
+  [
+    PHONE_ISLAND_EVENTS['phone-island-call-keypad-closed'],
+    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
+  ],
+  [PHONE_ISLAND_EVENTS['phone-island-call-parked'], getSize({ w: 1, h: 1 })]
+])
