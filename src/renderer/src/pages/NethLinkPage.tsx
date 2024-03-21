@@ -306,11 +306,10 @@ export function NethLinkPage() {
       {account && theme && (
         <div className={theme}>
           <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
-            <div className="flex flex-col dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[380px] h-full z-10 rounded-md items-center justify-between">
-              {/* Nel caso il sistema non e' windows aggiungo un margin*/}
-              <div
-                className={`flex flex-row ${navigator.userAgent.includes('Win32') ? '' : 'mt-4'}`}
-              >
+            <div
+              className={`flex ${navigator.userAgent.includes('Win32') ? 'flex-col' : 'flex-col-reverse'} dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[380px] h-full z-10 rounded-md items-center justify-between`}
+            >
+              <div className="flex flex-row">
                 <div className="flex flex-col gap-4 w-full">
                   <Navbar
                     search={search}
@@ -436,21 +435,15 @@ export function NethLinkPage() {
                   handleSidebarMenuSelection={handleSidebarMenuSelection}
                 />
               </div>
-              {navigator.userAgent.includes('Win32') ? (
-                <div
-                  className="absolute bottom-0 flex justify-center items-center py-[2px] w-full bg-gray-900 hover:bg-gray-600 z-[100] rounded-b-md"
-                  onClick={hideNethLink}
-                >
-                  <FontAwesomeIcon className="dark:text-white" icon={faChevronDown} />
-                </div>
-              ) : (
-                <div
-                  className="absolute top-0 flex justify-center items-center py-[2px] w-full bg-gray-900 hover:bg-gray-600 z-[100] rounded-t-md"
-                  onClick={hideNethLink}
-                >
-                  <FontAwesomeIcon className="dark:text-white rotate-180" icon={faChevronDown} />
-                </div>
-              )}
+              <div
+                className={`flex justify-center items-center py-[2px] w-full bg-gray-900 hover:bg-gray-600 z-[100] ${navigator.userAgent.includes('Win32') ? 'rounded-b-md' : 'rounded-t-md'}`}
+                onClick={hideNethLink}
+              >
+                <FontAwesomeIcon
+                  className={`dark:text-white ${navigator.userAgent.includes('Win32') ? '' : 'rotate-180'}`}
+                  icon={faChevronDown}
+                />
+              </div>
             </div>
           </div>
         </div>
