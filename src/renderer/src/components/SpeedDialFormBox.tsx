@@ -1,46 +1,51 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, TextInput } from './Nethesis'
 import { faSpinner } from '@fortawesome/free-solid-svg-icons'
-import { useState } from 'react'
-import { NewContactType } from '@shared/types'
+import { useState, useEffect } from 'react'
+import { NewContactType, ContactType, NewSpeedDialType } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
-export interface CreateSpeedDialProps {
+interface SpeedDialFormBoxProps {
+  initialData?: ContactType | null
+  onSubmit: (data: NewContactType | NewSpeedDialType) => Promise<void>
   onCancel: () => void
-  handleAddContactToSpeedDials: (contact: NewContactType) => Promise<void>
 }
 
-export function CreateSpeedDialBox({
-  handleAddContactToSpeedDials,
+export function SpeedDialFormBox({
+  initialData = null,
+  onSubmit,
   onCancel
-}: CreateSpeedDialProps) {
+}: SpeedDialFormBoxProps) {
   const {
     register,
     handleSubmit,
     setValue,
     reset,
     formState: { errors }
-  } = useForm<NewContactType>({
-    defaultValues: {
+  } = useForm<NewContactType | NewSpeedDialType>({
+    defaultValues: initialData || {
       name: '',
       speeddial_num: ''
     }
   })
-  const onSubmit: SubmitHandler<NewContactType> = (data) => {
-    handleSave(data)
-  }
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  /* useEffect(() => {
-    setValue('name', '')
-    setValue('speeddial_num', '')
-  }, []) */
+  useEffect(() => {
+    if (initialData) {
+      setValue('name', initialData.name!)
+      setValue('speeddial_num', initialData.speeddial_num)
+    }
+  }, [initialData, setValue])
 
-  function handleSave(data) {
-    //Da aggiungere la visibility
-    handleAddContactToSpeedDials(data)
+  const onSubmitForm: SubmitHandler<NewContactType | NewSpeedDialType> = (data) => {
+    handleSave(data)
+  }
+
+  function handleSave(data: NewContactType | NewSpeedDialType) {
+    setIsLoading(true)
+    onSubmit(data)
       .catch((error) => {
         log(error)
       })
@@ -54,19 +59,10 @@ export function CreateSpeedDialBox({
     <div className="flex flex-col gap-4 min-h-[284px] relative">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px]">
         <h1 className="font-semibold dark:text-gray-50 text-gray-900">
-          {t('SpeedDial.Create speed dial')}
+          {initialData ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
         </h1>
       </div>
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={async (e) => {
-          setIsLoading(true)
-          e.preventDefault()
-          setTimeout(() => {
-            handleSubmit(onSubmit)(e)
-          }, 100)
-        }}
-      >
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmitForm)}>
         <TextInput
           {...register('name', { required: true })}
           type="text"
@@ -78,9 +74,6 @@ export function CreateSpeedDialBox({
           {...register('speeddial_num', { required: true })}
           type="tel"
           minLength={3}
-          onChange={(e) => {
-            setValue('speeddial_num', e.target.value)
-          }}
           className="font-normal"
           label={t('Phonebook.Phone number') as string}
           error={Boolean(errors.speeddial_num)}
@@ -90,7 +83,9 @@ export function CreateSpeedDialBox({
             <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.Cancel')}</p>
           </Button>
           <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3" disabled={isLoading}>
-            <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('SpeedDial.Create')}</p>
+            <p className="dark:text-gray-900 text-gray-50 font-semibold">
+              {initialData ? t('Common.Edit') : t('SpeedDial.Create')}
+            </p>
             {isLoading && (
               <FontAwesomeIcon
                 icon={faSpinner}

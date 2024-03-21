@@ -19,16 +19,15 @@ import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
 import { PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { debouncer } from '@shared/utils/utils'
 import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
-import { CreateSpeedDialBox } from '@renderer/components/CreateSpeedDialBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import { faChevronDown, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
-import { EditSpeedDialBox } from '@renderer/components/EditSpeedDialBox'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Nethesis'
 import avatar from '../assets/TrayLogo.png'
+import { SpeedDialFormBox } from '@renderer/components/SpeedDialFormBox'
 
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
@@ -244,6 +243,14 @@ export function NethLinkPage() {
     )
   }
 
+  async function handleSubmitContact(data: NewContactType | NewSpeedDialType) {
+    if (isCreatingSpeedDial) {
+      await handleAddContactToSpeedDials(data as NewContactType)
+    } else if (selectedSpeedDial && isEditingSpeedDial) {
+      await handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial)
+    }
+  }
+
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
     setSearch(() => '')
@@ -320,19 +327,15 @@ export function NethLinkPage() {
                   <div className="relative w-full h-full">
                     <div className="px-4 w-full h-full z-1">
                       {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
-                        isCreatingSpeedDial ? (
-                          <CreateSpeedDialBox
-                            handleAddContactToSpeedDials={handleAddContactToSpeedDials}
-                            onCancel={() => setIsCreatingSpeedDial(false)}
-                          />
-                        ) : isEditingSpeedDial && selectedSpeedDial ? (
-                          <EditSpeedDialBox
-                            selectedSpeedDial={selectedSpeedDial}
+                        isCreatingSpeedDial || (selectedSpeedDial && isEditingSpeedDial) ? (
+                          <SpeedDialFormBox
+                            initialData={selectedSpeedDial}
+                            onSubmit={handleSubmitContact}
                             onCancel={() => {
+                              setIsCreatingSpeedDial(false)
                               setIsEditingSpeedDial(false)
                               setSelectedSpeedDial(undefined)
                             }}
-                            handleEditContactToSpeedDials={handleEditContactToSpeedDials}
                           />
                         ) : (
                           <SpeedDialsBox
