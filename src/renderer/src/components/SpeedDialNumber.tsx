@@ -13,18 +13,20 @@ export interface SpeedDialNumberProps {
   callUser: () => void
   handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
   handleDeleteSpeedDial: (deletedSpeedDial: ContactType) => void
+  isLastItem: boolean
 }
 
 export function SpeedDialNumber({
   speedDial,
   callUser,
   handleSelectedSpeedDial,
-  handleDeleteSpeedDial
+  handleDeleteSpeedDial,
+  isLastItem
 }: SpeedDialNumberProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
-    
+
   return (
-    <div className="flex flex-row justify-between items-center font-semibold min-h-[44px]">
+    <div className="relative flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
         <Avatar
           size="base"
@@ -63,7 +65,10 @@ export function SpeedDialNumber({
                 </div>
               </Menu.Button>
             </div>
-            <Menu.Items className="fixed border dark:border-gray-700 border-gray-200 rounded-lg min-w-[180px] min-h-[84px] dark:bg-gray-900 bg-gray-50 translate-x-[calc(-100%+36px)] translate-y-[calc(-100%+36px)] z-[110]">
+            {/* Controllo per vedere se e' l'ultimo elemento, se e' cosi, il menu ha un top differente */}
+            <Menu.Items
+              className={`absolute ${isLastItem ? 'top-[-48px]' : 'top-0'} border dark:border-gray-700 border-gray-200 rounded-lg min-w-[180px] min-h-[84px] dark:bg-gray-900 bg-gray-50 translate-x-[calc(-100%+36px)] z-[110]`}
+            >
               <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
@@ -83,7 +88,6 @@ export function SpeedDialNumber({
                 </div>
               </Menu.Item>
 
-              {/* TODO aggiungere il modal per la conferma */}
               <Menu.Item>
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mb-2"
