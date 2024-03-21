@@ -168,12 +168,14 @@ export const PHONE_ISLAND_RESIZE = new Map<string, (isCollapsed: boolean) => Siz
     PHONE_ISLAND_EVENTS['phone-island-call-transfer-closed'],
     getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
   ],
-  [PHONE_ISLAND_EVENTS['phone-island-call-transfer-switched'], getSize({ w: 1, h: 1 })],
   [
     PHONE_ISLAND_EVENTS['phone-island-call-transfer-canceled'],
     getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
   ],
-  [PHONE_ISLAND_EVENTS['phone-island-call-transfered'], getSize({ w: 1, h: 1 })],
+  [
+    PHONE_ISLAND_EVENTS['phone-island-call-transfered'],
+    getSize({ w: 350, h: 310 }, { w: 350, h: 370 })
+  ],
   [PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened'], getSize({ w: 340, h: 470 })],
   [
     PHONE_ISLAND_EVENTS['phone-island-call-keypad-closed'],

@@ -3,7 +3,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
-import { AccountController } from '@/classes/controllers'
+import { AccountController, PhoneIslandController } from '@/classes/controllers'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -60,6 +60,7 @@ export function createWindow(
   })
 
   mainWindow.on('close', () => {
+    PhoneIslandController.instance.logout()
     AccountController.instance._app?.exit()
   })
 
