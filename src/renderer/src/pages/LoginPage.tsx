@@ -114,11 +114,11 @@ export function LoginPage() {
           onIconClick={() => setPwdVisible(!pwdVisible)}
           trailingIcon={true}
         />
-        <input
+        <button
           type="submit"
           className="w-full bg-blue-500 rounded h-9 font-semibold mt-2 cursor-pointer"
-          value={t('Login.Sing in') as string}
-        />
+        >{t('Login.Sign in')}
+        </button>
       </div>
     </div>
   )
@@ -181,11 +181,12 @@ export function LoginPage() {
                           onIconClick={() => setPwdVisible(!pwdVisible)}
                           trailingIcon={true}
                         />
-                        <input
+                        <button
                           type="submit"
                           className="w-full bg-blue-500 rounded h-9 font-semibold mt-7 cursor-pointer"
-                          value={t('Login.Sing in') as string}
-                        />
+                        >
+                          {t('Login.Sign in')}
+                        </button>
                       </div>
                     )}
                   </div>

@@ -259,14 +259,14 @@ export function NethLinkPage() {
   }
 
   function viewAllMissedCalls(): void {
-    window.api.openMissedCallsPage('https://cti.demo-heron.sf.nethserver.net/history')
+    window.api.openHostPage('/history')
   }
 
   function hideNethLink() {
     window.api.hideNethLink()
   }
   function goToNethVoicePage(): void {
-    window.api.openNethVoicePage('https://cti.demo-heron.sf.nethserver.net')
+    window.api.openHostPage('/')
   }
 
   function handleDeleteSpeedDial(deleteSpeeddial: ContactType) {

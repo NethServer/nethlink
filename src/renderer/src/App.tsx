@@ -30,7 +30,7 @@ function Layout({ isDev }: { isDev: boolean }) {
   return (
     <div>
       {
-        isDev && <div onClick={openDevTools} id='openDevToolButton' className='absolute bottom-0 left-0 bg-white p-1 z-[10000]'>devtool</div>
+        isDev && <div className='absolute bottom-0 left-0  z-[10000]'><button onClick={openDevTools} id='openDevToolButton' className='bg-white p-1'>devtool</button></div>
       }
       <Outlet />
     </div>
@@ -40,10 +40,11 @@ function Layout({ isDev }: { isDev: boolean }) {
 function RoutesWrapper() {
 
   useInitialize(() => {
-    log(location.hash)
-    log(location.search)
+    log('hash', location.hash)
+    log('search', location.search)
     loadI18n()
   })
+
   const query = location.search || location.hash
   const props = query.split('?')[1]?.split('&')?.reduce<any>((p, c) => {
     const [k, v] = c.split('=')
