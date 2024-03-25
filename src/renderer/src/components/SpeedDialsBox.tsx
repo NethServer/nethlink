@@ -21,7 +21,7 @@ export function SpeedDialsBox({
   handleDeleteSpeedDial
 }: SpeedDialsBoxProps): JSX.Element {
   return (
-    <div className="flex flex-col gap-4 min-h-[284px]">
+    <div className="flex flex-col gap-4 h-full">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 font-semibold max-h-[28px]">
         <h1 className="dark:text-gray-50 text-gray-900">{t('SpeedDial.Speed dial')}</h1>
         <Button
@@ -35,7 +35,7 @@ export function SpeedDialsBox({
           <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('SpeedDial.Create')}</p>
         </Button>
       </div>
-      <div className="flex flex-col gap-2 p-2 max-h-[240px] overflow-y-auto">
+      <div className="flex flex-col gap-2 p-2 min-h-[120px] max-h-[240px] overflow-y-auto">
         {speeddials && speeddials.length > 0 ? (
           speeddials?.map((e, idx) => {
             return (
@@ -48,6 +48,7 @@ export function SpeedDialsBox({
                   callUser={() => callUser(e.speeddial_num!)}
                   handleSelectedSpeedDial={handleSelectedSpeedDial}
                   handleDeleteSpeedDial={handleDeleteSpeedDial}
+                  isLastItem={speeddials.length === 1 ? false : idx === speeddials.length - 1}
                 />
               </div>
             )

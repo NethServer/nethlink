@@ -57,11 +57,15 @@
     "View all": "View all",
     "Call or compose": "Call or compose",
     "Add": "Add",
-    "to": "to"
+    "to": "to",
+    "Start recording message before": "Click the button below to start recording",
+    "Start recording message after": "You can speak in a moment..."
   },
   "Login": {
     "Welcome": "Welcome",
     "User": "User",
+    "Host": "Nethvoice CTI host",
+    "Username": "Username",
     "Password": "Password",
     "Sign in": "Sign in",
     "The application is open in another window": "The application is open in another window",
@@ -70,7 +74,16 @@
     "Contact administrator for access": "Contact administrator for access",
     "Wrong username or password": "Wrong username or password",
     "Network connection is lost": "Network connection is lost",
-    "Login failed": "Login failed"
+    "Login failed": "Login failed",
+    "Use Another Account": "Use another account",
+    "New Account title": "Welcome",
+    "New Account description": "Sign in to Nethconnector with your Nethvoice CTI username and password.",
+    "Account List title": "Account list",
+    "Account list description": "Choose an account to continue to Nethconnector."
+  },
+  "SplashScreen": {
+    "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",
+    "Initializing": "Initializing the application..."
   },
   "Notification": {
     "contact_created_title": "Contact created!",
@@ -301,7 +314,8 @@
     "Open sidebar": "Open sidebar",
     "Main device": "Main device",
     "Voicemail": "Voicemail",
-    "Activate voicemail": "Activate voicemail"
+    "Activate voicemail": "Activate voicemail",
+    "Go to Nethvoice CTI": "Go to Nethvoice CTI"
   },
   "OperatorDrawer": {
     "Book": "Book",
@@ -745,7 +759,9 @@
     "Start recording": "Start recording",
     "Switch call": "Switch call",
     "Call to transfer": "Call to transfer",
-    "Hangup and transfer": "Hangup and transfer"
+    "Hangup and transfer": "Hangup and transfer",
+    "Answer": "Answer",
+    "Settings": "Settings"
   },
   "Devices": {
     "Web phone": "Web phone",
@@ -807,10 +823,16 @@
   },
   "DropdownContent": {
     "Microphones": "MICROPHONES",
-    "Speakers": "SPEAKERS"
+    "Speakers": "SPEAKERS",
+    "Theme": "THEME",
+    "Dark": "Dark",
+    "Light": "Light"
   },
   "Call": {
     "In progress...": "In progress...",
     "Outgoing call": "Outgoing call"
+  },
+  "Transfer": {
+    "No users found": "No users found"
   }
 }

@@ -41,7 +41,9 @@
     "View all": "Mostra tutte",
     "Call or compose": "Chiama o componi",
     "Add": "Aggiungi",
-    "to": "a"
+    "to": "a",
+    "Start recording message before": "Premi il pulsante qui sotto per registrare",
+    "Start recording message after": "Puoi parlare tra poco..."
   },
   "Login": {
     "Welcome": "Benvenuto",
@@ -60,7 +62,7 @@
     "New Account title": "Ti diamo il benvenuto",
     "New Account description": "Accedere a Nethconnector con il nome utente e la password di Nethvoice CTI.",
     "Account List title": "Account disponibili",
-    "Account list description": "Scegliete un account per proseguire con Nethconnector."
+    "Account List description": "Scegliete un account per proseguire con Nethconnector."
   },
   "SplashScreen": {
     "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",
@@ -277,7 +279,8 @@
     "Open sidebar": "Open sidebar",
     "Main device": "Dispositivo principale",
     "Voicemail": "Voicemail",
-    "Activate voicemail": "Attiva voicemail"
+    "Activate voicemail": "Attiva voicemail",
+    "Go to Nethvoice CTI": "Vai a Nethvoice CTI"
   },
   "OperatorDrawer": {
     "Book": "Prenota",
@@ -543,7 +546,9 @@
     "Start recording": "Inizia registrazione",
     "Switch call": "Scambia chiamata",
     "Call to transfer": "Chiamata da trasferire",
-    "Hangup and transfer": "Chiudi e trasferisci"
+    "Hangup and transfer": "Chiudi e trasferisci",
+    "Answer": "Rispondi",
+    "Settings": "Impostazioni"
   },
   "QueueManager": {
     "Dashboard": "Dashboard",
@@ -775,7 +780,7 @@
   "DropdownContent": {
     "Microphones": "MICROFONI",
     "Speakers": "ALTOPARLANTI",
-    "Theme": "THEMA",
+    "Theme": "TEMA",
     "Dark": "Scuro",
     "Light": "Chiaro"
   },

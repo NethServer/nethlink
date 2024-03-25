@@ -9,6 +9,8 @@ import {
 import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
 import { useEffect } from 'react'
+import { useLocalStoreState } from './hooks/useLocalStoreState'
+import { PageType } from '@shared/types'
 
 function Layout({ isDev }: { isDev: boolean }) {
 
@@ -30,7 +32,7 @@ function Layout({ isDev }: { isDev: boolean }) {
   return (
     <div>
       {
-        isDev && <div onClick={openDevTools} id='openDevToolButton' className='absolute bottom-0 left-0 bg-white p-1 z-[10000]'>devtool</div>
+        isDev && <div className='absolute bottom-0 left-0  z-[10000]'><button onClick={openDevTools} id='openDevToolButton' className='bg-white p-1'>devtool</button></div>
       }
       <Outlet />
     </div>
@@ -38,25 +40,32 @@ function Layout({ isDev }: { isDev: boolean }) {
 }
 
 function RoutesWrapper() {
+  const [page, setPage] = useLocalStoreState<PageType>('page')
 
   useInitialize(() => {
-    log(location.hash)
-    log(location.search)
+    log('hash', location.hash)
+    log('search', location.search)
     loadI18n()
+    const query = location.search || location.hash
+    const props = query.split('?')[1]?.split('&')?.reduce<any>((p, c) => {
+      const [k, v] = c.split('=')
+      return {
+        ...p,
+        [k]: v
+      }
+    }, {}) || {}
+
+    setPage({
+      query,
+      props
+    })
   })
-  const query = location.search || location.hash
-  const props = query.split('?')[1]?.split('&')?.reduce<any>((p, c) => {
-    const [k, v] = c.split('=')
-    return {
-      ...p,
-      [k]: v
-    }
-  }, {}) || {}
+
 
 
   return (
     <Routes>
-      <Route path="/" element={<Layout isDev={props.isDev} />}>
+      <Route path="/" element={<Layout isDev={page?.props?.isDev || false} />}>
         <Route path="splashscreenpage" element={<SplashScreenPage />} />
         <Route path="loginpage" element={<LoginPage />} />
         <Route path="phoneislandpage" element={<PhoneIslandPage />} />

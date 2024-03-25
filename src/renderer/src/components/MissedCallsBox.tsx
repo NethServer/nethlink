@@ -20,7 +20,7 @@ export function MissedCallsBox({
 }: MissedCallsBoxProps): JSX.Element {
   return (
     <>
-      <div className="flex flex-col gap-4 min-h-[284px]">
+      <div className="flex flex-col gap-4 h-full">
         <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 font-semibold max-h-[28px]">
           <h1>{title}</h1>
           <Button

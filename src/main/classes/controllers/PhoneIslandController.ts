@@ -1,6 +1,6 @@
 import { Account, PhoneIslandConfig } from '@shared/types'
 import { PhoneIslandWindow } from '../windows'
-import { IPC_EVENTS } from '@shared/constants'
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { NethVoiceAPI } from './NethCTIController'
 import { AccountController } from './AccountController'
@@ -92,6 +92,15 @@ export class PhoneIslandController {
 
   call(number: string) {
     this.window.emit(IPC_EVENTS.EMIT_START_CALL, number)
+    //TODO: WORK around per ingrandire immediatamente la schermata se il numero chiamato è l'echo test
+    if (number === '*43') {
+      setTimeout(() => {
+        const size = PHONE_ISLAND_RESIZE.get(PHONE_ISLAND_EVENTS['phone-island-call-answered'])!(
+          false
+        )
+        this.resize(size.w, size.h)
+      }, 100)
+    }
     this.showPhoneIsland()
   }
 

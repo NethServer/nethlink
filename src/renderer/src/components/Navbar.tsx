@@ -142,7 +142,7 @@ export function Navbar({
                   onClick={goToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={faArrowUpRightFromSquare} />
-                  <p className="font-semibold inline">{t('Profile.Go to Nethvoice CTI')}</p>
+                  <p className="font-semibold inline">{t('TopBar.Go to Nethvoice CTI')}</p>
                 </div>
               </Menu.Item>
               <Menu.Item>

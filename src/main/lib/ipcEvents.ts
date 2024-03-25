@@ -28,6 +28,7 @@ function onSyncEmitter<T>(
 }
 
 export function registerIpcEvents() {
+  //TODO: spostare ogni evento nel controller di appartenenza
   onSyncEmitter(IPC_EVENTS.LOGIN, async (...args) => {
     const [host, username, password] = args
     //log(args)
@@ -61,38 +62,15 @@ export function registerIpcEvents() {
     AccountController.instance.logout()
   })
 
-  ipcMain.on(IPC_EVENTS.CREATE_NEW_ACCOUNT, async (_event) => {
-    log('CREATE_NEW_ACCOUNT')
-  })
-
-  ipcMain.on(IPC_EVENTS.GET_SPEED_DIALS, async (event) => {
-    const speeddials = await NethVoiceAPI.instance.Phonebook.speeddials()
-    event.returnValue = speeddials
-  })
-
   ipcMain.on(IPC_EVENTS.HIDE_NETH_LINK, async (event) => {
     NethLinkController.instance.window.hideWindowFromRenderer()
   })
 
-  ipcMain.on(IPC_EVENTS.OPEN_SPEEDDIALS_PAGE, async (_event) => {
+  ipcMain.on(IPC_EVENTS.OPEN_HOST_PAGE, async (_, path) => {
     const account = AccountController.instance.getLoggedAccount()
-    shell.openExternal(join(account!.host, 'phonebook'))
+    shell.openExternal(join(account!.host, path))
   })
 
-  ipcMain.on(IPC_EVENTS.GET_LAST_CALLS, async (event) => {
-    const last_calls = await NethVoiceAPI.instance.HistoryCall.interval()
-    event.returnValue = last_calls
-  })
-
-  ipcMain.on(IPC_EVENTS.OPEN_ALL_CALLS_PAGE, async (_event) => {
-    const account = AccountController.instance.getLoggedAccount()
-    shell.openExternal(join(account!.host, 'history'))
-  })
-
-  ipcMain.on(IPC_EVENTS.OPEN_ADD_TO_PHONEBOOK_PAGE, async (_event) => {
-    const account = AccountController.instance.getLoggedAccount()
-    shell.openExternal(join(account!.host, 'phonebook'))
-  })
   ipcMain.on(IPC_EVENTS.START_CALL, async (_event, phoneNumber) => {
     PhoneIslandController.instance.call(phoneNumber)
   })
@@ -119,14 +97,6 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.SEARCH_TEXT, async (event, searchText) => {
     const res = await NethVoiceAPI.instance.Phonebook.search(searchText)
     NethLinkController.instance.window.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
-  })
-
-  ipcMain.on(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE, (event, url) => {
-    shell.openExternal(url)
-  })
-
-  ipcMain.on(IPC_EVENTS.OPEN_NETHVOICE_PAGE, (event, url) => {
-    shell.openExternal(url)
   })
 
   //SEND BACK ALL PHONE ISLAND EVENTS

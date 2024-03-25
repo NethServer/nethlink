@@ -303,3 +303,10 @@ export type QueuesType = {
     waitingCallers: object
   }
 }
+
+export type PageType = {
+  query: string
+  props: {
+    isDev?: boolean
+  }
+}

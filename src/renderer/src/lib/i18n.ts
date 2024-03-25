@@ -3,6 +3,7 @@ import Backend from 'i18next-electron-fs-backend'
 import { initReactI18next } from 'react-i18next'
 import { log } from '@shared/utils/logger'
 import { join } from 'path-browserify'
+import { uniq } from 'lodash'
 
 const fallbackLng = ['en']
 
@@ -12,8 +13,9 @@ const electronDetector: any = {
   init: Function.prototype,
   detect: () => {
     return new Promise((resolve) => {
-      window.api.getLocale().then((locale) => {
-        const locales = [...locale.filter((l) => !!l), ...fallbackLng]
+      window.api.getLocale().then(([locale, err]) => {
+        if (err) resolve(fallbackLng)
+        const locales = uniq([locale!.split('-')[0], ...fallbackLng])
         log(locales)
         resolve(locales)
       })
@@ -22,23 +24,30 @@ const electronDetector: any = {
   cacheUserLanguage: Function.prototype
 }
 
-export const loadI18n = (initialize = true): string | undefined => {
-  if (typeof window === 'undefined') {
-    return
-  }
-  log('onload i18n')
+const convertPath = (filename): string => {
   let dir = __dirname
   // if (__dirname.includes('app.asar')) loadPath = join(__dirname.split('app.asar')[0], 'app.asar', loadPath)
   if (__dirname.includes('electron.asar')) dir = './public'
-  let loadPath = join(dir, 'locales/{{lng}}/translations.json')
-  //loadPath = '.' + loadPath
+  let loadPath = join(dir, `locales/{{lng}}/${filename}.json`)
+  log(__dirname, loadPath)
+  return loadPath
+}
 
-  log(__dirname, dir, loadPath)
+export const getI18nLoadPath = (): string => convertPath('translations')
 
+export const getI18nAppPath = (): string => convertPath('missings')
+
+export const loadI18n = () => {
+  if (typeof window === 'undefined') {
+    return
+  }
+  const loadPath = getI18nLoadPath()
+  const appPath = getI18nAppPath()
   const config: any = {
     backend: {
       debug: true,
       loadPath,
+      appPath,
       contextBridgeApiKey: 'api'
     },
     react: {
@@ -49,9 +58,7 @@ export const loadI18n = (initialize = true): string | undefined => {
     saveMissing: true,
     saveMissingTo: 'current'
   }
-  log('FROM nethLink', config)
-  if (initialize) i18next.use(Backend).use(electronDetector).use(initReactI18next).init(config)
-  return loadPath
+  i18next.use(Backend).use(electronDetector).use(initReactI18next).init(config)
 }
 
 window.api.i18nextElectronBackend.onLanguageChange((args) => {
@@ -62,7 +69,5 @@ window.api.i18nextElectronBackend.onLanguageChange((args) => {
     }
   })
 })
-
-export const useTranslation = () => i18next
 
 export default loadI18n

@@ -56,9 +56,8 @@ export interface IElectronAPI {
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): void
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
-  openMissedCallsPage: (url: string) => void
+  openHostPage(path: string): unknown
   hideNethLink: () => void
-  openNethVoicePage: (url: string) => void
   showPhoneIsland: () => void
   hidePhoneIsland: () => void
 
@@ -113,8 +112,7 @@ const api: IElectronAPI = {
   resizeLoginWindow: setEmitter(IPC_EVENTS.LOGIN_WINDOW_RESIZE),
   changeTheme: setEmitter(IPC_EVENTS.CHANGE_THEME),
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
-  openMissedCallsPage: setEmitter(IPC_EVENTS.OPEN_MISSED_CALLS_PAGE),
-  openNethVoicePage: setEmitter(IPC_EVENTS.OPEN_NETHVOICE_PAGE),
+  openHostPage: setEmitter(IPC_EVENTS.OPEN_HOST_PAGE),
   hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
   showPhoneIsland: setEmitter(IPC_EVENTS.SHOW_PHONE_ISLAND),
   hidePhoneIsland: setEmitter(IPC_EVENTS.HIDE_PHONE_ISLAND),

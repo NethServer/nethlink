@@ -49,7 +49,7 @@ export function SearchNumberBox({
         </p>
       </div>
       <div className={`border-b dark:border-gray-700 border-gray-200 mx-4`}></div>
-      <div className="px-4 overflow-y-auto max-h-[216px]">
+      <div className="px-4 overflow-y-auto max-h-[192px]">
         {filteredPhoneNumbers.map((user, index) => (
           <SearchNumber
             key={index}

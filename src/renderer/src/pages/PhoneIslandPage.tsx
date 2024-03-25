@@ -1,7 +1,7 @@
 import { PhoneIsland } from '@nethesis/phone-island'
 import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import loadI18n from '@renderer/lib/i18n'
+import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
 import { useState, useRef } from 'react'
 
@@ -28,6 +28,7 @@ export function PhoneIslandPage() {
             window.api.showPhoneIsland()
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
+          case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
             window.api.hidePhoneIsland()
             break
@@ -69,11 +70,13 @@ export function PhoneIslandPage() {
   redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-update'])
   redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'])
 
-  const path = loadI18n(false)
+  const loadPath = getI18nLoadPath()
 
   return (
-    <div className="h-[100vh] w-[100vw] " id="phone-island-container">
-      {dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={path} />}
+    <div className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] " id="phone-island-container">
+      <div className='absolute h-[100vh] w-[100vw] bg-green-500/30 radius-md backdrop-hue-rotate-90'>
+      </div>
+      {dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={loadPath} />}
     </div>
   )
 }
