@@ -1,6 +1,6 @@
 import { LocalStorageData, useLocalStore } from '@renderer/store/StoreController'
 import { useSubscriber } from './useSubscriber'
-import { MutableRefObject, useEffect, useRef } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { log } from '@shared/utils/logger'
 
 export function useLocalStoreState<T>(
@@ -11,13 +11,16 @@ export function useLocalStoreState<T>(
   const subscribedData = useSubscriber<T>(selector)
   const setter = (newValue) => {
     log('set new value of', selector, newValue)
+    if (['object'].includes(typeof newValue)) {
+      newValue = Object.assign({}, newValue)
+    }
     store.setData(selector)(newValue)
     subscribedDataRef.current = newValue
   }
 
   useEffect(() => {
-    log(subscribedDataRef.current)
-  }, [subscribedDataRef.current])
+    log('On change subscribebData effect', subscribedDataRef.current)
+  }, [subscribedDataRef])
 
   return [subscribedData, setter, subscribedDataRef]
 }

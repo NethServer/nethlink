@@ -51,7 +51,7 @@ export function CreateSpeedDialBox({
   }
 
   return (
-    <div className="flex flex-col gap-4 min-h-[284px] relative">
+    <div className="flex flex-col gap-4 h-full relative">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px]">
         <h1 className="font-semibold dark:text-gray-50 text-gray-900">
           {t('SpeedDial.Create speed dial')}

@@ -1,26 +1,27 @@
-import { OperatorsType, QueuesType } from '@shared/types'
+import { OperatorsType, PageType, QueuesType } from '@shared/types'
 import { create } from 'zustand'
 
 export type LocalStorageData = {
-  operators: OperatorsType
-  profilePicture: any
-  customerCards: any
-  speedDial: any
-  toast: any
-  user: any
-  park: any
-  notifications: any
-  userActions: any
-  globalSearch: any
-  queues: QueuesType
-  queueManagerQueues: any
-  ctiStatus: any
-  sideDrawer: any
-  lines: any
-  lastCalls: any
-  darkTheme: any
-  phoneLines: any
-  authentication: any
+  operators?: OperatorsType
+  page?: PageType
+  profilePicture?: any
+  customerCards?: any
+  speedDial?: any
+  toast?: any
+  user?: any
+  park?: any
+  notifications?: any
+  userActions?: any
+  globalSearch?: any
+  queues?: QueuesType
+  queueManagerQueues?: any
+  ctiStatus?: any
+  sideDrawer?: any
+  lines?: any
+  lastCalls?: any
+  darkTheme?: any
+  phoneLines?: any
+  authentication?: any
 }
 
 type LocalStorageState = {
@@ -28,27 +29,7 @@ type LocalStorageState = {
   readonly setData: (key: keyof LocalStorageData) => (value: any) => void
 } & LocalStorageData
 
-const initialData: LocalStorageData = {
-  operators: {},
-  profilePicture: {},
-  customerCards: {},
-  speedDial: {},
-  toast: {},
-  user: {},
-  park: {},
-  notifications: {},
-  userActions: {},
-  globalSearch: {},
-  queues: {},
-  queueManagerQueues: {},
-  ctiStatus: {},
-  sideDrawer: {},
-  lines: {},
-  lastCalls: {},
-  darkTheme: {},
-  phoneLines: {},
-  authentication: {}
-}
+const initialData: LocalStorageData = {}
 
 export const useLocalStore = create<LocalStorageState>((set, get) => ({
   ...initialData,

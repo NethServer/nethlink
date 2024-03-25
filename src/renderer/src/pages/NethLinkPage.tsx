@@ -21,7 +21,7 @@ import { debouncer } from '@shared/utils/utils'
 import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { CreateSpeedDialBox } from '@renderer/components/CreateSpeedDialBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
-import { faChevronDown, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
+import { faMinusCircle as MinimizeIcon, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
@@ -32,7 +32,7 @@ import avatar from '../assets/TrayLogo.png'
 
 export function NethLinkPage() {
   const [search, setSearch] = useState('')
-  const [account, setAccount] = useLocalStoreState<Account>('user')
+  const [account, setAccount, accountRef] = useLocalStoreState<Account>('user')
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
   const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
@@ -102,7 +102,7 @@ export function NethLinkPage() {
 
   const updateTheme = (theme: AvailableThemes) => {
     log('FROM WINDOW', theme)
-    if (account!.theme === 'system') {
+    if (accountRef.current!.theme === 'system') {
       setTheme(() => theme)
     }
   }
@@ -254,8 +254,8 @@ export function NethLinkPage() {
 
   function handleOnSelectTheme(theme: AvailableThemes) {
     window.api.changeTheme(theme)
-    account!.theme = theme
-    setAccount(account)
+    accountRef.current!.theme = theme
+    setAccount(accountRef.current)
   }
 
   function viewAllMissedCalls(): void {
@@ -307,9 +307,20 @@ export function NethLinkPage() {
         <div className={theme}>
           <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
             <div
-              className={`flex ${navigator.userAgent.includes('Win32') ? 'flex-col' : 'flex-col-reverse'} dark:bg-gray-900 bg-gray-50 min-w-[400px] min-h-[380px] h-full z-10 rounded-md items-center justify-between`}
+              className={`flex flex-col-reverse  min-w-[400px] min-h-[380px] h-full items-center justify-between`}
             >
-              <div className="flex flex-row">
+              <div className={`flex justify-center items-center pb-[2px] pt-[8px] w-full bg-gray-200 hover:bg-gray-400 dark:bg-gray-950 dark:hover:bg-gray-700 rounded-b-md relative bottom-[1px] z-0`}
+                onClick={hideNethLink}
+              >
+                <div className='flex justify-center items-center'>
+                  <p>{t('Common.Minimize')}</p>
+                  <FontAwesomeIcon
+                    className={`text-gray-900 dark:text-white ml-2 `}
+                    icon={MinimizeIcon}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-row rounded-md relative bottom-[-4px] z-10  dark:bg-gray-900 bg-gray-50 w-full">
                 <div className="flex flex-col gap-4 w-full">
                   <Navbar
                     search={search}
@@ -320,8 +331,8 @@ export function NethLinkPage() {
                     handleReset={handleReset}
                     goToNethVoicePage={goToNethVoicePage}
                   />
-                  <div className="relative w-full h-full">
-                    <div className="px-4 w-full h-full z-1">
+                  <div className="relative w-full">
+                    <div className="px-4 w-full h-[284px] pb-2 z-1">
                       {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
                         isCreatingSpeedDial ? (
                           <CreateSpeedDialBox
@@ -354,29 +365,29 @@ export function NethLinkPage() {
                           handleSelectedMissedCall={handleSelectedMissedCall}
                         />
                       )}
+                      {search !== '' && !selectedMissedCall ? (
+                        <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
+                          <SearchNumberBox
+                            searchText={search}
+                            showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
+                            callUser={callUser}
+                          />
+                        </div>
+                      ) : null}
+                      {selectedMissedCall ? (
+                        <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
+                          <AddToPhonebookBox
+                            searchText={search}
+                            selectedNumber={selectedMissedCall.number}
+                            selectedCompany={selectedMissedCall.company}
+                            handleAddContactToPhonebook={handleAddContactToPhonebook}
+                            onCancel={() => {
+                              setSelectedMissedCall(() => null)
+                            }}
+                          />
+                        </div>
+                      ) : null}
                     </div>
-                    {search !== '' && !selectedMissedCall ? (
-                      <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
-                        <SearchNumberBox
-                          searchText={search}
-                          showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
-                          callUser={callUser}
-                        />
-                      </div>
-                    ) : null}
-                    {selectedMissedCall ? (
-                      <div className="absolute top-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
-                        <AddToPhonebookBox
-                          searchText={search}
-                          selectedNumber={selectedMissedCall.number}
-                          selectedCompany={selectedMissedCall.company}
-                          handleAddContactToPhonebook={handleAddContactToPhonebook}
-                          onCancel={() => {
-                            setSelectedMissedCall(() => null)
-                          }}
-                        />
-                      </div>
-                    ) : null}
                   </div>
                   {/* Modal per l'eliminazione di una speedDials */}
                   <Modal
@@ -433,15 +444,6 @@ export function NethLinkPage() {
                 <Sidebar
                   selectedMenu={selectedMenu}
                   handleSidebarMenuSelection={handleSidebarMenuSelection}
-                />
-              </div>
-              <div
-                className={`flex justify-center items-center py-[2px] w-full bg-gray-900 hover:bg-gray-600 z-[100] ${navigator.userAgent.includes('Win32') ? 'rounded-b-md' : 'rounded-t-md'}`}
-                onClick={hideNethLink}
-              >
-                <FontAwesomeIcon
-                  className={`dark:text-white ${navigator.userAgent.includes('Win32') ? '' : 'rotate-180'}`}
-                  icon={faChevronDown}
                 />
               </div>
             </div>

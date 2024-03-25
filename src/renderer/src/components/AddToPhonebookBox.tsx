@@ -85,12 +85,12 @@ export function AddToPhonebookBox({
   }
 
   return (
-    <div className="px-4 w-full h-full">
+    <div className="pl-4 w-full h-full">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 max-h-[28px]">
         <h1 className="font-semibold">{t('Phonebook.Add to Phonebook')}</h1>
       </div>
       <form
-        className="flex flex-col gap-4 p-2 min-h-[240px] h-full overflow-y-auto"
+        className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px]"
         onSubmit={(e) => {
           setIsLoading(true)
           e.preventDefault()
@@ -193,7 +193,7 @@ export function AddToPhonebookBox({
           label={t('Phonebook.Notes') as string}
         />
 
-        <div className="flex flex-row gap-4 justify-end mb-5">
+        <div className="flex flex-row gap-4 justify-end">
           <Button variant="ghost" onClick={() => onCancel()}>
             <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.Cancel')}</p>
           </Button>
