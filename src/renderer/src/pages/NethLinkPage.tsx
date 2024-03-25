@@ -332,7 +332,7 @@ export function NethLinkPage() {
                             onSubmit={handleSubmitContact}
                             onCancel={() => {
                               setShowSpeedDialForm(false)
-                              setSelectedSpeedDial(undefined)
+                              setSelectedSpeedDial(() => undefined)
                             }}
                           />
                         ) : (
@@ -370,7 +370,7 @@ export function NethLinkPage() {
                           selectedCompany={selectedMissedCall.company}
                           handleAddContactToPhonebook={handleAddContactToPhonebook}
                           onCancel={() => {
-                            setSelectedMissedCall(() => null)
+                            setSelectedMissedCall(() => undefined)
                           }}
                         />
                       </div>
