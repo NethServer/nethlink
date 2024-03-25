@@ -1,6 +1,6 @@
-appId: "com.nethlink.app"
-productName: "com.nethlink.app"
-copyright: "prova copyright"
+appId: 'com.nethlink.app'
+productName: 'com.nethlink.app'
+copyright: 'prova copyright'
 directories:
   buildResources: build
 files:
@@ -32,6 +32,7 @@ nsis:
 mac:
   category: public.app-category.developer-tools
   entitlementsInherit: build/entitlements.mac.plist
+  hardenedRuntime: true
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.

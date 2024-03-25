@@ -1,4 +1,4 @@
-import { app, protocol } from 'electron'
+import { app, protocol, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -45,6 +45,17 @@ app.whenReady().then(async () => {
     PhoneIslandController.instance.window.addOnBuildListener(updateBuildedWindows)
     NethLinkController.instance.window.addOnBuildListener(updateBuildedWindows)
     LoginController.instance.window.addOnBuildListener(updateBuildedWindows)
+    const cameraPermissionState = await systemPreferences.getMediaAccessStatus('camera')
+    const cameraPermission = await systemPreferences.askForMediaAccess('camera')
+    const microphonePermissionState = await systemPreferences.getMediaAccessStatus('microphone')
+    const microphonePermission = await systemPreferences.askForMediaAccess('microphone')
+    log(
+      'Permissions:',
+      cameraPermissionState,
+      cameraPermission,
+      microphonePermissionState,
+      microphonePermission
+    )
 
     //aspetto che tutte le finestre siano pronte o un max di 2,5 secondi
     let time = 0
