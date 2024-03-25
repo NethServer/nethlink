@@ -8,7 +8,7 @@ import { t } from 'i18next'
 import { useForm, SubmitHandler } from 'react-hook-form'
 
 interface SpeedDialFormBoxProps {
-  initialData?: ContactType | undefined
+  initialData?: ContactType
   onSubmit: (data: NewContactType | NewSpeedDialType) => Promise<void>
   onCancel: () => void
 }
@@ -17,21 +17,12 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
   const {
     register,
     handleSubmit,
-    setValue,
     reset,
     formState: { errors }
   } = useForm<NewContactType | NewSpeedDialType>({
     defaultValues: initialData
   })
   const [isLoading, setIsLoading] = useState<boolean>(false)
-
-  useEffect(() => {
-    reset()
-    if (initialData) {
-      setValue('name', initialData.name!)
-      setValue('speeddial_num', initialData.speeddial_num)
-    }
-  }, [initialData, setValue])
 
   const onSubmitForm: SubmitHandler<NewContactType | NewSpeedDialType> = (data) => {
     handleSave(data)
