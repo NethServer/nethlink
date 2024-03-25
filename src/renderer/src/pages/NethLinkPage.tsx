@@ -344,6 +344,7 @@ export function NethLinkPage() {
                     handleReset={handleReset}
                     goToNethVoicePage={goToNethVoicePage}
                   />
+
                   <div className="relative w-full">
                     <div className="px-4 w-full h-[284px] pb-2 z-1">
                       {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
