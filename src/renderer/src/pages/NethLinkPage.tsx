@@ -37,15 +37,14 @@ export function NethLinkPage() {
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [operators, setOperators, operatorsRef] = useLocalStoreState<OperatorData>('operators')
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
-  const [isCreatingSpeedDial, setIsCreatingSpeedDial] = useState<boolean>(false)
   const [selectedMissedCall, setSelectedMissedCall] = useState<{
     number?: string
     company?: string
   } | null>(null)
-  const [isEditingSpeedDial, setIsEditingSpeedDial] = useState<boolean>(false)
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
   const cancelDeleteButtonRef = useRef() as MutableRefObject<HTMLButtonElement>
+  const [showSpeedDialForm, setShowSpeedDialForm] = useState<boolean>(false)
 
   useInitialize(() => {
     initialize()
@@ -174,8 +173,8 @@ export function NethLinkPage() {
   }
 
   function handleSelectedSpeedDial(selectedSpeedDial: ContactType) {
-    setIsEditingSpeedDial(true)
     setSelectedSpeedDial(() => selectedSpeedDial)
+    setShowSpeedDialForm(true)
   }
 
   async function handleAddContactToPhonebook(contact: ContactType) {
@@ -205,7 +204,7 @@ export function NethLinkPage() {
       throw err
     }
     setSpeeddials(() => [...speeddials, createdSpeedDial as ContactType])
-    setIsCreatingSpeedDial(() => false)
+    setShowSpeedDialForm(false)
     setSearch(() => '')
     sendNotification(
       t('Notification.speeddial_created_title'),
@@ -235,7 +234,7 @@ export function NethLinkPage() {
       return speedDial
     })
     setSpeeddials(() => newSpeedDials)
-    setIsEditingSpeedDial(false)
+    setShowSpeedDialForm(false)
     setSelectedSpeedDial(undefined)
     sendNotification(
       t('Notification.speeddial_modified_title'),
@@ -244,17 +243,17 @@ export function NethLinkPage() {
   }
 
   async function handleSubmitContact(data: NewContactType | NewSpeedDialType) {
-    if (isCreatingSpeedDial) {
-      await handleAddContactToSpeedDials(data as NewContactType)
-    } else if (selectedSpeedDial && isEditingSpeedDial) {
+    if (selectedSpeedDial) {
       await handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial)
+    } else {
+      await handleAddContactToSpeedDials(data as NewContactType)
     }
   }
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
     setSearch(() => '')
-    setIsCreatingSpeedDial(false)
+    setShowSpeedDialForm(false)
     setSelectedMissedCall(() => null)
   }
 
@@ -327,13 +326,12 @@ export function NethLinkPage() {
                   <div className="relative w-full h-full">
                     <div className="px-4 w-full h-full z-1">
                       {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
-                        isCreatingSpeedDial || (selectedSpeedDial && isEditingSpeedDial) ? (
+                        showSpeedDialForm ? (
                           <SpeedDialFormBox
                             initialData={selectedSpeedDial}
                             onSubmit={handleSubmitContact}
                             onCancel={() => {
-                              setIsCreatingSpeedDial(false)
-                              setIsEditingSpeedDial(false)
+                              setShowSpeedDialForm(false)
                               setSelectedSpeedDial(undefined)
                             }}
                           />
@@ -341,7 +339,7 @@ export function NethLinkPage() {
                           <SpeedDialsBox
                             speeddials={speeddials}
                             callUser={callUser}
-                            showCreateSpeedDial={() => setIsCreatingSpeedDial(true)}
+                            showCreateSpeedDial={() => setShowSpeedDialForm(true)}
                             handleSelectedSpeedDial={handleSelectedSpeedDial}
                             handleDeleteSpeedDial={handleDeleteSpeedDial}
                           />
