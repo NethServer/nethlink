@@ -40,10 +40,13 @@ export function NethLinkPage() {
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [operators, setOperators, operatorsRef] = useLocalStoreState<OperatorData>('operators')
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
-  const [selectedMissedCall, setSelectedMissedCall] = useState<{
-    number?: string
-    company?: string
-  } | null>(null)
+  const [selectedMissedCall, setSelectedMissedCall] = useState<
+    | {
+        number?: string
+        company?: string
+      }
+    | undefined
+  >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
   const cancelDeleteButtonRef = useRef() as MutableRefObject<HTMLButtonElement>
@@ -191,7 +194,7 @@ export function NethLinkPage() {
       throw err
     }
     setSearch(() => '')
-    setSelectedMissedCall(() => null)
+    setSelectedMissedCall(() => undefined)
     sendNotification(
       t('Notification.contact_created_title'),
       t('Notification.contact_created_description')
@@ -258,7 +261,7 @@ export function NethLinkPage() {
     setSelectedMenu(() => menuElement)
     setSearch(() => '')
     setShowSpeedDialForm(false)
-    setSelectedMissedCall(() => null)
+    setSelectedMissedCall(() => undefined)
   }
 
   function handleOnSelectTheme(theme: AvailableThemes) {
