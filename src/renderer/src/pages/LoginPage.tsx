@@ -40,7 +40,7 @@ export function LoginPage() {
   }
 
   async function handleLogin(data: LoginData) {
-    if (data.host.slice(-1) === '/') data.host = data.host.slice(0, data.host.length - 2)
+    if (data.host.charAt(data.host.length - 1) === '/') data.host = data.host.slice(0, data.host.length - 1)
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
     log(data, returnValue, err)
     setIsError(!!err)

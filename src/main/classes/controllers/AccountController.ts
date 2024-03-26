@@ -157,7 +157,12 @@ export class AccountController {
     //Controllo se la cartella configs esiste, altrimenti la creo
 
     if (!this.hasConfigsFolderOfFile()) {
-      fs.mkdirSync(CONFIG_PATH)
+      log('ENOENT')
+      try {
+        fs.mkdirSync(CONFIG_PATH)
+      } catch (e) {
+        log(e)
+      }
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(defaultConfig), 'utf-8')
     } else {
       throw new Error(`Unable to overwrite ${CONFIG_FILE}`)
