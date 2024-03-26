@@ -14,34 +14,18 @@ export interface MissedCallProps {
   handleSelectedMissedCall: (number, company) => void
 }
 
-export function getCallName(call: CallData): string {
-  return call?.dst_cnam || call?.dst_ccompany || `${t('Common.Unknown')}`
-}
-
-export function getOperatorByPhoneNumber(phoneNumber: string, operators: any) {
-  return Object.values(operators).find((extensions: any) => extensions.id === phoneNumber)
-}
-
-export function getBadge(call: CallData, queues: any) {
-  if (!call.queue) {
-    call.ccompany = ''
-    return
-  }
-
-  const queueKeys = Object.keys(queues)
-
-  for (const key of queueKeys) {
-    const queue = queues[key]
-    if (queue.queue === call.queue.toString()) {
-      call.ccompany = queue.name
-    }
-  }
-}
-
 export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps): JSX.Element {
   const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
+
+  function getCallName(call: CallData): string {
+    return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
+  }
+
+  function getOperatorByPhoneNumber(phoneNumber: string, operators: any) {
+    return Object.values(operators).find((extensions: any) => extensions.id === phoneNumber)
+  }
 
   if (call?.dst_cnam === '') {
     const operatorFound: any = getOperatorByPhoneNumber(call?.dst as string, operators)
@@ -49,7 +33,6 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
     if (operatorFound) {
       call.dst_cnam = operatorFound?.name
     }
-    getBadge(call, queues)
   }
 
   function truncate(str: string, maxLength: number) {
@@ -86,15 +69,19 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
           </NumberCaller>
         </div>
         <div className="flex flex-row gap-1">
-          <CallsDate call={call} />
+          <CallsDate call={call} spaced={true} />
         </div>
       </div>
 
       <div className="flex flex-col gap-2 ml-auto">
-        {call.ccompany && (
-          <div className="flex flex-row justify-center items-center gap-2 py-1 px-[10px] rounded-[10px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
-            <FontAwesomeIcon icon={faUsers} />
-            <p className="text-[12x] leading-[18px]">{truncate(call.ccompany, 19)}</p>
+        {call.channel?.includes('from-queue') && (
+          <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
+            <FontAwesomeIcon icon={faUsers} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
+            <p className="text-[12x] leading-[18px]">
+              {queues[call.queue!]?.name
+                ? queues[call.queue!]?.name + ' ' + call?.queue
+                : t('QueueManager.Queue')}
+            </p>
           </div>
         )}
         {showCreateButton && (
