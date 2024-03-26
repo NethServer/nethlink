@@ -1,4 +1,10 @@
-import { faBuilding, faHeadset, faStar, faTimes, faUser } from '@fortawesome/free-solid-svg-icons'
+import {
+  faBuilding as BuildingIcon,
+  faHeadset as HeadsetIcon,
+  faStar as StarIcon,
+  faTimes as TimesIcon,
+  faUser as UserIcon
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useTheme } from '@renderer/theme/Context'
 import { StatusTypes } from '@shared/types'
@@ -63,21 +69,21 @@ export const Avatar = ({
         <div className={theme.placeholderType.base}>
           {placeholderType == 'person' && (
             <FontAwesomeIcon
-              icon={faUser}
+              icon={UserIcon}
               className={classNames(theme.placeholderType, theme.placeholderType.sizes[size])}
               aria-hidden="true"
             />
           )}
           {placeholderType == 'company' && (
             <FontAwesomeIcon
-              icon={faBuilding}
+              icon={BuildingIcon}
               className={classNames(theme.placeholderType, theme.placeholderType.sizes[size])}
               aria-hidden="true"
             />
           )}
           {placeholderType == 'operator' && (
             <FontAwesomeIcon
-              icon={faHeadset}
+              icon={HeadsetIcon}
               className={classNames(theme.placeholderType, theme.placeholderType.sizes[size])}
               aria-hidden="true"
             />
@@ -96,7 +102,7 @@ export const Avatar = ({
       )}
       {star && (
         <FontAwesomeIcon
-          icon={faStar}
+          icon={StarIcon}
           aria-hidden="true"
           className={classNames(theme.star.base, theme.star.sizes[size])}
         />
@@ -104,7 +110,7 @@ export const Avatar = ({
       {deleteAvatar && (
         <button className={classNames(theme.deleteAvatar.button, 'tooltip-remove-profile-picture')}>
           <FontAwesomeIcon
-            icon={faTimes}
+            icon={TimesIcon}
             aria-hidden="true"
             className={classNames(theme.deleteAvatar.base)}
             //onClick={() => removeAvatar('')}

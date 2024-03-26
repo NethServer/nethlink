@@ -1,5 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPhone, faEllipsisVertical, faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import {
+  faPhone as PhoneIcon,
+  faEllipsisVertical as EllipsisIcon,
+  faPen as PenIcon,
+  faTrashCan as TrashIcon
+} from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/'
 import { PlaceholderIcon } from '@renderer/icons'
 import { NumberCaller } from './NumberCaller'
@@ -40,7 +45,7 @@ export function SpeedDialNumber({
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
               className="dark:text-gray-400 text-gray-600 text-base"
-              icon={faPhone}
+              icon={PhoneIcon}
               onClick={callUser}
             />
             <NumberCaller
@@ -60,7 +65,7 @@ export function SpeedDialNumber({
                 <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon
                     className="dark:text-gray-50 text-gray-900 text-base"
-                    icon={faEllipsisVertical}
+                    icon={EllipsisIcon}
                   />
                 </div>
               </Menu.Button>
@@ -79,7 +84,7 @@ export function SpeedDialNumber({
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
                       className="text-base dark:text-gray-50 text-gray-900"
-                      icon={faPen}
+                      icon={PenIcon}
                     />
                     <p className="font-semibold dark:text-gray-50 text-gray-900">
                       {t('Common.Edit')}
@@ -96,7 +101,7 @@ export function SpeedDialNumber({
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
                       className="text-base dark:text-gray-50 text-gray-900"
-                      icon={faTrashCan}
+                      icon={TrashIcon}
                     />
                     <p className="font-semibold dark:text-gray-50 text-gray-900">
                       {t('Common.Delete')}

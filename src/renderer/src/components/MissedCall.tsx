@@ -1,4 +1,4 @@
-import { faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faUserPlus as UserPlusIcon, faUsers as UsersIcon } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 import { Avatar, Button } from './Nethesis/'
@@ -93,7 +93,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
       <div className="flex flex-col gap-2 ml-auto">
         {call.ccompany && (
           <div className="flex flex-row justify-center items-center gap-2 py-1 px-[10px] rounded-[10px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
-            <FontAwesomeIcon icon={faUsers} />
+            <FontAwesomeIcon icon={UsersIcon} />
             <p className="text-[12x] leading-[18px]">{truncate(call.ccompany, 19)}</p>
           </div>
         )}
@@ -105,7 +105,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
           >
             <FontAwesomeIcon
               className="text-base dark:text-blue-500 text-blue-600"
-              icon={faUserPlus}
+              icon={UserPlusIcon}
             />
             <p className="dark:text-blue-500 text-blue-600 font-semibold">
               {t('SpeedDial.Create')}

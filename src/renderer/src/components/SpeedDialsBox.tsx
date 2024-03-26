@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCirclePlus } from '@fortawesome/free-solid-svg-icons'
+import { faCirclePlus as CircleIcon } from '@fortawesome/free-solid-svg-icons'
 import { SpeedDialNumber } from './SpeedDialNumber'
 import { ContactType } from '@shared/types'
 import { Button } from './Nethesis/Button'
@@ -30,7 +30,7 @@ export function SpeedDialsBox({
         >
           <FontAwesomeIcon
             className="dark:text-blue-500 text-blue-600 text-base"
-            icon={faCirclePlus}
+            icon={CircleIcon}
           />
           <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('SpeedDial.Create')}</p>
         </Button>

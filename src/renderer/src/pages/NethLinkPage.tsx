@@ -22,7 +22,7 @@ import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import {
   faMinusCircle as MinimizeIcon,
-  faTriangleExclamation
+  faTriangleExclamation as DangerIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -409,7 +409,7 @@ export function NethLinkPage() {
                     <Modal.Content>
                       <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-red-100 dark:bg-red-900">
                         <FontAwesomeIcon
-                          icon={faTriangleExclamation}
+                          icon={DangerIcon}
                           className="h-6 w-6 text-red-600 dark:text-red-200"
                           aria-hidden="true"
                         />

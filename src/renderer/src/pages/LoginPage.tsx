@@ -5,7 +5,12 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowLeft, faEye, faEyeSlash, faX } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowLeft as ArrowIcon,
+  faEye as EyeIcon,
+  faEyeSlash as EyeSlashIcon,
+  faX as CrossIcon
+} from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
 import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
 import { useInitialize } from '@renderer/hooks/useInitialize'
@@ -110,14 +115,15 @@ export function LoginPage() {
           label={t('Login.Password') as string}
           error={isError || Boolean(errors.password)}
           type={pwdVisible ? 'text' : 'password'}
-          icon={pwdVisible ? faEye : faEyeSlash}
+          icon={pwdVisible ? EyeIcon : EyeSlashIcon}
           onIconClick={() => setPwdVisible(!pwdVisible)}
           trailingIcon={true}
         />
         <button
           type="submit"
           className="w-full bg-blue-500 rounded h-9 font-semibold mt-2 cursor-pointer"
-        >{t('Login.Sign in')}
+        >
+          {t('Login.Sign in')}
         </button>
       </div>
     </div>
@@ -130,13 +136,13 @@ export function LoginPage() {
           <img src={header}></img>
           {displayedAccounts.length > 0 && selectedAccount && (
             <FontAwesomeIcon
-              icon={faArrowLeft}
+              icon={ArrowIcon}
               className="h-5 w-5 text-gray-50 ml-12 cursor-pointer"
               onClick={() => setSelectedAccount(undefined)}
             />
           )}
           <FontAwesomeIcon
-            icon={faX}
+            icon={CrossIcon}
             className="h-5 w-5 text-gray-50 cursor-pointer"
             onClick={() => hideLoginWindow()}
           />
@@ -177,7 +183,7 @@ export function LoginPage() {
                           error={isError || Boolean(errors.password)}
                           className="mt-5"
                           type={pwdVisible ? 'text' : 'password'}
-                          icon={pwdVisible ? faEye : faEyeSlash}
+                          icon={pwdVisible ? EyeIcon : EyeSlashIcon}
                           onIconClick={() => setPwdVisible(!pwdVisible)}
                           trailingIcon={true}
                         />
