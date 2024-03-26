@@ -1,4 +1,4 @@
-import { Routes, Route, Outlet, HashRouter } from 'react-router-dom'
+import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
 import {
   LoginPage,
@@ -11,6 +11,8 @@ import { log } from '@shared/utils/logger'
 import { useEffect } from 'react'
 import { useLocalStoreState } from './hooks/useLocalStoreState'
 import { PageType } from '@shared/types'
+import { delay } from '@shared/utils/utils'
+import i18next from 'i18next'
 
 function Layout({ isDev }: { isDev: boolean }) {
 
@@ -32,14 +34,15 @@ function Layout({ isDev }: { isDev: boolean }) {
   return (
     <div>
       {
-        isDev && <div className='absolute bottom-0 left-0  z-[10000]'><button onClick={openDevTools} id='openDevToolButton' className='bg-white p-1'>devtool</button></div>
+        isDev && <div className='absolute bottom-0 left-0 z-[10000]'><button onClick={openDevTools} id='openDevToolButton' className='bg-white p-1'>dev</button></div>
       }
       <Outlet />
     </div>
   )
 }
 
-function RoutesWrapper() {
+export default function App() {
+
   const [page, setPage] = useLocalStoreState<PageType>('page')
 
   useInitialize(() => {
@@ -55,32 +58,53 @@ function RoutesWrapper() {
       }
     }, {}) || {}
 
+
     setPage({
       query,
       props
     })
   })
 
+  const loader = async () => {
+    let time = 0
+    //attendo che la lingua venga caricata oppure 1 secondo
+    while (time < 10 && !i18next.isInitialized) {
+      await delay(100)
+      time++
+    }
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    //getUserMedia({ audio: {}, video: {} });
+    log(devices)
+    return null
+  }
 
+  const router = createHashRouter([
+    {
+      path: '/',
+      element: <Layout isDev={page?.props?.isDev || false} />,
+      loader: loader,
+      children: [
+        {
+          path: 'splashscreenpage',
+          element: <SplashScreenPage />
+        },
+        {
+          path: 'loginpage',
+          element: <LoginPage />
+        },
+        {
+          path: 'phoneislandpage',
+          element: <PhoneIslandPage />
+        },
+        {
+          path: 'nethconnectorpage',
+          element: <NethLinkPage />
+        }
+      ]
+    }
+  ])
 
   return (
-    <Routes>
-      <Route path="/" element={<Layout isDev={page?.props?.isDev || false} />}>
-        <Route path="splashscreenpage" element={<SplashScreenPage />} />
-        <Route path="loginpage" element={<LoginPage />} />
-        <Route path="phoneislandpage" element={<PhoneIslandPage />} />
-        <Route path="nethconnectorpage" element={<NethLinkPage />} />
-      </Route>
-    </Routes>
-  )
-}
-
-export default function App() {
-
-
-  return (
-    <HashRouter>
-      <RoutesWrapper />
-    </HashRouter>
+    <RouterProvider router={router} />
   )
 }

@@ -2,15 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-.pi-absolute:nth-child(2),
-.pi-pointer-events-auto {
-  transform: none !important;
-  -webkit-app-region: drag !important;
+#openDevToolButton {
+  pointer-events: all;
+  border: 0 solid transparent;
+  border-radius: 0 8px 0 0;
 }
 
-button,
-.pi-flex {
-  -webkit-app-region: no-drag;
+#phone-island-container {
+
+
+  .pi-absolute,
+  .pi-pointer-events-auto {
+    transform: none !important;
+    -webkit-app-region: drag !important;
+    cursor: pointer
+  }
+
+  button,
+  .pi-flex {
+    -webkit-app-region: no-drag;
+  }
 }
 
 .light ::-webkit-scrollbar {
@@ -45,7 +56,6 @@ button,
   html,
   body {
     @apply h-full;
-
     @apply select-none;
   }
 }
