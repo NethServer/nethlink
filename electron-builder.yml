@@ -30,9 +30,10 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
 mac:
-  category: public.app-category.developer-tools
-  entitlementsInherit: build/entitlements.mac.plist
-  hardenedRuntime: true
+  identity: null
+  category: public.app-category.productivity
+  gatekeeperAssess: false
+  hardenedRuntime: false
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
@@ -40,18 +41,22 @@ mac:
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
   target:
-    - zip
-    #- dmg
+    #- zip
+    - dmg
     #- mas
-dmg:
+mas:
   artifactName: ${name}-${version}.${ext}
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+dmg: 
+  sign: false
 linux:
   target:
     #- snap
     - AppImage
     #- deb
     #- rpm
-    - zip
+    #- zip
   maintainer: electronjs.org
   category: Utility
 appImage:
