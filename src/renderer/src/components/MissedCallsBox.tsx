@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowUpRightFromSquare as ArrowSquareIcon } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUpRightFromSquare as ShowMissedCallIcon } from '@fortawesome/free-solid-svg-icons'
 import { MissedCall } from './MissedCall'
 import { CallData } from '@shared/types'
 import { Button } from './Nethesis/Button'
@@ -29,7 +29,7 @@ export function MissedCallsBox({
           >
             <FontAwesomeIcon
               className="text-base dark:text-blue-500 text-blue-600"
-              icon={ArrowSquareIcon}
+              icon={ShowMissedCallIcon}
             />
             <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.View all')}</p>
           </Button>

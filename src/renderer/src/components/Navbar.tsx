@@ -1,13 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchBox } from './SearchBox'
 import {
-  faSliders as SlidersIcon,
-  faArrowRightFromBracket as ArrowBracketIcon,
-  faPalette as PaletteIcon,
-  faSun as SunIcon,
-  faMoon as MoonIcon,
-  faCheck as CheckIcon,
-  faArrowUpRightFromSquare as ArrowSquareIcon
+  faSliders as ThemeMenuIcon,
+  faArrowRightFromBracket as LogoutIcon,
+  faPalette as SystemIcon,
+  faSun as LightIcon,
+  faMoon as DarkIcon,
+  faCheck as ChooseThemeMenuIcon,
+  faArrowUpRightFromSquare as GoToNethVoiceIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
@@ -27,9 +27,9 @@ export interface NavabarProps {
 }
 
 const themeOptions = [
-  { id: 1, name: 'system', icon: PaletteIcon },
-  { id: 2, name: 'light', icon: SunIcon },
-  { id: 3, name: 'dark', icon: MoonIcon }
+  { id: 1, name: 'system', icon: SystemIcon },
+  { id: 2, name: 'light', icon: LightIcon },
+  { id: 3, name: 'dark', icon: DarkIcon }
 ]
 
 export function Navbar({
@@ -58,7 +58,7 @@ export function Navbar({
               <Listbox.Button>
                 <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon
-                    icon={SlidersIcon}
+                    icon={ThemeMenuIcon}
                     className="h-5 w-5 dark:text-gray-50 text-gray-700"
                   />
                 </div>
@@ -80,7 +80,7 @@ export function Navbar({
                       <FontAwesomeIcon
                         className="dark:text-blue-500 text-blue-600"
                         style={{ fontSize: '16px' }}
-                        icon={CheckIcon}
+                        icon={ChooseThemeMenuIcon}
                       />
                     )}
                     <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ export function Navbar({
                   className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200"
                   onClick={goToNethVoicePage}
                 >
-                  <FontAwesomeIcon className="text-base" icon={ArrowSquareIcon} />
+                  <FontAwesomeIcon className="text-base" icon={GoToNethVoiceIcon} />
                   <p className="font-semibold inline">{t('TopBar.Go to Nethvoice CTI')}</p>
                 </div>
               </Menu.Item>
@@ -147,7 +147,7 @@ export function Navbar({
                   className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
                   onClick={logout}
                 >
-                  <FontAwesomeIcon className="text-base" icon={ArrowBracketIcon} />
+                  <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
                   <p className="font-semibold">{t('TopBar.Logout')}</p>
                 </div>
               </Menu.Item>

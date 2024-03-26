@@ -1,4 +1,4 @@
-import { faPhone as PhoneIcon, faUserPlus as UserPlusIcon } from '@fortawesome/free-solid-svg-icons'
+import { faPhone as CallIcon, faUserPlus as AddUserIcon } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 import { useInitialize } from '@renderer/hooks/useInitialize'
@@ -33,7 +33,7 @@ export function SearchNumberBox({
         className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start dark:hover:bg-gray-700 hover:bg-gray-200 cursor-pointer"
         onClick={() => callUser(searchText)}
       >
-        <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={PhoneIcon} />
+        <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={CallIcon} />
         <p className="font-semibold">
           {t('Operators.Call')} {searchText}
         </p>
@@ -43,10 +43,7 @@ export function SearchNumberBox({
         className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 dark:hover:bg-gray-700 hover:bg-gray-200 cursor-pointer"
         onClick={showAddContactToPhonebook}
       >
-        <FontAwesomeIcon
-          className="text-base dark:text-gray-50 text-gray-600"
-          icon={UserPlusIcon}
-        />
+        <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={AddUserIcon} />
         <p className="font-semibold">
           {t('Common.Add')} {searchText.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
         </p>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button, TextInput } from './Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner as SpinnerIcon } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
 import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { t } from 'i18next'
@@ -201,7 +201,7 @@ export function AddToPhonebookBox({
             <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('Common.Save')}</p>
             {isLoading && (
               <FontAwesomeIcon
-                icon={SpinnerIcon}
+                icon={LoadingIcon}
                 className="dark:text-gray-900 text-gray-50 animate-spin"
               />
             )}

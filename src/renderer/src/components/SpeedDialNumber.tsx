@@ -1,9 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faPhone as PhoneIcon,
-  faEllipsisVertical as EllipsisIcon,
-  faPen as PenIcon,
-  faTrashCan as TrashIcon
+  faPhone as CallIcon,
+  faEllipsisVertical as MenuIcon,
+  faPen as ModifyIcon,
+  faTrashCan as DeleteIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/'
 import { PlaceholderIcon } from '@renderer/icons'
@@ -45,7 +45,7 @@ export function SpeedDialNumber({
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
               className="dark:text-gray-400 text-gray-600 text-base"
-              icon={PhoneIcon}
+              icon={CallIcon}
               onClick={callUser}
             />
             <NumberCaller
@@ -65,7 +65,7 @@ export function SpeedDialNumber({
                 <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon
                     className="dark:text-gray-50 text-gray-900 text-base"
-                    icon={EllipsisIcon}
+                    icon={MenuIcon}
                   />
                 </div>
               </Menu.Button>
@@ -84,7 +84,7 @@ export function SpeedDialNumber({
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
                       className="text-base dark:text-gray-50 text-gray-900"
-                      icon={PenIcon}
+                      icon={ModifyIcon}
                     />
                     <p className="font-semibold dark:text-gray-50 text-gray-900">
                       {t('Common.Edit')}
@@ -101,7 +101,7 @@ export function SpeedDialNumber({
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
                       className="text-base dark:text-gray-50 text-gray-900"
-                      icon={TrashIcon}
+                      icon={DeleteIcon}
                     />
                     <p className="font-semibold dark:text-gray-50 text-gray-900">
                       {t('Common.Delete')}

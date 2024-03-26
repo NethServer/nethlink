@@ -1,9 +1,9 @@
 import {
-  faBuilding as BuildingIcon,
-  faHeadset as HeadsetIcon,
+  faUser as UserIcon,
+  faBuilding as CompanyIcon,
+  faHeadset as OperatorIcon,
   faStar as StarIcon,
-  faTimes as TimesIcon,
-  faUser as UserIcon
+  faTimes as DeleteAvatarIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useTheme } from '@renderer/theme/Context'
@@ -76,14 +76,14 @@ export const Avatar = ({
           )}
           {placeholderType == 'company' && (
             <FontAwesomeIcon
-              icon={BuildingIcon}
+              icon={CompanyIcon}
               className={classNames(theme.placeholderType, theme.placeholderType.sizes[size])}
               aria-hidden="true"
             />
           )}
           {placeholderType == 'operator' && (
             <FontAwesomeIcon
-              icon={HeadsetIcon}
+              icon={OperatorIcon}
               className={classNames(theme.placeholderType, theme.placeholderType.sizes[size])}
               aria-hidden="true"
             />
@@ -110,7 +110,7 @@ export const Avatar = ({
       {deleteAvatar && (
         <button className={classNames(theme.deleteAvatar.button, 'tooltip-remove-profile-picture')}>
           <FontAwesomeIcon
-            icon={TimesIcon}
+            icon={DeleteAvatarIcon}
             aria-hidden="true"
             className={classNames(theme.deleteAvatar.base)}
             //onClick={() => removeAvatar('')}
