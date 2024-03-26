@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { formatDistance } from 'date-fns'
 import { format } from 'date-fns-tz'
 import { utcToZonedTime } from 'date-fns-tz'
@@ -10,10 +10,9 @@ interface CallsDateProps {
   call: any
   spaced?: boolean
   isInQueue?: boolean
-  isInAnnouncement?: boolean
 }
 
-export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
+export const CallsDate = ({ call, spaced, isInQueue }: CallsDateProps) => {
   const [selectedLanguage, setSelectedLanguage] = useState('')
 
   // trasform the diff value to the format +hhmm or -hhmm
@@ -59,24 +58,17 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue }) => {
       differenceBetweenTimezone = getDifferenceBetweenTimezone(false)
     }
 
-    //TODO da vedere bene se la modifica e' giusta
-    const distance = formatDistance(
-      utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
-      utcToZonedTime(new Date(), localTimeZone),
-      {
-        addSuffix: false,
-        includeSeconds: false,
-        locale: selectedLanguage === 'it' ? it : enGB
-      }
-    ).replace('about ', '')
-
-    const [value, unit] = distance.split(' ')
-
-    const formattedDistance = `${value}${unit[0].toLowerCase()}`
-
     return (
       <div className="text-sm font-medium text-gray-600 dark:text-gray-100 leading-5">
-        {formattedDistance}
+        {formatDistance(
+          utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
+          utcToZonedTime(new Date(), localTimeZone),
+          {
+            addSuffix: true,
+            includeSeconds: true,
+            locale: selectedLanguage === 'it' ? it : enGB
+          }
+        )}
       </div>
     )
   }
