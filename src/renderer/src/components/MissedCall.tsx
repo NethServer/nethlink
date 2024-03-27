@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { CallData, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from './Nethesis/CallsDate'
+import { truncate } from '@renderer/utils'
 
 export interface MissedCallProps {
   call: CallData
@@ -33,10 +34,6 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
     if (operatorFound) {
       call.dst_cnam = operatorFound?.name
     }
-  }
-
-  function truncate(str: string, maxLength: number) {
-    return str.length > maxLength ? str.substring(0, maxLength - 1) + '...' : str
   }
 
   return (
