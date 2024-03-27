@@ -19,9 +19,7 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
   const getUsernameFromPhoneNumber = (number: string) => {
     return operators.extensions[number]?.username
   }
-  useEffect(() => {
-    log('update operators from searchNumber', user, operators)
-  }, [operators])
+
   function highlightMatch(number: string | undefined, searchText: string): ReactNode[] {
     const parts: ReactNode[] = []
     let lastIndex = 0

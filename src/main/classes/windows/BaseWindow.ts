@@ -1,8 +1,10 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
 import { is } from '@electron-toolkit/utils'
 import { IPC_EVENTS } from '@shared/constants'
+import { AvailableThemes } from '@shared/types'
 import { log } from '@shared/utils/logger'
-import { BrowserWindow } from 'electron'
+import { debouncer } from '@shared/utils/utils'
+import { BrowserWindow, nativeTheme } from 'electron'
 
 type Callback = (...args: any) => any
 export class BaseWindow {
@@ -17,13 +19,13 @@ export class BaseWindow {
     this._window = createWindow(id, config, params)
     const onReady = (_e, completed_id) => {
       if (id === completed_id) {
-        log('on build completition of', completed_id)
+        //log('on build completition of', completed_id)
         this._callbacks.forEach((c) => c())
       }
     }
 
     const onOpenDevTools = (_e, page_id) => {
-      log('on build completition of', id, page_id, this._window?.webContents.isDevToolsOpened())
+      //log('on build completition of', id, page_id, this._window?.webContents.isDevToolsOpened())
       this._window?.webContents.isDevToolsOpened()
         ? this._window?.webContents.closeDevTools()
         : this._window?.webContents.openDevTools({
@@ -36,6 +38,18 @@ export class BaseWindow {
     // this._window.on('close', () => {
     //   this._window = createWindow(id, config, params)
     // })
+    this.addOnBuildListener(() => {
+      //log('call addOnBuildListener ')
+      nativeTheme.on('updated', () => {
+        const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
+          ? 'dark'
+          : 'light'
+        //log(updatedSystemTheme)
+        debouncer(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, () =>
+          this.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+        )
+      })
+    })
   }
 
   getWindow() {

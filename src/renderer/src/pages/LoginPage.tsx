@@ -47,7 +47,7 @@ export function LoginPage() {
   async function handleLogin(data: LoginData) {
     if (data.host.charAt(data.host.length - 1) === '/') data.host = data.host.slice(0, data.host.length - 1)
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
-    log(data, returnValue, err)
+    //log(data, returnValue, err)
     setIsError(!!err)
     !err && setSelectedAccount(undefined)
     setIsLoading(false)
@@ -58,6 +58,7 @@ export function LoginPage() {
     handleSubmit,
     setValue,
     reset,
+    setFocus,
     formState: { errors }
   } = useForm<LoginData>({
     defaultValues: {
@@ -70,16 +71,23 @@ export function LoginPage() {
     handleLogin(data)
   }
 
+  const focus = (selector: keyof LoginData) => {
+    setTimeout(() => {
+      setFocus(selector)
+    }, 100)
+  }
   useEffect(() => {
     if (selectedAccount) {
       if (selectedAccount === 'New Account') {
         resizeThisWindow(570)
         reset()
+        focus('host')
       } else {
         resizeThisWindow(445)
         reset()
         setValue('host', selectedAccount.host)
         setValue('username', selectedAccount.username)
+        focus('password')
       }
     } else {
       setIsError(false)
@@ -90,13 +98,14 @@ export function LoginPage() {
       } else if (displayedAccounts.length >= 3) {
         resizeThisWindow(535)
       }
+      focus('host')
     }
   }, [displayedAccounts, selectedAccount])
 
   const newAccountForm: ReactNode = (
-    <div className="dark mt-7">
-      <p className="text-gray-100 text-xl font-semibold mb-3">{t('Login.New Account title')}</p>
-      <p className="text-gray-100 text-md mb-8">{t('Login.New Account description')}</p>
+    <div className="mt-7">
+      <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">{t('Login.New Account title')}</p>
+      <p className="text-gray-900 dark:text-gray-100 text-md mb-8">{t('Login.New Account description')}</p>
       <div className="flex flex-col grow gap-7">
         <TextInput
           {...register('host')}
@@ -121,7 +130,7 @@ export function LoginPage() {
         />
         <button
           type="submit"
-          className="w-full bg-blue-500 rounded h-9 font-semibold mt-2 cursor-pointer"
+          className="w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold mt-2 cursor-pointer"
         >
           {t('Login.Sign in')}
         </button>
@@ -130,20 +139,20 @@ export function LoginPage() {
   )
 
   return (
-    <div className="h-[100vh] w-[100vw] bg-gray-900 relative p-8 rounded-[10px]">
+    <div className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px]">
       <div className={classNames('h-full w-full', isLoading ? 'brightness-50' : '')}>
         <div className="flex flex-row justify-between items-end">
           <img src={header}></img>
           {displayedAccounts.length > 0 && selectedAccount && (
             <FontAwesomeIcon
               icon={ArrowIcon}
-              className="h-5 w-5 text-gray-50 ml-12 cursor-pointer"
+              className="h-5 w-5 dark:text-gray-50 ml-12 cursor-pointer"
               onClick={() => setSelectedAccount(undefined)}
             />
           )}
           <FontAwesomeIcon
             icon={CrossIcon}
-            className="h-5 w-5 text-gray-50 cursor-pointer"
+            className="h-5 w-5 dark:text-gray-50 cursor-pointer"
             onClick={() => hideLoginWindow()}
           />
         </div>
@@ -166,11 +175,11 @@ export function LoginPage() {
                     {selectedAccount === 'New Account' ? (
                       newAccountForm
                     ) : (
-                      <div className="dark w-full mt-7">
-                        <p className="text-gray-100 text-xl font-semibold mb-3">
+                      <div className="w-full mt-7">
+                        <p className="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-3">
                           {t('Login.Account List title')}
                         </p>
-                        <p className="text-gray-100 text-md mb-5">
+                        <p className="text-gray-900 dark:text-gray-100 text-md mb-5">
                           {t('Login.Account List description')}
                         </p>
                         <DisplayedAccountLogin
@@ -189,7 +198,7 @@ export function LoginPage() {
                         />
                         <button
                           type="submit"
-                          className="w-full bg-blue-500 rounded h-9 font-semibold mt-7 cursor-pointer"
+                          className="w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold mt-7 cursor-pointer"
                         >
                           {t('Login.Sign in')}
                         </button>
@@ -198,10 +207,10 @@ export function LoginPage() {
                   </div>
                 ) : (
                   <div className="w-full mt-7">
-                    <p className="text-gray-100 text-xl font-semibold mb-3">
+                    <p className="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-3">
                       {t('Login.Account List title')}
                     </p>
-                    <p className="text-gray-100 text-md mb-8">
+                    <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
                       {t('Login.Account List description')}
                     </p>
                     <div className="max-h-60 overflow-y-auto">

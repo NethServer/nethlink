@@ -3,6 +3,7 @@ import axios from 'axios'
 import crypto from 'crypto'
 import moment from 'moment'
 import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType } from '@shared/types'
+import { log } from '@shared/utils/logger'
 
 export class NethVoiceAPI {
   _host: string
@@ -87,18 +88,22 @@ export class NethVoiceAPI {
                   lastAccess: moment().toISOString()
                 }
                 await this.User.me()
-                //importo il file config di questo host per prelevare le informazioni su SIP_host e port
-                //TODO: ripristinare
-                //const res = await this._GET('/config/config.production.js')
-                // const res = (
-                //   await axios.get(
-                //     'https://cti.demo-heron.sf.nethserver.net/config/config.production.js'
-                //   )
-                // ).data
-                const SIP_HOST = '127.0.0.1' //res.split("SIP_HOST: '")[1].split("',")[0].trim()
-                const SIP_PORT = '5060' //res.split("SIP_PORT: '")[1].split("',")[0].trim()
+                //importo il file config di questo host per prelevare le informazioni su SIP_host e port solo se sono su demo-leopard devo prenderli statici
+                let SIP_HOST = '127.0.0.1'
+                let SIP_PORT = '5060'
+                if (this._account.host.includes('demo-leopard')) {
+                  SIP_PORT = '5060'
+                } else if (this._account.host.includes('nethvoice')) {
+                  SIP_PORT = '20139'
+                } else {
+                  const res = await this._GET('/config/config.production.js')
+                  //log(res)
+                  SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim() //
+                  SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim() //
+                }
                 this._account.sipHost = SIP_HOST
                 this._account.sipPort = SIP_PORT
+                //log(this._account)
                 resolve(this._account)
               }
             } else {
@@ -178,14 +183,14 @@ export class NethVoiceAPI {
       return newSpeedDial
     },
     updateSpeeddial: async (edit: NewSpeedDialType, current: ContactType) => {
-      console.log(edit)
+      //log(edit)
 
       if (current.name && current.speeddial_num) {
         const editedSpeedDial = Object.assign({}, current)
         editedSpeedDial.speeddial_num = edit.speeddial_num
         editedSpeedDial.name = edit.name
         editedSpeedDial.id = editedSpeedDial.id?.toString()
-        console.log('Edited speedDial', editedSpeedDial, current)
+        //log('Edited speedDial', editedSpeedDial, current)
         await this._POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
         return editedSpeedDial
       }

@@ -98,10 +98,10 @@ const onAccountLogin = (account: Account) => {
   AccountController.instance.addEventListener('LOGOUT', onAccountLogout)
 }
 
-const onAccountLogout = () => {
+const onAccountLogout = (account: Account) => {
   //ormai mi sono sloggato quindi rimuovo il listener
   AccountController.instance.removeEventListener('LOGOUT', onAccountLogout)
-  PhoneIslandController.instance.logout()
+  PhoneIslandController.instance.logout(account)
   NethLinkController.instance.hide()
 
   AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
@@ -110,7 +110,7 @@ const onAccountLogout = () => {
 }
 
 const onLoginFromLoginPage = (account: Account) => {
-  log('Account', account.username, 'logged from login page')
+  //log('Account', account.username, 'logged from login page')
   LoginController.instance.hide()
   AccountController.instance.removeEventListener('LOGIN', onLoginFromLoginPage)
 }

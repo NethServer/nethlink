@@ -103,7 +103,7 @@ export function registerIpcEvents() {
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
     ipcMain.on(ev, (_event, ...args) => {
       const evName = `on-${ev}`
-      log('send back', evName, ...args)
+      //log('send back', evName, ...args)
       NethLinkController.instance.window.emit(evName, ...args)
     })
   })

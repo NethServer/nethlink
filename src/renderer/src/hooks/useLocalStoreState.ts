@@ -10,17 +10,13 @@ export function useLocalStoreState<T>(
   const store = useLocalStore()
   const subscribedData = useSubscriber<T>(selector)
   const setter = (newValue) => {
-    log('set new value of', selector, newValue)
-    if (['object'].includes(typeof newValue)) {
+    //log('set new value of', selector, newValue)
+    if (typeof newValue == 'object') {
       newValue = Object.assign({}, newValue)
     }
     store.setData(selector)(newValue)
     subscribedDataRef.current = newValue
   }
-
-  useEffect(() => {
-    log('On change subscribebData effect', subscribedDataRef.current)
-  }, [subscribedDataRef])
 
   return [subscribedData, setter, subscribedDataRef]
 }

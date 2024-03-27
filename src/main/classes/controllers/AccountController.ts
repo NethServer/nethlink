@@ -48,9 +48,9 @@ export class AccountController {
   _saveNewAccountData(account: Account | undefined, isOpening = false) {
     const { CONFIG_FILE } = this._getPaths()
     const config = this._getConfigFile(isOpening)
-    log('save account', config.lastUser, account?.username, isOpening)
+    //log('save account', config.lastUser, account?.username, isOpening)
     if (config.lastUser !== account?.username || isOpening) {
-      this.fireEvent(account ? 'LOGIN' : 'LOGOUT', account)
+      this.fireEvent(account ? 'LOGIN' : 'LOGOUT', account || config.accounts[config.lastUser!])
     }
     if (account) {
       const uniqueAccountName = `${account.host}@${account.username}`
@@ -141,7 +141,7 @@ export class AccountController {
       try {
         const data = fs.readFileSync(CONFIG_FILE, { encoding: 'utf-8' })
         const config = JSON.parse(data)
-        log(config)
+        //log(config)
         return Object.keys(config).includes('accounts')
       } catch (e) {
         //se non riesce a trasformare il file in json allora non è ben scritto e quindi non posso andare avanti
@@ -157,7 +157,7 @@ export class AccountController {
     //Controllo se la cartella configs esiste, altrimenti la creo
 
     if (!this.hasConfigsFolderOfFile()) {
-      log('ENOENT')
+      //log('ENOENT')
       try {
         fs.mkdirSync(CONFIG_PATH)
       } catch (e) {
