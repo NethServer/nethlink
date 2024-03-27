@@ -35,7 +35,7 @@ export class NethVoiceAPI {
     return {
       headers: {
         'Content-Type': 'application/json',
-        ...(unauthorized
+        ...(unauthorized || !this._account
           ? {}
           : { Authorization: this._account!.username + ':' + this._account!.accessToken })
       }
