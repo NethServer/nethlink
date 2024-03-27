@@ -99,6 +99,7 @@ export function NethLinkPage() {
         // )
         operatorsRef.current.operators[username].mainPresence = operator.mainPresence
       }
+      log('change operators', operatorsRef.current, op)
       debouncer('onMainPresence', () => setOperators(operatorsRef.current))
     }
   }
@@ -121,8 +122,12 @@ export function NethLinkPage() {
   }
 
   function saveOperators(updateOperators: OperatorData | undefined): void {
-    //log('UPDATE OPERATORS', operators, updateOperators)
-    setOperators(updateOperators)
+    log('UPDATE OPERATORS', updateOperators)
+    if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
+      //lo stato degli operatori deve arrivare dal segnale della main presence, quindi salto l'assegnazione in questo punto (dalla main presence i dati sono più aggiornati)
+      updateOperators!.operators = operatorsRef.current!.operators
+    }
+    debouncer('onMainPresence', () => setOperators(updateOperators))
   }
 
   async function handleSearch(searchText: string) {
@@ -340,7 +345,6 @@ export function NethLinkPage() {
                     ) : (
                       <MissedCallsBox
                         missedCalls={missedCalls}
-                        title={`${t('QueueManager.Missed calls')} (${missedCalls.length})`}
                         viewAllMissedCalls={viewAllMissedCalls}
                         handleSelectedMissedCall={handleSelectedMissedCall}
                       />

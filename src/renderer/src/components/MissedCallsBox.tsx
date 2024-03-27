@@ -7,17 +7,18 @@ import { t } from 'i18next'
 
 export interface MissedCallsBoxProps {
   missedCalls: CallData[]
-  title: string
   viewAllMissedCalls?: () => void
   handleSelectedMissedCall: (number: string, company: string | undefined) => void
 }
 
 export function MissedCallsBox({
   missedCalls,
-  title,
   viewAllMissedCalls,
   handleSelectedMissedCall
 }: MissedCallsBoxProps): JSX.Element {
+  const missedCallsIn = missedCalls?.filter((call) => call.direction === 'in')
+  const title = `${t('QueueManager.Missed calls')} (${missedCallsIn.length})`
+
   return (
     <>
       <div className="flex flex-col gap-4 h-full">
@@ -35,7 +36,7 @@ export function MissedCallsBox({
           </Button>
         </div>
         <div className="flex flex-col gap-2 p-2 max-h-[240px] overflow-y-auto">
-          {missedCalls?.map((call, idx) => {
+          {missedCallsIn.map((call, idx) => {
             return (
               <div
                 className={`${idx === missedCalls.length - 1 ? `` : `border-b pb-2 dark:border-gray-700 border-gray-200`}`}

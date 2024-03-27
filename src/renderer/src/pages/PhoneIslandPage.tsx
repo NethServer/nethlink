@@ -23,7 +23,7 @@ export function PhoneIslandPage() {
     })
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
       window.addEventListener(event, () => {
-        //log('EVENT', event)
+        log('EVENT', event)
         switch (event) {
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
             window.api.showPhoneIsland()
@@ -31,6 +31,7 @@ export function PhoneIslandPage() {
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
           case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
+            log(event)
             window.api.hidePhoneIsland()
             break
         }
@@ -41,18 +42,19 @@ export function PhoneIslandPage() {
         }
       })
     })
+    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], () => {
+      isCollapsed.current = false
+    })
+    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-closed'], () => {
+      isCollapsed.current = true
+    })
+
+    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], () => {
+      window.api.logout()
+    })
   }, true)
 
-  window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], () => {
-    isCollapsed.current = false
-  })
-  window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-closed'], () => {
-    isCollapsed.current = true
-  })
 
-  window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], () => {
-    window.api.logout()
-  })
 
   function updateDataConfig(dataConfig: string | undefined, account: Account) {
     //log('UPDATE DATA CONFIG')
@@ -77,10 +79,12 @@ export function PhoneIslandPage() {
     })
   }
 
-  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-main-presence'])
-  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-conversations'])
-  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-update'])
-  redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'])
+  // redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-main-presence'])
+  // redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-conversations'])
+  // redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-update'])
+  // redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'])
+
+  Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => redirectEventToMain(ev as PHONE_ISLAND_EVENTS))
 
   const RenderPhoneIsland = useCallback(() => {
     //log("PHONE ISLAND RENDERER", dataConfig)

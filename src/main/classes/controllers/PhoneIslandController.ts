@@ -74,7 +74,6 @@ export class PhoneIslandController {
     } else {
       window?.center()
     }
-
     window?.show()
   }
 
@@ -87,7 +86,9 @@ export class PhoneIslandController {
         y: phoneIslandBounds.y
       })
     }
-    window?.hide()
+    setTimeout(() => {
+      window?.hide()
+    }, 250)
   }
 
   call(number: string) {

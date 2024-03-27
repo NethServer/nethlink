@@ -21,7 +21,8 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
 
   function getCallName(call: CallData): string {
-    return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
+    if (call.direction === 'in') return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
+    return call?.dst_cnam || call?.dst_ccompany || `${t('Common.Unknown')}`
   }
 
   function getOperatorByPhoneNumber(phoneNumber: string, operators: any) {
