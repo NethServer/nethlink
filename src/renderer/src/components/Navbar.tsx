@@ -1,23 +1,20 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchBox } from './SearchBox'
 import {
-  faSliders,
-  faArrowRightFromBracket,
-  faPalette,
-  faSun,
-  faMoon,
-  faCheck,
-  faArrowUpRightFromSquare,
-  faChevronRight
+  faSliders as ThemeMenuIcon,
+  faArrowRightFromBracket as LogoutIcon,
+  faPalette as SystemIcon,
+  faSun as LightIcon,
+  faMoon as DarkIcon,
+  faCheck as ChooseThemeMenuIcon,
+  faArrowUpRightFromSquare as GoToNethVoiceIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes, OperatorData } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
-import { useLocalStore } from '@renderer/store/StoreController'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { t } from 'i18next'
-import { StatusDot } from './Nethesis'
 
 export interface NavabarProps {
   search: string
@@ -30,9 +27,9 @@ export interface NavabarProps {
 }
 
 const themeOptions = [
-  { id: 1, name: 'system', icon: faPalette },
-  { id: 2, name: 'light', icon: faSun },
-  { id: 3, name: 'dark', icon: faMoon }
+  { id: 1, name: 'system', icon: SystemIcon },
+  { id: 2, name: 'light', icon: LightIcon },
+  { id: 3, name: 'dark', icon: DarkIcon }
 ]
 
 export function Navbar({
@@ -61,7 +58,7 @@ export function Navbar({
               <Listbox.Button>
                 <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon
-                    icon={faSliders}
+                    icon={ThemeMenuIcon}
                     className="h-5 w-5 dark:text-gray-50 text-gray-700"
                   />
                 </div>
@@ -83,7 +80,7 @@ export function Navbar({
                       <FontAwesomeIcon
                         className="dark:text-blue-500 text-blue-600"
                         style={{ fontSize: '16px' }}
-                        icon={faCheck}
+                        icon={ChooseThemeMenuIcon}
                       />
                     )}
                     <div className="flex items-center gap-2">
@@ -141,7 +138,7 @@ export function Navbar({
                   className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200"
                   onClick={goToNethVoicePage}
                 >
-                  <FontAwesomeIcon className="text-base" icon={faArrowUpRightFromSquare} />
+                  <FontAwesomeIcon className="text-base" icon={GoToNethVoiceIcon} />
                   <p className="font-semibold inline">{t('TopBar.Go to Nethvoice CTI')}</p>
                 </div>
               </Menu.Item>
@@ -150,7 +147,7 @@ export function Navbar({
                   className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
                   onClick={logout}
                 >
-                  <FontAwesomeIcon className="text-base" icon={faArrowRightFromBracket} />
+                  <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
                   <p className="font-semibold">{t('TopBar.Logout')}</p>
                 </div>
               </Menu.Item>

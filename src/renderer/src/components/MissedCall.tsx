@@ -1,4 +1,4 @@
-import { faUserPlus, faUsers } from '@fortawesome/free-solid-svg-icons'
+import { faUserPlus as AddUserIcon, faUsers as BadgeIcon } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 import { Avatar, Button } from './Nethesis/'
@@ -71,9 +71,10 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
       </div>
 
       <div className="flex flex-col gap-2 ml-auto">
+        {/* Badge */}
         {call.channel?.includes('from-queue') && (
           <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
-            <FontAwesomeIcon icon={faUsers} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
+            <FontAwesomeIcon icon={BadgeIcon} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
             <p className="text-[12x] leading-[18px]">
               {queues[call.queue!]?.name
                 ? queues[call.queue!]?.name + ' ' + call?.queue
@@ -89,7 +90,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
           >
             <FontAwesomeIcon
               className="text-base dark:text-blue-500 text-blue-600"
-              icon={faUserPlus}
+              icon={AddUserIcon}
             />
             <p className="dark:text-blue-500 text-blue-600 font-semibold">
               {t('SpeedDial.Create')}

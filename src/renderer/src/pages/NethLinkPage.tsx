@@ -22,7 +22,7 @@ import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import {
   faMinusCircle as MinimizeIcon,
-  faTriangleExclamation
+  faTriangleExclamation as WarningIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -374,6 +374,8 @@ export function NethLinkPage() {
                           handleSelectedMissedCall={handleSelectedMissedCall}
                         />
                       )}
+
+                      {/*   MODIFICHE */}
                       {search !== '' && !selectedMissedCall ? (
                         <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
                           <SearchNumberBox
@@ -396,6 +398,8 @@ export function NethLinkPage() {
                           />
                         </div>
                       ) : null}
+
+                      {/* FINO A QUI */}
                     </div>
                   </div>
                   {/* Modal per l'eliminazione di una speedDials */}
@@ -409,7 +413,7 @@ export function NethLinkPage() {
                     <Modal.Content>
                       <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-red-100 dark:bg-red-900">
                         <FontAwesomeIcon
-                          icon={faTriangleExclamation}
+                          icon={WarningIcon}
                           className="h-6 w-6 text-red-600 dark:text-red-200"
                           aria-hidden="true"
                         />
