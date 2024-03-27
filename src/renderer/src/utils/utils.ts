@@ -1,6 +1,5 @@
 import { ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
-import { MD5 } from 'crypto-js'
 import { PropsWithChildren } from 'react'
 
 export const ClassNames = (...args: ClassValue[]) => {
@@ -22,6 +21,10 @@ export const cleanClassName = (props: PropsWithChildren<object>): object => {
     key: 'className',
     source: props
   })
+}
+
+export function truncate(str: string, maxLength: number) {
+  return str.length > maxLength ? str.substring(0, maxLength - 1) + '...' : str
 }
 
 // const [avatarBase64, setAvatarBase64]: any = useState({})
