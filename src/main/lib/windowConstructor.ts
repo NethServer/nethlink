@@ -1,9 +1,12 @@
 import { is } from '@electron-toolkit/utils'
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
 import { AccountController, PhoneIslandController } from '@/classes/controllers'
+import { AvailableThemes } from '@shared/types'
+import { log } from '@shared/utils/logger'
+import { IPC_EVENTS } from '@shared/constants'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -60,7 +63,8 @@ export function createWindow(
   })
 
   mainWindow.on('close', () => {
-    PhoneIslandController.instance.logout()
+    const account = AccountController.instance.getLoggedAccount()
+    if (account) PhoneIslandController.instance.logout(account)
     AccountController.instance._app?.exit()
   })
 

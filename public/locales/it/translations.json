@@ -43,7 +43,8 @@
     "Add": "Aggiungi",
     "to": "a",
     "Start recording message before": "Premi il pulsante qui sotto per registrare",
-    "Start recording message after": "Puoi parlare tra poco..."
+    "Start recording message after": "Puoi parlare tra poco...",
+    "Minimize": "minimize"
   },
   "Login": {
     "Welcome": "Benvenuto",
@@ -396,8 +397,8 @@
     "Create": "Crea",
     "Import CSV": "Importa CSV",
     "Export CSV": "Esporta CSV",
-    "Edit speed dial": "Modifica chiamata rapida",
     "Create speed dial": "Crea chiamata rapida",
+    "Edit speed dial": "Modifica chiamata rapida",
     "Open speed dial menu": "Apri menu chiamata rapida",
     "Delete speed dial": "Elimina chiamata rapida",
     "Delete all speed dials": "Elimina tutte le chiamate rapide",

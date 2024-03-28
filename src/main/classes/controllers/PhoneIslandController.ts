@@ -38,8 +38,8 @@ export class PhoneIslandController {
       const dataConfig = btoa(
         `${config.hostname}:${config.username}:${config.authToken}:${config.sipExten}:${config.sipSecret}:${config.sipHost}:${config.sipPort}`
       )
-      log('INIT PHONE-ISLAND', config.hostname, dataConfig)
-      this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, dataConfig)
+      //log('INIT PHONE-ISLAND', config.hostname, dataConfig)
+      this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, dataConfig, account)
     } else {
       throw new Error('Incorrect configuration for the logged user')
     }
@@ -74,7 +74,6 @@ export class PhoneIslandController {
     } else {
       window?.center()
     }
-
     window?.show()
   }
 
@@ -87,25 +86,27 @@ export class PhoneIslandController {
         y: phoneIslandBounds.y
       })
     }
-    window?.hide()
+    setTimeout(() => {
+      window?.hide()
+    }, 250)
   }
 
   call(number: string) {
     this.window.emit(IPC_EVENTS.EMIT_START_CALL, number)
     //TODO: WORK around per ingrandire immediatamente la schermata se il numero chiamato è l'echo test
-    if (number === '*43') {
-      setTimeout(() => {
-        const size = PHONE_ISLAND_RESIZE.get(PHONE_ISLAND_EVENTS['phone-island-call-answered'])!(
-          false
-        )
-        this.resize(size.w, size.h)
-      }, 100)
-    }
+    // if (number === '*43') {
+    //   setTimeout(() => {
+    //     const size = PHONE_ISLAND_RESIZE.get(PHONE_ISLAND_EVENTS['phone-island-call-answered'])!(
+    //       false
+    //     )
+    //     this.resize(size.w, size.h)
+    //   }, 100)
+    // }
     this.showPhoneIsland()
   }
 
-  logout() {
-    this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined)
+  logout(account: Account) {
+    this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined, account)
     this.hidePhoneIsland()
   }
 }

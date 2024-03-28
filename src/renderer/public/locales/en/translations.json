@@ -59,7 +59,8 @@
     "Add": "Add",
     "to": "to",
     "Start recording message before": "Click the button below to start recording",
-    "Start recording message after": "You can speak in a moment..."
+    "Start recording message after": "You can speak in a moment...",
+    "Minimize": "minimize"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -79,7 +80,7 @@
     "New Account title": "Welcome",
     "New Account description": "Sign in to Nethconnector with your Nethvoice CTI username and password.",
     "Account List title": "Account list",
-    "Account list description": "Choose an account to continue to Nethconnector."
+    "Account List description": "Choose an account to continue to Nethconnector."
   },
   "SplashScreen": {
     "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",

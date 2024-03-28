@@ -1,4 +1,4 @@
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faSearch as SearchIcon } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from './Nethesis/TextInput'
 import { t } from 'i18next'
 
@@ -22,7 +22,7 @@ export function SearchBox({ search, handleSearch, handleReset }: SearchBoxProps)
   return (
     <TextInput
       rounded="base"
-      icon={faSearch}
+      icon={SearchIcon}
       type="text"
       value={search}
       placeholder={t('Common.Call or compose') as string}

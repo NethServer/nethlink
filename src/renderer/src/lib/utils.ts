@@ -4,6 +4,7 @@
 import { PropsWithChildren } from 'react'
 import axios from 'axios'
 import { eventDispatch } from '../hooks/eventDispatch'
+import { log } from '@shared/utils/logger'
 
 export interface ClearProps {
   key: string
@@ -89,8 +90,7 @@ export const sortByFavorite = (a: any, b: any) => {
 
 export function callPhoneNumber(phoneNumber: string) {
   eventDispatch('phone-island-call-start', { number: phoneNumber })
-
-  console.log('callPhoneNumber', phoneNumber) ////
+  //log('callPhoneNumber', phoneNumber) ////
 }
 
 export function getProductName() {

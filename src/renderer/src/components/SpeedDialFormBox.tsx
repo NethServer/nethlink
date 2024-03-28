@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, TextInput } from './Nethesis'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
-import { useState, useEffect } from 'react'
+import { faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
+import { useState } from 'react'
 import { NewContactType, ContactType, NewSpeedDialType } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
@@ -73,7 +73,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
             </p>
             {isLoading && (
               <FontAwesomeIcon
-                icon={faSpinner}
+                icon={LoadingIcon}
                 className="dark:text-gray-900 text-gray-50 animate-spin"
               />
             )}

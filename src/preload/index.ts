@@ -36,7 +36,9 @@ export interface IElectronAPI {
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
-  onDataConfigChange(updateDataConfig: (dataConfig: string | undefined) => void): void
+  onDataConfigChange(
+    updateDataConfig: (dataConfig: string | undefined, account: Account) => void
+  ): void
   onReceiveSpeeddials(saveSpeeddials: (speeddialsResponse: any) => void): void
   onReceiveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => void): void
   onLoadAccounts(callback: (accounts: Account[]) => void): void
@@ -69,7 +71,7 @@ function addListener(channel) {
   return (callback) => {
     ipcRenderer.on(channel, (e: Electron.IpcRendererEvent, ...args) => {
       callback(...args)
-      log('listener', channel, ...args)
+      //log('listener', channel, ...args)
     })
   }
 }
@@ -78,7 +80,7 @@ function setEmitterSync<T>(event): () => SyncPromise<T> {
   return (...args): SyncPromise<T> => {
     return new Promise((resolve) => {
       const res = ipcRenderer.sendSync(event, ...args)
-      log('sync emitter', event, res)
+      //log('sync emitter', event, res)
       resolve(res)
     })
   }
@@ -87,7 +89,7 @@ function setEmitterSync<T>(event): () => SyncPromise<T> {
 function setEmitter(event) {
   return (...args: any[]) => {
     ipcRenderer.send(event, ...args)
-    log('emitter', event)
+    //log('emitter', event)
   }
 }
 // @ts-ignore (define in dts)
@@ -156,7 +158,7 @@ const api: IElectronAPI = {
   }, {})
 }
 
-log(api)
+//log(api)
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

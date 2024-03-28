@@ -105,6 +105,12 @@ export function registerIpcEvents() {
       const evName = `on-${ev}`
       log('send back', evName, ...args)
       NethLinkController.instance.window.emit(evName, ...args)
+      // if (ev === PHONE_ISLAND_EVENTS['phone-island-conversations']) {
+      //   const username = AccountController.instance.getLoggedAccount()?.username
+      //   if (username) {
+      //     log(Object.keys(args[0]?.[username]?.conversations || {}).length > 0)
+      //   }
+      // }
     })
   })
 }

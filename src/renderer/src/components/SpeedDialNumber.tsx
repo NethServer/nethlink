@@ -1,5 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPhone, faEllipsisVertical, faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons'
+import {
+  faPhone as CallIcon,
+  faEllipsisVertical as MenuIcon,
+  faPen as ModifyIcon,
+  faTrashCan as DeleteIcon
+} from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/'
 import { PlaceholderIcon } from '@renderer/icons'
 import { NumberCaller } from './NumberCaller'
@@ -7,6 +12,7 @@ import { Menu } from '@headlessui/react'
 import { ContactType, OperatorData } from '@shared/types'
 import { t } from 'i18next'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { truncate } from '@renderer/utils'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
@@ -36,18 +42,18 @@ export function SpeedDialNumber({
           placeholder={PlaceholderIcon}
         />
         <div className="flex flex-col gap-1">
-          <p className="dark:text-gray-50 text-gray-900">{speedDial.name!}</p>
+          <p className="dark:text-gray-50 text-gray-900">{truncate(speedDial.name!, 20)}</p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
               className="dark:text-gray-400 text-gray-600 text-base"
-              icon={faPhone}
+              icon={CallIcon}
               onClick={callUser}
             />
             <NumberCaller
               number={speedDial.speeddial_num!}
               className="dark:text-blue-500 text-blue-600 font-normal"
             >
-              {speedDial.speeddial_num!}
+              {truncate(speedDial.speeddial_num!, 19)}
             </NumberCaller>
           </div>
         </div>
@@ -60,7 +66,7 @@ export function SpeedDialNumber({
                 <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon
                     className="dark:text-gray-50 text-gray-900 text-base"
-                    icon={faEllipsisVertical}
+                    icon={MenuIcon}
                   />
                 </div>
               </Menu.Button>
@@ -79,7 +85,7 @@ export function SpeedDialNumber({
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
                       className="text-base dark:text-gray-50 text-gray-900"
-                      icon={faPen}
+                      icon={ModifyIcon}
                     />
                     <p className="font-semibold dark:text-gray-50 text-gray-900">
                       {t('Common.Edit')}
@@ -96,7 +102,7 @@ export function SpeedDialNumber({
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon
                       className="text-base dark:text-gray-50 text-gray-900"
-                      icon={faTrashCan}
+                      icon={DeleteIcon}
                     />
                     <p className="font-semibold dark:text-gray-50 text-gray-900">
                       {t('Common.Delete')}

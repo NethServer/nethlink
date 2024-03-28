@@ -1,4 +1,4 @@
-import { Routes, Route, Outlet, HashRouter } from 'react-router-dom'
+import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
 import {
   LoginPage,
@@ -8,11 +8,13 @@ import {
 } from '@/pages'
 import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocalStoreState } from './hooks/useLocalStoreState'
-import { PageType } from '@shared/types'
+import { Account, AvailableThemes, PageType } from '@shared/types'
+import { delay } from '@shared/utils/utils'
+import i18next from 'i18next'
 
-function Layout({ isDev }: { isDev: boolean }) {
+function Layout({ isDev, theme }: { isDev: boolean, theme: string }) {
 
   function openDevTools() {
     let hash = window.location.hash.split('#/')
@@ -20,7 +22,7 @@ function Layout({ isDev }: { isDev: boolean }) {
       hash = window.location.hash.split('#')
     }
     const page = hash[1].split('?')[0].split('/')[0]
-    console.log('open dev tools', page)
+    //log('open dev tools', page)
     window.api.openDevTool(page)
   }
 
@@ -28,19 +30,22 @@ function Layout({ isDev }: { isDev: boolean }) {
     openDevTools()
   }, [])
 
-
   return (
-    <div>
+    <div className={theme}>
       {
-        isDev && <div className='absolute bottom-0 left-0  z-[10000]'><button onClick={openDevTools} id='openDevToolButton' className='bg-white p-1'>devtool</button></div>
+        isDev && <div className='absolute bottom-0 left-0 z-[10000]'><button onClick={openDevTools} id='openDevToolButton' className='bg-white p-1'>dev</button></div>
       }
       <Outlet />
     </div>
   )
 }
 
-function RoutesWrapper() {
+export default function App() {
+
   const [page, setPage] = useLocalStoreState<PageType>('page')
+  //Potrebbe non servire
+  const [theme, setTheme] = useState<AvailableThemes>(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  const [account, setAccount, accountRef] = useLocalStoreState<Account>('user')
 
   useInitialize(() => {
     log('hash', location.hash)
@@ -55,32 +60,90 @@ function RoutesWrapper() {
       }
     }, {}) || {}
 
+
     setPage({
       query,
       props
     })
+
+    window.api.onAccountChange(updateAccount)
+    window.api.onSystemThemeChange(updateTheme)
   })
 
+  useEffect(() => {
+    log('account changed', account)
+    if (account) {
+      if (account.theme === 'system') {
+        setTheme(() => {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        })
+      } else {
+        setTheme(() => account.theme)
+      }
+    } else {
+      setTheme(() => {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      })
+    }
+  }, [account])
 
+  const updateTheme = (theme: AvailableThemes) => {
+    //log('FROM WINDOW', theme)
+    if (account) {
+      if (accountRef.current!.theme === 'system') {
+        setTheme(() => theme)
+      }
+    } else {
+      setTheme(() => {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      })
+    }
+  }
+
+  function updateAccount(account: Account | undefined) {
+    setAccount(account)
+  }
+
+  const loader = async () => {
+    let time = 0
+    //attendo che la lingua venga caricata oppure 1 secondo
+    while (time < 10 && !i18next.isInitialized) {
+      await delay(100)
+      time++
+    }
+    //const devices = await navigator.mediaDevices.enumerateDevices()
+    //getUserMedia({ audio: {}, video: {} });
+    //log(devices)
+    return null
+  }
+
+  const router = createHashRouter([
+    {
+      path: '/',
+      element: <Layout isDev={page?.props?.isDev || false} theme={theme} />,
+      loader: loader,
+      children: [
+        {
+          path: 'splashscreenpage',
+          element: <SplashScreenPage />
+        },
+        {
+          path: 'loginpage',
+          element: <LoginPage />
+        },
+        {
+          path: 'phoneislandpage',
+          element: <PhoneIslandPage />
+        },
+        {
+          path: 'nethconnectorpage',
+          element: <NethLinkPage />
+        }
+      ]
+    }
+  ])
 
   return (
-    <Routes>
-      <Route path="/" element={<Layout isDev={page?.props?.isDev || false} />}>
-        <Route path="splashscreenpage" element={<SplashScreenPage />} />
-        <Route path="loginpage" element={<LoginPage />} />
-        <Route path="phoneislandpage" element={<PhoneIslandPage />} />
-        <Route path="nethconnectorpage" element={<NethLinkPage />} />
-      </Route>
-    </Routes>
-  )
-}
-
-export default function App() {
-
-
-  return (
-    <HashRouter>
-      <RoutesWrapper />
-    </HashRouter>
+    <RouterProvider router={router} />
   )
 }
