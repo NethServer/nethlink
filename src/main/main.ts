@@ -1,4 +1,4 @@
-import { app, protocol } from 'electron'
+import { app, protocol, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -53,6 +53,7 @@ app.whenReady().then(async () => {
       time++
       //log(time, windowsLoaded)
     }
+    await getPermissions()
     //una volta che il caricamento è completo abilito la possibilità di cliccare sull'icona nella tray
     TrayController.instance.enableClick = true
     //TODO: cosa accade se clicco la chiusura dell'app mentre è in caricamento?
@@ -156,4 +157,20 @@ function handleTelProtocol(url: string): Promise<Response> {
   log('TEL:', tel)
   PhoneIslandController.instance.call(tel)
   return new Promise((resolve) => resolve)
+}
+
+async function getPermissions() {
+  const cameraPermissionState = systemPreferences.getMediaAccessStatus('camera')
+  const cameraPermission = await systemPreferences.askForMediaAccess('camera')
+  const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
+  const microphonePermission = await systemPreferences.askForMediaAccess('microphone')
+  log(
+    'Permissions:',
+    {
+      cameraPermissionState,
+      cameraPermission,
+      microphonePermissionState,
+      microphonePermission
+    }
+  )
 }

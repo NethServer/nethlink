@@ -1,6 +1,6 @@
-appId: "com.nethlink.app"
-productName: "com.nethlink.app"
-copyright: "prova copyright"
+appId: 'com.nethesis.nethlink.app'
+productName: 'com.nethesis.nethlink.app'
+copyright: 'prova copyright'
 directories:
   buildResources: build
 files:
@@ -13,7 +13,7 @@ files:
 asarUnpack:
   - public/**
 win:
-  executableName: NethConnector
+  executableName: NethLink
   target:
     - nsis
     - zip
@@ -30,8 +30,10 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
 mac:
-  category: public.app-category.developer-tools
-  entitlementsInherit: build/entitlements.mac.plist
+  identity: 11AF607C955FB944DB9DDF31AE651B4CB39EBCA9
+  category: public.app-category.productivity
+  gatekeeperAssess: false
+  hardenedRuntime: true
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
@@ -39,18 +41,20 @@ mac:
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
   target:
-    - zip
-    #- dmg
+    #- zip
+    - dmg
     #- mas
-dmg:
+mas:
   artifactName: ${name}-${version}.${ext}
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
 linux:
   target:
     #- snap
     - AppImage
     #- deb
     #- rpm
-    - zip
+    #- zip
   maintainer: electronjs.org
   category: Utility
 appImage:
