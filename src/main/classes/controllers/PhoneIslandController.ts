@@ -94,14 +94,14 @@ export class PhoneIslandController {
   call(number: string) {
     this.window.emit(IPC_EVENTS.EMIT_START_CALL, number)
     //TODO: WORK around per ingrandire immediatamente la schermata se il numero chiamato è l'echo test
-    if (number === '*43') {
-      setTimeout(() => {
-        const size = PHONE_ISLAND_RESIZE.get(PHONE_ISLAND_EVENTS['phone-island-call-answered'])!(
-          false
-        )
-        this.resize(size.w, size.h)
-      }, 100)
-    }
+    // if (number === '*43') {
+    //   setTimeout(() => {
+    //     const size = PHONE_ISLAND_RESIZE.get(PHONE_ISLAND_EVENTS['phone-island-call-answered'])!(
+    //       false
+    //     )
+    //     this.resize(size.w, size.h)
+    //   }, 100)
+    // }
     this.showPhoneIsland()
   }
 
