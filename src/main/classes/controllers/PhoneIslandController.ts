@@ -105,8 +105,9 @@ export class PhoneIslandController {
     this.showPhoneIsland()
   }
 
-  logout(account: Account) {
+  logout(account: Account, isExit: boolean = false) {
     this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined, account)
-    this.hidePhoneIsland()
+    if (!isExit)
+      this.hidePhoneIsland()
   }
 }

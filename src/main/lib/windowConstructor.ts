@@ -65,6 +65,7 @@ export function createWindow(
   mainWindow.on('close', () => {
     const account = AccountController.instance.getLoggedAccount()
     if (account) PhoneIslandController.instance.logout(account)
+    AccountController.instance.stopAuthPolling()
     AccountController.instance._app?.exit()
   })
 

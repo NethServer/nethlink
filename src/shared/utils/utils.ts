@@ -15,6 +15,12 @@ function applyDebouncer(eventId: string, event: () => any, debouncer: number) {
     debounceEvents[eventId] = undefined
     debounceEvents[`${eventId}_timer`] = undefined
   }, debouncer)
+
+  window.addEventListener('close', () => {
+    try {
+      clearTimeout(debounceEvents[`${eventId}_timer`])
+    } catch (e) { }
+  })
 }
 
 export async function delay(duration) {

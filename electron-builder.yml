@@ -70,3 +70,4 @@ protocols:
   schemes:
     - tel
     - callto
+    - nethlink

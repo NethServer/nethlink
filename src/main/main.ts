@@ -1,4 +1,4 @@
-import { app, protocol, systemPreferences } from 'electron'
+import { app, ipcMain, protocol, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -28,6 +28,11 @@ app.whenReady().then(async () => {
   })
   protocol.handle('callto', (req) => {
     return handleTelProtocol(req.url)
+  })
+
+  protocol.handle('nethlink', (req) => {
+    log(req)
+    return new Promise((resolve) => resolve)
   })
 
   let windowsLoaded = 0
@@ -99,15 +104,16 @@ const onAccountLogin = (account: Account) => {
   AccountController.instance.addEventListener('LOGOUT', onAccountLogout)
 }
 
-const onAccountLogout = (account: Account) => {
+const onAccountLogout = (account: Account, isExit: boolean = false) => {
   //ormai mi sono sloggato quindi rimuovo il listener
   AccountController.instance.removeEventListener('LOGOUT', onAccountLogout)
-  PhoneIslandController.instance.logout(account)
-  NethLinkController.instance.hide()
-
-  AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
-  AccountController.instance.addEventListener('LOGIN', onAccountLogin)
-  LoginController.instance.show()
+  PhoneIslandController.instance.logout(account, isExit)
+  if (!isExit) {
+    NethLinkController.instance.hide()
+    AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
+    AccountController.instance.addEventListener('LOGIN', onAccountLogin)
+    LoginController.instance.show()
+  }
 }
 
 const onLoginFromLoginPage = (account: Account) => {
@@ -121,9 +127,18 @@ app.on('window-all-closed', () => {
   //i18nextBackend.clearMainBindings(ipcMain);
 })
 
+app.on('quit', () => {
+  log('quit')
+  const account = AccountController.instance.getLoggedAccount()
+  if (account) {
+    onAccountLogout(account, true)
+  }
+})
+
 // remove so we can register each time as we run the app.
 app.removeAsDefaultProtocolClient('tel')
 app.removeAsDefaultProtocolClient('callto')
+app.removeAsDefaultProtocolClient('nethlink')
 
 // if we are running a non-packaged version of the app && on windows
 if (process.env.node_env === 'development' && process.platform === 'win32') {
@@ -131,9 +146,11 @@ if (process.env.node_env === 'development' && process.platform === 'win32') {
   // these two additional parameters are only available on windows.
   app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
   app.setAsDefaultProtocolClient('callto', process.execPath, [resolve(process.argv[1])])
+  app.setAsDefaultProtocolClient('nethlink', process.execPath, [resolve(process.argv[1])])
 } else {
   app.setAsDefaultProtocolClient('tel')
   app.setAsDefaultProtocolClient('callto')
+  app.setAsDefaultProtocolClient('nethlink')
 }
 
 //windows
@@ -160,17 +177,19 @@ function handleTelProtocol(url: string): Promise<Response> {
 }
 
 async function getPermissions() {
-  const cameraPermissionState = systemPreferences.getMediaAccessStatus('camera')
-  const cameraPermission = await systemPreferences.askForMediaAccess('camera')
-  const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
-  const microphonePermission = await systemPreferences.askForMediaAccess('microphone')
-  log(
-    'Permissions:',
-    {
-      cameraPermissionState,
-      cameraPermission,
-      microphonePermissionState,
-      microphonePermission
-    }
-  )
+  if (process.platform === 'darwin') {
+    const cameraPermissionState = systemPreferences.getMediaAccessStatus('camera')
+    const cameraPermission = await systemPreferences.askForMediaAccess('camera')
+    const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
+    const microphonePermission = await systemPreferences.askForMediaAccess('microphone')
+    log(
+      'Permissions:',
+      {
+        cameraPermissionState,
+        cameraPermission,
+        microphonePermissionState,
+        microphonePermission
+      }
+    )
+  }
 }

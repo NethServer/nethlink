@@ -29,8 +29,8 @@ export class BaseWindow {
       this._window?.webContents.isDevToolsOpened()
         ? this._window?.webContents.closeDevTools()
         : this._window?.webContents.openDevTools({
-            mode: 'detach'
-          })
+          mode: 'detach'
+        })
     }
 
     this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
@@ -57,7 +57,11 @@ export class BaseWindow {
   }
 
   emit(event: IPC_EVENTS | string, ...args: any[]) {
-    this._window?.webContents.send(event, ...args)
+    try {
+      this._window?.webContents.send(event, ...args)
+    } catch (e) {
+      log(e, { event, args })
+    }
   }
 
   hide(..._args: any) {
@@ -85,6 +89,3 @@ export class BaseWindow {
   }
 }
 
-// async function timer(time) {
-//   await new Promise((resolve) => setTimeout(resolve, time))
-// }
