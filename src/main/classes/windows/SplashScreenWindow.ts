@@ -1,9 +1,10 @@
+import { PAGES } from '@shared/types'
 import { BaseWindow } from './BaseWindow'
 
 export class SplashScreenWindow extends BaseWindow {
   constructor() {
     const size = { w: 400, h: 450 }
-    super('splashscreenpage', {
+    super(PAGES.SPLASHSCREEN, {
       width: size.w,
       height: size.h,
       show: true,

@@ -4,9 +4,7 @@ import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
 import { AccountController, PhoneIslandController } from '@/classes/controllers'
-import { AvailableThemes } from '@shared/types'
-import { log } from '@shared/utils/logger'
-import { IPC_EVENTS } from '@shared/constants'
+
 
 export type WindowOptions = {
   rendererPath?: string
@@ -27,7 +25,7 @@ export function createWindow(
   const mainWindow = new BrowserWindow({
     parent: undefined,
     ...config,
-    titleBarStyle: process.platform === 'darwin' ? 'customButtonsOnHover' : 'hidden',
+    titleBarStyle: config.titleBarStyle ?? (process.platform === 'darwin' ? 'customButtonsOnHover' : 'hidden'),
     ...(process.platform === 'linux' ? (config.icon ? { icon: config.icon } : {}) : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

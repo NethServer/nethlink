@@ -1,8 +1,9 @@
+import { PAGES } from '@shared/types'
 import { BaseWindow } from './BaseWindow'
 
 export class PhoneIslandWindow extends BaseWindow {
   constructor() {
-    super('phoneislandpage', {
+    super(PAGES.PHONEISLAND, {
       width: 1,
       height: 1,
       show: false,

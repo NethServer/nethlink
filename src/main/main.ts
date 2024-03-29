@@ -1,6 +1,6 @@
 import { app, ipcMain, protocol, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
-import { AccountController } from './classes/controllers'
+import { AccountController, DevToolsController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
 import { Account } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
@@ -37,10 +37,13 @@ app.whenReady().then(async () => {
 
   let windowsLoaded = 0
   //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
+  new DevToolsController()
   new SplashScreenController()
   new TrayController()
 
   //Visualizzo la splashscreen all'avvio dell'applicazione.
+
+  DevToolsController.instance.show()
   SplashScreenController.instance.window.addOnBuildListener(async () => {
     SplashScreenController.instance.show()
     new PhoneIslandController()

@@ -1,0 +1,25 @@
+import { PAGES } from '@shared/types'
+import { BaseWindow } from './BaseWindow'
+
+export class DevToolsWindow extends BaseWindow {
+  constructor() {
+    super(PAGES.DEVTOOLS, {
+      show: true,
+      y: 80,
+      x: 100,
+      closable: false,
+      movable: true,
+      frame: true,
+      height: 280,
+      width: 200,
+      resizable: true,
+      alwaysOnTop: true,
+      minimizable: true,
+      maximizable: false,
+      titleBarStyle: 'default',
+      title: 'NethLink DevTools',
+
+    })
+    //this._window?.webContents.openDevTools({ mode: 'detach' })
+  }
+}

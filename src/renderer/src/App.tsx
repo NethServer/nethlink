@@ -10,31 +10,15 @@ import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
 import { useEffect, useState } from 'react'
 import { useLocalStoreState } from './hooks/useLocalStoreState'
-import { Account, AvailableThemes, PageType } from '@shared/types'
+import { Account, AvailableThemes, PAGES, PageType } from '@shared/types'
 import { delay } from '@shared/utils/utils'
 import i18next from 'i18next'
+import { DevToolsPage } from './pages/DevToolsPage'
 
-function Layout({ isDev, theme }: { isDev: boolean, theme: string }) {
-
-  function openDevTools() {
-    let hash = window.location.hash.split('#/')
-    if (hash.length === 1) {
-      hash = window.location.hash.split('#')
-    }
-    const page = hash[1].split('?')[0].split('/')[0]
-    //log('open dev tools', page)
-    window.api.openDevTool(page)
-  }
-
-  useEffect(() => {
-    openDevTools()
-  }, [])
+function Layout({ theme }: { theme: string }) {
 
   return (
     <div className={theme}>
-      {
-        isDev && <div className='absolute bottom-0 left-0 z-[10000]'><button onClick={openDevTools} id='openDevToolButton' className='bg-white p-1'>dev</button></div>
-      }
       <Outlet />
     </div>
   )
@@ -120,24 +104,28 @@ export default function App() {
   const router = createHashRouter([
     {
       path: '/',
-      element: <Layout isDev={page?.props?.isDev || false} theme={theme} />,
+      element: <Layout theme={theme} />,
       loader: loader,
       children: [
         {
-          path: 'splashscreenpage',
+          path: PAGES.SPLASHSCREEN,
           element: <SplashScreenPage />
         },
         {
-          path: 'loginpage',
+          path: PAGES.LOGIN,
           element: <LoginPage />
         },
         {
-          path: 'phoneislandpage',
+          path: PAGES.PHONEISLAND,
           element: <PhoneIslandPage />
         },
         {
-          path: 'nethconnectorpage',
+          path: PAGES.NETHLINK,
           element: <NethLinkPage />
+        },
+        {
+          path: PAGES.DEVTOOLS,
+          element: <DevToolsPage />
         }
       ]
     }

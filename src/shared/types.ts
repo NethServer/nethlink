@@ -1,4 +1,13 @@
 export type AvailableThemes = 'system' | 'light' | 'dark'
+
+export enum PAGES {
+  SPLASHSCREEN = "splashscreenpage",
+  LOGIN = "loginpage",
+  PHONEISLAND = "phoneislandpage",
+  NETHLINK = "nethlinkpage",
+  DEVTOOLS = "devtoolspage"
+
+}
 export type Account = {
   username: string
   accessToken?: string

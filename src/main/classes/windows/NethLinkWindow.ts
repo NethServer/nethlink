@@ -1,3 +1,4 @@
+import { PAGES } from '@shared/types'
 import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
@@ -7,7 +8,7 @@ export class NethLinkWindow extends BaseWindow {
   size: { w: number; h: number } | undefined
   constructor() {
     const size = { w: 400, h: 380 }
-    super('nethconnectorpage', {
+    super(PAGES.NETHLINK, {
       width: size.w,
       height: size.h,
       show: false,

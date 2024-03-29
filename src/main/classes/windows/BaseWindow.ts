@@ -1,10 +1,13 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
 import { is } from '@electron-toolkit/utils'
 import { IPC_EVENTS } from '@shared/constants'
-import { AvailableThemes } from '@shared/types'
+import { AvailableThemes, PAGES } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { debouncer } from '@shared/utils/utils'
 import { BrowserWindow, nativeTheme } from 'electron'
+import { DevToolsController, LoginController, PhoneIslandController } from '../controllers'
+import { SplashScreenController } from '../controllers/SplashScreenController'
+import { NethLinkController } from '../controllers/NethLinkController'
 
 type Callback = (...args: any) => any
 export class BaseWindow {
@@ -14,7 +17,6 @@ export class BaseWindow {
   constructor(id: string, config?: WindowOptions, params?: Record<string, string>) {
     params = {
       ...params,
-      isDev: `${Boolean(is.dev && process.env['ELECTRON_RENDERER_URL'])}`
     }
     this._window = createWindow(id, config, params)
     const onReady = (_e, completed_id) => {
@@ -26,11 +28,18 @@ export class BaseWindow {
 
     const onOpenDevTools = (_e, page_id) => {
       //log('on build completition of', id, page_id, this._window?.webContents.isDevToolsOpened())
-      this._window?.webContents.isDevToolsOpened()
-        ? this._window?.webContents.closeDevTools()
-        : this._window?.webContents.openDevTools({
-          mode: 'detach'
-        })
+      log('open dev tool of', page_id === PAGES.SPLASHSCREEN)
+      let targetWindow: BaseWindow | undefined
+      switch (page_id) {
+        case PAGES.DEVTOOLS: targetWindow = DevToolsController.instance.window; break;
+        case PAGES.LOGIN: targetWindow = LoginController.instance.window; break;
+        case PAGES.SPLASHSCREEN: targetWindow = SplashScreenController.instance.window; break;
+        case PAGES.NETHLINK: targetWindow = NethLinkController.instance.window; break;
+        case PAGES.PHONEISLAND: targetWindow = PhoneIslandController.instance.window; break;
+      }
+      if (targetWindow) {
+        targetWindow!.openDevTool()
+      }
     }
 
     this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
@@ -50,6 +59,13 @@ export class BaseWindow {
         )
       })
     })
+  }
+  openDevTool() {
+    this._window!.webContents.isDevToolsOpened()
+      ? this._window!.webContents.closeDevTools()
+      : this._window!.webContents.openDevTools({
+        mode: 'detach'
+      })
   }
 
   getWindow() {

@@ -1,9 +1,10 @@
+import { PAGES } from '@shared/types'
 import { AccountController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
 
 export class LoginWindow extends BaseWindow {
   constructor() {
-    super('loginpage', {
+    super(PAGES.LOGIN, {
       width: 500,
       height: 0,
       show: false,
