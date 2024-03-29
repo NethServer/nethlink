@@ -6,12 +6,13 @@ import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
 import { Account } from '@shared/types'
 import { log } from '@shared/utils/logger'
-import { useState, useRef, useMemo, useCallback } from 'react'
+import { useState, useRef, useMemo, useCallback, createRef } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
   const isCollapsed = useRef<boolean>(true)
   const loadPath = useRef<string | undefined>(undefined)
+  const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
 
   useInitialize(() => {
     loadPath.current = getI18nLoadPath()
@@ -39,6 +40,14 @@ export function PhoneIslandPage() {
           //log('EVENT RESIZE', event)
           const size = PHONE_ISLAND_RESIZE.get(event)!(isCollapsed.current)
           window.api.resizePhoneIsland(size.w, size.h)
+          switch (event) {
+            case PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened']:
+              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px'); break;
+            case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
+              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px'); break;
+            default:
+              phoneIslandContainer.current?.children[1].setAttribute('style', ''); break;
+          }
         }
       })
     })
@@ -91,8 +100,9 @@ export function PhoneIslandPage() {
     return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={loadPath.current} />
   }, [dataConfig])
 
+
   return (
-    <div className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] " id="phone-island-container">
+    <div ref={phoneIslandContainer} className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] " id="phone-island-container">
       <div className='absolute h-[100vh] w-[100vw] bg-green-500/30 radius-md backdrop-hue-rotate-90'>
       </div>
       <RenderPhoneIsland />
