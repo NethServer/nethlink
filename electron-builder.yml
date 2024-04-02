@@ -30,7 +30,6 @@ nsis:
   uninstallDisplayName: ${productName}-${version}
 mac:
   #identity: 11AF607C955FB944DB9DDF31AE651B4CB39EBCA9
-  identity: DC42778867A2940668E3B1F23C51A1CC2B6EA0E0
   category: public.app-category.productivity
   gatekeeperAssess: false
   hardenedRuntime: true
