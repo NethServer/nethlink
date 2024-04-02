@@ -36,7 +36,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.18",
-    "@nethesis/phone-island": "^0.8.7",
+    "@nethesis/phone-island": "^0.8.8",
     "@tailwindcss/forms": "^0.5.7",
     "auto-launch": "^5.0.6",
     "axios": "^1.6.7",

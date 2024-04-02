@@ -87,24 +87,29 @@ export class NethVoiceAPI {
                   theme: 'system',
                   lastAccess: moment().toISOString()
                 }
-                await this.User.me()
-                //importo il file config di questo host per prelevare le informazioni su SIP_host e port solo se sono su demo-leopard devo prenderli statici
-                let SIP_HOST = '127.0.0.1'
-                let SIP_PORT = '5060'
-                if (this._account.host.includes('demo-leopard')) {
-                  SIP_PORT = '5060'
-                } else if (this._account.host.includes('nethvoice')) {
-                  SIP_PORT = '20139'
-                } else {
-                  const res = await this._GET('/config/config.production.js')
-                  //log(res)
-                  SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim() //
-                  SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim() //
+                const me = await this.User.me()
+                const nethlinkExtension = me!.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+                if (!nethlinkExtension)
+                  reject("Questo utente non è abilitato all'uso del NethLink")
+                else {
+                  //importo il file config di questo host per prelevare le informazioni su SIP_host e port solo se sono su demo-leopard devo prenderli statici
+                  let SIP_HOST = '127.0.0.1'
+                  let SIP_PORT = '5060'
+                  if (this._account.host.includes('demo-leopard')) {
+                    SIP_PORT = '5060'
+                  } else if (this._account.host.includes('nethvoice')) {
+                    SIP_PORT = '20139'
+                  } else {
+                    const res = await this._GET('/config/config.production.js')
+                    //log(res)
+                    SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim() //
+                    SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim() //
+                  }
+                  this._account.sipHost = SIP_HOST
+                  this._account.sipPort = SIP_PORT
+                  //log(this._account)
+                  resolve(this._account)
                 }
-                this._account.sipHost = SIP_HOST
-                this._account.sipPort = SIP_PORT
-                //log(this._account)
-                resolve(this._account)
               }
             } else {
               console.error('undefined nonce response')

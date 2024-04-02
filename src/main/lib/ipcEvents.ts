@@ -20,8 +20,16 @@ function onSyncEmitter<T>(
       const response = await asyncCallback(...args)
       syncResponse = [response, undefined]
     } catch (e: unknown) {
-      //log(e)
-      syncResponse = [undefined, cloneDeep(e as Error | undefined)]
+      let error = new Error()
+      if (typeof e === 'object') {
+        error = e as Error
+      } else if (typeof e === 'string') {
+        error.message = e
+      } else {
+        error.message = "Unknown error"
+      }
+      log(e)
+      syncResponse = [undefined, error]
     }
     event.returnValue = syncResponse
   })
@@ -64,6 +72,10 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.HIDE_NETH_LINK, async (event) => {
     NethLinkController.instance.window.hideWindowFromRenderer()
+  })
+
+  ipcMain.on(IPC_EVENTS.CLOSE_NETH_LINK, async (event) => {
+    app.exit()
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_HOST_PAGE, async (_, path) => {

@@ -17,6 +17,7 @@ export type SyncResponse<T> = [T | undefined, Error | undefined]
 export type SyncPromise<T> = Promise<SyncResponse<T>>
 
 export interface IElectronAPI {
+
   // Use `contextBridge` APIs to expose Electron APIs to
   // renderer only if context isolation is enabled, otherwise
   // just add to the DOM global.
@@ -60,6 +61,7 @@ export interface IElectronAPI {
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
   openHostPage(path: string): unknown
   hideNethLink: () => void
+  exitNethLink: () => void
   showPhoneIsland: () => void
   hidePhoneIsland: () => void
 
@@ -116,6 +118,7 @@ const api: IElectronAPI = {
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
   openHostPage: setEmitter(IPC_EVENTS.OPEN_HOST_PAGE),
   hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
+  exitNethLink: setEmitter(IPC_EVENTS.CLOSE_NETH_LINK),
   showPhoneIsland: setEmitter(IPC_EVENTS.SHOW_PHONE_ISLAND),
   hidePhoneIsland: setEmitter(IPC_EVENTS.HIDE_PHONE_ISLAND),
 

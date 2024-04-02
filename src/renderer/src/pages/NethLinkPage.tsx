@@ -22,6 +22,7 @@ import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import {
   faMinusCircle as MinimizeIcon,
+  faXmarkCircle as ExiteIcon,
   faTriangleExclamation as WarningIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
@@ -254,6 +255,10 @@ export function NethLinkPage() {
   function hideNethLink() {
     window.api.hideNethLink()
   }
+
+  function exitNethLink() {
+    window.api.exitNethLink()
+  }
   function goToNethVoicePage(): void {
     window.api.openHostPage('/')
   }
@@ -295,21 +300,24 @@ export function NethLinkPage() {
       {account && (
         <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
           <div
-            className={`flex flex-col-reverse  min-w-[400px] min-h-[380px] h-full items-center justify-between`}
+            className={`flex flex-col  min-w-[400px] min-h-[380px] h-full items-center justify-between`}
           >
             <div
-              className={`flex justify-center items-center pb-[2px] pt-[8px] w-full bg-gray-200 hover:bg-gray-400 dark:bg-gray-950 dark:hover:bg-gray-700 rounded-b-md relative bottom-[1px] z-0`}
-              onClick={hideNethLink}
+              className={`flex flex-row ${navigator.userAgent.includes('Windows') ? 'justify-end' : 'justify-start'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-200  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
+
             >
-              <div className="flex justify-center items-center">
-                <p>{t('Common.Minimize')}</p>
-                <FontAwesomeIcon
-                  className={`text-gray-900 dark:text-white ml-2 `}
-                  icon={MinimizeIcon}
-                />
-              </div>
+              <FontAwesomeIcon
+                className={`text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 `}
+                icon={MinimizeIcon}
+                onClick={hideNethLink}
+              />
+              <FontAwesomeIcon
+                className={`text-red-500 hover:text-red-400 cursor-pointer ml-2`}
+                icon={ExiteIcon}
+                onClick={exitNethLink}
+              />
             </div>
-            <div className="flex flex-row rounded-md relative bottom-[-4px] z-10  dark:bg-gray-900 bg-gray-50 w-full">
+            <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-gray-900 bg-gray-50 w-full">
               <div className="flex flex-col gap-4 w-full">
                 <Navbar
                   search={search}
@@ -322,7 +330,7 @@ export function NethLinkPage() {
                 />
 
                 <div className="relative w-full">
-                  <div className="px-4 w-full h-[284px] pb-2 z-1">
+                  <div className="px-4 w-full h-[274px] pb-2 z-1">
                     {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
                       showSpeedDialForm ? (
                         <SpeedDialFormBox
@@ -352,7 +360,7 @@ export function NethLinkPage() {
 
                     {/*   MODIFICHE */}
                     {search !== '' && !selectedMissedCall ? (
-                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
+                      <div className="absolute top-0 left-0 z-[100] rounded-l-lg dark:bg-gray-900 bg-gray-50 h-full w-full">
                         <SearchNumberBox
                           searchText={search}
                           showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}

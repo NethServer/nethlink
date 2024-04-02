@@ -22,15 +22,15 @@ export class PhoneIslandController {
   }
 
   private updateDataConfig(token: string, account: Account) {
-    const webRTCExtension = account!.data!.endpoints.extension.find((el) => el.type === 'webrtc')
-    if (webRTCExtension && account) {
+    const nethlinkExtension = account!.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+    if (nethlinkExtension && account) {
       const hostname = account!.host.split('://')[1]
       const config: PhoneIslandConfig = {
         hostname,
         username: account.username,
         authToken: token,
-        sipExten: webRTCExtension.id,
-        sipSecret: webRTCExtension.secret,
+        sipExten: nethlinkExtension.id,
+        sipSecret: nethlinkExtension.secret,
         sipHost: account.sipHost || '',
         sipPort: account.sipPort || ''
       }

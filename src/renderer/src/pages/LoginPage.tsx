@@ -1,6 +1,6 @@
 import { Account } from '@shared/types'
 import classNames from 'classnames'
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useRef, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
@@ -9,7 +9,8 @@ import {
   faArrowLeft as ArrowIcon,
   faEye as EyeIcon,
   faEyeSlash as EyeSlashIcon,
-  faX as CrossIcon
+  faX as CrossIcon,
+  faCircleXmark as ErrorIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
 import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
@@ -27,8 +28,9 @@ export function LoginPage() {
   const [displayedAccounts, setDisplayedAccounts] = useState<Account[]>([])
   const [selectedAccount, setSelectedAccount] = useState<Account | 'New Account'>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isError, setIsError] = useState<boolean>(false)
+  const [loginError, setLoginError] = useState<Error | undefined>(undefined)
   const [pwdVisible, setPwdVisible] = useState<boolean>(false)
+  const windowHeight = useRef<number>(0)
 
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
@@ -37,7 +39,9 @@ export function LoginPage() {
   }, true)
 
   function resizeThisWindow(h: number) {
-    window.api.resizeLoginWindow(h)
+    windowHeight.current = h
+    const finalH = h + (loginError ? 80 : 0)
+    window.api.resizeLoginWindow(finalH)
   }
 
   function hideLoginWindow() {
@@ -45,10 +49,14 @@ export function LoginPage() {
   }
 
   async function handleLogin(data: LoginData) {
+    setLoginError(undefined)
     if (data.host.charAt(data.host.length - 1) === '/') data.host = data.host.slice(0, data.host.length - 1)
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
     //log(data, returnValue, err)
-    setIsError(!!err)
+    if (err!.message === 'Unauthorized')
+      setLoginError(new Error(t('Login.Wrong username or password')!))
+    else
+      setLoginError(err)
     !err && setSelectedAccount(undefined)
     setIsLoading(false)
   }
@@ -76,6 +84,11 @@ export function LoginPage() {
       setFocus(selector)
     }, 100)
   }
+
+  const goBack = () => {
+    setLoginError(undefined)
+    setSelectedAccount(undefined)
+  }
   useEffect(() => {
     if (selectedAccount) {
       if (selectedAccount === 'New Account') {
@@ -90,7 +103,7 @@ export function LoginPage() {
         focus('password')
       }
     } else {
-      setIsError(false)
+      setLoginError(undefined)
       if (displayedAccounts.length === 1) {
         resizeThisWindow(375)
       } else if (displayedAccounts.length === 2) {
@@ -102,6 +115,19 @@ export function LoginPage() {
     }
   }, [displayedAccounts, selectedAccount])
 
+  const RenderError = () => {
+    resizeThisWindow(windowHeight.current)
+    return !!loginError && <div className='relative top-4 flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md'>
+      <div className='flex flex-row items-center gap-2 '>
+        <FontAwesomeIcon icon={ErrorIcon} className='' />
+        <p>{t('Login.Login failed')}</p>
+      </div>
+      <p className='pl-6'>
+        {loginError?.message}
+      </p>
+    </div>
+  }
+
   const newAccountForm: ReactNode = (
     <div className="mt-7">
       <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">{t('Login.New Account title')}</p>
@@ -111,18 +137,18 @@ export function LoginPage() {
           {...register('host')}
           type="text"
           label={t('Login.Host') as string}
-          error={isError || Boolean(errors.host)}
+          error={!!loginError || Boolean(errors.host)}
         />
         <TextInput
           {...register('username')}
           type="text"
           label={t('Login.Username') as string}
-          error={isError || Boolean(errors.username)}
+          error={!!loginError || Boolean(errors.username)}
         />
         <TextInput
           {...register('password')}
           label={t('Login.Password') as string}
-          error={isError || Boolean(errors.password)}
+          error={!!loginError || Boolean(errors.password)}
           type={pwdVisible ? 'text' : 'password'}
           icon={pwdVisible ? EyeIcon : EyeSlashIcon}
           onIconClick={() => setPwdVisible(!pwdVisible)}
@@ -134,6 +160,7 @@ export function LoginPage() {
         >
           {t('Login.Sign in')}
         </button>
+        <RenderError />
       </div>
     </div>
   )
@@ -147,7 +174,7 @@ export function LoginPage() {
             <FontAwesomeIcon
               icon={ArrowIcon}
               className="h-5 w-5 dark:text-gray-50 ml-12 cursor-pointer"
-              onClick={() => setSelectedAccount(undefined)}
+              onClick={goBack}
             />
           )}
           <FontAwesomeIcon
@@ -158,7 +185,7 @@ export function LoginPage() {
         </div>
         <form
           onSubmit={async (e) => {
-            setIsError(false)
+            setLoginError(undefined)
             setIsLoading(true)
             e.preventDefault()
             setTimeout(() => {
@@ -189,7 +216,7 @@ export function LoginPage() {
                         <TextInput
                           {...register('password')}
                           label={t('Login.Password') as string}
-                          error={isError || Boolean(errors.password)}
+                          error={!!loginError || Boolean(errors.password)}
                           className="mt-5"
                           type={pwdVisible ? 'text' : 'password'}
                           icon={pwdVisible ? EyeIcon : EyeSlashIcon}
@@ -202,6 +229,7 @@ export function LoginPage() {
                         >
                           {t('Login.Sign in')}
                         </button>
+                        <RenderError />
                       </div>
                     )}
                   </div>
