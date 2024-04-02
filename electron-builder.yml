@@ -1,5 +1,5 @@
 appId: 'com.nethesis.nethlink.app'
-productName: 'com.nethesis.nethlink.app'
+productName: 'Nethlink'
 copyright: 'prova copyright'
 directories:
   buildResources: build
@@ -13,12 +13,11 @@ files:
 asarUnpack:
   - public/**
 win:
-  executableName: NethLink
   target:
     - nsis
-    - zip
-  certificateFile: 'C:\Users\loren\Desktop\workspace\aidapt\neth-connector-electron\certification\nethlinkcert.pfx'
-  certificatePassword: 'aidapt'
+    #- zip
+  #certificateFile: '.\certification\win_certificate.pfx'
+  #certificatePassword: 'aidapt'
   #certificateSubjectName: AidaptSRL
 nsis:
   oneClick: false
@@ -28,9 +27,9 @@ nsis:
   createStartMenuShortcut: true
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
+  uninstallDisplayName: ${productName}-${version}
 mac:
-  identity: 11AF607C955FB944DB9DDF31AE651B4CB39EBCA9
+  #identity: 11AF607C955FB944DB9DDF31AE651B4CB39EBCA9
   category: public.app-category.productivity
   gatekeeperAssess: false
   hardenedRuntime: true
@@ -61,8 +60,9 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github
+  private: true
+  token: ${env.GH_TOKEN}
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
 protocols:
