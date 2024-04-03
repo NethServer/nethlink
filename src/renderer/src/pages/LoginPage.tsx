@@ -52,7 +52,7 @@ export function LoginPage() {
     setLoginError(undefined)
     if (data.host.charAt(data.host.length - 1) === '/') data.host = data.host.slice(0, data.host.length - 1)
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
-    //log(data, returnValue, err)
+    log(data, returnValue, err)
     if (err!.message === 'Unauthorized')
       setLoginError(new Error(t('Login.Wrong username or password')!))
     else
@@ -116,7 +116,7 @@ export function LoginPage() {
   }, [displayedAccounts, selectedAccount])
 
   const RenderError = () => {
-    resizeThisWindow(windowHeight.current)
+    loginError && resizeThisWindow(windowHeight.current)
     return !!loginError && <div className='relative top-4 flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md'>
       <div className='flex flex-row items-center gap-2 '>
         <FontAwesomeIcon icon={ErrorIcon} className='' />

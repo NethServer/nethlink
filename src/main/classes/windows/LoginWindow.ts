@@ -1,6 +1,7 @@
 import { PAGES } from '@shared/types'
 import { AccountController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
+import { log } from '@shared/utils/logger'
 
 export class LoginWindow extends BaseWindow {
   constructor() {
@@ -34,7 +35,8 @@ export class LoginWindow extends BaseWindow {
 
   show(..._args: any): void {
     let loginWindowHeight = 0
-    switch (AccountController.instance.listAvailableAccounts().length) {
+    const accounts = AccountController.instance.listAvailableAccounts()
+    switch (accounts.length) {
       case 0:
         loginWindowHeight = 570
         break
@@ -48,10 +50,10 @@ export class LoginWindow extends BaseWindow {
         loginWindowHeight = 535
         break
     }
+    log(accounts, loginWindowHeight)
     const bounds = this._window?.getBounds()
     this._window!.setBounds({ ...bounds, height: loginWindowHeight }, true)
-    this._window!.center()
-    this._window!.show()
     super.show(_args)
+    this._window!.center()
   }
 }
