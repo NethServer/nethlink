@@ -11,7 +11,7 @@ export class LoginWindow extends BaseWindow {
       show: false,
       fullscreenable: false,
       autoHideMenuBar: true,
-      closable: true,
+      closable: false,
       alwaysOnTop: true,
       minimizable: false,
       maximizable: false,

@@ -1,6 +1,6 @@
 import { Account } from '@shared/types'
 import classNames from 'classnames'
-import { ReactNode, useEffect, useRef, useState } from 'react'
+import { MutableRefObject, ReactNode, useEffect, useRef, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
@@ -31,16 +31,22 @@ export function LoginPage() {
   const [loginError, setLoginError] = useState<Error | undefined>(undefined)
   const [pwdVisible, setPwdVisible] = useState<boolean>(false)
   const windowHeight = useRef<number>(0)
+  const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
 
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
       setDisplayedAccounts(accounts)
+      log(windowHeight.current)
+      setTimeout(() => {
+        log(loginWindowRef.current?.clientHeight)
+        windowHeight.current = loginWindowRef.current?.clientHeight || 0
+      }, 250);
     })
   }, true)
 
   function resizeThisWindow(h: number) {
     windowHeight.current = h
-    const finalH = h + (loginError ? 80 : 0)
+    const finalH = h + (loginError ? 120 : 0)
     window.api.resizeLoginWindow(finalH)
   }
 
@@ -166,7 +172,7 @@ export function LoginPage() {
   )
 
   return (
-    <div className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px]">
+    <div className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px]" ref={loginWindowRef}>
       <div className={classNames('h-full w-full', isLoading ? 'brightness-50' : '')}>
         <div className="flex flex-row justify-between items-end">
           <img src={header}></img>

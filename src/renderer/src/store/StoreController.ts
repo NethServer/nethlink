@@ -1,9 +1,10 @@
-import { OperatorsType, PageType, QueuesType } from '@shared/types'
+import { AvailableThemes, OperatorsType, PageType, QueuesType } from '@shared/types'
 import { create } from 'zustand'
 
 export type LocalStorageData = {
   operators?: OperatorsType
   page?: PageType
+  theme?: AvailableThemes
   profilePicture?: any
   customerCards?: any
   speedDial?: any

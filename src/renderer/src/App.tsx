@@ -14,8 +14,9 @@ import { Account, AvailableThemes, PAGES, PageType } from '@shared/types'
 import { delay } from '@shared/utils/utils'
 import i18next from 'i18next'
 import { DevToolsPage } from './pages/DevToolsPage'
+import { getSystemTheme } from './utils'
 
-function Layout({ theme }: { theme: string }) {
+function Layout({ theme }: { theme?: AvailableThemes }) {
 
   return (
     <div className={theme}>
@@ -25,10 +26,10 @@ function Layout({ theme }: { theme: string }) {
 }
 
 export default function App() {
-
   const [page, setPage] = useLocalStoreState<PageType>('page')
   //Potrebbe non servire
-  const [theme, setTheme] = useState<AvailableThemes>(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  const [theme, setTheme] = useLocalStoreState<AvailableThemes>('theme')
+  const [classNameTheme, setClassNameTheme] = useState<AvailableThemes>(getSystemTheme())
   const [account, setAccount, accountRef] = useLocalStoreState<Account>('user')
 
   useInitialize(() => {
@@ -51,40 +52,41 @@ export default function App() {
     })
 
     window.api.onAccountChange(updateAccount)
-    window.api.onSystemThemeChange(updateTheme)
+    window.api.onSystemThemeChange(updateSystemTheme)
+    window.api.onThemeChange(updateTheme)
   })
+
+  useEffect(() => {
+    setClassNameTheme((_) => {
+      return theme === 'system' ? getSystemTheme() : (theme || 'dark')
+    })
+  }, [theme])
 
   useEffect(() => {
     log('account changed', account)
     if (account) {
-      if (account.theme === 'system') {
-        setTheme(() => {
-          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        })
-      } else {
-        setTheme(() => account.theme)
-      }
+      updateTheme(account.theme)
     } else {
-      setTheme(() => {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      })
+      setTheme(getSystemTheme())
     }
   }, [account])
 
   const updateTheme = (theme: AvailableThemes) => {
-    //log('FROM WINDOW', theme)
-    if (account) {
-      if (accountRef.current!.theme === 'system') {
-        setTheme(() => theme)
-      }
-    } else {
-      setTheme(() => {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-      })
+    log('FROM WINDOW', theme, accountRef.current)
+    setTheme(theme)
+    if (accountRef.current)
+      accountRef.current!.theme = theme
+  }
+
+  const updateSystemTheme = (theme: AvailableThemes) => {
+    log('FROM SYSTEM', theme, accountRef.current)
+    if (accountRef.current?.theme === 'system') {
+      setClassNameTheme(getSystemTheme())
     }
   }
 
   function updateAccount(account: Account | undefined) {
+    log('account change', account?.theme)
     setAccount(account)
   }
 
@@ -104,7 +106,7 @@ export default function App() {
   const router = createHashRouter([
     {
       path: '/',
-      element: <Layout theme={theme} />,
+      element: <Layout theme={classNameTheme} />,
       loader: loader,
       children: [
         {

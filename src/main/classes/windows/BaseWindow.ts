@@ -13,8 +13,10 @@ type Callback = (...args: any) => any
 export class BaseWindow {
   protected _window: BrowserWindow | undefined
   protected _callbacks: Callback[] = []
+  protected _id: string
 
   constructor(id: string, config?: WindowOptions, params?: Record<string, string>) {
+    this._id = id
     params = {
       ...params,
     }
@@ -41,24 +43,8 @@ export class BaseWindow {
         targetWindow!.openDevTool()
       }
     }
-
     this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
     this._window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
-    // this._window.on('close', () => {
-    //   this._window = createWindow(id, config, params)
-    // })
-    this.addOnBuildListener(() => {
-      //log('call addOnBuildListener ')
-      nativeTheme.on('updated', () => {
-        const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
-          ? 'dark'
-          : 'light'
-        //log(updatedSystemTheme)
-        debouncer(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, () =>
-          this.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
-        )
-      })
-    })
   }
   openDevTool() {
     this._window!.webContents.isDevToolsOpened()

@@ -13,15 +13,6 @@ export class NethLinkController {
   constructor() {
     NethLinkController.instance = this
     this.window = new NethLinkWindow()
-    this.window.addOnBuildListener(() => {
-      nativeTheme.on('updated', () => {
-        const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
-          ? 'dark'
-          : 'light'
-        log(updatedSystemTheme)
-        this.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
-      })
-    })
   }
 
   private async operatorFetchLoop() {

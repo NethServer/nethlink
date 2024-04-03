@@ -1,3 +1,5 @@
+import { log } from "./logger"
+
 const debounceEvents = {}
 export function debouncer(eventId: string, event: () => any, debouncer = 100) {
   if (!debounceEvents[eventId]) {
@@ -11,16 +13,14 @@ export function debouncer(eventId: string, event: () => any, debouncer = 100) {
 function applyDebouncer(eventId: string, event: () => any, debouncer: number) {
   debounceEvents[eventId] = true
   debounceEvents[`${eventId}_timer`] = setTimeout(() => {
-    event()
+    try {
+      event()
+    } catch (e) {
+      log(e)
+    }
     debounceEvents[eventId] = undefined
     debounceEvents[`${eventId}_timer`] = undefined
   }, debouncer)
-
-  window.addEventListener('close', () => {
-    try {
-      clearTimeout(debounceEvents[`${eventId}_timer`])
-    } catch (e) { }
-  })
 }
 
 export async function delay(duration) {

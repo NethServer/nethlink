@@ -27,6 +27,9 @@ export function truncate(str: string, maxLength: number) {
   return str.length > maxLength ? str.substring(0, maxLength - 1) + '...' : str
 }
 
+export const getSystemTheme = () => {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 // const [avatarBase64, setAvatarBase64]: any = useState({})
 // const getGravatarImageUrl = (email: string) => {
 //   const hash = MD5(email.toLowerCase().trim())

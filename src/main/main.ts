@@ -1,15 +1,16 @@
-import { app, ipcMain, protocol, systemPreferences } from 'electron'
+import { app, ipcMain, nativeTheme, protocol, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, DevToolsController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
-import { Account } from '@shared/types'
+import { Account, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
 import { resolve } from 'path'
 import { log } from '@shared/utils/logger'
 import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
-import { delay } from '@shared/utils/utils'
+import { debouncer, delay } from '@shared/utils/utils'
+import { IPC_EVENTS } from '@shared/constants'
 
 new AccountController(app)
 
@@ -42,8 +43,6 @@ app.whenReady().then(async () => {
   new TrayController()
 
   //Visualizzo la splashscreen all'avvio dell'applicazione.
-
-  DevToolsController.instance.show()
   SplashScreenController.instance.window.addOnBuildListener(async () => {
     SplashScreenController.instance.show()
     new PhoneIslandController()
@@ -57,11 +56,23 @@ app.whenReady().then(async () => {
     //aspetto che tutte le finestre siano pronte o un max di 2,5 secondi
     let time = 0
     while (windowsLoaded <= 2 && time < 25) {
-      await delay(2500)
+      await delay(100)
       time++
       //log(time, windowsLoaded)
     }
     await getPermissions()
+    //log('call addOnBuildListener ')
+    nativeTheme.on('updated', () => {
+      const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
+        ? 'dark'
+        : 'light'
+      debouncer(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, () => {
+        PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+        NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+        LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+        DevToolsController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+      })
+    })
     //una volta che il caricamento è completo abilito la possibilità di cliccare sull'icona nella tray
     TrayController.instance.enableClick = true
     //TODO: cosa accade se clicco la chiusura dell'app mentre è in caricamento?

@@ -42,10 +42,10 @@ export function Navbar({
   goToNethVoicePage
 }: NavabarProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
+  const theme = useSubscriber<AvailableThemes>('theme')
 
-  function setTheme(theme) {
+  function handleSetTheme(theme) {
     onSelectTheme(theme)
-    //window.electron.ipcRenderer.send('openWindow', 'settings')
   }
 
   return (
@@ -70,13 +70,13 @@ export function Navbar({
               <p className="dark:text-gray-50 text-gray-900 text-xs leading-[18px] py-1 px-4 mt-1">
                 {t('Settings.Theme')}
               </p>
-              {themeOptions.map((theme) => (
-                <Listbox.Option key={theme.id} value={theme}>
+              {themeOptions.map((availableTheme) => (
+                <Listbox.Option key={availableTheme.id} value={availableTheme}>
                   <div
-                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2 ${account.theme === theme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
-                    onClick={() => setTheme(theme.name)}
+                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
+                    onClick={() => handleSetTheme(availableTheme.name)}
                   >
-                    {account.theme === theme.name && (
+                    {theme === availableTheme.name && (
                       <FontAwesomeIcon
                         className="dark:text-blue-500 text-blue-600"
                         style={{ fontSize: '16px' }}
@@ -84,11 +84,11 @@ export function Navbar({
                       />
                     )}
                     <div className="flex items-center gap-2">
-                      <FontAwesomeIcon className="text-base" icon={theme.icon} />
+                      <FontAwesomeIcon className="text-base" icon={availableTheme.icon} />
                       <p className="font-semibold">
-                        {theme.name === 'system'
+                        {availableTheme.name === 'system'
                           ? t('Settings.System')
-                          : theme.name === 'light'
+                          : availableTheme.name === 'light'
                             ? t('Settings.Light')
                             : t('Settings.Dark')}
                       </p>

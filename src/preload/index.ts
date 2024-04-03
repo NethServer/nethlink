@@ -18,6 +18,7 @@ export type SyncPromise<T> = Promise<SyncResponse<T>>
 
 export interface IElectronAPI {
 
+
   // Use `contextBridge` APIs to expose Electron APIs to
   // renderer only if context isolation is enabled, otherwise
   // just add to the DOM global.
@@ -46,6 +47,7 @@ export interface IElectronAPI {
   onStartCall(callback: (number: string | number) => void): void
   onSearchResult(callback: (serachResults: SearchCallData) => void): void
   onSystemThemeChange(callback: (theme: AvailableThemes) => void): void
+  onThemeChange(callback: (theme: AvailableThemes) => void): void
   onOperatorsChange(callback: (updateOperators: OperatorData) => void): void
 
   //EMITTER - only emit, no response
@@ -146,6 +148,7 @@ const api: IElectronAPI = {
   onReceiveLastCalls: addListener(IPC_EVENTS.RECEIVE_HISTORY_CALLS),
   onSearchResult: addListener(IPC_EVENTS.RECEIVE_SEARCH_RESULT),
   onSystemThemeChange: addListener(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME),
+  onThemeChange: addListener(IPC_EVENTS.ON_CHANGE_THEME),
   onOperatorsChange: addListener(IPC_EVENTS.OPERATORS_CHANGE),
 
   addPhoneIslandListener: (event, callback) => {
