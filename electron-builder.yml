@@ -63,6 +63,7 @@ publish:
   provider: github
   private: true
   token: ${env.GH_TOKEN}
+  releaseType: release
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
 protocols:
