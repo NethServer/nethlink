@@ -1,3 +1,6 @@
+import { Size } from "./types"
+import { log } from "./utils/logger"
+
 export enum IPC_EVENTS {
   LOAD_ACCOUNTS = 'LOAD_ACCOUNTS',
   LOGIN = 'LOGIN',
@@ -69,6 +72,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-audio-output-switch' = 'phone-island-call-audio-output-switch',
   'phone-island-call-actions-open' = 'phone-island-call-actions-open',
   'phone-island-call-actions-close' = 'phone-island-call-actions-close',
+  'phone-island-expand' = ' phone-island-expand',
+  'phone-island-compress' = 'phone-island-compress',
   // Dispatch Call Event: phone-island-call-*
   'phone-island-call-ringing' = 'phone-island-call-ringing',
   'phone-island-call-started' = 'phone-island-call-started',
@@ -93,6 +98,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-audio-output-switched' = 'phone-island-call-audio-output-switched',
   'phone-island-call-actions-opened' = 'phone-island-call-actions-opened',
   'phone-island-call-actions-closed' = 'phone-island-call-actions-closed',
+  'phone-island-expanded' = 'phone-island-expanded',
+  'phone-island-compressed' = 'phone-island-compressed',
   // Listen Recording Event: phone-island-recording-*
   'phone-island-recording-open' = 'phone-island-recording-open',
   'phone-island-recording-close' = 'phone-island-recording-close',
@@ -136,14 +143,14 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-socket-reconnected' = 'phone-island-socket-reconnected'
 }
 
-type Size = { w: number; h: number }
-function getSize(sizeA: Size, sizeB?: Size) {
-  return (isCollapsed: boolean = true): Size => {
-    return isCollapsed ? sizeA : sizeB || sizeA
+function getSize(normalSize: Size, collapsedSize?: Size, minimizedSize: Size = { w: 168, h: 40 }) {
+  return (isExpanded: boolean = true, isMinimized: boolean = false): Size => {
+    log(isExpanded, isMinimized, normalSize, collapsedSize, minimizedSize)
+    return isMinimized ? minimizedSize : ((isExpanded ? normalSize : collapsedSize) || normalSize)
   }
 }
 
-export const PHONE_ISLAND_RESIZE = new Map<string, (isCollapsed: boolean) => Size>([
+export const PHONE_ISLAND_RESIZE = new Map<string, (isExpanded: boolean, isMinimized: boolean) => Size>([
   [PHONE_ISLAND_EVENTS['phone-island-call-ringing'], getSize({ w: 420, h: 98 })],
   [PHONE_ISLAND_EVENTS['phone-island-call-started'], getSize({ w: 420, h: 98 })],
   [PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], getSize({ w: 350, h: 306 })],
@@ -152,8 +159,8 @@ export const PHONE_ISLAND_RESIZE = new Map<string, (isCollapsed: boolean) => Siz
     PHONE_ISLAND_EVENTS['phone-island-call-answered'],
     getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
   ],
-  [PHONE_ISLAND_EVENTS['phone-island-call-ended'], getSize({ w: 1, h: 1 })],
-  [PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened'], getSize({ w: 410, h: 452 })],
+  [PHONE_ISLAND_EVENTS['phone-island-call-ended'], getSize({ w: 1, h: 1 }, { w: 1, h: 1 }, { w: 1, h: 1 })],
+  [PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened'], getSize({ w: 410, h: 452 }, undefined, { w: 168, h: 80 })],
   [
     PHONE_ISLAND_EVENTS['phone-island-call-transfer-closed'],
     getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
@@ -166,10 +173,10 @@ export const PHONE_ISLAND_RESIZE = new Map<string, (isCollapsed: boolean) => Siz
     PHONE_ISLAND_EVENTS['phone-island-call-transfered'],
     getSize({ w: 350, h: 310 }, { w: 350, h: 370 })
   ],
-  [PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened'], getSize({ w: 340, h: 442 })],
+  [PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened'], getSize({ w: 340, h: 442 }, undefined, { w: 168, h: 80 })],
   [
     PHONE_ISLAND_EVENTS['phone-island-call-keypad-closed'],
     getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
   ],
-  [PHONE_ISLAND_EVENTS['phone-island-call-parked'], getSize({ w: 1, h: 1 })]
+  [PHONE_ISLAND_EVENTS['phone-island-call-parked'], getSize({ w: 1, h: 1 }, { w: 1, h: 1 }, { w: 1, h: 1 })]
 ])

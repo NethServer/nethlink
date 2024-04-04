@@ -4,13 +4,15 @@ import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account } from '@shared/types'
+import { Account, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { useState, useRef, useMemo, useCallback, createRef } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
-  const isCollapsed = useRef<boolean>(true)
+  const isExpanded = useRef<boolean>(true)
+  const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS>()
+  const isMinimized = useRef<boolean>(false)
   const loadPath = useRef<string | undefined>(undefined)
   const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
 
@@ -21,6 +23,10 @@ export function PhoneIslandPage() {
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
         number
       })
+    })
+
+    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], () => {
+      window.api.logout()
     })
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
       window.addEventListener(event, () => {
@@ -35,12 +41,31 @@ export function PhoneIslandPage() {
             log(event)
             window.api.hidePhoneIsland()
             break
+          case PHONE_ISLAND_EVENTS['phone-island-expanded']:
+            log(lastResizeEvent.current)
+            isMinimized.current = false
+            if (lastResizeEvent.current) {
+              const previouEventSize = getSizeFromResizeEvent(lastResizeEvent.current)
+              if (previouEventSize)
+                window.api.resizePhoneIsland(previouEventSize.w, previouEventSize.h)
+            }
+            break;
+          case PHONE_ISLAND_EVENTS['phone-island-compressed']:
+            isMinimized.current = true;
+            if (lastResizeEvent.current) {
+              const previouEventSize = getSizeFromResizeEvent(lastResizeEvent.current)
+              if (previouEventSize)
+                window.api.resizePhoneIsland(previouEventSize.w, previouEventSize.h)
+            }
+            break
         }
         if (PHONE_ISLAND_RESIZE.has(event)) {
           //log('EVENT RESIZE', event)
-          const size = PHONE_ISLAND_RESIZE.get(event)!(isCollapsed.current)
-          window.api.resizePhoneIsland(size.w, size.h)
+          //sono sicuro di avere l'evento. il controllo l'ho fatto con .has(event)
+
           switch (event) {
+            case PHONE_ISLAND_EVENTS['phone-island-call-actions-opened']: isExpanded.current = false; break
+            case PHONE_ISLAND_EVENTS['phone-island-call-actions-closed']: isExpanded.current = true; break
             case PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened']:
               phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px'); break;
             case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
@@ -48,22 +73,23 @@ export function PhoneIslandPage() {
             default:
               phoneIslandContainer.current?.children[1].setAttribute('style', ''); break;
           }
+          const size = getSizeFromResizeEvent(event)!
+          window.api.resizePhoneIsland(size.w, size.h)
         }
       })
     })
-    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], () => {
-      isCollapsed.current = false
-    })
-    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-actions-closed'], () => {
-      isCollapsed.current = true
-    })
-
-    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], () => {
-      window.api.logout()
-    })
   }, true)
 
-
+  function getSizeFromResizeEvent(event: string): Size | undefined {
+    const resizeEvent = PHONE_ISLAND_RESIZE.get(event)
+    if (resizeEvent) {
+      if (event !== PHONE_ISLAND_EVENTS['phone-island-compressed'])
+        lastResizeEvent.current = event as PHONE_ISLAND_EVENTS
+      const size = resizeEvent(isExpanded.current, isMinimized.current)
+      return size
+    }
+    return undefined
+  }
 
   function updateDataConfig(dataConfig: string | undefined, account: Account) {
     //log('UPDATE DATA CONFIG')

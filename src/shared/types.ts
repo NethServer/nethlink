@@ -319,3 +319,6 @@ export type PageType = {
     isDev?: boolean
   }
 }
+
+
+export type Size = { w: number; h: number }
