@@ -48,11 +48,12 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
       onMouseLeave={() => setShowCreateButton(() => false)}
     >
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
+        { }
         <Avatar
           size="extra_small"
-          src={operators?.avatars?.[call.cnam!]}
+          src={operators?.avatars?.[operators?.extensions[call.src || '']?.username]}
           placeholder={PlaceholderIcon}
-          status={operators?.operators?.[call.cnam!]?.mainPresence || 'offline'}
+          status={operators?.operators?.[operators?.extensions[call.src || '']?.username]?.mainPresence || undefined}
         />
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">

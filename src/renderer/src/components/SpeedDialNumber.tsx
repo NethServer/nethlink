@@ -34,10 +34,11 @@ export function SpeedDialNumber({
   return (
     <div className="relative flex flex-row justify-between items-center font-semibold min-h-[44px]">
       <div className="flex gap-6 items-center">
+        { }
         <Avatar
           size="base"
-          src={operators?.avatars?.[speedDial.name ?? '']}
-          status={operators?.operators?.[speedDial.name ?? '']?.mainPresence || 'offline'}
+          src={operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]}
+          status={operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username]?.mainPresence || undefined}
           className="z-0"
           placeholder={PlaceholderIcon}
         />

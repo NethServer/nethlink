@@ -98,7 +98,11 @@ export function NethLinkPage() {
         //   operatorsRef.current.operators[username].mainPresence,
         //   operator.mainPresence
         // )
-        operatorsRef.current.operators[username].mainPresence = operator.mainPresence
+        if (!operatorsRef.current.operators[username]) {
+          operatorsRef.current.operators[username] = operator
+        } else {
+          operatorsRef.current.operators[username].mainPresence = operator.mainPresence
+        }
       }
       log('change operators', operatorsRef.current, op)
       debouncer('onMainPresence', () => setOperators(operatorsRef.current))
