@@ -58,13 +58,16 @@ export function LoginPage() {
     setLoginError(undefined)
     if (data.host.charAt(data.host.length - 1) === '/') data.host = data.host.slice(0, data.host.length - 1)
     const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
-    log(data, returnValue, err)
-    if (err!.message === 'Unauthorized')
-      setLoginError(new Error(t('Login.Wrong username or password')!))
-    else
-      setLoginError(err)
-    !err && setSelectedAccount(undefined)
     setIsLoading(false)
+    log(data, returnValue, err)
+    if (err) {
+      if (err.message === 'Unauthorized')
+        setLoginError(new Error(t('Login.Wrong username or password')!))
+      else
+        setLoginError(err)
+    } else {
+      setSelectedAccount(undefined)
+    }
   }
 
   const {

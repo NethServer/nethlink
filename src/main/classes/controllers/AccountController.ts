@@ -83,9 +83,9 @@ export class AccountController {
     const api = new NethVoiceAPI(account!.host, account)
     this._saveNewAccountData(undefined, false)
     api.Authentication.logout()
-      // .then(() => {
-      //   console.log(`${account!.username} logout succesfully`)
-      // })
+      .then(() => {
+        log(`${account!.username} logout succesfully`)
+      })
       .catch((e) => {
         console.error(e)
       })

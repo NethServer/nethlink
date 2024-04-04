@@ -90,7 +90,7 @@ export class NethVoiceAPI {
                 const me = await this.User.me()
                 const nethlinkExtension = me!.data!.endpoints.extension.find((el) => el.type === 'nethlink')
                 if (!nethlinkExtension)
-                  reject("Questo utente non è abilitato all'uso del NethLink")
+                  reject(new Error("Questo utente non è abilitato all'uso del NethLink"))
                 else {
                   //importo il file config di questo host per prelevare le informazioni su SIP_host e port solo se sono su demo-leopard devo prenderli statici
                   let SIP_HOST = '127.0.0.1'

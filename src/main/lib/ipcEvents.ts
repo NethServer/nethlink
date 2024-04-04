@@ -45,7 +45,7 @@ export function registerIpcEvents() {
       username,
       theme: 'system'
     }
-    await AccountController.instance.login(tempAccount, password)
+    return await AccountController.instance.login(tempAccount, password)
   })
 
   onSyncEmitter(IPC_EVENTS.ADD_CONTACT_PHONEBOOK, (contact) =>
