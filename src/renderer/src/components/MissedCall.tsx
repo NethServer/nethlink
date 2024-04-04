@@ -4,11 +4,12 @@ import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
 import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CallData, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from './Nethesis/CallsDate'
 import { truncate } from '@renderer/utils'
+import { log } from '@shared/utils/logger'
 
 export interface MissedCallProps {
   call: CallData
@@ -25,6 +26,10 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
     return call?.dst_cnam || call?.dst_ccompany || `${t('Common.Unknown')}`
   }
 
+  function getCallExt(call: CallData): string {
+    if (call.direction === 'in') return call.src || ''
+    return call.dst || ''
+  }
   function getOperatorByPhoneNumber(phoneNumber: string, operators: any) {
     return Object.values(operators).find((extensions: any) => extensions.id === phoneNumber)
   }
@@ -51,9 +56,9 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
         { }
         <Avatar
           size="extra_small"
-          src={operators?.avatars?.[operators?.extensions[call.src || '']?.username]}
+          src={operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]}
           placeholder={PlaceholderIcon}
-          status={operators?.operators?.[operators?.extensions[call.src || '']?.username]?.mainPresence || undefined}
+          status={operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]?.mainPresence || undefined}
         />
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
@@ -61,7 +66,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
         <div className="flex flex-row gap-2 items-center">
           <MissedCallIcon />
           <NumberCaller
-            number={call.cnum!}
+            number={getCallExt(call)}
             className="dark:text-blue-500 text-blue-600 font-normal"
           >
             {call.cnum}
@@ -78,9 +83,10 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
           <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
             <FontAwesomeIcon icon={BadgeIcon} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
             <p className="text-[12x] leading-[18px]">
-              {queues[call.queue!]?.name
-                ? queues[call.queue!]?.name + ' ' + call?.queue
-                : t('QueueManager.Queue')}
+
+              {queues?.[call.queue!]?.name
+                ? queues?.[call.queue!]?.name + ' ' + call.queue
+                : `${t('QueueManager.Queue')} [${call.queue}]`}
             </p>
           </div>
         )}

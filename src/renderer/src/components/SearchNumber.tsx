@@ -43,9 +43,9 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
     return parts
   }
 
-  const highlightedNumber = highlightMatch('', searchText)
 
-  const phoneNumber = user.workphone || user.cellphone
+  const phoneNumber = user.workphone || user.cellphone || user.extension
+  const highlightedNumber = highlightMatch(phoneNumber, searchText)
 
   const username = getUsernameFromPhoneNumber(phoneNumber)
   const avatarSrc = operators?.avatars?.[username]
@@ -56,7 +56,7 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
         <Avatar
           size="small"
           src={avatarSrc}
-          status={operators?.operators?.[username]?.mainPresence || 'offline'}
+          status={operators?.operators?.[username]?.mainPresence || undefined}
           placeholder={!avatarSrc ? PlaceholderIcon : undefined}
           bordered={true}
         />
