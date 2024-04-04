@@ -121,7 +121,15 @@ export function registerIpcEvents() {
       const evName = `on-${ev}`
       log('send back', evName, ...args)
       NethLinkController.instance.window.emit(evName, ...args)
-      // if (ev === PHONE_ISLAND_EVENTS['phone-island-conversations']) {
+      switch (ev) {
+        case PHONE_ISLAND_EVENTS['phone-island-call-answered']:
+        case PHONE_ISLAND_EVENTS['phone-island-call-started']:
+          const account = AccountController.instance.getLoggedAccount()
+          const nethlinkExtension = account!.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+          NethVoiceAPI.instance.User.heartbeat(`${nethlinkExtension!.id}`)
+          break;
+      }
+      // if (ev === PHONE_ISLAND_EVENTS['phone-island-call-answered']) {
       //   const username = AccountController.instance.getLoggedAccount()?.username
       //   if (username) {
       //     log(Object.keys(args[0]?.[username]?.conversations || {}).length > 0)

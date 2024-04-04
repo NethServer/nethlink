@@ -59,8 +59,7 @@ export function LoginPage() {
     const hostReg = /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
     const res = hostReg.exec(data.host)
     if (res) {
-      const protocol = res[1]
-      const host = `${protocol || 'https://'}${res[2]}`
+      const host = `${'https://'}${res[2]}`
       const [returnValue, err] = await window.api.login(host, data.username, data.password)
       setIsLoading(false)
       log(data, returnValue, err)

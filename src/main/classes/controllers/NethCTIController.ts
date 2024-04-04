@@ -256,7 +256,8 @@ export class NethVoiceAPI {
     },
     all: async () => await this._GET('/webrest/user/all'),
     all_avatars: async () => await this._GET('/webrest/user/all_avatars'),
-    all_endpoints: async () => await this._GET('/webrest/user/endpoints/all')
+    all_endpoints: async () => await this._GET('/webrest/user/endpoints/all'),
+    heartbeat: async (extension: string) => await this._POST('/webrest/user/nethlink', { extension })
 
     //all_avatars: () => this._GET('/webrest/user/all_avatars'),
   }
