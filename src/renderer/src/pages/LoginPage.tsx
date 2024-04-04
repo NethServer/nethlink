@@ -56,17 +56,27 @@ export function LoginPage() {
 
   async function handleLogin(data: LoginData) {
     setLoginError(undefined)
-    if (data.host.charAt(data.host.length - 1) === '/') data.host = data.host.slice(0, data.host.length - 1)
-    const [returnValue, err] = await window.api.login(data.host, data.username, data.password)
-    setIsLoading(false)
-    log(data, returnValue, err)
-    if (err) {
-      if (err.message === 'Unauthorized')
-        setLoginError(new Error(t('Login.Wrong username or password')!))
-      else
-        setLoginError(err)
+    const hostReg = /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
+    const res = hostReg.exec(data.host)
+    if (res) {
+      const protocol = res[1]
+      const host = `${protocol || 'https://'}${res[2]}`
+      const [returnValue, err] = await window.api.login(host, data.username, data.password)
+      setIsLoading(false)
+      log(data, returnValue, err)
+      if (err) {
+        if (err.message === 'Unauthorized')
+          setLoginError(new Error(t('Login.Wrong host or username or password')!))
+        else
+          setLoginError(err)
+        setValue('host', data.host)
+        setValue('username', data.username)
+        setValue('password', data.password)
+      } else {
+        setSelectedAccount(undefined)
+      }
     } else {
-      setSelectedAccount(undefined)
+      setLoginError(new Error(t('Login.Wrong host or username or password')!))
     }
   }
 
