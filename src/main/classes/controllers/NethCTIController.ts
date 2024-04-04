@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import moment from 'moment'
 import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType } from '@shared/types'
 import { log } from '@shared/utils/logger'
+import { NetworkController } from './NetworkController'
 
 export class NethVoiceAPI {
   _host: string
@@ -45,7 +46,7 @@ export class NethVoiceAPI {
 
   async _GET(path: string, unauthorized = false): Promise<any> {
     try {
-      return (await axios.get(this._joinUrl(path), this._getHeaders(unauthorized))).data
+      return (await NetworkController.instance.get(this._joinUrl(path), this._getHeaders(unauthorized)))
     } catch (e) {
       console.error(e)
       throw e
@@ -54,7 +55,7 @@ export class NethVoiceAPI {
 
   async _POST(path: string, data?: object, unauthorized = false): Promise<any> {
     try {
-      return (await axios.post(this._joinUrl(path), data, this._getHeaders(unauthorized))).data
+      return (await NetworkController.instance.post(this._joinUrl(path), data, this._getHeaders(unauthorized)))
     } catch (e) {
       console.error(e)
       throw e

@@ -30,7 +30,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Nethesis'
-import avatar from '../assets/TrayLogo.png'
+import NotificationIcon from '../assets/TrayLogo.png'
 import { SpeedDialFormBox } from '@renderer/components/SpeedDialFormBox'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
@@ -295,7 +295,7 @@ export function NethLinkPage() {
   function sendNotification(title: string, body: string) {
     new Notification(title, {
       body,
-      icon: avatar
+      icon: NotificationIcon
     })
   }
 

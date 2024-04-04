@@ -1,5 +1,5 @@
 import { is } from '@electron-toolkit/utils'
-import { BrowserWindow, ipcMain, nativeTheme } from 'electron'
+import { BrowserWindow, app, ipcMain, nativeTheme } from 'electron'
 import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
@@ -33,6 +33,10 @@ export function createWindow(
       contextIsolation: false,
       nodeIntegration: true
     }
+  })
+  params = ({
+    appVersion: app.getVersion(),
+    ...params
   })
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     const propsUrl = params

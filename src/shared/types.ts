@@ -316,7 +316,7 @@ export type QueuesType = {
 export type PageType = {
   query: string
   props: {
-    isDev?: boolean
+    appVersion?: string
   }
 }
 

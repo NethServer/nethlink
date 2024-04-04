@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme, protocol, systemPreferences } from 'electron'
+import { Notification, app, nativeTheme, protocol, shell, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, DevToolsController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -11,7 +11,9 @@ import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
 import { debouncer, delay } from '@shared/utils/utils'
 import { IPC_EVENTS } from '@shared/constants'
+import { NetworkController } from './classes/controllers/NetworkController'
 
+new NetworkController()
 new AccountController(app)
 
 //registro tutti gli eventi che la parte frontend emette verso il backend
@@ -61,6 +63,19 @@ app.whenReady().then(async () => {
       //log(time, windowsLoaded)
     }
     await getPermissions()
+    const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
+    if (latestVersionData.name !== app.getVersion()) {
+      const updateLink = `https://github.com/nethesis/nethlink/releases/tag/v${latestVersionData.name}`
+      const notification = new Notification({
+        title: "Aggiornamento dell'applicazione disponibile",
+        body: `Clicca quì per aprire la pagina dove potrai scaricare la nuova release`
+      })
+      notification.show()
+      notification.addListener('click', (e) => {
+        log(e)
+        shell.openExternal(updateLink)
+      })
+    }
     //log('call addOnBuildListener ')
     nativeTheme.on('updated', () => {
       const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
@@ -207,3 +222,4 @@ async function getPermissions() {
     )
   }
 }
+
