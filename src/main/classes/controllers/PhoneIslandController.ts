@@ -5,6 +5,7 @@ import { log } from '@shared/utils/logger'
 import { NethVoiceAPI } from './NethCTIController'
 import { AccountController } from './AccountController'
 import { screen } from 'electron'
+import { debouncer } from '@shared/utils/utils'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -52,29 +53,33 @@ export class PhoneIslandController {
   }
 
   showPhoneIsland() {
-    const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
-    const window = this.window.getWindow()
+    try {
+      const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
+      const window = this.window.getWindow()
 
-    if (phoneIslandPosition) {
-      const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
-        const area = display.workArea
-        return (
-          result ||
-          (phoneIslandPosition.x >= area.x &&
-            phoneIslandPosition.y >= area.y &&
-            phoneIslandPosition.x + 420 < area.x + area.width &&
-            phoneIslandPosition.y + 98 < area.y + area.height)
-        )
-      }, false)
-      if (isPhoneIslandOnDisplay) {
-        window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
+      if (phoneIslandPosition) {
+        const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
+          const area = display.workArea
+          return (
+            result ||
+            (phoneIslandPosition.x >= area.x &&
+              phoneIslandPosition.y >= area.y &&
+              phoneIslandPosition.x + 420 < area.x + area.width &&
+              phoneIslandPosition.y + 98 < area.y + area.height)
+          )
+        }, false)
+        if (isPhoneIslandOnDisplay) {
+          window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
+        } else {
+          window?.center()
+        }
       } else {
         window?.center()
       }
-    } else {
-      window?.center()
+      window?.show()
+    } catch (e) {
+      log(e)
     }
-    window?.show()
   }
 
   hidePhoneIsland() {
@@ -86,9 +91,7 @@ export class PhoneIslandController {
         y: phoneIslandBounds.y
       })
     }
-    setTimeout(() => {
-      window?.hide()
-    }, 250)
+    debouncer('hide', () => window?.hide(), 250)
   }
 
   call(number: string) {

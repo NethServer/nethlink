@@ -1,14 +1,20 @@
 appId: 'com.nethesis.nethlink.app'
 productName: 'Nethlink'
 copyright: 'prova copyright'
+electronLanguages:
+  - it
+  - en-US
 directories:
   buildResources: build
 files:
   - '!**/.vscode/*'
+  - '!**/.github/*'
+  - '!**/.yarn/*'
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
-  - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
-  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  - '!{.editorconfig,.eslintignore,.eslintrc.cjs,.gitignore,.prettierignore,.prettierrc.yaml,dev-app-update.yml,postcss.config.js,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,*.env,.npmrc,.yarnrc.yml,pnpm-lock.yaml}'
+  - '!{tailwind.config.js}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - public/**
