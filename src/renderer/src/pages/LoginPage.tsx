@@ -40,7 +40,7 @@ export function LoginPage() {
       setTimeout(() => {
         log(loginWindowRef.current?.clientHeight)
         windowHeight.current = loginWindowRef.current?.clientHeight || 0
-      }, 250);
+      }, 250)
     })
   }, true)
 
@@ -56,7 +56,8 @@ export function LoginPage() {
 
   async function handleLogin(data: LoginData) {
     setLoginError(undefined)
-    const hostReg = /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
+    const hostReg =
+      /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
     const res = hostReg.exec(data.host)
     if (res) {
       const host = `${'https://'}${res[2]}`
@@ -66,8 +67,7 @@ export function LoginPage() {
       if (err) {
         if (err.message === 'Unauthorized')
           setLoginError(new Error(t('Login.Wrong host or username or password')!))
-        else
-          setLoginError(err)
+        else setLoginError(err)
         setValue('host', data.host)
         setValue('username', data.username)
         setValue('password', data.password)
@@ -135,21 +135,27 @@ export function LoginPage() {
 
   const RenderError = () => {
     loginError && resizeThisWindow(windowHeight.current)
-    return !!loginError && <div className='relative top-4 flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md'>
-      <div className='flex flex-row items-center gap-2 '>
-        <FontAwesomeIcon icon={ErrorIcon} className='' />
-        <p>{t('Login.Login failed')}</p>
-      </div>
-      <p className='pl-6'>
-        {loginError?.message}
-      </p>
-    </div>
+    return (
+      !!loginError && (
+        <div className="relative top-4 flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md">
+          <div className="flex flex-row items-center gap-2 ">
+            <FontAwesomeIcon icon={ErrorIcon} className="" />
+            <p>{t('Login.Login failed')}</p>
+          </div>
+          <p className="pl-6">{loginError?.message}</p>
+        </div>
+      )
+    )
   }
 
   const newAccountForm: ReactNode = (
     <div className="mt-7">
-      <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">{t('Login.New Account title')}</p>
-      <p className="text-gray-900 dark:text-gray-100 text-md mb-8">{t('Login.New Account description')}</p>
+      <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">
+        {t('Login.New Account title')}
+      </p>
+      <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
+        {t('Login.New Account description')}
+      </p>
       <div className="flex flex-col grow gap-7">
         <TextInput
           {...register('host')}
@@ -171,6 +177,7 @@ export function LoginPage() {
           icon={pwdVisible ? EyeIcon : EyeSlashIcon}
           onIconClick={() => setPwdVisible(!pwdVisible)}
           trailingIcon={true}
+          iconColor="text-gray-50"
         />
         <button
           type="submit"
@@ -184,7 +191,10 @@ export function LoginPage() {
   )
 
   return (
-    <div className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px]" ref={loginWindowRef}>
+    <div
+      className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px]"
+      ref={loginWindowRef}
+    >
       <div className={classNames('h-full w-full', isLoading ? 'brightness-50' : '')}>
         <div className="flex flex-row justify-between items-end">
           <img src={header}></img>
@@ -240,6 +250,7 @@ export function LoginPage() {
                           icon={pwdVisible ? EyeIcon : EyeSlashIcon}
                           onIconClick={() => setPwdVisible(!pwdVisible)}
                           trailingIcon={true}
+                          iconColor="text-gray-50"
                         />
                         <button
                           type="submit"

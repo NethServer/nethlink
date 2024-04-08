@@ -30,6 +30,7 @@ export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'c
   placeholder?: string
   icon?: IconDefinition | CommonIconDefinition
   trailingIcon?: boolean
+  iconColor?: string
   error?: boolean
   helper?: string
   size?: 'base' | 'large'
@@ -45,6 +46,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       placeholder,
       icon: Icon,
       trailingIcon,
+      iconColor = 'text-gray-400 dark:text-gray-500',
       type = 'text',
       error,
       helper,
@@ -79,7 +81,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 icon={Icon}
                 className={classNames(
                   size === 'large' ? theme.icon.size.large : theme.icon.size.base,
-                  error ? theme.icon.red : theme.icon.gray,
+                  error ? theme.icon.red : iconColor,
                   onIconClick && 'cursor-pointer'
                 )}
                 onClick={() => onIconClick && onIconClick()}
