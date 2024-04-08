@@ -44,9 +44,9 @@ export function NethLinkPage() {
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
-      number?: string
-      company?: string
-    }
+        number?: string
+        company?: string
+      }
     | undefined
   >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
@@ -71,8 +71,6 @@ export function NethLinkPage() {
   }, [search])
 
   /* Problema con il tema del sistema se cambio il tema del sistema non viene effettutato  */
-
-
 
   function initialize() {
     window.api.addPhoneIslandListener(
@@ -307,8 +305,7 @@ export function NethLinkPage() {
             className={`flex flex-col  min-w-[400px] min-h-[380px] h-full items-center justify-between`}
           >
             <div
-              className={`flex flex-row ${navigator.userAgent.includes('Windows') ? 'justify-end' : 'justify-start'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-200  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
-
+              className={`flex flex-row ${navigator.userAgent.includes('Windows') ? 'justify-end' : 'justify-start'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
             >
               <FontAwesomeIcon
                 className={`text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 `}
