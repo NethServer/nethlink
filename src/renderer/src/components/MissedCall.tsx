@@ -53,12 +53,15 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
       onMouseLeave={() => setShowCreateButton(() => false)}
     >
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
-        { }
+        {}
         <Avatar
           size="extra_small"
           src={operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]}
           placeholder={PlaceholderIcon}
-          status={operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]?.mainPresence || undefined}
+          status={
+            operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
+              ?.mainPresence || undefined
+          }
         />
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
@@ -67,7 +70,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
           <MissedCallIcon />
           <NumberCaller
             number={getCallExt(call)}
-            className="dark:text-blue-500 text-blue-600 font-normal"
+            className="dark:text-blue-500 text-blue-600 font-normal underline"
           >
             {call.cnum}
           </NumberCaller>
@@ -83,7 +86,6 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
           <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
             <FontAwesomeIcon icon={BadgeIcon} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
             <p className="text-[12x] leading-[18px]">
-
               {queues?.[call.queue!]?.name
                 ? queues?.[call.queue!]?.name + ' ' + call.queue
                 : `${t('QueueManager.Queue')} [${call.queue}]`}
