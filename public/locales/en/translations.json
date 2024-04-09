@@ -74,13 +74,15 @@
     "User not autorized": "User not autorized",
     "Contact administrator for access": "Contact administrator for access",
     "Wrong username or password": "Wrong username or password",
+    "Wrong host or username or password": "Wrong host or username or password",
     "Network connection is lost": "Network connection is lost",
     "Login failed": "Login failed",
     "Use Another Account": "Use another account",
     "New Account title": "Welcome",
     "New Account description": "Sign in to Nethconnector with your Nethvoice CTI username and password.",
     "Account List title": "Account list",
-    "Account List description": "Choose an account to continue to Nethconnector."
+    "Account List description": "Choose an account to continue to Nethconnector.",
+    "Back": "Back"
   },
   "SplashScreen": {
     "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",

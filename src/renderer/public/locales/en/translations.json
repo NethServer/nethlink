@@ -81,7 +81,8 @@
     "New Account title": "Welcome",
     "New Account description": "Sign in to Nethconnector with your Nethvoice CTI username and password.",
     "Account List title": "Account list",
-    "Account List description": "Choose an account to continue to Nethconnector."
+    "Account List description": "Choose an account to continue to Nethconnector.",
+    "Back": "Back"
   },
   "SplashScreen": {
     "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",
