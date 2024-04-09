@@ -44,9 +44,9 @@ export function NethLinkPage() {
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
-      number?: string
-      company?: string
-    }
+        number?: string
+        company?: string
+      }
     | undefined
   >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
@@ -71,8 +71,6 @@ export function NethLinkPage() {
   }, [search])
 
   /* Problema con il tema del sistema se cambio il tema del sistema non viene effettutato  */
-
-
 
   function initialize() {
     window.api.addPhoneIslandListener(
@@ -268,12 +266,12 @@ export function NethLinkPage() {
   }
 
   function handleDeleteSpeedDial(deleteSpeeddial: ContactType) {
-    setSelectedSpeedDial(deleteSpeeddial)
+    setSelectedSpeedDial(() => deleteSpeeddial)
     setShowDeleteModal(true)
   }
 
   async function confirmDeleteSpeedDial(deleteSpeeddial: ContactType) {
-    const [eliminatedSpeedDial, err] = await window.api.deleteSpeedDial(deleteSpeeddial)
+    const [_, err] = await window.api.deleteSpeedDial(deleteSpeeddial)
     if (err) {
       sendNotification(
         t('Notification.speeddial_not_deleted_title'),
@@ -281,9 +279,10 @@ export function NethLinkPage() {
       )
       throw err
     }
-    setSpeeddials(() =>
-      speeddials.filter((speeddial) => speeddial.id?.toString() !== eliminatedSpeedDial)
+    const newSpeedDials = speeddials.filter(
+      (speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString()
     )
+    setSpeeddials(() => newSpeedDials)
     setSelectedSpeedDial(undefined)
     setShowDeleteModal(false)
     sendNotification(
@@ -308,7 +307,6 @@ export function NethLinkPage() {
           >
             <div
               className={`flex flex-row ${navigator.userAgent.includes('Windows') ? 'justify-end' : 'justify-start'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-200  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
-
             >
               <FontAwesomeIcon
                 className={`text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 `}
