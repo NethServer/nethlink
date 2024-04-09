@@ -305,22 +305,18 @@ export function NethLinkPage() {
             className={`flex flex-col  min-w-[400px] min-h-[380px] h-full items-center justify-between`}
           >
             <div
-              className={`flex flex-row ${navigator.userAgent.includes('Windows') ? 'justify-end' : 'justify-start'} w-full bg-gray-200 dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
+              className={`flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-200  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
             >
-              <div
-                className={`flex flex-row items-center pr-4 pl-2 pb-[18px] pt-[8px] gap-1 ${!navigator.userAgent.includes('Windows') ? `flex-row-reverse` : ``}`}
-              >
-                <FontAwesomeIcon
-                  className={`text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 `}
-                  icon={MinimizeIcon}
-                  onClick={hideNethLink}
-                />
-                <FontAwesomeIcon
-                  className={`text-red-500 hover:text-red-400 cursor-pointer ml-2`}
-                  icon={ExiteIcon}
-                  onClick={exitNethLink}
-                />
-              </div>
+              <FontAwesomeIcon
+                className={`text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 `}
+                icon={MinimizeIcon}
+                onClick={hideNethLink}
+              />
+              <FontAwesomeIcon
+                className={`text-red-500 hover:text-red-400 cursor-pointer ml-2`}
+                icon={ExiteIcon}
+                onClick={exitNethLink}
+              />
             </div>
             <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-gray-900 bg-gray-50 w-full">
               <div className="flex flex-col gap-4 w-full">
