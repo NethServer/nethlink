@@ -17,6 +17,7 @@ import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogi
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
+import { Button } from '@renderer/components/Nethesis'
 
 type LoginData = {
   host: string
@@ -40,7 +41,7 @@ export function LoginPage() {
       setTimeout(() => {
         log(loginWindowRef.current?.clientHeight)
         windowHeight.current = loginWindowRef.current?.clientHeight || 0
-      }, 250);
+      }, 250)
     })
   }, true)
 
@@ -56,7 +57,8 @@ export function LoginPage() {
 
   async function handleLogin(data: LoginData) {
     setLoginError(undefined)
-    const hostReg = /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
+    const hostReg =
+      /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
     const res = hostReg.exec(data.host)
     if (res) {
       const host = `${'https://'}${res[2]}`
@@ -66,8 +68,7 @@ export function LoginPage() {
       if (err) {
         if (err.message === 'Unauthorized')
           setLoginError(new Error(t('Login.Wrong host or username or password')!))
-        else
-          setLoginError(err)
+        else setLoginError(err)
         setValue('host', data.host)
         setValue('username', data.username)
         setValue('password', data.password)
@@ -110,11 +111,11 @@ export function LoginPage() {
   useEffect(() => {
     if (selectedAccount) {
       if (selectedAccount === 'New Account') {
-        resizeThisWindow(570)
+        resizeThisWindow(650)
         reset()
         focus('host')
       } else {
-        resizeThisWindow(445)
+        resizeThisWindow(525)
         reset()
         setValue('host', selectedAccount.host)
         setValue('username', selectedAccount.username)
@@ -135,21 +136,27 @@ export function LoginPage() {
 
   const RenderError = () => {
     loginError && resizeThisWindow(windowHeight.current)
-    return !!loginError && <div className='relative top-4 flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md'>
-      <div className='flex flex-row items-center gap-2 '>
-        <FontAwesomeIcon icon={ErrorIcon} className='' />
-        <p>{t('Login.Login failed')}</p>
-      </div>
-      <p className='pl-6'>
-        {loginError?.message}
-      </p>
-    </div>
+    return (
+      !!loginError && (
+        <div className="relative top-4 flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md">
+          <div className="flex flex-row items-center gap-2 ">
+            <FontAwesomeIcon icon={ErrorIcon} className="" />
+            <p>{t('Login.Login failed')}</p>
+          </div>
+          <p className="pl-6">{loginError?.message}</p>
+        </div>
+      )
+    )
   }
 
   const newAccountForm: ReactNode = (
     <div className="mt-7">
-      <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">{t('Login.New Account title')}</p>
-      <p className="text-gray-900 dark:text-gray-100 text-md mb-8">{t('Login.New Account description')}</p>
+      <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">
+        {t('Login.New Account title')}
+      </p>
+      <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
+        {t('Login.New Account description')}
+      </p>
       <div className="flex flex-col grow gap-7">
         <TextInput
           {...register('host')}
@@ -184,23 +191,38 @@ export function LoginPage() {
   )
 
   return (
-    <div className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px]" ref={loginWindowRef}>
+    <div
+      className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px]"
+      ref={loginWindowRef}
+    >
       <div className={classNames('h-full w-full', isLoading ? 'brightness-50' : '')}>
         <div className="flex flex-row justify-between items-end">
           <img src={header}></img>
-          {displayedAccounts.length > 0 && selectedAccount && (
+          {/* {displayedAccounts.length > 0 && selectedAccount && (
             <FontAwesomeIcon
               icon={ArrowIcon}
               className="h-5 w-5 dark:text-gray-50 ml-12 cursor-pointer"
               onClick={goBack}
             />
-          )}
+          )} */}
           <FontAwesomeIcon
             icon={CrossIcon}
             className="h-5 w-5 dark:text-gray-50 cursor-pointer"
             onClick={() => hideLoginWindow()}
           />
         </div>
+        {displayedAccounts.length > 0 && selectedAccount && (
+          <Button
+            className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0 mt-10 dark:hover:bg-gray-700 hover:bg-gray-200"
+            onClick={goBack}
+          >
+            <FontAwesomeIcon
+              icon={ArrowIcon}
+              className="h-5 w-5 cursor-pointer dark:text-blue-500 text-blue-600"
+            />
+            <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Login.Back')}</p>
+          </Button>
+        )}
         <form
           onSubmit={async (e) => {
             setLoginError(undefined)
