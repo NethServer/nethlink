@@ -65,7 +65,7 @@
   "Login": {
     "Welcome": "Welcome",
     "User": "User",
-    "Host": "Nethvoice CTI host",
+    "Host": "NethVoice CTI host",
     "Username": "Username",
     "Password": "Password",
     "Sign in": "Sign in",
@@ -74,13 +74,14 @@
     "User not autorized": "User not autorized",
     "Contact administrator for access": "Contact administrator for access",
     "Wrong username or password": "Wrong username or password",
+    "Wrong host or username or password": "Wrong host or username or password",
     "Network connection is lost": "Network connection is lost",
     "Login failed": "Login failed",
     "Use Another Account": "Use another account",
     "New Account title": "Welcome",
-    "New Account description": "Sign in to Nethconnector with your Nethvoice CTI username and password.",
+    "New Account description": "Sign in to NethLink with your NethVoice CTI username and password.",
     "Account List title": "Account list",
-    "Account List description": "Choose an account to continue to Nethconnector."
+    "Account List description": "Choose an account to continue to NethLink."
   },
   "SplashScreen": {
     "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",
@@ -316,7 +317,7 @@
     "Main device": "Main device",
     "Voicemail": "Voicemail",
     "Activate voicemail": "Activate voicemail",
-    "Go to Nethvoice CTI": "Go to Nethvoice CTI"
+    "Go to NethVoice CTI": "Go to NethVoice CTI"
   },
   "OperatorDrawer": {
     "Book": "Book",
