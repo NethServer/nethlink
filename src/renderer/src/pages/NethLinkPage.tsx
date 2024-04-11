@@ -300,7 +300,7 @@ export function NethLinkPage() {
   return (
     <div className="h-[100vh] w-[100vw] overflow-hidden">
       {account && (
-        <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-Poppins text-sm dark:text-gray-200 text-gray-900">
+        <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm dark:text-gray-200 text-gray-900">
           <div
             className={`flex flex-col  min-w-[400px] min-h-[380px] h-full items-center justify-between`}
           >

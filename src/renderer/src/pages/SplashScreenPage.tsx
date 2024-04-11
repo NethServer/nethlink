@@ -11,7 +11,7 @@ export function SplashScreenPage() {
   useInitialize(() => {}, true)
 
   return (
-    <div className="h-[100vh] w-[100vw] p-1 rounded-[10px] font-Poppins">
+    <div className="h-[100vh] w-[100vw] p-1 rounded-[10px]">
       <img
         src={background}
         draggable={false}

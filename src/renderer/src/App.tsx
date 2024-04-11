@@ -1,11 +1,6 @@
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
-import {
-  LoginPage,
-  PhoneIslandPage,
-  SplashScreenPage,
-  NethLinkPage
-} from '@/pages'
+import { LoginPage, PhoneIslandPage, SplashScreenPage, NethLinkPage } from '@/pages'
 import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
 import { useEffect, useState } from 'react'
@@ -17,9 +12,8 @@ import { DevToolsPage } from './pages/DevToolsPage'
 import { getSystemTheme } from './utils'
 
 function Layout({ theme }: { theme?: AvailableThemes }) {
-
   return (
-    <div className={theme}>
+    <div className={`${theme} font-Poppins`}>
       <Outlet />
     </div>
   )
@@ -37,14 +31,17 @@ export default function App() {
     log('search', location.search)
     loadI18n()
     const query = location.search || location.hash
-    const props = query.split('?')[1]?.split('&')?.reduce<any>((p, c) => {
-      const [k, v] = c.split('=')
-      return {
-        ...p,
-        [k]: v
-      }
-    }, {}) || {}
-
+    const props =
+      query
+        .split('?')[1]
+        ?.split('&')
+        ?.reduce<any>((p, c) => {
+          const [k, v] = c.split('=')
+          return {
+            ...p,
+            [k]: v
+          }
+        }, {}) || {}
 
     setPage({
       query,
@@ -58,7 +55,7 @@ export default function App() {
 
   useEffect(() => {
     setClassNameTheme((_) => {
-      return theme === 'system' ? getSystemTheme() : (theme || 'dark')
+      return theme === 'system' ? getSystemTheme() : theme || 'dark'
     })
   }, [theme])
 
@@ -74,8 +71,7 @@ export default function App() {
   const updateTheme = (theme: AvailableThemes) => {
     log('FROM WINDOW', theme, accountRef.current)
     setTheme(theme)
-    if (accountRef.current)
-      accountRef.current!.theme = theme
+    if (accountRef.current) accountRef.current!.theme = theme
   }
 
   const updateSystemTheme = (theme: AvailableThemes) => {
@@ -133,7 +129,5 @@ export default function App() {
     }
   ])
 
-  return (
-    <RouterProvider router={router} />
-  )
+  return <RouterProvider router={router} />
 }
