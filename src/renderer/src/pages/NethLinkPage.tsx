@@ -370,7 +370,7 @@ export function NethLinkPage() {
                       </div>
                     ) : null}
                     {selectedMissedCall ? (
-                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full rounded-bl-md">
+                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full rounded-bl-lg">
                         <AddToPhonebookBox
                           searchText={search}
                           selectedNumber={selectedMissedCall.number}
