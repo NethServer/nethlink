@@ -139,7 +139,7 @@ export function Navbar({
                   onClick={goToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={GoToNethVoiceIcon} />
-                  <p className="font-semibold inline">{t('TopBar.Go to Nethvoice CTI')}</p>
+                  <p className="font-semibold inline">{t('TopBar.Go to NethVoice CTI')}</p>
                 </div>
               </Menu.Item>
               <Menu.Item>
