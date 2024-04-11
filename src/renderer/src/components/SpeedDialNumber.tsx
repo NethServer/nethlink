@@ -30,16 +30,16 @@ export function SpeedDialNumber({
   isLastItem
 }: SpeedDialNumberProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
+  const avatarSrc =
+    operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
 
   return (
     <div className="relative flex flex-row justify-between items-center font-medium min-h-[44px]">
       <div className="flex gap-6 items-center">
-        {operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username] ? (
+        {avatarSrc ? (
           <Avatar
             size="base"
-            src={
-              operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
-            }
+            src={avatarSrc}
             status={
               operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
                 ?.mainPresence || undefined

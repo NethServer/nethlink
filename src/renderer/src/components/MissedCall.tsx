@@ -23,6 +23,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
   const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
+  const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
 
   function getCallName(call: CallData): string {
     if (call.direction === 'in') return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
@@ -56,17 +57,20 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
       onMouseLeave={() => setShowCreateButton(() => false)}
     >
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
-        {operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username] ? (
+        {avatarSrc ? (
           <Avatar
             size="extra_small"
-            src={operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]}
+            src={avatarSrc}
             status={
               operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
                 ?.mainPresence || undefined
             }
           />
         ) : (
-          <FontAwesomeIcon icon={faCircleUser} className="h-6 w-6 text-gray-200" />
+          <FontAwesomeIcon
+            icon={faCircleUser}
+            className="h-6 w-6 dark:text-gray-200 text-gray-400"
+          />
         )}
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
