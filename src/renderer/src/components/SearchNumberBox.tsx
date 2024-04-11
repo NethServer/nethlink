@@ -49,9 +49,15 @@ export function SearchNumberBox({
         </p>
       </div>
       <div className={`border-b dark:border-gray-500 border-gray-300`}></div>
-      <div className="overflow-y-auto max-h-[178px] dark:hover:bg-gray-700 hover:bg-gray-200">
+      <div className="overflow-y-auto max-h-[178px]">
         {filteredPhoneNumbers.map((user, index) => (
-          <SearchNumber key={index} user={user} callUser={callUser} searchText={searchText} />
+          <SearchNumber
+            key={index}
+            user={user}
+            callUser={callUser}
+            searchText={searchText}
+            className="dark:hover:bg-gray-700 hover:bg-gray-200"
+          />
         ))}
       </div>
     </div>
