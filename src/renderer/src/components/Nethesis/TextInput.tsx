@@ -29,6 +29,7 @@ export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'c
   label?: string
   placeholder?: string
   icon?: IconDefinition | CommonIconDefinition
+  inputClassName?: string
   trailingIcon?: boolean
   error?: boolean
   helper?: string
@@ -44,6 +45,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       label,
       placeholder,
       icon: Icon,
+      inputClassName,
       trailingIcon,
       type = 'text',
       error,
@@ -99,7 +101,8 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               !error ? theme.colors.gray : theme.colors.error,
               Icon && !trailingIcon && 'pl-10',
               error ? theme.placeholder.error : theme.placeholder.base,
-              'outline-transparent'
+              'outline-transparent',
+              inputClassName
             )}
             {...cleanProps}
             ref={ref}
