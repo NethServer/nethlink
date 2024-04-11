@@ -41,7 +41,7 @@ export function SearchBox({ search, handleSearch, handleReset }: SearchBoxProps)
             submit(search)
           }
         }}
-        className="min-w-[222px] focus-visible:outline-none dark:text-gray-50 text-gray-900"
+        className="min-w-[222px] dark:text-gray-50 text-gray-900"
         /* Mi serve per dare spazio all' X Icon */
         inputClassName="pr-10"
       />
