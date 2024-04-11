@@ -43,7 +43,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
   return (
     <div className="flex flex-col gap-4 h-full relative">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px]">
-        <h1 className="font-semibold dark:text-gray-50 text-gray-900">
+        <h1 className="font-medium dark:text-gray-50 text-gray-900">
           {initialData ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
         </h1>
       </div>
@@ -65,10 +65,10 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
         />
         <div className="absolute bottom-0 right-0 flex flex-row gap-4">
           <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.Cancel')}</p>
+            <p className="dark:text-blue-500 text-blue-600 font-medium">{t('Common.Cancel')}</p>
           </Button>
           <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3" disabled={isLoading}>
-            <p className="dark:text-gray-900 text-gray-50 font-semibold">
+            <p className="dark:text-gray-900 text-gray-50 font-medium">
               {initialData ? t('Common.Edit') : t('SpeedDial.Create')}
             </p>
             {isLoading && (
