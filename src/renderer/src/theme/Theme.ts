@@ -59,7 +59,7 @@ const theme = {
     iconDisabled: 'text-gray-500 dark:text-gray-400'
   },
   input: {
-    base: 'block w-full relative focus:z-[8] disabled:cursor-not-allowed bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:border-gray-700 dark:disabled:bg-gray-900 dark:disabled:text-gray-400',
+    base: 'border dark:border-gray-700 border-gray-300 block w-full relative focus:z-[8] disabled:cursor-not-allowed bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:border-gray-700 dark:disabled:bg-gray-900 dark:disabled:text-gray-400',
     label: {
       base: 'text-md font-medium text-gray-700 dark:text-gray-50',
       error: 'text-md font-medium text-red-500 dark:text-red-500'

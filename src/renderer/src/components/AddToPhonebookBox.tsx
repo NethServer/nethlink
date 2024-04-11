@@ -87,7 +87,7 @@ export function AddToPhonebookBox({
   return (
     <div className="pl-4 w-full h-full">
       <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 max-h-[28px]">
-        <h1 className="font-semibold">{t('Phonebook.Add to Phonebook')}</h1>
+        <h1 className="font-medium">{t('Phonebook.Add to Phonebook')}</h1>
       </div>
       <form
         className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px]"
@@ -99,30 +99,30 @@ export function AddToPhonebookBox({
           }, 100)
         }}
       >
-        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-          <p>{t('Phonebook.Visibility')}</p>
+        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
+          <p className="font-medium">{t('Phonebook.Visibility')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('privacy')} type="radio" value="public" name="visibility" />
-              <p className="whitespace-nowrap">{t('Phonebook.All')}</p>
+              <p className="whitespace-nowrap font-normal">{t('Phonebook.All')}</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('privacy')} type="radio" value="private" name="visibility" />
-              <p className="whitespace-nowrap">{t('Phonebook.Only me')}</p>
+              <p className="whitespace-nowrap font-normal">{t('Phonebook.Only me')}</p>
             </div>
           </div>
         </label>
 
-        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900 font-semibold">
-          <p>{t('Phonebook.Type')}</p>
+        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
+          <p className="font-medium">{t('Phonebook.Type')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('type')} type="radio" value="person" name="type" />
-              <p className="whitespace-nowrap">{t('Phonebook.Person')}</p>
+              <p className="whitespace-nowrap font-normal">{t('Phonebook.Person')}</p>
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('type')} type="radio" value="company" name="type" />
-              <p className="whitespace-nowrap">{t('Phonebook.Company')}</p>
+              <p className="whitespace-nowrap font-normal">{t('Phonebook.Company')}</p>
             </div>
           </div>
         </label>
@@ -195,10 +195,10 @@ export function AddToPhonebookBox({
 
         <div className="flex flex-row gap-4 justify-end">
           <Button variant="ghost" onClick={() => onCancel()}>
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.Cancel')}</p>
+            <p className="dark:text-blue-500 text-blue-600 font-medium">{t('Common.Cancel')}</p>
           </Button>
           <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3">
-            <p className="dark:text-gray-900 text-gray-50 font-semibold">{t('Common.Save')}</p>
+            <p className="dark:text-gray-900 text-gray-50 font-medium">{t('Common.Save')}</p>
             {isLoading && (
               <FontAwesomeIcon
                 icon={LoadingIcon}
