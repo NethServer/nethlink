@@ -85,7 +85,7 @@ export function Navbar({
                     )}
                     <div className="flex items-center gap-2">
                       <FontAwesomeIcon className="text-base" icon={availableTheme.icon} />
-                      <p className="font-semibold">
+                      <p className="font-normal">
                         {availableTheme.name === 'system'
                           ? t('Settings.System')
                           : availableTheme.name === 'light'
@@ -124,10 +124,10 @@ export function Navbar({
                 <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-600">
                   <p className="dark:text-gray-400 text-gray-700">{t('TopBar.Signed in as')}</p>
                   <div className="flex flex-row gap-4">
-                    <p className="dark:text-gray-50 text-gray-900 font-semibold">
+                    <p className="dark:text-gray-50 text-gray-900 font-medium">
                       {account.data?.name}
                     </p>
-                    <p className="dark:text-gray-400 text-gray-700">
+                    <p className="dark:text-gray-50 text-gray-700 font-normal">
                       {account.data?.endpoints.mainextension[0].id}
                     </p>
                   </div>
@@ -139,7 +139,7 @@ export function Navbar({
                   onClick={goToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={GoToNethVoiceIcon} />
-                  <p className="font-semibold inline">{t('TopBar.Go to NethVoice CTI')}</p>
+                  <p className="font-normal inline">{t('TopBar.Go to NethVoice CTI')}</p>
                 </div>
               </Menu.Item>
               <Menu.Item>
@@ -148,7 +148,7 @@ export function Navbar({
                   onClick={logout}
                 >
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
-                  <p className="font-semibold">{t('TopBar.Logout')}</p>
+                  <p className="font-normal">{t('TopBar.Logout')}</p>
                 </div>
               </Menu.Item>
             </Menu.Items>
