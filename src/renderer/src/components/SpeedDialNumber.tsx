@@ -16,6 +16,7 @@ import { truncate } from '@renderer/utils'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
+  className?: string
   callUser: () => void
   handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
   handleDeleteSpeedDial: (deletedSpeedDial: ContactType) => void
@@ -24,6 +25,7 @@ export interface SpeedDialNumberProps {
 
 export function SpeedDialNumber({
   speedDial,
+  className,
   callUser,
   handleSelectedSpeedDial,
   handleDeleteSpeedDial,
@@ -33,11 +35,7 @@ export function SpeedDialNumber({
 
   return (
     <div
-      className={
-        isLastItem
-          ? `relative flex flex-row justify-between items-center font-semibold min-h-[44px] pb-4`
-          : `relative flex flex-row justify-between items-center font-semibold min-h-[44px]`
-      }
+      className={`relative flex flex-row justify-between items-center font-semibold min-h-[44px] p-2 px-5 ${className}`}
     >
       <div className="flex gap-6 items-center">
         {}

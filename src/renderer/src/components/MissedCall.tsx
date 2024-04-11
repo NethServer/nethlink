@@ -13,10 +13,15 @@ import { log } from '@shared/utils/logger'
 
 export interface MissedCallProps {
   call: CallData
+  className?: string
   handleSelectedMissedCall: (number, company) => void
 }
 
-export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps): JSX.Element {
+export function MissedCall({
+  call,
+  className,
+  handleSelectedMissedCall
+}: MissedCallProps): JSX.Element {
   const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
@@ -44,7 +49,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
 
   return (
     <div
-      className="flex flex-grow gap-3 font-semibold max-h-[72px]"
+      className={`flex flex-grow gap-3 font-semibold min-h-[72px] p-2 px-5 ${className}`}
       onMouseEnter={() => {
         if (getCallName(call) === t('Common.Unknown')) {
           setShowCreateButton(() => true)
