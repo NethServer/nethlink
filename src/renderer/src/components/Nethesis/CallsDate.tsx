@@ -59,7 +59,7 @@ export const CallsDate = ({ call, spaced, isInQueue }: CallsDateProps) => {
     }
 
     return (
-      <div className="text-sm font-medium text-gray-600 dark:text-gray-100 leading-5">
+      <div className="text-sm font-normal text-gray-600 dark:text-gray-100 leading-5">
         {formatDistance(
           utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
           utcToZonedTime(new Date(), localTimeZone),

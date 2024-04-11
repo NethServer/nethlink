@@ -192,7 +192,7 @@ export function LoginPage() {
 
   return (
     <div
-      className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px]"
+      className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px] text-sm"
       ref={loginWindowRef}
     >
       <div className={classNames('h-full w-full', isLoading ? 'brightness-50' : '')}>

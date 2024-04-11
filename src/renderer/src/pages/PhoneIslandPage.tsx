@@ -49,9 +49,9 @@ export function PhoneIslandPage() {
               if (previouEventSize)
                 window.api.resizePhoneIsland(previouEventSize.w, previouEventSize.h)
             }
-            break;
+            break
           case PHONE_ISLAND_EVENTS['phone-island-compressed']:
-            isMinimized.current = true;
+            isMinimized.current = true
             if (lastResizeEvent.current) {
               const previouEventSize = getSizeFromResizeEvent(lastResizeEvent.current)
               if (previouEventSize)
@@ -64,14 +64,21 @@ export function PhoneIslandPage() {
           //sono sicuro di avere l'evento. il controllo l'ho fatto con .has(event)
 
           switch (event) {
-            case PHONE_ISLAND_EVENTS['phone-island-call-actions-opened']: isExpanded.current = false; break
-            case PHONE_ISLAND_EVENTS['phone-island-call-actions-closed']: isExpanded.current = true; break
+            case PHONE_ISLAND_EVENTS['phone-island-call-actions-opened']:
+              isExpanded.current = false
+              break
+            case PHONE_ISLAND_EVENTS['phone-island-call-actions-closed']:
+              isExpanded.current = true
+              break
             case PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px'); break;
+              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px')
+              break
             case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px'); break;
+              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px')
+              break
             default:
-              phoneIslandContainer.current?.children[1].setAttribute('style', ''); break;
+              phoneIslandContainer.current?.children[1].setAttribute('style', '')
+              break
           }
           const size = getSizeFromResizeEvent(event)!
           window.api.resizePhoneIsland(size.w, size.h)
@@ -126,11 +133,13 @@ export function PhoneIslandPage() {
     return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={loadPath.current} />
   }, [dataConfig])
 
-
   return (
-    <div ref={phoneIslandContainer} className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] " id="phone-island-container">
-      <div className='absolute h-[100vh] w-[100vw] bg-green-500/30 radius-md backdrop-hue-rotate-90'>
-      </div>
+    <div
+      ref={phoneIslandContainer}
+      className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999]"
+      id="phone-island-container"
+    >
+      <div className="absolute h-[100vh] w-[100vw] bg-green-500/30 radius-md backdrop-hue-rotate-90"></div>
       <RenderPhoneIsland />
     </div>
   )
