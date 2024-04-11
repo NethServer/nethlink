@@ -50,7 +50,7 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
   const avatarSrc = operators?.avatars?.[username]
 
   return (
-    <div className="flex justify-between w-full min-h-14 px-2 py-2 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200">
+    <div className="flex justify-between w-full min-h-14 py-2 px-5 dark:text-gray-50 text-gray-900">
       <div className="flex gap-3 items-center">
         <Avatar
           size="small"
@@ -70,14 +70,13 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
         </div>
       </div>
       <Button
+        className="dark:hover:bg-gray-900 hover:bg-gray-50"
         variant="ghost"
         onClick={() => {
           callUser(phoneNumber)
         }}
       >
-        <p className="dark:text-blue-500 text-blue-600 font-semibold dark:hover:bg-gray-700 hover:bg-gray-200">
-          {t('Operators.Call')}
-        </p>
+        <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Operators.Call')}</p>
       </Button>
     </div>
   )

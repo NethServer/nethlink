@@ -331,7 +331,7 @@ export function NethLinkPage() {
                 />
 
                 <div className="relative w-full">
-                  <div className="px-4 w-full h-[274px] pb-2 z-1">
+                  <div className="w-full h-[274px] pb-2 z-1">
                     {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
                       showSpeedDialForm ? (
                         <SpeedDialFormBox

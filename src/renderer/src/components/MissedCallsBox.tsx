@@ -21,8 +21,8 @@ export function MissedCallsBox({
 
   return (
     <>
-      <div className="flex flex-col gap-4 h-full">
-        <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 font-semibold max-h-[28px]">
+      <div className="flex flex-col h-full">
+        <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 font-semibold max-h-[28px] px-5">
           <h1>{title}</h1>
           <Button
             className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0 dark:hover:bg-gray-700 hover:bg-gray-200"
@@ -35,14 +35,18 @@ export function MissedCallsBox({
             <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Common.View all')}</p>
           </Button>
         </div>
-        <div className="flex flex-col gap-2 p-2 max-h-[240px] overflow-y-auto">
+        <div className="flex flex-col max-h-[240px] overflow-y-auto">
           {missedCallsIn.map((call, idx) => {
             return (
               <div
-                className={`${idx === missedCalls.length - 1 ? `` : `border-b pb-2 dark:border-gray-700 border-gray-200 dark:hover:bg-gray-700 hover:bg-gray-200`}`}
+                className={`${idx === missedCallsIn.length - 1 ? `` : `border-b dark:border-gray-500 border-gray-300`}`}
                 key={idx}
               >
-                <MissedCall call={call} handleSelectedMissedCall={handleSelectedMissedCall} />
+                <MissedCall
+                  call={call}
+                  className="dark:hover:bg-gray-700 hover:bg-gray-200"
+                  handleSelectedMissedCall={handleSelectedMissedCall}
+                />
               </div>
             )
           })}

@@ -85,12 +85,12 @@ export function AddToPhonebookBox({
   }
 
   return (
-    <div className="pl-4 w-full h-full">
-      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 max-h-[28px]">
+    <div className="w-full h-full">
+      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 max-h-[28px] px-5">
         <h1 className="font-semibold">{t('Phonebook.Add to Phonebook')}</h1>
       </div>
       <form
-        className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px]"
+        className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px] px-5"
         onSubmit={(e) => {
           setIsLoading(true)
           e.preventDefault()
