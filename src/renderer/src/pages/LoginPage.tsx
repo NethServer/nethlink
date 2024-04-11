@@ -10,7 +10,7 @@ import {
   faEye as EyeIcon,
   faEyeSlash as EyeSlashIcon,
   faXmark as CrossIcon,
-  faCircleXmark as ErrorIcon
+  faXmarkCircle as ErrorIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from '@renderer/components/Nethesis/TextInput'
 import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
