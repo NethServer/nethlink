@@ -18,6 +18,8 @@ import { useInitialize } from '@renderer/hooks/useInitialize'
 import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { Button } from '@renderer/components/Nethesis'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 type LoginData = {
   host: string
@@ -34,51 +36,11 @@ export function LoginPage() {
   const windowHeight = useRef<number>(0)
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
 
-  useInitialize(() => {
-    window.api.onLoadAccounts((accounts: Account[]) => {
-      setDisplayedAccounts(accounts)
-      log(windowHeight.current)
-      setTimeout(() => {
-        log(loginWindowRef.current?.clientHeight)
-        windowHeight.current = loginWindowRef.current?.clientHeight || 0
-      }, 250)
-    })
-  }, true)
-
-  function resizeThisWindow(h: number) {
-    windowHeight.current = h
-    const finalH = h + (loginError ? 120 : 0)
-    window.api.resizeLoginWindow(finalH)
-  }
-
-  function hideLoginWindow() {
-    window.api.hideLoginWindow()
-  }
-
-  async function handleLogin(data: LoginData) {
-    setLoginError(undefined)
-    const hostReg =
-      /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
-    const res = hostReg.exec(data.host)
-    if (res) {
-      const host = `${'https://'}${res[2]}`
-      const [returnValue, err] = await window.api.login(host, data.username, data.password)
-      setIsLoading(false)
-      log(data, returnValue, err)
-      if (err) {
-        if (err.message === 'Unauthorized')
-          setLoginError(new Error(t('Login.Wrong host or username or password')!))
-        else setLoginError(err)
-        setValue('host', data.host)
-        setValue('username', data.username)
-        setValue('password', data.password)
-      } else {
-        setSelectedAccount(undefined)
-      }
-    } else {
-      setLoginError(new Error(t('Login.Wrong host or username or password')!))
-    }
-  }
+  const schema: z.ZodType<LoginData> = z.object({
+    host: z.string().trim().min(1, 'This field is required.'),
+    username: z.string().trim().min(1, 'This field is required'),
+    password: z.string().trim().min(1, 'This field is required')
+  })
 
   const {
     register,
@@ -92,8 +54,60 @@ export function LoginPage() {
       host: '',
       username: '',
       password: ''
-    }
+    },
+    resolver: zodResolver(schema)
   })
+
+  useInitialize(() => {
+    window.api.onLoadAccounts((accounts: Account[]) => {
+      setDisplayedAccounts(accounts)
+      log(windowHeight.current)
+      setTimeout(() => {
+        log(loginWindowRef.current?.clientHeight)
+        windowHeight.current = loginWindowRef.current?.clientHeight || 0
+      }, 250)
+    })
+  }, true)
+
+  function resizeThisWindow(h: number) {
+    windowHeight.current = h
+    const finalH = h + (loginError ? 100 : 0)
+    window.api.resizeLoginWindow(finalH)
+  }
+
+  function hideLoginWindow() {
+    window.api.hideLoginWindow()
+  }
+
+  function setFormValues(data: LoginData) {
+    setValue('host', data.host)
+    setValue('username', data.username)
+    setValue('password', data.password)
+  }
+
+  async function handleLogin(data: LoginData) {
+    setLoginError(undefined)
+    const hostReg =
+      /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
+    const res = hostReg.exec(data.host)
+    if (res) {
+      setIsLoading(true)
+      const host = `${'https://'}${res[2]}`
+      window.api
+        .login(host, data.username, data.password)
+        .catch((error) => {
+          setFormValues(data)
+          if (error.message === 'Unauthorized')
+            setLoginError(new Error(t('Login.Wrong host or username or password')!))
+          else setLoginError(error)
+        })
+        .finally(() => setIsLoading(false))
+    } else {
+      setLoginError(new Error(t('Login.Wrong host or username or password')!))
+      setFormValues(data)
+    }
+  }
+
   const onSubmit: SubmitHandler<LoginData> = (data) => {
     handleLogin(data)
   }
@@ -111,11 +125,11 @@ export function LoginPage() {
   useEffect(() => {
     if (selectedAccount) {
       if (selectedAccount === 'New Account') {
-        resizeThisWindow(650)
+        resizeThisWindow(620)
         reset()
         focus('host')
       } else {
-        resizeThisWindow(525)
+        resizeThisWindow(515)
         reset()
         setValue('host', selectedAccount.host)
         setValue('username', selectedAccount.username)
@@ -138,9 +152,9 @@ export function LoginPage() {
     loginError && resizeThisWindow(windowHeight.current)
     return (
       !!loginError && (
-        <div className="relative top-4 flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md">
+        <div className="relative flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md mb-8">
           <div className="flex flex-row items-center gap-2 ">
-            <FontAwesomeIcon icon={ErrorIcon} className="" />
+            <FontAwesomeIcon icon={ErrorIcon} />
             <p>{t('Login.Login failed')}</p>
           </div>
           <p className="pl-6">{loginError?.message}</p>
@@ -157,35 +171,38 @@ export function LoginPage() {
       <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
         {t('Login.New Account description')}
       </p>
-      <div className="flex flex-col grow gap-7">
+      <RenderError />
+      <div className="flex flex-col gap-7">
         <TextInput
           {...register('host')}
           type="text"
           label={t('Login.Host') as string}
-          error={!!loginError || Boolean(errors.host)}
+          helper={errors.host?.message || undefined}
+          error={!!errors.host?.message}
         />
         <TextInput
           {...register('username')}
           type="text"
           label={t('Login.Username') as string}
-          error={!!loginError || Boolean(errors.username)}
+          helper={errors.username?.message || undefined}
+          error={!!errors.username?.message}
         />
         <TextInput
           {...register('password')}
           label={t('Login.Password') as string}
-          error={!!loginError || Boolean(errors.password)}
           type={pwdVisible ? 'text' : 'password'}
           icon={pwdVisible ? EyeIcon : EyeSlashIcon}
           onIconClick={() => setPwdVisible(!pwdVisible)}
           trailingIcon={true}
+          helper={errors.password?.message || undefined}
+          error={!!errors.password?.message}
         />
         <button
           type="submit"
-          className="w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold mt-2 cursor-pointer"
+          className={`w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer ${!!errors.password?.message === true ? `mt-2` : ``}`}
         >
           {t('Login.Sign in')}
         </button>
-        <RenderError />
       </div>
     </div>
   )
@@ -196,15 +213,8 @@ export function LoginPage() {
       ref={loginWindowRef}
     >
       <div className={classNames('h-full w-full', isLoading ? 'brightness-50' : '')}>
-        <div className="flex flex-row justify-between items-end">
+        <div className="flex flex-row justify-between items-center">
           <img src={header}></img>
-          {/* {displayedAccounts.length > 0 && selectedAccount && (
-            <FontAwesomeIcon
-              icon={ArrowIcon}
-              className="h-5 w-5 dark:text-gray-50 ml-12 cursor-pointer"
-              onClick={goBack}
-            />
-          )} */}
           <FontAwesomeIcon
             icon={CrossIcon}
             className="h-5 w-5 dark:text-gray-50 cursor-pointer"
@@ -224,13 +234,9 @@ export function LoginPage() {
           </Button>
         )}
         <form
-          onSubmit={async (e) => {
-            setLoginError(undefined)
-            setIsLoading(true)
+          onSubmit={(e) => {
             e.preventDefault()
-            setTimeout(() => {
-              handleSubmit(onSubmit)(e)
-            }, 100)
+            handleSubmit(onSubmit)(e)
           }}
         >
           {
@@ -246,30 +252,33 @@ export function LoginPage() {
                         <p className="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-3">
                           {t('Login.Account List title')}
                         </p>
-                        <p className="text-gray-900 dark:text-gray-100 text-md mb-5">
+                        <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
                           {t('Login.Account List description')}
                         </p>
+                        <RenderError />
                         <DisplayedAccountLogin
                           account={selectedAccount}
                           imageSrc={selectedAccount.data?.settings.avatar}
                         />
-                        <TextInput
-                          {...register('password')}
-                          label={t('Login.Password') as string}
-                          error={!!loginError || Boolean(errors.password)}
-                          className="mt-5"
-                          type={pwdVisible ? 'text' : 'password'}
-                          icon={pwdVisible ? EyeIcon : EyeSlashIcon}
-                          onIconClick={() => setPwdVisible(!pwdVisible)}
-                          trailingIcon={true}
-                        />
-                        <button
-                          type="submit"
-                          className="w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold mt-7 cursor-pointer"
-                        >
-                          {t('Login.Sign in')}
-                        </button>
-                        <RenderError />
+                        <div className="flex flex-col gap-7">
+                          <TextInput
+                            {...register('password')}
+                            label={t('Login.Password') as string}
+                            className="mt-5"
+                            type={pwdVisible ? 'text' : 'password'}
+                            icon={pwdVisible ? EyeIcon : EyeSlashIcon}
+                            onIconClick={() => setPwdVisible(!pwdVisible)}
+                            trailingIcon={true}
+                            helper={errors.password?.message || undefined}
+                            error={!!errors.password?.message}
+                          />
+                          <button
+                            type="submit"
+                            className={`w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer ${!!errors.password?.message === true ? `mt-2` : ``}`}
+                          >
+                            {t('Login.Sign in')}
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
