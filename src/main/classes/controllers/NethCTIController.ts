@@ -203,6 +203,7 @@ export class NethVoiceAPI {
     },
     deleteSpeeddial: async (obj: { id: string }) => {
       await this._POST(`/webrest/phonebook/delete_cticontact`, { id: '' + obj.id })
+      return obj
     },
     ///CONTACTS
     //PROVA A METTERE IL CONTACTTYPE E NON IL NEWCONTACTTYPE
