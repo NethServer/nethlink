@@ -209,13 +209,12 @@ export class NethVoiceAPI {
     //PROVA A METTERE IL CONTACTTYPE E NON IL NEWCONTACTTYPE
     createContact: async (create: ContactType) => {
       //L"API VUOLE IL PARAMETRO setInput
-      const newContact: ContactType & { setInput: string } = {
+      const newContact: ContactType /* & { setInput: string } */ = {
         privacy: create.privacy,
-        /* DA GUARDARE BENE INSIEME A LOPRE' CON IL CODICE DI LORO SOTTO */
-        type: 'speeddial',
+        type: create.privacy,
         name: create.name,
         company: create.company,
-        speeddial_num: create.speeddial_num,
+        extension: create.extension,
         workphone: create.workphone,
         cellphone: create.cellphone,
         workemail: create.workemail,
@@ -223,8 +222,9 @@ export class NethVoiceAPI {
         //DEFAULT VALUES
         favorite: false,
         selectedPrefNum: 'extension',
-        setInput: ''
+        //setInput: ''
       }
+      //console.log("DATA: ", newContact)
       await this._POST(`/webrest/phonebook/create`, newContact)
       return newContact
     },
