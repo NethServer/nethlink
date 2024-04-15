@@ -65,7 +65,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     const cleanProps = cleanClassName(props)
     const { input: theme } = useTheme().theme
     return (
-      <div className={classNames('text-left', 'w-full', className)}>
+      <div className={classNames('text-left', 'w-full', 'relative', className)}>
         {label && (
           <label
             className={classNames(/* error ? theme.label.error : */ theme.label.base)}

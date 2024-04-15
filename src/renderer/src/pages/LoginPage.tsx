@@ -37,7 +37,7 @@ export function LoginPage() {
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
 
   const schema: z.ZodType<LoginData> = z.object({
-    host: z.string().trim().min(1, 'This field is required.'),
+    host: z.string().trim().min(1, 'This field is required'),
     username: z.string().trim().min(1, 'This field is required'),
     password: z.string().trim().min(1, 'This field is required')
   })
