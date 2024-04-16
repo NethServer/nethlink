@@ -65,7 +65,15 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     const cleanProps = cleanClassName(props)
     const { input: theme } = useTheme().theme
     return (
-      <div className={classNames('text-left', 'w-full', 'relative', className)}>
+      <div
+        className={classNames(
+          'text-left',
+          'w-full',
+          'relative',
+          `${error ? `mb-2` : ''}`,
+          className
+        )}
+      >
         {label && (
           <label
             className={classNames(/* error ? theme.label.error : */ theme.label.base)}
@@ -86,9 +94,8 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 icon={Icon}
                 className={classNames(
                   size === 'large' ? theme.icon.size.large : theme.icon.size.base,
-                  theme.icon.gray,
-                  onIconClick && 'cursor-pointer',
-                  iconClassName
+                  iconClassName || theme.icon.gray,
+                  onIconClick && 'cursor-pointer'
                 )}
                 onClick={() => onIconClick && onIconClick()}
               />

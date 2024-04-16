@@ -72,7 +72,7 @@ const theme = {
       base: 'absolute mt-2 text-sm',
       color: {
         base: 'text-gray-500 dark:text-gray-400',
-        error: 'text-red-500 dark:text-red-500'
+        error: 'text-rose-500 dark:text-rose-500'
       }
     },
     size: {
@@ -81,7 +81,7 @@ const theme = {
     },
     colors: {
       gray: 'border-gray-300 placeholder:text-gray-400 dark:border-gray-600 dark:placeholder:text-gray-500',
-      error: 'border-2 border-red-500 dark:border-red-500'
+      error: 'border-2 border-rose-500 dark:border-rose-500'
     },
     icon: {
       base: 'absolute flex items-center z-[9]',

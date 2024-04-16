@@ -8,18 +8,6 @@ import { t } from 'i18next'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-type AddToPhonebookBoxData = {
-  privacy?: string
-  type?: string
-  name?: string
-  company?: string
-  extension?: string
-  workphone?: string
-  cellphone?: string
-  workemail?: string
-  notes?: string
-}
-
 export interface AddToPhonebookBoxProps {
   searchText?: string
   selectedNumber?: string
@@ -35,31 +23,35 @@ export function AddToPhonebookBox({
   onCancel,
   handleAddContactToPhonebook
 }: AddToPhonebookBoxProps) {
-  const personSchema = z.object({
-    privacy: z.string().optional(),
-    type: z.string().optional(),
-    name: z.string().trim().min(1, 'This field is required'),
-    company: z.string().optional(),
-    extension: z.string().optional(),
-    workphone: z.string().optional(),
-    cellphone: z.string().optional(),
-    workemail: z.string().optional(),
-    notes: z.string().optional()
+  const baseSchema = z.object({
+    privacy: z.string(),
+    extension: z.string(),
+    workphone: z.string(),
+    cellphone: z.string(),
+    workemail: z.string(),
+    notes: z.string()
   })
 
-  const companySchema = z.object({
-    privacy: z.string().optional(),
-    type: z.string().optional(),
-    name: z.string().optional(),
-    company: z.string().trim().min(1, 'This field is required'),
-    extension: z.string().optional(),
-    workphone: z.string().optional(),
-    cellphone: z.string().optional(),
-    workemail: z.string().optional(),
-    notes: z.string().optional()
-  })
-
-  const [currentSchema, setCurrentSchema] = useState<z.ZodType<AddToPhonebookBoxData>>(personSchema)
+  const resultSchema = z
+    .discriminatedUnion('type', [
+      z.object({
+        type: z.literal('person'),
+        name: z
+          .string()
+          .trim()
+          .min(1, `${t('Common.This field is required')}`),
+        company: z.string().trim()
+      }),
+      z.object({
+        type: z.literal('company'),
+        name: z.string().trim(),
+        company: z
+          .string()
+          .trim()
+          .min(1, `${t('Common.This field is required')}`)
+      })
+    ])
+    .and(baseSchema)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -69,6 +61,7 @@ export function AddToPhonebookBox({
     handleSubmit,
     setValue,
     reset,
+    trigger,
     formState: { errors }
   } = useForm<ContactType>({
     defaultValues: {
@@ -82,26 +75,14 @@ export function AddToPhonebookBox({
       workemail: '',
       notes: ''
     },
-    resolver: zodResolver(currentSchema)
+    resolver: zodResolver(resultSchema)
   })
 
   const watchType = watch('type')
 
   useEffect(() => {
-    if (watchType === 'person') {
-      setCurrentSchema(personSchema)
-      // Serve per eliminare l'highlight se passo da company a person
-      reset({
-        ...watch(),
-        company: ''
-      })
-    } else {
-      setCurrentSchema(companySchema)
-      reset({
-        ...watch(),
-        name: ''
-      })
-    }
+    !!errors.name && trigger('name')
+    !!errors.company && trigger('company')
   }, [watchType])
 
   const onSubmit: SubmitHandler<ContactType> = (data) => {
@@ -136,7 +117,7 @@ export function AddToPhonebookBox({
   function handleSave(data: ContactType) {
     //NETHVOICE usa il valore '-' quando si inserisce una company che e' priva di nome
     //data.name === '' puo' essere vera solo nel caso in cui si inserisce una company
-    if (data.name === '') {
+    if (watchType === 'company') {
       data.name = '-'
     }
     setIsLoading(true)

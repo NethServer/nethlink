@@ -22,12 +22,15 @@ interface SpeedDialFormBoxProps {
 
 export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialFormBoxProps) {
   const schema: z.ZodType<SpeedDialFormBoxData> = z.object({
-    name: z.string().trim().min(1, 'This field is required'),
+    name: z
+      .string()
+      .trim()
+      .min(1, `${t('Common.This field is required')}`),
     speeddial_num: z
       .string()
       .trim()
-      .min(1, 'This field is required')
-      .min(3, 'This field must be at least 3 characters')
+      .min(1, `${t('Common.This field is required')}`)
+      .min(3, `${t('Common.This field must be at least', { number: '3' })}`)
   })
 
   const {
@@ -68,7 +71,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
         <TextInput
           {...register('name', { required: true })}
           type="text"
-          className={`font-normal ${errors.name?.message ? `mb-2` : ``}`}
+          className={`font-normal`}
           label={t('Phonebook.Name') as string}
           helper={errors.name?.message || undefined}
           error={!!errors.name?.message}

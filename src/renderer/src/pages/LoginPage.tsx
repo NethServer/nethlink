@@ -1,6 +1,6 @@
 import { Account } from '@shared/types'
 import classNames from 'classnames'
-import { MutableRefObject, ReactNode, useEffect, useRef, useState } from 'react'
+import { MutableRefObject, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import header from '../assets/loginPageHeader.svg'
@@ -27,9 +27,11 @@ type LoginData = {
   password: string
 }
 
+const NEW_ACCOUNT = 'New Account'
+
 export function LoginPage() {
-  const [displayedAccounts, setDisplayedAccounts] = useState<Account[]>([])
-  const [selectedAccount, setSelectedAccount] = useState<Account | 'New Account'>()
+  const [availableAccounts, setAvailableAccounts] = useState<Account[]>([])
+  const [selectedAccount, setSelectedAccount] = useState<Account | typeof NEW_ACCOUNT>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loginError, setLoginError] = useState<Error | undefined>(undefined)
   const [pwdVisible, setPwdVisible] = useState<boolean>(false)
@@ -37,9 +39,18 @@ export function LoginPage() {
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
 
   const schema: z.ZodType<LoginData> = z.object({
-    host: z.string().trim().min(1, 'This field is required'),
-    username: z.string().trim().min(1, 'This field is required'),
-    password: z.string().trim().min(1, 'This field is required')
+    host: z
+      .string()
+      .trim()
+      .min(1, `${t('Common.This field is required')}`),
+    username: z
+      .string()
+      .trim()
+      .min(1, `${t('Common.This field is required')}`),
+    password: z
+      .string()
+      .trim()
+      .min(1, `${t('Common.This field is required')}`)
   })
 
   const {
@@ -60,7 +71,7 @@ export function LoginPage() {
 
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
-      setDisplayedAccounts(accounts)
+      setAvailableAccounts(accounts)
       log(windowHeight.current)
       setTimeout(() => {
         log(loginWindowRef.current?.clientHeight)
@@ -124,7 +135,7 @@ export function LoginPage() {
   }
   useEffect(() => {
     if (selectedAccount) {
-      if (selectedAccount === 'New Account') {
+      if (selectedAccount === NEW_ACCOUNT) {
         resizeThisWindow(620)
         reset()
         focus('host')
@@ -137,22 +148,22 @@ export function LoginPage() {
       }
     } else {
       setLoginError(undefined)
-      if (displayedAccounts.length === 1) {
+      if (availableAccounts.length === 1) {
         resizeThisWindow(375)
-      } else if (displayedAccounts.length === 2) {
+      } else if (availableAccounts.length === 2) {
         resizeThisWindow(455)
-      } else if (displayedAccounts.length >= 3) {
+      } else if (availableAccounts.length >= 3) {
         resizeThisWindow(535)
       }
       focus('host')
     }
-  }, [displayedAccounts, selectedAccount])
+  }, [availableAccounts, selectedAccount])
 
   const RenderError = () => {
     loginError && resizeThisWindow(windowHeight.current)
     return (
       !!loginError && (
-        <div className="relative flex flex-col p-4 border-l-[3px] border-red-500 text-red-400 bg-red-950 rounded-md mb-8">
+        <div className="relative flex flex-col p-4 border-l-[3px] border-rose-400 text-red-100 bg-rose-900 rounded-md mb-8">
           <div className="flex flex-row items-center gap-2 ">
             <FontAwesomeIcon icon={ErrorIcon} />
             <p>{t('Login.Login failed')}</p>
@@ -163,48 +174,96 @@ export function LoginPage() {
     )
   }
 
-  const newAccountForm: ReactNode = (
-    <div className="mt-7">
-      <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">
-        {t('Login.New Account title')}
-      </p>
-      <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
-        {t('Login.New Account description')}
-      </p>
-      <RenderError />
-      <div className="flex flex-col gap-7">
-        <TextInput
-          {...register('host')}
-          type="text"
-          label={t('Login.Host') as string}
-          helper={errors.host?.message || undefined}
-          error={!!errors.host?.message}
-        />
-        <TextInput
-          {...register('username')}
-          type="text"
-          label={t('Login.Username') as string}
-          helper={errors.username?.message || undefined}
-          error={!!errors.username?.message}
-        />
-        <TextInput
-          {...register('password')}
-          label={t('Login.Password') as string}
-          type={pwdVisible ? 'text' : 'password'}
-          icon={pwdVisible ? EyeIcon : EyeSlashIcon}
-          onIconClick={() => setPwdVisible(!pwdVisible)}
-          trailingIcon={true}
-          helper={errors.password?.message || undefined}
-          error={!!errors.password?.message}
-        />
-        <button
-          type="submit"
-          className={`w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer ${!!errors.password?.message === true ? `mt-2` : ``}`}
-        >
-          {t('Login.Sign in')}
-        </button>
+  const isFirstLogin = availableAccounts.length === 0
+
+  const DisplayAvailableAccount = () => {
+    return (
+      <div className="w-full mt-7">
+        <p className="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-3">
+          {t('Login.Account List title')}
+        </p>
+        <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
+          {t('Login.Account List description')}
+        </p>
+        <div className="max-h-60 overflow-y-auto">
+          {availableAccounts.map((account, idx) => {
+            return (
+              <DisplayedAccountLogin
+                key={idx}
+                account={account}
+                imageSrc={account.data?.settings.avatar}
+                handleClick={() => setSelectedAccount(account)}
+              />
+            )
+          })}
+        </div>
+        <DisplayedAccountLogin handleClick={() => setSelectedAccount(NEW_ACCOUNT)} />
       </div>
-    </div>
+    )
+  }
+
+  /* TODO rendere tutti questi componenti dei veri componenti */
+  const LoginForm = (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        handleSubmit(onSubmit)(e)
+      }}
+    >
+      <div className="mt-7">
+        <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">
+          {selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
+        </p>
+        <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
+          {selectedAccount
+            ? t('Login.Account List description')
+            : t('Login.New Account description')}
+        </p>
+        <RenderError />
+        <div className="flex flex-col gap-7">
+          {selectedAccount && selectedAccount !== NEW_ACCOUNT ? (
+            <DisplayedAccountLogin
+              account={selectedAccount}
+              imageSrc={selectedAccount.data?.settings.avatar}
+            />
+          ) : (
+            <>
+              <TextInput
+                {...register('host')}
+                type="text"
+                label={t('Login.Host') as string}
+                helper={errors.host?.message || undefined}
+                error={!!errors.host?.message}
+              />
+              <TextInput
+                {...register('username')}
+                type="text"
+                label={t('Login.Username') as string}
+                helper={errors.username?.message || undefined}
+                error={!!errors.username?.message}
+              />
+            </>
+          )}
+          <TextInput
+            {...register('password')}
+            label={t('Login.Password') as string}
+            type={pwdVisible ? 'text' : 'password'}
+            icon={pwdVisible ? EyeIcon : EyeSlashIcon}
+            onIconClick={() => setPwdVisible(!pwdVisible)}
+            trailingIcon={true}
+            helper={errors.password?.message || undefined}
+            error={!!errors.password?.message}
+            iconClassName="text-gray-50"
+          />
+          <button
+            type="submit"
+            className={`w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer`}
+          >
+            {t('Login.Sign in')}
+          </button>
+        </div>
+      </div>
+    </form>
   )
 
   return (
@@ -221,7 +280,7 @@ export function LoginPage() {
             onClick={() => hideLoginWindow()}
           />
         </div>
-        {displayedAccounts.length > 0 && selectedAccount && (
+        {availableAccounts.length > 0 && selectedAccount && (
           <Button
             className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0 mt-10 dark:hover:bg-gray-700 hover:bg-gray-200"
             onClick={goBack}
@@ -233,85 +292,7 @@ export function LoginPage() {
             <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Login.Back')}</p>
           </Button>
         )}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            handleSubmit(onSubmit)(e)
-          }}
-        >
-          {
-            //quando esiste almeno un account allora mostro la lista di selezione
-            displayedAccounts.length > 0 ? (
-              <div>
-                {selectedAccount ? (
-                  <div>
-                    {selectedAccount === 'New Account' ? (
-                      newAccountForm
-                    ) : (
-                      <div className="w-full mt-7">
-                        <p className="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-3">
-                          {t('Login.Account List title')}
-                        </p>
-                        <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
-                          {t('Login.Account List description')}
-                        </p>
-                        <RenderError />
-                        <DisplayedAccountLogin
-                          account={selectedAccount}
-                          imageSrc={selectedAccount.data?.settings.avatar}
-                        />
-                        <div className="flex flex-col gap-7">
-                          <TextInput
-                            {...register('password')}
-                            label={t('Login.Password') as string}
-                            className="mt-5"
-                            type={pwdVisible ? 'text' : 'password'}
-                            icon={pwdVisible ? EyeIcon : EyeSlashIcon}
-                            onIconClick={() => setPwdVisible(!pwdVisible)}
-                            trailingIcon={true}
-                            helper={errors.password?.message || undefined}
-                            error={!!errors.password?.message}
-                          />
-                          <button
-                            type="submit"
-                            className={`w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer ${!!errors.password?.message === true ? `mt-2` : ``}`}
-                          >
-                            {t('Login.Sign in')}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="w-full mt-7">
-                    <p className="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-3">
-                      {t('Login.Account List title')}
-                    </p>
-                    <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
-                      {t('Login.Account List description')}
-                    </p>
-                    <div className="max-h-60 overflow-y-auto">
-                      {displayedAccounts.map((account, idx) => {
-                        return (
-                          <DisplayedAccountLogin
-                            key={idx}
-                            account={account}
-                            imageSrc={account.data?.settings.avatar}
-                            handleClick={() => setSelectedAccount(account)}
-                          />
-                        )
-                      })}
-                    </div>
-                    <DisplayedAccountLogin handleClick={() => setSelectedAccount('New Account')} />
-                  </div>
-                )}
-              </div>
-            ) : (
-              //altrimenti mostro la finestra per la creazione del primo account
-              newAccountForm
-            )
-          }
-        </form>
+        {isFirstLogin || selectedAccount ? LoginForm : <DisplayAvailableAccount />}
       </div>
       {isLoading && (
         <div className="absolute top-0 left-0 bg-trasparent h-full w-full select-none flex items-center justify-center">

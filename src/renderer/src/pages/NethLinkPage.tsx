@@ -172,17 +172,14 @@ export function NethLinkPage() {
           t('Notification.contact_created_title'),
           t('Notification.contact_created_description')
         )
+        setSearch(() => '')
+        setSelectedMissedCall(() => undefined)
       })
       .catch((error) => {
         sendNotification(
           t('Notification.contact_not_created_title'),
           t('Notification.contact_not_created_description')
         )
-        throw error
-      })
-      .finally(() => {
-        setSearch(() => '')
-        setSelectedMissedCall(() => undefined)
       })
   }
 
@@ -195,17 +192,14 @@ export function NethLinkPage() {
           t('Notification.speeddial_created_title'),
           t('Notification.speeddial_created_description')
         )
+        setShowSpeedDialForm(false)
+        setSearch(() => '')
       })
       .catch((error) => {
         sendNotification(
           t('Notification.speeddial_not_created_title'),
           t('Notification.speeddial_not_created_description')
         )
-        throw error
-      })
-      .finally(() => {
-        setShowSpeedDialForm(false)
-        setSearch(() => '')
       })
   }
 
@@ -216,28 +210,22 @@ export function NethLinkPage() {
     window.api
       .editSpeedDialContact(editContact, currentContact)
       .then((response) => {
-        const newSpeedDials = speeddials.map((speedDial) => {
-          if (speedDial.id?.toString() === response['id']) {
-            return response! as ContactType
-          }
-          return speedDial
-        })
-        setSpeeddials(() => newSpeedDials)
+        const newSpeedDials = speeddials.map((speedDial) =>
+          speedDial.id?.toString() === response['id'] ? (response! as ContactType) : speedDial
+        )
         sendNotification(
           t('Notification.speeddial_modified_title'),
           t('Notification.speeddial_modified_description')
         )
+        setSpeeddials(() => newSpeedDials)
+        setShowSpeedDialForm(false)
+        setSelectedSpeedDial(undefined)
       })
       .catch((error) => {
         sendNotification(
           t('Notification.speeddial_not_modified_title'),
           t('Notification.speeddial_not_modified_description')
         )
-        throw error
-      })
-      .finally(() => {
-        setShowSpeedDialForm(false)
-        setSelectedSpeedDial(undefined)
       })
   }
 
@@ -293,17 +281,14 @@ export function NethLinkPage() {
           t('Notification.speeddial_deleted_title'),
           t('Notification.speeddial_deleted_description')
         )
+        setSelectedSpeedDial(undefined)
+        setShowDeleteModal(false)
       })
       .catch((error) => {
         sendNotification(
           t('Notification.speeddial_not_deleted_title'),
           t('Notification.speeddial_not_deleted_description')
         )
-        throw error
-      })
-      .finally(() => {
-        setSelectedSpeedDial(undefined)
-        setShowDeleteModal(false)
       })
   }
 

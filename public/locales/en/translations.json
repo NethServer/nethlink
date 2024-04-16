@@ -60,7 +60,9 @@
     "to": "to",
     "Start recording message before": "Click the button below to start recording",
     "Start recording message after": "You can speak in a moment...",
-    "Minimize": "minimize"
+    "Minimize": "minimize",
+    "This field is required": "This field is required",
+    "This field must be at least": "This field must be at least {{number}} characters"
   },
   "Login": {
     "Welcome": "Welcome",

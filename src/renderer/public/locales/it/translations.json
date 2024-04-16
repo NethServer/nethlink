@@ -44,7 +44,9 @@
     "to": "a",
     "Start recording message before": "Premi il pulsante qui sotto per registrare",
     "Start recording message after": "Puoi parlare tra poco...",
-    "Minimize": "minimize"
+    "Minimize": "minimize",
+    "This field is required": "Questo campo è obbligatorio",
+    "This field must be at least": "Questo campo deve avere almeno {{number}} caratteri"
   },
   "Login": {
     "Welcome": "Benvenuto",
