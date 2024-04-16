@@ -17,6 +17,7 @@ export function MissedCallsBox({
   handleSelectedMissedCall
 }: MissedCallsBoxProps): JSX.Element {
   /* Oltre al fatto che sono le chiamate in entrate esse non devono aver avuto risposta */
+  /* TODO modificare richiesta al server */
   const missedCallsIn = missedCalls?.filter(
     (call) => call.direction === 'in' && call.disposition === 'NO ANSWER'
   )
