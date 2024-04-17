@@ -29,8 +29,9 @@ export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'c
   label?: string
   placeholder?: string
   icon?: IconDefinition | CommonIconDefinition
+  inputClassName?: string
   trailingIcon?: boolean
-  iconColor?: string
+  iconClassName?: string
   error?: boolean
   helper?: string
   size?: 'base' | 'large'
@@ -45,8 +46,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       label,
       placeholder,
       icon: Icon,
+      inputClassName,
       trailingIcon,
-      iconColor = 'text-gray-400 dark:text-gray-500',
+      iconClassName,
       type = 'text',
       error,
       helper,
@@ -63,9 +65,20 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     const cleanProps = cleanClassName(props)
     const { input: theme } = useTheme().theme
     return (
-      <div className={classNames('text-left', 'w-full', className)}>
+      <div
+        className={classNames(
+          'text-left',
+          'w-full',
+          'relative',
+          `${error ? `mb-2` : ''}`,
+          className
+        )}
+      >
         {label && (
-          <label className={classNames(error ? theme.label.error : theme.label.base)} htmlFor={id}>
+          <label
+            className={classNames(/* error ? theme.label.error : */ theme.label.base)}
+            htmlFor={id}
+          >
             {label}
           </label>
         )}
@@ -81,7 +94,8 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 icon={Icon}
                 className={classNames(
                   size === 'large' ? theme.icon.size.large : theme.icon.size.base,
-                  error ? theme.icon.red : iconColor,
+                  theme.icon.gray,
+                  iconClassName,
                   onIconClick && 'cursor-pointer'
                 )}
                 onClick={() => onIconClick && onIconClick()}
@@ -101,7 +115,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               !error ? theme.colors.gray : theme.colors.error,
               Icon && !trailingIcon && 'pl-10',
               error ? theme.placeholder.error : theme.placeholder.base,
-              'outline-transparent'
+              'outline-transparent',
+              'dark:focus:outline-none focus:outline-none dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:border-transparent focus:border-transparent',
+              inputClassName
             )}
             {...cleanProps}
             ref={ref}
