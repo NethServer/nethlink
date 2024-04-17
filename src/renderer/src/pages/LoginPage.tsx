@@ -253,7 +253,6 @@ export function LoginPage() {
             trailingIcon={true}
             helper={errors.password?.message || undefined}
             error={!!errors.password?.message}
-            iconClassName="text-gray-50"
           />
           <button
             type="submit"
