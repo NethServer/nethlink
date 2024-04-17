@@ -42,8 +42,8 @@ export class NethLinkWindow extends BaseWindow {
   _setBounds() {
     const screenBounds = screen.getPrimaryDisplay().bounds
     const { w, h } = this.size!
-    let x = screenBounds.width - w - 30
-    let y = 55
+    let x = screenBounds.width - w - 20
+    let y = 15
     if (process.platform === 'win32') {
       const trayBounds = TrayController.instance.tray.getBounds()
       y = screenBounds.height - h - 60
