@@ -165,68 +165,68 @@ export function NethLinkPage() {
   }
 
   async function handleAddContactToPhonebook(contact: ContactType) {
-    const [_, err] = await window.api.addContactToPhonebook(contact)
-    if (err) {
-      sendNotification(
-        t('Notification.contact_not_created_title'),
-        t('Notification.contact_not_created_description')
-      )
-      throw err
-    }
-    setSearch(() => '')
-    setSelectedMissedCall(() => undefined)
-    sendNotification(
-      t('Notification.contact_created_title'),
-      t('Notification.contact_created_description')
-    )
+    window.api
+      .addContactToPhonebook(contact)
+      .then(() => {
+        sendNotification(
+          t('Notification.contact_created_title'),
+          t('Notification.contact_created_description')
+        )
+        setSearch(() => '')
+        setSelectedMissedCall(() => undefined)
+      })
+      .catch((error) => {
+        sendNotification(
+          t('Notification.contact_not_created_title'),
+          t('Notification.contact_not_created_description')
+        )
+      })
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
-    const [createdSpeedDial, err] = await window.api.addContactSpeedDials(contact)
-    if (err) {
-      sendNotification(
-        t('Notification.speeddial_not_created_title'),
-        t('Notification.speeddial_not_created_description')
-      )
-      throw err
-    }
-    setSpeeddials(() => [...speeddials, createdSpeedDial as ContactType])
-    setShowSpeedDialForm(false)
-    setSearch(() => '')
-    sendNotification(
-      t('Notification.speeddial_created_title'),
-      t('Notification.speeddial_created_description')
-    )
+    window.api
+      .addContactSpeedDials(contact)
+      .then((response) => {
+        setSpeeddials(() => [...speeddials, response as ContactType])
+        sendNotification(
+          t('Notification.speeddial_created_title'),
+          t('Notification.speeddial_created_description')
+        )
+        setShowSpeedDialForm(false)
+        setSearch(() => '')
+      })
+      .catch((error) => {
+        sendNotification(
+          t('Notification.speeddial_not_created_title'),
+          t('Notification.speeddial_not_created_description')
+        )
+      })
   }
 
   async function handleEditContactToSpeedDials(
     editContact: NewSpeedDialType,
     currentContact: ContactType
   ) {
-    const [editedSpeedDial, err] = await window.api.editSpeedDialContact(
-      editContact,
-      currentContact
-    )
-    if (err) {
-      sendNotification(
-        t('Notification.speeddial_not_modified_title'),
-        t('Notification.speeddial_not_modified_description')
-      )
-      throw err
-    }
-    const newSpeedDials = speeddials.map((speedDial) => {
-      if (speedDial.id?.toString() === editedSpeedDial?.id) {
-        return editedSpeedDial!
-      }
-      return speedDial
-    })
-    setSpeeddials(() => newSpeedDials)
-    setShowSpeedDialForm(false)
-    setSelectedSpeedDial(undefined)
-    sendNotification(
-      t('Notification.speeddial_modified_title'),
-      t('Notification.speeddial_modified_description')
-    )
+    window.api
+      .editSpeedDialContact(editContact, currentContact)
+      .then((response) => {
+        const newSpeedDials = speeddials.map((speedDial) =>
+          speedDial.id?.toString() === response['id'] ? (response! as ContactType) : speedDial
+        )
+        sendNotification(
+          t('Notification.speeddial_modified_title'),
+          t('Notification.speeddial_modified_description')
+        )
+        setSpeeddials(() => newSpeedDials)
+        setShowSpeedDialForm(false)
+        setSelectedSpeedDial(undefined)
+      })
+      .catch((error) => {
+        sendNotification(
+          t('Notification.speeddial_not_modified_title'),
+          t('Notification.speeddial_not_modified_description')
+        )
+      })
   }
 
   async function handleSubmitContact(data: NewContactType | NewSpeedDialType) {
@@ -271,23 +271,25 @@ export function NethLinkPage() {
   }
 
   async function confirmDeleteSpeedDial(deleteSpeeddial: ContactType) {
-    const [eliminatedSpeedDial, err] = await window.api.deleteSpeedDial(deleteSpeeddial)
-    if (err) {
-      sendNotification(
-        t('Notification.speeddial_not_deleted_title'),
-        t('Notification.speeddial_not_deleted_description')
-      )
-      throw err
-    }
-    setSpeeddials(() =>
-      speeddials.filter((speeddial) => speeddial.id?.toString() !== eliminatedSpeedDial)
-    )
-    setSelectedSpeedDial(undefined)
-    setShowDeleteModal(false)
-    sendNotification(
-      t('Notification.speeddial_deleted_title'),
-      t('Notification.speeddial_deleted_description')
-    )
+    window.api
+      .deleteSpeedDial(deleteSpeeddial)
+      .then((response) => {
+        setSpeeddials(() =>
+          speeddials.filter((speeddial) => speeddial.id?.toString() !== response['id'])
+        )
+        sendNotification(
+          t('Notification.speeddial_deleted_title'),
+          t('Notification.speeddial_deleted_description')
+        )
+        setSelectedSpeedDial(undefined)
+        setShowDeleteModal(false)
+      })
+      .catch((error) => {
+        sendNotification(
+          t('Notification.speeddial_not_deleted_title'),
+          t('Notification.speeddial_not_deleted_description')
+        )
+      })
   }
 
   function sendNotification(title: string, body: string) {

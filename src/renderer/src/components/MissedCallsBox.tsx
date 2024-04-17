@@ -16,7 +16,11 @@ export function MissedCallsBox({
   viewAllMissedCalls,
   handleSelectedMissedCall
 }: MissedCallsBoxProps): JSX.Element {
-  const missedCallsIn = missedCalls?.filter((call) => call.direction === 'in')
+  /* Oltre al fatto che sono le chiamate in entrate esse non devono aver avuto risposta */
+  /* TODO modificare richiesta al server */
+  const missedCallsIn = missedCalls?.filter(
+    (call) => call.direction === 'in' && call.disposition === 'NO ANSWER'
+  )
   const title = `${t('QueueManager.Missed calls')} (${missedCallsIn.length})`
 
   return (

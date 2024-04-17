@@ -6,6 +6,13 @@ import { NewContactType, ContactType, NewSpeedDialType } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { useForm, SubmitHandler } from 'react-hook-form'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+type SpeedDialFormBoxData = {
+  name: string
+  speeddial_num: string
+}
 
 interface SpeedDialFormBoxProps {
   initialData?: ContactType
@@ -14,13 +21,26 @@ interface SpeedDialFormBoxProps {
 }
 
 export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialFormBoxProps) {
+  const schema: z.ZodType<SpeedDialFormBoxData> = z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, `${t('Common.This field is required')}`),
+    speeddial_num: z
+      .string()
+      .trim()
+      .min(1, `${t('Common.This field is required')}`)
+      .min(3, `${t('Common.This field must be at least', { number: '3' })}`)
+  })
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors }
   } = useForm<NewContactType | NewSpeedDialType>({
-    defaultValues: initialData
+    defaultValues: initialData,
+    resolver: zodResolver(schema)
   })
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -47,13 +67,14 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           {initialData ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
         </h1>
       </div>
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmitForm)}>
+      <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmitForm)}>
         <TextInput
           {...register('name', { required: true })}
           type="text"
-          className="font-normal"
+          className={`font-normal`}
           label={t('Phonebook.Name') as string}
-          error={Boolean(errors.name)}
+          helper={errors.name?.message || undefined}
+          error={!!errors.name?.message}
         />
         <TextInput
           {...register('speeddial_num', { required: true })}
@@ -61,7 +82,8 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           minLength={3}
           className="font-normal"
           label={t('Phonebook.Phone number') as string}
-          error={Boolean(errors.speeddial_num)}
+          helper={errors.speeddial_num?.message || undefined}
+          error={!!errors.speeddial_num?.message}
         />
         <div className="absolute bottom-0 right-0 flex flex-row gap-4">
           <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
