@@ -44,7 +44,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
 
   return (
     <div
-      className="flex flex-grow gap-3 font-semibold max-h-[72px]"
+      className="flex flex-grow gap-3 max-h-[72px]"
       onMouseEnter={() => {
         if (getCallName(call) === t('Common.Unknown')) {
           setShowCreateButton(() => true)
@@ -53,16 +53,19 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
       onMouseLeave={() => setShowCreateButton(() => false)}
     >
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
-        { }
+        {}
         <Avatar
           size="extra_small"
           src={operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]}
           placeholder={PlaceholderIcon}
-          status={operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]?.mainPresence || undefined}
+          status={
+            operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
+              ?.mainPresence || undefined
+          }
         />
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
-        <p>{truncate(getCallName(call), 15)}</p>
+        <p className="font-medium">{truncate(getCallName(call), 15)}</p>
         <div className="flex flex-row gap-2 items-center">
           <MissedCallIcon />
           <NumberCaller
@@ -80,10 +83,9 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
       <div className="flex flex-col gap-2 ml-auto">
         {/* Badge */}
         {call.channel?.includes('from-queue') && (
-          <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] font-semibold dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
+          <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
             <FontAwesomeIcon icon={BadgeIcon} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
-            <p className="text-[12x] leading-[18px]">
-
+            <p className="text-[12x] leading-[18px] font-medium">
               {queues?.[call.queue!]?.name
                 ? queues?.[call.queue!]?.name + ' ' + call.queue
                 : `${t('QueueManager.Queue')} [${call.queue}]`}
@@ -100,9 +102,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
               className="text-base dark:text-blue-500 text-blue-600"
               icon={AddUserIcon}
             />
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">
-              {t('SpeedDial.Create')}
-            </p>
+            <p className="dark:text-blue-500 text-blue-600 font-medium">{t('SpeedDial.Create')}</p>
           </Button>
         )}
       </div>

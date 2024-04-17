@@ -44,12 +44,14 @@
     "to": "a",
     "Start recording message before": "Premi il pulsante qui sotto per registrare",
     "Start recording message after": "Puoi parlare tra poco...",
-    "Minimize": "minimize"
+    "Minimize": "minimize",
+    "This field is required": "Questo campo è obbligatorio",
+    "This field must be at least": "Questo campo deve avere almeno {{number}} caratteri"
   },
   "Login": {
     "Welcome": "Benvenuto",
     "User": "Utente",
-    "Host": "Host Nethvoice CTI",
+    "Host": "Host NethVoice CTI",
     "Username": "Nome utente",
     "Password": "Password",
     "Sign in": "Accedi",
@@ -57,13 +59,15 @@
     "User not autorized": "Utente non autorizzato",
     "Contact administrator for access": "Contatta l' amministratore per l' accesso",
     "Wrong username or password": "Nome utente o password errati",
+    "Wrong host or username or password": "Host o Nome utente o password errati",
     "Network connection is lost": "Connessione di rete persa",
     "Login failed": "Accesso fallito",
     "Use Another Account": "Usa un altro account",
     "New Account title": "Ti diamo il benvenuto",
-    "New Account description": "Accedere a Nethconnector con il nome utente e la password di Nethvoice CTI.",
+    "New Account description": "Accedere a NethLink con il nome utente e la password di NethVoice CTI.",
     "Account List title": "Account disponibili",
-    "Account List description": "Scegliete un account per proseguire con Nethconnector."
+    "Account List description": "Scegliete un account per proseguire con NethLink.",
+    "Back": "Indietro"
   },
   "SplashScreen": {
     "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",
@@ -281,7 +285,7 @@
     "Main device": "Dispositivo principale",
     "Voicemail": "Voicemail",
     "Activate voicemail": "Attiva voicemail",
-    "Go to Nethvoice CTI": "Vai a Nethvoice CTI"
+    "Go to NethVoice CTI": "Vai a NethVoice CTI"
   },
   "OperatorDrawer": {
     "Book": "Prenota",

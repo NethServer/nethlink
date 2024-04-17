@@ -44,9 +44,9 @@ export function NethLinkPage() {
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
-      number?: string
-      company?: string
-    }
+        number?: string
+        company?: string
+      }
     | undefined
   >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
@@ -71,8 +71,6 @@ export function NethLinkPage() {
   }, [search])
 
   /* Problema con il tema del sistema se cambio il tema del sistema non viene effettutato  */
-
-
 
   function initialize() {
     window.api.addPhoneIslandListener(
@@ -167,68 +165,68 @@ export function NethLinkPage() {
   }
 
   async function handleAddContactToPhonebook(contact: ContactType) {
-    const [_, err] = await window.api.addContactToPhonebook(contact)
-    if (err) {
-      sendNotification(
-        t('Notification.contact_not_created_title'),
-        t('Notification.contact_not_created_description')
-      )
-      throw err
-    }
-    setSearch(() => '')
-    setSelectedMissedCall(() => undefined)
-    sendNotification(
-      t('Notification.contact_created_title'),
-      t('Notification.contact_created_description')
-    )
+    window.api
+      .addContactToPhonebook(contact)
+      .then(() => {
+        sendNotification(
+          t('Notification.contact_created_title'),
+          t('Notification.contact_created_description')
+        )
+        setSearch(() => '')
+        setSelectedMissedCall(() => undefined)
+      })
+      .catch((error) => {
+        sendNotification(
+          t('Notification.contact_not_created_title'),
+          t('Notification.contact_not_created_description')
+        )
+      })
   }
 
   async function handleAddContactToSpeedDials(contact: NewContactType) {
-    const [createdSpeedDial, err] = await window.api.addContactSpeedDials(contact)
-    if (err) {
-      sendNotification(
-        t('Notification.speeddial_not_created_title'),
-        t('Notification.speeddial_not_created_description')
-      )
-      throw err
-    }
-    setSpeeddials(() => [...speeddials, createdSpeedDial as ContactType])
-    setShowSpeedDialForm(false)
-    setSearch(() => '')
-    sendNotification(
-      t('Notification.speeddial_created_title'),
-      t('Notification.speeddial_created_description')
-    )
+    window.api
+      .addContactSpeedDials(contact)
+      .then((response) => {
+        setSpeeddials(() => [...speeddials, response as ContactType])
+        sendNotification(
+          t('Notification.speeddial_created_title'),
+          t('Notification.speeddial_created_description')
+        )
+        setShowSpeedDialForm(false)
+        setSearch(() => '')
+      })
+      .catch((error) => {
+        sendNotification(
+          t('Notification.speeddial_not_created_title'),
+          t('Notification.speeddial_not_created_description')
+        )
+      })
   }
 
   async function handleEditContactToSpeedDials(
     editContact: NewSpeedDialType,
     currentContact: ContactType
   ) {
-    const [editedSpeedDial, err] = await window.api.editSpeedDialContact(
-      editContact,
-      currentContact
-    )
-    if (err) {
-      sendNotification(
-        t('Notification.speeddial_not_modified_title'),
-        t('Notification.speeddial_not_modified_description')
-      )
-      throw err
-    }
-    const newSpeedDials = speeddials.map((speedDial) => {
-      if (speedDial.id?.toString() === editedSpeedDial?.id) {
-        return editedSpeedDial!
-      }
-      return speedDial
-    })
-    setSpeeddials(() => newSpeedDials)
-    setShowSpeedDialForm(false)
-    setSelectedSpeedDial(undefined)
-    sendNotification(
-      t('Notification.speeddial_modified_title'),
-      t('Notification.speeddial_modified_description')
-    )
+    window.api
+      .editSpeedDialContact(editContact, currentContact)
+      .then((response) => {
+        const newSpeedDials = speeddials.map((speedDial) =>
+          speedDial.id?.toString() === response['id'] ? (response! as ContactType) : speedDial
+        )
+        sendNotification(
+          t('Notification.speeddial_modified_title'),
+          t('Notification.speeddial_modified_description')
+        )
+        setSpeeddials(() => newSpeedDials)
+        setShowSpeedDialForm(false)
+        setSelectedSpeedDial(undefined)
+      })
+      .catch((error) => {
+        sendNotification(
+          t('Notification.speeddial_not_modified_title'),
+          t('Notification.speeddial_not_modified_description')
+        )
+      })
   }
 
   async function handleSubmitContact(data: NewContactType | NewSpeedDialType) {
@@ -273,23 +271,25 @@ export function NethLinkPage() {
   }
 
   async function confirmDeleteSpeedDial(deleteSpeeddial: ContactType) {
-    const [eliminatedSpeedDial, err] = await window.api.deleteSpeedDial(deleteSpeeddial)
-    if (err) {
-      sendNotification(
-        t('Notification.speeddial_not_deleted_title'),
-        t('Notification.speeddial_not_deleted_description')
-      )
-      throw err
-    }
-    setSpeeddials(() =>
-      speeddials.filter((speeddial) => speeddial.id?.toString() !== eliminatedSpeedDial)
-    )
-    setSelectedSpeedDial(undefined)
-    setShowDeleteModal(false)
-    sendNotification(
-      t('Notification.speeddial_deleted_title'),
-      t('Notification.speeddial_deleted_description')
-    )
+    window.api
+      .deleteSpeedDial(deleteSpeeddial)
+      .then((response) => {
+        setSpeeddials(() =>
+          speeddials.filter((speeddial) => speeddial.id?.toString() !== response['id'])
+        )
+        sendNotification(
+          t('Notification.speeddial_deleted_title'),
+          t('Notification.speeddial_deleted_description')
+        )
+        setSelectedSpeedDial(undefined)
+        setShowDeleteModal(false)
+      })
+      .catch((error) => {
+        sendNotification(
+          t('Notification.speeddial_not_deleted_title'),
+          t('Notification.speeddial_not_deleted_description')
+        )
+      })
   }
 
   function sendNotification(title: string, body: string) {
@@ -302,13 +302,12 @@ export function NethLinkPage() {
   return (
     <div className="h-[100vh] w-[100vw] overflow-hidden">
       {account && (
-        <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center font-poppins text-sm dark:text-gray-200 text-gray-900">
+        <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm dark:text-gray-200 text-gray-900">
           <div
             className={`flex flex-col  min-w-[400px] min-h-[380px] h-full items-center justify-between`}
           >
             <div
-              className={`flex flex-row ${navigator.userAgent.includes('Windows') ? 'justify-end' : 'justify-start'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-200  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
-
+              className={`flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-200  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
             >
               <FontAwesomeIcon
                 className={`text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 `}

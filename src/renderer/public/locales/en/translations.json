@@ -60,12 +60,14 @@
     "to": "to",
     "Start recording message before": "Click the button below to start recording",
     "Start recording message after": "You can speak in a moment...",
-    "Minimize": "minimize"
+    "Minimize": "minimize",
+    "This field is required": "This field is required",
+    "This field must be at least": "This field must be at least {{number}} of characters"
   },
   "Login": {
     "Welcome": "Welcome",
     "User": "User",
-    "Host": "Nethvoice CTI host",
+    "Host": "NethVoice CTI host",
     "Username": "Username",
     "Password": "Password",
     "Sign in": "Sign in",
@@ -79,9 +81,10 @@
     "Login failed": "Login failed",
     "Use Another Account": "Use another account",
     "New Account title": "Welcome",
-    "New Account description": "Sign in to Nethconnector with your Nethvoice CTI username and password.",
+    "New Account description": "Sign in to NethLink with your NethVoice CTI username and password.",
     "Account List title": "Account list",
-    "Account List description": "Choose an account to continue to Nethconnector."
+    "Account List description": "Choose an account to continue to NethLink.",
+    "Back": "Back"
   },
   "SplashScreen": {
     "Description": "Lorem ipsum dolor sit amet, consectet adipiscing elit. Donec cursus condimentum lorem sed tincidunt.",
@@ -317,7 +320,7 @@
     "Main device": "Main device",
     "Voicemail": "Voicemail",
     "Activate voicemail": "Activate voicemail",
-    "Go to Nethvoice CTI": "Go to Nethvoice CTI"
+    "Go to NethVoice CTI": "Go to NethVoice CTI"
   },
   "OperatorDrawer": {
     "Book": "Book",
