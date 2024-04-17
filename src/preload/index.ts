@@ -81,11 +81,17 @@ function addListener(channel) {
 }
 
 function setEmitterSync<T>(event): () => SyncPromise<T> {
-  return (...args): SyncPromise<T> => {
-    return new Promise((resolve) => {
-      const res = ipcRenderer.sendSync(event, ...args)
-      //log('sync emitter', event, res)
-      resolve(res)
+  return async (...args): SyncPromise<T> => {
+    return await new Promise((resolve, reject) => {
+      //questo timout serve ad eseguire i setter di react prima che il sendSync metta in freeze la UI
+      setTimeout(() => {
+        const [returnValue, err] = ipcRenderer.sendSync(event, ...args)
+        //log('sync emitter', event, res)
+        if (err) reject(err)
+        else resolve(returnValue)
+        //const res = ipcRenderer.sendSync(event, ...args)
+        //resolve(res)
+      }, 100);
     })
   }
 }

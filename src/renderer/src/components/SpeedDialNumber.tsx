@@ -3,10 +3,10 @@ import {
   faPhone as CallIcon,
   faEllipsisVertical as MenuIcon,
   faPen as ModifyIcon,
-  faTrashCan as DeleteIcon
+  faTrashCan as DeleteIcon,
+  faCircleUser
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/'
-import { PlaceholderIcon } from '@renderer/icons'
 import { NumberCaller } from './NumberCaller'
 import { Menu } from '@headlessui/react'
 import { ContactType, OperatorData } from '@shared/types'
@@ -16,6 +16,7 @@ import { truncate } from '@renderer/utils'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
+  className?: string
   callUser: () => void
   handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
   handleDeleteSpeedDial: (deletedSpeedDial: ContactType) => void
@@ -24,27 +25,37 @@ export interface SpeedDialNumberProps {
 
 export function SpeedDialNumber({
   speedDial,
+  className,
   callUser,
   handleSelectedSpeedDial,
   handleDeleteSpeedDial,
   isLastItem
 }: SpeedDialNumberProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
+  const avatarSrc =
+    operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
 
   return (
-    <div className="relative flex flex-row justify-between items-center font-medium min-h-[44px]">
+    <div
+      className={`relative flex flex-row justify-between items-center font-semibold min-h-[44px] p-2 px-5 ${className}`}
+    >
       <div className="flex gap-6 items-center">
-        {}
-        <Avatar
-          size="base"
-          src={operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]}
-          status={
-            operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
-              ?.mainPresence || undefined
-          }
-          className="z-0"
-          placeholder={PlaceholderIcon}
-        />
+        {avatarSrc ? (
+          <Avatar
+            size="base"
+            src={avatarSrc}
+            status={
+              operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
+                ?.mainPresence || undefined
+            }
+            className="z-0"
+          />
+        ) : (
+          <div className="bg-white w-10 h-10 rounded-full flex items-center justify-center">
+            <FontAwesomeIcon icon={faCircleUser} className="h-10 w-10 text-gray-400" />
+          </div>
+        )}
+
         <div className="flex flex-col gap-1">
           <p className="dark:text-gray-50 text-gray-900">{truncate(speedDial.name!, 20)}</p>
           <div className="flex gap-2 items-center">
@@ -55,7 +66,7 @@ export function SpeedDialNumber({
             />
             <NumberCaller
               number={speedDial.speeddial_num!}
-              className="dark:text-blue-500 text-blue-600 font-normal"
+              className="dark:text-blue-500 text-blue-600 font-normal underline"
             >
               {truncate(speedDial.speeddial_num!, 19)}
             </NumberCaller>

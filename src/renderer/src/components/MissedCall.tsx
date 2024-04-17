@@ -1,25 +1,34 @@
-import { faUserPlus as AddUserIcon, faUsers as BadgeIcon } from '@fortawesome/free-solid-svg-icons'
+import {
+  faUserPlus as AddUserIcon,
+  faUsers as BadgeIcon,
+  faCircleUser
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
+import { MissedCallIcon } from '@renderer/icons'
 import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { CallData, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from './Nethesis/CallsDate'
 import { truncate } from '@renderer/utils'
-import { log } from '@shared/utils/logger'
 
 export interface MissedCallProps {
   call: CallData
+  className?: string
   handleSelectedMissedCall: (number, company) => void
 }
 
-export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps): JSX.Element {
+export function MissedCall({
+  call,
+  className,
+  handleSelectedMissedCall
+}: MissedCallProps): JSX.Element {
   const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
+  const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
 
   function getCallName(call: CallData): string {
     if (call.direction === 'in') return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
@@ -44,7 +53,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
 
   return (
     <div
-      className="flex flex-grow gap-3 max-h-[72px]"
+      className={`flex flex-grow gap-3 font-semibold min-h-[72px] p-2 px-5 ${className}`}
       onMouseEnter={() => {
         if (getCallName(call) === t('Common.Unknown')) {
           setShowCreateButton(() => true)
@@ -53,16 +62,21 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
       onMouseLeave={() => setShowCreateButton(() => false)}
     >
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
-        {}
-        <Avatar
-          size="extra_small"
-          src={operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]}
-          placeholder={PlaceholderIcon}
-          status={
-            operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
-              ?.mainPresence || undefined
-          }
-        />
+        {avatarSrc ? (
+          <Avatar
+            size="extra_small"
+            src={avatarSrc}
+            status={
+              operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
+                ?.mainPresence || undefined
+            }
+          />
+        ) : (
+          <FontAwesomeIcon
+            icon={faCircleUser}
+            className="h-6 w-6 dark:text-gray-200 text-gray-400"
+          />
+        )}
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
         <p className="font-medium">{truncate(getCallName(call), 15)}</p>
@@ -70,7 +84,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
           <MissedCallIcon />
           <NumberCaller
             number={getCallExt(call)}
-            className="dark:text-blue-500 text-blue-600 font-normal"
+            className="dark:text-blue-500 text-blue-600 font-normal underline"
           >
             {call.cnum}
           </NumberCaller>
@@ -85,7 +99,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
         {call.channel?.includes('from-queue') && (
           <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
             <FontAwesomeIcon icon={BadgeIcon} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
-            <p className="text-[12x] leading-[18px] font-medium">
+            <p className="text-[12x] leading-[18px]">
               {queues?.[call.queue!]?.name
                 ? queues?.[call.queue!]?.name + ' ' + call.queue
                 : `${t('QueueManager.Queue')} [${call.queue}]`}

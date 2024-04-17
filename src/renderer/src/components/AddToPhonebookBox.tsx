@@ -5,6 +5,8 @@ import { faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
 import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { t } from 'i18next'
+import * as z from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 export interface AddToPhonebookBoxProps {
   searchText?: string
@@ -21,12 +23,45 @@ export function AddToPhonebookBox({
   onCancel,
   handleAddContactToPhonebook
 }: AddToPhonebookBoxProps) {
+  const baseSchema = z.object({
+    privacy: z.string(),
+    extension: z.string(),
+    workphone: z.string(),
+    cellphone: z.string(),
+    workemail: z.string(),
+    notes: z.string()
+  })
+
+  const resultSchema = z
+    .discriminatedUnion('type', [
+      z.object({
+        type: z.literal('person'),
+        name: z
+          .string()
+          .trim()
+          .min(1, `${t('Common.This field is required')}`),
+        company: z.string().trim()
+      }),
+      z.object({
+        type: z.literal('company'),
+        name: z.string().trim(),
+        company: z
+          .string()
+          .trim()
+          .min(1, `${t('Common.This field is required')}`)
+      })
+    ])
+    .and(baseSchema)
+
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
   const {
     register,
     watch,
     handleSubmit,
     setValue,
     reset,
+    trigger,
     formState: { errors }
   } = useForm<ContactType>({
     defaultValues: {
@@ -34,18 +69,25 @@ export function AddToPhonebookBox({
       type: '',
       name: '',
       company: '',
-      speeddial_num: '',
+      extension: '',
       workphone: '',
       cellphone: '',
       workemail: '',
       notes: ''
-    }
+    },
+    resolver: zodResolver(resultSchema)
   })
+
+  const watchType = watch('type')
+
+  useEffect(() => {
+    !!errors.name && trigger('name')
+    !!errors.company && trigger('company')
+  }, [watchType])
+
   const onSubmit: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
   }
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const watchType = watch('type')
 
   function containsOnlyNumber(text: string) {
     return /^\d+$/.test(text)
@@ -58,7 +100,7 @@ export function AddToPhonebookBox({
 
     if (searchText !== undefined) {
       if (containsOnlyNumber(searchText)) {
-        setValue('speeddial_num', searchText)
+        setValue('extension', searchText)
       } else {
         setValue('name', searchText)
       }
@@ -68,11 +110,17 @@ export function AddToPhonebookBox({
       setValue('company', selectedCompany)
     }
     if (selectedNumber) {
-      setValue('speeddial_num', selectedNumber)
+      setValue('extension', selectedNumber)
     }
   }, [])
 
   function handleSave(data: ContactType) {
+    //NETHVOICE usa il valore '-' quando si inserisce una company che e' priva di nome
+    //data.name === '' puo' essere vera solo nel caso in cui si inserisce una company
+    if (watchType === 'company') {
+      data.name = '-'
+    }
+    setIsLoading(true)
     handleAddContactToPhonebook(data)
       .catch((error) => {
         //TODO: gestione errore inserimento
@@ -85,18 +133,15 @@ export function AddToPhonebookBox({
   }
 
   return (
-    <div className="pl-4 w-full h-full">
-      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 max-h-[28px]">
-        <h1 className="font-medium">{t('Phonebook.Add to Phonebook')}</h1>
+    <div className="w-full h-full">
+      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 max-h-[28px] px-5">
+        <h1 className="font-semibold">{t('Phonebook.Add to Phonebook')}</h1>
       </div>
       <form
-        className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px]"
+        className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px] px-5"
         onSubmit={(e) => {
-          setIsLoading(true)
           e.preventDefault()
-          setTimeout(() => {
-            handleSubmit(onSubmit)(e)
-          }, 100)
+          handleSubmit(onSubmit)(e)
         }}
       >
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
@@ -130,28 +175,30 @@ export function AddToPhonebookBox({
         {watchType === 'person' ? (
           <>
             <TextInput
-              {...register('name', { required: true })}
+              {...register('name')}
               type="text"
-              className="font-normal"
+              className={`font-normal ${errors.name?.message ? `mb-2` : ``}`}
               label={t('Phonebook.Name') as string}
-              error={Boolean(errors.name)}
+              helper={errors.name?.message || undefined}
+              error={!!errors.name?.message}
             />
           </>
         ) : null}
         <TextInput
-          {...register('company', { required: !(watchType === 'person') })}
+          {...register('company')}
           type="text"
-          className="font-normal"
+          className={`font-normal ${errors.company?.message ? `mb-2` : ``}`}
           label={t('Phonebook.Company') as string}
-          error={Boolean(errors.company)}
+          helper={errors.company?.message || undefined}
+          error={!!errors.company?.message}
         />
 
         <TextInput
-          {...register('speeddial_num')}
+          {...register('extension')}
           type="tel"
           minLength={3}
           onChange={(e) => {
-            setValue('speeddial_num', e.target.value.replace(/\D/g, ''))
+            setValue('extension', e.target.value.replace(/\D/g, ''))
           }}
           className="font-normal"
           label={t('Phonebook.Phone number') as string}

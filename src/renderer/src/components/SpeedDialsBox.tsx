@@ -21,11 +21,11 @@ export function SpeedDialsBox({
   handleDeleteSpeedDial
 }: SpeedDialsBoxProps): JSX.Element {
   return (
-    <div className="flex flex-col gap-4 h-full">
-      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px]">
-        <h1 className="dark:text-gray-50 text-gray-900 font-medium">{t('SpeedDial.Speed dial')}</h1>
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 font-semibold max-h-[28px] px-5">
+        <h1 className="dark:text-gray-50 text-gray-900">{t('SpeedDial.Speed dial')}</h1>
         <Button
-          className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0"
+          className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0 dark:hover:bg-gray-700 hover:bg-gray-200"
           onClick={showCreateSpeedDial}
         >
           <FontAwesomeIcon
@@ -35,16 +35,17 @@ export function SpeedDialsBox({
           <p className="dark:text-blue-500 text-blue-600 font-medium">{t('SpeedDial.Create')}</p>
         </Button>
       </div>
-      <div className="flex flex-col gap-2 p-2 min-h-[120px] max-h-[240px] overflow-y-auto">
+      <div className="flex flex-col min-h-[120px] max-h-[240px] overflow-y-auto">
         {speeddials && speeddials.length > 0 ? (
           speeddials?.map((e, idx) => {
             return (
               <div
-                className={`${idx === speeddials.length - 1 ? `` : `border-b pb-2 dark:border-gray-700 border-gray-200`}`}
+                className={`${idx === speeddials.length - 1 ? `` : `border-b dark:border-gray-500 border-gray-300`}`}
                 key={idx}
               >
                 <SpeedDialNumber
                   speedDial={e}
+                  className="dark:hover:bg-gray-700 hover:bg-gray-200"
                   callUser={() => callUser(e.speeddial_num!)}
                   handleSelectedSpeedDial={handleSelectedSpeedDial}
                   handleDeleteSpeedDial={handleDeleteSpeedDial}

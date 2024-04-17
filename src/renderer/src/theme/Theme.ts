@@ -62,17 +62,17 @@ const theme = {
     base: 'border dark:border-gray-700 border-gray-300 block w-full relative focus:z-[8] disabled:cursor-not-allowed bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:border-gray-700 dark:disabled:bg-gray-900 dark:disabled:text-gray-400',
     label: {
       base: 'text-md font-medium text-gray-700 dark:text-gray-50',
-      error: 'text-md font-medium text-red-500 dark:text-red-500'
+      //error: 'text-md font-medium text-red-500 dark:text-red-500'
     },
     placeholder: {
       base: 'placeholder:text-gray-500 dark:placeholder:text-gray-50',
       error: ''
     },
     helper: {
-      base: 'mt-2 text-sm',
+      base: 'absolute mt-2 text-sm',
       color: {
         base: 'text-gray-500 dark:text-gray-400',
-        error: 'text-red-600 dark:text-red-400'
+        error: 'text-rose-500 dark:text-rose-500'
       }
     },
     size: {
@@ -81,11 +81,12 @@ const theme = {
     },
     colors: {
       gray: 'border-gray-300 placeholder:text-gray-400 dark:border-gray-600 dark:placeholder:text-gray-500',
-      error: 'border-red-500 dark:border-red-400'
+      error: 'border-2 border-rose-500 dark:border-rose-500'
     },
     icon: {
       base: 'absolute flex items-center z-[9]',
       gray: 'text-gray-400 dark:text-gray-500',
+      white: 'text-gray-900 dark:text-gray-50',
       red: 'text-red-500 dark:text-red-400',
       left: 'inset-y-0 left-0 pl-3',
       right: 'inset-y-0 right-0 pr-3',
