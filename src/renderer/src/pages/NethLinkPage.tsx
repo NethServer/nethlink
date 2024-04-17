@@ -270,7 +270,7 @@ export function NethLinkPage() {
   }
 
   function handleDeleteSpeedDial(deleteSpeeddial: ContactType) {
-    setSelectedSpeedDial(deleteSpeeddial)
+    setSelectedSpeedDial(() => deleteSpeeddial)
     setShowDeleteModal(true)
   }
 
