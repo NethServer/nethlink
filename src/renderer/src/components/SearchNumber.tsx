@@ -30,7 +30,7 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
       while (index !== -1) {
         parts.push(number.substring(lastIndex, index))
         parts.push(
-          <span className="dark:text-blue-500 text-blue-600 font-semibold">
+          <span className="dark:text-blue-500 text-blue-600 font-bold">
             {number.substring(index, index + searchText.length)}
           </span>
         )
@@ -42,7 +42,6 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
     }
     return parts
   }
-
 
   const phoneNumber = user.workphone || user.cellphone || user.extension
   const highlightedNumber = highlightMatch(phoneNumber, searchText)
@@ -61,14 +60,17 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
           bordered={true}
         />
         <div className="flex flex-col gap-1">
-          <p className="font-semibold">{user.name}</p>
+          <p className="font-normal">{user.name}</p>
           <NumberCaller number={phoneNumber}>{highlightedNumber}</NumberCaller>
         </div>
       </div>
-      <Button variant="ghost" onClick={() => {
-        callUser(phoneNumber)
-      }}>
-        <p className="dark:text-blue-500 text-blue-600 font-semibold dark:hover:bg-gray-700 hover:bg-gray-200">
+      <Button
+        variant="ghost"
+        onClick={() => {
+          callUser(phoneNumber)
+        }}
+      >
+        <p className="dark:text-blue-500 text-blue-600 font-medium dark:hover:bg-gray-700 hover:bg-gray-200">
           {t('Operators.Call')}
         </p>
       </Button>

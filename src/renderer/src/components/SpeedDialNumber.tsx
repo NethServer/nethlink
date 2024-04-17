@@ -32,13 +32,16 @@ export function SpeedDialNumber({
   const operators = useSubscriber<OperatorData>('operators')
 
   return (
-    <div className="relative flex flex-row justify-between items-center font-semibold min-h-[44px]">
+    <div className="relative flex flex-row justify-between items-center font-medium min-h-[44px]">
       <div className="flex gap-6 items-center">
-        { }
+        {}
         <Avatar
           size="base"
           src={operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]}
-          status={operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username]?.mainPresence || undefined}
+          status={
+            operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
+              ?.mainPresence || undefined
+          }
           className="z-0"
           placeholder={PlaceholderIcon}
         />
@@ -88,7 +91,7 @@ export function SpeedDialNumber({
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={ModifyIcon}
                     />
-                    <p className="font-semibold dark:text-gray-50 text-gray-900">
+                    <p className="font-medium dark:text-gray-50 text-gray-900">
                       {t('Common.Edit')}
                     </p>
                   </div>
@@ -105,7 +108,7 @@ export function SpeedDialNumber({
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={DeleteIcon}
                     />
-                    <p className="font-semibold dark:text-gray-50 text-gray-900">
+                    <p className="font-medium dark:text-gray-50 text-gray-900">
                       {t('Common.Delete')}
                     </p>
                   </div>

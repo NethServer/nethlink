@@ -31,6 +31,9 @@ export default {
         '5xl': '2560px',
         '6xl': '3072px',
         '7xl': '3584px'
+      },
+      fontFamily: {
+        Poppins: ['Poppins', 'sans-serif']
       }
     }
   },
