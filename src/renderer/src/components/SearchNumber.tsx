@@ -31,7 +31,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
       while (index !== -1) {
         parts.push(number.substring(lastIndex, index))
         parts.push(
-          <span className="dark:text-blue-500 text-blue-600 font-semibold">
+          <span className="dark:text-blue-500 text-blue-600 font-bold">
             {number.substring(index, index + searchText.length)}
           </span>
         )

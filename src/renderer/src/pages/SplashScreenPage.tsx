@@ -7,9 +7,8 @@ import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { PageType } from '@shared/types'
 
 export function SplashScreenPage() {
-
   const page = useSubscriber<PageType>('page')
-  useInitialize(() => { }, true)
+  useInitialize(() => {}, true)
 
   return (
     <div className="h-[100vh] w-[100vw] p-1 rounded-[10px]">
@@ -31,9 +30,7 @@ export function SplashScreenPage() {
           <div className="grow flex items-end">
             <img src={logo} className="w-10 h-10" draggable="false"></img>
           </div>
-          <p className="text-gray-300 text-sm px-5 text-center mt-5">
-            v{page?.props.appVersion}
-          </p>
+          <p className="text-gray-300 text-sm px-5 text-center mt-5">v{page?.props.appVersion}</p>
         </div>
       </div>
     </div>

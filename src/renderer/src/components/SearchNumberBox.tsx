@@ -34,7 +34,7 @@ export function SearchNumberBox({
         onClick={() => callUser(searchText)}
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={CallIcon} />
-        <p className="font-semibold">
+        <p className="font-normal">
           {t('Operators.Call')} {searchText}
         </p>
       </div>
@@ -44,7 +44,7 @@ export function SearchNumberBox({
         onClick={showAddContactToPhonebook}
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={AddUserIcon} />
-        <p className="font-semibold">
+        <p className="font-normal">
           {t('Common.Add')} {searchText.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
         </p>
       </div>

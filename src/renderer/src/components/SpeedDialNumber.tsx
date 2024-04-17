@@ -95,7 +95,7 @@ export function SpeedDialNumber({
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={ModifyIcon}
                     />
-                    <p className="font-semibold dark:text-gray-50 text-gray-900">
+                    <p className="font-medium dark:text-gray-50 text-gray-900">
                       {t('Common.Edit')}
                     </p>
                   </div>
@@ -112,7 +112,7 @@ export function SpeedDialNumber({
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={DeleteIcon}
                     />
-                    <p className="font-semibold dark:text-gray-50 text-gray-900">
+                    <p className="font-medium dark:text-gray-50 text-gray-900">
                       {t('Common.Delete')}
                     </p>
                   </div>

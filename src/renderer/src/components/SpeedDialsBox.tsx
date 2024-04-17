@@ -32,7 +32,7 @@ export function SpeedDialsBox({
             className="dark:text-blue-500 text-blue-600 text-base"
             icon={AddSpeedDialIcon}
           />
-          <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('SpeedDial.Create')}</p>
+          <p className="dark:text-blue-500 text-blue-600 font-medium">{t('SpeedDial.Create')}</p>
         </Button>
       </div>
       <div className="flex flex-col min-h-[120px] max-h-[240px] overflow-y-auto">
@@ -55,7 +55,7 @@ export function SpeedDialsBox({
             )
           })
         ) : (
-          <div className="font-semibold dark:text-gray-50 text-gray-900 dark:bg-gray-900 bg-gray-50">
+          <div className="font-medium dark:text-gray-50 text-gray-900 dark:bg-gray-900 bg-gray-50">
             {t('SpeedDial.No speed dials')}
           </div>
         )}
