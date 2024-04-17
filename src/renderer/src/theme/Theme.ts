@@ -86,6 +86,7 @@ const theme = {
     icon: {
       base: 'absolute flex items-center z-[9]',
       gray: 'text-gray-400 dark:text-gray-500',
+      white: 'text-gray-900 dark:text-gray-50',
       red: 'text-red-500 dark:text-red-400',
       left: 'inset-y-0 left-0 pl-3',
       right: 'inset-y-0 right-0 pr-3',
