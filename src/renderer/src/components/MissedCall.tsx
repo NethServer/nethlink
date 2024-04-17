@@ -16,10 +16,15 @@ import { truncate } from '@renderer/utils'
 
 export interface MissedCallProps {
   call: CallData
+  className?: string
   handleSelectedMissedCall: (number, company) => void
 }
 
-export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps): JSX.Element {
+export function MissedCall({
+  call,
+  className,
+  handleSelectedMissedCall
+}: MissedCallProps): JSX.Element {
   const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
@@ -48,7 +53,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
 
   return (
     <div
-      className="flex flex-grow gap-3 max-h-[72px]"
+      className={`flex flex-grow gap-3 font-semibold min-h-[72px] p-2 px-5 ${className}`}
       onMouseEnter={() => {
         if (getCallName(call) === t('Common.Unknown')) {
           setShowCreateButton(() => true)
@@ -79,7 +84,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
           <MissedCallIcon />
           <NumberCaller
             number={getCallExt(call)}
-            className="dark:text-blue-500 text-blue-600 font-normal"
+            className="dark:text-blue-500 text-blue-600 font-normal underline"
           >
             {call.cnum}
           </NumberCaller>
@@ -94,7 +99,7 @@ export function MissedCall({ call, handleSelectedMissedCall }: MissedCallProps):
         {call.channel?.includes('from-queue') && (
           <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
             <FontAwesomeIcon icon={BadgeIcon} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
-            <p className="text-[12x] leading-[18px] font-medium">
+            <p className="text-[12x] leading-[18px]">
               {queues?.[call.queue!]?.name
                 ? queues?.[call.queue!]?.name + ' ' + call.queue
                 : `${t('QueueManager.Queue')} [${call.queue}]`}

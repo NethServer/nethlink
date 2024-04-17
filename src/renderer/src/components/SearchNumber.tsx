@@ -9,11 +9,12 @@ import { log } from '@shared/utils/logger'
 
 export interface SearchNumberProps {
   user: SearchData
+  className?: string
   callUser: (phoneNumber: string) => void
   searchText: string
 }
 
-export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) {
+export function SearchNumber({ user, callUser, className, searchText }: SearchNumberProps) {
   const operators = useSubscriber<OperatorData>('operators')
 
   const getUsernameFromPhoneNumber = (number: string) => {
@@ -50,7 +51,9 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
   const avatarSrc = operators?.avatars?.[username]
 
   return (
-    <div className="flex justify-between w-full min-h-14 px-2 py-2 dark:text-gray-50 text-gray-900">
+    <div
+      className={`flex justify-between w-full min-h-14 py-2 px-5 dark:text-gray-50 text-gray-900 ${className}`}
+    >
       <div className="flex gap-3 items-center">
         <Avatar
           size="small"
@@ -60,19 +63,23 @@ export function SearchNumber({ user, callUser, searchText }: SearchNumberProps) 
           bordered={true}
         />
         <div className="flex flex-col gap-1">
-          <p className="font-normal">{user.name}</p>
-          <NumberCaller number={phoneNumber}>{highlightedNumber}</NumberCaller>
+          <p className="font-semibold">{user.name}</p>
+          <NumberCaller
+            number={phoneNumber}
+            className="dark:text-blue-500 text-blue-600 font-normal underline"
+          >
+            {highlightedNumber}
+          </NumberCaller>
         </div>
       </div>
       <Button
+        className="dark:hover:bg-gray-900 hover:bg-gray-50"
         variant="ghost"
         onClick={() => {
           callUser(phoneNumber)
         }}
       >
-        <p className="dark:text-blue-500 text-blue-600 font-medium dark:hover:bg-gray-700 hover:bg-gray-200">
-          {t('Operators.Call')}
-        </p>
+        <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Operators.Call')}</p>
       </Button>
     </div>
   )

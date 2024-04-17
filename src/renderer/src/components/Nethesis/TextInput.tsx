@@ -31,6 +31,7 @@ export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'c
   icon?: IconDefinition | CommonIconDefinition
   inputClassName?: string
   trailingIcon?: boolean
+  iconClassName?: string
   error?: boolean
   helper?: string
   size?: 'base' | 'large'
@@ -47,6 +48,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       icon: Icon,
       inputClassName,
       trailingIcon,
+      iconClassName,
       type = 'text',
       error,
       helper,
@@ -63,9 +65,20 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     const cleanProps = cleanClassName(props)
     const { input: theme } = useTheme().theme
     return (
-      <div className={classNames('text-left', 'w-full', className)}>
+      <div
+        className={classNames(
+          'text-left',
+          'w-full',
+          'relative',
+          `${error ? `mb-2` : ''}`,
+          className
+        )}
+      >
         {label && (
-          <label className={classNames(error ? theme.label.error : theme.label.base)} htmlFor={id}>
+          <label
+            className={classNames(/* error ? theme.label.error : */ theme.label.base)}
+            htmlFor={id}
+          >
             {label}
           </label>
         )}
@@ -81,7 +94,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 icon={Icon}
                 className={classNames(
                   size === 'large' ? theme.icon.size.large : theme.icon.size.base,
-                  error ? theme.icon.red : theme.icon.gray,
+                  iconClassName || theme.icon.gray,
                   onIconClick && 'cursor-pointer'
                 )}
                 onClick={() => onIconClick && onIconClick()}
@@ -102,7 +115,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               Icon && !trailingIcon && 'pl-10',
               error ? theme.placeholder.error : theme.placeholder.base,
               'outline-transparent',
-              'dark:border border dark:border-transparent border-transparent dark:focus:outline-none focus:outline-none dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:border-transparent focus:border-transparent',
+              'dark:focus:outline-none focus:outline-none dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:border-transparent focus:border-transparent',
               inputClassName
             )}
             {...cleanProps}

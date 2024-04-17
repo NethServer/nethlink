@@ -16,6 +16,7 @@ import { truncate } from '@renderer/utils'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
+  className?: string
   callUser: () => void
   handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
   handleDeleteSpeedDial: (deletedSpeedDial: ContactType) => void
@@ -24,6 +25,7 @@ export interface SpeedDialNumberProps {
 
 export function SpeedDialNumber({
   speedDial,
+  className,
   callUser,
   handleSelectedSpeedDial,
   handleDeleteSpeedDial,
@@ -34,7 +36,9 @@ export function SpeedDialNumber({
     operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
 
   return (
-    <div className="relative flex flex-row justify-between items-center font-medium min-h-[44px]">
+    <div
+      className={`relative flex flex-row justify-between items-center font-semibold min-h-[44px] p-2 px-5 ${className}`}
+    >
       <div className="flex gap-6 items-center">
         {avatarSrc ? (
           <Avatar
@@ -62,7 +66,7 @@ export function SpeedDialNumber({
             />
             <NumberCaller
               number={speedDial.speeddial_num!}
-              className="dark:text-blue-500 text-blue-600 font-normal"
+              className="dark:text-blue-500 text-blue-600 font-normal underline"
             >
               {truncate(speedDial.speeddial_num!, 19)}
             </NumberCaller>
