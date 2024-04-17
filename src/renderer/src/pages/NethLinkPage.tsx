@@ -44,9 +44,9 @@ export function NethLinkPage() {
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
-        number?: string
-        company?: string
-      }
+      number?: string
+      company?: string
+    }
     | undefined
   >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
@@ -183,59 +183,63 @@ export function NethLinkPage() {
       })
   }
 
-  async function handleAddContactToSpeedDials(contact: NewContactType) {
-    window.api
-      .addContactSpeedDials(contact)
-      .then((response) => {
-        setSpeeddials(() => [...speeddials, response as ContactType])
-        sendNotification(
-          t('Notification.speeddial_created_title'),
-          t('Notification.speeddial_created_description')
-        )
-        setShowSpeedDialForm(false)
-        setSearch(() => '')
-      })
-      .catch((error) => {
-        sendNotification(
-          t('Notification.speeddial_not_created_title'),
-          t('Notification.speeddial_not_created_description')
-        )
-      })
+  function handleAddContactToSpeedDials(contact: NewContactType): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      window.api
+        .addContactSpeedDials(contact)
+        .then((allSpeeddials) => {
+          log('speeddial_created_title', allSpeeddials)
+          setSpeeddials(() => [...allSpeeddials])
+          sendNotification(
+            t('Notification.speeddial_created_title'),
+            t('Notification.speeddial_created_description')
+          )
+          setShowSpeedDialForm(false)
+          setSearch(() => '')
+          resolve()
+        })
+        .catch((error) => {
+          sendNotification(
+            t('Notification.speeddial_not_created_title'),
+            t('Notification.speeddial_not_created_description')
+          )
+          reject(error)
+        })
+    })
   }
 
-  async function handleEditContactToSpeedDials(
+  function handleEditContactToSpeedDials(
     editContact: NewSpeedDialType,
     currentContact: ContactType
-  ) {
-    window.api
-      .editSpeedDialContact(editContact, currentContact)
-      .then((response) => {
-        const newSpeedDials = speeddials.map((speedDial) =>
-          speedDial.id?.toString() === response['id'] ? (response! as ContactType) : speedDial
-        )
-        sendNotification(
-          t('Notification.speeddial_modified_title'),
-          t('Notification.speeddial_modified_description')
-        )
-        setSpeeddials(() => newSpeedDials)
-        setShowSpeedDialForm(false)
-        setSelectedSpeedDial(undefined)
-      })
-      .catch((error) => {
-        sendNotification(
-          t('Notification.speeddial_not_modified_title'),
-          t('Notification.speeddial_not_modified_description')
-        )
-      })
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      window.api
+        .editSpeedDialContact(editContact, currentContact)
+        .then((response) => {
+          const newSpeedDials = speeddials.map((speedDial) =>
+            speedDial.id?.toString() === response['id'] ? (response! as ContactType) : speedDial
+          )
+          sendNotification(
+            t('Notification.speeddial_modified_title'),
+            t('Notification.speeddial_modified_description')
+          )
+          setSpeeddials(() => newSpeedDials)
+          setShowSpeedDialForm(false)
+          setSelectedSpeedDial(undefined)
+          resolve()
+        })
+        .catch((error) => {
+          sendNotification(
+            t('Notification.speeddial_not_modified_title'),
+            t('Notification.speeddial_not_modified_description')
+          )
+          reject(error)
+        })
+    })
+
   }
 
-  async function handleSubmitContact(data: NewContactType | NewSpeedDialType) {
-    if (selectedSpeedDial) {
-      await handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial)
-    } else {
-      await handleAddContactToSpeedDials(data as NewContactType)
-    }
-  }
+  const handleSubmitContact = (data: NewContactType | NewSpeedDialType) => selectedSpeedDial ? handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial) : handleAddContactToSpeedDials(data as NewContactType)
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
@@ -266,16 +270,17 @@ export function NethLinkPage() {
   }
 
   function handleDeleteSpeedDial(deleteSpeeddial: ContactType) {
-    setSelectedSpeedDial(deleteSpeeddial)
+    setSelectedSpeedDial(() => deleteSpeeddial)
     setShowDeleteModal(true)
   }
 
   async function confirmDeleteSpeedDial(deleteSpeeddial: ContactType) {
     window.api
       .deleteSpeedDial(deleteSpeeddial)
-      .then((response) => {
+      .then((_) => {
+        console.log('delete speeddials', deleteSpeeddial, _)
         setSpeeddials(() =>
-          speeddials.filter((speeddial) => speeddial.id?.toString() !== response['id'])
+          speeddials.filter((speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString())
         )
         sendNotification(
           t('Notification.speeddial_deleted_title'),

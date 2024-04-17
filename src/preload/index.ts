@@ -13,8 +13,6 @@ import {
 } from '@shared/types'
 import { preloadBindings } from 'i18next-electron-fs-backend'
 import { log } from '@shared/utils/logger'
-export type SyncResponse<T> = [T | undefined, Error | undefined]
-export type SyncPromise<T> = Promise<SyncResponse<T>>
 
 export interface IElectronAPI {
 
@@ -26,15 +24,15 @@ export interface IElectronAPI {
   i18nextElectronBackend: any
 
   //SYNC EMITTERS - expect response
-  login: (host: string, username: string, password: string) => SyncPromise<Account>
-  addContactToPhonebook(contact: ContactType): SyncPromise<void>
-  addContactSpeedDials(contact: NewContactType): SyncPromise<ContactType>
+  login: (host: string, username: string, password: string) => Promise<Account | undefined>
+  addContactToPhonebook(contact: ContactType): Promise<void>
+  addContactSpeedDials(contact: NewContactType): Promise<ContactType[]>
   editSpeedDialContact(
     editContact: NewSpeedDialType,
     currentContact: ContactType
-  ): SyncPromise<ContactType>
-  deleteSpeedDial(contact: ContactType): SyncPromise<string>
-  getLocale(): SyncPromise<string>
+  ): Promise<ContactType>
+  deleteSpeedDial(contact: ContactType): Promise<string>
+  getLocale(): Promise<string>
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
@@ -80,12 +78,12 @@ function addListener(channel) {
   }
 }
 
-function setEmitterSync<T>(event): () => SyncPromise<T> {
-  return async (...args): SyncPromise<T> => {
+function setEmitterSync<T>(event): () => Promise<T> {
+  return async (...args): Promise<T> => {
     return await new Promise((resolve, reject) => {
       //questo timout serve ad eseguire i setter di react prima che il sendSync metta in freeze la UI
       setTimeout(() => {
-        const [returnValue, err] = ipcRenderer.sendSync(event, ...args)
+        const [returnValue, err] = ipcRenderer.sendSync(event, ...args) as [T, Error | undefined]
         //log('sync emitter', event, res)
         if (err) reject(err)
         else resolve(returnValue)
@@ -108,7 +106,7 @@ const api: IElectronAPI = {
   i18nextElectronBackend: preloadBindings(ipcRenderer, process),
   //SYNC EMITTERS - expect response
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
-  addContactSpeedDials: setEmitterSync<ContactType>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
+  addContactSpeedDials: setEmitterSync<ContactType[]>(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL),
   addContactToPhonebook: setEmitterSync<void>(IPC_EVENTS.ADD_CONTACT_PHONEBOOK),
   editSpeedDialContact: setEmitterSync<ContactType>(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT),
   deleteSpeedDial: setEmitterSync<string>(IPC_EVENTS.DELETE_SPEEDDIAL),
