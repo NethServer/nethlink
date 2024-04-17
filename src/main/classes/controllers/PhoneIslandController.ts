@@ -47,9 +47,13 @@ export class PhoneIslandController {
   }
 
   resize(w: number, h: number) {
-    const window = this.window.getWindow()
-    window?.setBounds({ width: w, height: h }, false)
-    window?.show()
+    try {
+      const window = this.window.getWindow()
+      window?.setBounds({ width: w, height: h }, false)
+      window?.show()
+    } catch (e) {
+      log(e)
+    }
   }
 
   showPhoneIsland() {
@@ -83,15 +87,19 @@ export class PhoneIslandController {
   }
 
   hidePhoneIsland() {
-    const window = this.window.getWindow()
-    const phoneIslandBounds = window?.getBounds()
-    if (phoneIslandBounds) {
-      AccountController.instance.setAccountPhoneIslandPosition({
-        x: phoneIslandBounds.x,
-        y: phoneIslandBounds.y
-      })
+    try {
+      const window = this.window.getWindow()
+      const phoneIslandBounds = window?.getBounds()
+      if (phoneIslandBounds) {
+        AccountController.instance.setAccountPhoneIslandPosition({
+          x: phoneIslandBounds.x,
+          y: phoneIslandBounds.y
+        })
+      }
+      debouncer('hide', () => window?.hide(), 250)
+    } catch (e) {
+      log(e)
     }
-    debouncer('hide', () => window?.hide(), 250)
   }
 
   call(number: string) {
