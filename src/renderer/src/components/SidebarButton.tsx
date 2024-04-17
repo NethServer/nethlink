@@ -21,7 +21,7 @@ export function SidebarButton({
   //DA GUARDARE COME AGIIUNGERE IL DOT QUANDO L"ELEMENTO HA UNA NOTIFICA
   return (
     <div
-      className={`relative w-[32px] h-[32px] rounded-lg flex flex-row justify-center items-center cursor-pointer ${focus ? 'dark:bg-gray-700 bg-gray-100' : 'bg-transparent dark:text-gray-700 text-gray-600'} ${className}`}
+      className={`relative w-[32px] h-[32px] rounded-lg flex flex-row justify-center items-center cursor-pointer dark:text-gray-50 text-gray-600 ${focus ? 'dark:bg-gray-700 bg-gray-100' : 'bg-transparent'} ${className}`}
       onClick={onClick}
     >
       {focus && (

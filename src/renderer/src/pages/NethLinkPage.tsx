@@ -333,7 +333,7 @@ export function NethLinkPage() {
                 />
 
                 <div className="relative w-full">
-                  <div className="px-4 w-full h-[274px] pb-2 z-1">
+                  <div className="w-full h-[274px] pb-2 z-1">
                     {selectedMenu === MENU_ELEMENT.SPEEDDIALS ? (
                       showSpeedDialForm ? (
                         <SpeedDialFormBox
@@ -372,7 +372,7 @@ export function NethLinkPage() {
                       </div>
                     ) : null}
                     {selectedMissedCall ? (
-                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full">
+                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full rounded-bl-lg">
                         <AddToPhonebookBox
                           searchText={search}
                           selectedNumber={selectedMissedCall.number}
