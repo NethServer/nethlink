@@ -33,7 +33,6 @@ jobs:
           # release the app after building
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
-          #TODO: abilitare quando i certificati potranno essere importati in github
           mac_certs: ${{ vars.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_psw }}
 
