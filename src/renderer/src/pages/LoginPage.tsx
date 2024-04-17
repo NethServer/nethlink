@@ -271,7 +271,7 @@ export function LoginPage() {
       className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px] text-sm"
       ref={loginWindowRef}
     >
-      <div className={classNames('h-full w-full', isLoading ? 'brightness-50' : '')}>
+      <div className={classNames('h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
           <img src={header}></img>
           <FontAwesomeIcon
@@ -295,7 +295,7 @@ export function LoginPage() {
         {isFirstLogin || selectedAccount ? LoginForm : <DisplayAvailableAccount />}
       </div>
       {isLoading && (
-        <div className="absolute top-0 left-0 bg-trasparent h-full w-full select-none flex items-center justify-center">
+        <div className="absolute top-0 left-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-80 h-full w-full select-none flex items-center justify-center z-[1000]">
           <img src={spinner} className="animate-spin"></img>
         </div>
       )}
