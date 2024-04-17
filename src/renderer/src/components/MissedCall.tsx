@@ -1,15 +1,18 @@
-import { faUserPlus as AddUserIcon, faUsers as BadgeIcon } from '@fortawesome/free-solid-svg-icons'
+import {
+  faUserPlus as AddUserIcon,
+  faUsers as BadgeIcon,
+  faCircleUser
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MissedCallIcon, PlaceholderIcon } from '@renderer/icons'
+import { MissedCallIcon } from '@renderer/icons'
 import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { CallData, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from './Nethesis/CallsDate'
 import { truncate } from '@renderer/utils'
-import { log } from '@shared/utils/logger'
 
 export interface MissedCallProps {
   call: CallData
@@ -25,6 +28,7 @@ export function MissedCall({
   const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
+  const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
 
   function getCallName(call: CallData): string {
     if (call.direction === 'in') return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
@@ -58,16 +62,21 @@ export function MissedCall({
       onMouseLeave={() => setShowCreateButton(() => false)}
     >
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
-        {}
-        <Avatar
-          size="extra_small"
-          src={operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]}
-          placeholder={PlaceholderIcon}
-          status={
-            operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
-              ?.mainPresence || undefined
-          }
-        />
+        {avatarSrc ? (
+          <Avatar
+            size="extra_small"
+            src={avatarSrc}
+            status={
+              operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
+                ?.mainPresence || undefined
+            }
+          />
+        ) : (
+          <FontAwesomeIcon
+            icon={faCircleUser}
+            className="h-6 w-6 dark:text-gray-200 text-gray-400"
+          />
+        )}
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
         <p className="font-medium">{truncate(getCallName(call), 15)}</p>
