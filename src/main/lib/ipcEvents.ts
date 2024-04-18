@@ -5,7 +5,6 @@ import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
 import { app, ipcMain, shell } from 'electron'
 import { join } from 'path'
-import { SyncResponse } from 'src/preload'
 import { log } from '@shared/utils/logger'
 import { cloneDeep } from 'lodash'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
@@ -15,7 +14,7 @@ function onSyncEmitter<T>(
   asyncCallback: (...args: any[]) => Promise<T>
 ): void {
   ipcMain.on(channel, async (event, ...args) => {
-    let syncResponse = [undefined, undefined] as SyncResponse<T>
+    let syncResponse = [undefined, undefined] as [T | undefined, Error | undefined]
     try {
       const response = await asyncCallback(...args)
       syncResponse = [response, undefined]
@@ -55,8 +54,11 @@ export function registerIpcEvents() {
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
     return app.getLocale()
   })
-  onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, (contact) =>
-    NethVoiceAPI.instance.Phonebook.createSpeeddial(contact)
+  onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, async (contact) => {
+    await NethVoiceAPI.instance.Phonebook.createSpeeddial(contact)
+    const speeddials = await NethVoiceAPI.instance.Phonebook.speeddials()
+    return speeddials
+  }
   )
   onSyncEmitter(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT, (editContact, currentContact) =>
     NethVoiceAPI.instance.Phonebook.updateSpeeddial(editContact, currentContact)

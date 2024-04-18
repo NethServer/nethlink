@@ -51,12 +51,14 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
   function handleSave(data: NewContactType | NewSpeedDialType) {
     setIsLoading(true)
     onSubmit(data)
+      .then(() => {
+        reset()
+      })
       .catch((error) => {
         log(error)
       })
       .finally(() => {
         setIsLoading(false)
-        reset()
       })
   }
 
@@ -67,7 +69,11 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           {initialData ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
         </h1>
       </div>
-      <form className="flex flex-col gap-4 px-5" onSubmit={handleSubmit(onSubmitForm)}>
+      <form className="flex flex-col gap-4 px-5" onSubmit={(e) => {
+        e.preventDefault()
+        handleSubmit(onSubmitForm)(e)
+      }
+      }>
         <TextInput
           {...register('name', { required: true })}
           type="text"
