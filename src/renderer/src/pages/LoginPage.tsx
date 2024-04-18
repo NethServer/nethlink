@@ -1,9 +1,10 @@
 import { Account } from '@shared/types'
 import classNames from 'classnames'
-import { MutableRefObject, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
-import header from '../assets/loginPageHeader.svg'
+import darkHeader from '../assets/nethlinkDarkHeader.svg'
+import lightHeader from '../assets/nethlinkLightHeader.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowLeft as ArrowIcon,
@@ -21,6 +22,10 @@ import { Button } from '@renderer/components/Nethesis'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
+export interface LoginPageProps {
+  themeMode: string
+}
+
 type LoginData = {
   host: string
   username: string
@@ -29,7 +34,7 @@ type LoginData = {
 
 const NEW_ACCOUNT = 'New Account'
 
-export function LoginPage() {
+export function LoginPage({ themeMode }: LoginPageProps) {
   const [availableAccounts, setAvailableAccounts] = useState<Account[]>([])
   const [selectedAccount, setSelectedAccount] = useState<Account | typeof NEW_ACCOUNT>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -272,7 +277,7 @@ export function LoginPage() {
     >
       <div className={classNames('h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
-          <img src={header}></img>
+          <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
           <FontAwesomeIcon
             icon={CrossIcon}
             className="h-5 w-5 dark:text-gray-50 cursor-pointer"
