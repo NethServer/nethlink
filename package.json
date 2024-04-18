@@ -1,6 +1,6 @@
 {
   "name": "nethlink",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "description": "Neth Connector app",
   "main": "./out/main/main.js",
   "license": "UNLICENSED",
@@ -62,7 +62,7 @@
     "date-fns-tz": "^1.3.8",
     "electron": "^28.2.0",
     "electron-builder": "^24.13.3",
-    "electron-builder-notarize": "github:therockerline/electron-builder-notarize#update-notarize",
+    "electron-builder-notarize": "github:therockerline/electron-builder-notarize#customizations",
     "electron-vite": "^2.0.0",
     "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
