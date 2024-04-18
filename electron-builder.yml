@@ -1,5 +1,5 @@
 appId: 'com.nethesis.nethlink.app'
-productName: 'Nethlink'
+productName: 'NethLink'
 copyright: 'prova copyright'
 afterSign: electron-builder-notarize
 electronLanguages:

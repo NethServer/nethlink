@@ -88,12 +88,10 @@
     "vite": "^5.0.12",
     "vite-plugin-copy": "^0.1.6",
     "zod": "^3.22.4",
-    "zustand": "^4.5.0"
+    "zustand": "^4.5.0",
+    "electron-builder-notarize": "^1.5.2"
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"
-  },
-  "dependencies": {
-    "electron-builder-notarize": "^1.5.2"
   }
 }
