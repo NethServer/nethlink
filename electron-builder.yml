@@ -1,6 +1,7 @@
 appId: 'com.nethesis.nethlink.app'
 productName: 'Nethlink'
 copyright: 'prova copyright'
+afterSign: electron-builder-notarize
 electronLanguages:
   - it
   - en-US
@@ -47,7 +48,6 @@ mac:
   artifactName: ${name}-${version}.${ext}
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
-  afterSign: electron-builder-notarize
 
   target:
     #- zip
