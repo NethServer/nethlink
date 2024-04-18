@@ -48,15 +48,12 @@ jobs:
 
         env:
           # macOS notarization API key
-          API_KEY_ID: ${{ secrets.api_key_id }}
-          API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+          APPLE_API_KEY: ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
+          APPLE_API_KEY_ID: ${{ secrets.api_key_id }}
+          APPLE_API_ISSUER: ${{ secrets.api_key_issuer_id }}
+          APPLE_API_KEY_ISSUER: ${{ secrets.api_key_issuer_id }}
           NODE_ARCHITECTURE: ${{matrix.NODE_ARCHITECTURE}}
-          USE_HARD_LINKS: false
-      
-      - name: List files
-        if: always()
-        run: |
-            ls -la && cd .. && ls -la && cd -
+          USE_HARD_LINKS: false    
 
       - name: Archive notorization logs
         if: always()
