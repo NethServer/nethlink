@@ -20,10 +20,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-      
-      - name: Npm CI
-        run: npm ci
+          node-version: 18      
 
       - name: Prepare for app notarization
         if: startsWith(matrix.os, 'macos')
@@ -55,6 +52,7 @@ jobs:
           APPLE_API_KEY: ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
           APPLE_API_KEY_ID: ${{ secrets.api_key_id }}
           APPLE_API_ISSUER: ${{ secrets.api_key_issuer_id }}
+          APPLE_API_KEY_ISSUER: ${{ secrets.api_key_issuer_id }}
           DEBUG: electron-notarize*
 
       - name: Archive notorization logs
