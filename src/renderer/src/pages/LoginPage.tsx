@@ -261,7 +261,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
           />
           <button
             type="submit"
-            className={`w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer`}
+            className={`w-full dark:bg-blue-500 bg-blue-700 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer`}
           >
             {t('Login.Sign in')}
           </button>
