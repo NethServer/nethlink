@@ -67,6 +67,7 @@ export class NethVoiceAPI {
     extensions: async () => await this._GET('/webrest/astproxy/extensions')
   }
 
+
   Authentication = {
     login: async (username: string, password: string): Promise<Account> => {
       const data = {
@@ -96,19 +97,28 @@ export class NethVoiceAPI {
                   //importo il file config di questo host per prelevare le informazioni su SIP_host e port solo se sono su demo-leopard devo prenderli statici
                   let SIP_HOST = '127.0.0.1'
                   let SIP_PORT = '5060'
+                  let NUMERIC_TIMEZONE = '+0200'
+                  let TIMEZONE = 'Europe/Rome'
+
+                  /* TODO chiedere la timezone per demoleopard e nethvoice */
                   if (this._account.host.includes('demo-leopard')) {
                     SIP_PORT = '5060'
                   } else if (this._account.host.includes('nethvoice')) {
                     SIP_PORT = '20139'
                   } else {
                     const res = await this._GET('/config/config.production.js')
-                    //log(res)
+                    log(res)
                     SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim() //
                     SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim() //
+                    NUMERIC_TIMEZONE = res.split("NUMERIC_TIMEZONE: '")[1].split("',")[0].trim() //
+                    TIMEZONE = res.split(" TIMEZONE: '")[1].split("',")[0].trim() //
                   }
+
                   this._account.sipHost = SIP_HOST
                   this._account.sipPort = SIP_PORT
-                  //log(this._account)
+                  this._account.numeric_timezone = NUMERIC_TIMEZONE
+                  this._account.timezone = TIMEZONE
+                  log(this._account)
                   resolve(this._account)
                 }
               }
@@ -163,7 +173,7 @@ export class NethVoiceAPI {
     search: async (
       search: string,
       offset = 0,
-      pageSize = 15,
+      pageSize = 20,
       view: 'all' | 'company' | 'person' = 'all'
     ) => {
       const s = await this._GET(

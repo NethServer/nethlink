@@ -19,7 +19,7 @@ export function DisplayedAccountLogin({
     <div
       onClick={() => handleClick?.()}
       className={classNames(
-        'w-full flex flex-row gap-7 items-center justify-start bg-transparent h-20 rounded-lg text-gray-900 dark:text-gray-50',
+        'w-full flex flex-row gap-7 items-center justify-start bg-transparent h-20 rounded-lg text-gray-900 dark:text-gray-50 cursor-pointer',
         handleClick ? 'hover:bg-gray-300 dark:hover:bg-gray-700' : ''
       )}
     >
@@ -33,9 +33,9 @@ export function DisplayedAccountLogin({
           />
         )}
       </div>
-      <p className="w-[325px] truncate ">
+      <p className="w-[325px] truncate">
         {account
-          ? `${account.data?.name} (${account.data?.default_device.username})`
+          ? `${account.data?.name} (${account.data?.endpoints.mainextension[0].id})`
           : t('Login.Use Another Account')}
       </p>
     </div>

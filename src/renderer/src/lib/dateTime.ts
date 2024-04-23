@@ -10,8 +10,9 @@ import {
 import { padStart } from 'lodash'
 import { enGB, it } from 'date-fns/locale'
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz'
-import { getTimezone } from './utils'
+import { getNumericTimezone, getTimezone } from './utils'
 import { UTCDate } from '@date-fns/utc'
+import { Account } from '@shared/types'
 
 /**
  * Format a date expressed in milliseconds to current locale
@@ -146,8 +147,14 @@ export const exactDistanceToNowLoc = (date: any, options: any = {}) => {
   return formatDuration(duration, { ...options, locale: getLocale() })
 }
 
-export const getTimeDifference = (isInQueue: boolean) => {
-  const serverTimeZone: any = getTimezone()
+export const getTimeDifference = (account: Account, isInQueue: boolean) => {
+  let serverTimeZone: any = getTimezone(account)
+  const numericTimezone: any = getNumericTimezone(account)
+  const numericTimezoneNumber = parseInt(numericTimezone) / 100
+
+  if (serverTimeZone !== '' && serverTimeZone === 'CEST') {
+    serverTimeZone = 'Europe/Rome'
+  }
   const localTimeZone: any = Intl.DateTimeFormat().resolvedOptions().timeZone
 
   const timeDataServer = { date: new Date(), timezone: serverTimeZone }
@@ -159,7 +166,7 @@ export const getTimeDifference = (isInQueue: boolean) => {
   let differenceValueBetweenTimezone = differenceInHours(t2, t1)
 
   if (isInQueue) {
-    differenceValueBetweenTimezone += 1
+    differenceValueBetweenTimezone += numericTimezoneNumber
   }
 
   return differenceValueBetweenTimezone

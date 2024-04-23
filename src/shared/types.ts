@@ -17,6 +17,8 @@ export type Account = {
   phoneIslandPosition?: { x: number; y: number }
   sipPort?: string
   sipHost?: string
+  numeric_timezone?: string
+  timezone?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData
 }

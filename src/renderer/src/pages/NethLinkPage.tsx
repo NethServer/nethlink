@@ -33,8 +33,13 @@ import { Button } from '@renderer/components/Nethesis'
 import NotificationIcon from '../assets/TrayLogo.png'
 import { SpeedDialFormBox } from '@renderer/components/SpeedDialFormBox'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { truncate } from '@renderer/utils'
 
-export function NethLinkPage() {
+export interface NethLinkPageProps {
+  themeMode: string
+}
+
+export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const [search, setSearch] = useState('')
   const account = useSubscriber<Account | undefined>('user')
   const [selectedMenu, setSelectedMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
@@ -44,22 +49,23 @@ export function NethLinkPage() {
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
-      number?: string
-      company?: string
-    }
+        number?: string
+        company?: string
+      }
     | undefined
   >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
   const cancelDeleteButtonRef = useRef() as MutableRefObject<HTMLButtonElement>
   const [showSpeedDialForm, setShowSpeedDialForm] = useState<boolean>(false)
+  const [selectedSpeedDialName, setSelectedSpeedDialName] = useState<string>('')
 
   useInitialize(() => {
     initialize()
     //log('USERAGENT', navigator.userAgent.includes('Linux'))
   }, true)
   useEffect(() => {
-    if (search) {
+    if (search.length > 2) {
       debouncer(
         'search',
         () => {
@@ -161,6 +167,7 @@ export function NethLinkPage() {
 
   function handleSelectedSpeedDial(selectedSpeedDial: ContactType) {
     setSelectedSpeedDial(() => selectedSpeedDial)
+    setSelectedSpeedDialName(() => selectedSpeedDial.name!)
     setShowSpeedDialForm(true)
   }
 
@@ -236,10 +243,12 @@ export function NethLinkPage() {
           reject(error)
         })
     })
-
   }
 
-  const handleSubmitContact = (data: NewContactType | NewSpeedDialType) => selectedSpeedDial ? handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial) : handleAddContactToSpeedDials(data as NewContactType)
+  const handleSubmitContact = (data: NewContactType | NewSpeedDialType) =>
+    selectedSpeedDial
+      ? handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial)
+      : handleAddContactToSpeedDials(data as NewContactType)
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
@@ -271,6 +280,7 @@ export function NethLinkPage() {
 
   function handleDeleteSpeedDial(deleteSpeeddial: ContactType) {
     setSelectedSpeedDial(() => deleteSpeeddial)
+    setSelectedSpeedDialName(() => deleteSpeeddial.name!)
     setShowDeleteModal(true)
   }
 
@@ -280,7 +290,9 @@ export function NethLinkPage() {
       .then((_) => {
         console.log('delete speeddials', deleteSpeeddial, _)
         setSpeeddials(() =>
-          speeddials.filter((speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString())
+          speeddials.filter(
+            (speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString()
+          )
         )
         sendNotification(
           t('Notification.speeddial_deleted_title'),
@@ -368,7 +380,7 @@ export function NethLinkPage() {
 
                     {/*   MODIFICHE */}
                     {search !== '' && !selectedMissedCall ? (
-                      <div className="absolute top-0 left-0 z-[100] rounded-l-lg dark:bg-gray-900 bg-gray-50 h-full w-full">
+                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full rounded-bl-lg">
                         <SearchNumberBox
                           searchText={search}
                           showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
@@ -399,23 +411,25 @@ export function NethLinkPage() {
                   focus={cancelDeleteButtonRef}
                   onClose={() => setShowDeleteModal(false)}
                   afterLeave={() => setSelectedSpeedDial(undefined)}
+                  themeMode={themeMode}
+                  className="font-Poppins"
                 >
                   <Modal.Content>
-                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-red-100 dark:bg-red-900">
+                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-amber-100 dark:bg-amber-700">
                       <FontAwesomeIcon
                         icon={WarningIcon}
-                        className="h-6 w-6 text-red-600 dark:text-red-200"
+                        className="h-6 w-6 text-amber-700 dark:text-amber-100"
                         aria-hidden="true"
                       />
                     </div>
                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                      <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">
+                      <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-50">
                         {t('SpeedDial.Delete speed dial')}
                       </h3>
                       <div className="mt-3">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-700 dark:text-gray-200">
                           {t('SpeedDial.Speed dial delete message', {
-                            deletingName: selectedSpeedDial?.name
+                            deletingName: truncate(selectedSpeedDialName || '', 30)
                           })}
                         </p>
                       </div>
@@ -424,6 +438,7 @@ export function NethLinkPage() {
                   <Modal.Actions>
                     <Button
                       variant="danger"
+                      className="font-medium"
                       onClick={() => {
                         setShowDeleteModal(false)
                         confirmDeleteSpeedDial(selectedSpeedDial!)
@@ -432,14 +447,15 @@ export function NethLinkPage() {
                       {t('Common.Delete')}
                     </Button>
                     <Button
-                      variant="white"
+                      variant="ghost"
+                      className="font-medium"
                       onClick={() => {
-                        setSelectedSpeedDial(undefined)
                         setShowDeleteModal(false)
+                        setSelectedSpeedDial(undefined)
                       }}
                       ref={cancelDeleteButtonRef}
                     >
-                      {t('Common.Cancel')}
+                      <p className="dark:text-blue-500 text-blue-700">{t('Common.Cancel')}</p>
                     </Button>
                   </Modal.Actions>
                 </Modal>

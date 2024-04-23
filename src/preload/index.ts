@@ -43,7 +43,7 @@ export interface IElectronAPI {
   onReceiveLastCalls(saveMissedCalls: (historyResponse: HistoryCallData) => void): void
   onLoadAccounts(callback: (accounts: Account[]) => void): void
   onStartCall(callback: (number: string | number) => void): void
-  onSearchResult(callback: (serachResults: SearchCallData) => void): void
+  onSearchResult(callback: (searchResults: SearchCallData) => void): void
   onSystemThemeChange(callback: (theme: AvailableThemes) => void): void
   onThemeChange(callback: (theme: AvailableThemes) => void): void
   onOperatorsChange(callback: (updateOperators: OperatorData) => void): void
