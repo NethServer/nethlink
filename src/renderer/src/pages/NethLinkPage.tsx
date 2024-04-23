@@ -49,15 +49,16 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
-      number?: string
-      company?: string
-    }
+        number?: string
+        company?: string
+      }
     | undefined
   >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
   const cancelDeleteButtonRef = useRef() as MutableRefObject<HTMLButtonElement>
   const [showSpeedDialForm, setShowSpeedDialForm] = useState<boolean>(false)
+  const [selectedSpeedDialName, setSelectedSpeedDialName] = useState<string>('')
 
   useInitialize(() => {
     initialize()
@@ -166,6 +167,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   function handleSelectedSpeedDial(selectedSpeedDial: ContactType) {
     setSelectedSpeedDial(() => selectedSpeedDial)
+    setSelectedSpeedDialName(() => selectedSpeedDial.name!)
     setShowSpeedDialForm(true)
   }
 
@@ -241,10 +243,12 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           reject(error)
         })
     })
-
   }
 
-  const handleSubmitContact = (data: NewContactType | NewSpeedDialType) => selectedSpeedDial ? handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial) : handleAddContactToSpeedDials(data as NewContactType)
+  const handleSubmitContact = (data: NewContactType | NewSpeedDialType) =>
+    selectedSpeedDial
+      ? handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial)
+      : handleAddContactToSpeedDials(data as NewContactType)
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
@@ -276,6 +280,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   function handleDeleteSpeedDial(deleteSpeeddial: ContactType) {
     setSelectedSpeedDial(() => deleteSpeeddial)
+    setSelectedSpeedDialName(() => deleteSpeeddial.name!)
     setShowDeleteModal(true)
   }
 
@@ -285,7 +290,9 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       .then((_) => {
         console.log('delete speeddials', deleteSpeeddial, _)
         setSpeeddials(() =>
-          speeddials.filter((speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString())
+          speeddials.filter(
+            (speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString()
+          )
         )
         sendNotification(
           t('Notification.speeddial_deleted_title'),
@@ -422,7 +429,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                       <div className="mt-3">
                         <p className="text-sm text-gray-700 dark:text-gray-200">
                           {t('SpeedDial.Speed dial delete message', {
-                            deletingName: truncate(selectedSpeedDial?.name || '', 30)
+                            deletingName: truncate(selectedSpeedDialName || '', 30)
                           })}
                         </p>
                       </div>
@@ -443,8 +450,8 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                       variant="ghost"
                       className="font-medium"
                       onClick={() => {
-                        setSelectedSpeedDial(undefined)
                         setShowDeleteModal(false)
+                        setSelectedSpeedDial(undefined)
                       }}
                       ref={cancelDeleteButtonRef}
                     >
