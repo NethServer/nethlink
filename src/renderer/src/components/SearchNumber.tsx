@@ -5,7 +5,6 @@ import { PlaceholderIcon } from '@renderer/icons/PlaceholderIcon'
 import { t } from 'i18next'
 import { OperatorData, SearchData } from '@shared/types'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import { log } from '@shared/utils/logger'
 
 export interface SearchNumberProps {
   user: SearchData
@@ -31,7 +30,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
       while (index !== -1) {
         parts.push(number.substring(lastIndex, index))
         parts.push(
-          <span className="dark:text-blue-500 text-blue-600 font-bold">
+          <span className="dark:text-blue-500 text-blue-600 font-bold text-[1.1rem]">
             {number.substring(index, index + searchText.length)}
           </span>
         )
@@ -44,7 +43,24 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
     return parts
   }
 
-  const phoneNumber = user.workphone || user.cellphone || user.extension
+  let phoneNumber: string | null = null
+  const keys = ['extension', 'cellphone', 'homephone', 'workphone']
+
+  for (const key of keys) {
+    if (!phoneNumber) {
+      phoneNumber = (user[key] || '').includes(`${searchText}`) ? user[key] : null
+    } else {
+      break
+    }
+  }
+
+  phoneNumber =
+    phoneNumber ||
+    keys.reduce((p, c) => {
+      if (p === '') p = user[c] || ''
+      return p
+    }, '')
+
   const highlightedNumber = highlightMatch(phoneNumber, searchText)
 
   const username = getUsernameFromPhoneNumber(phoneNumber)
@@ -66,7 +82,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
           <p className="font-semibold">{user.name}</p>
           <NumberCaller
             number={phoneNumber}
-            className="dark:text-blue-500 text-blue-600 font-normal underline"
+            className="dark:text-blue-500 text-blue-600 text-[1rem] font-medium underline"
           >
             {highlightedNumber}
           </NumberCaller>

@@ -119,7 +119,7 @@ export default function App() {
         },
         {
           path: PAGES.NETHLINK,
-          element: <NethLinkPage />
+          element: <NethLinkPage themeMode={classNameTheme} />
         },
         {
           path: PAGES.DEVTOOLS,

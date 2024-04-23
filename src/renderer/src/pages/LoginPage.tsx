@@ -103,6 +103,10 @@ export function LoginPage({ themeMode }: LoginPageProps) {
 
   async function handleLogin(data: LoginData) {
     setLoginError(undefined)
+    if (selectedAccount === NEW_ACCOUNT) {
+      window.api.resizeLoginWindow(620)
+    } else window.api.resizeLoginWindow(515)
+
     const hostReg =
       /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
     const res = hostReg.exec(data.host)
@@ -138,6 +142,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     setLoginError(undefined)
     setSelectedAccount(undefined)
   }
+
   useEffect(() => {
     if (selectedAccount) {
       if (selectedAccount === NEW_ACCOUNT) {
