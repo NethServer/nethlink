@@ -130,7 +130,7 @@ export function PhoneIslandPage() {
 
   const RenderPhoneIsland = useCallback(() => {
     //log("PHONE ISLAND RENDERER", dataConfig)
-    return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={loadPath.current} />
+    return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={loadPath.current} uaType='mobile' />
   }, [dataConfig])
 
   return (
