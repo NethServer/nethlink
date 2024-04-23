@@ -77,7 +77,7 @@ export function SpeedDialNumber({
         <div>
           <Menu>
             <div>
-              <Menu.Button>
+              <Menu.Button className="cursor-pointer">
                 <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon
                     className="dark:text-gray-50 text-gray-900 text-base"
@@ -90,7 +90,7 @@ export function SpeedDialNumber({
             <Menu.Items
               className={`absolute ${isLastItem ? 'top-[-48px]' : 'top-0'} border dark:border-gray-700 border-gray-200 rounded-lg min-w-[180px] min-h-[84px] dark:bg-gray-900 bg-gray-50 translate-x-[calc(-100%+36px)] z-[110]`}
             >
-              <Menu.Item>
+              <Menu.Item as={'div'} className="cursor-pointer">
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
                   onClick={() => {
@@ -109,7 +109,7 @@ export function SpeedDialNumber({
                 </div>
               </Menu.Item>
 
-              <Menu.Item>
+              <Menu.Item as={'div'} className="cursor-pointer">
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:text-rose-500 text-rose-700 dark:hover:bg-rose-800 dark:hover:text-gray-50 hover:bg-rose-700 hover:text-gray-50 mb-2"
                   onClick={() => handleDeleteSpeedDial(speedDial)}
