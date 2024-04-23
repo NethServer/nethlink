@@ -5,7 +5,6 @@ import { PlaceholderIcon } from '@renderer/icons/PlaceholderIcon'
 import { t } from 'i18next'
 import { OperatorData, SearchData } from '@shared/types'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import { log } from '@shared/utils/logger'
 
 export interface SearchNumberProps {
   user: SearchData
@@ -44,7 +43,18 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
     return parts
   }
 
-  const phoneNumber = user.workphone || user.cellphone || user.extension
+  let phoneNumber
+
+  if (user.workphone !== null && user.workphone.includes(`${searchText}`)) {
+    phoneNumber = user.workphone
+  } else if (user.cellphone !== null && user.cellphone.includes(`${searchText}`)) {
+    phoneNumber = user.cellphone
+  } else if (user.extension !== null && user.extension.includes(`${searchText}`)) {
+    phoneNumber = user.extension
+  } else {
+    phoneNumber = user.workphone || user.cellphone || user.extension
+  }
+
   const highlightedNumber = highlightMatch(phoneNumber, searchText)
 
   const username = getUsernameFromPhoneNumber(phoneNumber)
