@@ -1,9 +1,10 @@
 import { Account } from '@shared/types'
 import classNames from 'classnames'
-import { MutableRefObject, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
+import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
-import header from '../assets/loginPageHeader.svg'
+import darkHeader from '../assets/nethlinkDarkHeader.svg'
+import lightHeader from '../assets/nethlinkLightHeader.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowLeft as ArrowIcon,
@@ -21,6 +22,10 @@ import { Button } from '@renderer/components/Nethesis'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 
+export interface LoginPageProps {
+  themeMode: string
+}
+
 type LoginData = {
   host: string
   username: string
@@ -29,7 +34,7 @@ type LoginData = {
 
 const NEW_ACCOUNT = 'New Account'
 
-export function LoginPage() {
+export function LoginPage({ themeMode }: LoginPageProps) {
   const [availableAccounts, setAvailableAccounts] = useState<Account[]>([])
   const [selectedAccount, setSelectedAccount] = useState<Account | typeof NEW_ACCOUNT>()
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -261,7 +266,7 @@ export function LoginPage() {
           />
           <button
             type="submit"
-            className={`w-full bg-blue-500 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer`}
+            className={`w-full dark:bg-blue-500 bg-blue-700 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer`}
           >
             {t('Login.Sign in')}
           </button>
@@ -277,7 +282,7 @@ export function LoginPage() {
     >
       <div className={classNames('h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
-          <img src={header}></img>
+          <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
           <FontAwesomeIcon
             icon={CrossIcon}
             className="h-5 w-5 dark:text-gray-50 cursor-pointer"
@@ -299,7 +304,7 @@ export function LoginPage() {
         {isFirstLogin || selectedAccount ? LoginForm : <DisplayAvailableAccount />}
       </div>
       {isLoading && (
-        <div className="absolute top-0 left-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-80 h-full w-full select-none flex items-center justify-center z-[1000]">
+        <div className="absolute top-0 left-0 bg-gray-50 dark:bg-gray-950 bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center z-[1000]">
           <img src={spinner} className="animate-spin"></img>
         </div>
       )}

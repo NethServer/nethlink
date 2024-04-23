@@ -107,11 +107,11 @@ export default function App() {
       children: [
         {
           path: PAGES.SPLASHSCREEN,
-          element: <SplashScreenPage />
+          element: <SplashScreenPage themeMode={classNameTheme} />
         },
         {
           path: PAGES.LOGIN,
-          element: <LoginPage />
+          element: <LoginPage themeMode={classNameTheme} />
         },
         {
           path: PAGES.PHONEISLAND,
