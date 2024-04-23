@@ -33,9 +33,9 @@ export function DisplayedAccountLogin({
           />
         )}
       </div>
-      <p className="w-[325px] truncate ">
+      <p className="w-[325px] truncate">
         {account
-          ? `${account.data?.name} (${account.data?.default_device.username})`
+          ? `${account.data?.name} (${account.data?.endpoints.mainextension[0].id})`
           : t('Login.Use Another Account')}
       </p>
     </div>
