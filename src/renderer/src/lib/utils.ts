@@ -5,6 +5,7 @@ import { PropsWithChildren } from 'react'
 import axios from 'axios'
 import { eventDispatch } from '../hooks/eventDispatch'
 import { log } from '@shared/utils/logger'
+import { Account } from '@shared/types'
 
 export interface ClearProps {
   key: string
@@ -101,12 +102,20 @@ export function getProductName() {
   return `${window.CONFIG.PRODUCT_NAME}`
 }
 
-export function getTimezone() {
-  if (typeof window === 'undefined') {
+export function getTimezone(account: Account) {
+  if (typeof account === 'undefined') {
     return ''
   }
   // @ts-ignore
-  return `${window.CONFIG.TIMEZONE || 'UTC'}`
+  return `${account.timezone || 'UTC'}`
+}
+
+export function getNumericTimezone(account: Account) {
+  if (typeof account === 'undefined') {
+    return ''
+  }
+  // @ts-ignore
+  return `${account.numeric_timezone || '+0100'}`
 }
 
 export function getApiEndpoint() {
