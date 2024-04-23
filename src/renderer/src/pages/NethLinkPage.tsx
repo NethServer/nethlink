@@ -44,9 +44,9 @@ export function NethLinkPage() {
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
-      number?: string
-      company?: string
-    }
+        number?: string
+        company?: string
+      }
     | undefined
   >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
@@ -236,10 +236,12 @@ export function NethLinkPage() {
           reject(error)
         })
     })
-
   }
 
-  const handleSubmitContact = (data: NewContactType | NewSpeedDialType) => selectedSpeedDial ? handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial) : handleAddContactToSpeedDials(data as NewContactType)
+  const handleSubmitContact = (data: NewContactType | NewSpeedDialType) =>
+    selectedSpeedDial
+      ? handleEditContactToSpeedDials(data as NewSpeedDialType, selectedSpeedDial)
+      : handleAddContactToSpeedDials(data as NewContactType)
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setSelectedMenu(() => menuElement)
@@ -280,7 +282,9 @@ export function NethLinkPage() {
       .then((_) => {
         console.log('delete speeddials', deleteSpeeddial, _)
         setSpeeddials(() =>
-          speeddials.filter((speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString())
+          speeddials.filter(
+            (speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString()
+          )
         )
         sendNotification(
           t('Notification.speeddial_deleted_title'),
@@ -368,7 +372,7 @@ export function NethLinkPage() {
 
                     {/*   MODIFICHE */}
                     {search !== '' && !selectedMissedCall ? (
-                      <div className="absolute top-0 left-0 z-[100] rounded-l-lg dark:bg-gray-900 bg-gray-50 h-full w-full">
+                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full rounded-bl-lg">
                         <SearchNumberBox
                           searchText={search}
                           showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
