@@ -55,7 +55,7 @@ export function Navbar({
         <div>
           <Listbox>
             <div>
-              <Listbox.Button>
+              <Listbox.Button className="cursor-pointer">
                 <div className="flex items-center justify-center min-w-8 min-h-8">
                   <FontAwesomeIcon
                     icon={ThemeMenuIcon}
@@ -71,7 +71,11 @@ export function Navbar({
                 {t('Settings.Theme')}
               </p>
               {themeOptions.map((availableTheme) => (
-                <Listbox.Option key={availableTheme.id} value={availableTheme}>
+                <Listbox.Option
+                  key={availableTheme.id}
+                  value={availableTheme}
+                  className="cursor-pointer"
+                >
                   <div
                     className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
                     onClick={() => handleSetTheme(availableTheme.name)}
@@ -103,7 +107,7 @@ export function Navbar({
         <div>
           <Menu>
             <div>
-              <Menu.Button>
+              <Menu.Button className="cursor-pointer">
                 <Avatar
                   size="small"
                   status={
@@ -133,20 +137,23 @@ export function Navbar({
                   </div>
                 </div>
               </Menu.Item>
-              <Menu.Item>
+              <Menu.Item
+                as={'div'}
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200"
+              >
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200"
+                  className="flex flex-row items-center gap-4 py-[10px] px-6"
                   onClick={goToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={GoToNethVoiceIcon} />
                   <p className="font-normal inline">{t('TopBar.Go to NethVoice CTI')}</p>
                 </div>
               </Menu.Item>
-              <Menu.Item>
-                <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6 dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
-                  onClick={logout}
-                >
+              <Menu.Item
+                as={'div'}
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 rounded-b-lg"
+              >
+                <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={logout}>
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
                   <p className="font-normal">{t('TopBar.Logout')}</p>
                 </div>

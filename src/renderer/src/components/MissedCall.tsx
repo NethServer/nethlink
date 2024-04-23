@@ -8,11 +8,13 @@ import { MissedCallIcon } from '@renderer/icons'
 import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CallData, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from './Nethesis/CallsDate'
 import { truncate } from '@renderer/utils'
+import { Tooltip } from 'react-tooltip'
+import { Badge } from './Nethesis/Badge'
 
 export interface MissedCallProps {
   call: CallData
@@ -29,6 +31,7 @@ export function MissedCall({
   const operators = useSubscriber<OperatorData>('operators')
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
   const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
+  const [isQueueLoading, setIsQueueLoading] = useState<boolean>(true)
 
   function getCallName(call: CallData): string {
     if (call.direction === 'in') return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
@@ -50,6 +53,12 @@ export function MissedCall({
       call.dst_cnam = operatorFound?.name
     }
   }
+
+  useEffect(() => {
+    if (isQueueLoading && queues !== undefined) {
+      setIsQueueLoading(() => false)
+    }
+  }, [queues])
 
   return (
     <div
@@ -94,18 +103,45 @@ export function MissedCall({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 ml-auto">
-        {/* Badge */}
+      <div className="flex flex-col gap-2 ml-auto items-center">
         {call.channel?.includes('from-queue') && (
-          <div className="flex flex-row justify-center items-center py-1 px-[10px] rounded-[10px] dark:text-gray-50 text-gray-50 dark:bg-blue-600 bg-blue-600 w-fit ml-auto max-h-[22px]">
-            <FontAwesomeIcon icon={BadgeIcon} className="h-4 w-4 mr-2 ml-1" aria-hidden="true" />
-            <p className="text-[12x] leading-[18px]">
-              {queues?.[call.queue!]?.name
-                ? queues?.[call.queue!]?.name + ' ' + call.queue
-                : `${t('QueueManager.Queue')} [${call.queue}]`}
-            </p>
-          </div>
+          <>
+            {isQueueLoading ? (
+              <Badge
+                variant="offline"
+                rounded="full"
+                className={`animate-pulse overflow-hidden ml-1 w-[108px] min-h-4`}
+              ></Badge>
+            ) : (
+              <>
+                <Badge
+                  size="small"
+                  variant="offline"
+                  rounded="full"
+                  className={`overflow-hidden ml-1 tooltip-queue-${call?.queue}`}
+                >
+                  {' '}
+                  <FontAwesomeIcon
+                    icon={BadgeIcon}
+                    className="h-4 w-4 mr-2 ml-1"
+                    aria-hidden="true"
+                  />
+                  <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
+                    {queues?.[call.queue!]?.name
+                      ? queues?.[call.queue!]?.name + ' ' + call?.queue
+                      : t('QueueManager.Queue')}
+                  </div>
+                </Badge>
+                <Tooltip anchorSelect={`.tooltip-queue-${call?.queue}`}>
+                  {queues?.[call.queue!]?.name
+                    ? queues?.[call.queue!]?.name + ' ' + call?.queue
+                    : t('QueueManager.Queue')}{' '}
+                </Tooltip>
+              </>
+            )}
+          </>
         )}
+
         {showCreateButton && (
           <Button
             variant="ghost"
