@@ -2,7 +2,7 @@ import { faPhone as CallIcon, faUserPlus as AddUserIcon } from '@fortawesome/fre
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { SearchCallData, SearchData } from '@shared/types'
 import { t } from 'i18next'
 
@@ -23,8 +23,36 @@ export function SearchNumberBox({
     window.api.onSearchResult(preparePhoneNumbers)
   })
 
+  /* TODO 
+   Se trovi uno speedDial o workphone che coincide con il numero lo metti in testa
+   Problema: ho un debouncer sulla search quindi dovrei aspettare per determinare i numeri corretti
+   */
+
+  useEffect(() => {
+    window.api.onSearchResult(preparePhoneNumbers)
+  }, [searchText])
+
   function preparePhoneNumbers(receivedPhoneNumbers: SearchCallData) {
-    setFilteredPhoneNumbers(() => receivedPhoneNumbers.rows)
+    /* Rimossi i campi con nome pari a null */
+    const filteredNumbers = receivedPhoneNumbers.rows.filter(
+      (phoneNumber) => phoneNumber.name !== null
+    )
+    /* Su Nethvoice CTI a differenza fanno partire la ricerca solo quando il numero e' pari a 3, prima non mostrano niente */
+    if (searchText.length === 3) {
+      const filteredMatchingNumbers = filteredNumbers.filter(
+        (phoneNumber) =>
+          phoneNumber.speeddial_num === searchText || phoneNumber.workphone === searchText
+      )
+
+      const filteredNonMatchingNumbers = filteredNumbers.filter(
+        (phoneNumber) =>
+          phoneNumber.speeddial_num !== searchText && phoneNumber.workphone !== searchText
+      )
+
+      const reorderedFilteredNumbers = filteredMatchingNumbers.concat(filteredNonMatchingNumbers)
+      // console.log('Filtered Numbers: ', filteredNumbers)
+      setFilteredPhoneNumbers(() => reorderedFilteredNumbers)
+    } else setFilteredPhoneNumbers(() => filteredNumbers)
   }
 
   return (
