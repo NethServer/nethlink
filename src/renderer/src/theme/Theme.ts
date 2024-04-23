@@ -15,7 +15,7 @@ const theme = {
     dashboard:
       'border-gray-300 text-gray-700 hover:bg-gray-200 dark:border-gray-600 dark:text-gray-700 dark:hover:bg-gray-700 dark:hover:disabled:bg-transparent hover:disabled:bg-transparent dark:focus:ring-primaryDark',
     danger:
-      'border border-transparent focus:ring-red-500 bg-red-600 hover:bg-red-700 text-white dark:focus:ring-red-600 dark:bg-red-700 dark:hover:bg-red-800 dark:text-white focus:ring-2 focus:ring-offset-2',
+      'border border-transparent focus:ring-red-500 bg-red-700 hover:bg-rose-700 text-white dark:focus:ring-red-600 dark:bg-rose-600 dark:hover:bg-rose-800 dark:text-white focus:ring-2 focus:ring-offset-2',
     rounded: {
       small: 'rounded',
       base: 'rounded-md'
@@ -132,7 +132,7 @@ const theme = {
       }
     },
     actions:
-      'px-4 py-3 flex flex-col sm:flex-row-reverse  sm:px-6 gap-3 bg-gray-50 dark:bg-gray-800',
+      'px-4 py-3 flex flex-col sm:flex-row-reverse  sm:px-6 gap-3 bg-white dark:bg-gray-900',
     sizes: {
       base: '',
       large: ''

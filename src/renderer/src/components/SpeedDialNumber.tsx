@@ -2,9 +2,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPhone as CallIcon,
   faEllipsisVertical as MenuIcon,
-  faPen as ModifyIcon,
-  faTrashCan as DeleteIcon,
-  faCircleUser
+  faPenToSquare as ModifyIcon,
+  faTrash as DeleteIcon,
+  faCircleUser as UserIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
@@ -52,7 +52,7 @@ export function SpeedDialNumber({
           />
         ) : (
           <div className="bg-white w-10 h-10 rounded-full flex items-center justify-center">
-            <FontAwesomeIcon icon={faCircleUser} className="h-10 w-10 text-gray-400" />
+            <FontAwesomeIcon icon={UserIcon} className="h-10 w-10 text-gray-400" />
           </div>
         )}
 
@@ -111,17 +111,12 @@ export function SpeedDialNumber({
 
               <Menu.Item as={'div'} className="cursor-pointer">
                 <div
-                  className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mb-2"
+                  className="flex flex-row items-center py-[10px] px-6 dark:text-rose-500 text-rose-700 dark:hover:bg-rose-800 dark:hover:text-gray-50 hover:bg-rose-700 hover:text-gray-50 mb-2"
                   onClick={() => handleDeleteSpeedDial(speedDial)}
                 >
                   <div className="flex gap-3 items-center">
-                    <FontAwesomeIcon
-                      className="text-base dark:text-gray-50 text-gray-900"
-                      icon={DeleteIcon}
-                    />
-                    <p className="font-medium dark:text-gray-50 text-gray-900">
-                      {t('Common.Delete')}
-                    </p>
+                    <FontAwesomeIcon className="text-base" icon={DeleteIcon} />
+                    <p className="font-medium">{t('Common.Delete')}</p>
                   </div>
                 </div>
               </Menu.Item>
