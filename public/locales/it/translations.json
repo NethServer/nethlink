@@ -70,8 +70,8 @@
     "Back": "Indietro"
   },
   "SplashScreen": {
-    "Description": "Welcome to NethLink, a desktop solution for seamless communication. Make and receive calls, save contacts to you phonebook and much more.",
-    "Initializing": "Inizializzazione dell'applicazione..."
+    "Description": "Benvenuti in NethLink, la soluzione desktop per comunicazioni senza confini. Effettua e ricevi chiamate, salva i contatti nella tua rubrica e molto altro ancora.",
+    "Initializing": "Avvio applicazione..."
   },
   "Notification": {
     "contact_created_title": "Contatto creato!",
