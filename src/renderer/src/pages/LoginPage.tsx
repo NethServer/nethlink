@@ -304,7 +304,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
         {isFirstLogin || selectedAccount ? LoginForm : <DisplayAvailableAccount />}
       </div>
       {isLoading && (
-        <div className="absolute top-0 left-0 bg-gray-900 bg-opacity-50 dark:bg-opacity-80 h-full w-full select-none flex items-center justify-center z-[1000]">
+        <div className="absolute top-0 left-0 bg-gray-50 dark:bg-gray-950 bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center z-[1000]">
           <img src={spinner} className="animate-spin"></img>
         </div>
       )}
