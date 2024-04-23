@@ -163,7 +163,7 @@ export class NethVoiceAPI {
     search: async (
       search: string,
       offset = 0,
-      pageSize = 15,
+      pageSize = 20,
       view: 'all' | 'company' | 'person' = 'all'
     ) => {
       const s = await this._GET(

@@ -65,7 +65,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     //log('USERAGENT', navigator.userAgent.includes('Linux'))
   }, true)
   useEffect(() => {
-    if (search) {
+    if (search.length > 2) {
       debouncer(
         'search',
         () => {
@@ -380,7 +380,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
                     {/*   MODIFICHE */}
                     {search !== '' && !selectedMissedCall ? (
-                      <div className="absolute top-0 left-0 z-[100] rounded-l-lg dark:bg-gray-900 bg-gray-50 h-full w-full">
+                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full rounded-bl-lg">
                         <SearchNumberBox
                           searchText={search}
                           showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
