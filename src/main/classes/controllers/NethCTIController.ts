@@ -97,8 +97,8 @@ export class NethVoiceAPI {
                   //importo il file config di questo host per prelevare le informazioni su SIP_host e port solo se sono su demo-leopard devo prenderli statici
                   let SIP_HOST = '127.0.0.1'
                   let SIP_PORT = '5060'
-                  let NUMERIC_TIMEZONE = ''
-                  let TIMEZONE = 'UTC'
+                  let NUMERIC_TIMEZONE = '+0200'
+                  let TIMEZONE = 'Europe/Rome'
 
                   /* TODO chiedere la timezone per demoleopard e nethvoice */
                   if (this._account.host.includes('demo-leopard')) {
@@ -107,7 +107,7 @@ export class NethVoiceAPI {
                     SIP_PORT = '20139'
                   } else {
                     const res = await this._GET('/config/config.production.js')
-                    // log(res)
+                    log(res)
                     SIP_HOST = res.split("SIP_HOST: '")[1].split("',")[0].trim() //
                     SIP_PORT = res.split("SIP_PORT: '")[1].split("',")[0].trim() //
                     NUMERIC_TIMEZONE = res.split("NUMERIC_TIMEZONE: '")[1].split("',")[0].trim() //
