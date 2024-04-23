@@ -65,7 +65,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     //log('USERAGENT', navigator.userAgent.includes('Linux'))
   }, true)
   useEffect(() => {
-    if (search) {
+    if (search.length > 2) {
       debouncer(
         'search',
         () => {

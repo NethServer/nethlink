@@ -3,8 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useEffect, useState } from 'react'
-import { SearchCallData, SearchData } from '@shared/types'
+import { OperatorsType, SearchCallData, SearchData } from '@shared/types'
 import { t } from 'i18next'
+import { log } from '@shared/utils/logger'
+import { sortByProperty } from '@renderer/lib/utils'
+import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { cloneDeep } from 'lodash'
 
 export interface SearchNumberBoxProps {
   searchText: string
@@ -18,41 +22,64 @@ export function SearchNumberBox({
   showAddContactToPhonebook
 }: SearchNumberBoxProps) {
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
+  const [unFilteredPhoneNumbers, setUnFilteredPhoneNumbers] = useState<SearchData[]>([])
 
   useInitialize(() => {
-    window.api.onSearchResult(preparePhoneNumbers)
+    window.api.onSearchResult(saveUnfiltered)
   })
 
-  /* TODO 
-   Se trovi uno speedDial o workphone che coincide con il numero lo metti in testa
-   Problema: ho un debouncer sulla search quindi dovrei aspettare per determinare i numeri corretti
-   */
+  function saveUnfiltered(receivedPhoneNumbers: SearchCallData) {
+    console.log('Receveid numbers: ', receivedPhoneNumbers)
+    const filteredNumbers = receivedPhoneNumbers.rows.filter(
+      (phoneNumber) => !(!phoneNumber.name || phoneNumber.name === '')
+    )
+    setUnFilteredPhoneNumbers(() => filteredNumbers)
+  }
 
   useEffect(() => {
-    window.api.onSearchResult(preparePhoneNumbers)
-  }, [searchText])
+    preparePhoneNumbers(unFilteredPhoneNumbers)
+  }, [unFilteredPhoneNumbers])
 
-  function preparePhoneNumbers(receivedPhoneNumbers: SearchCallData) {
-    /* Rimossi i campi con nome pari a null */
-    const filteredNumbers = receivedPhoneNumbers.rows.filter(
-      (phoneNumber) => phoneNumber.name !== null
-    )
-    /* Su Nethvoice CTI a differenza fanno partire la ricerca solo quando il numero e' pari a 3, prima non mostrano niente */
-    if (searchText.length === 3) {
-      const filteredMatchingNumbers = filteredNumbers.filter(
-        (phoneNumber) =>
-          phoneNumber.speeddial_num === searchText || phoneNumber.workphone === searchText
-      )
+  function preparePhoneNumbers(unFilteredNumbers: SearchData[]) {
+    const cleanRegex = /[^a-zA-Z0-9]/g
+    const cleanQuery = searchText.replace(cleanRegex, '')
+    if (cleanQuery.length == 0) {
+      return
+    }
 
-      const filteredNonMatchingNumbers = filteredNumbers.filter(
-        (phoneNumber) =>
-          phoneNumber.speeddial_num !== searchText && phoneNumber.workphone !== searchText
-      )
+    let isPhoneNumber = false
+    if (/^\+?[0-9|\s]+$/.test(cleanQuery)) {
+      // show "Call phone number" result
+      isPhoneNumber = true
+    }
 
-      const reorderedFilteredNumbers = filteredMatchingNumbers.concat(filteredNonMatchingNumbers)
-      // console.log('Filtered Numbers: ', filteredNumbers)
-      setFilteredPhoneNumbers(() => reorderedFilteredNumbers)
-    } else setFilteredPhoneNumbers(() => filteredNumbers)
+    const keys = ['extension', 'cellphone', 'homephone', 'workphone']
+    const s = (a) => {
+      return keys.reduce((p, c) => {
+        if (p === '') p = a[c] || ''
+        return p
+      }, '')
+    }
+    const copy = [...unFilteredNumbers]
+    unFilteredNumbers.sort((a, b) => {
+      log({ isPhoneNumber, aname: a.name, anum: s(a), bname: b.name, bnum: s(b) })
+      if (isPhoneNumber) {
+        const al = s(a).length
+        if (al > 0) {
+          if (al === searchText.length) return -1
+          const bl = s(b).length
+          if (bl > 0) return al - bl
+        }
+        return -1
+      } else {
+        const as = a.name.toLowerCase().replace(cleanRegex, '')
+        const bs = b.name.toLowerCase().replace(cleanRegex, '')
+        return as < bs ? -1 : as > bs ? 1 : 0
+      }
+    })
+    log(copy, unFilteredNumbers)
+
+    setFilteredPhoneNumbers(() => unFilteredNumbers)
   }
 
   return (
