@@ -6,7 +6,7 @@ import {
   faTrash as DeleteIcon,
   faCircleUser as UserIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { Avatar } from './Nethesis/'
+import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import { Menu } from '@headlessui/react'
 import { ContactType, OperatorData } from '@shared/types'
@@ -37,7 +37,7 @@ export function SpeedDialNumber({
 
   return (
     <div
-      className={`relative flex flex-row justify-between items-center font-semibold min-h-[44px] p-2 px-5 ${className}`}
+      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 px-5 ${className}`}
     >
       <div className="flex gap-6 items-center">
         {avatarSrc ? (
@@ -57,7 +57,9 @@ export function SpeedDialNumber({
         )}
 
         <div className="flex flex-col gap-1">
-          <p className="dark:text-gray-50 text-gray-900">{truncate(speedDial.name!, 20)}</p>
+          <p className="dark:text-gray-50 text-gray-900 font-medium text-[14px] leading-5">
+            {truncate(speedDial.name!, 20)}
+          </p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
               className="dark:text-gray-400 text-gray-600 text-base"
@@ -66,7 +68,7 @@ export function SpeedDialNumber({
             />
             <NumberCaller
               number={speedDial.speeddial_num!}
-              className="dark:text-blue-500 text-blue-600 font-normal underline"
+              className="dark:text-blue-500 text-blue-700 font-normal hover:underline"
             >
               {truncate(speedDial.speeddial_num!, 19)}
             </NumberCaller>
@@ -77,13 +79,15 @@ export function SpeedDialNumber({
         <div>
           <Menu>
             <div>
-              <Menu.Button className="cursor-pointer">
-                <div className="flex items-center justify-center min-w-8 min-h-8">
+              <Menu.Button>
+                {/* <div className=""> */}
+                <Button className="flex items-center justify-center min-w-8 min-h-8 cursor-pointer dark:hover:bg-gray-900 hover:bg-gray-50">
                   <FontAwesomeIcon
                     className="dark:text-gray-50 text-gray-900 text-base"
                     icon={MenuIcon}
                   />
-                </div>
+                </Button>
+                {/* </div> */}
               </Menu.Button>
             </div>
             {/* Controllo per vedere se e' l'ultimo elemento, se e' cosi, il menu ha un top differente */}
@@ -92,7 +96,7 @@ export function SpeedDialNumber({
             >
               <Menu.Item as={'div'} className="cursor-pointer">
                 <div
-                  className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2"
+                  className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-600 hover:bg-gray-200 mt-2"
                   onClick={() => {
                     handleSelectedSpeedDial(speedDial)
                   }}
@@ -102,7 +106,7 @@ export function SpeedDialNumber({
                       className="text-base dark:text-gray-50 text-gray-900"
                       icon={ModifyIcon}
                     />
-                    <p className="font-medium dark:text-gray-50 text-gray-900">
+                    <p className="font-normal text-[14px] leading-5 dark:text-gray-50 text-gray-900">
                       {t('Common.Edit')}
                     </p>
                   </div>
@@ -116,7 +120,7 @@ export function SpeedDialNumber({
                 >
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon className="text-base" icon={DeleteIcon} />
-                    <p className="font-medium">{t('Common.Delete')}</p>
+                    <p className="font-normal text-[14px] leading-5">{t('Common.Delete')}</p>
                   </div>
                 </div>
               </Menu.Item>

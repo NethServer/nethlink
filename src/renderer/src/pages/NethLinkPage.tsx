@@ -321,7 +321,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       {account && (
         <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm dark:text-gray-200 text-gray-900">
           <div
-            className={`flex flex-col  min-w-[400px] min-h-[380px] h-full items-center justify-between`}
+            className={`flex flex-col min-w-[400px] min-h-[380px] h-full items-center justify-between`}
           >
             <div
               className={`flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
@@ -338,7 +338,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
               />
             </div>
             <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-gray-900 bg-gray-50 w-full">
-              <div className="flex flex-col gap-4 w-full">
+              <div className="flex flex-col gap-3 w-full">
                 <Navbar
                   search={search}
                   account={account}
@@ -423,11 +423,11 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                       />
                     </div>
                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                      <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-50">
+                      <h3 className="font-medium text-[18px] leading-7 text-gray-900 dark:text-gray-50">
                         {t('SpeedDial.Delete speed dial')}
                       </h3>
                       <div className="mt-3">
-                        <p className="text-sm text-gray-700 dark:text-gray-200">
+                        <p className="font-normal text-[14px] leading-5 text-gray-700 dark:text-gray-200">
                           {t('SpeedDial.Speed dial delete message', {
                             deletingName: truncate(selectedSpeedDialName || '', 30)
                           })}
@@ -438,7 +438,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                   <Modal.Actions>
                     <Button
                       variant="danger"
-                      className="font-medium"
+                      className="font-medium text-[14px] leading-5"
                       onClick={() => {
                         setShowDeleteModal(false)
                         confirmDeleteSpeedDial(selectedSpeedDial!)
@@ -448,7 +448,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="font-medium"
+                      className="font-medium text-[14px] leading-5"
                       onClick={() => {
                         setShowDeleteModal(false)
                         setSelectedSpeedDial(undefined)

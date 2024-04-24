@@ -63,21 +63,23 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
   }
 
   return (
-    <div className="flex flex-col gap-4 h-full relative">
-      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 max-h-[28px] px-5">
-        <h1 className="font-semibold dark:text-gray-50 text-gray-900">
+    <div className="flex flex-col gap-3 h-full relative">
+      <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px] px-5 mt-3">
+        <h1 className="font-medium text-[14px] leading-5 dark:text-gray-50 text-gray-900">
           {initialData ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
         </h1>
       </div>
-      <form className="flex flex-col gap-4 px-5" onSubmit={(e) => {
-        e.preventDefault()
-        handleSubmit(onSubmitForm)(e)
-      }
-      }>
+      <form
+        className="flex flex-col gap-4 px-5"
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmit(onSubmitForm)(e)
+        }}
+      >
         <TextInput
           {...register('name', { required: true })}
           type="text"
-          className={`font-normal`}
+          className="font-medium text-[14px] leading-5"
           label={t('Phonebook.Name') as string}
           helper={errors.name?.message || undefined}
           error={!!errors.name?.message}
@@ -86,23 +88,25 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           {...register('speeddial_num', { required: true })}
           type="tel"
           minLength={3}
-          className="font-normal"
+          className="font-medium text-[14px] leading-5"
           label={t('Phonebook.Phone number') as string}
           helper={errors.speeddial_num?.message || undefined}
           error={!!errors.speeddial_num?.message}
         />
-        <div className="absolute bottom-0 right-0 flex flex-row gap-4 px-5">
+        <div className="absolute bottom-1 right-0 flex flex-row gap-4 px-5">
           <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
-            <p className="dark:text-blue-500 text-blue-600 font-medium">{t('Common.Cancel')}</p>
+            <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
+              {t('Common.Cancel')}
+            </p>
           </Button>
-          <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3" disabled={isLoading}>
-            <p className="dark:text-gray-900 text-gray-50 font-medium">
+          <Button type="submit" className="dark:bg-blue-500 bg-blue-700 gap-3" disabled={isLoading}>
+            <p className="dark:text-gray-950 text-gray-50 font-medium text-[14px] leading-5">
               {initialData ? t('Common.Edit') : t('SpeedDial.Create')}
             </p>
             {isLoading && (
               <FontAwesomeIcon
                 icon={LoadingIcon}
-                className="dark:text-gray-900 text-gray-50 animate-spin"
+                className="dark:text-gray-950 text-gray-50 animate-spin"
               />
             )}
           </Button>

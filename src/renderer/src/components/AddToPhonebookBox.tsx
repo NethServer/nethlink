@@ -134,8 +134,8 @@ export function AddToPhonebookBox({
 
   return (
     <div className="w-full h-full">
-      <div className="flex justify-between items-center py-1 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 max-h-[28px] px-5">
-        <h1 className="font-semibold">{t('Phonebook.Add to Phonebook')}</h1>
+      <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 max-h-[28px] px-5">
+        <h1 className="font-medium text-[14px] leading-5">{t('Phonebook.Add to Phonebook')}</h1>
       </div>
       <form
         className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px] px-5"
@@ -145,29 +145,37 @@ export function AddToPhonebookBox({
         }}
       >
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
-          <p className="font-medium">{t('Phonebook.Visibility')}</p>
+          <p className="font-medium text-[14px] leading-5">{t('Phonebook.Visibility')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('privacy')} type="radio" value="public" name="visibility" />
-              <p className="whitespace-nowrap font-normal">{t('Phonebook.All')}</p>
+              <p className="whitespace-nowrap font-normal text-[14px] leading-5">
+                {t('Phonebook.All')}
+              </p>
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('privacy')} type="radio" value="private" name="visibility" />
-              <p className="whitespace-nowrap font-normal">{t('Phonebook.Only me')}</p>
+              <p className="whitespace-nowrap font-normal text-[14px] leading-5">
+                {t('Phonebook.Only me')}
+              </p>
             </div>
           </div>
         </label>
 
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
-          <p className="font-medium">{t('Phonebook.Type')}</p>
+          <p className="font-medium text-[14px] leading-5">{t('Phonebook.Type')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('type')} type="radio" value="person" name="type" />
-              <p className="whitespace-nowrap font-normal">{t('Phonebook.Person')}</p>
+              <p className="whitespace-nowrap font-normal text-[14px] leading-5">
+                {t('Phonebook.Person')}
+              </p>
             </div>
             <div className="flex flex-row gap-2 items-center">
               <TextInput {...register('type')} type="radio" value="company" name="type" />
-              <p className="whitespace-nowrap font-normal">{t('Phonebook.Company')}</p>
+              <p className="whitespace-nowrap font-normal text-[14px] leading-5">
+                {t('Phonebook.Company')}
+              </p>
             </div>
           </div>
         </label>
@@ -177,7 +185,7 @@ export function AddToPhonebookBox({
             <TextInput
               {...register('name')}
               type="text"
-              className={`font-normal ${errors.name?.message ? `mb-2` : ``}`}
+              className={`font-normal text-[14px] leading-5 ${errors.name?.message ? `mb-2` : ``}`}
               label={t('Phonebook.Name') as string}
               helper={errors.name?.message || undefined}
               error={!!errors.name?.message}
@@ -187,7 +195,7 @@ export function AddToPhonebookBox({
         <TextInput
           {...register('company')}
           type="text"
-          className={`font-normal ${errors.company?.message ? `mb-2` : ``}`}
+          className={`font-normal text-[14px] leading-5 ${errors.company?.message ? `mb-2` : ``}`}
           label={t('Phonebook.Company') as string}
           helper={errors.company?.message || undefined}
           error={!!errors.company?.message}
@@ -196,56 +204,60 @@ export function AddToPhonebookBox({
         <TextInput
           {...register('extension')}
           type="tel"
+          className="font-normal text-[14px] leading-5"
           minLength={3}
           onChange={(e) => {
             setValue('extension', e.target.value.replace(/\D/g, ''))
           }}
-          className="font-normal"
           label={t('Phonebook.Phone number') as string}
         />
 
         <TextInput
           {...register('workphone')}
           type="tel"
+          className="font-normal text-[14px] leading-5"
           minLength={3}
           onChange={(e) => {
             setValue('workphone', e.target.value.replace(/\D/g, ''))
           }}
-          className="font-normal"
           label={t('Phonebook.Work phone') as string}
         />
 
         <TextInput
           {...register('cellphone')}
           type="tel"
+          className="font-normal text-[14px] leading-5"
           minLength={3}
           onChange={(e) => {
             setValue('cellphone', e.target.value.replace(/\D/g, ''))
           }}
-          className="font-normal"
           label={t('Phonebook.Mobile phone') as string}
         />
 
         <TextInput
           {...register('workemail')}
           type="email"
-          className="font-normal"
+          className="font-normal text-[14px] leading-5"
           label={t('Phonebook.Email') as string}
         />
 
         <TextInput
           {...register('notes')}
           type="text"
-          className="font-normal"
+          className="font-normal text-[14px] leading-5"
           label={t('Phonebook.Notes') as string}
         />
 
-        <div className="flex flex-row gap-4 justify-end">
+        <div className="flex flex-row gap-4 justify-end mb-1">
           <Button variant="ghost" onClick={() => onCancel()}>
-            <p className="dark:text-blue-500 text-blue-600 font-medium">{t('Common.Cancel')}</p>
+            <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
+              {t('Common.Cancel')}
+            </p>
           </Button>
-          <Button type="submit" className="dark:bg-blue-500 bg-blue-600 gap-3">
-            <p className="dark:text-gray-900 text-gray-50 font-medium">{t('Common.Save')}</p>
+          <Button type="submit" className="dark:bg-blue-500 bg-blue-700 gap-3">
+            <p className="dark:text-gray-950 text-gray-50 font-medium text-[14px] leading-5">
+              {t('Common.Save')}
+            </p>
             {isLoading && (
               <FontAwesomeIcon
                 icon={LoadingIcon}

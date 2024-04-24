@@ -173,12 +173,16 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     loginError && resizeThisWindow(windowHeight.current)
     return (
       !!loginError && (
-        <div className="relative flex flex-col p-4 border-l-[3px] border-rose-400 text-red-100 bg-rose-900 rounded-md mb-8">
-          <div className="flex flex-row items-center gap-2 ">
-            <FontAwesomeIcon icon={ErrorIcon} />
-            <p>{t('Login.Login failed')}</p>
+        <div className="relative flex flex-col p-4 border-l-[3px] border-rose-500 bg-rose-100 rounded-md mb-8">
+          <div className="flex flex-row items-center gap-2">
+            <FontAwesomeIcon icon={ErrorIcon} className="text-red-700" />
+            <p className="font-medium text-[14px] leading-5 text-red-800">
+              {t('Login.Login failed')}
+            </p>
           </div>
-          <p className="pl-6">{loginError?.message}</p>
+          <p className="pl-6 font-normal text-[14px] leading-5 text-rose-700">
+            {loginError?.message}
+          </p>
         </div>
       )
     )
@@ -189,10 +193,10 @@ export function LoginPage({ themeMode }: LoginPageProps) {
   const DisplayAvailableAccount = () => {
     return (
       <div className="w-full mt-7">
-        <p className="text-gray-900 dark:text-gray-100 text-xl font-semibold mb-3">
+        <p className="text-gray-900 dark:text-gray-100 text-[20px] leading-[30px] font-medium mb-2">
           {t('Login.Account List title')}
         </p>
-        <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
+        <p className="text-gray-900 dark:text-gray-100 text-[14px] leading-5 mb-7">
           {t('Login.Account List description')}
         </p>
         <div className="max-h-60 overflow-y-auto">
@@ -221,10 +225,10 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       }}
     >
       <div className="mt-7">
-        <p className="text-gray-900  dark:text-gray-100 text-xl font-semibold mb-3">
+        <p className="text-gray-900  dark:text-gray-100 text-[20px] leading-[30px] font-medium mb-2">
           {selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
         </p>
-        <p className="text-gray-900 dark:text-gray-100 text-md mb-8">
+        <p className="text-gray-900 dark:text-gray-100 text-[14px] leading-5 mb-7">
           {selectedAccount
             ? t('Login.Account List description')
             : t('Login.New Account description')}
@@ -266,7 +270,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
           />
           <button
             type="submit"
-            className={`w-full dark:bg-blue-500 bg-blue-700 text-gray-50 dark:text-gray-900 rounded h-9 font-semibold cursor-pointer`}
+            className={`w-full dark:bg-blue-500 bg-blue-700 text-gray-50 dark:text-gray-950 rounded h-9 font-medium text-[14px] leading-5 cursor-pointer`}
           >
             {t('Login.Sign in')}
           </button>
@@ -283,22 +287,24 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       <div className={classNames('h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
           <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
-          <FontAwesomeIcon
-            icon={CrossIcon}
-            className="h-5 w-5 dark:text-gray-50 cursor-pointer"
-            onClick={() => hideLoginWindow()}
-          />
+          <Button className="pt-2 pr-1 pb-2 pl-1 cursor-pointer dark:hover:bg-gray-600 hover:bg-gray-200">
+            <FontAwesomeIcon
+              icon={CrossIcon}
+              className="h-5 w-5 dark:text-gray-50 text-gray-900"
+              onClick={() => hideLoginWindow()}
+            />
+          </Button>
         </div>
         {availableAccounts.length > 0 && selectedAccount && (
           <Button
-            className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0 mt-10 dark:hover:bg-gray-700 hover:bg-gray-200"
+            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6 dark:hover:bg-gray-600 hover:bg-gray-200"
             onClick={goBack}
           >
             <FontAwesomeIcon
               icon={ArrowIcon}
-              className="h-5 w-5 cursor-pointer dark:text-blue-500 text-blue-600"
+              className="h-5 w-5 cursor-pointer dark:text-blue-500 text-blue-700"
             />
-            <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Login.Back')}</p>
+            <p className="dark:text-blue-500 text-blue-700 font-medium">{t('Login.Back')}</p>
           </Button>
         )}
         {isFirstLogin || selectedAccount ? LoginForm : <DisplayAvailableAccount />}

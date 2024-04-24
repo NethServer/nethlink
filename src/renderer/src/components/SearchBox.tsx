@@ -1,10 +1,11 @@
 import {
-  faSearch as SearchIcon,
+  faMagnifyingGlass as SearchIcon,
   faXmark as DeleteSearchIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from './Nethesis/TextInput'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button } from './Nethesis'
 
 export interface SearchBoxProps {
   search: string
@@ -46,11 +47,13 @@ export function SearchBox({ search, handleSearch, handleReset }: SearchBoxProps)
         inputClassName="pr-10"
       />
       {search === '' ? null : (
-        <FontAwesomeIcon
-          icon={DeleteSearchIcon}
-          className="absolute right-1 dark:text-gray-50 text-gray-900 z-10 pr-3 h-4 w-4 cursor-pointer"
-          onClick={handleReset}
-        />
+        <Button className="absolute right-1 z-100 cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px] hover:bg-gray-200 dark:hover:bg-gray-600">
+          <FontAwesomeIcon
+            icon={DeleteSearchIcon}
+            className="dark:text-gray-50 text-gray-900 h-4 w-4"
+            onClick={handleReset}
+          />
+        </Button>
       )}
     </div>
   )

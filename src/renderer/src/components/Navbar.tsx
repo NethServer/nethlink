@@ -15,6 +15,7 @@ import { Account, AvailableThemes, OperatorData } from '@shared/types'
 import { PlaceholderIcon } from '@renderer/icons'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { t } from 'i18next'
+import { Button } from './Nethesis'
 
 export interface NavabarProps {
   search: string
@@ -49,19 +50,19 @@ export function Navbar({
   }
 
   return (
-    <div className="flex flex-row items-center justify-between gap-4 min-w-[318px] px-4 py-2">
+    <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 py-2">
       <SearchBox search={search} handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
             <div>
-              <Listbox.Button className="cursor-pointer">
-                <div className="flex items-center justify-center min-w-8 min-h-8">
+              <Listbox.Button>
+                <Button className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1 dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer">
                   <FontAwesomeIcon
                     icon={ThemeMenuIcon}
                     className="h-5 w-5 dark:text-gray-50 text-gray-700"
                   />
-                </div>
+                </Button>
               </Listbox.Button>
             </div>
             <Listbox.Options
@@ -77,12 +78,12 @@ export function Navbar({
                   className="cursor-pointer"
                 >
                   <div
-                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
+                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-600 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
                     onClick={() => handleSetTheme(availableTheme.name)}
                   >
                     {theme === availableTheme.name && (
                       <FontAwesomeIcon
-                        className="dark:text-blue-500 text-blue-600"
+                        className="dark:text-blue-500 text-blue-700"
                         style={{ fontSize: '16px' }}
                         icon={ChooseThemeMenuIcon}
                       />
@@ -125,7 +126,7 @@ export function Navbar({
               className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
-                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-600">
+                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-700 border-gray-200">
                   <p className="dark:text-gray-400 text-gray-700">{t('TopBar.Signed in as')}</p>
                   <div className="flex flex-row gap-4">
                     <p className="dark:text-gray-50 text-gray-900 font-medium">
@@ -139,7 +140,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200"
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200"
               >
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6"
@@ -151,7 +152,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 rounded-b-lg"
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200 rounded-b-lg"
               >
                 <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={logout}>
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />

@@ -30,7 +30,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
       while (index !== -1) {
         parts.push(number.substring(lastIndex, index))
         parts.push(
-          <span className="dark:text-blue-500 text-blue-600 font-bold text-[1.1rem]">
+          <span className="dark:text-blue-500 text-blue-700 font-bold text-[1.1rem]">
             {number.substring(index, index + searchText.length)}
           </span>
         )
@@ -79,10 +79,10 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
           bordered={true}
         />
         <div className="flex flex-col gap-1">
-          <p className="font-semibold">{user.name}</p>
+          <p className="font-normal text-[14px] leading-5">{user.name}</p>
           <NumberCaller
             number={phoneNumber}
-            className="dark:text-blue-500 text-blue-600 text-[1rem] font-medium underline"
+            className="dark:text-blue-500 text-blue-700 text-[1rem] font-normal hover:underline mr-auto"
           >
             {highlightedNumber}
           </NumberCaller>
@@ -95,7 +95,9 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
           callUser(phoneNumber)
         }}
       >
-        <p className="dark:text-blue-500 text-blue-600 font-semibold">{t('Operators.Call')}</p>
+        <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
+          {t('Operators.Call')}
+        </p>
       </Button>
     </div>
   )
