@@ -310,10 +310,11 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   function sendNotification(title: string, body: string) {
-    new Notification(title, {
-      body,
-      icon: NotificationIcon
-    })
+    const options: any = { body }
+    if (!navigator.userAgent.toUpperCase().includes('MAC')) {
+      options.icon = NotificationIcon
+    }
+    new Notification(title, options)
   }
 
   return (
