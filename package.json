@@ -1,6 +1,6 @@
 {
   "name": "nethlink",
-  "version": "0.0.49",
+  "version": "0.0.50",
   "description": "Neth Connector app",
   "main": "./out/main/main.js",
   "license": "UNLICENSED",
@@ -25,7 +25,7 @@
     "publish:major": "npm version major --allow-same-version -m v%s --force",
     "publish:patch": "npm version patch --allow-same-version -m v%s --force",
     "postversion": "git add . &&  git push --follow-tags && git push --tags",
-    "build": "npm ci && rm -rf out && rm -rf dist && npm run typecheck && electron-vite build",
+    "build": "rm -rf out && rm -rf dist && npm run typecheck && electron-vite build",
     "build:w": "del /s /q out && del /s /q dist && npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
