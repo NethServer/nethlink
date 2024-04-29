@@ -2,7 +2,7 @@ import { Account } from '@shared/types'
 import classNames from 'classnames'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
+import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 
 type DisplayedAccountLoginProps = {
   account?: Account
@@ -28,7 +28,7 @@ export function DisplayedAccountLogin({
           <img src={imageSrc} />
         ) : (
           <FontAwesomeIcon
-            icon={faCircleUser}
+            icon={DefaultAvatar}
             className="text-[48px] dark:text-gray-50 text-gray-600"
           />
         )}

@@ -12,10 +12,10 @@ import {
 import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes, OperatorData } from '@shared/types'
-import { PlaceholderIcon } from '@renderer/icons'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { t } from 'i18next'
 import { Button } from './Nethesis'
+import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 
 export interface NavabarProps {
   search: string
@@ -109,16 +109,24 @@ export function Navbar({
           <Menu>
             <div>
               <Menu.Button className="cursor-pointer">
-                <Avatar
-                  size="small"
-                  status={
-                    operators?.operators?.[account.username]?.mainPresence ||
-                    account.data?.mainPresence ||
-                    'offline'
-                  }
-                  src={operators?.avatars?.[account.username]}
-                  placeholder={PlaceholderIcon}
-                />
+                {operators?.avatars?.[account.username] ? (
+                  <Avatar
+                    size="small"
+                    status={
+                      operators?.operators?.[account.username]?.mainPresence ||
+                      account.data?.mainPresence ||
+                      'offline'
+                    }
+                    src={operators?.avatars?.[account.username]}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center relative shrink-0 h-8 w-8 text-sm rounded-full border-2 border-white dark:border-gray-700">
+                    <FontAwesomeIcon
+                      icon={DefaultAvatar}
+                      className="text-[32px] dark:text-gray-50 text-gray-600"
+                    />
+                  </div>
+                )}
               </Menu.Button>
             </div>
 
