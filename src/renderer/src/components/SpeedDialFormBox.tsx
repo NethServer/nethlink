@@ -69,11 +69,13 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           {initialData ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
         </h1>
       </div>
-      <form className="flex flex-col gap-4 px-5" onSubmit={(e) => {
-        e.preventDefault()
-        handleSubmit(onSubmitForm)(e)
-      }
-      }>
+      <form
+        className="flex flex-col gap-4 px-5"
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleSubmit(onSubmitForm)(e)
+        }}
+      >
         <TextInput
           {...register('name', { required: true })}
           type="text"
@@ -81,6 +83,12 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           label={t('Phonebook.Name') as string}
           helper={errors.name?.message || undefined}
           error={!!errors.name?.message}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
         />
         <TextInput
           {...register('speeddial_num', { required: true })}
@@ -90,6 +98,12 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           label={t('Phonebook.Phone number') as string}
           helper={errors.speeddial_num?.message || undefined}
           error={!!errors.speeddial_num?.message}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
         />
         <div className="absolute bottom-0 right-0 flex flex-row gap-4 px-5">
           <Button variant="ghost" onClick={onCancel} disabled={isLoading}>

@@ -85,7 +85,7 @@ export function AddToPhonebookBox({
     !!errors.company && trigger('company')
   }, [watchType])
 
-  const onSubmit: SubmitHandler<ContactType> = (data) => {
+  const onSubmitForm: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
   }
 
@@ -141,7 +141,7 @@ export function AddToPhonebookBox({
         className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px] px-5"
         onSubmit={(e) => {
           e.preventDefault()
-          handleSubmit(onSubmit)(e)
+          handleSubmit(onSubmitForm)(e)
         }}
       >
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
@@ -181,6 +181,12 @@ export function AddToPhonebookBox({
               label={t('Phonebook.Name') as string}
               helper={errors.name?.message || undefined}
               error={!!errors.name?.message}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleSubmit(onSubmitForm)(e)
+                }
+              }}
             />
           </>
         ) : null}
@@ -191,6 +197,12 @@ export function AddToPhonebookBox({
           label={t('Phonebook.Company') as string}
           helper={errors.company?.message || undefined}
           error={!!errors.company?.message}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
         />
 
         <TextInput
@@ -202,6 +214,12 @@ export function AddToPhonebookBox({
           }}
           className="font-normal"
           label={t('Phonebook.Phone number') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
         />
 
         <TextInput
@@ -213,6 +231,12 @@ export function AddToPhonebookBox({
           }}
           className="font-normal"
           label={t('Phonebook.Work phone') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
         />
 
         <TextInput
@@ -224,6 +248,12 @@ export function AddToPhonebookBox({
           }}
           className="font-normal"
           label={t('Phonebook.Mobile phone') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
         />
 
         <TextInput
@@ -231,6 +261,12 @@ export function AddToPhonebookBox({
           type="email"
           className="font-normal"
           label={t('Phonebook.Email') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
         />
 
         <TextInput
@@ -238,6 +274,12 @@ export function AddToPhonebookBox({
           type="text"
           className="font-normal"
           label={t('Phonebook.Notes') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
         />
 
         <div className="flex flex-row gap-4 justify-end">
