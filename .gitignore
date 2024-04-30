@@ -6,4 +6,4 @@ out
 .yarn/install-state.gz
 yarn.lock
 certification
-electron-builder.env
+*.env
