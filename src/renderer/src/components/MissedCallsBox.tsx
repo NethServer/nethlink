@@ -29,7 +29,8 @@ export function MissedCallsBox({
         <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px] px-5 mt-3">
           <h1 className="font-medium text-[14px] leading-5">{title}</h1>
           <Button
-            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 hover:bg-gray-200 dark:hover:bg-gray-600"
+            variant="ghost"
+            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 hover:bg-gray-200 dark:hover:bg-gray-600 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
             onClick={viewAllMissedCalls}
           >
             <FontAwesomeIcon

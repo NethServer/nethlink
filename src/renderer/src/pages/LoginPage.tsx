@@ -248,6 +248,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                 label={t('Login.Host') as string}
                 helper={errors.host?.message || undefined}
                 error={!!errors.host?.message}
+                className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
               />
               <TextInput
                 {...register('username')}
@@ -255,6 +256,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                 label={t('Login.Username') as string}
                 helper={errors.username?.message || undefined}
                 error={!!errors.username?.message}
+                className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
               />
             </>
           )}
@@ -267,10 +269,11 @@ export function LoginPage({ themeMode }: LoginPageProps) {
             trailingIcon={true}
             helper={errors.password?.message || undefined}
             error={!!errors.password?.message}
+            className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
           />
           <button
             type="submit"
-            className={`w-full dark:bg-blue-500 bg-blue-700 text-gray-50 dark:text-gray-950 rounded h-9 font-medium text-[14px] leading-5 cursor-pointer`}
+            className={`w-full dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 text-gray-50 dark:text-gray-950 rounded h-9 font-medium text-[14px] leading-5 cursor-pointer dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
           >
             {t('Login.Sign in')}
           </button>
@@ -287,7 +290,10 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       <div className={classNames('h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
           <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
-          <Button className="pt-2 pr-1 pb-2 pl-1 cursor-pointer dark:hover:bg-gray-600 hover:bg-gray-200">
+          <Button
+            variant="ghost"
+            className="pt-2 pr-1 pb-2 pl-1 cursor-pointer dark:hover:bg-gray-600 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+          >
             <FontAwesomeIcon
               icon={CrossIcon}
               className="h-5 w-5 dark:text-gray-50 text-gray-900"
@@ -297,12 +303,13 @@ export function LoginPage({ themeMode }: LoginPageProps) {
         </div>
         {availableAccounts.length > 0 && selectedAccount && (
           <Button
-            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6 dark:hover:bg-gray-600 hover:bg-gray-200"
+            variant="ghost"
+            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6 cursor-pointer dark:hover:bg-gray-600 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
             onClick={goBack}
           >
             <FontAwesomeIcon
               icon={ArrowIcon}
-              className="h-5 w-5 cursor-pointer dark:text-blue-500 text-blue-700"
+              className="h-5 w-5 dark:text-blue-500 text-blue-700"
             />
             <p className="dark:text-blue-500 text-blue-700 font-medium">{t('Login.Back')}</p>
           </Button>

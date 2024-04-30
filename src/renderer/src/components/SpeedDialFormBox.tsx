@@ -79,27 +79,36 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
         <TextInput
           {...register('name', { required: true })}
           type="text"
-          className="font-medium text-[14px] leading-5"
           label={t('Phonebook.Name') as string}
           helper={errors.name?.message || undefined}
           error={!!errors.name?.message}
+          className="font-medium text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
         <TextInput
           {...register('speeddial_num', { required: true })}
           type="tel"
           minLength={3}
-          className="font-medium text-[14px] leading-5"
           label={t('Phonebook.Phone number') as string}
           helper={errors.speeddial_num?.message || undefined}
           error={!!errors.speeddial_num?.message}
+          className="font-medium text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
         <div className="absolute bottom-1 right-0 flex flex-row gap-4 px-5">
-          <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
+          <Button
+            variant="ghost"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+          >
             <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
               {t('Common.Cancel')}
             </p>
           </Button>
-          <Button type="submit" className="dark:bg-blue-500 bg-blue-700 gap-3" disabled={isLoading}>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="gap-3 dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          >
             <p className="dark:text-gray-950 text-gray-50 font-medium text-[14px] leading-5">
               {initialData ? t('Common.Edit') : t('SpeedDial.Create')}
             </p>

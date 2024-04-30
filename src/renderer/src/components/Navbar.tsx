@@ -57,7 +57,10 @@ export function Navbar({
           <Listbox>
             <div>
               <Listbox.Button>
-                <Button className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1 dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer">
+                <Button
+                  variant="ghost"
+                  className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1 dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+                >
                   <FontAwesomeIcon
                     icon={ThemeMenuIcon}
                     className="h-5 w-5 dark:text-gray-50 text-gray-700"

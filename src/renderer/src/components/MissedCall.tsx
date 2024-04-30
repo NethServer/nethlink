@@ -103,7 +103,7 @@ export function MissedCall({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 ml-auto items-center">
+      <div className="flex flex-col justify-between ml-auto items-center">
         {call.channel?.includes('from-queue') && (
           <>
             {isQueueLoading ? (
@@ -145,7 +145,7 @@ export function MissedCall({
         {showCreateButton && (
           <Button
             variant="ghost"
-            className="flex gap-3 items-center py-2 px-3 border dark:border-gray-700 border-gray-200 ml-auto"
+            className="flex gap-3 items-center py-2 px-3 border dark:border-gray-700 border-gray-200 ml-auto dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
             onClick={() => handleSelectedMissedCall(call.cnum, call.ccompany)}
           >
             <FontAwesomeIcon

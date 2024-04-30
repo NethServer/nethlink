@@ -225,76 +225,83 @@ export function AddToPhonebookBox({
             <TextInput
               {...register('name')}
               type="text"
-              className={`font-normal text-[14px] leading-5 ${errors.name?.message ? `mb-2` : ``}`}
               label={t('Phonebook.Name') as string}
               helper={errors.name?.message || undefined}
               error={!!errors.name?.message}
+              className={`font-normal text-[14px] leading-5 ${errors.name?.message ? `mb-2` : ``} dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
             />
           </>
         ) : null}
         <TextInput
           {...register('company')}
           type="text"
-          className={`font-normal text-[14px] leading-5 ${errors.company?.message ? `mb-2` : ``}`}
           label={t('Phonebook.Company') as string}
           helper={errors.company?.message || undefined}
           error={!!errors.company?.message}
+          className={`font-normal text-[14px] leading-5 ${errors.company?.message ? `mb-2` : ``} dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
         />
 
         <TextInput
           {...register('extension')}
           type="tel"
-          className="font-normal text-[14px] leading-5"
           minLength={3}
           onChange={(e) => {
             setValue('extension', e.target.value.replace(/\D/g, ''))
           }}
           label={t('Phonebook.Phone number') as string}
+          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
         <TextInput
           {...register('workphone')}
           type="tel"
-          className="font-normal text-[14px] leading-5"
           minLength={3}
           onChange={(e) => {
             setValue('workphone', e.target.value.replace(/\D/g, ''))
           }}
           label={t('Phonebook.Work phone') as string}
+          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
         <TextInput
           {...register('cellphone')}
           type="tel"
-          className="font-normal text-[14px] leading-5"
           minLength={3}
           onChange={(e) => {
             setValue('cellphone', e.target.value.replace(/\D/g, ''))
           }}
           label={t('Phonebook.Mobile phone') as string}
+          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
         <TextInput
           {...register('workemail')}
           type="email"
-          className="font-normal text-[14px] leading-5"
           label={t('Phonebook.Email') as string}
+          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
         <TextInput
           {...register('notes')}
           type="text"
-          className="font-normal text-[14px] leading-5"
           label={t('Phonebook.Notes') as string}
+          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
         <div className="flex flex-row gap-4 justify-end mb-1">
-          <Button variant="ghost" onClick={() => onCancel()}>
+          <Button
+            variant="ghost"
+            onClick={() => onCancel()}
+            className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          >
             <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
               {t('Common.Cancel')}
             </p>
           </Button>
-          <Button type="submit" className="dark:bg-blue-500 bg-blue-700 gap-3">
+          <Button
+            type="submit"
+            className="gap-3 dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          >
             <p className="dark:text-gray-950 text-gray-50 font-medium text-[14px] leading-5">
               {t('Common.Save')}
             </p>

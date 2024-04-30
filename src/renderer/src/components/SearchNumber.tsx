@@ -98,7 +98,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
         </div>
       </div>
       <Button
-        className="dark:hover:bg-gray-900 hover:bg-gray-50"
+        className="dark:hover:bg-gray-900 hover:bg-gray-50 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         variant="ghost"
         onClick={() => {
           callUser(phoneNumber)

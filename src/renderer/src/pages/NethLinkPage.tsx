@@ -448,7 +448,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="font-medium text-[14px] leading-5"
+                      className="font-medium text-[14px] leading-5 gap-3 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
                       onClick={() => {
                         setShowDeleteModal(false)
                         setSelectedSpeedDial(undefined)

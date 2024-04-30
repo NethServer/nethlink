@@ -81,7 +81,10 @@ export function SpeedDialNumber({
             <div>
               <Menu.Button>
                 {/* <div className=""> */}
-                <Button className="flex items-center justify-center min-w-8 min-h-8 cursor-pointer dark:hover:bg-gray-900 hover:bg-gray-50">
+                <Button
+                  variant="ghost"
+                  className="flex items-center justify-center min-w-8 min-h-8 cursor-pointer dark:hover:bg-gray-900 hover:bg-gray-50 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+                >
                   <FontAwesomeIcon
                     className="dark:text-gray-50 text-gray-900 text-base"
                     icon={MenuIcon}

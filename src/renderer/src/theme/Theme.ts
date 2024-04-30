@@ -91,7 +91,7 @@ const theme = {
       left: 'inset-y-0 left-0 pl-3',
       right: 'inset-y-0 right-0 pr-3',
       size: {
-        base: 'h-5 w-5',
+        base: 'h-4 w-4',
         large: 'h-6 w-6'
       }
     },
