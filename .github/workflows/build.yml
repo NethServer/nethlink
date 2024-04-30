@@ -11,16 +11,16 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-14, ubuntu-latest, windows-latest]
+        os: [macos-13, ubuntu-latest, windows-latest]
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4        
+        uses: actions/checkout@v4
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: 21      
+          node-version: 21
 
       - name: Prepare for app notarization
         if: startsWith(matrix.os, 'macos')
