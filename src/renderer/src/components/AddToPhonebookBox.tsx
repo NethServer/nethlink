@@ -138,7 +138,7 @@ export function AddToPhonebookBox({
         <h1 className="font-medium text-[14px] leading-5">{t('Phonebook.Add to Phonebook')}</h1>
       </div>
       <form
-        className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[248px] px-5"
+        className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[245px] px-5"
         onSubmit={(e) => {
           e.preventDefault()
           handleSubmit(onSubmit)(e)
@@ -148,16 +148,36 @@ export function AddToPhonebookBox({
           <p className="font-medium text-[14px] leading-5">{t('Phonebook.Visibility')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
-              <TextInput {...register('privacy')} type="radio" value="public" name="visibility" />
-              <p className="whitespace-nowrap font-normal text-[14px] leading-5">
+              <input
+                {...register('privacy')}
+                id="public"
+                type="radio"
+                value="public"
+                name="visibility"
+                className="h-4 w-4 dark:text-blue-500 text-blue-700 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:ring-offset-gray-900 focus:ring-offset-gray-50"
+              />
+              <label
+                htmlFor="public"
+                className="whitespace-nowrap font-normal text-[14px] leading-5"
+              >
                 {t('Phonebook.All')}
-              </p>
+              </label>
             </div>
             <div className="flex flex-row gap-2 items-center">
-              <TextInput {...register('privacy')} type="radio" value="private" name="visibility" />
-              <p className="whitespace-nowrap font-normal text-[14px] leading-5">
+              <input
+                {...register('privacy')}
+                id="private"
+                type="radio"
+                value="private"
+                name="visibility"
+                className="h-4 w-4 dark:text-blue-500 text-blue-700 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:ring-offset-gray-900 focus:ring-offset-gray-50"
+              />
+              <label
+                htmlFor="private"
+                className="whitespace-nowrap font-normal text-[14px] leading-5"
+              >
                 {t('Phonebook.Only me')}
-              </p>
+              </label>
             </div>
           </div>
         </label>
@@ -166,16 +186,36 @@ export function AddToPhonebookBox({
           <p className="font-medium text-[14px] leading-5">{t('Phonebook.Type')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
-              <TextInput {...register('type')} type="radio" value="person" name="type" />
-              <p className="whitespace-nowrap font-normal text-[14px] leading-5">
+              <input
+                {...register('type')}
+                id="person"
+                type="radio"
+                value="person"
+                name="type"
+                className="h-4 w-4 dark:text-blue-500 text-blue-700 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:ring-offset-gray-900 focus:ring-offset-gray-50"
+              />
+              <label
+                htmlFor="person"
+                className="whitespace-nowrap font-normal text-[14px] leading-5"
+              >
                 {t('Phonebook.Person')}
-              </p>
+              </label>
             </div>
             <div className="flex flex-row gap-2 items-center">
-              <TextInput {...register('type')} type="radio" value="company" name="type" />
-              <p className="whitespace-nowrap font-normal text-[14px] leading-5">
+              <input
+                {...register('type')}
+                id="company"
+                type="radio"
+                value="company"
+                name="type"
+                className="h-4 w-4 dark:text-blue-500 text-blue-700 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:ring-offset-gray-900 focus:ring-offset-gray-50"
+              />
+              <label
+                htmlFor="company"
+                className="whitespace-nowrap font-normal text-[14px] leading-5"
+              >
                 {t('Phonebook.Company')}
-              </p>
+              </label>
             </div>
           </div>
         </label>
