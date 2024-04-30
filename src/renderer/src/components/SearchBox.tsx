@@ -1,10 +1,11 @@
 import {
-  faSearch as SearchIcon,
+  faMagnifyingGlass as SearchIcon,
   faXmark as DeleteSearchIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { TextInput } from './Nethesis/TextInput'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Button } from './Nethesis'
 
 export interface SearchBoxProps {
   search: string
@@ -41,16 +42,21 @@ export function SearchBox({ search, handleSearch, handleReset }: SearchBoxProps)
             submit(search)
           }
         }}
-        className="min-w-[222px] dark:text-gray-50 text-gray-900"
+        className="min-w-[222px] dark:text-gray-50 text-gray-900 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         /* Mi serve per dare spazio all' X Icon */
         inputClassName="pr-10"
       />
       {search === '' ? null : (
-        <FontAwesomeIcon
-          icon={DeleteSearchIcon}
-          className="absolute right-1 dark:text-gray-50 text-gray-900 z-10 pr-3 h-4 w-4 cursor-pointer"
-          onClick={handleReset}
-        />
+        <Button
+          variant="ghost"
+          className="absolute right-1 z-100 cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px] hover:bg-gray-200 dark:hover:bg-gray-600 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+        >
+          <FontAwesomeIcon
+            icon={DeleteSearchIcon}
+            className="dark:text-gray-50 text-gray-900 h-4 w-4"
+            onClick={handleReset}
+          />
+        </Button>
       )}
     </div>
   )

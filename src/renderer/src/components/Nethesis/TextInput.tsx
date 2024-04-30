@@ -116,7 +116,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               Icon && !trailingIcon && 'pl-10',
               error ? theme.placeholder.error : theme.placeholder.base,
               'outline-transparent',
-              'dark:focus:outline-none focus:outline-none dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:border-transparent focus:border-transparent',
+              'dark:focus:outline-none focus:outline-none dark:focus:ring-2 focus:ring-2 dark:focus:ring-offset-1 focus:ring-offset-1 dark:focus:ring-offset dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:border-transparent focus:border-transparent',
               inputClassName
             )}
             {...cleanProps}

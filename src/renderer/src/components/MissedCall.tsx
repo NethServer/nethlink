@@ -62,7 +62,7 @@ export function MissedCall({
 
   return (
     <div
-      className={`flex flex-grow gap-3 font-semibold min-h-[72px] p-2 px-5 ${className}`}
+      className={`flex flex-grow gap-3 min-h-[72px] p-2 px-5 ${className}`}
       onMouseEnter={() => {
         if (getCallName(call) === t('Common.Unknown')) {
           setShowCreateButton(() => true)
@@ -88,12 +88,12 @@ export function MissedCall({
         )}
       </div>
       <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
-        <p className="font-medium">{truncate(getCallName(call), 15)}</p>
+        <p className="font-medium text-[14px] leading-5">{truncate(getCallName(call), 15)}</p>
         <div className="flex flex-row gap-2 items-center">
           <MissedCallIcon />
           <NumberCaller
             number={getCallExt(call)}
-            className="dark:text-blue-500 text-blue-600 font-normal underline"
+            className="dark:text-blue-500 text-blue-700 font-normal text-[14px] leading-5 hover:underline"
           >
             {call.cnum}
           </NumberCaller>
@@ -103,7 +103,7 @@ export function MissedCall({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 ml-auto items-center">
+      <div className="flex flex-col justify-between ml-auto items-center">
         {call.channel?.includes('from-queue') && (
           <>
             {isQueueLoading ? (
@@ -145,14 +145,14 @@ export function MissedCall({
         {showCreateButton && (
           <Button
             variant="ghost"
-            className="flex gap-3 items-center py-2 px-3 border dark:border-gray-500 ml-auto"
+            className="flex gap-3 items-center py-2 px-3 border dark:border-gray-700 border-gray-200 ml-auto dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
             onClick={() => handleSelectedMissedCall(call.cnum, call.ccompany)}
           >
             <FontAwesomeIcon
-              className="text-base dark:text-blue-500 text-blue-600"
+              className="text-base dark:text-blue-500 text-blue-700"
               icon={AddUserIcon}
             />
-            <p className="dark:text-blue-500 text-blue-600 font-medium">{t('SpeedDial.Create')}</p>
+            <p className="dark:text-blue-500 text-blue-700 font-medium">{t('SpeedDial.Create')}</p>
           </Button>
         )}
       </div>

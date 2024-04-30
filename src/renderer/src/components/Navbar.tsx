@@ -12,9 +12,10 @@ import {
 import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes, OperatorData } from '@shared/types'
-import { PlaceholderIcon } from '@renderer/icons'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { t } from 'i18next'
+import { Button } from './Nethesis'
+import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 
 export interface NavabarProps {
   search: string
@@ -49,19 +50,22 @@ export function Navbar({
   }
 
   return (
-    <div className="flex flex-row items-center justify-between gap-4 min-w-[318px] px-4 py-2">
+    <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 py-2">
       <SearchBox search={search} handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
             <div>
-              <Listbox.Button className="cursor-pointer">
-                <div className="flex items-center justify-center min-w-8 min-h-8">
+              <Listbox.Button>
+                <Button
+                  variant="ghost"
+                  className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1 dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+                >
                   <FontAwesomeIcon
                     icon={ThemeMenuIcon}
                     className="h-5 w-5 dark:text-gray-50 text-gray-700"
                   />
-                </div>
+                </Button>
               </Listbox.Button>
             </div>
             <Listbox.Options
@@ -77,12 +81,12 @@ export function Navbar({
                   className="cursor-pointer"
                 >
                   <div
-                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-700 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'}`}
+                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-600 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'} ${availableTheme.name === 'dark' ? 'dark:hover:rounded-bl-[8px] dark:hover:rounded-br-[8px] hover:rounded-bl-[8px] hover:rounded-br-[8px]' : ''}`}
                     onClick={() => handleSetTheme(availableTheme.name)}
                   >
                     {theme === availableTheme.name && (
                       <FontAwesomeIcon
-                        className="dark:text-blue-500 text-blue-600"
+                        className="dark:text-blue-500 text-blue-700"
                         style={{ fontSize: '16px' }}
                         icon={ChooseThemeMenuIcon}
                       />
@@ -108,16 +112,24 @@ export function Navbar({
           <Menu>
             <div>
               <Menu.Button className="cursor-pointer">
-                <Avatar
-                  size="small"
-                  status={
-                    operators?.operators?.[account.username]?.mainPresence ||
-                    account.data?.mainPresence ||
-                    'offline'
-                  }
-                  src={operators?.avatars?.[account.username]}
-                  placeholder={PlaceholderIcon}
-                />
+                {operators?.avatars?.[account.username] ? (
+                  <Avatar
+                    size="small"
+                    status={
+                      operators?.operators?.[account.username]?.mainPresence ||
+                      account.data?.mainPresence ||
+                      'offline'
+                    }
+                    src={operators?.avatars?.[account.username]}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center relative shrink-0 h-8 w-8 text-sm rounded-full border-2 border-white dark:border-gray-700">
+                    <FontAwesomeIcon
+                      icon={DefaultAvatar}
+                      className="text-[32px] dark:text-gray-50 text-gray-600"
+                    />
+                  </div>
+                )}
               </Menu.Button>
             </div>
 
@@ -125,7 +137,7 @@ export function Navbar({
               className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
-                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-600">
+                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-700 border-gray-200">
                   <p className="dark:text-gray-400 text-gray-700">{t('TopBar.Signed in as')}</p>
                   <div className="flex flex-row gap-4">
                     <p className="dark:text-gray-50 text-gray-900 font-medium">
@@ -139,7 +151,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200"
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200"
               >
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6"
@@ -151,7 +163,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:bg-gray-200 rounded-b-lg"
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200 rounded-b-lg"
               >
                 <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={logout}>
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
