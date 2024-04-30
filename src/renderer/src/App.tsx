@@ -76,6 +76,10 @@ export default function App() {
 
   const updateSystemTheme = (theme: AvailableThemes) => {
     log('FROM SYSTEM', theme, accountRef.current)
+    /* Aggiunta per il problema del cambio del tema nella loginPage e SplashScreenPage */
+    if (accountRef.current === undefined) {
+      updateTheme(getSystemTheme())
+    }
     if (accountRef.current?.theme === 'system') {
       setClassNameTheme(getSystemTheme())
     }
