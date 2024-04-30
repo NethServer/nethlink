@@ -1,6 +1,7 @@
 appId: 'com.nethesis.nethlink.app'
-productName: 'Nethlink'
+productName: 'NethLink'
 copyright: 'prova copyright'
+afterSign: electron-builder-notarize
 electronLanguages:
   - it
   - en-US
@@ -44,15 +45,15 @@ mac:
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
+  artifactName: ${name}-${version}.${ext}
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  notarize: 
+    teamId: 8D66VDADVH
   target:
     #- zip
     - dmg
     #- mas
-mas:
-  artifactName: ${name}-${version}.${ext}
-  entitlements: build/entitlements.mac.plist
-  entitlementsInherit: build/entitlements.mac.plist
 linux:
   target:
     #- snap

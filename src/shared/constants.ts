@@ -78,7 +78,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-ringing' = 'phone-island-call-ringing',
   'phone-island-call-started' = 'phone-island-call-started',
   'phone-island-call-answered' = 'phone-island-call-answered',
-  'phone-island-call-ended' = 'phone-island-call-ended',
+  'phone-island-call-ended' = 'phone-island-call-ended', //TODO:fare reload delle chiamate perse
   'phone-island-call-held' = 'phone-island-call-held',
   'phone-island-call-unheld' = 'phone-island-call-unheld',
   'phone-island-call-muted' = 'phone-island-call-muted',
