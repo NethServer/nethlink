@@ -37,6 +37,6 @@ export default {
       }
     }
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/forms')],
   darkMode: 'selector'
 }

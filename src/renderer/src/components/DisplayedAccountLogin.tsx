@@ -2,7 +2,7 @@ import { Account } from '@shared/types'
 import classNames from 'classnames'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleUser } from '@fortawesome/free-solid-svg-icons'
+import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 
 type DisplayedAccountLoginProps = {
   account?: Account
@@ -20,7 +20,7 @@ export function DisplayedAccountLogin({
       onClick={() => handleClick?.()}
       className={classNames(
         'w-full flex flex-row gap-7 items-center justify-start bg-transparent h-20 rounded-lg text-gray-900 dark:text-gray-50 cursor-pointer',
-        handleClick ? 'hover:bg-gray-300 dark:hover:bg-gray-700' : ''
+        handleClick ? 'hover:bg-gray-200 dark:hover:bg-gray-600' : ''
       )}
     >
       <div className="ml-5 w-12 h-12 rounded-full overflow-hidden">
@@ -28,7 +28,7 @@ export function DisplayedAccountLogin({
           <img src={imageSrc} />
         ) : (
           <FontAwesomeIcon
-            icon={faCircleUser}
+            icon={DefaultAvatar}
             className="text-[48px] dark:text-gray-50 text-gray-600"
           />
         )}

@@ -26,29 +26,32 @@ export function MissedCallsBox({
   return (
     <>
       <div className="flex flex-col h-full">
-        <div className="flex justify-between items-center pb-2 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 font-semibold max-h-[28px] px-5">
-          <h1>{title}</h1>
+        <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px] px-5 mt-3">
+          <h1 className="font-medium text-[14px] leading-5">{title}</h1>
           <Button
-            className="flex gap-3 items-center pt-0 pr-0 pb-0 pl-0 dark:hover:bg-gray-700 hover:bg-gray-200"
+            variant="ghost"
+            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 hover:bg-gray-200 dark:hover:bg-gray-600 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
             onClick={viewAllMissedCalls}
           >
             <FontAwesomeIcon
-              className="text-base dark:text-blue-500 text-blue-600"
+              className="text-base dark:text-blue-500 text-blue-700"
               icon={ShowMissedCallIcon}
             />
-            <p className="dark:text-blue-500 text-blue-600 font-medium">{t('Common.View all')}</p>
+            <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
+              {t('Common.View all')}
+            </p>
           </Button>
         </div>
         <div className="flex flex-col max-h-[240px] overflow-y-auto">
           {missedCallsIn.map((call, idx) => {
             return (
               <div
-                className={`${idx === missedCallsIn.length - 1 ? `` : `border-b dark:border-gray-500 border-gray-300`}`}
+                className={`${idx === missedCallsIn.length - 1 ? `` : `border-b dark:border-gray-700 border-gray-200`}`}
                 key={idx}
               >
                 <MissedCall
                   call={call}
-                  className="dark:hover:bg-gray-700 hover:bg-gray-200"
+                  className="dark:hover:bg-gray-600 hover:bg-gray-200"
                   handleSelectedMissedCall={handleSelectedMissedCall}
                 />
               </div>
