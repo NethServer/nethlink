@@ -60,6 +60,10 @@
   border-radius: 6px;
 }
 
+* {
+  outline-color: transparent !important;
+}
+
 @layer base {
   #root {
     @apply h-full;
