@@ -14,7 +14,7 @@ export class TrayController {
   constructor() {
     TrayController.instance = this
 
-    this.tray = new Tray(join(__dirname, '../../public/TrayLogo.png'))
+    this.tray = new Tray(join(__dirname, '../../public/TrayToolbarIcon.png'))
     this.tray.setIgnoreDoubleClickEvents(true)
     this.tray.on('click', () => {
       if (this.enableClick) {
