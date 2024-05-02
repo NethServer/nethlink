@@ -32,28 +32,36 @@
   }
 }
 
+/* Stesso colore per la scrollbar */
 .light ::-webkit-scrollbar {
-  width: 3px;
+  width: 5px;
   background-color: #f9fafb;
   -webkit-app-region: no-drag;
+  border-radius: 6px;
 }
 
 .light ::-webkit-scrollbar-thumb {
-  width: 3px;
-  background-color: rgb(75, 85, 99);
+  width: 5px;
+  background-color: #374151;
   -webkit-app-region: no-drag;
+  border-radius: 6px;
 }
 
 .dark ::-webkit-scrollbar {
-  width: 3px;
+  width: 5px;
   background-color: #111827;
   -webkit-app-region: no-drag;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  width: 3px;
-  background-color: #f9fafb;
+  width: 5px;
+  background-color: #374151;
   -webkit-app-region: no-drag;
+  border-radius: 6px;
+}
+
+* {
+  outline-color: transparent !important;
 }
 
 @layer base {

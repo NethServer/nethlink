@@ -72,7 +72,7 @@ const theme = {
       base: 'absolute mt-2 text-sm',
       color: {
         base: 'text-gray-500 dark:text-gray-400',
-        error: 'text-rose-500 dark:text-rose-500'
+        error: 'text-rose-500 dark:text-rose-500 font-normal text-[12px] leading-[18px]'
       }
     },
     size: {
@@ -80,7 +80,7 @@ const theme = {
       large: 'px-4 py-3 sm:text-base'
     },
     colors: {
-      gray: 'border-gray-300 placeholder:text-gray-400 dark:border-gray-600 dark:placeholder:text-gray-500',
+      gray: 'border-gray-300 placeholder:text-gray-900 dark:border-gray-600 dark:placeholder:text-gray-50',
       error: 'border-2 border-rose-500 dark:border-rose-500'
     },
     icon: {
@@ -91,7 +91,7 @@ const theme = {
       left: 'inset-y-0 left-0 pl-3',
       right: 'inset-y-0 right-0 pr-3',
       size: {
-        base: 'h-5 w-5',
+        base: 'h-4 w-4',
         large: 'h-6 w-6'
       }
     },
