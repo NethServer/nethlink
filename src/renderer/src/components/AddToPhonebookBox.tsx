@@ -85,7 +85,7 @@ export function AddToPhonebookBox({
     !!errors.company && trigger('company')
   }, [watchType])
 
-  const onSubmit: SubmitHandler<ContactType> = (data) => {
+  const onSubmitForm: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
   }
 
@@ -141,7 +141,7 @@ export function AddToPhonebookBox({
         className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[245px] px-5"
         onSubmit={(e) => {
           e.preventDefault()
-          handleSubmit(onSubmit)(e)
+          handleSubmit(onSubmitForm)(e)
         }}
       >
         <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
@@ -228,6 +228,12 @@ export function AddToPhonebookBox({
               label={t('Phonebook.Name') as string}
               helper={errors.name?.message || undefined}
               error={!!errors.name?.message}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  handleSubmit(onSubmitForm)(e)
+                }
+              }}
               className={`font-normal text-[14px] leading-5 ${errors.name?.message ? `mb-2` : ``} dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
             />
           </>
@@ -238,6 +244,12 @@ export function AddToPhonebookBox({
           label={t('Phonebook.Company') as string}
           helper={errors.company?.message || undefined}
           error={!!errors.company?.message}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
           className={`font-normal text-[14px] leading-5 ${errors.company?.message ? `mb-2` : ``} dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
         />
 
@@ -249,6 +261,12 @@ export function AddToPhonebookBox({
             setValue('extension', e.target.value.replace(/\D/g, ''))
           }}
           label={t('Phonebook.Phone number') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
           className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
@@ -260,6 +278,12 @@ export function AddToPhonebookBox({
             setValue('workphone', e.target.value.replace(/\D/g, ''))
           }}
           label={t('Phonebook.Work phone') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
           className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
@@ -271,6 +295,12 @@ export function AddToPhonebookBox({
             setValue('cellphone', e.target.value.replace(/\D/g, ''))
           }}
           label={t('Phonebook.Mobile phone') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
           className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
@@ -278,6 +308,12 @@ export function AddToPhonebookBox({
           {...register('workemail')}
           type="email"
           label={t('Phonebook.Email') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
           className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 
@@ -285,6 +321,12 @@ export function AddToPhonebookBox({
           {...register('notes')}
           type="text"
           label={t('Phonebook.Notes') as string}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
           className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
 

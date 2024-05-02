@@ -82,6 +82,12 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           label={t('Phonebook.Name') as string}
           helper={errors.name?.message || undefined}
           error={!!errors.name?.message}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
           className="font-medium text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
         <TextInput
@@ -91,6 +97,12 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           label={t('Phonebook.Phone number') as string}
           helper={errors.speeddial_num?.message || undefined}
           error={!!errors.speeddial_num?.message}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleSubmit(onSubmitForm)(e)
+            }
+          }}
           className="font-medium text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         />
         <div className="absolute bottom-1 right-0 flex flex-row gap-4 px-5">

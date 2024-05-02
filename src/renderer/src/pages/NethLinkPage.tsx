@@ -30,7 +30,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Nethesis'
-import NotificationIcon from '../assets/TrayLogo.png'
+import NotificationIcon from '../assets/TrayLogo.svg'
 import { SpeedDialFormBox } from '@renderer/components/SpeedDialFormBox'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { truncate } from '@renderer/utils'
@@ -132,6 +132,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   function saveOperators(updateOperators: OperatorData | undefined): void {
     log('UPDATE OPERATORS', updateOperators)
+    // eslint-disable-next-line no-prototype-builtins
     if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
       //lo stato degli operatori deve arrivare dal segnale della main presence, quindi salto l'assegnazione in questo punto (dalla main presence i dati sono più aggiornati)
       updateOperators!.operators = operatorsRef.current!.operators
@@ -310,10 +311,11 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   function sendNotification(title: string, body: string) {
-    new Notification(title, {
-      body,
-      icon: NotificationIcon
-    })
+    const options: any = { body }
+    if (!navigator.userAgent.toUpperCase().includes('MAC')) {
+      options.icon = NotificationIcon
+    }
+    new Notification(title, options)
   }
 
   return (

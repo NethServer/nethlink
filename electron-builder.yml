@@ -1,3 +1,4 @@
+# TODO vedere come inserire l'icona durante la build
 appId: 'com.nethesis.nethlink.app'
 productName: 'NethLink'
 copyright: 'prova copyright'
@@ -20,6 +21,8 @@ files:
 asarUnpack:
   - public/**
 win:
+  # Vedere come fare dopo aver ottenuto le icone nel giusto formato
+  icon: build/icons/nethlink-icon-desktop.ico
   target:
     - nsis
     #- zip
@@ -36,6 +39,8 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}-${version}
 mac:
+  # Vedere come fare dopo aver ottenuto le icone nel giusto formato
+  icon: build/icons/nethlink-icon-desktop.icns
   #identity: 11AF607C955FB944DB9DDF31AE651B4CB39EBCA9
   category: public.app-category.productivity
   gatekeeperAssess: false
@@ -48,13 +53,15 @@ mac:
   artifactName: ${name}-${version}.${ext}
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
-  notarize: 
+  notarize:
     teamId: 8D66VDADVH
   target:
     #- zip
     - dmg
     #- mas
 linux:
+  # Vedere come fare dopo aver ottenuto le icone nel giusto formato
+  icon: build/icons/512x512.png
   target:
     #- snap
     - AppImage
