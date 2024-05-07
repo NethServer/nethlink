@@ -22,7 +22,6 @@ import { AddToPhonebookBox } from '@renderer/components/AddToPhonebookBox'
 import { useLocalStoreState } from '@renderer/hooks/useLocalStoreState'
 import {
   faMinusCircle as MinimizeIcon,
-  faXmarkCircle as ExiteIcon,
   faTriangleExclamation as WarningIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
@@ -30,7 +29,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Nethesis'
-import NotificationIcon from '../assets/TrayLogo.svg'
+import NotificationIcon from '../assets/TrayNotificationIcon.svg'
 import { SpeedDialFormBox } from '@renderer/components/SpeedDialFormBox'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { truncate } from '@renderer/utils'
@@ -49,9 +48,9 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
-        number?: string
-        company?: string
-      }
+      number?: string
+      company?: string
+    }
     | undefined
   >()
   const [selectedSpeedDial, setSelectedSpeedDial] = useState<ContactType>()
@@ -311,11 +310,24 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   function sendNotification(title: string, body: string) {
-    const options: any = { body }
-    if (!navigator.userAgent.toUpperCase().includes('MAC')) {
-      options.icon = NotificationIcon
+    // if (navigator.userAgent.includes('Mac')) {
+    //   console.log('USER AGENT ', navigator.userAgent)
+    //   new Notification(title, {
+    //     icon: NotificationIcon
+    //   })
+    // } else {
+    // new Notification(title, options)
+    // TODO test prova a rimuovere l'icona dalla notifica in quanto secondo me la prende di default dalla build
+    if (navigator.userAgent.includes('Mac')) {
+      new Notification(title, {
+        body: body,
+      })
+    } else {
+      new Notification(title, {
+        body: body,
+        icon: NotificationIcon
+      })
     }
-    new Notification(title, options)
   }
 
   return (
@@ -333,22 +345,24 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                 icon={MinimizeIcon}
                 onClick={hideNethLink}
               />
-              <FontAwesomeIcon
+              {/* <FontAwesomeIcon
                 className={`text-red-500 hover:text-red-400 cursor-pointer ml-2`}
                 icon={ExiteIcon}
                 onClick={exitNethLink}
-              />
+              /> */}
             </div>
             <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-gray-900 bg-gray-50 w-full">
               <div className="flex flex-col gap-3 w-full">
                 <Navbar
                   search={search}
                   account={account}
+                  callUser={callUser}
                   onSelectTheme={handleOnSelectTheme}
                   logout={logout}
                   handleSearch={handleSearch}
                   handleReset={handleReset}
                   goToNethVoicePage={goToNethVoicePage}
+                  exitNethLink={exitNethLink}
                 />
 
                 <div className="relative w-full">

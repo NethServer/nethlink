@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchBox } from './SearchBox'
 import {
+  faXmarkCircle as ExitIcon,
   faSliders as ThemeMenuIcon,
   faArrowRightFromBracket as LogoutIcon,
   faPalette as SystemIcon,
@@ -20,11 +21,13 @@ import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons
 export interface NavabarProps {
   search: string
   account: Account
+  callUser: (phoneNumber: string) => void
   onSelectTheme: (theme: AvailableThemes) => void
   logout: () => void
   handleSearch: (searchText: string) => Promise<void>
   handleReset: () => void
   goToNethVoicePage: () => void
+  exitNethLink: () => void
 }
 
 const themeOptions = [
@@ -36,11 +39,13 @@ const themeOptions = [
 export function Navbar({
   search,
   account,
+  callUser,
   onSelectTheme,
   logout,
   handleSearch,
   handleReset,
-  goToNethVoicePage
+  goToNethVoicePage,
+  exitNethLink
 }: NavabarProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
   const theme = useSubscriber<AvailableThemes>('theme')
@@ -51,7 +56,7 @@ export function Navbar({
 
   return (
     <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 py-2">
-      <SearchBox search={search} handleSearch={handleSearch} handleReset={handleReset} />
+      <SearchBox search={search} callUser={callUser} handleSearch={handleSearch} handleReset={handleReset} />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
@@ -163,13 +168,23 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200 rounded-b-lg"
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-20"
               >
                 <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={logout}>
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
                   <p className="font-normal">{t('TopBar.Logout')}</p>
                 </div>
               </Menu.Item>
+              <Menu.Item
+                as={'div'}
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200 rounded-b-lg"
+              >
+                <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={exitNethLink}>
+                  <FontAwesomeIcon className="text-base" icon={ExitIcon} />
+                  <p className="font-normal">{'Quit'}</p>
+                </div>
+              </Menu.Item>
+
             </Menu.Items>
           </Menu>
         </div>

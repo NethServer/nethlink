@@ -42,6 +42,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
   const [pwdVisible, setPwdVisible] = useState<boolean>(false)
   const windowHeight = useRef<number>(0)
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
+  const submitButtonRef = useRef<HTMLButtonElement>(null)
 
   const schema: z.ZodType<LoginData> = z.object({
     host: z
@@ -128,7 +129,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     }
   }
 
-  const onSubmit: SubmitHandler<LoginData> = (data) => {
+  const onSubmitForm: SubmitHandler<LoginData> = (data) => {
     handleLogin(data)
   }
 
@@ -221,7 +222,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        handleSubmit(onSubmit)(e)
+        handleSubmit(onSubmitForm)(e)
       }}
     >
       <div className="mt-7">
@@ -249,6 +250,13 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                 helper={errors.host?.message || undefined}
                 error={!!errors.host?.message}
                 className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    submitButtonRef.current?.focus()
+                    handleSubmit(onSubmitForm)(e)
+                  }
+                }}
               />
               <TextInput
                 {...register('username')}
@@ -257,6 +265,13 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                 helper={errors.username?.message || undefined}
                 error={!!errors.username?.message}
                 className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    submitButtonRef.current?.focus()
+                    handleSubmit(onSubmitForm)(e)
+                  }
+                }}
               />
             </>
           )}
@@ -270,8 +285,16 @@ export function LoginPage({ themeMode }: LoginPageProps) {
             helper={errors.password?.message || undefined}
             error={!!errors.password?.message}
             className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                submitButtonRef.current?.focus()
+                handleSubmit(onSubmitForm)(e)
+              }
+            }}
           />
           <button
+            ref={submitButtonRef}
             type="submit"
             className={`w-full dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 text-gray-50 dark:text-gray-950 rounded h-9 font-medium text-[14px] leading-5 cursor-pointer dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
           >

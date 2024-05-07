@@ -30,6 +30,14 @@ export function truncate(str: string, maxLength: number) {
 export const getSystemTheme = () => {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
+
+/**
+ * Checks if the input string contains only valid characters for a phone number.
+ */
+export function validatePhoneNumber(phoneNumber: any) {
+  const regex = /^[0-9*#+]*$/
+  return regex.test(phoneNumber)
+}
 // const [avatarBase64, setAvatarBase64]: any = useState({})
 // const getGravatarImageUrl = (email: string) => {
 //   const hash = MD5(email.toLowerCase().trim())

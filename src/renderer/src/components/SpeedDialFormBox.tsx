@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, TextInput } from './Nethesis'
 import { faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { NewContactType, ContactType, NewSpeedDialType } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
@@ -20,7 +20,12 @@ interface SpeedDialFormBoxProps {
   onCancel: () => void
 }
 
+//TODO: concordare con gli altri il mesaggio di errore per il numero telefonico
+
 export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialFormBoxProps) {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const submitButtonRef = useRef<HTMLButtonElement>(null)
+
   const schema: z.ZodType<SpeedDialFormBoxData> = z.object({
     name: z
       .string()
@@ -30,7 +35,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
       .string()
       .trim()
       .min(1, `${t('Common.This field is required')}`)
-      .min(3, `${t('Common.This field must be at least', { number: '3' })}`)
+      .min(3, `${t('Common.This field must be at least', { number: '3' })}`).regex(/^[0-9*#+]*$/, 'This is not a phone number')
   })
 
   const {
@@ -42,7 +47,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
     defaultValues: initialData,
     resolver: zodResolver(schema)
   })
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+
 
   const onSubmitForm: SubmitHandler<NewContactType | NewSpeedDialType> = (data) => {
     handleSave(data)
@@ -85,6 +90,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
+              submitButtonRef.current?.focus()
               handleSubmit(onSubmitForm)(e)
             }
           }}
@@ -100,6 +106,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
+              submitButtonRef.current?.focus()
               handleSubmit(onSubmitForm)(e)
             }
           }}
@@ -118,7 +125,8 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           </Button>
           <Button
             type="submit"
-            disabled={isLoading}
+            ref={submitButtonRef}
+            // disabled={isLoading}
             className="gap-3 dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
           >
             <p className="dark:text-gray-950 text-gray-50 font-medium text-[14px] leading-5">

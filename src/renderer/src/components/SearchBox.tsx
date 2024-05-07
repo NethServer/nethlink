@@ -6,14 +6,16 @@ import { TextInput } from './Nethesis/TextInput'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from './Nethesis'
+import { validatePhoneNumber } from '@renderer/utils'
 
 export interface SearchBoxProps {
   search: string
+  callUser: (phoneNumber: string) => void
   handleSearch: (searchText: string) => Promise<void>
   handleReset: () => void
 }
 
-export function SearchBox({ search, handleSearch, handleReset }: SearchBoxProps): JSX.Element {
+export function SearchBox({ search, callUser, handleSearch, handleReset }: SearchBoxProps): JSX.Element {
   function reset(searchText: string): void {
     if (searchText === '') {
       handleReset()
@@ -39,7 +41,11 @@ export function SearchBox({ search, handleSearch, handleReset }: SearchBoxProps)
         onSubmit={() => submit(search)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            submit(search)
+            if (validatePhoneNumber(search)) {
+              callUser(search)
+            } else {
+              submit(search)
+            }
           }
         }}
         className="min-w-[222px] dark:text-gray-50 text-gray-900 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button, TextInput } from './Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
@@ -7,6 +7,7 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { t } from 'i18next'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { validatePhoneNumber } from '@renderer/utils'
 
 export interface AddToPhonebookBoxProps {
   searchText?: string
@@ -23,11 +24,12 @@ export function AddToPhonebookBox({
   onCancel,
   handleAddContactToPhonebook
 }: AddToPhonebookBoxProps) {
+  const submitButtonRef = useRef<HTMLButtonElement>(null)
   const baseSchema = z.object({
     privacy: z.string(),
-    extension: z.string(),
-    workphone: z.string(),
-    cellphone: z.string(),
+    extension: z.string().trim().regex(/^[0-9*#+]*$/, 'This is not a phone number'),
+    workphone: z.string().trim().regex(/^[0-9*#+]*$/, 'This is not a phone number'),
+    cellphone: z.string().trim().regex(/^[0-9*#+]*$/, 'This is not a phone number'),
     workemail: z.string(),
     notes: z.string()
   })
@@ -89,17 +91,13 @@ export function AddToPhonebookBox({
     handleSave(data)
   }
 
-  function containsOnlyNumber(text: string) {
-    return /^\d+$/.test(text)
-  }
-
   useEffect(() => {
     reset()
     setValue('privacy', 'public')
     setValue('type', 'person')
 
     if (searchText !== undefined) {
-      if (containsOnlyNumber(searchText)) {
+      if (validatePhoneNumber(searchText)) {
         setValue('extension', searchText)
       } else {
         setValue('name', searchText)
@@ -117,19 +115,22 @@ export function AddToPhonebookBox({
   function handleSave(data: ContactType) {
     //NETHVOICE usa il valore '-' quando si inserisce una company che e' priva di nome
     //data.name === '' puo' essere vera solo nel caso in cui si inserisce una company
-    if (watchType === 'company') {
-      data.name = '-'
-    }
-    setIsLoading(true)
-    handleAddContactToPhonebook(data)
-      .catch((error) => {
-        //TODO: gestione errore inserimento
-        console.error(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-        reset()
-      })
+    setIsLoading(true);
+    //Aggiunto un timeout per fare vedere lo spinner in quanto la chiamata e' troppo veloce
+    setTimeout(() => {
+      if (watchType === 'company') {
+        data.name = '-'
+      }
+      handleAddContactToPhonebook(data)
+        .catch((error) => {
+          //TODO: gestione errore inserimento
+          console.error(error)
+        })
+        .finally(() => {
+          setIsLoading(false)
+          reset()
+        })
+    }, 300);
   }
 
   return (
@@ -231,6 +232,7 @@ export function AddToPhonebookBox({
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
+                  submitButtonRef.current?.focus()
                   handleSubmit(onSubmitForm)(e)
                 }
               }}
@@ -247,6 +249,7 @@ export function AddToPhonebookBox({
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
+              submitButtonRef.current?.focus()
               handleSubmit(onSubmitForm)(e)
             }
           }}
@@ -257,13 +260,16 @@ export function AddToPhonebookBox({
           {...register('extension')}
           type="tel"
           minLength={3}
-          onChange={(e) => {
-            setValue('extension', e.target.value.replace(/\D/g, ''))
-          }}
+          // onChange={(e) => {
+          //   setValue('extension', e.target.value.replace(/[^\d*#+]/g, ''))
+          // }}
           label={t('Phonebook.Phone number') as string}
+          helper={errors.extension?.message || undefined}
+          error={!!errors.extension?.message}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
+              submitButtonRef.current?.focus()
               handleSubmit(onSubmitForm)(e)
             }
           }}
@@ -274,13 +280,16 @@ export function AddToPhonebookBox({
           {...register('workphone')}
           type="tel"
           minLength={3}
-          onChange={(e) => {
-            setValue('workphone', e.target.value.replace(/\D/g, ''))
-          }}
+          // onChange={(e) => {
+          //   setValue('workphone', e.target.value.replace(/[^\d*#+]/g, ''))
+          // }}
           label={t('Phonebook.Work phone') as string}
+          helper={errors.workphone?.message || undefined}
+          error={!!errors.workphone?.message}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
+              submitButtonRef.current?.focus()
               handleSubmit(onSubmitForm)(e)
             }
           }}
@@ -291,13 +300,16 @@ export function AddToPhonebookBox({
           {...register('cellphone')}
           type="tel"
           minLength={3}
-          onChange={(e) => {
-            setValue('cellphone', e.target.value.replace(/\D/g, ''))
-          }}
+          // onChange={(e) => {
+          //   setValue('cellphone', e.target.value.replace(/[^\d*#+]/g, ''))
+          // }}
           label={t('Phonebook.Mobile phone') as string}
+          helper={errors.cellphone?.message || undefined}
+          error={!!errors.cellphone?.message}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
+              submitButtonRef.current?.focus()
               handleSubmit(onSubmitForm)(e)
             }
           }}
@@ -311,6 +323,7 @@ export function AddToPhonebookBox({
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
+              submitButtonRef.current?.focus()
               handleSubmit(onSubmitForm)(e)
             }
           }}
@@ -324,6 +337,7 @@ export function AddToPhonebookBox({
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
+              submitButtonRef.current?.focus()
               handleSubmit(onSubmitForm)(e)
             }
           }}
@@ -334,6 +348,7 @@ export function AddToPhonebookBox({
           <Button
             variant="ghost"
             onClick={() => onCancel()}
+            disabled={isLoading}
             className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
           >
             <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
@@ -342,6 +357,7 @@ export function AddToPhonebookBox({
           </Button>
           <Button
             type="submit"
+            ref={submitButtonRef}
             className="gap-3 dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
           >
             <p className="dark:text-gray-950 text-gray-50 font-medium text-[14px] leading-5">
