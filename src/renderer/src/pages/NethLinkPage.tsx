@@ -317,7 +317,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     //   })
     // } else {
     // new Notification(title, options)
-    // TODO test prova a rimuovere l'icona dalla notifica in quanto secondo me la prende di default dalla build
+    // TODO test prova a rimuovere l'icona dalla notifica in quanto secondo me macOs la prende di default dalla build
     if (navigator.userAgent.includes('Mac')) {
       new Notification(title, {
         body: body,

@@ -71,11 +71,13 @@ app.whenReady().then(async () => {
         title: "Aggiornamento dell'applicazione disponibile",
         body: `Clicca quì per aprire la pagina dove potrai scaricare la nuova release`
       })
-      notification.show()
-      notification.addListener('click', (e) => {
-        log(e)
+
+
+      notification.on('click', (e) => {
+        // log(e)
         shell.openExternal(updateLink)
       })
+      notification.show()
     }
     //log('call addOnBuildListener ')
     nativeTheme.on('updated', () => {
