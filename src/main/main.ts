@@ -65,7 +65,8 @@ app.whenReady().then(async () => {
     await getPermissions()
     const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
     if (latestVersionData.name !== app.getVersion()) {
-      const updateLink = `https://github.com/nethesis/nethlink/releases/tag/v${latestVersionData.name}`
+      // const updateLink = `https://github.com/nethesis/nethlink/releases/tag/v${latestVersionData.name}`
+      const updateLink = 'https://nethesis.github.io/nethlink/'
       const notification = new Notification({
         title: "Aggiornamento dell'applicazione disponibile",
         body: `Clicca quì per aprire la pagina dove potrai scaricare la nuova release`

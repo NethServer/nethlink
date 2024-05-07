@@ -38,8 +38,8 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}-${version}
 mac:
-  #icon: icons/icon.icns
-  icon: icons/icon512x512.png
+  icon: icons/icon.icns
+  #icon: icons/icon512x512.png
   #identity: 11AF607C955FB944DB9DDF31AE651B4CB39EBCA9
   category: public.app-category.productivity
   gatekeeperAssess: false
