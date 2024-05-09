@@ -1,6 +1,7 @@
 import { Size } from "./types"
 import { log } from "./utils/logger"
 
+
 export enum IPC_EVENTS {
   LOAD_ACCOUNTS = 'LOAD_ACCOUNTS',
   LOGIN = 'LOGIN',
@@ -31,7 +32,8 @@ export enum IPC_EVENTS {
   HIDE_PHONE_ISLAND = 'HIDE_PHONE_ISLAND',
   GET_LOCALE = 'GET_LOCALE',
   OPEN_HOST_PAGE = 'OPEN_HOST_PAGE',
-  CLOSE_NETH_LINK = "CLOSE_NETH_LINK"
+  CLOSE_NETH_LINK = "CLOSE_NETH_LINK",
+  DEVICE_DEFAULT_CHANGE = "DEVICE_DEFAULT_CHANGE"
 }
 
 //PHONE ISLAND EVENTS
@@ -49,6 +51,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-audio-input-changed' = 'phone-island-audio-input-changed',
   'phone-island-audio-output-changed' = 'phone-island-audio-output-changed',
   'phone-island-theme-changed' = 'phone-island-theme-changed',
+  'phone-island-default-device-change' = 'phone-island-default-device-change',
+  'phone-island-default-device-changed' = 'phone-island-default-device-changed',
   // Listen Call Events: phone-island-call*
   'phone-island-call-start' = 'phone-island-call-start',
   'phone-island-call-answer' = 'phone-island-call-answer',

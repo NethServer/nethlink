@@ -288,7 +288,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     window.api
       .deleteSpeedDial(deleteSpeeddial)
       .then((_) => {
-        console.log('delete speeddials', deleteSpeeddial, _)
+        log('delete speeddials', deleteSpeeddial, _)
         setSpeeddials(() =>
           speeddials.filter(
             (speeddial) => speeddial.id?.toString() !== deleteSpeeddial.id?.toString()
@@ -338,10 +338,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
             className={`flex flex-col min-w-[400px] min-h-[380px] h-full items-center justify-between`}
           >
             <div
-              className={`flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
+              className={`draggableAnchor flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
             >
               <FontAwesomeIcon
-                className={`text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 `}
+                className={` text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 noDraggableAnchor`}
                 icon={MinimizeIcon}
                 onClick={hideNethLink}
               />

@@ -13,7 +13,7 @@ import { getSystemTheme } from './utils'
 
 function Layout({ theme }: { theme?: AvailableThemes }) {
   return (
-    <div className={`${theme} font-Poppins`}>
+    <div className={`${theme} font-Poppins`} id="phone-island-container">
       <Outlet />
     </div>
   )

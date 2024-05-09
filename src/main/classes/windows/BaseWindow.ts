@@ -87,7 +87,11 @@ export class BaseWindow {
   }
 
   quit() {
-    this._window?.close()
+    try {
+      this._window?.close()
+    } catch (e) {
+      log(e)
+    }
   }
 }
 

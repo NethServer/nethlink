@@ -8,6 +8,7 @@ import { join } from 'path'
 import { log } from '@shared/utils/logger'
 import { cloneDeep } from 'lodash'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
+import { AppController } from '@/classes/controllers/AppController'
 
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
@@ -68,6 +69,18 @@ export function registerIpcEvents() {
     NethVoiceAPI.instance.Phonebook.deleteSpeeddial(contact)
   )
 
+  onSyncEmitter(IPC_EVENTS.DEVICE_DEFAULT_CHANGE, (deviceIdInformation) => new Promise(async (resolve, reject) => {
+    try {
+      const d = await NethVoiceAPI.instance.User.default_device(deviceIdInformation)
+      await NethVoiceAPI.instance.User.me()
+      resolve(d)
+    } catch (e) {
+      reject(e)
+    }
+  })
+
+  )
+
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
     AccountController.instance.logout()
   })
@@ -77,7 +90,7 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.CLOSE_NETH_LINK, async (event) => {
-    app.exit()
+    AppController.safeQuit()
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_HOST_PAGE, async (_, path) => {

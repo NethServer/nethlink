@@ -5,6 +5,7 @@ import { LoginController } from './LoginController'
 import { NethLinkController } from './NethLinkController'
 import { SplashScreenController } from './SplashScreenController'
 import { PhoneIslandController } from './PhoneIslandController'
+import { AppController } from './AppController'
 
 export class TrayController {
   tray: Tray
@@ -26,17 +27,12 @@ export class TrayController {
     })
     const menu: (MenuItemConstructorOptions | MenuItem)[] = [
       {
-        role: 'quit',
+        role: 'close',
         //accelerator: 'Command+Q',
         commandId: 1,
         click: () => {
           //TODO: trovare un modo per killare l'app
-          SplashScreenController.instance.window.quit()
-          NethLinkController.instance.window.quit()
-          PhoneIslandController.instance.window.quit()
-          LoginController.instance.window.quit()
-          TrayController.instance.tray.destroy()
-          app.quit()
+          AppController.safeQuit()
         }
       }
     ]

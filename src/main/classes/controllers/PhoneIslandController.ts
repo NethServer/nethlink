@@ -4,7 +4,7 @@ import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/co
 import { log } from '@shared/utils/logger'
 import { NethVoiceAPI } from './NethCTIController'
 import { AccountController } from './AccountController'
-import { screen } from 'electron'
+import { ipcMain, screen } from 'electron'
 import { debouncer } from '@shared/utils/utils'
 
 export class PhoneIslandController {
@@ -116,9 +116,22 @@ export class PhoneIslandController {
     this.showPhoneIsland()
   }
 
-  logout(account: Account, isExit: boolean = false) {
-    this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined, account)
-    if (!isExit)
-      this.hidePhoneIsland()
+  async logout(account: Account) {
+    let isResolved = false
+    return new Promise<void>((resolve, reject) => {
+      this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined, account)
+      try {
+        ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], () => {
+          this.hidePhoneIsland()
+          isResolved = true
+          resolve()
+        })
+        setTimeout(() => {
+          if (!isResolved) reject(new Error('timeout logout'))
+        }, 5000)
+      } catch (e) {
+        reject(e)
+      }
+    })
   }
 }

@@ -12,7 +12,9 @@ import { SplashScreenController } from './classes/controllers/SplashScreenContro
 import { debouncer, delay } from '@shared/utils/utils'
 import { IPC_EVENTS } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
+import { AppController } from './classes/controllers/AppController'
 
+new AppController(app)
 new NetworkController()
 new AccountController(app)
 
@@ -136,11 +138,11 @@ const onAccountLogin = (account: Account) => {
   AccountController.instance.addEventListener('LOGOUT', onAccountLogout)
 }
 
-const onAccountLogout = (account: Account, isExit: boolean = false) => {
+const onAccountLogout = async (account: Account, isExit: boolean = false) => {
   //ormai mi sono sloggato quindi rimuovo il listener
   AccountController.instance.removeEventListener('LOGOUT', onAccountLogout)
-  PhoneIslandController.instance.logout(account, isExit)
   if (!isExit) {
+    await PhoneIslandController.instance.logout(account)
     NethLinkController.instance.hide()
     AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
     AccountController.instance.addEventListener('LOGIN', onAccountLogin)
@@ -158,6 +160,8 @@ app.on('window-all-closed', () => {
   app.dock?.hide()
   //i18nextBackend.clearMainBindings(ipcMain);
 })
+
+
 
 app.on('quit', () => {
   log('quit')

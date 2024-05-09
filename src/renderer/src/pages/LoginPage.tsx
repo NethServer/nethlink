@@ -307,10 +307,10 @@ export function LoginPage({ themeMode }: LoginPageProps) {
 
   return (
     <div
-      className="h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px] text-sm"
+      className="draggableAnchor h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px] text-sm"
       ref={loginWindowRef}
     >
-      <div className={classNames('h-full w-full')}>
+      <div className={classNames('noDraggableAnchor', 'h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
           <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
           <Button

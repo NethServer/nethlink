@@ -4,7 +4,7 @@ import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account, Size } from '@shared/types'
+import { Account, Extension, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { useState, useRef, useMemo, useCallback, createRef } from 'react'
 
@@ -102,14 +102,38 @@ export function PhoneIslandPage() {
     //log('UPDATE DATA CONFIG')
     if (!dataConfig) {
       //se non ho il data config sto effettuando un logout
-      //const deviceInformationObject = account.data?.endpoints.extension.find((e) => e.type === 'webrtc')
+      const deviceInformationObject = account.data?.endpoints.extension.find((e) => e.type === 'nethlink')
       //log(deviceInformationObject)
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
-      // eventDispatch(PHONE_ISLAND_EVENTS['phone-island-detach'], {
-      //   deviceInformationObject
-      // })
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-detach'], {
+        deviceInformationObject
+      })
+    } else {
+      const endpoints = account.data?.endpoints
+      if (endpoints?.extension) {
+        //retrive the default information about the extension of nethlink type
+        //if main device setted to webrtc we must change it to nethlink
+        //launch events to change default device type
+        const nethlinkData = endpoints?.extension.filter((phone) => phone?.type === 'nethlink')
+        if (account?.data?.default_device?.type === 'webrtc') {
+          log('phone-island-default-device-change')
+          setMainDeviceId(nethlinkData[0])
+        }
+      }
     }
     setDataConfig(() => dataConfig)
+  }
+
+  const setMainDeviceId = async (deviceInformationObject: Extension | null) => {
+    if (deviceInformationObject) {
+      try {
+        await window.api.deviceDefaultChange(deviceInformationObject)
+        // dispatch.user.updateDefaultDevice(deviceIdInfo)
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
+      } catch (err) {
+        log(err)
+      }
+    }
   }
 
   function redirectEventToMain(event: PHONE_ISLAND_EVENTS) {
@@ -120,11 +144,6 @@ export function PhoneIslandPage() {
       window.api[event](e)
     })
   }
-
-  // redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-main-presence'])
-  // redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-conversations'])
-  // redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-update'])
-  // redirectEventToMain(PHONE_ISLAND_EVENTS['phone-island-queue-member-update'])
 
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => redirectEventToMain(ev as PHONE_ISLAND_EVENTS))
 
@@ -137,7 +156,6 @@ export function PhoneIslandPage() {
     <div
       ref={phoneIslandContainer}
       className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999]"
-      id="phone-island-container"
     >
       <div className="absolute h-[100vh] w-[100vw] bg-green-500/30 radius-md backdrop-hue-rotate-90"></div>
       <RenderPhoneIsland />

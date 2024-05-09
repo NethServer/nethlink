@@ -29,7 +29,7 @@ export function SearchNumberBox({
   })
 
   function saveUnfiltered(receivedPhoneNumbers: SearchCallData) {
-    console.log('Receveid numbers: ', receivedPhoneNumbers)
+    log('Receveid numbers: ', receivedPhoneNumbers)
     const filteredNumbers = receivedPhoneNumbers.rows.filter(
       (phoneNumber) => !(!phoneNumber.name || phoneNumber.name === '')
     )

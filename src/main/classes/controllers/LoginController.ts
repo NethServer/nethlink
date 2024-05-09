@@ -1,5 +1,5 @@
 import { IPC_EVENTS } from '@shared/constants'
-import { LoginWindow } from '../windows'
+import { LOGIN_WINDOW_WIDTH, LoginWindow } from '../windows'
 import { AccountController } from './AccountController'
 
 export class LoginController {
@@ -16,8 +16,8 @@ export class LoginController {
     const loginPage = this.window!.getWindow()
     if (loginPage) {
       const bounds = loginPage.getBounds()
-      loginPage.setBounds({ ...bounds, width: 500, height: h }, true)
-      loginPage.center()
+      loginPage.setBounds({ ...bounds, width: LOGIN_WINDOW_WIDTH, height: h }, true)
+      //loginPage.center()
     }
   }
   show() {

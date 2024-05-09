@@ -3,10 +3,11 @@ import { AccountController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
 import { log } from '@shared/utils/logger'
 
+export const LOGIN_WINDOW_WIDTH = 500
 export class LoginWindow extends BaseWindow {
   constructor() {
     super(PAGES.LOGIN, {
-      width: 500,
+      width: LOGIN_WINDOW_WIDTH,
       height: 0,
       show: false,
       fullscreenable: false,

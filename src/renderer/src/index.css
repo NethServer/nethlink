@@ -9,13 +9,15 @@
 }
 
 #phone-island-container {
+
+  .draggableAnchor,
   .pi-absolute,
   .pi-pointer-events-auto {
     transform: none !important;
     -webkit-app-region: drag !important;
-    cursor: pointer;
   }
 
+  .noDraggableAnchor,
   button,
   .pi-flex,
   .pi-relative {

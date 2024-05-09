@@ -4,6 +4,7 @@ import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
 import { AccountController, PhoneIslandController } from '@/classes/controllers'
+import { AppController } from '@/classes/controllers/AppController'
 
 
 export type WindowOptions = {
@@ -65,10 +66,8 @@ export function createWindow(
   })
 
   mainWindow.on('close', () => {
-    const account = AccountController.instance.getLoggedAccount()
-    if (account) PhoneIslandController.instance.logout(account)
     AccountController.instance.stopAuthPolling()
-    AccountController.instance._app?.exit()
+    AppController.safeQuit()
   })
 
   mainBindings(ipcMain, mainWindow, fs)

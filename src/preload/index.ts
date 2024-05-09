@@ -5,6 +5,7 @@ import {
   Account,
   AvailableThemes,
   ContactType,
+  Extension,
   HistoryCallData,
   NewContactType,
   NewSpeedDialType,
@@ -33,6 +34,7 @@ export interface IElectronAPI {
   ): Promise<ContactType>
   deleteSpeedDial(contact: ContactType): Promise<string>
   getLocale(): Promise<string>
+  deviceDefaultChange: (deviceIdInformation: Extension) => Promise<void>
 
   //LISTENERS - receive data async
   onAccountChange(updateAccount: (account: Account | undefined) => void): void
@@ -64,6 +66,7 @@ export interface IElectronAPI {
   exitNethLink: () => void
   showPhoneIsland: () => void
   hidePhoneIsland: () => void
+
 
   //PHONE ISLAND EVENTS:
   (funcName: PHONE_ISLAND_EVENTS): () => void
@@ -111,6 +114,7 @@ const api: IElectronAPI = {
   editSpeedDialContact: setEmitterSync<ContactType>(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT),
   deleteSpeedDial: setEmitterSync<string>(IPC_EVENTS.DELETE_SPEEDDIAL),
   getLocale: setEmitterSync<string>(IPC_EVENTS.GET_LOCALE),
+  deviceDefaultChange: setEmitterSync<void>(IPC_EVENTS.DEVICE_DEFAULT_CHANGE),
 
   //EMITTER - only emit, no response
   openDevTool: setEmitter(IPC_EVENTS.OPEN_DEV_TOOLS),
