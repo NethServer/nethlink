@@ -99,7 +99,7 @@ export function SpeedDialNumber({
             >
               <Menu.Item as={'div'} className="cursor-pointer">
                 <div
-                  className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-600 hover:bg-gray-200 mt-2"
+                  className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-800 hover:bg-gray-200 mt-2"
                   onClick={() => {
                     handleSelectedSpeedDial(speedDial)
                   }}

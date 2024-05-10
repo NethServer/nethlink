@@ -28,7 +28,7 @@ export function SpeedDialsBox({
         </h1>
         <Button
           variant="ghost"
-          className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 dark:hover:bg-gray-600 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+          className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 dark:hover:bg-gray-800 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
           onClick={showCreateSpeedDial}
         >
           <FontAwesomeIcon
@@ -50,7 +50,7 @@ export function SpeedDialsBox({
               >
                 <SpeedDialNumber
                   speedDial={e}
-                  className="dark:hover:bg-gray-600 hover:bg-gray-200"
+                  className="dark:hover:bg-gray-800 hover:bg-gray-200"
                   callUser={() => callUser(e.speeddial_num!)}
                   handleSelectedSpeedDial={handleSelectedSpeedDial}
                   handleDeleteSpeedDial={handleDeleteSpeedDial}

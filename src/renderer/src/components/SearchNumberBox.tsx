@@ -85,7 +85,7 @@ export function SearchNumberBox({
   return (
     <div className="flex flex-col dark:text-gray-50 text-gray-900 dark:bg-gray-900 bg-gray-50">
       <div
-        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer"
+        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start dark:hover:bg-gray-800 hover:bg-gray-200 cursor-pointer"
         onClick={() => callUser(searchText)}
       >
         <FontAwesomeIcon
@@ -98,7 +98,7 @@ export function SearchNumberBox({
       </div>
 
       <div
-        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer"
+        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 dark:hover:bg-gray-800 hover:bg-gray-200 cursor-pointer"
         onClick={showAddContactToPhonebook}
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={AddUserIcon} />
@@ -114,7 +114,7 @@ export function SearchNumberBox({
             user={user}
             callUser={callUser}
             searchText={searchText}
-            className="dark:hover:bg-gray-600 hover:bg-gray-200"
+            className="dark:hover:bg-gray-800 hover:bg-gray-200"
           />
         ))}
       </div>

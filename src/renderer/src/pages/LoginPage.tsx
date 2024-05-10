@@ -315,7 +315,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
           <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
           <Button
             variant="ghost"
-            className="pt-2 pr-1 pb-2 pl-1 cursor-pointer dark:hover:bg-gray-600 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+            className="pt-2 pr-1 pb-2 pl-1 cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
           >
             <FontAwesomeIcon
               icon={CrossIcon}
@@ -327,7 +327,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
         {availableAccounts.length > 0 && selectedAccount && (
           <Button
             variant="ghost"
-            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6 cursor-pointer dark:hover:bg-gray-600 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6 cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
             onClick={goBack}
           >
             <FontAwesomeIcon
