@@ -33,7 +33,7 @@ export function SpeedDialNumber({
   isLastItem
 }: SpeedDialNumberProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
-  const { status } = useAccount()
+  const { isCallsEnabled } = useAccount()
   const avatarSrc =
     operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
 
@@ -70,7 +70,7 @@ export function SpeedDialNumber({
             />
             <NumberCaller
               number={speedDial.speeddial_num!}
-              disabled={status !== 'online'}
+              disabled={!isCallsEnabled}
               className="dark:text-blue-500 text-blue-700 font-normal hover:underline"
             >
               {truncate(speedDial.speeddial_num!, 19)}

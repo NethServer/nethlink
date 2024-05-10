@@ -30,7 +30,7 @@ export function MissedCall({
 }: MissedCallProps): JSX.Element {
   const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
-  const { status } = useAccount()
+  const { isCallsEnabled } = useAccount()
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
   const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
   const [isQueueLoading, setIsQueueLoading] = useState<boolean>(true)
@@ -95,7 +95,7 @@ export function MissedCall({
           <MissedCallIcon />
           <NumberCaller
             number={getCallExt(call)}
-            disabled={status !== 'online'}
+            disabled={!isCallsEnabled}
             className={"dark:text-blue-500 text-blue-700 font-normal text-[14px] leading-5 hover:underline"}
           >
             {call.cnum}

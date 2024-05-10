@@ -18,7 +18,7 @@ export interface SearchBoxProps {
 
 export function SearchBox({ search, callUser, handleSearch, handleReset }: SearchBoxProps): JSX.Element {
 
-  const { status } = useAccount()
+  const { isCallsEnabled } = useAccount()
   function reset(searchText: string): void {
     if (searchText === '') {
       handleReset()
@@ -44,7 +44,7 @@ export function SearchBox({ search, callUser, handleSearch, handleReset }: Searc
         onSubmit={() => submit(search)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            if (validatePhoneNumber(search) && status === 'online') {
+            if (validatePhoneNumber(search) && isCallsEnabled) {
               callUser(search)
             } else {
               submit(search)

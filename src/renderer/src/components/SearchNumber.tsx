@@ -17,7 +17,7 @@ export interface SearchNumberProps {
 
 export function SearchNumber({ user, callUser, className, searchText }: SearchNumberProps) {
   const operators = useSubscriber<OperatorData>('operators')
-  const { status } = useAccount()
+  const { isCallsEnabled } = useAccount()
   const getUsernameFromPhoneNumber = (number: string) => {
     return operators.extensions[number]?.username
   }
@@ -92,7 +92,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
           <p className="font-normal text-[14px] leading-5">{user.name}</p>
           <NumberCaller
             number={phoneNumber}
-            disabled={status !== 'online'}
+            disabled={!isCallsEnabled}
             className="dark:text-blue-500 text-blue-700 text-[1rem] font-normal hover:underline mr-auto"
           >
             {highlightedNumber}
@@ -102,7 +102,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
       <Button
         className="dark:hover:bg-gray-900 hover:bg-gray-50 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
         variant="ghost"
-        disabled={status !== 'online'}
+        disabled={!isCallsEnabled}
         onClick={() => {
           callUser(phoneNumber!)
         }}
