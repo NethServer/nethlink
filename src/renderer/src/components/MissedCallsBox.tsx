@@ -30,7 +30,7 @@ export function MissedCallsBox({
           <h1 className="font-medium text-[14px] leading-5">{title}</h1>
           <Button
             variant="ghost"
-            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 hover:bg-gray-200 dark:hover:bg-gray-600 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 hover:bg-gray-200 dark:hover:bg-gray-800 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
             onClick={viewAllMissedCalls}
           >
             <FontAwesomeIcon
@@ -51,7 +51,7 @@ export function MissedCallsBox({
               >
                 <MissedCall
                   call={call}
-                  className="dark:hover:bg-gray-600 hover:bg-gray-200"
+                  className="dark:hover:bg-gray-800 hover:bg-gray-200"
                   handleSelectedMissedCall={handleSelectedMissedCall}
                 />
               </div>

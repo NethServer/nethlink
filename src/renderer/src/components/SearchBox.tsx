@@ -7,6 +7,7 @@ import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from './Nethesis'
 import { validatePhoneNumber } from '@renderer/utils'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface SearchBoxProps {
   search: string
@@ -16,6 +17,8 @@ export interface SearchBoxProps {
 }
 
 export function SearchBox({ search, callUser, handleSearch, handleReset }: SearchBoxProps): JSX.Element {
+
+  const { status } = useAccount()
   function reset(searchText: string): void {
     if (searchText === '') {
       handleReset()
@@ -41,7 +44,7 @@ export function SearchBox({ search, callUser, handleSearch, handleReset }: Searc
         onSubmit={() => submit(search)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            if (validatePhoneNumber(search)) {
+            if (validatePhoneNumber(search) && status === 'online') {
               callUser(search)
             } else {
               submit(search)
@@ -52,10 +55,10 @@ export function SearchBox({ search, callUser, handleSearch, handleReset }: Searc
         /* Mi serve per dare spazio all' X Icon */
         inputClassName="pr-10"
       />
-      {search === '' ? null : (
+      {search !== '' && (
         <Button
           variant="ghost"
-          className="absolute right-1 z-100 cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px] hover:bg-gray-200 dark:hover:bg-gray-600 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+          className="absolute right-1 z-[101] cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px] hover:bg-gray-200 dark:hover:bg-gray-800 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
         >
           <FontAwesomeIcon
             icon={DeleteSearchIcon}

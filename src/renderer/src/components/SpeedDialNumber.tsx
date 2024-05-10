@@ -13,6 +13,7 @@ import { ContactType, OperatorData } from '@shared/types'
 import { t } from 'i18next'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { truncate } from '@renderer/utils'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
@@ -32,6 +33,7 @@ export function SpeedDialNumber({
   isLastItem
 }: SpeedDialNumberProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
+  const { status } = useAccount()
   const avatarSrc =
     operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
 
@@ -68,6 +70,7 @@ export function SpeedDialNumber({
             />
             <NumberCaller
               number={speedDial.speeddial_num!}
+              disabled={status !== 'online'}
               className="dark:text-blue-500 text-blue-700 font-normal hover:underline"
             >
               {truncate(speedDial.speeddial_num!, 19)}
@@ -99,7 +102,7 @@ export function SpeedDialNumber({
             >
               <Menu.Item as={'div'} className="cursor-pointer">
                 <div
-                  className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-600 hover:bg-gray-200 mt-2"
+                  className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-gray-800 hover:bg-gray-200 mt-2"
                   onClick={() => {
                     handleSelectedSpeedDial(speedDial)
                   }}

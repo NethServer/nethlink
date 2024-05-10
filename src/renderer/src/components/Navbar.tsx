@@ -17,6 +17,7 @@ import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { t } from 'i18next'
 import { Button } from './Nethesis'
 import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface NavabarProps {
   search: string
@@ -47,6 +48,7 @@ export function Navbar({
   goToNethVoicePage,
   exitNethLink
 }: NavabarProps): JSX.Element {
+  const { status } = useAccount()
   const operators = useSubscriber<OperatorData>('operators')
   const theme = useSubscriber<AvailableThemes>('theme')
 
@@ -64,7 +66,7 @@ export function Navbar({
               <Listbox.Button>
                 <Button
                   variant="ghost"
-                  className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1 dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+                  className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1 dark:hover:bg-gray-800 hover:bg-gray-200 cursor-pointer dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
                 >
                   <FontAwesomeIcon
                     icon={ThemeMenuIcon}
@@ -86,7 +88,7 @@ export function Navbar({
                   className="cursor-pointer"
                 >
                   <div
-                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-600 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'} ${availableTheme.name === 'dark' ? 'dark:hover:rounded-bl-[8px] dark:hover:rounded-br-[8px] hover:rounded-bl-[8px] hover:rounded-br-[8px]' : ''}`}
+                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-800 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'} ${availableTheme.name === 'dark' ? 'dark:hover:rounded-bl-[8px] dark:hover:rounded-br-[8px] hover:rounded-bl-[8px] hover:rounded-br-[8px]' : ''}`}
                     onClick={() => handleSetTheme(availableTheme.name)}
                   >
                     {theme === availableTheme.name && (
@@ -120,11 +122,7 @@ export function Navbar({
                 {operators?.avatars?.[account.username] ? (
                   <Avatar
                     size="small"
-                    status={
-                      operators?.operators?.[account.username]?.mainPresence ||
-                      account.data?.mainPresence ||
-                      'offline'
-                    }
+                    status={status}
                     src={operators?.avatars?.[account.username]}
                   />
                 ) : (
@@ -156,7 +154,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200"
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-800 hover:bg-gray-200"
               >
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6"
@@ -168,7 +166,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-20"
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-800 hover:bg-gray-20"
               >
                 <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={logout}>
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
@@ -177,7 +175,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200 rounded-b-lg"
+                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-800 hover:bg-gray-200 rounded-b-lg"
               >
                 <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={exitNethLink}>
                   <FontAwesomeIcon className="text-base" icon={ExitIcon} />

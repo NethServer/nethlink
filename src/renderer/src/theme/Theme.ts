@@ -81,7 +81,7 @@ const theme = {
     },
     colors: {
       gray: 'border-gray-300 placeholder:text-gray-900 dark:border-gray-600 dark:placeholder:text-gray-50',
-      error: 'border-2 border-rose-500 dark:border-rose-500'
+      error: 'border border-rose-500 dark:border-rose-500'
     },
     icon: {
       base: 'absolute flex items-center z-[9]',

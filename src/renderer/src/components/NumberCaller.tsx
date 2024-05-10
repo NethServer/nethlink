@@ -1,13 +1,22 @@
+import { ClassNames } from '@renderer/utils'
 import { ReactNode } from 'react'
+import { Button } from './Nethesis'
 
 type NumberCallerProps = {
   number: number | string
-  children: JSX.Element | JSX.Element[] | ReactNode | ReactNode[]
+  children: JSX.Element | JSX.Element[] | ReactNode | ReactNode[],
+  disabled: boolean
   className?: string
 }
-export const NumberCaller = ({ number, children, ...args }: NumberCallerProps) => {
+export const NumberCaller = ({ number, children, disabled, className, ...args }: NumberCallerProps) => {
   return (
-    <a href={`callto://${('' + number).replace(/ /g, '')}`} {...args}>
+
+    <a href={`callto://${('' + number).replace(/ /g, '')}`}
+      className={ClassNames(
+        disabled ? 'pointer-events-none' : '',
+        className
+      )}
+      {...args}>
       {children}
     </a>
   )

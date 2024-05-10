@@ -22,14 +22,14 @@ export function Sidebar({ selectedMenu, handleSidebarMenuSelection }: SidebarPro
         focus={selectedMenu === MENU_ELEMENT.SPEEDDIALS}
         hasNotification={false}
         onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.SPEEDDIALS)}
-        className={`${selectedMenu === MENU_ELEMENT.SPEEDDIALS ? '' : 'dark:hover:bg-gray-600 hover:bg-gray-200'}`}
+        className={`${selectedMenu === MENU_ELEMENT.SPEEDDIALS ? '' : 'dark:hover:bg-gray-800 hover:bg-gray-200'}`}
       />
       <SidebarButton
         icon={MissedCallMenuIcon}
         focus={selectedMenu === MENU_ELEMENT.PHONE}
         hasNotification={false}
         onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.PHONE)}
-        className={`${selectedMenu === MENU_ELEMENT.PHONE ? '' : 'dark:hover:bg-gray-600 hover:bg-gray-200'}`}
+        className={`${selectedMenu === MENU_ELEMENT.PHONE ? '' : 'dark:hover:bg-gray-800 hover:bg-gray-200'}`}
       />
     </div>
   )
