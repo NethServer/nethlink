@@ -35,7 +35,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
       .string()
       .trim()
       .min(1, `${t('Common.This field is required')}`)
-      .min(3, `${t('Common.This field must be at least', { number: '3' })}`).regex(/^[0-9*#+]*$/, 'This is not a phone number')
+      .min(2, `${t('Common.This field must be at least', { number: '2' })}`).regex(/^[0-9*#+]*$/, 'This is not a phone number')
   })
 
   const {
@@ -99,7 +99,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
         <TextInput
           {...register('speeddial_num', { required: true })}
           type="tel"
-          minLength={3}
+          minLength={2}
           label={t('Phonebook.Phone number') as string}
           helper={errors.speeddial_num?.message || undefined}
           error={!!errors.speeddial_num?.message}
