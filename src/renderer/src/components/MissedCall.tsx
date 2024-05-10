@@ -73,7 +73,7 @@ export function MissedCall({
       <div className="flex flex-col h-full min-w-6 pt-[6px]">
         {avatarSrc ? (
           <Avatar
-            size="extra_small"
+            size="small"
             src={avatarSrc}
             status={
               operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
@@ -83,7 +83,7 @@ export function MissedCall({
         ) : (
           <FontAwesomeIcon
             icon={faCircleUser}
-            className="h-6 w-6 dark:text-gray-200 text-gray-400"
+            className="h-8 w-8 dark:text-gray-200 text-gray-400"
           />
         )}
       </div>
