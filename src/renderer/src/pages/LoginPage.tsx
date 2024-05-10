@@ -307,7 +307,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
 
   return (
     <div
-      className="draggableAnchor h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px] text-sm"
+      className="draggableAnchor h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px] text-sm overflow-hidden"
       ref={loginWindowRef}
     >
       <div className={classNames('noDraggableAnchor', 'h-full w-full')}>
