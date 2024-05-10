@@ -13,6 +13,7 @@ import { ContactType, OperatorData } from '@shared/types'
 import { t } from 'i18next'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { truncate } from '@renderer/utils'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
@@ -32,6 +33,7 @@ export function SpeedDialNumber({
   isLastItem
 }: SpeedDialNumberProps): JSX.Element {
   const operators = useSubscriber<OperatorData>('operators')
+  const { status } = useAccount()
   const avatarSrc =
     operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
 
@@ -68,6 +70,7 @@ export function SpeedDialNumber({
             />
             <NumberCaller
               number={speedDial.speeddial_num!}
+              disabled={status !== 'online'}
               className="dark:text-blue-500 text-blue-700 font-normal hover:underline"
             >
               {truncate(speedDial.speeddial_num!, 19)}

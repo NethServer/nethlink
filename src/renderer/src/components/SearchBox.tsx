@@ -7,6 +7,7 @@ import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from './Nethesis'
 import { validatePhoneNumber } from '@renderer/utils'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface SearchBoxProps {
   search: string
@@ -16,6 +17,8 @@ export interface SearchBoxProps {
 }
 
 export function SearchBox({ search, callUser, handleSearch, handleReset }: SearchBoxProps): JSX.Element {
+
+  const { status } = useAccount()
   function reset(searchText: string): void {
     if (searchText === '') {
       handleReset()
@@ -41,7 +44,7 @@ export function SearchBox({ search, callUser, handleSearch, handleReset }: Searc
         onSubmit={() => submit(search)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
-            if (validatePhoneNumber(search)) {
+            if (validatePhoneNumber(search) && status === 'online') {
               callUser(search)
             } else {
               submit(search)

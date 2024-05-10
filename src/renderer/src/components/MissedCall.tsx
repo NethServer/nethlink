@@ -9,12 +9,13 @@ import { Avatar, Button } from './Nethesis/'
 import { NumberCaller } from './NumberCaller'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { useEffect, useState } from 'react'
-import { CallData, OperatorData, QueuesType } from '@shared/types'
+import { Account, CallData, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from './Nethesis/CallsDate'
 import { truncate } from '@renderer/utils'
 import { Tooltip } from 'react-tooltip'
 import { Badge } from './Nethesis/Badge'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface MissedCallProps {
   call: CallData
@@ -29,6 +30,7 @@ export function MissedCall({
 }: MissedCallProps): JSX.Element {
   const queues = useSubscriber<QueuesType>('queues')
   const operators = useSubscriber<OperatorData>('operators')
+  const { status } = useAccount()
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
   const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
   const [isQueueLoading, setIsQueueLoading] = useState<boolean>(true)
@@ -93,7 +95,8 @@ export function MissedCall({
           <MissedCallIcon />
           <NumberCaller
             number={getCallExt(call)}
-            className="dark:text-blue-500 text-blue-700 font-normal text-[14px] leading-5 hover:underline"
+            disabled={status !== 'online'}
+            className={"dark:text-blue-500 text-blue-700 font-normal text-[14px] leading-5 hover:underline"}
           >
             {call.cnum}
           </NumberCaller>
@@ -156,6 +159,6 @@ export function MissedCall({
           </Button>
         )}
       </div>
-    </div>
+    </div >
   )
 }

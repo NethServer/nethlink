@@ -17,6 +17,7 @@ import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { t } from 'i18next'
 import { Button } from './Nethesis'
 import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface NavabarProps {
   search: string
@@ -47,6 +48,7 @@ export function Navbar({
   goToNethVoicePage,
   exitNethLink
 }: NavabarProps): JSX.Element {
+  const { status } = useAccount()
   const operators = useSubscriber<OperatorData>('operators')
   const theme = useSubscriber<AvailableThemes>('theme')
 
@@ -120,11 +122,7 @@ export function Navbar({
                 {operators?.avatars?.[account.username] ? (
                   <Avatar
                     size="small"
-                    status={
-                      operators?.operators?.[account.username]?.mainPresence ||
-                      account.data?.mainPresence ||
-                      'offline'
-                    }
+                    status={status}
                     src={operators?.avatars?.[account.username]}
                   />
                 ) : (
