@@ -9,6 +9,7 @@ import { log } from '@shared/utils/logger'
 import { sortByProperty } from '@renderer/lib/utils'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { cloneDeep } from 'lodash'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface SearchNumberBoxProps {
   searchText: string
@@ -23,6 +24,7 @@ export function SearchNumberBox({
 }: SearchNumberBoxProps) {
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
   const [unFilteredPhoneNumbers, setUnFilteredPhoneNumbers] = useState<SearchData[]>([])
+  const { isCallsEnabled } = useAccount()
 
   useInitialize(() => {
     window.api.onSearchResult(saveUnfiltered)
@@ -85,8 +87,12 @@ export function SearchNumberBox({
   return (
     <div className="flex flex-col dark:text-gray-50 text-gray-900 dark:bg-gray-900 bg-gray-50">
       <div
-        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start dark:hover:bg-gray-800 hover:bg-gray-200 cursor-pointer"
-        onClick={() => callUser(searchText)}
+        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start dark:hover:bg-gray-800 hover:bg-gray-200 ${isCallsEnabled ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+
+        onClick={() => {
+          if (isCallsEnabled)
+            callUser(searchText)
+        }}
       >
         <FontAwesomeIcon
           className="text-base dark:text-gray-50 text-gray-600 mr-1"

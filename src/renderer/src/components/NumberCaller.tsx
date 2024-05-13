@@ -10,14 +10,18 @@ type NumberCallerProps = {
 }
 export const NumberCaller = ({ number, children, disabled, className, ...args }: NumberCallerProps) => {
   return (
-
-    <a href={`callto://${('' + number).replace(/ /g, '')}`}
-      className={ClassNames(
-        disabled ? 'pointer-events-none' : '',
-        className
-      )}
-      {...args}>
-      {children}
-    </a>
+    disabled ?
+      <div className={ClassNames(
+        className,
+        'cursor-not-allowed',
+      )}>{children}</div>
+      :
+      <a href={`callto://${('' + number).replace(/ /g, '')}`}
+        className={ClassNames(
+          className,
+        )}
+        {...args}>
+        {children}
+      </a>
   )
 }

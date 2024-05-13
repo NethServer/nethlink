@@ -10,6 +10,7 @@ import { useState, useRef, useMemo, useCallback, createRef } from 'react'
 
 export function PhoneIslandPage() {
   const [dataConfig, setDataConfig] = useState<string | undefined>()
+  const isOnCall = useRef<boolean>(false)
   const isExpanded = useRef<boolean>(true)
   const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS>()
   const isMinimized = useRef<boolean>(false)
@@ -40,6 +41,7 @@ export function PhoneIslandPage() {
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
             log(event)
             window.api.hidePhoneIsland()
+            isOnCall.current = false
             break
           case PHONE_ISLAND_EVENTS['phone-island-expanded']:
             log(lastResizeEvent.current)
@@ -79,6 +81,16 @@ export function PhoneIslandPage() {
             default:
               phoneIslandContainer.current?.children[1].setAttribute('style', '')
               break
+          }
+          //sono stato chiamato, e la phone island è già visibile. non devo fare altri resize se ricevo nuovi ringing
+
+          if (event === PHONE_ISLAND_EVENTS['phone-island-call-ringing']) {
+            if (!isOnCall.current) {
+              isOnCall.current = true
+            } else {
+              //mi fermo prima
+              return
+            }
           }
           const size = getSizeFromResizeEvent(event)!
           window.api.resizePhoneIsland(size.w, size.h)

@@ -51,6 +51,7 @@ export class PhoneIslandController {
       const window = this.window.getWindow()
       window?.setBounds({ width: w, height: h }, false)
       window?.show()
+      window?.setAlwaysOnTop(true)
     } catch (e) {
       log(e)
     }
