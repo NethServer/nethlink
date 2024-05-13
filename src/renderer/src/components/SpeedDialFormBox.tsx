@@ -35,7 +35,8 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
       .string()
       .trim()
       .min(1, `${t('Common.This field is required')}`)
-      .min(3, `${t('Common.This field must be at least', { number: '3' })}`).regex(/^[0-9*#+]*$/, 'This is not a phone number')
+      .min(3, `${t('Common.This field must be at least', { number: '3' })}`)
+      .regex(/^[0-9*#+]*$/, 'This is not a phone number')
   })
 
   const {
@@ -47,7 +48,6 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
     defaultValues: initialData,
     resolver: zodResolver(schema)
   })
-
 
   const onSubmitForm: SubmitHandler<NewContactType | NewSpeedDialType> = (data) => {
     handleSave(data)
@@ -83,6 +83,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
       >
         <TextInput
           {...register('name', { required: true })}
+          autoFocus={true}
           type="text"
           label={t('Phonebook.Name') as string}
           helper={errors.name?.message || undefined}
