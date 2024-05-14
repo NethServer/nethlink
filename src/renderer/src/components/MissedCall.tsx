@@ -87,13 +87,13 @@ export function MissedCall({
           />
         )}
       </div>
-      <div className="flex flex-col gap-1 dark:text-gray-50 text-gray-900">
+      <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
         <p className="font-medium text-[14px] leading-5">{truncate(getCallName(call), 15)}</p>
         <div className="flex flex-row gap-2 items-center">
           <MissedCallIcon />
           <NumberCaller
             number={getCallExt(call)}
-            className="dark:text-blue-500 text-blue-700 font-normal text-[14px] leading-5 hover:underline"
+            className="dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline"
           >
             {call.cnum}
           </NumberCaller>
@@ -145,14 +145,16 @@ export function MissedCall({
         {showCreateButton && (
           <Button
             variant="ghost"
-            className="flex gap-3 items-center py-2 px-3 border dark:border-gray-700 border-gray-200 ml-auto dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+            className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto"
             onClick={() => handleSelectedMissedCall(call.cnum, call.ccompany)}
           >
             <FontAwesomeIcon
-              className="text-base dark:text-blue-500 text-blue-700"
+              className="text-base dark:text-textBlueDark text-textBlueLight"
               icon={AddUserIcon}
             />
-            <p className="dark:text-blue-500 text-blue-700 font-medium">{t('SpeedDial.Create')}</p>
+            <p className="dark:text-textBlueDark text-textBlueLight font-medium">
+              {t('SpeedDial.Create')}
+            </p>
           </Button>
         )}
       </div>

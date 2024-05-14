@@ -35,7 +35,8 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
       .string()
       .trim()
       .min(1, `${t('Common.This field is required')}`)
-      .min(3, `${t('Common.This field must be at least', { number: '3' })}`).regex(/^[0-9*#+]*$/, 'This is not a phone number')
+      .min(3, `${t('Common.This field must be at least', { number: '3' })}`)
+      .regex(/^[0-9*#+]*$/, 'This is not a phone number')
   })
 
   const {
@@ -47,7 +48,6 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
     defaultValues: initialData,
     resolver: zodResolver(schema)
   })
-
 
   const onSubmitForm: SubmitHandler<NewContactType | NewSpeedDialType> = (data) => {
     handleSave(data)
@@ -69,8 +69,8 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
 
   return (
     <div className="flex flex-col gap-3 h-full relative">
-      <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-gray-700 border-gray-200 max-h-[28px] px-5 mt-3">
-        <h1 className="font-medium text-[14px] leading-5 dark:text-gray-50 text-gray-900">
+      <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] px-5 mt-3">
+        <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
           {initialData ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
         </h1>
       </div>
@@ -94,7 +94,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
               handleSubmit(onSubmitForm)(e)
             }
           }}
-          className="font-medium text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          className="font-medium text-[14px] leading-5"
         />
         <TextInput
           {...register('speeddial_num', { required: true })}
@@ -110,16 +110,11 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
               handleSubmit(onSubmitForm)(e)
             }
           }}
-          className="font-medium text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          className="font-medium text-[14px] leading-5"
         />
         <div className="absolute bottom-1 right-0 flex flex-row gap-4 px-5">
-          <Button
-            variant="ghost"
-            onClick={onCancel}
-            disabled={isLoading}
-            className="dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
-          >
-            <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
+          <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
+            <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
               {t('Common.Cancel')}
             </p>
           </Button>
@@ -127,15 +122,15 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
             type="submit"
             ref={submitButtonRef}
             // disabled={isLoading}
-            className="gap-3 dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+            className="gap-3"
           >
-            <p className="dark:text-gray-950 text-gray-50 font-medium text-[14px] leading-5">
+            <p className="dark:text-titleLight text-titleDark font-medium text-[14px] leading-5">
               {initialData ? t('Common.Edit') : t('SpeedDial.Create')}
             </p>
             {isLoading && (
               <FontAwesomeIcon
                 icon={LoadingIcon}
-                className="dark:text-gray-950 text-gray-50 animate-spin"
+                className="dark:text-titleLight text-titleDark animate-spin"
               />
             )}
           </Button>

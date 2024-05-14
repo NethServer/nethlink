@@ -31,7 +31,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
       while (index !== -1) {
         parts.push(number.substring(lastIndex, index))
         parts.push(
-          <span className="dark:text-blue-500 text-blue-700 font-bold text-[1.1rem]">
+          <span className="dark:text-textBlueDark text-textBlueLight font-bold text-[1.1rem]">
             {number.substring(index, index + searchText.length)}
           </span>
         )
@@ -69,7 +69,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
 
   return (
     <div
-      className={`flex justify-between w-full min-h-14 py-2 px-5 dark:text-gray-50 text-gray-900 ${className}`}
+      className={`flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark ${className}`}
     >
       <div className="flex gap-3 items-center">
         {avatarSrc ? (
@@ -80,7 +80,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
             bordered={true}
           />
         ) : (
-          <div className="flex items-center justify-center relative shrink-0 h-8 w-8 text-sm rounded-full border-2 border-white dark:border-gray-700">
+          <div className="flex items-center justify-center relative shrink-0 h-8 w-8 text-sm rounded-full border-2 border-borderLight dark:border-borderDark">
             <FontAwesomeIcon
               icon={DefaultAvatar}
               className="text-[28px] dark:text-gray-50 text-gray-600"
@@ -91,20 +91,20 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
           <p className="font-normal text-[14px] leading-5">{user.name}</p>
           <NumberCaller
             number={phoneNumber}
-            className="dark:text-blue-500 text-blue-700 text-[1rem] font-normal hover:underline mr-auto"
+            className="dark:text-textBlueDark text-textBlueLight text-[1rem] font-normal hover:underline mr-auto"
           >
             {highlightedNumber}
           </NumberCaller>
         </div>
       </div>
       <Button
-        className="dark:hover:bg-gray-900 hover:bg-gray-50 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+        className="dark:hover:bg-bgDark hover:bg-bgLight"
         variant="ghost"
         onClick={() => {
           callUser(phoneNumber)
         }}
       >
-        <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
+        <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
           {t('Operators.Call')}
         </p>
       </Button>
