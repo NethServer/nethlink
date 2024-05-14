@@ -31,12 +31,16 @@ export class AppController {
         log(e)
       }
       setTimeout(() => {
-        SplashScreenController.instance.window.quit()
-        NethLinkController.instance.window.quit()
-        PhoneIslandController.instance.window.quit()
-        LoginController.instance.window.quit()
-        DevToolsController.instance.window.quit()
-        TrayController.instance.tray.destroy()
+        try {
+          SplashScreenController.instance.window.quit()
+          NethLinkController.instance.window.quit()
+          PhoneIslandController.instance.window.quit()
+          LoginController.instance.window.quit()
+          TrayController.instance.tray.destroy()
+          DevToolsController.instance?.window?.quit()
+        } catch (e) {
+          log(e)
+        }
         AppController._app.exit()
       }, 1500)
     }

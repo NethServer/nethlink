@@ -42,7 +42,7 @@ app.whenReady().then(async () => {
 
   let windowsLoaded = 0
   //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
-  new DevToolsController()
+  //new DevToolsController()
   new SplashScreenController()
   new TrayController()
 
