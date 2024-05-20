@@ -197,9 +197,14 @@ export class AccountController {
   startAuthPolling() {
     if (!this._authPollingInterval) {
       this._authPollingInterval = setInterval(
-        () => {
+        async () => {
           const account = this.config!.accounts[this.config!.lastUser!]
-          this._tokenLogin(account)
+          try {
+            await this._tokenLogin(account)
+          } catch (e) {
+            log(e)
+            this.logout()
+          }
           // Set timer to 45 minutes
         },
         1000 * 45 * 60
