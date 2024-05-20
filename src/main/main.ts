@@ -27,6 +27,12 @@ app.setLoginItemSettings({
 })
 
 app.whenReady().then(async () => {
+
+  //const id = powerSaveBlocker.start('prevent-display-sleep')
+  //console.log(powerSaveBlocker.isStarted(id))
+  //
+  //powerSaveBlocker.stop(id)
+
   //assegno l'app come utilizzabile per la la risposta ai protocolli tel e callto
   protocol.handle('tel', (req) => {
     return handleTelProtocol(req.url)
@@ -42,7 +48,8 @@ app.whenReady().then(async () => {
 
   let windowsLoaded = 0
   //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
-  //new DevToolsController()
+  log(process.env)
+  new DevToolsController()
   new SplashScreenController()
   new TrayController()
 
@@ -90,7 +97,7 @@ app.whenReady().then(async () => {
         PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
         NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
         LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
-        DevToolsController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+        DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
       })
     })
     //una volta che il caricamento è completo abilito la possibilità di cliccare sull'icona nella tray

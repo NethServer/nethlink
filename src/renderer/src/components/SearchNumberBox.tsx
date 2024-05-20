@@ -3,14 +3,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useEffect, useState } from 'react'
-import { OperatorsType, SearchCallData, SearchData } from '@shared/types'
+import { OperatorData, SearchCallData, SearchData } from '@shared/types'
 import { t } from 'i18next'
 import { log } from '@shared/utils/logger'
-import { sortByProperty } from '@renderer/lib/utils'
+import { useAccount } from '@renderer/hooks/useAccount'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { cloneDeep } from 'lodash'
-import { useAccount } from '@renderer/hooks/useAccount'
+import { sortByProperty } from '@renderer/lib/utils'
 
+const cleanRegex = /[^a-zA-Z0-9]/g
 export interface SearchNumberBoxProps {
   searchText: string
   callUser: (phoneNumber: string) => void
@@ -22,8 +23,10 @@ export function SearchNumberBox({
   callUser,
   showAddContactToPhonebook
 }: SearchNumberBoxProps) {
+  const operators = useSubscriber<OperatorData>('operators')
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
   const [unFilteredPhoneNumbers, setUnFilteredPhoneNumbers] = useState<SearchData[]>([])
+  const [canAddToPhonebook, setCanAddToPhonebook] = useState<boolean>(false)
   const { isCallsEnabled } = useAccount()
 
   useInitialize(() => {
@@ -32,28 +35,80 @@ export function SearchNumberBox({
 
   function saveUnfiltered(receivedPhoneNumbers: SearchCallData) {
     log('Receveid numbers: ', receivedPhoneNumbers)
+    receivedPhoneNumbers.rows = receivedPhoneNumbers.rows.map((contact: any) => {
+      return mapContact(contact)
+    })
     const filteredNumbers = receivedPhoneNumbers.rows.filter(
       (phoneNumber) => !(!phoneNumber.name || phoneNumber.name === '')
     )
+
     setUnFilteredPhoneNumbers(() => filteredNumbers)
   }
 
   useEffect(() => {
     preparePhoneNumbers(unFilteredPhoneNumbers)
-  }, [unFilteredPhoneNumbers])
+  }, [unFilteredPhoneNumbers, searchText])
 
-  function preparePhoneNumbers(unFilteredNumbers: SearchData[]) {
-    const cleanRegex = /[^a-zA-Z0-9]/g
-    const cleanQuery = searchText.replace(cleanRegex, '')
+
+  const getIsPhoneNumber = (text: string) => {
+    const cleanQuery = text.replace(cleanRegex, '')
     if (cleanQuery.length == 0) {
-      return
+      return false
     }
-
     let isPhoneNumber = false
     if (/^\+?[0-9|\s]+$/.test(cleanQuery)) {
       // show "Call phone number" result
       isPhoneNumber = true
     }
+    return isPhoneNumber
+  }
+
+
+  const getFoundedOperators = () => {
+    const cleanQuery = searchText.replace(cleanRegex, '')
+    let operatorsResults = Object.values(operators.operators).filter((op: any) => {
+      return (
+        new RegExp(cleanQuery, 'i').test(op.name.replace(cleanRegex, '')) ||
+        new RegExp(cleanQuery, 'i').test(op.endpoints?.mainextension[0]?.id)
+      )
+    })
+
+    if (operatorsResults.length) {
+      operatorsResults = cloneDeep(operatorsResults)
+
+      operatorsResults.forEach((op: any) => {
+        op.resultType = 'operator'
+      })
+    }
+    operatorsResults.sort(sortByProperty('name'))
+    return operatorsResults
+  }
+
+  function mapContact(contact: any) {
+    // kind & display name
+    if (contact.name) {
+      contact.kind = 'person'
+      contact.displayName = contact.name
+    } else {
+      contact.kind = 'company'
+      contact.displayName = contact.company
+    }
+
+    // company contacts
+    if (contact.contacts) {
+      contact.contacts = JSON.parse(contact.contacts)
+    }
+    return contact
+  }
+
+  function preparePhoneNumbers(unFilteredNumbers: SearchData[]) {
+
+    const cleanQuery = searchText.replace(cleanRegex, '')
+    if (cleanQuery.length == 0) {
+      return
+    }
+
+    const isPhoneNumber = getIsPhoneNumber(searchText)
 
     const keys = ['extension', 'cellphone', 'homephone', 'workphone']
     const s = (a) => {
@@ -62,7 +117,9 @@ export function SearchNumberBox({
         return p
       }, '')
     }
-    const copy = [...unFilteredNumbers]
+
+    const filteredOperators = getFoundedOperators()
+
     unFilteredNumbers.sort((a, b) => {
       log({ isPhoneNumber, aname: a.name, anum: s(a), bname: b.name, bnum: s(b) })
       if (isPhoneNumber) {
@@ -79,18 +136,70 @@ export function SearchNumberBox({
         return as < bs ? -1 : as > bs ? 1 : 0
       }
     })
-    log(copy, unFilteredNumbers)
+    const mappedOperators: SearchData[] = filteredOperators.map((o) => {
+      return {
+        ...o,
+        cellphone: o.endpoints['cellphone']?.[0]?.['id'],
+        fax: '',
+        homecity: '',
+        homecountry: '',
+        homeemail: '',
+        homephone: '',
+        homepob: '',
+        homepostalcode: '',
+        homeprovince: '',
+        homestreet: '',
+        id: parseInt(o.endpoints['extension']?.[0]?.['id']),
+        notes: '',
+        owner_id: '',
+        source: '',
+        speeddial_num: o.endpoints['mainextension']?.[0]?.id || '',
+        title: '',
+        type: '',
+        url: '',
+        workcity: '',
+        workcountry: '',
+        workemail: '',
+        workphone: '',
+        workpob: '',
+        workpostalcode: '',
+        workprovince: '',
+        workstreet: '',
+        company: '',
+        extension: o.endpoints['extension'][0]['id'],
 
-    setFilteredPhoneNumbers(() => unFilteredNumbers)
+      }
+    })
+    const copy = [
+      ...mappedOperators,
+      ...unFilteredNumbers
+    ]
+
+    let _canAddInPhonebook = false
+    if (copy.length > 0) {
+      copy.forEach((contact) => {
+        _canAddInPhonebook = keys.reduce((p, k) => {
+          if (!p) {
+            p = contact[k]?.replace(/\s/g, '')?.includes(cleanQuery)
+          }
+          return p
+        }, false)
+      })
+    }
+
+    log("COPY:", copy, filteredOperators, unFilteredNumbers)
+
+    setFilteredPhoneNumbers(() => copy)
+    setCanAddToPhonebook(() => _canAddInPhonebook)
   }
 
   return (
     <div className="flex flex-col dark:text-gray-50 text-gray-900 dark:bg-gray-900 bg-gray-50">
       <div
-        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start dark:hover:bg-gray-800 hover:bg-gray-200 ${isCallsEnabled ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallsEnabled && getIsPhoneNumber(searchText) ? 'cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200' : 'dark:bg-gray-800 bg-gray-200 opacity-50 cursor-not-allowed'}`}
 
         onClick={() => {
-          if (isCallsEnabled)
+          if (isCallsEnabled && getIsPhoneNumber(searchText))
             callUser(searchText)
         }}
       >
@@ -104,8 +213,11 @@ export function SearchNumberBox({
       </div>
 
       <div
-        className="flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9 dark:hover:bg-gray-800 hover:bg-gray-200 cursor-pointer"
-        onClick={showAddContactToPhonebook}
+        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${isCallsEnabled && canAddToPhonebook ? 'cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200' : ' dark:bg-gray-800 bg-gray-200 opacity-50 cursor-not-allowed'}`}
+        onClick={() => {
+          if (canAddToPhonebook)
+            showAddContactToPhonebook()
+        }}
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={AddUserIcon} />
         <p className="font-normal">

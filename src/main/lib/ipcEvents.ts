@@ -9,6 +9,7 @@ import { log } from '@shared/utils/logger'
 import { cloneDeep } from 'lodash'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
+import moment from 'moment'
 
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
@@ -121,7 +122,7 @@ export function registerIpcEvents() {
     AccountController.instance.updateTheme(theme)
     PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
     LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
-    DevToolsController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
     NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
   })
 
