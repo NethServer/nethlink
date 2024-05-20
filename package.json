@@ -1,6 +1,6 @@
 {
   "name": "nethlink",
-  "version": "0.0.69",
+  "version": "0.0.70",
   "description": "NethLink app",
   "main": "./out/main/main.js",
   "license": "UNLICENSED",

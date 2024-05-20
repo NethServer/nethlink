@@ -58,7 +58,7 @@ export function SearchBox({ search, callUser, handleSearch, handleReset }: Searc
       {search !== '' && (
         <Button
           variant="ghost"
-          className="absolute right-1 z-100 cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px]"
+          className="absolute right-1 z-[101] cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px]"
         >
           <FontAwesomeIcon
             icon={DeleteSearchIcon}
