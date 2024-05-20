@@ -113,6 +113,10 @@ export type HistoryCallData = MultipleResponse<CallData>
 export type SearchCallData = MultipleResponse<SearchData>
 
 export type SearchData = {
+  isOperator: boolean
+  kind: 'person' | 'company',
+  contacts?: any
+  displayName: string
   cellphone: string
   company: string
   extension: string
