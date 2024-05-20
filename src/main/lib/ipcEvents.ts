@@ -144,6 +144,9 @@ export function registerIpcEvents() {
           const nethlinkExtension = account!.data!.endpoints.extension.find((el) => el.type === 'nethlink')
           NethVoiceAPI.instance.User.heartbeat(`${nethlinkExtension!.id}`)
           break;
+        case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
+          NethLinkController.instance.loadData()
+          break;
       }
       // if (ev === PHONE_ISLAND_EVENTS['phone-island-call-answered']) {
       //   const username = AccountController.instance.getLoggedAccount()?.username
