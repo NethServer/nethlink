@@ -108,23 +108,20 @@ export function AddToPhonebookBox({
     if (searchText !== undefined) {
       if (validatePhoneNumber(searchText)) {
         setValue('extension', searchText)
-        setTimeout(() => setFocus('name'), 0)
-        setFocus('name')
+        setTimeout(() => setFocus('name'), 10)
       } else {
         setValue('name', searchText)
-        setTimeout(() => setFocus('extension'), 0)
-        setFocus('extension')
+        setTimeout(() => setFocus('extension'), 10)
       }
     }
     //Caso in cui ho selezionato da create in MISSEDCALL
     if (selectedCompany) {
       setValue('company', selectedCompany)
-      setTimeout(() => setFocus('extension'), 0)
-      setFocus('extension')
+      setTimeout(() => setFocus('extension'), 10)
     }
     if (selectedNumber) {
       setValue('extension', selectedNumber)
-      setTimeout(() => setFocus('name'), 0)
+      setTimeout(() => setFocus('name'), 10)
     }
   }, [])
 
