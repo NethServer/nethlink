@@ -83,6 +83,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
       >
         <TextInput
           {...register('name', { required: true })}
+          autoFocus={true}
           type="text"
           label={t('Phonebook.Name') as string}
           helper={errors.name?.message || undefined}

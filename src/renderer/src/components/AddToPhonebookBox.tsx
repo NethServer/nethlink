@@ -70,6 +70,7 @@ export function AddToPhonebookBox({
     register,
     watch,
     handleSubmit,
+    setFocus,
     setValue,
     reset,
     trigger,
@@ -101,23 +102,26 @@ export function AddToPhonebookBox({
   }
 
   useEffect(() => {
-    reset()
     setValue('privacy', 'public')
     setValue('type', 'person')
 
     if (searchText !== undefined) {
       if (validatePhoneNumber(searchText)) {
         setValue('extension', searchText)
+        setTimeout(() => setFocus('name'), 10)
       } else {
         setValue('name', searchText)
+        setTimeout(() => setFocus('extension'), 10)
       }
     }
     //Caso in cui ho selezionato da create in MISSEDCALL
     if (selectedCompany) {
       setValue('company', selectedCompany)
+      setTimeout(() => setFocus('extension'), 10)
     }
     if (selectedNumber) {
       setValue('extension', selectedNumber)
+      setTimeout(() => setFocus('name'), 10)
     }
   }, [])
 

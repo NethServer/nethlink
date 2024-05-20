@@ -21,6 +21,7 @@ import { t } from 'i18next'
 import { Button } from '@renderer/components/Nethesis'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import './LoginPage.css'
 
 export interface LoginPageProps {
   themeMode: string
@@ -74,6 +75,8 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     },
     resolver: zodResolver(schema)
   })
+
+  const isFirstLogin = availableAccounts.length === 0
 
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
@@ -131,7 +134,14 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       window.api.resizeLoginWindow(570)
     } else if (selectedAccount === NEW_ACCOUNT) {
       window.api.resizeLoginWindow(620)
-    } else window.api.resizeLoginWindow(515)
+    } else {
+      if (!isFirstLogin) {
+        window.api.resizeLoginWindow(515)
+      } else {
+        //Aggiunto per via del possibile banner di errore
+        window.api.resizeLoginWindow(570)
+      }
+    }
 
     const hostReg =
       /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
@@ -213,8 +223,6 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       )
     )
   }
-
-  const isFirstLogin = availableAccounts.length === 0
 
   const DisplayAvailableAccount = () => {
     return (
@@ -334,7 +342,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
 
   return (
     <div
-      className="h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 rounded-[10px] text-sm"
+      className="h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 rounded-[10px] text-sm hide-scrollbar"
       ref={loginWindowRef}
     >
       <div className={classNames('h-full w-full')}>
