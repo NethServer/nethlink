@@ -6,7 +6,8 @@ export class NetworkController {
   }
   async post(path: string, data: object | undefined, config: { headers: { Authorization?: string | undefined; 'Content-Type': string; }; } | undefined = { headers: { 'Content-Type': 'application/json' } }): Promise<any> {
     try {
-      return (await axios.post(path, data, config)).data
+      const response = (await axios.post(path, data, config)).data
+      return response
     } catch (e) {
       console.error(e)
       throw e
@@ -14,7 +15,8 @@ export class NetworkController {
   }
   async get(path: string, config: { headers: { Authorization?: string | undefined; 'Content-Type': string } } | undefined = { headers: { 'Content-Type': 'application/json' } }): Promise<any> {
     try {
-      return (await axios.get(path, config)).data
+      const response = (await axios.get(path, config)).data
+      return response
     } catch (e) {
       console.error(e)
       throw e

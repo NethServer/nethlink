@@ -1,7 +1,7 @@
 {
   "name": "nethlink",
-  "version": "0.0.67",
-  "description": "Neth Connector app",
+  "version": "0.0.68",
+  "description": "NethLink app",
   "main": "./out/main/main.js",
   "license": "UNLICENSED",
   "author": {

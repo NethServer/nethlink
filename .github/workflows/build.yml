@@ -44,8 +44,9 @@ jobs:
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_psw }}
 
-          windows_certs: ${{ secrets.win_certs }}
-          windows_certs_password: ${{ secrets.win_certs_psw }}
+          #processo di certificazione windows
+          #windows_certs: ${{ secrets.win_certs }}
+          #windows_certs_password: ${{ secrets.win_certs_psw }}
 
         env:
           # macOS notarization API key
