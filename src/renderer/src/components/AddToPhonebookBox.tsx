@@ -27,9 +27,18 @@ export function AddToPhonebookBox({
   const submitButtonRef = useRef<HTMLButtonElement>(null)
   const baseSchema = z.object({
     privacy: z.string(),
-    extension: z.string().trim().regex(/^[0-9*#+]*$/, 'This is not a phone number'),
-    workphone: z.string().trim().regex(/^[0-9*#+]*$/, 'This is not a phone number'),
-    cellphone: z.string().trim().regex(/^[0-9*#+]*$/, 'This is not a phone number'),
+    extension: z
+      .string()
+      .trim()
+      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
+    workphone: z
+      .string()
+      .trim()
+      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
+    cellphone: z
+      .string()
+      .trim()
+      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
     workemail: z.string(),
     notes: z.string()
   })
@@ -61,6 +70,7 @@ export function AddToPhonebookBox({
     register,
     watch,
     handleSubmit,
+    setFocus,
     setValue,
     reset,
     trigger,
@@ -92,30 +102,33 @@ export function AddToPhonebookBox({
   }
 
   useEffect(() => {
-    reset()
     setValue('privacy', 'public')
     setValue('type', 'person')
 
     if (searchText !== undefined) {
       if (validatePhoneNumber(searchText)) {
         setValue('extension', searchText)
+        setTimeout(() => setFocus('name'), 10)
       } else {
         setValue('name', searchText)
+        setTimeout(() => setFocus('extension'), 10)
       }
     }
     //Caso in cui ho selezionato da create in MISSEDCALL
     if (selectedCompany) {
       setValue('company', selectedCompany)
+      setTimeout(() => setFocus('extension'), 10)
     }
     if (selectedNumber) {
       setValue('extension', selectedNumber)
+      setTimeout(() => setFocus('name'), 10)
     }
   }, [])
 
   function handleSave(data: ContactType) {
     //NETHVOICE usa il valore '-' quando si inserisce una company che e' priva di nome
     //data.name === '' puo' essere vera solo nel caso in cui si inserisce una company
-    setIsLoading(true);
+    setIsLoading(true)
     //Aggiunto un timeout per fare vedere lo spinner in quanto la chiamata e' troppo veloce
     setTimeout(() => {
       if (watchType === 'company') {
@@ -130,7 +143,7 @@ export function AddToPhonebookBox({
           setIsLoading(false)
           reset()
         })
-    }, 300);
+    }, 300)
   }
 
   return (
