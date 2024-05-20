@@ -21,6 +21,7 @@ import { t } from 'i18next'
 import { Button } from '@renderer/components/Nethesis'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import './LoginPage.css'
 
 export interface LoginPageProps {
   themeMode: string
@@ -75,6 +76,8 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     resolver: zodResolver(schema)
   })
 
+  const isFirstLogin = availableAccounts.length === 0
+
   useInitialize(() => {
     window.api.onLoadAccounts((accounts: Account[]) => {
       setAvailableAccounts(accounts)
@@ -86,14 +89,37 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     })
   }, true)
 
+  useEffect(() => {
+    const errorCount = Object.keys(errors).filter((key) => errors[key]).length
+    console.log(errorCount)
+    const additionalHeight = errorCount * 18
+    if (isFirstLogin) {
+      if (loginError) {
+        window.api.resizeLoginWindow(570 + additionalHeight + 100)
+      } else window.api.resizeLoginWindow(570 + additionalHeight)
+    } else {
+      if (selectedAccount) {
+        if (selectedAccount === NEW_ACCOUNT) {
+          if (loginError) {
+            window.api.resizeLoginWindow(620 + additionalHeight + 100)
+          } else window.api.resizeLoginWindow(620 + additionalHeight)
+        } else {
+          if (loginError) {
+            window.api.resizeLoginWindow(515 + 18 + 100)
+          } else window.api.resizeLoginWindow(515 + 18)
+        }
+      }
+    }
+  }, [Object.keys(errors).length])
+
   function resizeThisWindow(h: number) {
     windowHeight.current = h
     const finalH = h + (loginError ? 100 : 0)
     window.api.resizeLoginWindow(finalH)
   }
 
-  function hideLoginWindow() {
-    window.api.hideLoginWindow()
+  function exitLoginWindow() {
+    window.api.exitNethLink()
   }
 
   function setFormValues(data: LoginData) {
@@ -104,9 +130,18 @@ export function LoginPage({ themeMode }: LoginPageProps) {
 
   async function handleLogin(data: LoginData) {
     setLoginError(undefined)
-    if (selectedAccount === NEW_ACCOUNT) {
+    if (isFirstLogin) {
+      window.api.resizeLoginWindow(570)
+    } else if (selectedAccount === NEW_ACCOUNT) {
       window.api.resizeLoginWindow(620)
-    } else window.api.resizeLoginWindow(515)
+    } else {
+      if (!isFirstLogin) {
+        window.api.resizeLoginWindow(515)
+      } else {
+        //Aggiunto per via del possibile banner di errore
+        window.api.resizeLoginWindow(570)
+      }
+    }
 
     const hostReg =
       /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
@@ -189,15 +224,13 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     )
   }
 
-  const isFirstLogin = availableAccounts.length === 0
-
   const DisplayAvailableAccount = () => {
     return (
       <div className="w-full mt-7">
-        <p className="text-gray-900 dark:text-gray-100 text-[20px] leading-[30px] font-medium mb-2">
+        <p className="text-titleLight dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2">
           {t('Login.Account List title')}
         </p>
-        <p className="text-gray-900 dark:text-gray-100 text-[14px] leading-5 mb-7">
+        <p className="text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7">
           {t('Login.Account List description')}
         </p>
         <div className="max-h-60 overflow-y-auto">
@@ -226,10 +259,10 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       }}
     >
       <div className="mt-7">
-        <p className="text-gray-900  dark:text-gray-100 text-[20px] leading-[30px] font-medium mb-2">
+        <p className="text-titleLight  dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2">
           {selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
         </p>
-        <p className="text-gray-900 dark:text-gray-100 text-[14px] leading-5 mb-7">
+        <p className="text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7">
           {selectedAccount
             ? t('Login.Account List description')
             : t('Login.New Account description')}
@@ -249,7 +282,6 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                 label={t('Login.Host') as string}
                 helper={errors.host?.message || undefined}
                 error={!!errors.host?.message}
-                className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault()
@@ -264,7 +296,6 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                 label={t('Login.Username') as string}
                 helper={errors.username?.message || undefined}
                 error={!!errors.username?.message}
-                className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault()
@@ -284,7 +315,6 @@ export function LoginPage({ themeMode }: LoginPageProps) {
             trailingIcon={true}
             helper={errors.password?.message || undefined}
             error={!!errors.password?.message}
-            className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault()
@@ -293,13 +323,9 @@ export function LoginPage({ themeMode }: LoginPageProps) {
               }
             }}
           />
-          <button
-            ref={submitButtonRef}
-            type="submit"
-            className={`w-full dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 text-gray-50 dark:text-gray-950 rounded h-9 font-medium text-[14px] leading-5 cursor-pointer dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
-          >
+          <Button ref={submitButtonRef} type="submit" variant="primary">
             {t('Login.Sign in')}
-          </button>
+          </Button>
         </div>
       </div>
     </form>
@@ -307,40 +333,39 @@ export function LoginPage({ themeMode }: LoginPageProps) {
 
   return (
     <div
-      className="draggableAnchor h-[100vh] w-[100vw] bg-gray-50 dark:bg-gray-900 relative p-8 rounded-[10px] text-sm overflow-hidden"
+      className="draggableAnchor h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 rounded-[10px] text-sm hide-scrollbar"
       ref={loginWindowRef}
     >
       <div className={classNames('noDraggableAnchor', 'h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
           <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
-          <Button
-            variant="ghost"
-            className="pt-2 pr-1 pb-2 pl-1 cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
-          >
+          <Button variant="ghost" className="pt-2 pr-1 pb-2 pl-1">
             <FontAwesomeIcon
               icon={CrossIcon}
               className="h-5 w-5 dark:text-gray-50 text-gray-900"
-              onClick={() => hideLoginWindow()}
+              onClick={() => exitLoginWindow()}
             />
           </Button>
         </div>
         {availableAccounts.length > 0 && selectedAccount && (
           <Button
             variant="ghost"
-            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6 cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6"
             onClick={goBack}
           >
             <FontAwesomeIcon
               icon={ArrowIcon}
-              className="h-5 w-5 dark:text-blue-500 text-blue-700"
+              className="h-5 w-5 dark:text-textBlueDark text-textBlueLight"
             />
-            <p className="dark:text-blue-500 text-blue-700 font-medium">{t('Login.Back')}</p>
+            <p className="dark:text-textBlueDark text-textBlueLight font-medium">
+              {t('Login.Back')}
+            </p>
           </Button>
         )}
         {isFirstLogin || selectedAccount ? LoginForm : <DisplayAvailableAccount />}
       </div>
       {isLoading && (
-        <div className="absolute top-0 left-0 bg-gray-50 dark:bg-gray-950 bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center rounded-[10px] z-[1000]">
+        <div className="absolute top-0 left-0 bg-spinnerBgLight dark:bg-spinnerBgDark bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center rounded-[10px] z-[1000]">
           <img src={spinner} className="animate-spin"></img>
         </div>
       )}

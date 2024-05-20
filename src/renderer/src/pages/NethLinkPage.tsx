@@ -320,7 +320,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     // TODO test prova a rimuovere l'icona dalla notifica in quanto secondo me macOs la prende di default dalla build
     if (navigator.userAgent.includes('Mac')) {
       new Notification(title, {
-        body: body,
+        body: body
       })
     } else {
       new Notification(title, {
@@ -333,25 +333,20 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   return (
     <div className="h-[100vh] w-[100vw] overflow-hidden">
       {account && (
-        <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm dark:text-gray-200 text-gray-900">
+        <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm">
           <div
             className={`flex flex-col min-w-[400px] min-h-[380px] h-full items-center justify-between`}
           >
             <div
-              className={`draggableAnchor flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950  dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
+              className={`draggableAnchor flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950 dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
             >
               <FontAwesomeIcon
                 className={` text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 noDraggableAnchor`}
                 icon={MinimizeIcon}
                 onClick={hideNethLink}
               />
-              {/* <FontAwesomeIcon
-                className={`text-red-500 hover:text-red-400 cursor-pointer ml-2`}
-                icon={ExiteIcon}
-                onClick={exitNethLink}
-              /> */}
             </div>
-            <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-gray-900 bg-gray-50 w-full">
+            <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-bgDark bg-bgLight w-full">
               <div className="flex flex-col gap-3 w-full">
                 <Navbar
                   search={search}
@@ -396,7 +391,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
                     {/*   MODIFICHE */}
                     {search !== '' && !selectedMissedCall ? (
-                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full rounded-bl-lg">
+                      <div className="absolute top-0 left-0 z-[100] dark:bg-bgDark bg-bgLight h-full w-full rounded-bl-lg">
                         <SearchNumberBox
                           searchText={search}
                           showAddContactToPhonebook={() => setSelectedMissedCall(() => ({}))}
@@ -405,7 +400,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                       </div>
                     ) : null}
                     {selectedMissedCall ? (
-                      <div className="absolute top-0 left-0 z-[100] dark:bg-gray-900 bg-gray-50 h-full w-full rounded-bl-lg">
+                      <div className="absolute top-0 left-0 z-[100] dark:bg-bgDark bg-bgLight h-full w-full rounded-bl-lg">
                         <AddToPhonebookBox
                           searchText={search}
                           selectedNumber={selectedMissedCall.number}
@@ -431,15 +426,15 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                   className="font-Poppins"
                 >
                   <Modal.Content>
-                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-amber-100 dark:bg-amber-700">
+                    <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-bgAmberLight dark:bg-bgAmberDark">
                       <FontAwesomeIcon
                         icon={WarningIcon}
-                        className="h-6 w-6 text-amber-700 dark:text-amber-100"
+                        className="h-6 w-6 text-iconAmberLight dark:text-iconAmberDark"
                         aria-hidden="true"
                       />
                     </div>
                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                      <h3 className="font-medium text-[18px] leading-7 text-gray-900 dark:text-gray-50">
+                      <h3 className="font-medium text-[18px] leading-7 text-titleLight dark:text-titleDark">
                         {t('SpeedDial.Delete speed dial')}
                       </h3>
                       <div className="mt-3">
@@ -464,14 +459,16 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                     </Button>
                     <Button
                       variant="ghost"
-                      className="font-medium text-[14px] leading-5 gap-3 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+                      className="font-medium text-[14px] leading-5 gap-3"
                       onClick={() => {
                         setShowDeleteModal(false)
                         setSelectedSpeedDial(undefined)
                       }}
                       ref={cancelDeleteButtonRef}
                     >
-                      <p className="dark:text-blue-500 text-blue-700">{t('Common.Cancel')}</p>
+                      <p className="dark:text-textBlueDark text-textBlueLight">
+                        {t('Common.Cancel')}
+                      </p>
                     </Button>
                   </Modal.Actions>
                 </Modal>

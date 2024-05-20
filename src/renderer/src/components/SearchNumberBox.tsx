@@ -194,9 +194,9 @@ export function SearchNumberBox({
   }
 
   return (
-    <div className="flex flex-col dark:text-gray-50 text-gray-900 dark:bg-gray-900 bg-gray-50">
+    <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight">
       <div
-        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallsEnabled && getIsPhoneNumber(searchText) ? 'cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200' : 'dark:bg-gray-800 bg-gray-200 opacity-50 cursor-not-allowed'}`}
+        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallsEnabled && getIsPhoneNumber(searchText) ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
 
         onClick={() => {
           if (isCallsEnabled && getIsPhoneNumber(searchText))
@@ -213,7 +213,7 @@ export function SearchNumberBox({
       </div>
 
       <div
-        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${isCallsEnabled && canAddToPhonebook ? 'cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-200' : ' dark:bg-gray-800 bg-gray-200 opacity-50 cursor-not-allowed'}`}
+        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${isCallsEnabled && canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
         onClick={() => {
           if (canAddToPhonebook)
             showAddContactToPhonebook()
@@ -224,7 +224,7 @@ export function SearchNumberBox({
           {t('Common.Add')} {searchText.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
         </p>
       </div>
-      <div className={`border-b dark:border-gray-700 border-gray-200`}></div>
+      <div className={`border-b dark:border-borderDark border-borderLight`}></div>
       <div className="overflow-y-auto max-h-[178px]">
         {filteredPhoneNumbers.map((user, index) => (
           <SearchNumber
@@ -232,7 +232,7 @@ export function SearchNumberBox({
             user={user}
             callUser={callUser}
             searchText={searchText}
-            className="dark:hover:bg-gray-800 hover:bg-gray-200"
+            className="dark:hover:bg-hoverDark hover:bg-hoverLight"
           />
         ))}
       </div>

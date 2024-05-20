@@ -42,10 +42,13 @@ export class NethLinkController {
     this.window.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
   }
 
-  show() {
+  loadData() {
     this.fetchOperatorsAndEmit()
     this.fetchHistoryCallsAndEmit()
     this.fetchSpeeddialsAndEmit()
+  }
+  show() {
+    this.loadData()
     this.window.show()
   }
 
