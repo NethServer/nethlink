@@ -35,7 +35,7 @@ export function SearchNumberBox({
 
   function saveUnfiltered(receivedPhoneNumbers: SearchCallData) {
     log('Receveid numbers: ', receivedPhoneNumbers)
-    receivedPhoneNumbers.rows = receivedPhoneNumbers.rows.map((contact: any) => {
+    receivedPhoneNumbers.rows = receivedPhoneNumbers.rows.map((contact: SearchData) => {
       return mapContact(contact)
     })
     const filteredNumbers = receivedPhoneNumbers.rows.filter(
@@ -68,7 +68,7 @@ export function SearchNumberBox({
     const cleanQuery = searchText.replace(cleanRegex, '')
     let operatorsResults = Object.values(operators.operators).filter((op: any) => {
       return (
-        new RegExp(cleanQuery, 'i').test(op.name.replace(cleanRegex, '')) ||
+        (op.name && new RegExp(cleanQuery, 'i').test(op.name.replace(cleanRegex, ''))) ||
         new RegExp(cleanQuery, 'i').test(op.endpoints?.mainextension[0]?.id)
       )
     })
@@ -84,7 +84,7 @@ export function SearchNumberBox({
     return operatorsResults
   }
 
-  function mapContact(contact: any) {
+  function mapContact(contact: SearchData) {
     // kind & display name
     if (contact.name) {
       contact.kind = 'person'
@@ -93,6 +93,7 @@ export function SearchNumberBox({
       contact.kind = 'company'
       contact.displayName = contact.company
     }
+    contact.isOperator = false
 
     // company contacts
     if (contact.contacts) {
@@ -166,9 +167,23 @@ export function SearchNumberBox({
         workprovince: '',
         workstreet: '',
         company: '',
-        extension: o.endpoints['extension'][0]['id'],
-
+        extension: o.endpoints['mainextension']?.[0]?.id || '',
+        isOperator: true,
+        kind: 'person',
+        displayName: o.name
       }
+    })
+    const names = mappedOperators.map((o) => o.name.toLowerCase().replace(/\s/g, ''))
+
+    unFilteredNumbers = unFilteredNumbers.filter((e) => {
+      const target = e.name.toLowerCase().replace(/\s/g, '')
+      log(target)
+      if (!names.includes(target)) {
+        names.push(target)
+        return true
+      }
+      //mi assicuro di avere un set
+      return false
     })
     const copy = [
       ...mappedOperators,
