@@ -288,10 +288,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                     submitButtonRef.current?.focus()
                     handleSubmit(onSubmitForm)(e)
                   }
-                }}
-                onChange={(e) => {
-                  register('host').onChange(e)
-                }}
+                }}                
               />
               <TextInput
                 {...register('username')}
@@ -305,10 +302,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                     submitButtonRef.current?.focus()
                     handleSubmit(onSubmitForm)(e)
                   }
-                }}
-                onChange={(e) => {
-                  register('username').onChange(e)
-                }}
+                }}               
               />
             </>
           )}
@@ -327,10 +321,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                 submitButtonRef.current?.focus()
                 handleSubmit(onSubmitForm)(e)
               }
-            }}
-            onChange={(e) => {
-              register('password').onChange(e)
-            }}
+            }}           
           />
           <Button ref={submitButtonRef} type="submit" variant="primary">
             {t('Login.Sign in')}
