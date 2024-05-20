@@ -19,8 +19,8 @@ export function DisplayedAccountLogin({
     <div
       onClick={() => handleClick?.()}
       className={classNames(
-        'w-full flex flex-row gap-7 items-center justify-start bg-transparent h-20 rounded-lg text-gray-900 dark:text-gray-50 cursor-pointer',
-        handleClick ? 'hover:bg-gray-200 dark:hover:bg-gray-600' : ''
+        'w-full flex flex-row gap-7 items-center justify-start bg-transparent h-20 rounded-lg text-titleLight dark:text-titleDark cursor-pointer',
+        handleClick ? 'hover:bg-hoverLight dark:hover:bg-hoverDark' : ''
       )}
     >
       <div className="ml-5 w-12 h-12 rounded-full overflow-hidden">

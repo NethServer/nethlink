@@ -148,17 +148,19 @@ export function AddToPhonebookBox({
 
   return (
     <div className="w-full h-full">
-      <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-gray-500 border-gray-300 max-h-[28px] px-5">
-        <h1 className="font-medium text-[14px] leading-5">{t('Phonebook.Add to Phonebook')}</h1>
+      <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] px-5">
+        <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
+          {t('Phonebook.Add to Phonebook')}
+        </h1>
       </div>
       <form
-        className="flex flex-col gap-4 p-2 h-full overflow-y-auto max-h-[245px] px-5"
+        className="flex flex-col gap-5 p-2 h-full overflow-y-auto max-h-[240px] px-5"
         onSubmit={(e) => {
           e.preventDefault()
           handleSubmit(onSubmitForm)(e)
         }}
       >
-        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
+        <label className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
           <p className="font-medium text-[14px] leading-5">{t('Phonebook.Visibility')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
@@ -168,7 +170,7 @@ export function AddToPhonebookBox({
                 type="radio"
                 value="public"
                 name="visibility"
-                className="h-4 w-4 dark:text-blue-500 text-blue-700 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:ring-offset-gray-900 focus:ring-offset-gray-50"
+                className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight  focus:ring-offset-ringOffsetLight dark:focus:ring-offset-ringOffsetDark"
               />
               <label
                 htmlFor="public"
@@ -184,7 +186,7 @@ export function AddToPhonebookBox({
                 type="radio"
                 value="private"
                 name="visibility"
-                className="h-4 w-4 dark:text-blue-500 text-blue-700 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:ring-offset-gray-900 focus:ring-offset-gray-50"
+                className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight dark:focus:ring-offset-ringOffsetDark focus:ring-offset-ringOffsetLight"
               />
               <label
                 htmlFor="private"
@@ -196,7 +198,7 @@ export function AddToPhonebookBox({
           </div>
         </label>
 
-        <label className="flex flex-col gap-2 dark:text-gray-50 text-gray-900">
+        <label className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
           <p className="font-medium text-[14px] leading-5">{t('Phonebook.Type')}</p>
           <div className="flex flex-row gap-8 items-center">
             <div className="flex flex-row gap-2 items-center">
@@ -206,7 +208,7 @@ export function AddToPhonebookBox({
                 type="radio"
                 value="person"
                 name="type"
-                className="h-4 w-4 dark:text-blue-500 text-blue-700 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:ring-offset-gray-900 focus:ring-offset-gray-50"
+                className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight dark:focus:ring-offset-ringOffsetDark focus:ring-offset-ringOffsetLight"
               />
               <label
                 htmlFor="person"
@@ -222,7 +224,7 @@ export function AddToPhonebookBox({
                 type="radio"
                 value="company"
                 name="type"
-                className="h-4 w-4 dark:text-blue-500 text-blue-700 dark:focus:ring-blue-200 focus:ring-blue-500 dark:focus:ring-offset-gray-900 focus:ring-offset-gray-50"
+                className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight dark:focus:ring-offset-ringOffsetDark focus:ring-offset-ringOffsetLight"
               />
               <label
                 htmlFor="company"
@@ -249,7 +251,7 @@ export function AddToPhonebookBox({
                   handleSubmit(onSubmitForm)(e)
                 }
               }}
-              className={`font-normal text-[14px] leading-5 ${errors.name?.message ? `mb-2` : ``} dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
+              className="font-normal text-[14px] leading-5"
             />
           </>
         ) : null}
@@ -266,16 +268,13 @@ export function AddToPhonebookBox({
               handleSubmit(onSubmitForm)(e)
             }
           }}
-          className={`font-normal text-[14px] leading-5 ${errors.company?.message ? `mb-2` : ``} dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white`}
+          className="font-normal text-[14px] leading-5"
         />
 
         <TextInput
           {...register('extension')}
           type="tel"
           minLength={3}
-          // onChange={(e) => {
-          //   setValue('extension', e.target.value.replace(/[^\d*#+]/g, ''))
-          // }}
           label={t('Phonebook.Phone number') as string}
           helper={errors.extension?.message || undefined}
           error={!!errors.extension?.message}
@@ -286,16 +285,13 @@ export function AddToPhonebookBox({
               handleSubmit(onSubmitForm)(e)
             }
           }}
-          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          className="font-normal text-[14px] leading-5"
         />
 
         <TextInput
           {...register('workphone')}
           type="tel"
           minLength={3}
-          // onChange={(e) => {
-          //   setValue('workphone', e.target.value.replace(/[^\d*#+]/g, ''))
-          // }}
           label={t('Phonebook.Work phone') as string}
           helper={errors.workphone?.message || undefined}
           error={!!errors.workphone?.message}
@@ -306,16 +302,13 @@ export function AddToPhonebookBox({
               handleSubmit(onSubmitForm)(e)
             }
           }}
-          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          className="font-normal text-[14px] leading-5"
         />
 
         <TextInput
           {...register('cellphone')}
           type="tel"
           minLength={3}
-          // onChange={(e) => {
-          //   setValue('cellphone', e.target.value.replace(/[^\d*#+]/g, ''))
-          // }}
           label={t('Phonebook.Mobile phone') as string}
           helper={errors.cellphone?.message || undefined}
           error={!!errors.cellphone?.message}
@@ -326,7 +319,7 @@ export function AddToPhonebookBox({
               handleSubmit(onSubmitForm)(e)
             }
           }}
-          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          className="font-normal text-[14px] leading-5"
         />
 
         <TextInput
@@ -340,7 +333,7 @@ export function AddToPhonebookBox({
               handleSubmit(onSubmitForm)(e)
             }
           }}
-          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          className="font-normal text-[14px] leading-5"
         />
 
         <TextInput
@@ -354,32 +347,23 @@ export function AddToPhonebookBox({
               handleSubmit(onSubmitForm)(e)
             }
           }}
-          className="font-normal text-[14px] leading-5 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
+          className="font-normal text-[14px] leading-5"
         />
 
         <div className="flex flex-row gap-4 justify-end mb-1">
-          <Button
-            variant="ghost"
-            onClick={() => onCancel()}
-            disabled={isLoading}
-            className="dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
-          >
-            <p className="dark:text-blue-500 text-blue-700 font-medium text-[14px] leading-5">
+          <Button variant="ghost" onClick={() => onCancel()} disabled={isLoading}>
+            <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
               {t('Common.Cancel')}
             </p>
           </Button>
-          <Button
-            type="submit"
-            ref={submitButtonRef}
-            className="gap-3 dark:bg-blue-500 bg-blue-700 dark:hover:bg-blue-300 hover:bg-blue-800 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
-          >
-            <p className="dark:text-gray-950 text-gray-50 font-medium text-[14px] leading-5">
+          <Button type="submit" ref={submitButtonRef} className="gap-3">
+            <p className="dark:text-titleLight text-titleDark font-medium text-[14px] leading-5">
               {t('Common.Save')}
             </p>
             {isLoading && (
               <FontAwesomeIcon
                 icon={LoadingIcon}
-                className="dark:text-gray-900 text-gray-50 animate-spin"
+                className="dark:text-titleLight text-titleDark animate-spin"
               />
             )}
           </Button>

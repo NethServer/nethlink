@@ -56,7 +56,12 @@ export function Navbar({
 
   return (
     <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 py-2">
-      <SearchBox search={search} callUser={callUser} handleSearch={handleSearch} handleReset={handleReset} />
+      <SearchBox
+        search={search}
+        callUser={callUser}
+        handleSearch={handleSearch}
+        handleReset={handleReset}
+      />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
@@ -64,7 +69,7 @@ export function Navbar({
               <Listbox.Button>
                 <Button
                   variant="ghost"
-                  className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1 dark:hover:bg-gray-600 hover:bg-gray-200 cursor-pointer dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+                  className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1"
                 >
                   <FontAwesomeIcon
                     icon={ThemeMenuIcon}
@@ -74,9 +79,9 @@ export function Navbar({
               </Listbox.Button>
             </div>
             <Listbox.Options
-              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-[200] translate-x-[calc(-100%+36px)]`}
+              className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
-              <p className="dark:text-gray-50 text-gray-900 text-xs leading-[18px] py-1 px-4 mt-1">
+              <p className="dark:text-titleDark text-titleLight text-xs leading-[18px] py-1 px-4 mt-1">
                 {t('Settings.Theme')}
               </p>
               {themeOptions.map((availableTheme) => (
@@ -86,12 +91,12 @@ export function Navbar({
                   className="cursor-pointer"
                 >
                   <div
-                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-gray-600 hover:bg-gray-200 mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'} ${availableTheme.name === 'dark' ? 'dark:hover:rounded-bl-[8px] dark:hover:rounded-br-[8px] hover:rounded-bl-[8px] hover:rounded-br-[8px]' : ''}`}
+                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'} ${availableTheme.name === 'dark' ? 'dark:hover:rounded-bl-[8px] dark:hover:rounded-br-[8px] hover:rounded-bl-[8px] hover:rounded-br-[8px]' : ''}`}
                     onClick={() => handleSetTheme(availableTheme.name)}
                   >
                     {theme === availableTheme.name && (
                       <FontAwesomeIcon
-                        className="dark:text-blue-500 text-blue-700"
+                        className="dark:text-textBlueDark text-textBlueLight"
                         style={{ fontSize: '16px' }}
                         icon={ChooseThemeMenuIcon}
                       />
@@ -128,7 +133,7 @@ export function Navbar({
                     src={operators?.avatars?.[account.username]}
                   />
                 ) : (
-                  <div className="flex items-center justify-center relative shrink-0 h-8 w-8 text-sm rounded-full border-2 border-white dark:border-gray-700">
+                  <div className="flex items-center justify-center relative shrink-0 h-8 w-8 text-sm rounded-full border-2 border-borderLight dark:border-borderDark">
                     <FontAwesomeIcon
                       icon={DefaultAvatar}
                       className="text-[32px] dark:text-gray-50 text-gray-600"
@@ -139,13 +144,13 @@ export function Navbar({
             </div>
 
             <Menu.Items
-              className={`dark:bg-gray-900 bg-gray-50 border dark:border-gray-700 border-gray-200 mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
+              className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
-                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-gray-700 border-gray-200">
+                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-borderDark border-borderLight">
                   <p className="dark:text-gray-400 text-gray-700">{t('TopBar.Signed in as')}</p>
                   <div className="flex flex-row gap-4">
-                    <p className="dark:text-gray-50 text-gray-900 font-medium">
+                    <p className="dark:text-titleDark text-titleLight font-medium">
                       {account.data?.name}
                     </p>
                     <p className="dark:text-gray-50 text-gray-700 font-normal">
@@ -156,7 +161,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200"
+                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6"
@@ -168,7 +173,7 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-20"
+                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={logout}>
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
@@ -177,14 +182,16 @@ export function Navbar({
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-gray-50 text-gray-900 dark:hover:bg-gray-600 hover:bg-gray-200 rounded-b-lg"
+                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight rounded-b-lg"
               >
-                <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={exitNethLink}>
+                <div
+                  className="flex flex-row items-center gap-4 py-[10px] px-6"
+                  onClick={exitNethLink}
+                >
                   <FontAwesomeIcon className="text-base" icon={ExitIcon} />
                   <p className="font-normal">{'Quit'}</p>
                 </div>
               </Menu.Item>
-
             </Menu.Items>
           </Menu>
         </div>
