@@ -1,5 +1,5 @@
-import { Menu, MenuItem, MenuItemConstructorOptions, Tray, app } from 'electron'
-import { join } from 'path'
+import { Menu, MenuItem, MenuItemConstructorOptions, Tray, app, nativeImage } from 'electron'
+import path, { join } from 'path'
 import { AccountController } from './AccountController'
 import { LoginController } from './LoginController'
 import { NethLinkController } from './NethLinkController'
@@ -14,8 +14,22 @@ export class TrayController {
   static instance: TrayController
   constructor() {
     TrayController.instance = this
+    let image
 
-    this.tray = new Tray(join(__dirname, '../../public/TrayToolbarIcon20x20.png'))
+    //TODO Controllare con il process
+    if (process.platform === 'win32' || process.platform === 'linux') {
+      image = nativeImage.createFromPath(
+        path.join(__dirname, '../../public/TrayToolbarIconWhite.png')
+      ).resize({ width: 18, height: 18 });
+    } else {
+      image = nativeImage.createFromPath(
+        path.join(__dirname, '../../public/TrayToolbarIconBlack.png')
+      ).resize({ width: 18, height: 18 });
+    }
+
+
+
+    this.tray = new Tray(image)
     this.tray.setIgnoreDoubleClickEvents(true)
     this.tray.on('click', () => {
       if (this.enableClick) {

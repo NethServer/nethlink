@@ -13,6 +13,7 @@ export const DevToolsPage = () => {
       <div className="text-left pl-2 text-gray-900 dark:text-gray-100">Click to open dev tools</div>
       {...Object.values(PAGES).map((elem) => {
         return (
+          // eslint-disable-next-line react/jsx-key
           <button
             className="p-1 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 rounded-sm text-gray-900 dark:text-gray-100 hover:text-blue-700 w-100 mx-2"
             onClick={() => {

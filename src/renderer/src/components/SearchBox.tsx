@@ -51,18 +51,18 @@ export function SearchBox({ search, callUser, handleSearch, handleReset }: Searc
             }
           }
         }}
-        className="min-w-[222px] dark:text-gray-50 text-gray-900 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-blue-200 dark:focus:ring-offset-gray-900 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white"
-        /* Mi serve per dare spazio all' X Icon */
-        inputClassName="pr-10"
+        className="min-w-[222px] dark:text-titleDark text-titleLight"
+      /* Mi serve per dare spazio all' X Icon */
+      // inputClassName="pr-10"
       />
       {search !== '' && (
         <Button
           variant="ghost"
-          className="absolute right-1 z-[101] cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px] hover:bg-gray-200 dark:hover:bg-gray-800 dark:focus:ring-2 focus:ring-2 dark:focus:ring-blue-200 focus:ring-blue-500"
+          className="absolute right-1 z-100 cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px]"
         >
           <FontAwesomeIcon
             icon={DeleteSearchIcon}
-            className="dark:text-gray-50 text-gray-900 h-4 w-4"
+            className="dark:text-titleDark text-titleLight h-4 w-4"
             onClick={handleReset}
           />
         </Button>
