@@ -49,7 +49,7 @@ export function MissedCall({
   }
 
   if (call?.dst_cnam === '') {
-    const operatorFound: any = getOperatorByPhoneNumber(call?.dst as string, operators.operators || {})
+    const operatorFound: any = getOperatorByPhoneNumber(call?.dst as string, operators?.operators || {})
 
     if (operatorFound) {
       call.dst_cnam = operatorFound?.name

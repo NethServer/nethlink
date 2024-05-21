@@ -97,11 +97,11 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     // eslint-disable-next-line no-prototype-builtins
     if (operatorsRef.current?.hasOwnProperty('operators')) {
       for (const [username, operator] of Object.entries(op)) {
-        // log(
-        //   'presence of operators',
-        //   operatorsRef.current.operators[username].mainPresence,
-        //   operator.mainPresence
-        // )
+        log(
+          'presence of operators',
+          operatorsRef.current.operators[username].mainPresence,
+          operator.mainPresence
+        )
         if (!operatorsRef.current.operators[username]) {
           operatorsRef.current.operators[username] = operator
         } else {

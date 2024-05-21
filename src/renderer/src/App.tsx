@@ -5,7 +5,7 @@ import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
 import { useEffect, useState } from 'react'
 import { useLocalStoreState } from './hooks/useLocalStoreState'
-import { Account, AvailableThemes, PAGES, PageType } from '@shared/types'
+import { Account, AvailableThemes, OperatorData, OperatorsType, PAGES, PageType } from '@shared/types'
 import { delay } from '@shared/utils/utils'
 import i18next from 'i18next'
 import { DevToolsPage } from './pages/DevToolsPage'
@@ -25,6 +25,7 @@ export default function App() {
   const [theme, setTheme] = useLocalStoreState<AvailableThemes>('theme')
   const [classNameTheme, setClassNameTheme] = useState<AvailableThemes>(getSystemTheme())
   const [account, setAccount, accountRef] = useLocalStoreState<Account>('user')
+  const [operators, setOperators, operatorsRef] = useLocalStoreState<OperatorData>('operators')
 
   useInitialize(() => {
     log('hash', location.hash)
@@ -88,6 +89,30 @@ export default function App() {
   function updateAccount(account: Account | undefined) {
     log('account change', account?.theme)
     setAccount(account)
+    if (account && account.data) {
+      const _operators: OperatorsType = {
+        ...(operatorsRef.current?.operators || {}),
+        [account!.username]: {
+          endpoints: account.data.endpoints,
+          name: account.data.name,
+          presence: account.data.presence,
+          presenceOnBusy: account.data.presenceOnBusy,
+          presenceOnUnavailable: account.data.presenceOnUnavailable,
+          recallOnBusy: account.data.recallOnBusy,
+          username: account.username,
+          mainPresence: 'online'
+        }
+      }
+      const op: OperatorData = {
+        ...(operatorsRef.current || {}),
+        operators: _operators,
+        userEndpoints: _operators,
+        extensions: {},
+        avatars: {},
+        groups: {}
+      }
+      setOperators(op)
+    }
   }
 
   const loader = async () => {
