@@ -1,4 +1,4 @@
-import { Menu, MenuItem, MenuItemConstructorOptions, Tray, app, nativeImage } from 'electron'
+import { Menu, MenuItem, MenuItemConstructorOptions, Tray, app, nativeImage, nativeTheme } from 'electron'
 import path, { join } from 'path'
 import { AccountController } from './AccountController'
 import { LoginController } from './LoginController'
@@ -6,6 +6,7 @@ import { NethLinkController } from './NethLinkController'
 import { SplashScreenController } from './SplashScreenController'
 import { PhoneIslandController } from './PhoneIslandController'
 import { AppController } from './AppController'
+import { log } from '@shared/utils/logger'
 
 export class TrayController {
   tray: Tray
@@ -14,21 +15,12 @@ export class TrayController {
   static instance: TrayController
   constructor() {
     TrayController.instance = this
-    let image
-
-    //TODO Controllare con il process
-    if (process.platform === 'win32' || process.platform === 'linux') {
-      image = nativeImage.createFromPath(
-        path.join(__dirname, '../../public/TrayToolbarIconWhite.png')
-      ).resize({ width: 18, height: 18 });
-    } else {
-      image = nativeImage.createFromPath(
-        path.join(__dirname, '../../public/TrayToolbarIconBlack.png')
-      ).resize({ width: 18, height: 18 });
-    }
-
-
-
+    const theme = nativeTheme.shouldUseDarkColors
+      ? 'dark'
+      : 'light'
+    log(theme)
+    const image = this.getImage(theme)
+    log(image)
     this.tray = new Tray(image)
     this.tray.setIgnoreDoubleClickEvents(true)
     this.tray.on('click', () => {
@@ -53,5 +45,27 @@ export class TrayController {
     this.tray.on('right-click', () => {
       this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
     })
+
+
   }
+
+  getImage(theme: 'light' | 'dark') {
+    let pathImage = '../../public/TrayToolbarIconWhite.png'
+    if (process.platform !== 'linux') {
+      pathImage = theme === 'light' ? '../../public/TrayToolbarIconBlack.png' : '../../public/TrayToolbarIconWhite.png'
+    }
+    const image = nativeImage.createFromPath(
+      path.join(__dirname, pathImage)
+    )
+    image.resize({ height: 18 });
+    return image
+  }
+
+
+  changeIconByTheme(theme: 'light' | 'dark') {
+    const image = this.getImage(theme)
+    log(image)
+    this.tray.setImage(image)
+  }
+
 }

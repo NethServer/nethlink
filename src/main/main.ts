@@ -73,9 +73,11 @@ app.whenReady().then(async () => {
     }
     await getPermissions()
     const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
+    log(app.getVersion())
     if (latestVersionData.name !== app.getVersion()) {
       // const updateLink = `https://github.com/nethesis/nethlink/releases/tag/v${latestVersionData.name}`
       const updateLink = 'https://nethesis.github.io/nethlink/'
+      //TODO: aggiungere traduzioni
       const notification = new Notification({
         title: "Aggiornamento dell'applicazione disponibile",
         body: `Clicca quì per aprire la pagina dove potrai scaricare la nuova release`
@@ -98,6 +100,7 @@ app.whenReady().then(async () => {
         NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
         LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
         DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+        TrayController.instance.changeIconByTheme(updatedSystemTheme)
       })
     })
     //una volta che il caricamento è completo abilito la possibilità di cliccare sull'icona nella tray
