@@ -54,7 +54,7 @@ export function registerIpcEvents() {
   )
 
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
-    return app.getLocale()
+    return app.getSystemLocale()
   })
   onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, async (contact) => {
     await NethVoiceAPI.instance.Phonebook.createSpeeddial(contact)
