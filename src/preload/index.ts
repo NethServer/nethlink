@@ -16,6 +16,7 @@ import { preloadBindings } from 'i18next-electron-fs-backend'
 import { log } from '@shared/utils/logger'
 
 export interface IElectronAPI {
+
   env: NodeJS.ProcessEnv
 
   // Use `contextBridge` APIs to expose Electron APIs to
@@ -49,6 +50,7 @@ export interface IElectronAPI {
   onSystemThemeChange(callback: (theme: AvailableThemes) => void): void
   onThemeChange(callback: (theme: AvailableThemes) => void): void
   onOperatorsChange(callback: (updateOperators: OperatorData) => void): void
+  onQueueLoaded(onQueueUpdate: (queues: { [queueId: string]: any }) => void): void
 
   //EMITTER - only emit, no response
   openDevTool(hash: string): unknown
@@ -159,6 +161,7 @@ const api: IElectronAPI = {
   onSystemThemeChange: addListener(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME),
   onThemeChange: addListener(IPC_EVENTS.ON_CHANGE_THEME),
   onOperatorsChange: addListener(IPC_EVENTS.OPERATORS_CHANGE),
+  onQueueLoaded: addListener(IPC_EVENTS.QUEUE_LOADED),
 
   addPhoneIslandListener: (event, callback) => {
     const evName = `on-${event}`

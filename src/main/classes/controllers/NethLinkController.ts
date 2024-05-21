@@ -16,7 +16,7 @@ export class NethLinkController {
   }
 
   private async operatorFetchLoop() {
-    this.fetchOperatorsAndEmit()
+    this.loadData()
     await delay(1000 * 60 * 60 * 24)
     this.operatorFetchLoop()
   }
@@ -35,6 +35,11 @@ export class NethLinkController {
     this.window.emit(IPC_EVENTS.RECEIVE_SPEEDDIALS, speeddials)
   }
 
+  private async fetchQueuesAndEmit() {
+    const queues = await NethVoiceAPI.instance.AstProxy.queues()
+    this.window.emit(IPC_EVENTS.QUEUE_LOADED, queues)
+  }
+
   async init(account: Account) {
     this.operatorFetchLoop()
     this.show()
@@ -46,6 +51,7 @@ export class NethLinkController {
     this.fetchOperatorsAndEmit()
     this.fetchHistoryCallsAndEmit()
     this.fetchSpeeddialsAndEmit()
+    this.fetchQueuesAndEmit()
   }
   show() {
     this.loadData()

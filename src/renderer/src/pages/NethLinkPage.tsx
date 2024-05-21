@@ -89,6 +89,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     window.api.onReceiveSpeeddials(saveSpeeddials)
     window.api.onReceiveLastCalls(saveMissedCalls)
     window.api.onOperatorsChange(saveOperators)
+    window.api.onQueueLoaded(onQueueUpdate)
   }
 
   function onMainPresence(op: { [username: string]: any }) {

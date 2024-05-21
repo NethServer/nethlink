@@ -62,7 +62,8 @@ export class NethVoiceAPI {
 
   AstProxy = {
     groups: async () => await this._GET('/webrest/astproxy/opgroups'),
-    extensions: async () => await this._GET('/webrest/astproxy/extensions')
+    extensions: async () => await this._GET('/webrest/astproxy/extensions'),
+    queues: async () => await this._GET('/webrest/astproxy/queues')
   }
 
 
