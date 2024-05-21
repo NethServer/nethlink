@@ -136,7 +136,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       //lo stato degli operatori deve arrivare dal segnale della main presence, quindi salto l'assegnazione in questo punto (dalla main presence i dati sono più aggiornati)
       updateOperators!.operators = operatorsRef.current!.operators
     }
-    debouncer('onMainPresence', () => setOperators(updateOperators))
+    debouncer('onMainPresenceOperators', () => setOperators(updateOperators))
   }
 
   async function handleSearch(searchText: string) {
