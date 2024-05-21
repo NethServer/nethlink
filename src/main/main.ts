@@ -9,7 +9,7 @@ import { resolve } from 'path'
 import { log } from '@shared/utils/logger'
 import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
-import { debouncer, delay } from '@shared/utils/utils'
+import { debouncer, delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
@@ -49,7 +49,7 @@ app.whenReady().then(async () => {
   let windowsLoaded = 0
   //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
   log(process.env)
-  new DevToolsController()
+  isDev() && new DevToolsController()
   new SplashScreenController()
   new TrayController()
 

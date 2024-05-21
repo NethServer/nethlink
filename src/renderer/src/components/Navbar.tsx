@@ -18,6 +18,7 @@ import { t } from 'i18next'
 import { Button } from './Nethesis'
 import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 import { useAccount } from '@renderer/hooks/useAccount'
+import { isDev } from '@shared/utils/utils'
 
 export interface NavabarProps {
   search: string
@@ -154,9 +155,11 @@ export function Navbar({
                     <p className="dark:text-gray-50 text-gray-700 font-normal">
                       {account.data?.endpoints.mainextension[0].id}
                     </p>
-                    <p className="dark:text-gray-50 text-gray-700 font-normal">
-                      [{account.data?.default_device.type}]
-                    </p>
+                    {isDev() &&
+                      <p className="dark:text-gray-50 text-gray-700 font-normal">
+                        [{account.data?.default_device.type}]
+                      </p>
+                    }
                   </div>
                 </div>
               </Menu.Item>

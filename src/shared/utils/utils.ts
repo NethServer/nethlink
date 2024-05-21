@@ -28,3 +28,14 @@ export async function delay(duration) {
     setTimeout(resolve, duration)
   })
 }
+
+
+export function isDev() {
+  let _isDev = false
+  try {
+    _isDev = window.api.env['DEV'] === 'true'
+  } catch (e) {
+    _isDev = process.env['DEV'] === 'true'
+  }
+  return _isDev
+}

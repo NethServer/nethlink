@@ -6,6 +6,7 @@ import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
 import { Account, Extension, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
+import { isDev } from '@shared/utils/utils'
 import { useState, useRef, useMemo, useCallback, createRef } from 'react'
 
 export function PhoneIslandPage() {
@@ -167,7 +168,7 @@ export function PhoneIslandPage() {
   return (
     <div
       ref={phoneIslandContainer}
-      className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] bg-red-700"
+      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''}`}
     >
       <div className="absolute h-[100vh] w-[100vw]  radius-md backdrop-hue-rotate-90"></div>
       <RenderPhoneIsland />
