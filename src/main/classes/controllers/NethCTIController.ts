@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import moment from 'moment'
-import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension } from '@shared/types'
+import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { NetworkController } from './NetworkController'
 
@@ -269,7 +269,8 @@ export class NethVoiceAPI {
     all_avatars: async () => await this._GET('/webrest/user/all_avatars'),
     all_endpoints: async () => await this._GET('/webrest/user/endpoints/all'),
     heartbeat: async (extension: string) => await this._POST('/webrest/user/nethlink', { extension }),
-    default_device: async (deviceIdInformation: Extension) => await this._POST('/webrest/user/default_device', { id: deviceIdInformation.id })
+    default_device: async (deviceIdInformation: Extension) => await this._POST('/webrest/user/default_device', { id: deviceIdInformation.id }),
+    setPresence: async (status: StatusTypes) => await this._POST('/webrest/user/presence', { status })
     //all_avatars: () => this._GET('/webrest/user/all_avatars'),
   }
 

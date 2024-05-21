@@ -152,6 +152,9 @@ export function registerIpcEvents() {
           NethLinkController.instance.window.emit(IPC_EVENTS['ACCOUNT_CHANGE'], me)
           PhoneIslandController.instance.window.emit(IPC_EVENTS['ACCOUNT_CHANGE'], me)
           break;
+        case PHONE_ISLAND_EVENTS['phone-island-webrtc-registered']:
+          NethVoiceAPI.instance.User.setPresence('online')
+          break;
       }
       // if (ev === PHONE_ISLAND_EVENTS['phone-island-call-answered']) {
       //   const username = AccountController.instance.getLoggedAccount()?.username

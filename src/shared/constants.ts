@@ -47,6 +47,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-audio-output-change' = 'phone-island-audio-output-change',
   'phone-island-theme-change' = 'phone-island-theme-change',
   // Dispatch Phone-Island Events: phone-island*
+  'phone-island-webrtc-registered' = 'phone-island-webrtc-registered',
   'phone-island-attached' = 'phone-island-attached',
   'phone-island-detached' = 'phone-island-detached',
   'phone-island-audio-input-changed' = 'phone-island-audio-input-changed',
