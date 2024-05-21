@@ -109,14 +109,21 @@ export class AccountController {
     } catch {
       //TODO: recupera la password salvata e tenta un nuovo login
       if (account.cryptPsw) {
-        const _accountData = JSON.parse(safeStorage.decryptString(account.cryptPsw))
-        const password = _accountData.password
-        const tempAccount: Account = {
-          host: _accountData.password,
-          username: _accountData.username,
-          theme: 'system'
+        try {
+          const psw: Buffer = Buffer.from((account.cryptPsw as any).data)
+          const decryptString = safeStorage.decryptString(psw)
+
+          const _accountData = JSON.parse(decryptString)
+          const password = _accountData.password
+          const tempAccount: Account = {
+            host: _accountData.host,
+            username: _accountData.username,
+            theme: 'system'
+          }
+          loggedAccount = await AccountController.instance.login(tempAccount, password)
+        } catch (e) {
+          log(e)
         }
-        loggedAccount = await AccountController.instance.login(tempAccount, password)
       } else {
         //se fallisce, il token era scaduto, lo rimuovo come ultimo utente in modo che non provi ulteriomente a loggarsi con il token
         this.config!.lastUser = undefined
