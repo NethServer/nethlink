@@ -132,11 +132,17 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   function saveOperators(updateOperators: OperatorData | undefined): void {
     log('UPDATE OPERATORS', updateOperators)
     // eslint-disable-next-line no-prototype-builtins
-    if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
-      //lo stato degli operatori deve arrivare dal segnale della main presence, quindi salto l'assegnazione in questo punto (dalla main presence i dati sono più aggiornati)
-      updateOperators!.operators = operatorsRef.current!.operators
+    if (updateOperators?.hasOwnProperty('operators') && !operatorsRef.current?.operators) {
+      debouncer('onMainPresenceOperators', () => setOperators(updateOperators))
     }
-    debouncer('onMainPresenceOperators', () => setOperators(updateOperators))
+
+    // if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
+    //   //lo stato degli operatori deve arrivare dal segnale della main presence, quindi salto l'assegnazione in questo punto (dalla main presence i dati sono più aggiornati)
+    //   //updateOperators!.operators = operatorsRef.current!.operators
+    // }else{
+
+    // }
+
   }
 
   async function handleSearch(searchText: string) {
