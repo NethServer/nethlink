@@ -6,6 +6,7 @@ import { screen } from 'electron'
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
   size: { w: number; h: number } | undefined
+  screenBounds: Electron.Rectangle
   constructor() {
     const size = { w: 400, h: 380 }
     super(PAGES.NETHLINK, {
@@ -35,22 +36,22 @@ export class NethLinkWindow extends BaseWindow {
       trafficLightPosition: { x: 0, y: 0 }
     })
     this.size = size
+    this.screenBounds = screen.getPrimaryDisplay().bounds
     NethLinkWindow.instance = this
     //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
   _setBounds() {
-    const screenBounds = screen.getPrimaryDisplay().bounds
     const { w, h } = this.size!
-    let x = screenBounds.width - w - 20
+    let x = this.screenBounds.width - w - 20
     let y = 15
     if (process.platform === 'win32') {
       const trayBounds = TrayController.instance.tray.getBounds()
-      y = screenBounds.height - h - 60
+      y = this.screenBounds.height - h - 60
     }
     if (process.platform === 'linux') {
-      x = screenBounds.x + screenBounds.width - w - 18
-      y = screenBounds.y + 35
+      x = this.screenBounds.x + this.screenBounds.width - w - 18
+      y = this.screenBounds.y + 35
     }
     const bound = { x, y, w, h }
     this._window?.setBounds(bound, false)
