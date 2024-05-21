@@ -13,11 +13,12 @@ const electronDetector: any = {
   init: Function.prototype,
   detect: () => {
     return new Promise((resolve) => {
-      window.api.getLocale().then(([locale, err]) => {
-        if (err) resolve(fallbackLng)
+      window.api.getLocale().then((locale) => {
         const locales = uniq([locale!.split('-')[0], ...fallbackLng])
         //log(locales)
         resolve(locales)
+      }).catch(() => {
+        resolve(fallbackLng)
       })
     })
   },

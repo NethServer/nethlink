@@ -13,6 +13,7 @@ import i18next from 'i18next'
 import { UTCDate } from '@date-fns/utc'
 import { Account } from '@shared/types'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { log } from '@shared/utils/logger'
 
 interface CallsDateProps {
   call: any
@@ -143,6 +144,7 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnn
 
   // check browser language and set the selected language
   useEffect(() => {
+    log("LANGUAGE", i18next?.languages)
     if (i18next?.languages[0] !== '') {
       setSelectedLanguage(i18next?.languages[0])
     }
