@@ -190,17 +190,22 @@ export function SearchNumberBox({
       ...unFilteredNumbers
     ]
 
-    let _canAddInPhonebook = false
-    if (copy.length > 0) {
-      copy.forEach((contact) => {
-        _canAddInPhonebook = keys.reduce((p, k) => {
-          if (!p) {
-            p = contact[k]?.replace(/\s/g, '')?.includes(cleanQuery)
-          }
-          return p
-        }, false)
-      })
-    }
+    let _canAddInPhonebook = isPhoneNumber
+    //Permettiamo sempre di aggiungere un nuovo contatto solo se aggiungo un numero
+    // if (copy.length > 0) {
+    //   copy.forEach((contact) => {
+    //     if (_canAddInPhonebook)
+    //       _canAddInPhonebook = keys.reduce((p, k) => {
+    //         if (p) {
+    //           log(contact[k], cleanQuery, contact[k]?.replace(/\s/g, '') === cleanQuery)
+    //           if (contact[k]?.replace(/\s/g, '') === cleanQuery) {
+    //             p = false
+    //           }
+    //         }
+    //         return p
+    //       }, true)
+    //   })
+    // }
 
     log("COPY:", copy, filteredOperators, unFilteredNumbers)
 
