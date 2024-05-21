@@ -89,7 +89,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
           </div>
         )}
         <div className="flex flex-col gap-1">
-          <p className="font-normal text-[14px] leading-5">{user.name}</p>
+          <p className="font-normal text-[14px] leading-5 dark:text-titleDark text-titleLight">{user.name}</p>
           <NumberCaller
             number={phoneNumber}
             disabled={!isCallsEnabled}
