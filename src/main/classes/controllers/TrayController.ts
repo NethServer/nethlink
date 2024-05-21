@@ -57,7 +57,7 @@ export class TrayController {
     const image = nativeImage.createFromPath(
       path.join(__dirname, pathImage)
     )
-    image.resize({ height: 18 });
+    image.resize({ height: 18, width: 18 });
     return image
   }
 
