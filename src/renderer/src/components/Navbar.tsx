@@ -154,6 +154,9 @@ export function Navbar({
                     <p className="dark:text-gray-50 text-gray-700 font-normal">
                       {account.data?.endpoints.mainextension[0].id}
                     </p>
+                    <p className="dark:text-gray-50 text-gray-700 font-normal">
+                      [{account.data?.default_device.type}]
+                    </p>
                   </div>
                 </div>
               </Menu.Item>

@@ -133,7 +133,7 @@ export function registerIpcEvents() {
 
   //SEND BACK ALL PHONE ISLAND EVENTS
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
-    ipcMain.on(ev, (_event, ...args) => {
+    ipcMain.on(ev, async (_event, ...args) => {
       const evName = `on-${ev}`
       log('send back', evName, ...args)
       NethLinkController.instance.window.emit(evName, ...args)
@@ -146,6 +146,11 @@ export function registerIpcEvents() {
           break;
         case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
           NethLinkController.instance.loadData()
+          break;
+        case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
+          const me = await NethVoiceAPI.instance.User.me()
+          NethLinkController.instance.window.emit(IPC_EVENTS['ACCOUNT_CHANGE'], me)
+          PhoneIslandController.instance.window.emit(IPC_EVENTS['ACCOUNT_CHANGE'], me)
           break;
       }
       // if (ev === PHONE_ISLAND_EVENTS['phone-island-call-answered']) {

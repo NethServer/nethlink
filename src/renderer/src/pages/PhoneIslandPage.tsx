@@ -167,9 +167,9 @@ export function PhoneIslandPage() {
   return (
     <div
       ref={phoneIslandContainer}
-      className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999]"
+      className="absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] bg-red-700"
     >
-      <div className="absolute h-[100vh] w-[100vw] radius-md backdrop-hue-rotate-90"></div>
+      <div className="absolute h-[100vh] w-[100vw]  radius-md backdrop-hue-rotate-90"></div>
       <RenderPhoneIsland />
     </div>
   )
