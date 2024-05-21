@@ -20,7 +20,8 @@ export type Account = {
   numeric_timezone?: string
   timezone?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data?: AccountData
+  data?: AccountData,
+  cryptPsw?: Buffer
 }
 
 export type ConfigFile = {

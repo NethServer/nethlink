@@ -3,6 +3,7 @@ import fs from 'fs'
 import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
 import { log } from '@shared/utils/logger'
+import { safeStorage } from 'electron'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -45,7 +46,7 @@ export class AccountController {
   }
 
   //salva i dati dell'account nel file config.json
-  _saveNewAccountData(account: Account | undefined, isOpening = false) {
+  _saveNewAccountData(account: Account | undefined, isOpening = false, cryptString?: Buffer) {
     const { CONFIG_FILE } = this._getPaths()
     const config = this._getConfigFile(isOpening)
     //log('save account', config.lastUser, account?.username, isOpening)
@@ -54,6 +55,8 @@ export class AccountController {
     }
     if (account) {
       const uniqueAccountName = `${account.host}@${account.username}`
+      if (cryptString)
+        account.cryptPsw = cryptString
       config.accounts[uniqueAccountName] = account
       config.lastUser = uniqueAccountName
     } else {
@@ -104,8 +107,20 @@ export class AccountController {
     try {
       loggedAccount = await api.User.me()
     } catch {
-      //se fallisce, il token era scaduto, lo rimuovo come ultimo utente in modo che non provi ulteriomente a loggarsi con il token
-      this.config!.lastUser = undefined
+      //TODO: recupera la password salvata e tenta un nuovo login
+      if (account.cryptPsw) {
+        const _accountData = JSON.parse(safeStorage.decryptString(account.cryptPsw))
+        const password = _accountData.password
+        const tempAccount: Account = {
+          host: _accountData.password,
+          username: _accountData.username,
+          theme: 'system'
+        }
+        loggedAccount = await AccountController.instance.login(tempAccount, password)
+      } else {
+        //se fallisce, il token era scaduto, lo rimuovo come ultimo utente in modo che non provi ulteriomente a loggarsi con il token
+        this.config!.lastUser = undefined
+      }
     }
     this._saveNewAccountData(loggedAccount, isOpening)
     if (loggedAccount) return loggedAccount
@@ -115,7 +130,9 @@ export class AccountController {
   async login(account: Account, password: string): Promise<Account> {
     const api = new NethVoiceAPI(account.host, account)
     const loggedAccount = await api.Authentication.login(account.username, password)
-    this._saveNewAccountData(loggedAccount, true)
+    const clearString = JSON.stringify({ host: account.host, username: account.username, password: password })
+    const cryptString = safeStorage.encryptString(clearString)
+    this._saveNewAccountData(loggedAccount, true, cryptString)
     return loggedAccount
   }
 
