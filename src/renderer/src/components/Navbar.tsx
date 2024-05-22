@@ -193,7 +193,7 @@ export function Navbar({
                   onClick={exitNethLink}
                 >
                   <FontAwesomeIcon className="text-base" icon={ExitIcon} />
-                  <p className="font-normal">{'Quit'}</p>
+                  <p className="font-normal">{t('Common.Quit')}</p>
                 </div>
               </Menu.Item>
             </Menu.Items>
