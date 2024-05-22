@@ -15,7 +15,7 @@ export interface SplashScreenPageProps {
 
 export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
   const page = useSubscriber<PageType>('page')
-  useInitialize(() => {}, true)
+  useInitialize(() => { }, true)
 
   return (
     <div className="h-[100vh] w-[100vw] p-1 rounded-[10px]">

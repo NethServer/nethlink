@@ -5,6 +5,7 @@ export type LocalStorageData = {
   operators?: OperatorsType
   page?: PageType
   theme?: AvailableThemes
+  loadDataEnded: boolean
   profilePicture?: any
   customerCards?: any
   speedDial?: any
@@ -30,7 +31,9 @@ type LocalStorageState = {
   readonly setData: (key: keyof LocalStorageData) => (value: any) => void
 } & LocalStorageData
 
-const initialData: LocalStorageData = {}
+const initialData: LocalStorageData = {
+  loadDataEnded: false
+}
 
 export const useLocalStore = create<LocalStorageState>((set, get) => ({
   ...initialData,

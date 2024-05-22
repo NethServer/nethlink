@@ -1,4 +1,4 @@
-import { Notification, app, nativeTheme, protocol, shell, systemPreferences } from 'electron'
+import { app, nativeTheme, protocol, shell, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, DevToolsController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -13,13 +13,13 @@ import { debouncer, delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
-import { t } from 'i18next'
 new AppController(app)
 new NetworkController()
 new AccountController(app)
 
 //registro tutti gli eventi che la parte frontend emette verso il backend
 registerIpcEvents()
+let isFirstStart = true
 
 //imposto che l'app si debba aprire all'avvio del sistema operativo
 app.setLoginItemSettings({
@@ -64,7 +64,7 @@ app.whenReady().then(async () => {
     NethLinkController.instance.window.addOnBuildListener(updateBuildedWindows)
     LoginController.instance.window.addOnBuildListener(updateBuildedWindows)
 
-    //aspetto che tutte le finestre siano pronte o un max di 2,5 secondi
+    //aspetto che tutte le finestre siano pronte o un max di 25 secondi
     let time = 0
     while (windowsLoaded <= 2 && time < 25) {
       await delay(100)
@@ -72,23 +72,6 @@ app.whenReady().then(async () => {
       //log(time, windowsLoaded)
     }
     await getPermissions()
-    const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
-    log(app.getVersion())
-    if (latestVersionData.name !== app.getVersion()) {
-      // const updateLink = `https://github.com/nethesis/nethlink/releases/tag/v${latestVersionData.name}`
-      const updateLink = 'https://nethesis.github.io/nethlink/'
-      const notification = new Notification({
-        title: t('Notification.application_update_title') || 'Aggiornamento disponibile',
-        body: t('Notification.application_update_body') || 'Clicca quí per scaricare'
-      })
-
-
-      notification.on('click', (e) => {
-        // log(e)
-        shell.openExternal(updateLink)
-      })
-      notification.show()
-    }
     //log('call addOnBuildListener ')
     nativeTheme.on('updated', () => {
       const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
@@ -136,6 +119,12 @@ const onAccountLogin = (account: Account) => {
     //inizializzo la pagina di nethLink e avvio i fetch di history, speeddials e l'interval sugli operatori
     NethLinkController.instance.init(account)
     //quando l'utente cambia devo riloggarlo sulla phone island
+
+    //controllo se ci sono aggiornamenti
+    if (isFirstStart) {
+      isFirstStart = false
+      checkForUpdate()
+    }
   } catch (e) {
     console.error(e)
   }
@@ -161,6 +150,14 @@ const onLoginFromLoginPage = (account: Account) => {
   //log('Account', account.username, 'logged from login page')
   LoginController.instance.hide()
   AccountController.instance.removeEventListener('LOGIN', onLoginFromLoginPage)
+}
+
+const checkForUpdate = async () => {
+  const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
+  log(app.getVersion())
+  if (latestVersionData.name !== app.getVersion()) {
+    NethLinkController.instance.sendUpdateNotification()
+  }
 }
 
 app.on('window-all-closed', () => {

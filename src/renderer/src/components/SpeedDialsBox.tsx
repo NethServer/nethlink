@@ -4,6 +4,8 @@ import { SpeedDialNumber } from './SpeedDialNumber'
 import { ContactType } from '@shared/types'
 import { Button } from './Nethesis/Button'
 import { t } from 'i18next'
+import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { SkeletonRow } from './SkeletonRow'
 
 export interface SpeedDialsBoxProps {
   speeddials: ContactType[] | undefined
@@ -20,6 +22,8 @@ export function SpeedDialsBox({
   handleSelectedSpeedDial,
   handleDeleteSpeedDial
 }: SpeedDialsBoxProps): JSX.Element {
+
+  const isDataLoaded = useSubscriber<boolean>('loadDataEnded')
   return (
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] px-5 mt-3">
@@ -41,7 +45,7 @@ export function SpeedDialsBox({
         </Button>
       </div>
       <div className="flex flex-col min-h-[120px] max-h-[240px] overflow-y-auto">
-        {speeddials && speeddials.length > 0 ? (
+        {isDataLoaded ? (speeddials && speeddials.length > 0 ? (
           speeddials?.map((e, idx) => {
             return (
               <div
@@ -63,7 +67,14 @@ export function SpeedDialsBox({
           <div className="dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight px-5 py-2">
             {t('SpeedDial.No speed dials')}
           </div>
-        )}
+        )) : Array(3).fill('').map((_, idx) => {
+          return <div
+            className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+            key={idx}
+          >
+            <SkeletonRow />
+          </div>
+        })}
       </div>
     </div>
   )

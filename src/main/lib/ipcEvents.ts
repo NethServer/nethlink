@@ -3,7 +3,7 @@ import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account } from '@shared/types'
-import { app, ipcMain, shell } from 'electron'
+import { Notification, NotificationConstructorOptions, app, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import { log } from '@shared/utils/logger'
 import { cloneDeep } from 'lodash'
@@ -99,6 +99,10 @@ export function registerIpcEvents() {
     shell.openExternal(join(account!.host, path))
   })
 
+  ipcMain.on(IPC_EVENTS.OPEN_EXTERNAL_PAGE, async (_, path) => {
+    shell.openExternal(join(path))
+  })
+
   ipcMain.on(IPC_EVENTS.START_CALL, async (_event, phoneNumber) => {
     PhoneIslandController.instance.call(phoneNumber)
   })
@@ -129,6 +133,38 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.SEARCH_TEXT, async (event, searchText) => {
     const res = await NethVoiceAPI.instance.Phonebook.search(searchText)
     NethLinkController.instance.window.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
+  })
+
+  ipcMain.on(IPC_EVENTS.SEND_NOTIFICATION, (event, options: NotificationConstructorOptions, openUrl) => {
+    options.hasReply = false
+
+    log('RECEIVED SEND NOTIFICATION', options, openUrl)
+    if (process.platform !== 'darwin') {
+      options.icon = "../../../public/TrayNotificationIcon.svg"
+    }
+    const notification: Notification = new Notification(options)
+
+    // notification.on('click', () => {
+    //   log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
+    //   if (openUrl) {
+    //     shell.openExternal(openUrl)
+    //   }
+    // })
+    notification.once('failed', () => log('failed'))
+    notification.once('action', () => log('action'))
+    notification.once('close', () => log('close'))
+    notification.once('reply', () => log('reply'))
+    notification.once('show', () => log('show'))
+
+    notification.addListener("click", () => {
+      log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
+      if (openUrl) {
+        shell.openExternal(openUrl)
+      }
+    })
+
+    notification.show()
+
   })
 
   //SEND BACK ALL PHONE ISLAND EVENTS
@@ -165,3 +201,5 @@ export function registerIpcEvents() {
     })
   })
 }
+
+

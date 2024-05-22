@@ -41,11 +41,16 @@ export class NethLinkController {
   }
 
   init(account: Account) {
-    this.loadData()
     this.show()
-    this.operatorFetchLoop()
-    //Avviso la nethWindow che l'utente è cambiato
     this.window.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
+    new Promise<void>(async (resolve) => {
+      await this.loadData()
+      this.operatorFetchLoop()
+      resolve()
+    }).then(() => {
+      this.window.emit(IPC_EVENTS.LOAD_DATA_END)
+    })
+    //Avviso la nethWindow che l'utente è cambiato
   }
 
   async loadData() {
@@ -61,5 +66,9 @@ export class NethLinkController {
 
   hide() {
     this.window.hide()
+  }
+
+  sendUpdateNotification() {
+    this.window.emit(IPC_EVENTS.UPDATE_APP_NOTIFICATION)
   }
 }

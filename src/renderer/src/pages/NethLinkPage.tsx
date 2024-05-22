@@ -44,6 +44,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const [speeddials, setSpeeddials] = useState<ContactType[]>([])
   const [missedCalls, setMissedCalls] = useState<CallData[]>([])
   const [operators, setOperators, operatorsRef] = useLocalStoreState<OperatorData>('operators')
+  const [loadData, setLoadData] = useLocalStoreState<boolean>('loadDataEnded')
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
@@ -77,6 +78,11 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   /* Problema con il tema del sistema se cambio il tema del sistema non viene effettutato  */
 
   function initialize() {
+    Notification.requestPermission().then(() => {
+      log("requested notification permission")
+    }).catch((e) => {
+      log(e)
+    })
     window.api.addPhoneIslandListener(
       PHONE_ISLAND_EVENTS['phone-island-main-presence'],
       onMainPresence
@@ -89,6 +95,28 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     window.api.onReceiveLastCalls(saveMissedCalls)
     window.api.onOperatorsChange(saveOperators)
     window.api.onQueueLoaded(onQueueUpdate)
+    window.api.onUpdateAppNotification(showUpdateAppNotification)
+    window.api.onLoadDataEnd(onLoadDataEnd)
+
+  }
+
+  const onLoadDataEnd = () => {
+    log('end')
+    setLoadData(true)
+  }
+
+  const showUpdateAppNotification = () => {
+    log('UPDATE')
+    const updateLink = 'https://nethesis.github.io/nethlink/'
+    sendNotification(
+      t('Notification.application_update_title'),
+      t('Notification.application_update_body'),
+      updateLink
+      // () => {
+      //   log(updateLink)
+      //   window.api.openExternalPage(updateLink)
+      // }
+    )
   }
 
   function onMainPresence(op: { [username: string]: any }) {

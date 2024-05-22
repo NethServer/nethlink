@@ -22,12 +22,12 @@ export interface ButtonProps
   children: ReactNode;
   size?: "small" | "base" | "large";
   variant?:
-    | "primary"
-    | "secondary"
-    | "white"
-    | "ghost"
-    | "danger"
-    | "dashboard";
+  | "primary"
+  | "secondary"
+  | "white"
+  | "ghost"
+  | "danger"
+  | "dashboard";
   fullWidth?: boolean;
   fullHeight?: boolean;
   disabled?: boolean;

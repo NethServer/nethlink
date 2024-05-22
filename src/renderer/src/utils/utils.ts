@@ -1,33 +1,18 @@
 import { ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { PropsWithChildren } from 'react'
-import NotificationIcon from '../assets/TrayNotificationIcon.svg'
+import { log } from '@shared/utils/logger'
+import { NotificationConstructorOptions } from 'electron'
 
 
-export function sendNotification(title: string, body: string, onClick?: () => void) {
-  // if (navigator.userAgent.includes('Mac')) {
-  //   console.log('USER AGENT ', navigator.userAgent)
-  //   new Notification(title, {
-  //     icon: NotificationIcon
-  //   })
-  // } else {
-  // new Notification(title, options)
-  let notification: Notification | undefined
-  if (navigator.userAgent.includes('Mac')) {
-    notification = new Notification(title, {
-      body: body
-    })
-  } else {
-    notification = new Notification(title, {
-      body: body,
-      icon: NotificationIcon
-    })
+export function sendNotification(title: string, body: string, openUrl?: string) {
+  const notificationoption: NotificationConstructorOptions = {
+    title,
+    body,
+    silent: false,
+    urgency: 'normal'
   }
-  if (notification) {
-    notification.addEventListener('click', () => {
-      onClick?.()
-    })
-  }
+  window.api.sendNotification(notificationoption, openUrl)
 }
 
 export const ClassNames = (...args: ClassValue[]) => {

@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { NotificationConstructorOptions, contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import {
@@ -16,7 +16,6 @@ import { preloadBindings } from 'i18next-electron-fs-backend'
 import { log } from '@shared/utils/logger'
 
 export interface IElectronAPI {
-
   env: NodeJS.ProcessEnv
 
   // Use `contextBridge` APIs to expose Electron APIs to
@@ -51,9 +50,12 @@ export interface IElectronAPI {
   onThemeChange(callback: (theme: AvailableThemes) => void): void
   onOperatorsChange(callback: (updateOperators: OperatorData) => void): void
   onQueueLoaded(onQueueUpdate: (queues: { [queueId: string]: any }) => void): void
+  onUpdateAppNotification(showUpdateAppNotification: () => void): void
+  onLoadDataEnd(callback: () => void): void
 
   //EMITTER - only emit, no response
   openDevTool(hash: string): unknown
+  sendNotification(notificationoption: NotificationConstructorOptions, openUrl: string | undefined): void
   logout: () => void
   startCall(phoneNumber: string): void
   changeTheme(theme: AvailableThemes): void
@@ -63,7 +65,8 @@ export interface IElectronAPI {
   resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
   sendInitializationCompleted(id: string): void
   addPhoneIslandListener: (event: PHONE_ISLAND_EVENTS, callback: (...args: any[]) => void) => void
-  openHostPage(path: string): unknown
+  openHostPage(path: string): void
+  openExternalPage(url: string): void
   hideNethLink: () => void
   exitNethLink: () => void
   showPhoneIsland: () => void
@@ -120,6 +123,7 @@ const api: IElectronAPI = {
   deviceDefaultChange: setEmitterSync<void>(IPC_EVENTS.DEVICE_DEFAULT_CHANGE),
 
   //EMITTER - only emit, no response
+  sendNotification: setEmitter(IPC_EVENTS.SEND_NOTIFICATION),
   openDevTool: setEmitter(IPC_EVENTS.OPEN_DEV_TOOLS),
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),
@@ -130,6 +134,7 @@ const api: IElectronAPI = {
   changeTheme: setEmitter(IPC_EVENTS.CHANGE_THEME),
   sendSearchText: setEmitter(IPC_EVENTS.SEARCH_TEXT),
   openHostPage: setEmitter(IPC_EVENTS.OPEN_HOST_PAGE),
+  openExternalPage: setEmitter(IPC_EVENTS.OPEN_EXTERNAL_PAGE),
   hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
   exitNethLink: setEmitter(IPC_EVENTS.CLOSE_NETH_LINK),
   showPhoneIsland: setEmitter(IPC_EVENTS.SHOW_PHONE_ISLAND),
@@ -162,6 +167,8 @@ const api: IElectronAPI = {
   onThemeChange: addListener(IPC_EVENTS.ON_CHANGE_THEME),
   onOperatorsChange: addListener(IPC_EVENTS.OPERATORS_CHANGE),
   onQueueLoaded: addListener(IPC_EVENTS.QUEUE_LOADED),
+  onUpdateAppNotification: addListener(IPC_EVENTS.UPDATE_APP_NOTIFICATION),
+  onLoadDataEnd: addListener(IPC_EVENTS.LOAD_DATA_END),
 
   addPhoneIslandListener: (event, callback) => {
     const evName = `on-${event}`

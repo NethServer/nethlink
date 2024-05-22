@@ -4,6 +4,8 @@ import { MissedCall } from './MissedCall'
 import { CallData } from '@shared/types'
 import { Button } from './Nethesis/Button'
 import { t } from 'i18next'
+import { SkeletonRow } from './SkeletonRow'
+import { useSubscriber } from '@renderer/hooks/useSubscriber'
 
 export interface MissedCallsBoxProps {
   missedCalls: CallData[]
@@ -16,6 +18,8 @@ export function MissedCallsBox({
   viewAllMissedCalls,
   handleSelectedMissedCall
 }: MissedCallsBoxProps): JSX.Element {
+
+  const isDataLoaded = useSubscriber<boolean>('loadDataEnded')
   /* Oltre al fatto che sono le chiamate in entrate esse non devono aver avuto risposta */
   /* TODO modificare richiesta al server */
   const missedCallsIn = missedCalls?.filter(
@@ -45,7 +49,7 @@ export function MissedCallsBox({
           </Button>
         </div>
         <div className="flex flex-col max-h-[240px] overflow-y-auto">
-          {missedCallsIn.map((call, idx) => {
+          {isDataLoaded ? (missedCallsIn.map((call, idx) => {
             return (
               <div
                 className={`${idx === missedCallsIn.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
@@ -58,6 +62,14 @@ export function MissedCallsBox({
                 />
               </div>
             )
+          })) : Array(3).fill('').map((_, idx) => {
+            return <div
+              className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+              key={idx}
+            >
+              <SkeletonRow />
+
+            </div>
           })}
         </div>
       </div>
