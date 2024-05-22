@@ -18,7 +18,7 @@ export interface AvatarProps extends Omit<ComponentProps<'div'>, 'placeholder'> 
   src?: string
   initials?: string
   placeholder?: FC<ComponentProps<'svg'>>
-  placeholderType?: string
+  placeholderType?: 'person' | 'company' | 'operator'
   bordered?: boolean
   altText?: string
   size?: 'extra_small' | 'small' | 'base' | 'large' | 'extra_large'
@@ -65,7 +65,7 @@ export const Avatar = ({
       )}
       {initials && <div className={theme.initials.base}>{initials}</div>}
       {Placeholder && !src && <Placeholder className={theme.placeholder.base} />}
-      {placeholderType && (
+      {placeholderType && !src && (
         <div className={theme.placeholderType.base}>
           {placeholderType == 'person' && (
             <FontAwesomeIcon
@@ -94,9 +94,8 @@ export const Avatar = ({
         <div>
           <StatusDot
             status={status}
-            className={`absolute bottom-0 right-0 ${
-              size === 'extra_large' ? 'h-5 w-5' : size === 'large' ? 'h-3 w-3' : 'h-2 w-2'
-            }`}
+            className={`absolute bottom-0 right-0 ${size === 'extra_large' ? 'h-5 w-5' : size === 'large' ? 'h-3 w-3' : 'h-2 w-2'
+              }`}
           />
         </div>
       )}
@@ -113,7 +112,7 @@ export const Avatar = ({
             icon={DeleteAvatarIcon}
             aria-hidden="true"
             className={classNames(theme.deleteAvatar.base)}
-            //onClick={() => removeAvatar('')}
+          //onClick={() => removeAvatar('')}
           />
         </button>
       )}

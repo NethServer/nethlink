@@ -125,20 +125,12 @@ export function Navbar({
           <Menu>
             <div>
               <Menu.Button className="cursor-pointer">
-                {operators?.avatars?.[account.username] ? (
-                  <Avatar
-                    size="small"
-                    status={status}
-                    src={operators?.avatars?.[account.username]}
-                  />
-                ) : (
-                  <div className="flex items-center justify-center relative shrink-0 h-8 w-8 text-sm rounded-full border-2 border-borderLight dark:border-borderDark">
-                    <FontAwesomeIcon
-                      icon={DefaultAvatar}
-                      className="text-[32px] dark:text-gray-50 text-gray-600"
-                    />
-                  </div>
-                )}
+                <Avatar
+                  size="small"
+                  status={status}
+                  src={operators?.avatars?.[account.username] || undefined}
+                  placeholderType='operator'
+                />
               </Menu.Button>
             </div>
 

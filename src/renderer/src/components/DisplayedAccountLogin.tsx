@@ -2,7 +2,8 @@ import { Account } from '@shared/types'
 import classNames from 'classnames'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
+import { faHeadset as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
+import { Avatar } from './Nethesis'
 
 type DisplayedAccountLoginProps = {
   account?: Account
@@ -23,15 +24,12 @@ export function DisplayedAccountLogin({
         handleClick ? 'hover:bg-hoverLight dark:hover:bg-hoverDark' : ''
       )}
     >
-      <div className="ml-5 w-12 h-12 rounded-full overflow-hidden">
-        {imageSrc ? (
-          <img src={imageSrc} />
-        ) : (
-          <FontAwesomeIcon
-            icon={DefaultAvatar}
-            className="text-[48px] dark:text-gray-50 text-gray-600"
-          />
-        )}
+      <div className="ml-5 w-12 h-12 overflow-hidden">
+        <Avatar
+          src={imageSrc}
+          placeholderType='operator'
+          size='large'
+        />
       </div>
       <p className="w-[325px] truncate">
         {account

@@ -42,22 +42,16 @@ export function SpeedDialNumber({
       className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 px-5 ${className}`}
     >
       <div className="flex gap-6 items-center">
-        {avatarSrc ? (
-          <Avatar
-            size="base"
-            src={avatarSrc}
-            status={
-              operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
-                ?.mainPresence || undefined
-            }
-            className="z-0"
-          />
-        ) : (
-          <div className="bg-white w-10 h-10 rounded-full flex items-center justify-center">
-            <FontAwesomeIcon icon={UserIcon} className="h-10 w-10 text-gray-400" />
-          </div>
-        )}
-
+        <Avatar
+          size="base"
+          src={avatarSrc}
+          status={
+            operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
+              ?.mainPresence || undefined
+          }
+          className="z-0"
+          placeholderType={operators?.extensions[speedDial.speeddial_num || ''] ? 'operator' : 'person'}
+        />
         <div className="flex flex-col gap-1">
           <p className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
             {truncate(speedDial.name!, 20)}
