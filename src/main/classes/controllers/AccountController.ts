@@ -107,7 +107,7 @@ export class AccountController {
     try {
       loggedAccount = await api.User.me()
     } catch {
-      //TODO: recupera la password salvata e tenta un nuovo login
+      //recupera la password salvata e tenta un nuovo login
       if (account.cryptPsw) {
         try {
           const psw: Buffer = Buffer.from((account.cryptPsw as any).data)

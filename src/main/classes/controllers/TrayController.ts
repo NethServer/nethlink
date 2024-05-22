@@ -37,7 +37,6 @@ export class TrayController {
         //accelerator: 'Command+Q',
         commandId: 1,
         click: () => {
-          //TODO: trovare un modo per killare l'app
           AppController.safeQuit()
         }
       }

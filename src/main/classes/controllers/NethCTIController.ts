@@ -15,8 +15,6 @@ export class NethVoiceAPI {
   }
 
   _joinUrl(url: string) {
-    //TODO: modifica forzatura (in questo momento serve per far collegare a phone island)
-    //'https://nethvoice.nethesis.it' //'https://cti.demo-heron.sf.nethserver.net' //
     const host = this._host
     const path = `${host}${url}`
     return path
@@ -99,7 +97,6 @@ export class NethVoiceAPI {
                   let NUMERIC_TIMEZONE = '+0200'
                   let TIMEZONE = 'Europe/Rome'
 
-                  /* TODO chiedere la timezone per demoleopard e nethvoice */
                   if (this._account.host.includes('demo-leopard')) {
                     SIP_PORT = '5060'
                   } else if (this._account.host.includes('nethvoice')) {

@@ -20,8 +20,6 @@ interface SpeedDialFormBoxProps {
   onCancel: () => void
 }
 
-//TODO: concordare con gli altri il mesaggio di errore per il numero telefonico
-
 export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialFormBoxProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const submitButtonRef = useRef<HTMLButtonElement>(null)
@@ -31,13 +29,12 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
       .string()
       .trim()
       .min(1, `${t('Common.This field is required')}`),
-    //TODO: update transaltions
     speeddial_num: z
       .string()
       .trim()
       .min(1, `${t('Common.This field is required')}`)
       .min(3, `${t('Common.This field must be at least', { number: '2' })}`)
-      .regex(/^[0-9*#+]*$/, 'This is not a phone number')
+      .regex(/^[0-9*#+]*$/, `${t('Common.This is not a phone number')}`)
   })
 
   const {

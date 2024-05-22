@@ -46,7 +46,9 @@
     "Start recording message after": "Puoi parlare tra poco...",
     "Minimize": "minimize",
     "This field is required": "Questo campo è obbligatorio",
-    "This field must be at least": "Questo campo deve avere almeno {{number}} caratteri"
+    "This field must be at least": "Questo campo deve avere almeno {{number}} caratteri",
+    "This is not a phone number":"Questo non é un numero telefonico",
+    "Quit":"Chiudi"
   },
   "Login": {
     "Welcome": "Benvenuto",
@@ -89,7 +91,9 @@
     "speeddial_deleted_title": "SpeedDial eliminata!",
     "speeddial_deleted_description": "SpeedDial eliminata con successo",
     "speeddial_not_deleted_title": "SpeedDial non eliminata!",
-    "speeddial_not_deleted_description": "Errore nell'eliminazione della SpeedDial"
+    "speeddial_not_deleted_description": "Errore nell'eliminazione della SpeedDial",
+    "application_update_title":"Aggiornamento dell'applicazione disponibile",
+    "application_update_body":"Clicca quì per aprire la pagina dove potrai scaricare la nuova release"
   },
   "Phonebook": {
     "Phonebook": "Rubrica",

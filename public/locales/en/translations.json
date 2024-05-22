@@ -62,7 +62,9 @@
     "Start recording message after": "You can speak in a moment...",
     "Minimize": "minimize",
     "This field is required": "This field is required",
-    "This field must be at least": "This field must be at least {{number}} characters"
+    "This field must be at least": "This field must be at least {{number}} characters",
+    "This is not a phone number":"This is not a phone number",
+    "Quit":"Quit" 
   },
   "Login": {
     "Welcome": "Welcome",
@@ -106,7 +108,9 @@
     "speeddial_deleted_title": "SpeedDial eliminated!",
     "speeddial_deleted_description": "SpeedDial successfully eliminated",
     "speeddial_not_deleted_title": "SpeedDial not deleted!",
-    "speeddial_not_deleted_description": "Error in deleting SpeedDial"
+    "speeddial_not_deleted_description": "Error in deleting SpeedDial",
+    "application_update_title":"Application update available.",
+    "application_update_body":"Click here to open the page where you can download the new release"
   },
   "Phonebook": {
     "Phonebook": "Phonebook",

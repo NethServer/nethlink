@@ -13,7 +13,7 @@ import { debouncer, delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
-
+import { t } from 'i18next'
 new AppController(app)
 new NetworkController()
 new AccountController(app)
@@ -77,10 +77,9 @@ app.whenReady().then(async () => {
     if (latestVersionData.name !== app.getVersion()) {
       // const updateLink = `https://github.com/nethesis/nethlink/releases/tag/v${latestVersionData.name}`
       const updateLink = 'https://nethesis.github.io/nethlink/'
-      //TODO: aggiungere traduzioni
       const notification = new Notification({
-        title: "Aggiornamento dell'applicazione disponibile",
-        body: `Clicca quì per aprire la pagina dove potrai scaricare la nuova release`
+        title: t('Notification.application_update_title') || 'Aggiornamento disponibile',
+        body: t('Notification.application_update_body') || 'Clicca quí per scaricare'
       })
 
 
@@ -105,8 +104,6 @@ app.whenReady().then(async () => {
     })
     //una volta che il caricamento è completo abilito la possibilità di cliccare sull'icona nella tray
     TrayController.instance.enableClick = true
-    //TODO: cosa accade se clicco la chiusura dell'app mentre è in caricamento?
-
     //constollo se esiste il file di config (il file esiste solo se almeno un utente ha effettuato il login)
     if (AccountController.instance.hasConfigsFolderOfFile()) {
       //sia che riesco ad effettuare il login con il token sia che lo faccio con la pagina di login mi devo registrare a questo evento
