@@ -135,7 +135,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     log('UPDATE OPERATORS', updateOperators)
     // eslint-disable-next-line no-prototype-builtins
     if (updateOperators?.hasOwnProperty('operators') && !operatorsRef.current?.operators) {
-      debouncer('onMainPresenceOperators', () => setOperators(updateOperators))
+      debouncer('onMainPresence', () => setOperators(updateOperators))
     }
 
     // if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
