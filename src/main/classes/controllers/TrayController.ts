@@ -51,13 +51,15 @@ export class TrayController {
 
   getImage(theme: 'light' | 'dark') {
     let pathImage = '../../public/TrayToolbarIconWhite.png'
-    if (process.platform !== 'linux') {
+    if (process.platform === 'darwin') {
+      pathImage = '../../public/TrayToolbarIconBlack.png'
+    }
+    if (process.platform === 'win32') {
       pathImage = theme === 'light' ? '../../public/TrayToolbarIconBlack.png' : '../../public/TrayToolbarIconWhite.png'
     }
     const image = nativeImage.createFromPath(
       path.join(__dirname, pathImage)
-    )
-    image.resize({ height: 18, width: 18 });
+    ).resize({ height: 18, width: 18 });
     return image
   }
 
