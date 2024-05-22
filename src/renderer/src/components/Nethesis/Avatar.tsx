@@ -52,7 +52,7 @@ export const Avatar = ({
         theme.base,
         theme.sizes[size],
         initials && theme.initials.background,
-        Placeholder && theme.placeholder.background,
+        //Placeholder && theme.placeholder.background,
         placeholderType && theme.placeholderType.background,
         theme.rounded[rounded],
         bordered && theme.bordered,
@@ -61,30 +61,38 @@ export const Avatar = ({
       {...props}
     >
       {src && (
-        <img className={classNames(theme.image, theme.rounded[rounded])} src={src} alt={altText} />
+        <div className={theme.placeholderType.base}>
+          <img className={classNames(theme.placeholderType.sizes[size], theme.image, theme.rounded[rounded])} src={src} alt={altText} />
+        </div>
       )}
+      {/* avatar skeleton 
+        <div className={classNames(theme.placeholderType.base, theme.placeholderType.sizes[size], 'animate-pulse rounded-full h-12 w-12 bg-gray-300 dark:bg-gray-600 absolute top-0')}></div>
+      */}
       {initials && <div className={theme.initials.base}>{initials}</div>}
-      {Placeholder && !src && <Placeholder className={theme.placeholder.base} />}
+      {
+        //Placeholder && !src && <Placeholder className={theme.placeholder.base} />
+      }
       {placeholderType && !src && (
         <div className={theme.placeholderType.base}>
-          {placeholderType == 'person' && (
+
+          {placeholderType === 'person' && (
             <FontAwesomeIcon
               icon={UserIcon}
-              className={classNames(theme.placeholderType, theme.placeholderType.sizes[size])}
+              className={classNames(theme.placeholderType.sizes[size])}
               aria-hidden="true"
             />
           )}
-          {placeholderType == 'company' && (
+          {placeholderType === 'company' && (
             <FontAwesomeIcon
               icon={CompanyIcon}
-              className={classNames(theme.placeholderType, theme.placeholderType.sizes[size])}
+              className={classNames(theme.placeholderType.sizes[size])}
               aria-hidden="true"
             />
           )}
-          {placeholderType == 'operator' && (
+          {placeholderType === 'operator' && (
             <FontAwesomeIcon
               icon={OperatorIcon}
-              className={classNames(theme.placeholderType, theme.placeholderType.sizes[size])}
+              className={classNames(theme.placeholderType.sizes[size])}
               aria-hidden="true"
             />
           )}

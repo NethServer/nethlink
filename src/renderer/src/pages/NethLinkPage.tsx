@@ -134,7 +134,32 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   function saveOperators(updateOperators: OperatorData | undefined): void {
     log('UPDATE OPERATORS', updateOperators)
     // eslint-disable-next-line no-prototype-builtins
-    if (updateOperators?.hasOwnProperty('operators') && !operatorsRef.current?.operators) {
+    if (updateOperators) {
+      operatorsRef.current = {
+        operators: operatorsRef.current?.operators || {},
+        userEndpoints: operatorsRef.current?.operators || {},
+        //gli altri dati mi arrivano solo dalla fetch e quindi posso prenderli come validi
+        avatars: updateOperators.avatars,
+        groups: updateOperators.groups,
+        extensions: updateOperators.extensions,
+      }
+      if (updateOperators?.hasOwnProperty('operators') && !operatorsRef.current?.operators) {
+        for (const [username, operator] of Object.entries(updateOperators.operators)) {
+          log(
+            'presence of operators',
+            operatorsRef.current.operators[username].mainPresence,
+            operator.mainPresence
+          )
+
+          if (!operatorsRef.current.operators[username]) {
+            operatorsRef.current.operators[username] = operator
+          } else {
+            //non aggiorno il dato in questo caso perché piú vecchio di quello ricevuto con la main presence
+            //operatorsRef.current.operators[username].mainPresence = operator.mainPresence
+          }
+        }
+      }
+
       debouncer('onMainPresence', () => setOperators(updateOperators))
     }
 

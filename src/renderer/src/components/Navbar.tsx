@@ -123,17 +123,14 @@ export function Navbar({
 
         <div>
           <Menu>
-            <div>
-              <Menu.Button className="cursor-pointer">
-                <Avatar
-                  size="small"
-                  status={status}
-                  src={operators?.avatars?.[account.username] || undefined}
-                  placeholderType='operator'
-                />
-              </Menu.Button>
-            </div>
-
+            <Menu.Button className="cursor-pointer">
+              <Avatar
+                size="small"
+                status={status}
+                src={operators?.avatars?.[account.username] || undefined}
+                placeholderType='operator'
+              />
+            </Menu.Button>
             <Menu.Items
               className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
