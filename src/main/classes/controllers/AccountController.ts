@@ -120,7 +120,7 @@ export class AccountController {
             username: _accountData.username,
             theme: 'system'
           }
-          loggedAccount = await AccountController.instance.login(tempAccount, password)
+          loggedAccount = await this.login(tempAccount, password)
         } catch (e) {
           log(e)
         }

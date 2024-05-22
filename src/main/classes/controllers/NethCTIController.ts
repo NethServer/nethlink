@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import moment from 'moment'
-import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes } from '@shared/types'
+import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { NetworkController } from './NetworkController'
 
@@ -274,7 +274,19 @@ export class NethVoiceAPI {
   Voicemail = {}
 
   fetchOperators = async (): Promise<OperatorData> => {
-    const endpoints = await this.User.all_endpoints() //tutti i dispositivi
+    const endpoints: OperatorsType = await this.User.all_endpoints() //tutti i dispositivi
+    if (this._account && this._account.data) {
+      endpoints[this._account.username] = {
+        endpoints: this._account.data.endpoints,
+        mainPresence: this._account.data.mainPresence,
+        name: this._account.data.name,
+        presence: this._account.data.presence,
+        presenceOnBusy: this._account.data.presenceOnBusy,
+        presenceOnUnavailable: this._account.data.presenceOnUnavailable,
+        recallOnBusy: this._account.data.recallOnBusy,
+        username: this._account.username
+      }
+    }
     const groups = await this.AstProxy.groups() //
     const extensions = await this.AstProxy.extensions()
     const avatars = await this.User.all_avatars()
