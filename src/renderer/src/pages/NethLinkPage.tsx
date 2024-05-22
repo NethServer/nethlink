@@ -93,7 +93,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   function onMainPresence(op: { [username: string]: any }) {
-    //log('onMainPresence', operatorsRef.current, op)
+    log('onMainPresence', operatorsRef.current, op)
     // eslint-disable-next-line no-prototype-builtins
     if (operatorsRef.current?.hasOwnProperty('operators')) {
       for (const [username, operator] of Object.entries(op)) {
