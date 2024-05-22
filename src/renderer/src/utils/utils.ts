@@ -1,6 +1,34 @@
 import { ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { PropsWithChildren } from 'react'
+import NotificationIcon from '../assets/TrayNotificationIcon.svg'
+
+
+export function sendNotification(title: string, body: string, onClick?: () => void) {
+  // if (navigator.userAgent.includes('Mac')) {
+  //   console.log('USER AGENT ', navigator.userAgent)
+  //   new Notification(title, {
+  //     icon: NotificationIcon
+  //   })
+  // } else {
+  // new Notification(title, options)
+  let notification: Notification | undefined
+  if (navigator.userAgent.includes('Mac')) {
+    notification = new Notification(title, {
+      body: body
+    })
+  } else {
+    notification = new Notification(title, {
+      body: body,
+      icon: NotificationIcon
+    })
+  }
+  if (notification) {
+    notification.addEventListener('click', () => {
+      onClick?.()
+    })
+  }
+}
 
 export const ClassNames = (...args: ClassValue[]) => {
   return twMerge(clsx(...args))

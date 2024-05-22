@@ -16,8 +16,8 @@ export class NethLinkController {
   }
 
   private async operatorFetchLoop() {
-    this.loadData()
     await delay(1000 * 60 * 60 * 24)
+    await this.loadData()
     this.operatorFetchLoop()
   }
   private async fetchOperatorsAndEmit() {
@@ -41,19 +41,20 @@ export class NethLinkController {
   }
 
   async init(account: Account) {
-    this.operatorFetchLoop()
+    await this.loadData()
     this.show()
+    this.operatorFetchLoop()
     //Avviso la nethWindow che l'utente è cambiato
     this.window.emit(IPC_EVENTS.ACCOUNT_CHANGE, account)
   }
 
-  loadData() {
-    this.fetchOperatorsAndEmit()
-    this.fetchHistoryCallsAndEmit()
-    this.fetchSpeeddialsAndEmit()
-    this.fetchQueuesAndEmit()
+  async loadData() {
+    await this.fetchOperatorsAndEmit()
+    await this.fetchHistoryCallsAndEmit()
+    await this.fetchSpeeddialsAndEmit()
+    await this.fetchQueuesAndEmit()
   }
-  show() {
+  async show() {
     this.loadData()
     this.window.show()
   }

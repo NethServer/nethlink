@@ -29,10 +29,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Nethesis'
-import NotificationIcon from '../assets/TrayNotificationIcon.svg'
 import { SpeedDialFormBox } from '@renderer/components/SpeedDialFormBox'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import { truncate } from '@renderer/utils'
+import { sendNotification, truncate } from '@renderer/utils'
 
 export interface NethLinkPageProps {
   themeMode: string
@@ -95,24 +94,29 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   function onMainPresence(op: { [username: string]: any }) {
     log('onMainPresence', operatorsRef.current, op)
     // eslint-disable-next-line no-prototype-builtins
-    if (operatorsRef.current?.hasOwnProperty('operators')) {
-      for (const [username, operator] of Object.entries(op)) {
-        log(
-          'presence of operators',
-          operatorsRef.current?.operators?.[username]?.mainPresence,
-          operator.mainPresence,
-          username
-        )
-
-        if (!operatorsRef.current.operators[username]?.mainPresence) {
-          operatorsRef.current.operators[username] = operator
-        } else {
-          operatorsRef.current.operators[username].mainPresence = operator.mainPresence
-        }
+    const updatedOperators = {
+      operators: operatorsRef.current?.operators || {},
+      userEndpoints: operatorsRef.current?.operators || {},
+      //gli altri dati mi arrivano solo dalla fetch e quindi posso prenderli come validi
+      avatars: operatorsRef.current?.avatars || {},
+      groups: operatorsRef.current?.groups || {},
+      extensions: operatorsRef.current?.extensions || {},
+    }
+    for (const [username, operator] of Object.entries(op)) {
+      log(
+        'presence of operators',
+        updatedOperators.operators![username]?.mainPresence,
+        operator.mainPresence,
+        username
+      )
+      updatedOperators.operators[username] = {
+        ...(updatedOperators.operators[username] || operator),
+        mainPresence: operator.mainPresence
       }
       log('change operators', operatorsRef.current, op)
-      debouncer('onMainPresence', () => setOperators(operatorsRef.current))
+      //debouncer('onMainPresence', () => setOperators(operatorsRef.current))
     }
+    saveOperators(updatedOperators)
   }
 
   function onQueueUpdate(queues: { [queueId: string]: any }) {
@@ -136,7 +140,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     log('UPDATE OPERATORS', updateOperators)
     // eslint-disable-next-line no-prototype-builtins    
     if (updateOperators) {
-      operatorsRef.current = {
+      const newOperators = {
         operators: operatorsRef.current?.operators || {},
         userEndpoints: operatorsRef.current?.operators || {},
         //gli altri dati mi arrivano solo dalla fetch e quindi posso prenderli come validi
@@ -144,24 +148,19 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
         groups: updateOperators.groups,
         extensions: updateOperators.extensions,
       }
-      if (updateOperators?.hasOwnProperty('operators') && !operatorsRef.current?.operators) {
-        for (const [username, operator] of Object.entries(updateOperators.operators)) {
-          log(
-            'presence of operators',
-            operatorsRef.current.operators[username].mainPresence,
-            operator.mainPresence
-          )
-
-          if (!operatorsRef.current.operators[username]?.username) {
-            operatorsRef.current.operators[username] = operator
-          } else {
-            //non aggiorno il dato in questo caso perché piú vecchio di quello ricevuto con la main presence
-            //operatorsRef.current.operators[username].mainPresence = operator.mainPresence
-          }
+      for (const [username, operator] of Object.entries(updateOperators.operators)) {
+        log(
+          'presence of operators',
+          operatorsRef.current?.operators?.[username]?.mainPresence,
+          operator.mainPresence
+        )
+        newOperators.operators[username] = {
+          ...(newOperators.operators[username] || operator),
+          mainPresence: newOperators.operators[username]?.mainPresence || operator.mainPresence,
         }
       }
+      debouncer('fetchOperators', () => setOperators(newOperators))
 
-      debouncer('onMainPresence', () => setOperators(operatorsRef.current))
     }
 
     // if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
@@ -343,25 +342,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       })
   }
 
-  function sendNotification(title: string, body: string) {
-    // if (navigator.userAgent.includes('Mac')) {
-    //   console.log('USER AGENT ', navigator.userAgent)
-    //   new Notification(title, {
-    //     icon: NotificationIcon
-    //   })
-    // } else {
-    // new Notification(title, options)
-    if (navigator.userAgent.includes('Mac')) {
-      new Notification(title, {
-        body: body
-      })
-    } else {
-      new Notification(title, {
-        body: body,
-        icon: NotificationIcon
-      })
-    }
-  }
+
 
   return (
     <div className="h-[100vh] w-[100vw] overflow-hidden">
