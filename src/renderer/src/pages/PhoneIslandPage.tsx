@@ -128,7 +128,7 @@ export function PhoneIslandPage() {
         //if main device setted to webrtc we must change it to nethlink
         //launch events to change default device type
         const nethlinkData = endpoints?.extension.filter((phone) => phone?.type === 'nethlink')
-        if (account?.data?.default_device?.type === 'webrtc') {
+        if (account?.data?.default_device?.type !== 'nethlink') {
           log('phone-island-default-device-change')
           setMainDeviceId(nethlinkData[0])
         }

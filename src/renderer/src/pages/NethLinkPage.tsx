@@ -160,8 +160,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           mainPresence: forceUpdate ? operator.mainPresence : (newOperators.operators[username]?.mainPresence || operator.mainPresence),
         }
       }
-      debouncer('fetchOperators', () => setOperators(newOperators))
-
+      setOperators(newOperators)
     }
 
     // if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
