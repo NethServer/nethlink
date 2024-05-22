@@ -40,8 +40,8 @@ export class NethLinkController {
     this.window.emit(IPC_EVENTS.QUEUE_LOADED, queues)
   }
 
-  async init(account: Account) {
-    await this.loadData()
+  init(account: Account) {
+    this.loadData()
     this.show()
     this.operatorFetchLoop()
     //Avviso la nethWindow che l'utente è cambiato
