@@ -99,11 +99,12 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       for (const [username, operator] of Object.entries(op)) {
         log(
           'presence of operators',
-          operatorsRef.current.operators[username].mainPresence,
-          operator.mainPresence
+          operatorsRef.current?.operators?.[username]?.mainPresence,
+          operator.mainPresence,
+          username
         )
 
-        if (!operatorsRef.current.operators[username]) {
+        if (!operatorsRef.current.operators[username]?.mainPresence) {
           operatorsRef.current.operators[username] = operator
         } else {
           operatorsRef.current.operators[username].mainPresence = operator.mainPresence
@@ -133,7 +134,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   function saveOperators(updateOperators: OperatorData | undefined): void {
     log('UPDATE OPERATORS', updateOperators)
-    // eslint-disable-next-line no-prototype-builtins
+    // eslint-disable-next-line no-prototype-builtins    
     if (updateOperators) {
       operatorsRef.current = {
         operators: operatorsRef.current?.operators || {},
@@ -151,7 +152,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
             operator.mainPresence
           )
 
-          if (!operatorsRef.current.operators[username]) {
+          if (!operatorsRef.current.operators[username]?.username) {
             operatorsRef.current.operators[username] = operator
           } else {
             //non aggiorno il dato in questo caso perché piú vecchio di quello ricevuto con la main presence
@@ -160,7 +161,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
         }
       }
 
-      debouncer('onMainPresence', () => setOperators(updateOperators))
+      debouncer('onMainPresence', () => setOperators(operatorsRef.current))
     }
 
     // if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
