@@ -102,6 +102,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           operatorsRef.current.operators[username].mainPresence,
           operator.mainPresence
         )
+
         if (!operatorsRef.current.operators[username]) {
           operatorsRef.current.operators[username] = operator
         } else {

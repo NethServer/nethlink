@@ -14,7 +14,7 @@ export const useAccount = () => {
     const _status: StatusTypes = operators?.operators?.[account.username]?.mainPresence || account.data?.mainPresence || status
     log('STATUS', _status, account, operators)
     setStatus(() => _status)
-    setIsCallsEnabled(() => !(_status === 'busy' || _status === 'ringing'))
+    setIsCallsEnabled(() => !(_status === 'busy' || _status === 'ringing' || _status === 'dnd' || _status === 'offline'))
 
   }, [account, operators])
 
