@@ -104,7 +104,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     }
     for (const [username, operator] of Object.entries(op)) {
       log(
-        'presence of operators',
+        'presence of operators onMainPresence',
         updatedOperators.operators![username]?.mainPresence,
         operator.mainPresence,
         username
@@ -116,7 +116,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       log('change operators', operatorsRef.current, op)
       //debouncer('onMainPresence', () => setOperators(operatorsRef.current))
     }
-    saveOperators(updatedOperators)
+    saveOperators(updatedOperators, true)
   }
 
   function onQueueUpdate(queues: { [queueId: string]: any }) {
@@ -136,7 +136,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     setMissedCalls(() => historyResponse?.rows || [])
   }
 
-  function saveOperators(updateOperators: OperatorData | undefined): void {
+  function saveOperators(updateOperators: OperatorData | undefined, forceUpdate: boolean = false): void {
     log('UPDATE OPERATORS', updateOperators)
     // eslint-disable-next-line no-prototype-builtins    
     if (updateOperators) {
@@ -152,11 +152,12 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
         log(
           'presence of operators',
           operatorsRef.current?.operators?.[username]?.mainPresence,
-          operator.mainPresence
+          operator.mainPresence,
+          username
         )
         newOperators.operators[username] = {
           ...(newOperators.operators[username] || operator),
-          mainPresence: newOperators.operators[username]?.mainPresence || operator.mainPresence,
+          mainPresence: forceUpdate ? operator.mainPresence : (newOperators.operators[username]?.mainPresence || operator.mainPresence),
         }
       }
       debouncer('fetchOperators', () => setOperators(newOperators))
