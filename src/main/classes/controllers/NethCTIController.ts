@@ -134,12 +134,12 @@ export class NethVoiceAPI {
     },
     phoneIslandTokenLogin: async () =>
       await this._POST('/webrest/authentication/phone_island_token_login'),
-    persistantTokenRemove: async () =>
-      await this._POST('/webrest/authentication/persistent_token_remove', {
-        type: 'phone-island'
-      }),
-    phoneIslandTokenChack: async () =>
-      await this._GET('/webrest/authentication/phone_island_token_exists')
+    // persistantTokenRemove: async () =>
+    //   await this._POST('/webrest/authentication/persistent_token_remove', {
+    //     type: 'phone-island'
+    //   }),
+    // phoneIslandTokenChack: async () =>
+    //   await this._GET('/webrest/authentication/phone_island_token_exists')
   }
 
   CustCard = {}

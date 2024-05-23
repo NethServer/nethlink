@@ -136,9 +136,6 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.SEND_NOTIFICATION, (event, options: NotificationConstructorOptions, openUrl) => {
-    options.hasReply = false
-
-    log('RECEIVED SEND NOTIFICATION', options, openUrl)
     if (process.platform !== 'darwin') {
       options.icon = "../../../public/TrayNotificationIcon.svg"
     }
@@ -150,13 +147,13 @@ export function registerIpcEvents() {
     //     shell.openExternal(openUrl)
     //   }
     // })
-    notification.once('failed', () => log('failed'))
-    notification.once('action', () => log('action'))
-    notification.once('close', () => log('close'))
-    notification.once('reply', () => log('reply'))
-    notification.once('show', () => log('show'))
+    notification.on('failed', () => log('NOTIFICATION failed'))
+    notification.on('action', () => log('NOTIFICATION action'))
+    notification.on('close', () => log('NOTIFICATION close'))
+    notification.on('reply', () => log('NOTIFICATION reply'))
+    notification.on('show', () => log('NOTIFICATION show'))
 
-    notification.addListener("click", () => {
+    notification.on("click", () => {
       log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
       if (openUrl) {
         shell.openExternal(openUrl)
@@ -164,6 +161,7 @@ export function registerIpcEvents() {
     })
 
     notification.show()
+    log('RECEIVED SEND NOTIFICATION', options, openUrl, notification)
 
   })
 

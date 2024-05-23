@@ -61,11 +61,9 @@ export const Avatar = ({
       {...props}
     >
       {src && (
-        <div className={theme.placeholderType.base}>
-          <img className={classNames(theme.placeholderType.sizes[size], theme.image, theme.rounded[rounded])} src={src} alt={altText} />
-        </div>
+        <img className={classNames(theme.image, theme.rounded[rounded])} src={src} alt={altText} />
       )}
-      {/* avatar skeleton 
+      {/* avatar skeleton
         <div className={classNames(theme.placeholderType.base, theme.placeholderType.sizes[size], 'animate-pulse rounded-full h-12 w-12 bg-gray-300 dark:bg-gray-600 absolute top-0')}></div>
       */}
       {initials && <div className={theme.initials.base}>{initials}</div>}

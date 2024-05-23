@@ -121,8 +121,8 @@ export function Navbar({
           </Listbox>
         </div>
 
-        <div>
-          <Menu>
+        <div className={'max-h-8'}>
+          <Menu >
             <Menu.Button className="cursor-pointer">
               <Avatar
                 size="small"

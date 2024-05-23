@@ -1,4 +1,4 @@
-import { app, nativeTheme, protocol, shell, systemPreferences } from 'electron'
+import { app, nativeTheme, powerMonitor, protocol, shell, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, DevToolsController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -20,14 +20,43 @@ new AccountController(app)
 //registro tutti gli eventi che la parte frontend emette verso il backend
 registerIpcEvents()
 let isFirstStart = true
+let prevLoggedAccount: Account | undefined
+let isOnResume = false
 
 //imposto che l'app si debba aprire all'avvio del sistema operativo
 app.setLoginItemSettings({
   openAtLogin: true
 })
 
-app.whenReady().then(async () => {
+powerMonitor.on('suspend', async () => {
+  if (!prevLoggedAccount) {
+    isOnResume = false
+    log('suspend')
+    NethLinkController.instance.hide()
+    PhoneIslandController.instance.hidePhoneIsland()
+    const account = AccountController.instance.getLoggedAccount()
+    if (account) {
+      prevLoggedAccount = account
+      await AccountController.instance.logout()
+    }
+  }
+});
 
+powerMonitor.on('resume', async () => {
+  if (!isOnResume) {
+    isOnResume = true
+    log('resume')
+    if (prevLoggedAccount) {
+      AccountController.instance._saveNewAccountData(prevLoggedAccount)
+      await AccountController.instance.autologin()
+      onAccountLogin(prevLoggedAccount)
+      prevLoggedAccount = undefined
+    }
+  }
+});
+
+app.whenReady().then(async () => {
+  log('APP READY')
   //const id = powerSaveBlocker.start('prevent-display-sleep')
   //console.log(powerSaveBlocker.isStarted(id))
   //
@@ -155,7 +184,7 @@ const onLoginFromLoginPage = (account: Account) => {
 const checkForUpdate = async () => {
   const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
   log(app.getVersion())
-  if (latestVersionData.name !== app.getVersion()) {
+  if (latestVersionData.name !== app.getVersion() || true) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }
