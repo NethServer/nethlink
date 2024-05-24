@@ -122,7 +122,7 @@ export function SearchNumberBox({
     const filteredOperators = getFoundedOperators()
 
     unFilteredNumbers.sort((a, b) => {
-      log({ isPhoneNumber, aname: a.name, anum: s(a), bname: b.name, bnum: s(b) })
+      log({ isPhoneNumber, aname: a?.name, anum: s(a), bname: b?.name, bnum: s(b) })
       if (isPhoneNumber) {
         const al = s(a).length
         if (al > 0) {
@@ -132,15 +132,16 @@ export function SearchNumberBox({
         }
         return -1
       } else {
-        const as = a.name.toLowerCase().replace(cleanRegex, '')
-        const bs = b.name.toLowerCase().replace(cleanRegex, '')
+        const as = a?.name?.toLowerCase()?.replace(cleanRegex, '')
+        const bs = b?.name?.toLowerCase()?.replace(cleanRegex, '')
         return as < bs ? -1 : as > bs ? 1 : 0
       }
     })
     const mappedOperators: SearchData[] = filteredOperators.map((o) => {
+      const id = o?.endpoints?.['extension']?.[0]?.['id']
       return {
         ...o,
-        cellphone: o.endpoints['cellphone']?.[0]?.['id'],
+        cellphone: o?.endpoints?.['cellphone']?.[0]?.['id'],
         fax: '',
         homecity: '',
         homecountry: '',
@@ -150,11 +151,11 @@ export function SearchNumberBox({
         homepostalcode: '',
         homeprovince: '',
         homestreet: '',
-        id: parseInt(o.endpoints['extension']?.[0]?.['id']),
+        id: id ? parseInt(id) : '',
         notes: '',
         owner_id: '',
         source: '',
-        speeddial_num: o.endpoints['mainextension']?.[0]?.id || '',
+        speeddial_num: o?.endpoints?.['mainextension']?.[0]?.id || '',
         title: '',
         type: '',
         url: '',
@@ -167,10 +168,10 @@ export function SearchNumberBox({
         workprovince: '',
         workstreet: '',
         company: '',
-        extension: o.endpoints['mainextension']?.[0]?.id || '',
+        extension: o?.endpoints?.['mainextension']?.[0]?.id || '',
         isOperator: true,
         kind: 'person',
-        displayName: o.name
+        displayName: o?.name
       }
     })
     const names = mappedOperators.map((o) => o.name.toLowerCase().replace(/\s/g, ''))

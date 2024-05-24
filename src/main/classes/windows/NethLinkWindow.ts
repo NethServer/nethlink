@@ -50,7 +50,7 @@ export class NethLinkWindow extends BaseWindow {
       y = this.screenBounds.height - h - 60
     }
     if (process.platform === 'linux') {
-      x = this.screenBounds.x + this.screenBounds.width - w - 18
+      x = this.screenBounds.x + this.screenBounds.width - w - 12
       y = this.screenBounds.y + 36
     }
     const bound = { x, y, w, h }
