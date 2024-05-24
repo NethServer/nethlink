@@ -25,6 +25,8 @@ export class BaseWindow {
       if (id === completed_id) {
         //log('on build completition of', completed_id)
         this._callbacks.forEach((c) => c())
+        //una volta chiamate le rimuovo
+        this._callbacks = []
       }
     }
 
@@ -62,7 +64,7 @@ export class BaseWindow {
     try {
       this._window?.webContents.send(event, ...args)
     } catch (e) {
-      log(e, { event, args })
+      log('ERROR on window.emit', e, { event, args })
     }
   }
 
@@ -88,7 +90,8 @@ export class BaseWindow {
 
   quit() {
     try {
-      this._window?.close()
+      this._window?.hide()
+      this._window?.destroy()
     } catch (e) {
       log(e)
     }

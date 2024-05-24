@@ -3,15 +3,21 @@ import moment from 'moment'
 import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { NetworkController } from './NetworkController'
+import { AccountController } from './AccountController'
 
 export class NethVoiceAPI {
   _host: string
   _account: Account | undefined
-  static instance: NethVoiceAPI
   constructor(host: string, account?: Account | undefined) {
     this._host = host
     this._account = account
-    NethVoiceAPI.instance = this
+  }
+
+  static api = () => {
+    const account = AccountController.instance.getLoggedAccount()
+    const api = new NethVoiceAPI(account!.host, account)
+    log('get API', account?.username, account?.host)
+    return api
   }
 
   _joinUrl(url: string) {
@@ -29,29 +35,29 @@ export class NethVoiceAPI {
     return hmac.digest('hex')
   }
 
-  _getHeaders(unauthorized = false) {
+  _getHeaders(hasAuth = true) {
+    if (hasAuth && !this._account)
+      throw new Error('no token')
     return {
       headers: {
         'Content-Type': 'application/json',
-        ...(unauthorized || !this._account
-          ? {}
-          : { Authorization: this._account!.username + ':' + this._account!.accessToken })
+        ...(hasAuth && { Authorization: this._account!.username + ':' + this._account!.accessToken })
       }
     }
   }
 
-  async _GET(path: string, unauthorized = false): Promise<any> {
+  async _GET(path: string, hasAuth = true): Promise<any> {
     try {
-      return (await NetworkController.instance.get(this._joinUrl(path), this._getHeaders(unauthorized)))
+      return (await NetworkController.instance.get(this._joinUrl(path), this._getHeaders(hasAuth)))
     } catch (e) {
       console.error(e)
       throw e
     }
   }
 
-  async _POST(path: string, data?: object, unauthorized = false): Promise<any> {
+  async _POST(path: string, data?: object, hasAuth = true): Promise<any> {
     try {
-      return (await NetworkController.instance.post(this._joinUrl(path), data, this._getHeaders(unauthorized)))
+      return (await NetworkController.instance.post(this._joinUrl(path), data, this._getHeaders(hasAuth)))
     } catch (e) {
       console.error(e)
       throw e
@@ -72,7 +78,7 @@ export class NethVoiceAPI {
         password
       }
       return new Promise((resolve, reject) => {
-        this._POST('/webrest/authentication/login', data, true).catch(async (reason) => {
+        this._POST('/webrest/authentication/login', data, false).catch(async (reason) => {
           try {
             if (reason.response?.status === 401 && reason.response?.headers['www-authenticate']) {
               const digest = reason.response.headers['www-authenticate']
@@ -129,8 +135,16 @@ export class NethVoiceAPI {
       })
     },
     logout: async () => {
-      this._account = undefined
-      await this._GET('/webrest/authentication/logout')
+      return new Promise<void>(async (resolve) => {
+        try {
+          await this._POST('/webrest/authentication/logout', {})
+        } catch (e) {
+          log("ERROR on logout", e)
+        } finally {
+          this._account = undefined
+          resolve()
+        }
+      })
     },
     phoneIslandTokenLogin: async () =>
       await this._POST('/webrest/authentication/phone_island_token_login'),
@@ -152,10 +166,14 @@ export class NethVoiceAPI {
       const to = now.format('YYYYMMDD')
       const from = now.subtract(2, 'months').format('YYYYMMDD')
       try {
-        const res = await this._GET(
-          `/webrest/historycall/interval/user/${this._account!.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
-        )
-        return res
+        if (this._account) {
+          const res = await this._GET(
+            `/webrest/historycall/interval/user/${this._account.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
+          )
+          return res
+        } else {
+          throw new Error('no account')
+        }
       } catch (e) {
         console.error(e)
         throw e

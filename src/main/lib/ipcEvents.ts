@@ -11,6 +11,7 @@ import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
 import moment from 'moment'
 
+
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
   asyncCallback: (...args: any[]) => Promise<T>
@@ -37,6 +38,7 @@ function onSyncEmitter<T>(
 }
 
 export function registerIpcEvents() {
+
   //TODO: spostare ogni evento nel controller di appartenenza
   onSyncEmitter(IPC_EVENTS.LOGIN, async (...args) => {
     const [host, username, password] = args
@@ -50,30 +52,30 @@ export function registerIpcEvents() {
   })
 
   onSyncEmitter(IPC_EVENTS.ADD_CONTACT_PHONEBOOK, (contact) =>
-    NethVoiceAPI.instance.Phonebook.createContact(contact)
+    NethVoiceAPI.api().Phonebook.createContact(contact)
   )
 
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
     return app.getSystemLocale()
   })
   onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, async (contact) => {
-    await NethVoiceAPI.instance.Phonebook.createSpeeddial(contact)
-    const speeddials = await NethVoiceAPI.instance.Phonebook.speeddials()
+    await NethVoiceAPI.api().Phonebook.createSpeeddial(contact)
+    const speeddials = await NethVoiceAPI.api().Phonebook.speeddials()
     return speeddials
   }
   )
   onSyncEmitter(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT, (editContact, currentContact) =>
-    NethVoiceAPI.instance.Phonebook.updateSpeeddial(editContact, currentContact)
+    NethVoiceAPI.api().Phonebook.updateSpeeddial(editContact, currentContact)
   )
 
   onSyncEmitter(IPC_EVENTS.DELETE_SPEEDDIAL, (contact) =>
-    NethVoiceAPI.instance.Phonebook.deleteSpeeddial(contact)
+    NethVoiceAPI.api().Phonebook.deleteSpeeddial(contact)
   )
 
   onSyncEmitter(IPC_EVENTS.DEVICE_DEFAULT_CHANGE, (deviceIdInformation) => new Promise(async (resolve, reject) => {
     try {
-      const d = await NethVoiceAPI.instance.User.default_device(deviceIdInformation)
-      await NethVoiceAPI.instance.User.me()
+      const d = await NethVoiceAPI.api().User.default_device(deviceIdInformation)
+      await NethVoiceAPI.api().User.me()
       resolve(d)
     } catch (e) {
       reject(e)
@@ -83,7 +85,9 @@ export function registerIpcEvents() {
   )
 
   ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
+    log('logout from event')
     AccountController.instance.logout()
+    NethLinkController.instance.hide()
   })
 
   ipcMain.on(IPC_EVENTS.HIDE_NETH_LINK, async (event) => {
@@ -131,7 +135,7 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.SEARCH_TEXT, async (event, searchText) => {
-    const res = await NethVoiceAPI.instance.Phonebook.search(searchText)
+    const res = await NethVoiceAPI.api().Phonebook.search(searchText)
     NethLinkController.instance.window.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
   })
 
@@ -169,25 +173,25 @@ export function registerIpcEvents() {
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
     ipcMain.on(ev, async (_event, ...args) => {
       const evName = `on-${ev}`
-      log('send back', evName, ...args)
+      log('send back', evName, /*...args*/)
       NethLinkController.instance.window.emit(evName, ...args)
       switch (ev) {
         case PHONE_ISLAND_EVENTS['phone-island-call-answered']:
         case PHONE_ISLAND_EVENTS['phone-island-call-started']:
           const account = AccountController.instance.getLoggedAccount()
           const nethlinkExtension = account!.data!.endpoints.extension.find((el) => el.type === 'nethlink')
-          NethVoiceAPI.instance.User.heartbeat(`${nethlinkExtension!.id}`)
+          NethVoiceAPI.api().User.heartbeat(`${nethlinkExtension!.id}`)
           break;
         case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
           NethLinkController.instance.loadData()
           break;
         case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
-          const me = await NethVoiceAPI.instance.User.me()
+          const me = await NethVoiceAPI.api().User.me()
           NethLinkController.instance.window.emit(IPC_EVENTS['ACCOUNT_CHANGE'], me)
           PhoneIslandController.instance.window.emit(IPC_EVENTS['ACCOUNT_CHANGE'], me)
           break;
         case PHONE_ISLAND_EVENTS['phone-island-webrtc-registered']:
-          NethVoiceAPI.instance.User.setPresence('online')
+          NethVoiceAPI.api().User.setPresence('online')
           break;
       }
       // if (ev === PHONE_ISLAND_EVENTS['phone-island-call-answered']) {

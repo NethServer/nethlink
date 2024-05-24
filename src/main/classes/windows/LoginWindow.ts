@@ -51,7 +51,7 @@ export class LoginWindow extends BaseWindow {
         loginWindowHeight = 535
         break
     }
-    log(accounts, loginWindowHeight)
+    //log(accounts, loginWindowHeight)
     const bounds = this._window?.getBounds()
     this._window!.setBounds({ ...bounds, height: loginWindowHeight }, true)
     super.show(_args)

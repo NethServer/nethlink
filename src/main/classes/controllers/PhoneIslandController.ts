@@ -17,8 +17,9 @@ export class PhoneIslandController {
   }
 
   async login(account: Account) {
-    const phoneIslandTokenLoginResponse =
-      await NethVoiceAPI.instance.Authentication.phoneIslandTokenLogin()
+    const API = NethVoiceAPI.api()
+    log('API', API.Authentication)
+    const phoneIslandTokenLoginResponse = await API.Authentication.phoneIslandTokenLogin()
     this.updateDataConfig(phoneIslandTokenLoginResponse.token, account)
   }
 

@@ -7,6 +7,7 @@ import { SplashScreenController } from "./SplashScreenController"
 import { TrayController } from "./TrayController"
 import { log } from "@shared/utils/logger"
 import { DevToolsController } from "./DevToolsController"
+import { delay } from "@shared/utils/utils"
 
 export class AppController {
   static _app: Electron.App
@@ -24,19 +25,42 @@ export class AppController {
       NethLinkController.instance.window.hide()
       PhoneIslandController.instance.window.hide()
       LoginController.instance.window.hide()
+      AccountController.instance.removeAllEventListener()
       const account = AccountController.instance.getLoggedAccount()
       try {
-        await PhoneIslandController.instance.logout(account!)
+        if (account) {
+          await AccountController.instance.logout()
+        }
       } catch (e) {
         log(e)
       }
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
           SplashScreenController.instance.window.quit()
+        } catch (e) {
+          log(e)
+        }
+        try {
           NethLinkController.instance.window.quit()
+        } catch (e) {
+          log(e)
+        }
+        try {
           PhoneIslandController.instance.window.quit()
+        } catch (e) {
+          log(e)
+        }
+        try {
           LoginController.instance.window.quit()
+        } catch (e) {
+          log(e)
+        }
+        try {
           TrayController.instance.tray.destroy()
+        } catch (e) {
+          log(e)
+        }
+        try {
           DevToolsController.instance?.window?.quit()
         } catch (e) {
           log(e)

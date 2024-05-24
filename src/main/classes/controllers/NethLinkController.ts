@@ -5,6 +5,7 @@ import { NethVoiceAPI } from './NethCTIController'
 import { delay } from '@shared/utils/utils'
 import { nativeTheme } from 'electron'
 import { log } from '@shared/utils/logger'
+import { AccountController } from './AccountController'
 
 export class NethLinkController {
   static instance: NethLinkController
@@ -19,24 +20,26 @@ export class NethLinkController {
     await delay(1000 * 60 * 60 * 24)
     await this.loadData()
     this.operatorFetchLoop()
+
   }
+
   private async fetchOperatorsAndEmit() {
-    const operators = await NethVoiceAPI.instance.fetchOperators()
+    const operators = await NethVoiceAPI.api().fetchOperators()
     this.window.emit(IPC_EVENTS.OPERATORS_CHANGE, operators)
   }
 
   private async fetchHistoryCallsAndEmit() {
-    const lastCalls = await NethVoiceAPI.instance.HistoryCall.interval()
+    const lastCalls = await NethVoiceAPI.api().HistoryCall.interval()
     this.window.emit(IPC_EVENTS.RECEIVE_HISTORY_CALLS, lastCalls)
   }
 
   private async fetchSpeeddialsAndEmit() {
-    const speeddials = await NethVoiceAPI.instance.Phonebook.speeddials()
+    const speeddials = await NethVoiceAPI.api().Phonebook.speeddials()
     this.window.emit(IPC_EVENTS.RECEIVE_SPEEDDIALS, speeddials)
   }
 
   private async fetchQueuesAndEmit() {
-    const queues = await NethVoiceAPI.instance.AstProxy.queues()
+    const queues = await NethVoiceAPI.api().AstProxy.queues()
     this.window.emit(IPC_EVENTS.QUEUE_LOADED, queues)
   }
 
@@ -59,7 +62,9 @@ export class NethLinkController {
     await this.fetchSpeeddialsAndEmit()
     await this.fetchQueuesAndEmit()
   }
+
   async show() {
+    log('show nethLink window')
     this.loadData()
     this.window.show()
   }

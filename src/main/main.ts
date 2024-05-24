@@ -22,23 +22,28 @@ registerIpcEvents()
 let isFirstStart = true
 let prevLoggedAccount: Account | undefined
 let isOnResume = false
+let windowsLoaded = 0
 
 //imposto che l'app si debba aprire all'avvio del sistema operativo
 app.setLoginItemSettings({
   openAtLogin: true
 })
 
-powerMonitor.on('suspend', async () => {
+powerMonitor.on('suspend', () => {
   if (!prevLoggedAccount) {
     isOnResume = false
-    log('suspend')
-    NethLinkController.instance.hide()
-    PhoneIslandController.instance.hidePhoneIsland()
     const account = AccountController.instance.getLoggedAccount()
     if (account) {
       prevLoggedAccount = account
-      await AccountController.instance.logout()
+      NethLinkController.instance.hide()
+      PhoneIslandController.instance.hidePhoneIsland()
+    } else {
+      LoginController.instance.hide()
     }
+    log('suspend')
+    AccountController.instance.removeEventListener('LOGOUT', onAccountLogout)
+    AccountController.instance.removeEventListener('LOGIN', onAccountLogin)
+    AccountController.instance.removeEventListener('LOGIN', onLoginFromLoginPage)
   }
 });
 
@@ -46,11 +51,22 @@ powerMonitor.on('resume', async () => {
   if (!isOnResume) {
     isOnResume = true
     log('resume')
+
     if (prevLoggedAccount) {
-      AccountController.instance._saveNewAccountData(prevLoggedAccount)
+      NethLinkController.instance.hide()
+      PhoneIslandController.instance.hidePhoneIsland()
+      await AccountController.instance.logout(true)
+      AccountController.instance.addEventListener('LOGIN', onAccountLogin)
+      AccountController.instance.addEventListener('LOGOUT', onAccountLogout)
       await AccountController.instance.autologin()
-      onAccountLogin(prevLoggedAccount)
       prevLoggedAccount = undefined
+    } else {
+      LoginController.instance.hide()
+      AccountController.instance.addEventListener('LOGIN', onAccountLogin)
+      AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
+      setTimeout(() => {
+        LoginController.instance.show()
+      }, 5000)
     }
   }
 });
@@ -73,9 +89,10 @@ app.whenReady().then(async () => {
   protocol.handle('nethlink', (req) => {
     log(req)
     return new Promise((resolve) => resolve)
+
   })
 
-  let windowsLoaded = 0
+
   //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
   log(process.env)
   isDev() && new DevToolsController()
@@ -83,64 +100,67 @@ app.whenReady().then(async () => {
   new TrayController()
 
   //Visualizzo la splashscreen all'avvio dell'applicazione.
-  SplashScreenController.instance.window.addOnBuildListener(async () => {
-    SplashScreenController.instance.show()
-    new PhoneIslandController()
-    new NethLinkController()
-    new LoginController()
-    const updateBuildedWindows = () => windowsLoaded++
-    PhoneIslandController.instance.window.addOnBuildListener(updateBuildedWindows)
-    NethLinkController.instance.window.addOnBuildListener(updateBuildedWindows)
-    LoginController.instance.window.addOnBuildListener(updateBuildedWindows)
-
-    //aspetto che tutte le finestre siano pronte o un max di 25 secondi
-    let time = 0
-    while (windowsLoaded <= 2 && time < 25) {
-      await delay(100)
-      time++
-      //log(time, windowsLoaded)
-    }
-    await getPermissions()
-    //log('call addOnBuildListener ')
-    nativeTheme.on('updated', () => {
-      const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
-        ? 'dark'
-        : 'light'
-      debouncer(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, () => {
-        PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
-        NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
-        LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
-        DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
-        TrayController.instance.changeIconByTheme(updatedSystemTheme)
-      })
-    })
-    //una volta che il caricamento è completo abilito la possibilità di cliccare sull'icona nella tray
-    TrayController.instance.enableClick = true
-    //constollo se esiste il file di config (il file esiste solo se almeno un utente ha effettuato il login)
-    if (AccountController.instance.hasConfigsFolderOfFile()) {
-      //sia che riesco ad effettuare il login con il token sia che lo faccio con la pagina di login mi devo registrare a questo evento
-      AccountController.instance.addEventListener('LOGIN', onAccountLogin)
-      try {
-        //provo a loggare l'utente con il token che aveva
-        await AccountController.instance.autologin()
-      } catch (e) {
-        AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
-        LoginController.instance.show()
-      } finally {
-        //il caricamento è terminato, posso rimuovere la splashscreen
-        SplashScreenController.instance.hide()
-      }
-    } else {
-      //il caricamento è terminato, posso rimuovere la splashscreen
-      SplashScreenController.instance.hide()
-      //dichiaro cosa deve accadere quando l'utente effettua il login
-      AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
-      AccountController.instance.addEventListener('LOGIN', onAccountLogin)
-      LoginController.instance.show()
-    }
-  })
+  SplashScreenController.instance.window.addOnBuildListener(startApp)
 })
 
+const startApp = async () => {
+  SplashScreenController.instance.show()
+  new PhoneIslandController()
+  new NethLinkController()
+  new LoginController()
+  const updateBuildedWindows = () => windowsLoaded++
+  PhoneIslandController.instance.window.addOnBuildListener(updateBuildedWindows)
+  NethLinkController.instance.window.addOnBuildListener(updateBuildedWindows)
+  LoginController.instance.window.addOnBuildListener(updateBuildedWindows)
+
+  //aspetto che tutte le finestre siano pronte o un max di 25 secondi
+  let time = 0
+  while (windowsLoaded <= 2 && time < 25) {
+    await delay(100)
+    time++
+    //log(time, windowsLoaded)
+  }
+  await getPermissions()
+  //log('call addOnBuildListener ')
+  nativeTheme.on('updated', () => {
+    const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
+      ? 'dark'
+      : 'light'
+    debouncer(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, () => {
+      PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+      NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+      LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+      DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_SYSTEM_THEME, updatedSystemTheme)
+      TrayController.instance.changeIconByTheme(updatedSystemTheme)
+    })
+  })
+  //una volta che il caricamento è completo abilito la possibilità di cliccare sull'icona nella tray
+  TrayController.instance.enableClick = true
+  //constollo se esiste il file di config (il file esiste solo se almeno un utente ha effettuato il login)
+  if (AccountController.instance.hasConfigsFolderOfFile()) {
+    //sia che riesco ad effettuare il login con il token sia che lo faccio con la pagina di login mi devo registrare a questo evento
+    AccountController.instance.addEventListener('LOGIN', onAccountLogin)
+    try {
+      //provo a loggare l'utente con il token che aveva
+      await AccountController.instance.autologin()
+    } catch (e) {
+      AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
+      LoginController.instance.show()
+    } finally {
+      //il caricamento è terminato, posso rimuovere la splashscreen
+      //SplashScreenController.instance.hide()
+      SplashScreenController.instance.window.hide()
+    }
+  } else {
+    //il caricamento è terminato, posso rimuovere la splashscreen
+    //SplashScreenController.instance.hide()
+    SplashScreenController.instance.window.hide()
+    //dichiaro cosa deve accadere quando l'utente effettua il login
+    AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
+    AccountController.instance.addEventListener('LOGIN', onAccountLogin)
+    LoginController.instance.show()
+  }
+}
 const onAccountLogin = (account: Account) => {
   try {
     //loggo il nuovo accopunt sulla phone island
@@ -167,7 +187,6 @@ const onAccountLogout = async (account: Account, isExit: boolean = false) => {
   //ormai mi sono sloggato quindi rimuovo il listener
   AccountController.instance.removeEventListener('LOGOUT', onAccountLogout)
   if (!isExit) {
-    await PhoneIslandController.instance.logout(account)
     NethLinkController.instance.hide()
     AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
     AccountController.instance.addEventListener('LOGIN', onAccountLogin)
@@ -184,7 +203,7 @@ const onLoginFromLoginPage = (account: Account) => {
 const checkForUpdate = async () => {
   const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
   log(app.getVersion())
-  if (latestVersionData.name !== app.getVersion() || true) {
+  if (latestVersionData.name !== app.getVersion()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }

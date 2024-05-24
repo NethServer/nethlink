@@ -4,6 +4,7 @@ import { Account, ConfigFile } from '@shared/types'
 import { NethVoiceAPI } from './NethCTIController'
 import { log } from '@shared/utils/logger'
 import { safeStorage } from 'electron'
+import { PhoneIslandController } from './PhoneIslandController'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -31,6 +32,7 @@ export class AccountController {
   constructor(app: Electron.App) {
     this._app = app
     AccountController.instance = this
+    log("Config file folder:", this._getPaths().CONFIG_FILE)
   }
 
   _getPaths() {
@@ -49,10 +51,8 @@ export class AccountController {
   _saveNewAccountData(account: Account | undefined, isOpening = false, cryptString?: Buffer) {
     const { CONFIG_FILE } = this._getPaths()
     const config = this._getConfigFile(isOpening)
+    const lastUser = config.lastUser
     //log('save account', config.lastUser, account?.username, isOpening)
-    if (config.lastUser !== account?.username || isOpening) {
-      this.fireEvent(account ? 'LOGIN' : 'LOGOUT', account || config.accounts[config.lastUser!])
-    }
     if (account) {
       const uniqueAccountName = `${account.host}@${account.username}`
       if (cryptString)
@@ -67,6 +67,10 @@ export class AccountController {
     }
     fs.writeFileSync(CONFIG_FILE, JSON.stringify(config), 'utf-8')
     this.config = config
+    if (lastUser !== account?.username || isOpening) {
+      log('fire event', account ? 'LOGIN' : 'LOGOUT')
+      this.fireEvent(account ? 'LOGIN' : 'LOGOUT', account || config.accounts[config.lastUser!])
+    }
   }
 
   listAvailableAccounts(): Account[] {
@@ -76,22 +80,27 @@ export class AccountController {
       accounts = config.accounts
       return Object.values(accounts || {})
     } catch (e) {
-      log(e)
+      log("ERROR on listAvailableAccounts:", e)
       return []
     }
   }
 
-  async logout() {
+  async logout(isSoft: boolean = false) {
     const account = this.getLoggedAccount()
-    const api = new NethVoiceAPI(account!.host, account)
-    this._saveNewAccountData(undefined, false)
-    api.Authentication.logout()
-      .then(() => {
-        log(`${account!.username} logout succesfully`)
-      })
-      .catch((e) => {
-        console.error(e)
-      })
+    log('On logout account', account?.username, { isSoft })
+    const API = NethVoiceAPI.api()
+    try {
+      if (!isSoft)
+        await PhoneIslandController.instance.logout(account!)
+      await API.Authentication.logout()
+      log(`${account!.username} logout succesfully`)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      if (!isSoft)
+        this._saveNewAccountData(undefined, false)
+    }
+
   }
 
   getLoggedAccount() {
@@ -157,9 +166,12 @@ export class AccountController {
     this.eventListenerCallbacks.splice(idx, 1)
   }
 
+  removeAllEventListener() {
+    this.eventListenerCallbacks = []
+  }
+
   hasConfigsFolderOfFile() {
     const { CONFIG_PATH, CONFIG_FILE } = this._getPaths()
-    log('CONFIG_PATH', CONFIG_PATH)
     const folderExist = fs.existsSync(CONFIG_PATH)
     if (folderExist) {
       try {
@@ -181,6 +193,7 @@ export class AccountController {
     //Controllo se la cartella configs esiste, altrimenti la creo
 
     if (!this.hasConfigsFolderOfFile()) {
+      log("create config file")
       //log('ENOENT')
       try {
         fs.mkdirSync(CONFIG_PATH)
@@ -195,7 +208,6 @@ export class AccountController {
 
   _getConfigFile(isOpeninig: boolean = false): ConfigFile {
     const { CONFIG_FILE } = this._getPaths()
-
     if (this.hasConfigsFolderOfFile()) {
       const data = fs.readFileSync(CONFIG_FILE, { encoding: 'utf-8' })
       this.config = JSON.parse(data)
