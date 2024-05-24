@@ -29,7 +29,7 @@ export class AppController {
       const account = AccountController.instance.getLoggedAccount()
       try {
         if (account) {
-          await AccountController.instance.logout()
+          await AccountController.instance.logout(true)
         }
       } catch (e) {
         log(e)
