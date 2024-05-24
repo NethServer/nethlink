@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
@@ -50,7 +52,7 @@ jobs:
 
           # Release the app with latest tag plus current sha commit. Eg 1.0.10-dev-e4d4b64
           # release the app after building
-          release: ${{ steps.previoustag.outputs.tag }}-dev-${{ steps.vars.outputs.sha_short }}
+          release: v${{ steps.previoustag.outputs.tag }}-dev-${{ steps.vars.outputs.sha_short }}
 
           # macOS certificate files
           mac_certs: ${{ secrets.mac_certs }}
