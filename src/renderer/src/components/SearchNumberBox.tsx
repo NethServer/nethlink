@@ -151,7 +151,7 @@ export function SearchNumberBox({
         homepostalcode: '',
         homeprovince: '',
         homestreet: '',
-        id: id ? parseInt(id) : '',
+        id: id ? parseInt(id) : -1,
         notes: '',
         owner_id: '',
         source: '',
