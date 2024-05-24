@@ -7,7 +7,37 @@ on:
   workflow_dispatch:
 
 jobs:
+  tagging:
+    - name: Check out Git repository
+      uses: actions/checkout@v4
+
+    - name: Get Previous tag
+      id: previoustag
+      uses: "WyriHaximus/github-action-get-previous-tag@v1"
+      with:
+        fallback: 1.0.0 # Optional fallback tag to use when no tag can be found
+
+    - name: Get tag name without extra info
+      uses: jungwinter/split@master
+      id: branch
+      with:
+        msg: ${{ steps.previoustag.outputs.tag }}
+        separator: "-"
+        maxsplit: -1
+
+    - name: Get short sha
+      id: vars
+      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Push tag
+      uses: EndBug/latest-tag@latest
+      with:
+        # You can change the name of the tag with this input.
+        # Default: 'latest'
+        tag-name: ${{ steps.branch.outputs._0 }}-dev-${{ steps.vars.outputs.sha_short }}
+
   release:
+    needs: tagging
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -17,34 +47,11 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v4
         with:
           node-version: 21
-
-      - name: Get Previous tag
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-        with:
-          fallback: 1.0.0 # Optional fallback tag to use when no tag can be found
-
-      - name: Get short sha
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Create tag
-        uses: actions/github-script@v5
-        with:
-          script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/v${{ steps.previoustag.outputs.tag }}-dev-${{ steps.vars.outputs.sha_short }}',
-              sha: context.sha
-            })
 
       - name: Prepare for app notarization
         if: startsWith(matrix.os, 'macos')
