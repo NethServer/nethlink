@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get Previous tag
         id: previoustag
@@ -36,7 +38,7 @@ jobs:
         with:
           # You can change the name of the tag with this input.
           # Default: 'latest'
-          tag-name: ${{ steps.branch.outputs._0 }}-dev-${{ steps.vars.outputs.sha_short }}
+          ref: ${{ steps.branch.outputs._0 }}-dev-${{ steps.vars.outputs.sha_short }}
 
   release:
     needs: tagging
