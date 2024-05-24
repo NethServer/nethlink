@@ -38,7 +38,7 @@ jobs:
         with:
           # You can change the name of the tag with this input.
           # Default: 'latest'
-          ref: ${{ steps.branch.outputs._0 }}-dev-${{ steps.vars.outputs.sha_short }}
+          ref: ${{ steps.branch.outputs._0 }}.dev.${{ steps.vars.outputs.sha_short }}
 
   release:
     needs: tagging
@@ -72,7 +72,7 @@ jobs:
           # (No need to define this secret in the repo settings)
           github_token: ${{ secrets.github_token }}
 
-          # Release the app with latest tag plus current sha commit. Eg 1.0.10-dev-e4d4b64
+          # Release the app with latest tag plus current sha commit. Eg v1.0.10-dev-e4d4b64
           # release the app after building
           release: true
 
