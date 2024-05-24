@@ -35,6 +35,17 @@ jobs:
         id: vars
         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
+      - name: Create tag
+        uses: actions/github-script@v5
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/v${{ steps.previoustag.outputs.tag }}-dev-${{ steps.vars.outputs.sha_short }}',
+              sha: context.sha
+            })
+
       - name: Prepare for app notarization
         if: startsWith(matrix.os, 'macos')
         # Import Apple API key for app notarization on macOS
@@ -52,7 +63,7 @@ jobs:
 
           # Release the app with latest tag plus current sha commit. Eg 1.0.10-dev-e4d4b64
           # release the app after building
-          release: v${{ steps.previoustag.outputs.tag }}-dev-${{ steps.vars.outputs.sha_short }}
+          release: true
 
           # macOS certificate files
           mac_certs: ${{ secrets.mac_certs }}
