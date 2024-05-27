@@ -52,10 +52,27 @@ jobs:
           APPLE_TEAM_ID: 8D66VDADVH
           DEBUG: electron-notarize*
 
-      - name: Upload artifacts
+      - name: Upload artifacts for Linux
         uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'
         with:
-          name: apps
-          path: 'dist/*'
+          name: linux-app
+          path: 'dist/*.AppImage'
+          if-no-files-found: error
+
+      - name: Upload artifacts for MacOS
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'macos-13'
+        with:
+          name: macos-app
+          path: 'dist/*.dmg'
+          if-no-files-found: error
+
+      - name: Upload artifacts for Windows
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'windows-latest'
+        with:
+          name: win-app
+          path: 'dist\*.exe'
           if-no-files-found: error
 
