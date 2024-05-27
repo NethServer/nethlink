@@ -1,38 +1,61 @@
 name: Commit and push dev tags
 
 on:
-  push:
-    branches:
-      - "dev"
-  workflow_dispatch:
+  pull_request:
+    branches: [develop]
 
 jobs:
-  tagging:
-    runs-on: ubuntu-latest
+  release-dev:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-13, ubuntu-latest, windows-latest]
+
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Get Previous tag
-        uses: actions-ecosystem/action-get-latest-tag@v1
-        id: get-latest-tag
-
-      - name: Get tag name without extra info
-        uses: jungwinter/split@master
-        id: branch
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v4
         with:
-          msg: ${{ steps.get-latest-tag.outputs.tag }}
-          separator: ".dev"
-          maxsplit: -1
+          node-version: 21
 
-      - name: Get short sha
-        id: vars
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Push Git Tag
+      - name: Prepare for app notarization
+        if: startsWith(matrix.os, 'macos')
+        # Import Apple API key for app notarization on macOS
         run: |
-          git config user.name "NethBot"
-          git config user.email "NethBot@users.noreply.github.com"
-          git commit --allow-empty -m '${{ steps.branch.outputs._0 }}.dev.${{ steps.vars.outputs.sha_short }}'
-          git tag ${{ steps.branch.outputs._0 }}.dev.${{ steps.vars.outputs.sha_short }}
-          git push origin dev --tags
+          mkdir -p ~/private_keys/
+          echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
+          xcrun --find notarytool
+
+      - name: Build/release Electron app
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          # GitHub token, automatically provided to the action
+          # (No need to define this secret in the repo settings)
+          github_token: ${{ secrets.github_token }}
+
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          release: false
+
+          # macOS certificate files
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_psw }}
+
+        env:
+          # macOS notarization API key
+          APPLE_ID: ${{ secrets.apple_id }}
+          APPLE_ID_PASSWORD: ${{ secrets.apple_id_password }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.apple_id_password }}
+          APPLE_TEAM_ID: 8D66VDADVH
+          DEBUG: electron-notarize*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apps
+          path: 'dist/*'
+          if-no-files-found: error
+
