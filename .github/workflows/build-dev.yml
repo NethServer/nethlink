@@ -1,4 +1,4 @@
-name: Build and Release Dev
+name: Commit and push dev tags
 
 on:
   push:

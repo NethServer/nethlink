@@ -1,4 +1,4 @@
-name: Build and Release Prod
+name: Build and release
 
 on:
   push:
