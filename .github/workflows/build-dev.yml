@@ -33,11 +33,6 @@ jobs:
         run: |
           git config user.name "NethBot"
           git config user.email "NethBot@users.noreply.github.com"
+          git commit --allow-empty -m '${{ steps.branch.outputs._0 }}.dev.${{ steps.vars.outputs.sha_short }}'
           git tag ${{ steps.branch.outputs._0 }}.dev.${{ steps.vars.outputs.sha_short }}
-          git push origin ${{ steps.branch.outputs._0 }}.dev.${{ steps.vars.outputs.sha_short }}
-
-      - name: Push tag
-        uses: actions-ecosystem/action-push-tag@v1
-        with:
-          tag: ${{ steps.branch.outputs._0 }}dev${{ steps.vars.outputs.sha_short }}
-          message: 'dev release: ${{ steps.branch.outputs._0 }}dev${{ steps.vars.outputs.sha_short }}'
+          git push origin dev --tags
