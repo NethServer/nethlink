@@ -25,9 +25,9 @@ jobs:
           PREVIOUS_JOB_ID=$(jq -r '.id' <<< "$WORKFLOW_RUN_EVENT_OBJ")
           echo "PREVIOUS_JOB_ID=$PREVIOUS_JOB_ID" >> "$GITHUB_ENV"
 
-          LINUX_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"linux-app\") | .id")
-          WIN_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"win-app\") | .id")
-          MACOS_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"macos-app\") | .id")
+          LINUX_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"linux-app.AppImage\") | .id")
+          WIN_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"win-app.exe\") | .id")
+          MACOS_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"macos-app.dmg\") | .id")
           echo "LINUX_ARTIFACT_ID=$LINUX_ARTIFACT_ID" >> "$GITHUB_ENV"
           echo "WIN_ARTIFACT_ID=$WIN_ARTIFACT_ID" >> "$GITHUB_ENV"
           echo "MACOS_ARTIFACT_ID=$MACOS_ARTIFACT_ID" >> "$GITHUB_ENV"
@@ -46,10 +46,10 @@ jobs:
         with:
           issue-number: ${{ env.PR_NUMBER }}
           body: |-
-            ## Automatic builds from ${{ env.PREVIOUS_JOB_ID }}:
+            ## Automatic builds from https://github.com/$OWNER/$REPO/actions/runs/${{ env.PREVIOUS_JOB_ID }}:
 
             | Name      | Platform | Link |
             |-----------|----------|------|
-            | win-app   | Windows  | [Link](https://github.com/nethesis/nethlink/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.WIN_ARTIFACT_ID }}) |
-            | macos-app | MacOS    | [Link](https://github.com/nethesis/nethlink/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.MACOS_ARTIFACT_ID }}) |
-            | linux-app | Linux    | [Link](https://github.com/nethesis/nethlink/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.LINUX_ARTIFACT_ID }}) |
+            | win-app.exe   | Windows  | [Link](https://github.com/$OWNER/$REPO/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.WIN_ARTIFACT_ID }}) |
+            | macos-app.dmg | MacOS    | [Link](https://github.com/$OWNER/$REPO/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.MACOS_ARTIFACT_ID }}) |
+            | linux-app.AppImage | Linux    | [Link](https://github.com/$OWNER/$REPO/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.LINUX_ARTIFACT_ID }}) |
