@@ -2,7 +2,7 @@ name: Commit and push dev tags
 
 on:
   pull_request:
-    branches: [develop]
+    branches: [dev]
 
 jobs:
   release-dev:
