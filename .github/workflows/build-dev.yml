@@ -11,21 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v2
 
       - name: Get Previous tag
-        id: previoustag
-        uses: "WyriHaximus/github-action-get-previous-tag@v1"
-        with:
-          fallback: 1.0.0 # Optional fallback tag to use when no tag can be found
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: get-latest-tag
 
       - name: Get tag name without extra info
         uses: jungwinter/split@master
         id: branch
         with:
-          msg: ${{ steps.previoustag.outputs.tag }}
+          msg: ${{ steps.get-latest-tag.outputs.tag }}
           separator: "dev"
           maxsplit: -1
 
