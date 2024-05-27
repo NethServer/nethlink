@@ -26,7 +26,7 @@ jobs:
         id: branch
         with:
           msg: ${{ steps.previoustag.outputs.tag }}
-          separator: "-"
+          separator: "."
           maxsplit: -1
 
       - name: Get short sha
@@ -38,60 +38,4 @@ jobs:
         with:
           # You can change the name of the tag with this input.
           # Default: 'latest'
-          ref: ${{ steps.branch.outputs._0 }}.dev.${{ steps.vars.outputs.sha_short }}
-
-  release:
-    needs: tagging
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [macos-13, ubuntu-latest, windows-latest]
-
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v4
-
-      - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v4
-        with:
-          node-version: 21
-
-      - name: Prepare for app notarization
-        if: startsWith(matrix.os, 'macos')
-        # Import Apple API key for app notarization on macOS
-        run: |
-          mkdir -p ~/private_keys/
-          echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
-          xcrun --find notarytool
-
-      - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-
-          # Release the app with latest tag plus current sha commit. Eg v1.0.10-dev-e4d4b64
-          # release the app after building
-          release: true
-
-          # macOS certificate files
-          mac_certs: ${{ secrets.mac_certs }}
-          mac_certs_password: ${{ secrets.mac_certs_psw }}
-
-        env:
-          # macOS notarization API key
-          APPLE_ID: ${{ secrets.apple_id }}
-          APPLE_ID_PASSWORD: ${{ secrets.apple_id_password }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.apple_id_password }}
-          APPLE_TEAM_ID: 8D66VDADVH
-          DEBUG: electron-notarize*
-
-      - name: Archive notorization logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: notorization-logs
-          path: notarization-error.log
-          if-no-files-found: ignore
+          ref: ${{ steps.branch.outputs._0 }}dev${{ steps.vars.outputs.sha_short }}
