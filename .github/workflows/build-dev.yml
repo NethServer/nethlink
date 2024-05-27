@@ -1,8 +1,9 @@
-name: Commit and push dev tags
+name: Build and release dev apps
 
 on:
   pull_request:
     branches: [dev]
+    types: [synchronize]
 
 jobs:
   release-dev:
@@ -56,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: matrix.os == 'ubuntu-latest'
         with:
-          name: linux-app
+          name: linux-app.AppImage
           path: 'dist/*.AppImage'
           if-no-files-found: error
 
@@ -64,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: matrix.os == 'macos-13'
         with:
-          name: macos-app
+          name: macos-app.dmg
           path: 'dist/*.dmg'
           if-no-files-found: error
 
@@ -72,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: matrix.os == 'windows-latest'
         with:
-          name: win-app
+          name: win-app.exe
           path: 'dist\*.exe'
           if-no-files-found: error
 
