@@ -2,6 +2,7 @@ name: Comment artifacts to PR
 
 # Triggered by the name of the previous
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: [Build and release dev apps]
     types: [completed]
