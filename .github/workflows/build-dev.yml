@@ -22,7 +22,7 @@ jobs:
         id: branch
         with:
           msg: ${{ steps.get-latest-tag.outputs.tag }}
-          separator: "dev"
+          separator: ".dev"
           maxsplit: -1
 
       - name: Get short sha
