@@ -3,7 +3,7 @@ name: Build and release dev apps
 on:
   pull_request:
     branches: [dev]
-    types: [opened, reopened, synchronize]
+    types: [synchronize]
 
 jobs:
   release-dev:
