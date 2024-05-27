@@ -17,6 +17,7 @@ jobs:
     steps:
       - name: Get Artifacts Links
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
           WORKFLOW_RUN_EVENT_OBJ: ${{ toJSON(github.event.workflow_run) }}
