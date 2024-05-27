@@ -46,11 +46,11 @@ jobs:
         with:
           issue-number: ${{ env.PR_NUMBER }}
           body: |-
-            Automatic builds from https://github.com/${{ env.OWNER }}/${{ env.REPO }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}.
+            Automatic builds from https://github.com/${{ OWNER }}/${{ REPO }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}.
             Commit:  ${{ env.HEAD_SHA }}
 
             | Name      | Platform | Link |
             |-----------|----------|------|
-            | win-app.exe   | Windows  | [Link](https://github.com/${{ env.OWNER }}/${{ env.REPO }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.WIN_ARTIFACT_ID }}) |
-            | macos-app.dmg | MacOS    | [Link](https://github.com/${{ env.OWNER }}/${{ env.REPO }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.MACOS_ARTIFACT_ID }}) |
-            | linux-app.AppImage | Linux    | [Link](https://github.com/${{ env.OWNER }}/${{ env.REPO }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.LINUX_ARTIFACT_ID }}) |
+            | win-app.exe   | Windows  | [Link](https://github.com/${{ OWNER }}/${{ REPO }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.WIN_ARTIFACT_ID }}) |
+            | macos-app.dmg | MacOS    | [Link](https://github.com/${{ OWNER }}/${{ REPO }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.MACOS_ARTIFACT_ID }}) |
+            | linux-app.AppImage | Linux    | [Link](https://github.com/${{ OWNER }}/${{ REPO }}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.LINUX_ARTIFACT_ID }}) |
