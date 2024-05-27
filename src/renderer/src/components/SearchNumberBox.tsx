@@ -9,9 +9,9 @@ import { log } from '@shared/utils/logger'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { cloneDeep } from 'lodash'
-import { sortByProperty } from '@renderer/lib/utils'
+import { cleanRegex, getIsPhoneNumber, sortByProperty } from '@renderer/lib/utils'
 
-const cleanRegex = /[^a-zA-Z0-9]/g
+
 export interface SearchNumberBoxProps {
   searchText: string
   callUser: (phoneNumber: string) => void
@@ -48,21 +48,6 @@ export function SearchNumberBox({
   useEffect(() => {
     preparePhoneNumbers(unFilteredPhoneNumbers)
   }, [unFilteredPhoneNumbers, searchText])
-
-
-  const getIsPhoneNumber = (text: string) => {
-    const cleanQuery = text.replace(cleanRegex, '')
-    if (cleanQuery.length == 0) {
-      return false
-    }
-    let isPhoneNumber = false
-    if (/^\+?[0-9|\s]+$/.test(cleanQuery)) {
-      // show "Call phone number" result
-      isPhoneNumber = true
-    }
-    return isPhoneNumber
-  }
-
 
   const getFoundedOperators = () => {
     const cleanQuery = searchText.replace(cleanRegex, '')
@@ -174,10 +159,10 @@ export function SearchNumberBox({
         displayName: o?.name
       }
     })
-    const names = mappedOperators.map((o) => o.name.toLowerCase().replace(/\s/g, ''))
+    const names = mappedOperators.map((o) => o?.name?.toLowerCase()?.replace(/\s/g, ''))
 
     unFilteredNumbers = unFilteredNumbers.filter((e) => {
-      const target = e.name.toLowerCase().replace(/\s/g, '')
+      const target = e?.name?.toLowerCase()?.replace(/\s/g, '')
       log(target)
       if (!names.includes(target)) {
         names.push(target)

@@ -23,6 +23,19 @@ export const cleanClassName = (props: PropsWithChildren<object>): object => {
     source: props
   })
 }
+export const cleanRegex = /[^a-zA-Z0-9]/g
+export const getIsPhoneNumber = (text: string) => {
+  const cleanQuery = text.replace(cleanRegex, '')
+  if (cleanQuery.length == 0) {
+    return false
+  }
+  let isPhoneNumber = false
+  if (/^\+?[0-9|\s]+$/.test(cleanQuery)) {
+    // show "Call phone number" result
+    isPhoneNumber = true
+  }
+  return isPhoneNumber
+}
 
 export function handleNetworkError(error: any) {
   if (axios.isAxiosError(error)) {

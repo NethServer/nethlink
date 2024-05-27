@@ -32,6 +32,7 @@ import { Button } from '@renderer/components/Nethesis'
 import { SpeedDialFormBox } from '@renderer/components/SpeedDialFormBox'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { sendNotification, truncate } from '@renderer/utils'
+import { getIsPhoneNumber } from '@renderer/lib/utils'
 
 export interface NethLinkPageProps {
   themeMode: string
@@ -64,7 +65,9 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     //log('USERAGENT', navigator.userAgent.includes('Linux'))
   }, true)
   useEffect(() => {
-    if (search.length > 2) {
+    const isPhoneNumber = getIsPhoneNumber(search)
+    //la ricerca é abilitata squando maggiore di due caratteri per i numeri e maggiore di 3 caratteri per il resto
+    if (search.length > (isPhoneNumber ? 2 : 3)) {
       debouncer(
         'search',
         () => {
