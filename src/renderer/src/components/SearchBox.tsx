@@ -52,8 +52,6 @@ export function SearchBox({ search, callUser, handleSearch, handleReset }: Searc
           }
         }}
         className="min-w-[222px] dark:text-titleDark text-titleLight"
-      /* Mi serve per dare spazio all' X Icon */
-      // inputClassName="pr-10"
       />
       {search !== '' && (
         <Button

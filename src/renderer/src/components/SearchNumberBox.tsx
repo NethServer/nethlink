@@ -169,7 +169,7 @@ export function SearchNumberBox({
         names.push(target)
         return true
       }
-      //mi assicuro di avere un set
+      //I make sure I have a set
       return false
     })
     const copy = [
@@ -178,22 +178,6 @@ export function SearchNumberBox({
     ]
 
     let _canAddInPhonebook = isPhoneNumber
-    //Permettiamo sempre di aggiungere un nuovo contatto solo se aggiungo un numero
-    // if (copy.length > 0) {
-    //   copy.forEach((contact) => {
-    //     if (_canAddInPhonebook)
-    //       _canAddInPhonebook = keys.reduce((p, k) => {
-    //         if (p) {
-    //           log(contact[k], cleanQuery, contact[k]?.replace(/\s/g, '') === cleanQuery)
-    //           if (contact[k]?.replace(/\s/g, '') === cleanQuery) {
-    //             p = false
-    //           }
-    //         }
-    //         return p
-    //       }, true)
-    //   })
-    // }
-
     log("COPY:", copy, filteredOperators, unFilteredNumbers)
 
     setFilteredPhoneNumbers(() => copy)

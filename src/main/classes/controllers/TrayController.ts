@@ -34,7 +34,6 @@ export class TrayController {
     const menu: (MenuItemConstructorOptions | MenuItem)[] = [
       {
         role: 'close',
-        //accelerator: 'Command+Q',
         commandId: 1,
         click: () => {
           AppController.safeQuit()

@@ -21,7 +21,6 @@ function Layout({ theme }: { theme?: AvailableThemes }) {
 
 export default function App() {
   const [page, setPage] = useLocalStoreState<PageType>('page')
-  //Potrebbe non servire
   const [theme, setTheme] = useLocalStoreState<AvailableThemes>('theme')
   const [classNameTheme, setClassNameTheme] = useState<AvailableThemes>(getSystemTheme())
   const [account, setAccount, accountRef] = useLocalStoreState<Account>('user')
@@ -77,7 +76,6 @@ export default function App() {
 
   const updateSystemTheme = (theme: AvailableThemes) => {
     log('FROM SYSTEM', theme, accountRef.current)
-    /* Aggiunta per il problema del cambio del tema nella loginPage e SplashScreenPage */
     if (accountRef.current === undefined) {
       updateTheme(getSystemTheme())
     }
@@ -117,14 +115,11 @@ export default function App() {
 
   const loader = async () => {
     let time = 0
-    //attendo che la lingua venga caricata oppure 1 secondo
+    //I wait for the language to load or 1 second
     while (time < 10 && !i18next.isInitialized) {
       await delay(100)
       time++
     }
-    //const devices = await navigator.mediaDevices.enumerateDevices()
-    //getUserMedia({ audio: {}, video: {} });
-    //log(devices)
     return null
   }
 

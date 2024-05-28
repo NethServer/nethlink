@@ -63,9 +63,6 @@ export function PhoneIslandPage() {
             break
         }
         if (PHONE_ISLAND_RESIZE.has(event)) {
-          //log('EVENT RESIZE', event)
-          //sono sicuro di avere l'evento. il controllo l'ho fatto con .has(event)
-
           switch (event) {
             case PHONE_ISLAND_EVENTS['phone-island-call-actions-opened']:
               isExpanded.current = false
@@ -83,13 +80,10 @@ export function PhoneIslandPage() {
               phoneIslandContainer.current?.children[1].setAttribute('style', '')
               break
           }
-          //sono stato chiamato, e la phone island è già visibile. non devo fare altri resize se ricevo nuovi ringing
-
           if (event === PHONE_ISLAND_EVENTS['phone-island-call-ringing']) {
             if (!isOnCall.current) {
               isOnCall.current = true
             } else {
-              //mi fermo prima
               return
             }
           }
@@ -112,11 +106,9 @@ export function PhoneIslandPage() {
   }
 
   function updateDataConfig(dataConfig: string | undefined, account: Account) {
-    //log('UPDATE DATA CONFIG')
     if (!dataConfig) {
-      //se non ho il data config sto effettuando un logout
+      //if I don't have the data config I am logging out
       const deviceInformationObject = account.data?.endpoints.extension.find((e) => e.type === 'nethlink')
-      //log(deviceInformationObject)
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-detach'], {
         deviceInformationObject
@@ -141,7 +133,6 @@ export function PhoneIslandPage() {
     if (deviceInformationObject) {
       try {
         await window.api.deviceDefaultChange(deviceInformationObject)
-        // dispatch.user.updateDefaultDevice(deviceIdInfo)
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
       } catch (err) {
         log(err)
@@ -150,10 +141,9 @@ export function PhoneIslandPage() {
   }
 
   function redirectEventToMain(event: PHONE_ISLAND_EVENTS) {
-    //mi sottoscrivo all'evento che arriva sulla window della phone island
+    //I subscribe to the event coming on the phone island window
     useEventListener(event, (e) => {
-      //log(event, e)
-      //giro l'evento al main di electron -> poi il main propaga l'evento alle altre window che avranno attivato il corrispondente listener
+      //I turn the event to the electron main -> then the main propagates the event to the other windows that will have triggered the corresponding listener
       window.api[event](e)
     })
   }
@@ -161,7 +151,6 @@ export function PhoneIslandPage() {
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => redirectEventToMain(ev as PHONE_ISLAND_EVENTS))
 
   const RenderPhoneIsland = useCallback(() => {
-    //log("PHONE ISLAND RENDERER", dataConfig)
     return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={loadPath.current} uaType='mobile' />
   }, [dataConfig])
 

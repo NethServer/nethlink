@@ -15,7 +15,6 @@ const electronDetector: any = {
     return new Promise((resolve) => {
       window.api.getLocale().then((locale) => {
         const locales = uniq([locale!.split('-')[0], ...fallbackLng])
-        //log(locales)
         resolve(locales)
       }).catch(() => {
         resolve(fallbackLng)
@@ -27,10 +26,8 @@ const electronDetector: any = {
 
 const convertPath = (filename): string => {
   let dir = __dirname
-  // if (__dirname.includes('app.asar')) loadPath = join(__dirname.split('app.asar')[0], 'app.asar', loadPath)
   if (__dirname.includes('electron.asar')) dir = './public'
   let loadPath = join(dir, `locales/{{lng}}/${filename}.json`)
-  //log(__dirname, loadPath)
   return loadPath
 }
 
@@ -63,7 +60,6 @@ export const loadI18n = () => {
 }
 
 window.api.i18nextElectronBackend.onLanguageChange((args) => {
-  //log('args.lng', args.lng)
   i18next.changeLanguage(args.lng, (error, _t) => {
     if (error) {
       console.error(error)

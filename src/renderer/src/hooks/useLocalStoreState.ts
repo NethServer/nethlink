@@ -10,7 +10,6 @@ export function useLocalStoreState<T>(
   const store = useLocalStore()
   const subscribedData = useSubscriber<T>(selector)
   const setter = (newValue) => {
-    //log('set new value of', selector, newValue)
     if (typeof newValue == 'object') {
       newValue = Object.assign({}, newValue)
     }

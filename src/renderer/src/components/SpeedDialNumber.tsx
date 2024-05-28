@@ -77,7 +77,6 @@ export function SpeedDialNumber({
           <Menu>
             <div>
               <Menu.Button>
-                {/* <div className=""> */}
                 <Button
                   variant="ghost"
                   className="flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-bgDark hover:bg-bgLight"
@@ -87,10 +86,8 @@ export function SpeedDialNumber({
                     icon={MenuIcon}
                   />
                 </Button>
-                {/* </div> */}
               </Menu.Button>
             </div>
-            {/* Controllo per vedere se e' l'ultimo elemento, se e' cosi, il menu ha un top differente */}
             <Menu.Items
               className={`absolute ${isLastItem ? 'top-[-48px]' : 'top-0'} border dark:border-borderDark border-borderLight rounded-lg min-w-[180px] min-h-[84px] dark:bg-bgDark bg-bgLight translate-x-[calc(-100%+36px)] z-[110]`}
             >

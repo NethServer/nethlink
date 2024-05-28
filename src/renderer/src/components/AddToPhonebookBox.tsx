@@ -126,17 +126,17 @@ export function AddToPhonebookBox({
   }, [])
 
   function handleSave(data: ContactType) {
-    //NETHVOICE usa il valore '-' quando si inserisce una company che e' priva di nome
-    //data.name === '' puo' essere vera solo nel caso in cui si inserisce una company
+    //NETHVOICE uses the value '-' when entering a company that is unnamed
+    //data.name === '' can only be true in the case where you enter a company
     setIsLoading(true)
-    //Aggiunto un timeout per fare vedere lo spinner in quanto la chiamata e' troppo veloce
+    //Added a timeout to show the spinner as the call is too fast
     setTimeout(() => {
       if (watchType === 'company') {
         data.name = '-'
       }
       handleAddContactToPhonebook(data)
         .catch((error) => {
-          //TODO: gestione errore inserimento
+          //TODO: input error management
           console.error(error)
         })
         .finally(() => {

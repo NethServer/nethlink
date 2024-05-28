@@ -23,15 +23,13 @@ export class BaseWindow {
     this._window = createWindow(id, config, params)
     const onReady = (_e, completed_id) => {
       if (id === completed_id) {
-        //log('on build completition of', completed_id)
         this._callbacks.forEach((c) => c())
-        //una volta chiamate le rimuovo
+        //once called I remove them
         this._callbacks = []
       }
     }
 
     const onOpenDevTools = (_e, page_id) => {
-      //log('on build completition of', id, page_id, this._window?.webContents.isDevToolsOpened())
       log('open dev tool of', page_id === PAGES.SPLASHSCREEN)
       let targetWindow: BaseWindow | undefined
       switch (page_id) {

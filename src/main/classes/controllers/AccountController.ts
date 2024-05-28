@@ -47,12 +47,11 @@ export class AccountController {
     }
   }
 
-  //salva i dati dell'account nel file config.json
+  //saves the account data in the config.json file
   _saveNewAccountData(account: Account | undefined, isOpening = false, cryptString?: Buffer) {
     const { CONFIG_FILE } = this._getPaths()
     const config = this._getConfigFile(isOpening)
     const lastUser = config.lastUser
-    //log('save account', config.lastUser, account?.username, isOpening)
     if (account) {
       const uniqueAccountName = `${account.host}@${account.username}`
       if (cryptString)
@@ -90,7 +89,6 @@ export class AccountController {
     log('On logout account', account?.username, { isSoft })
     const API = NethVoiceAPI.api()
     try {
-      //if (!isSoft)
       await PhoneIslandController.instance.logout(account!)
       await API.Authentication.logout()
       log(`${account!.username} logout succesfully`)
@@ -116,7 +114,7 @@ export class AccountController {
     try {
       loggedAccount = await api.User.me()
     } catch {
-      //recupera la password salvata e tenta un nuovo login
+      //retrieve the saved password and attempt a new login
       if (account.cryptPsw) {
         try {
           const psw: Buffer = Buffer.from((account.cryptPsw as any).data)
@@ -134,7 +132,7 @@ export class AccountController {
           log(e)
         }
       } else {
-        //se fallisce, il token era scaduto, lo rimuovo come ultimo utente in modo che non provi ulteriomente a loggarsi con il token
+        //if he fails, the token was expired, I remove him as the last user so that he does not try further to log in with the token
         this.config!.lastUser = undefined
       }
     }
@@ -177,10 +175,9 @@ export class AccountController {
       try {
         const data = fs.readFileSync(CONFIG_FILE, { encoding: 'utf-8' })
         const config = JSON.parse(data)
-        //log(config)
         return Object.keys(config).includes('accounts')
       } catch (e) {
-        //se non riesce a trasformare il file in json allora non è ben scritto e quindi non posso andare avanti
+        //if it fails to transform the file to json then it is not well written and therefore I cannot move forward
         log(e)
         return false
       }
@@ -190,11 +187,10 @@ export class AccountController {
 
   createConfigFile() {
     const { CONFIG_PATH, CONFIG_FILE } = this._getPaths()
-    //Controllo se la cartella configs esiste, altrimenti la creo
+    //I check if the configs folder exists, if not, I create it
 
     if (!this.hasConfigsFolderOfFile()) {
       log("create config file")
-      //log('ENOENT')
       try {
         fs.mkdirSync(CONFIG_PATH)
       } catch (e) {

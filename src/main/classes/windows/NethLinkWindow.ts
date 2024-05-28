@@ -31,14 +31,12 @@ export class NethLinkWindow extends BaseWindow {
       fullscreen: false,
       acceptFirstMouse: false,
       frame: false,
-      //tabbingIdentifier: 'nethconnector',
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
     this.size = size
     this.screenBounds = screen.getPrimaryDisplay().bounds
     NethLinkWindow.instance = this
-    //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
   _setBounds() {
