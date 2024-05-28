@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NethLink</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap&family=Roboto+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="./public/TrayNotificationIcon.svg" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        background-image: url('./public/background.svg');
+        background-size: cover;
+      }
+      .font-mono {
+        font-family: 'Roboto Mono', monospace;
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', async function () {
+        const translations = {
+          en: {
+            description:
+              'Download NethLink update with bug fixes and new features.',
+            release: 'Release: ',
+            downloadUpdate: 'Download update',
+            chooseOS: 'Choose your operating system and click to start the download',
+            linux: 'Linux',
+            macos: 'MacOS',
+            windows: 'Windows',
+            feature1: "Don't miss a single call",
+            feature2: 'Speed dials',
+            feature3: 'All your contacts and Phonebook'
+          },
+          it: {
+            description:
+              "Scarica l'aggiornamento NethLink con correzioni di bug e nuove funzionalità per le impostazioni e lo stato.",
+            release: 'Rilascio: ',
+            downloadUpdate: "Scarica l'aggiornamento",
+            chooseOS: 'Scegli il tuo sistema operativo e clicca per avviare il download',
+            linux: 'Linux',
+            macos: 'MacOS',
+            windows: 'Windows',
+            feature1: 'Non perdere una chiamata',
+            feature2: 'Numeri veloci',
+            feature3: 'Tutti i tuoi contatti e rubrica'
+          }
+        }
+
+        const userLang = navigator.language.startsWith('it') ? 'it' : 'en'
+        const t = translations[userLang]
+
+        document.getElementById('description').innerText = t.description
+        document.getElementById('downloadUpdate').innerText = t.downloadUpdate
+        document.getElementById('chooseOS').innerText = t.chooseOS
+        document.getElementById('linux').querySelector('span').innerText = t.linux
+        document.getElementById('macos').querySelector('span').innerText = t.macos
+        document.getElementById('windows').querySelector('span').innerText = t.windows
+        document.getElementById('feature1').innerText = t.feature1
+        document.getElementById('feature2').innerText = t.feature2
+        document.getElementById('feature3').innerText = t.feature3
+
+        const os = navigator.userAgent
+        let selectedElement
+        let currentOS
+        if (os.indexOf('Linux') !== -1) {
+          currentOS = 'linux'
+          selectedElement = document.getElementById('linux')
+          selectedIconDownload = document.getElementById('linuxDownloadIcon')
+          selectedElement.classList.add('border-blue-500', 'text-white')
+          selectedIconDownload.classList.add('text-blue-500')
+        } else if (os.indexOf('Mac') !== -1) {
+          currentOS = 'macos'
+          selectedElement = document.getElementById('macos')
+          selectedIconDownload = document.getElementById('macDownloadIcon')
+          selectedElement.classList.add('border-blue-500', 'text-white')
+          selectedIconDownload.classList.add('text-blue-500')
+        } else if (os.indexOf('Windows') !== -1) {
+          currentOS = 'windows'
+          selectedElement = document.getElementById('windows')
+          selectedIconDownload = document.getElementById('windowsDownloadIcon')
+          selectedElement.classList.add('border-blue-500', 'text-white')
+          selectedIconDownload.classList.add('text-blue-500')
+        }
+
+        document.querySelectorAll('.os-button').forEach((button) => {
+          button.addEventListener('mouseenter', () => {
+            if (selectedElement) {
+              selectedElement.classList.remove('border-blue-500', 'text-white')
+              selectedElement = null
+            }
+            if (selectedIconDownload) {
+              selectedIconDownload.classList.remove('text-blue-500')
+              selectedIconDownload = null
+            }
+          })
+        })
+
+        const fetchDownloadLinks = async () => {
+          try {
+            const response = await fetch(
+              'https://api.github.com/repos/nethesis/nethlink/releases/latest'
+            )
+            const data = await response.json()
+
+            const releaseVersion = data.tag_name
+            document.getElementById('release').innerHTML =
+              `${t.release}<span class="font-mono">${releaseVersion}</span>`
+
+            const downloadUrls = data.assets
+              .filter(
+                (asset) =>
+                  asset.content_type === 'application/octet-stream' &&
+                  !asset.browser_download_url.endsWith('.blockmap')
+              )
+              .reduce((acc, asset) => {
+                const url = asset.browser_download_url
+                if (url.includes('setup.exe')) {
+                  acc.windowsUrl = url
+                } else if (url.includes('.AppImage')) {
+                  acc.linuxUrl = url
+                } else if (url.includes('.dmg')) {
+                  acc.macosUrl = url
+                }
+                return acc
+              }, {})
+
+            return downloadUrls
+          } catch (error) {
+            console.error('Cannot retrieve download url', error)
+            return {}
+          }
+        }
+
+        const downloadLinks = await fetchDownloadLinks()
+        document.getElementById('linux').href = downloadLinks.linuxUrl || '#'
+        document.getElementById('macos').href = downloadLinks.macosUrl || '#'
+        document.getElementById('windows').href = downloadLinks.windowsUrl || '#'
+      })
+    </script>
+  </head>
+  <body class="flex items-center justify-center h-screen">
+    <div class="bg-gray-950 py-14 px-12 rounded-2xl shadow-lg w-full max-w-4xl">
+      <div class="text-left mb-16 text-gray-200">
+        <img src="./public/Nethlink-logo.svg" alt="Nethlink logo" class="mb-4 w-36" />
+        <p id="description" class="mb-1"></p>
+        <p id="release" class="mb-4"></p>
+      </div>
+      <div class="text-gray-200">
+        <p id="downloadUpdate" class="font-medium text-2xl leading-5 mb-3"></p>
+        <p id="chooseOS" class="mb-4 leading-5"></p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <a
+            id="linux"
+            href="#"
+            class="os-button text-gray-200 py-3 px-3 rounded-lg inline-flex items-center justify-between border-2 border-gray-600 hover:border-blue-500 hover:text-blue-500"
+          >
+            <div class="flex items-center text-gray-200">
+              <i class="fab fa-linux mr-2 fa-xl"></i> <span></span>
+            </div>
+            <div class="download-text" id="linuxDownloadIcon">
+              <i class="fa-solid fa-circle-arrow-down fa-xl hover:text-blue-500"></i>
+            </div>
+          </a>
+          <a
+            id="macos"
+            href="#"
+            class="os-button text-gray-200 py-3 px-3 rounded-lg inline-flex items-center justify-between border-2 border-gray-600 hover:border-blue-500 hover:text-blue-500"
+          >
+            <div class="flex items-center text-gray-200">
+              <i class="fab fa-apple mr-2 fa-xl"></i> <span></span>
+            </div>
+            <div class="download-text" id="macDownloadIcon">
+              <i class="fa-solid fa-circle-arrow-down fa-xl"></i>
+            </div>
+          </a>
+          <a
+            id="windows"
+            href="#"
+            class="os-button text-gray-200 py-3 px-3 rounded-lg inline-flex items-center justify-between border-2 border-gray-600 hover:border-blue-500 hover:text-blue-500"
+          >
+            <div class="flex items-center text-gray-200">
+              <i class="fab fa-windows mr-2 fa-xl"></i> <span></span>
+            </div>
+            <div class="download-text" id="windowsDownloadIcon">
+              <i class="fa-solid fa-circle-arrow-down fa-xl hover:text-blue-500"></i>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="relative py-8">
+        <div class="absolute inset-6 flex items-center" aria-hidden="true">
+          <div class="w-full border-t border-gray-700"></div>
+        </div>
+      </div>
+      <div
+        class="flex flex-col sm:flex-row justify-center items-center text-gray-200 space-y-4 sm:space-y-0 space-x-8 pb-8"
+      >
+        <div class="flex items-center">
+          <i class="fas fa-solid fa-phone mr-2 fa-lg"></i>
+          <span id="feature1" class="text-xs"></span>
+        </div>
+        <div class="flex items-center">
+          <i class="fas fa-bolt mr-2 fa-lg"></i>
+          <span id="feature2" class="text-xs"></span>
+        </div>
+        <div class="flex items-center space-x-1">
+          <i class="fas fa-address-book mr-2 fa-lg"></i>
+          <span id="feature3" class="text-xs"></span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
