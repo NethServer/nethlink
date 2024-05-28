@@ -122,8 +122,9 @@ export function SearchNumberBox({
         return as < bs ? -1 : as > bs ? 1 : 0
       }
     })
-    const mappedOperators: SearchData[] = filteredOperators.map((o) => {
-      const id = o?.endpoints?.['extension']?.[0]?.['id']
+    const getId = (o) => parseInt(o?.endpoints?.['extension']?.[0]?.['id']) || -1
+    const mappedOperators: SearchData[] = filteredOperators.filter((o) => getId(o) !== -1).map((o) => {
+      const id = getId(o)
       return {
         ...o,
         cellphone: o?.endpoints?.['cellphone']?.[0]?.['id'],
@@ -136,7 +137,7 @@ export function SearchNumberBox({
         homepostalcode: '',
         homeprovince: '',
         homestreet: '',
-        id: id ? parseInt(id) : -1,
+        id: id,
         notes: '',
         owner_id: '',
         source: '',
@@ -199,13 +200,15 @@ export function SearchNumberBox({
     setCanAddToPhonebook(() => _canAddInPhonebook)
   }
 
+  const isCallButtonEnabled = isCallsEnabled && getIsPhoneNumber(searchText) && searchText.length > 1
+
   return (
     <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight">
       <div
-        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallsEnabled && getIsPhoneNumber(searchText) ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
+        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
 
         onClick={() => {
-          if (isCallsEnabled && getIsPhoneNumber(searchText))
+          if (isCallButtonEnabled)
             callUser(searchText)
         }}
       >

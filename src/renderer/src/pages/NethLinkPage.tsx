@@ -65,9 +65,9 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     //log('USERAGENT', navigator.userAgent.includes('Linux'))
   }, true)
   useEffect(() => {
-    const isPhoneNumber = getIsPhoneNumber(search)
+    //const isPhoneNumber = getIsPhoneNumber(search)
     //la ricerca é abilitata squando maggiore di due caratteri per i numeri e maggiore di 3 caratteri per il resto
-    if (search.length > (isPhoneNumber ? 2 : 3)) {
+    if (search.length >= 3) {
       debouncer(
         'search',
         () => {

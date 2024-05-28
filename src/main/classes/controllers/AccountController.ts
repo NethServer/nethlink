@@ -90,8 +90,8 @@ export class AccountController {
     log('On logout account', account?.username, { isSoft })
     const API = NethVoiceAPI.api()
     try {
-      if (!isSoft)
-        await PhoneIslandController.instance.logout(account!)
+      //if (!isSoft)
+      await PhoneIslandController.instance.logout(account!)
       await API.Authentication.logout()
       log(`${account!.username} logout succesfully`)
     } catch (e) {
