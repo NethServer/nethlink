@@ -109,7 +109,6 @@ export const getLocale = () => {
       case 'it':
         loc = it
         break
-      //// TODO add other languages
     }
   }
   return loc

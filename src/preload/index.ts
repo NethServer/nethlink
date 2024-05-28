@@ -81,7 +81,6 @@ function addListener(channel) {
   return (callback) => {
     ipcRenderer.on(channel, (e: Electron.IpcRendererEvent, ...args) => {
       callback(...args)
-      //log('listener', channel, ...args)
     })
   }
 }
@@ -89,14 +88,11 @@ function addListener(channel) {
 function setEmitterSync<T>(event): () => Promise<T> {
   return async (...args): Promise<T> => {
     return await new Promise((resolve, reject) => {
-      //questo timout serve ad eseguire i setter di react prima che il sendSync metta in freeze la UI
+      //this timout is used to execute the react setters before sendSync freezes the UI
       setTimeout(() => {
         const [returnValue, err] = ipcRenderer.sendSync(event, ...args) as [T, Error | undefined]
-        //log('sync emitter', event, res)
         if (err) reject(err)
         else resolve(returnValue)
-        //const res = ipcRenderer.sendSync(event, ...args)
-        //resolve(res)
       }, 100);
     })
   }
@@ -105,7 +101,6 @@ function setEmitterSync<T>(event): () => Promise<T> {
 function setEmitter(event) {
   return (...args: any[]) => {
     ipcRenderer.send(event, ...args)
-    //log('emitter', event)
   }
 }
 // @ts-ignore (define in dts)
@@ -182,8 +177,6 @@ const api: IElectronAPI = {
     }
   }, {})
 }
-
-//log(api)
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

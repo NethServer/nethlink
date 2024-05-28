@@ -261,7 +261,7 @@ export type OperatorsType = {
 
 export type GroupsType = {
   [groupName: string]: {
-    users: string[] // contiene gli username
+    users: string[] // contains the usernames
   }
 }
 
@@ -290,7 +290,7 @@ export type ExtensionsType = {
 }
 
 export type AvatarType = {
-  [username: string]: string //se presente c'è il base64
+  [username: string]: string //if present there is base64
 }
 
 export type QueuesType = {

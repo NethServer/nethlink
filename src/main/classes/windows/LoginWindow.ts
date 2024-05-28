@@ -1,7 +1,6 @@
 import { PAGES } from '@shared/types'
 import { AccountController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
-import { log } from '@shared/utils/logger'
 
 export const LOGIN_WINDOW_WIDTH = 500
 export class LoginWindow extends BaseWindow {
@@ -28,10 +27,8 @@ export class LoginWindow extends BaseWindow {
       fullscreen: false,
       acceptFirstMouse: false,
       frame: false,
-      //tabbingIdentifier: 'nethconnector',
       thickFrame: false
     })
-    //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 
   show(..._args: any): void {
@@ -51,7 +48,6 @@ export class LoginWindow extends BaseWindow {
         loginWindowHeight = 535
         break
     }
-    //log(accounts, loginWindowHeight)
     const bounds = this._window?.getBounds()
     this._window!.setBounds({ ...bounds, height: loginWindowHeight }, true)
     super.show(_args)

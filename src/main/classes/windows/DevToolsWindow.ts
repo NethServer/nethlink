@@ -20,6 +20,5 @@ export class DevToolsWindow extends BaseWindow {
       title: 'NethLink DevTools',
 
     })
-    //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 }

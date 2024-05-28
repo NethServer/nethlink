@@ -62,11 +62,8 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   useInitialize(() => {
     initialize()
-    //log('USERAGENT', navigator.userAgent.includes('Linux'))
   }, true)
   useEffect(() => {
-    //const isPhoneNumber = getIsPhoneNumber(search)
-    //la ricerca é abilitata squando maggiore di due caratteri per i numeri e maggiore di 3 caratteri per il resto
     if (search.length >= 3) {
       debouncer(
         'search',
@@ -77,8 +74,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       )
     }
   }, [search])
-
-  /* Problema con il tema del sistema se cambio il tema del sistema non viene effettutato  */
 
   function initialize() {
     Notification.requestPermission().then(() => {
@@ -115,10 +110,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       t('Notification.application_update_title'),
       t('Notification.application_update_body'),
       updateLink
-      // () => {
-      //   log(updateLink)
-      //   window.api.openExternalPage(updateLink)
-      // }
     )
   }
 
@@ -128,7 +119,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     const updatedOperators = {
       operators: operatorsRef.current?.operators || {},
       userEndpoints: operatorsRef.current?.operators || {},
-      //gli altri dati mi arrivano solo dalla fetch e quindi posso prenderli come validi
+      //the other data only comes to me from the fetch and so I can take it as valid
       avatars: operatorsRef.current?.avatars || {},
       groups: operatorsRef.current?.groups || {},
       extensions: operatorsRef.current?.extensions || {},
@@ -145,13 +136,11 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
         mainPresence: operator.mainPresence
       }
       log('change operators', operatorsRef.current, op)
-      //debouncer('onMainPresence', () => setOperators(operatorsRef.current))
     }
     saveOperators(updatedOperators, true)
   }
 
   function onQueueUpdate(queues: { [queueId: string]: any }) {
-    //log('onQueueUpdate', queuesRef.current, queues)
     queuesRef.current = {
       ...queuesRef.current,
       ...queues
@@ -174,7 +163,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       const newOperators = {
         operators: operatorsRef.current?.operators || {},
         userEndpoints: operatorsRef.current?.operators || {},
-        //gli altri dati mi arrivano solo dalla fetch e quindi posso prenderli come validi
+        //the other data only comes to me from the fetch and so I can take it as valid
         avatars: updateOperators.avatars,
         groups: updateOperators.groups,
         extensions: updateOperators.extensions,
@@ -193,14 +182,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       }
       setOperators(newOperators)
     }
-
-    // if (updateOperators?.hasOwnProperty('operators') && operatorsRef.current?.operators) {
-    //   //lo stato degli operatori deve arrivare dal segnale della main presence, quindi salto l'assegnazione in questo punto (dalla main presence i dati sono più aggiornati)
-    //   //updateOperators!.operators = operatorsRef.current!.operators
-    // }else{
-
-    // }
-
   }
 
   async function handleSearch(searchText: string) {
@@ -212,7 +193,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   function callUser(phoneNumber: string): void {
-    //log(phoneNumber)
     window.api.startCall(phoneNumber)
   }
 
@@ -221,12 +201,11 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     window.api.logout()
   }
 
-  //FUNZIONE PER IL CASO IN CUI SI AGGIUNGE UN NUOVO CONTATTO DA CREATE IN MISSEDCALL
+  //FUNCTION FOR THE CASE WHEN ADDING A NEW CONTACT TO BE CREATED IN MISSEDCALL
   function handleSelectedMissedCall(number: string, company: string | undefined) {
     if (company === undefined) {
       setSelectedMissedCall(() => ({ number, company: '' }))
     } else setSelectedMissedCall(() => ({ number, company }))
-    //log('SELECTED MISSED CALL', selectedMissedCall)
   }
 
   function handleSelectedSpeedDial(selectedSpeedDial: ContactType) {
@@ -323,8 +302,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   function handleOnSelectTheme(theme: AvailableThemes) {
     window.api.changeTheme(theme)
-    // accountRef.current!.theme = theme
-    // setAccount(accountRef.current)
   }
 
   function viewAllMissedCalls(): void {
@@ -433,8 +410,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                         handleSelectedMissedCall={handleSelectedMissedCall}
                       />
                     )}
-
-                    {/*   MODIFICHE */}
                     {search !== '' && !selectedMissedCall ? (
                       <div className="absolute top-0 left-0 z-[100] dark:bg-bgDark bg-bgLight h-full w-full rounded-bl-lg">
                         <SearchNumberBox
@@ -457,11 +432,8 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                         />
                       </div>
                     ) : null}
-
-                    {/* FINO A QUI */}
                   </div>
                 </div>
-                {/* Modal per l'eliminazione di una speedDials */}
                 <Modal
                   show={showDeleteModal}
                   focus={cancelDeleteButtonRef}

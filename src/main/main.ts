@@ -17,14 +17,14 @@ new AppController(app)
 new NetworkController()
 new AccountController(app)
 
-//registro tutti gli eventi che la parte frontend emette verso il backend
+//log all events that the frontend part issues to the backend
 registerIpcEvents()
 let isFirstStart = true
 let prevLoggedAccount: Account | undefined
 let isOnResume = false
 let windowsLoaded = 0
 
-//imposto che l'app si debba aprire all'avvio del sistema operativo
+//I set the app to open at operating system startup
 app.setLoginItemSettings({
   openAtLogin: true
 })
@@ -73,12 +73,7 @@ powerMonitor.on('resume', async () => {
 
 app.whenReady().then(async () => {
   log('APP READY')
-  //const id = powerSaveBlocker.start('prevent-display-sleep')
-  //console.log(powerSaveBlocker.isStarted(id))
-  //
-  //powerSaveBlocker.stop(id)
-
-  //assegno l'app come utilizzabile per la la risposta ai protocolli tel e callto
+  //I assign the app as usable for tel and callto protocol response
   protocol.handle('tel', (req) => {
     return handleTelProtocol(req.url)
   })
@@ -93,13 +88,13 @@ app.whenReady().then(async () => {
   })
 
 
-  //Creo l'istanza del Tray controller - gli definisco la funzione che deve eseguire al click sull'icona
+  //I create the Tray controller instance - I define to it the function it should execute upon clicking on the icon
   log(process.env)
   isDev() && new DevToolsController()
   new SplashScreenController()
   new TrayController()
 
-  //Visualizzo la splashscreen all'avvio dell'applicazione.
+  //I display the splashscreen when I start the application.
   SplashScreenController.instance.window.addOnBuildListener(startApp)
 })
 
@@ -113,15 +108,13 @@ const startApp = async () => {
   NethLinkController.instance.window.addOnBuildListener(updateBuildedWindows)
   LoginController.instance.window.addOnBuildListener(updateBuildedWindows)
 
-  //aspetto che tutte le finestre siano pronte o un max di 25 secondi
+  //I wait until all windows are ready or a maximum of 25 seconds
   let time = 0
   while (windowsLoaded <= 2 && time < 25) {
     await delay(100)
     time++
-    //log(time, windowsLoaded)
   }
   await getPermissions()
-  //log('call addOnBuildListener ')
   nativeTheme.on('updated', () => {
     const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
       ? 'dark'
@@ -134,28 +127,26 @@ const startApp = async () => {
       TrayController.instance.changeIconByTheme(updatedSystemTheme)
     })
   })
-  //una volta che il caricamento è completo abilito la possibilità di cliccare sull'icona nella tray
+  //once the loading is complete I enable the ability to click on the icon in the tray
   TrayController.instance.enableClick = true
-  //constollo se esiste il file di config (il file esiste solo se almeno un utente ha effettuato il login)
+  //I check if the config file exists (the file exists only if at least one user is logged in)
   if (AccountController.instance.hasConfigsFolderOfFile()) {
-    //sia che riesco ad effettuare il login con il token sia che lo faccio con la pagina di login mi devo registrare a questo evento
+    //whether I can login with the token or with the login page I have to register for this event
     AccountController.instance.addEventListener('LOGIN', onAccountLogin)
     try {
-      //provo a loggare l'utente con il token che aveva
+      //I try to log the user in with the token he had
       await AccountController.instance.autologin()
     } catch (e) {
       AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
       LoginController.instance.show()
     } finally {
-      //il caricamento è terminato, posso rimuovere la splashscreen
-      //SplashScreenController.instance.hide()
+      //loading has finished, I can remove the splashscreen
       SplashScreenController.instance.window.hide()
     }
   } else {
-    //il caricamento è terminato, posso rimuovere la splashscreen
-    //SplashScreenController.instance.hide()
+    //loading has finished, I can remove the splashscreen
     SplashScreenController.instance.window.hide()
-    //dichiaro cosa deve accadere quando l'utente effettua il login
+    //I declare what should happen when the user logs in
     AccountController.instance.addEventListener('LOGIN', onLoginFromLoginPage)
     AccountController.instance.addEventListener('LOGIN', onAccountLogin)
     LoginController.instance.show()
@@ -163,13 +154,13 @@ const startApp = async () => {
 }
 const onAccountLogin = (account: Account) => {
   try {
-    //loggo il nuovo accopunt sulla phone island
+    //I log the new account on the phone island
     PhoneIslandController.instance.login(account)
-    //inizializzo la pagina di nethLink e avvio i fetch di history, speeddials e l'interval sugli operatori
+    //I initialize the nethLink page and start fetching history, speeddials and the interval on the operators
     NethLinkController.instance.init(account)
-    //quando l'utente cambia devo riloggarlo sulla phone island
+    //when the user changes I have to relocate it to the phone island
 
-    //controllo se ci sono aggiornamenti
+    //check for updates
     if (isFirstStart) {
       isFirstStart = false
       checkForUpdate()
@@ -179,12 +170,12 @@ const onAccountLogin = (account: Account) => {
   }
   AccountController.instance.removeEventListener('LOGIN', onAccountLogin)
 
-  //essendomi loggato mi registro all'evento di logout
+  //having logged in I log out event
   AccountController.instance.addEventListener('LOGOUT', onAccountLogout)
 }
 
 const onAccountLogout = async (account: Account, isExit: boolean = false) => {
-  //ormai mi sono sloggato quindi rimuovo il listener
+  //by now I have logged off so I remove the listener
   AccountController.instance.removeEventListener('LOGOUT', onAccountLogout)
   if (!isExit) {
     NethLinkController.instance.hide()
@@ -195,7 +186,6 @@ const onAccountLogout = async (account: Account, isExit: boolean = false) => {
 }
 
 const onLoginFromLoginPage = (account: Account) => {
-  //log('Account', account.username, 'logged from login page')
   LoginController.instance.hide()
   AccountController.instance.removeEventListener('LOGIN', onLoginFromLoginPage)
 }
@@ -203,14 +193,13 @@ const onLoginFromLoginPage = (account: Account) => {
 const checkForUpdate = async () => {
   const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
   log(app.getVersion())
-  if (latestVersionData.name !== app.getVersion()) {
+  if (latestVersionData.name !== app.getVersion() || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }
 
 app.on('window-all-closed', () => {
   app.dock?.hide()
-  //i18nextBackend.clearMainBindings(ipcMain);
 })
 
 

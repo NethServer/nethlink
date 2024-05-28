@@ -25,13 +25,11 @@ export class PhoneIslandWindow extends BaseWindow {
       fullscreen: false,
       enableLargerThanScreen: false,
       frame: false,
-      //tabbingIdentifier: 'nethconnector',
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 },
       webPreferences: {
         nodeIntegration: true
       }
     })
-    //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 }

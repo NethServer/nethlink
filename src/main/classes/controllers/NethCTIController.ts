@@ -97,7 +97,7 @@ export class NethVoiceAPI {
                 if (!nethlinkExtension)
                   reject(new Error("Questo utente non è abilitato all'uso del NethLink"))
                 else {
-                  //importo il file config di questo host per prelevare le informazioni su SIP_host e port solo se sono su demo-leopard devo prenderli statici
+                  //I import the config file of this host to take the information about SIP_host and port only if I am on demo-leopard I have to take them static
                   let SIP_HOST = '127.0.0.1'
                   let SIP_PORT = '5060'
                   let NUMERIC_TIMEZONE = '+0200'
@@ -148,12 +148,6 @@ export class NethVoiceAPI {
     },
     phoneIslandTokenLogin: async () =>
       await this._POST('/webrest/authentication/phone_island_token_login'),
-    // persistantTokenRemove: async () =>
-    //   await this._POST('/webrest/authentication/persistent_token_remove', {
-    //     type: 'phone-island'
-    //   }),
-    // phoneIslandTokenChack: async () =>
-    //   await this._GET('/webrest/authentication/phone_island_token_exists')
   }
 
   CustCard = {}
@@ -213,14 +207,11 @@ export class NethVoiceAPI {
       return newSpeedDial
     },
     updateSpeeddial: async (edit: NewSpeedDialType, current: ContactType) => {
-      //log(edit)
-
       if (current.name && current.speeddial_num) {
         const editedSpeedDial = Object.assign({}, current)
         editedSpeedDial.speeddial_num = edit.speeddial_num
         editedSpeedDial.name = edit.name
         editedSpeedDial.id = editedSpeedDial.id?.toString()
-        //log('Edited speedDial', editedSpeedDial, current)
         await this._POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
         return editedSpeedDial
       }
@@ -229,11 +220,9 @@ export class NethVoiceAPI {
       await this._POST(`/webrest/phonebook/delete_cticontact`, { id: '' + obj.id })
       return obj
     },
-    ///CONTACTS
-    //PROVA A METTERE IL CONTACTTYPE E NON IL NEWCONTACTTYPE
+    //CONTACTS
     createContact: async (create: ContactType) => {
-      //L"API VUOLE IL PARAMETRO setInput
-      const newContact: ContactType /* & { setInput: string } */ = {
+      const newContact: ContactType = {
         privacy: create.privacy,
         type: create.privacy,
         name: create.name,
@@ -246,9 +235,7 @@ export class NethVoiceAPI {
         //DEFAULT VALUES
         favorite: false,
         selectedPrefNum: 'extension',
-        //setInput: ''
       }
-      //console.log("DATA: ", newContact)
       await this._POST(`/webrest/phonebook/create`, newContact)
       return newContact
     },
@@ -286,18 +273,17 @@ export class NethVoiceAPI {
     heartbeat: async (extension: string) => await this._POST('/webrest/user/nethlink', { extension }),
     default_device: async (deviceIdInformation: Extension) => await this._POST('/webrest/user/default_device', { id: deviceIdInformation.id }),
     setPresence: async (status: StatusTypes) => await this._POST('/webrest/user/presence', { status })
-    //all_avatars: () => this._GET('/webrest/user/all_avatars'),
   }
 
   Voicemail = {}
 
   fetchOperators = async (): Promise<OperatorData> => {
-    const endpoints: OperatorsType = await this.User.all_endpoints() //tutti i dispositivi
+    const endpoints: OperatorsType = await this.User.all_endpoints() //all devices
     const groups = await this.AstProxy.groups() //
     const extensions = await this.AstProxy.extensions()
     const avatars = await this.User.all_avatars()
     return {
-      userEndpoints: endpoints, //posso rimuoverlo
+      userEndpoints: endpoints, //TODO: remove this
       operators: endpoints,
       extensions,
       groups,

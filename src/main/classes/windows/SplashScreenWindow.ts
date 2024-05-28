@@ -25,10 +25,8 @@ export class SplashScreenWindow extends BaseWindow {
       fullscreen: false,
       acceptFirstMouse: false,
       frame: false,
-      //tabbingIdentifier: 'nethconnector',
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
-    //this._window?.webContents.openDevTools({ mode: 'detach' })
   }
 }

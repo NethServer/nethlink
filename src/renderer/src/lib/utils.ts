@@ -41,10 +41,6 @@ export function handleNetworkError(error: any) {
   if (axios.isAxiosError(error)) {
     console.error('error: ', error.message)
 
-    // if (!error.status) {
-    //   // the request probably failed because auth token is expired (and CORS policy misconfigured)
-    //   doLogout()
-    // }
     return null
   } else {
     console.error('unexpected error: ', error)
@@ -54,7 +50,6 @@ export function handleNetworkError(error: any) {
 
 /**
  * Sort function to order array elements by a specific property (for array of objects) or by a specific index (for arrays of arrays)
- *
  */
 export const sortByProperty = (property: string | number) => {
   return function (a: any, b: any) {

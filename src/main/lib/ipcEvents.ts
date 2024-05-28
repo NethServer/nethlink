@@ -39,10 +39,9 @@ function onSyncEmitter<T>(
 
 export function registerIpcEvents() {
 
-  //TODO: spostare ogni evento nel controller di appartenenza
+  //TODO: move each event to the controller it belongs to
   onSyncEmitter(IPC_EVENTS.LOGIN, async (...args) => {
     const [host, username, password] = args
-    //log(args)
     const tempAccount: Account = {
       host,
       username,
@@ -145,24 +144,20 @@ export function registerIpcEvents() {
     }
     const notification: Notification = new Notification(options)
 
-    // notification.on('click', () => {
-    //   log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
-    //   if (openUrl) {
-    //     shell.openExternal(openUrl)
-    //   }
-    // })
-    notification.on('failed', () => log('NOTIFICATION failed'))
-    notification.on('action', () => log('NOTIFICATION action'))
-    notification.on('close', () => log('NOTIFICATION close'))
-    notification.on('reply', () => log('NOTIFICATION reply'))
-    notification.on('show', () => log('NOTIFICATION show'))
+    setTimeout(() => {
+      notification.on('failed', () => log('NOTIFICATION failed'))
+      notification.on('action', () => log('NOTIFICATION action'))
+      notification.on('close', () => log('NOTIFICATION close'))
+      notification.on('reply', () => log('NOTIFICATION reply'))
+      notification.on('show', () => log('NOTIFICATION show'))
 
-    notification.on("click", () => {
-      log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
-      if (openUrl) {
-        shell.openExternal(openUrl)
-      }
-    })
+      notification.on("click", () => {
+        log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
+        if (openUrl) {
+          shell.openExternal(openUrl)
+        }
+      })
+    }, 100);
 
     notification.show()
     log('RECEIVED SEND NOTIFICATION', options, openUrl, notification)
@@ -173,7 +168,7 @@ export function registerIpcEvents() {
   Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
     ipcMain.on(ev, async (_event, ...args) => {
       const evName = `on-${ev}`
-      log('send back', evName, /*...args*/)
+      log('send back', evName)
       NethLinkController.instance.window.emit(evName, ...args)
       switch (ev) {
         case PHONE_ISLAND_EVENTS['phone-island-call-answered']:
@@ -194,12 +189,6 @@ export function registerIpcEvents() {
           NethVoiceAPI.api().User.setPresence('online')
           break;
       }
-      // if (ev === PHONE_ISLAND_EVENTS['phone-island-call-answered']) {
-      //   const username = AccountController.instance.getLoggedAccount()?.username
-      //   if (username) {
-      //     log(Object.keys(args[0]?.[username]?.conversations || {}).length > 0)
-      //   }
-      // }
     })
   })
 }

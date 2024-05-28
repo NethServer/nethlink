@@ -138,7 +138,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       if (!isFirstLogin) {
         window.api.resizeLoginWindow(515)
       } else {
-        //Aggiunto per via del possibile banner di errore
+        //Added because of possible error banner
         window.api.resizeLoginWindow(570)
       }
     }
@@ -250,7 +250,6 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     )
   }
 
-  /* TODO rendere tutti questi componenti dei veri componenti */
   const LoginForm = (
     <form
       onSubmit={(e) => {

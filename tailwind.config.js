@@ -1,43 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 
-// const colors = {
-//   'gray-950': '#030712',
-//   'gray-900': '#111827',
-//   'gray-700': '#374151',
-//   'gray-800': '#1f2937',
-//   'gray-600': '#4B5563',
-//   'gray-500': '#6B7280',
-//   'gray-400': '#9CA3AF',
-//   'gray-300': '#D1D5DB',
-//   'gray-200': '#E5E7EB',
-//   'gray-100': '#f3f4f6',
-//   'gray-50': '#F9FAFB',
-//   'blue-600': '#1D4ED8',
-//   'blue-500': '#3B82F6',
-//   'red-600': '#DC2626',
-//   'green-700': '#15803D'
-// }
 export default {
   content: [
     './src/renderer/index.html',
     './src/**/*.{js,jsx,ts,tsx}',
     './node_modules/@nethesis/phone_island/**/*.{js,jsx,ts,tsx}'
   ],
-  //darkMode: 'class',
   theme: {
     extend: {
       colors: {
         //borders
         borderDark: '#374151', //gray-700
         borderLight: '#E5E7EB', //gray-200
-
-        // primaryFocus: '#3b82f6', // blue-500
-        // primaryLighter: '#1d4ed8', // blue-700
-
-        // primaryLight: '#10b981', // emerald-500
-
-        // primaryDarkFocus: '#bfdbfe', // blue-200
-        // primaryDarker: '#3b82f6', // blue-500
 
         //primary
         primary: '#1d4ed8', // blue-700

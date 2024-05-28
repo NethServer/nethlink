@@ -53,7 +53,7 @@ export class NethLinkController {
     }).then(() => {
       this.window.emit(IPC_EVENTS.LOAD_DATA_END)
     })
-    //Avviso la nethWindow che l'utente è cambiato
+    //Alert the nethWindow that the user has changed
   }
 
   async loadData() {
