@@ -144,18 +144,20 @@ export function registerIpcEvents() {
     }
     const notification: Notification = new Notification(options)
 
-    notification.on('failed', () => log('NOTIFICATION failed'))
-    notification.on('action', () => log('NOTIFICATION action'))
-    notification.on('close', () => log('NOTIFICATION close'))
-    notification.on('reply', () => log('NOTIFICATION reply'))
-    notification.on('show', () => log('NOTIFICATION show'))
+    setTimeout(() => {
+      notification.on('failed', () => log('NOTIFICATION failed'))
+      notification.on('action', () => log('NOTIFICATION action'))
+      notification.on('close', () => log('NOTIFICATION close'))
+      notification.on('reply', () => log('NOTIFICATION reply'))
+      notification.on('show', () => log('NOTIFICATION show'))
 
-    notification.on("click", () => {
-      log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
-      if (openUrl) {
-        shell.openExternal(openUrl)
-      }
-    })
+      notification.on("click", () => {
+        log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
+        if (openUrl) {
+          shell.openExternal(openUrl)
+        }
+      })
+    }, 100);
 
     notification.show()
     log('RECEIVED SEND NOTIFICATION', options, openUrl, notification)
