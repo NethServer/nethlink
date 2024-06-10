@@ -1,4 +1,4 @@
-import { AvailableThemes, OperatorsType, PageType, QueuesType } from '@shared/types'
+import { AvailableThemes, Notifications, OperatorsType, PageType, QueuesType } from '@shared/types'
 import { create } from 'zustand'
 
 export type LocalStorageData = {
@@ -12,7 +12,7 @@ export type LocalStorageData = {
   toast?: any
   user?: any
   park?: any
-  notifications?: any
+  notifications?: Notifications
   userActions?: any
   globalSearch?: any
   queues?: QueuesType

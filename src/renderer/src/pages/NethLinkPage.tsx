@@ -12,7 +12,8 @@ import {
   ContactType,
   NewSpeedDialType,
   OperatorData,
-  QueuesType
+  QueuesType,
+  Notifications
 } from '@shared/types'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { SearchNumberBox } from '@renderer/components/SearchNumberBox'
@@ -33,6 +34,7 @@ import { SpeedDialFormBox } from '@renderer/components/SpeedDialFormBox'
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { sendNotification, truncate } from '@renderer/utils'
 import { getIsPhoneNumber } from '@renderer/lib/utils'
+import { AboutBox } from '@renderer/components'
 
 export interface NethLinkPageProps {
   themeMode: string
@@ -47,6 +49,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const [operators, setOperators, operatorsRef] = useLocalStoreState<OperatorData>('operators')
   const [loadData, setLoadData] = useLocalStoreState<boolean>('loadDataEnded')
   const [queues, setQueues, queuesRef] = useLocalStoreState<QueuesType>('queues')
+  const [notifications, setNotifications, notificationsRef] = useLocalStoreState<Notifications>('notifications')
   const [selectedMissedCall, setSelectedMissedCall] = useState<
     | {
       number?: string
@@ -106,11 +109,19 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const showUpdateAppNotification = () => {
     log('UPDATE')
     const updateLink = 'https://nethesis.github.io/nethlink/'
-    sendNotification(
-      t('Notification.application_update_title'),
-      t('Notification.application_update_body'),
-      updateLink
-    )
+    // sendNotification(
+    //   t('Notification.application_update_title'),
+    //   t('Notification.application_update_body'),
+    //   updateLink
+    // )
+    setNotifications({
+      ...notificationsRef.current,
+      system: {
+        update: {
+          message: updateLink
+        }
+      }
+    })
   }
 
   function onMainPresence(op: { [username: string]: any }) {
@@ -158,7 +169,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   function saveOperators(updateOperators: OperatorData | undefined, forceUpdate: boolean = false): void {
     log('UPDATE OPERATORS', updateOperators)
-    // eslint-disable-next-line no-prototype-builtins    
+    // eslint-disable-next-line no-prototype-builtins
     if (updateOperators) {
       const newOperators = {
         operators: operatorsRef.current?.operators || {},
@@ -403,13 +414,14 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
                           handleDeleteSpeedDial={handleDeleteSpeedDial}
                         />
                       )
-                    ) : (
-                      <MissedCallsBox
-                        missedCalls={missedCalls}
-                        viewAllMissedCalls={viewAllMissedCalls}
-                        handleSelectedMissedCall={handleSelectedMissedCall}
-                      />
-                    )}
+                    ) : selectedMenu === MENU_ELEMENT.ABOUT ? (
+                      <AboutBox />
+
+                    ) : (<MissedCallsBox
+                      missedCalls={missedCalls}
+                      viewAllMissedCalls={viewAllMissedCalls}
+                      handleSelectedMissedCall={handleSelectedMissedCall}
+                    />)}
                     {search !== '' && !selectedMissedCall ? (
                       <div className="absolute top-0 left-0 z-[100] dark:bg-bgDark bg-bgLight h-full w-full rounded-bl-lg">
                         <SearchNumberBox

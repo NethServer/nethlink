@@ -330,3 +330,13 @@ export type PageType = {
 
 export type Size = { w: number; h: number }
 
+
+export type Notifications = {
+  system: {
+    update: NotificationItem
+  }
+}
+
+export type NotificationItem = {
+  message: string,
+}
