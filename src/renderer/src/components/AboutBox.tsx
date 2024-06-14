@@ -1,5 +1,5 @@
 import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import darkHeader from '../assets/nethlinkDarkHeader.svg'
+import NethLinkLogoSimple from '../assets/LogoBlueSimple.svg'
 import { t } from 'i18next'
 import { Notifications, PageType } from '@shared/types'
 import { Button } from './Nethesis'
@@ -26,7 +26,7 @@ export function AboutBox({ }: AboutBoxProps) {
         <div>{t('About.title')}</div>
       </div>
       <div className='mt-8 mb-4 flex flex-col items-center gap-2'>
-        <img src={darkHeader} className="h-10 overflow-hidden object-cover place-items-start"></img>
+        <img src={NethLinkLogoSimple} className="h-10 overflow-hidden object-cover place-items-start"></img>
         <div className='font-medium'>NehLink by <span className='text-blue-500'>Nethesis</span></div>
       </div>
       <div className='text-gray-400'>{t('About.current_version', { version: page?.props.appVersion })}</div>
