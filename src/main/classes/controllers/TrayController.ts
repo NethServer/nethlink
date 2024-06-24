@@ -7,6 +7,7 @@ import { SplashScreenController } from './SplashScreenController'
 import { PhoneIslandController } from './PhoneIslandController'
 import { AppController } from './AppController'
 import { log } from '@shared/utils/logger'
+import { store } from '@/lib/mainStore'
 
 export class TrayController {
   tray: Tray
@@ -18,16 +19,14 @@ export class TrayController {
     const theme = nativeTheme.shouldUseDarkColors
       ? 'dark'
       : 'light'
-    log(theme)
     const image = this.getImage(theme)
-    log(image)
     this.tray = new Tray(image)
     this.tray.setIgnoreDoubleClickEvents(true)
     this.tray.on('click', () => {
       if (this.enableClick) {
         if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
         else if (NethLinkController.instance.window.isOpen()) NethLinkController.instance.hide()
-        else if (AccountController.instance.getLoggedAccount()) NethLinkController.instance.show()
+        else if (store.store['account']) NethLinkController.instance.show()
         else LoginController.instance.show()
       }
     })
@@ -62,7 +61,6 @@ export class TrayController {
 
   changeIconByTheme(theme: 'light' | 'dark') {
     const image = this.getImage(theme)
-    log(image)
     this.tray.setImage(image)
   }
 

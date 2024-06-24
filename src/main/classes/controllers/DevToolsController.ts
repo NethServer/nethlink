@@ -9,7 +9,7 @@ export class DevToolsController {
   }
 
   show(): void {
-    this.window!.show()
+    this.window.show()
   }
 
   hide(): void {

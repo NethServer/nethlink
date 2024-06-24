@@ -1,25 +1,30 @@
 import { ReactNode } from 'react'
-import { Avatar, Button } from './Nethesis'
-import { NumberCaller } from './NumberCaller'
 import { t } from 'i18next'
 import { OperatorData, SearchData } from '@shared/types'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAccount } from '@renderer/hooks/useAccount'
+import { useStoreState } from '@renderer/store'
+import { Avatar, Button } from '@renderer/components/Nethesis'
+import { NumberCaller } from '@renderer/components/NumberCaller'
+import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
+import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
+import { log } from '@shared/utils/logger'
 
 export interface SearchNumberProps {
   user: SearchData
   className?: string
-  callUser: (phoneNumber: string) => void
-  searchText: string
 }
 
-export function SearchNumber({ user, callUser, className, searchText }: SearchNumberProps) {
-  const operators = useSubscriber<OperatorData>('operators')
+export function SearchNumber({ user, className }: SearchNumberProps) {
+  const phoneBookModule = usePhonebookSearchModule()
+  const { callNumber } = usePhoneIslandEventHandler()
+  const [searchText] = phoneBookModule.searchTextState
+  const [operators] = useStoreState<OperatorData>('operators')
   const { isCallsEnabled } = useAccount()
+
   const getUsernameFromPhoneNumber = (number: string) => {
-    return operators.extensions[number]?.username
+    return operators?.extensions[number]?.username
   }
 
   function highlightMatch(number: string | undefined, searchText: string): ReactNode[] {
@@ -56,17 +61,16 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
     }
   }
 
-  phoneNumber =
-    phoneNumber ||
-    keys.reduce((p, c) => {
-      if (p === '') p = user[c] || ''
-      return p
-    }, '')
+  phoneNumber = phoneNumber || keys.reduce((p, c) => {
+    if (p === '')
+      p = user[c] || ''
+    return p
+  }, '')
 
-  const highlightedNumber = highlightMatch(phoneNumber, searchText)
+  const highlightedNumber = highlightMatch(phoneNumber, searchText || '')
 
   const username = getUsernameFromPhoneNumber(phoneNumber)
-  const avatarSrc = operators?.avatars?.[username]
+  const avatarSrc = username ? operators?.avatars?.[username] : ''
 
   return (
     <div
@@ -77,7 +81,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
           <Avatar
             size="small"
             src={avatarSrc}
-            status={operators?.operators?.[username]?.mainPresence || undefined}
+            status={username ? operators?.operators?.[username]?.mainPresence : undefined}
             bordered={true}
           />
         ) : (
@@ -104,7 +108,7 @@ export function SearchNumber({ user, callUser, className, searchText }: SearchNu
         variant="ghost"
         disabled={!isCallsEnabled}
         onClick={() => {
-          callUser(phoneNumber!)
+          callNumber(phoneNumber!)
         }}
       >
         <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">

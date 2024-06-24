@@ -3,55 +3,43 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useEffect, useState } from 'react'
-import { OperatorData, SearchCallData, SearchData } from '@shared/types'
+import { NethLinkPageData, OperatorData, SearchCallData, SearchData } from '@shared/types'
 import { t } from 'i18next'
 import { log } from '@shared/utils/logger'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { cloneDeep } from 'lodash'
 import { cleanRegex, getIsPhoneNumber, sortByProperty } from '@renderer/lib/utils'
+import { useStoreState } from '@renderer/store'
+import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
+import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 
-
-export interface SearchNumberBoxProps {
-  searchText: string
-  callUser: (phoneNumber: string) => void
-  showAddContactToPhonebook: () => void
+interface SearchNumberBoxProps {
+  searchResult: SearchData[] | undefined,
+  showContactForm: () => void
 }
-
-export function SearchNumberBox({
-  searchText,
-  callUser,
-  showAddContactToPhonebook
-}: SearchNumberBoxProps) {
-  const operators = useSubscriber<OperatorData>('operators')
+export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberBoxProps) {
+  const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const { callNumber } = usePhoneIslandEventHandler()
+  const phoneBookModule = usePhonebookSearchModule()
+  const [searchText] = phoneBookModule.searchTextState
+  const [operators] = useStoreState<OperatorData>('operators')
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
-  const [unFilteredPhoneNumbers, setUnFilteredPhoneNumbers] = useState<SearchData[]>([])
   const [canAddToPhonebook, setCanAddToPhonebook] = useState<boolean>(false)
   const { isCallsEnabled } = useAccount()
 
-  useInitialize(() => {
-    window.api.onSearchResult(saveUnfiltered)
-  })
-
-  function saveUnfiltered(receivedPhoneNumbers: SearchCallData) {
-    log('Receveid numbers: ', receivedPhoneNumbers)
-    receivedPhoneNumbers.rows = receivedPhoneNumbers.rows.map((contact: SearchData) => {
-      return mapContact(contact)
-    })
-    const filteredNumbers = receivedPhoneNumbers.rows.filter(
-      (phoneNumber) => !(!phoneNumber.name || phoneNumber.name === '')
-    )
-
-    setUnFilteredPhoneNumbers(() => filteredNumbers)
-  }
 
   useEffect(() => {
-    preparePhoneNumbers(unFilteredPhoneNumbers)
-  }, [unFilteredPhoneNumbers, searchText])
+    if (searchResult)
+      preparePhoneNumbers(searchResult)
+  }, [searchResult, searchText])
+
+  const showAddContactToPhonebook = () => {
+    showContactForm()
+  }
 
   const getFoundedOperators = () => {
-    const cleanQuery = searchText.replace(cleanRegex, '')
-    let operatorsResults = Object.values(operators.operators).filter((op: any) => {
+    const cleanQuery = searchText?.replace(cleanRegex, '') || ''
+    let operatorsResults = Object.values(operators?.operators || {}).filter((op: any) => {
       return (
         (op.name && new RegExp(cleanQuery, 'i').test(op.name.replace(cleanRegex, ''))) ||
         new RegExp(cleanQuery, 'i').test(op.endpoints?.mainextension[0]?.id)
@@ -69,32 +57,15 @@ export function SearchNumberBox({
     return operatorsResults
   }
 
-  function mapContact(contact: SearchData) {
-    // kind & display name
-    if (contact.name) {
-      contact.kind = 'person'
-      contact.displayName = contact.name
-    } else {
-      contact.kind = 'company'
-      contact.displayName = contact.company
-    }
-    contact.isOperator = false
-
-    // company contacts
-    if (contact.contacts) {
-      contact.contacts = JSON.parse(contact.contacts)
-    }
-    return contact
-  }
 
   function preparePhoneNumbers(unFilteredNumbers: SearchData[]) {
 
-    const cleanQuery = searchText.replace(cleanRegex, '')
+    const cleanQuery = searchText?.replace(cleanRegex, '') || ''
     if (cleanQuery.length == 0) {
       return
     }
 
-    const isPhoneNumber = getIsPhoneNumber(searchText)
+    const isPhoneNumber = getIsPhoneNumber(searchText || '')
 
     const keys = ['extension', 'cellphone', 'homephone', 'workphone']
     const s = (a) => {
@@ -107,11 +78,10 @@ export function SearchNumberBox({
     const filteredOperators = getFoundedOperators()
 
     unFilteredNumbers.sort((a, b) => {
-      log({ isPhoneNumber, aname: a?.name, anum: s(a), bname: b?.name, bnum: s(b) })
       if (isPhoneNumber) {
         const al = s(a).length
         if (al > 0) {
-          if (al === searchText.length) return -1
+          if (al === searchText?.length) return -1
           const bl = s(b).length
           if (bl > 0) return al - bl
         }
@@ -122,6 +92,7 @@ export function SearchNumberBox({
         return as < bs ? -1 : as > bs ? 1 : 0
       }
     })
+
     const getId = (o) => parseInt(o?.endpoints?.['extension']?.[0]?.['id']) || -1
     const mappedOperators: SearchData[] = filteredOperators.filter((o) => getId(o) !== -1).map((o) => {
       const id = getId(o)
@@ -164,7 +135,6 @@ export function SearchNumberBox({
 
     unFilteredNumbers = unFilteredNumbers.filter((e) => {
       const target = e?.name?.toLowerCase()?.replace(/\s/g, '')
-      log(target)
       if (!names.includes(target)) {
         names.push(target)
         return true
@@ -178,13 +148,15 @@ export function SearchNumberBox({
     ]
 
     let _canAddInPhonebook = isPhoneNumber
-    log("COPY:", copy, filteredOperators, unFilteredNumbers)
 
     setFilteredPhoneNumbers(() => copy)
+    log({
+      _canAddInPhonebook
+    })
     setCanAddToPhonebook(() => _canAddInPhonebook)
   }
 
-  const isCallButtonEnabled = isCallsEnabled && getIsPhoneNumber(searchText) && searchText.length > 1
+  const isCallButtonEnabled = searchText && isCallsEnabled && getIsPhoneNumber(searchText) && searchText.length > 1
 
   return (
     <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight">
@@ -192,8 +164,9 @@ export function SearchNumberBox({
         className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
 
         onClick={() => {
-          if (isCallButtonEnabled)
-            callUser(searchText)
+          log(isCallButtonEnabled, searchText)
+          if (isCallButtonEnabled && searchText)
+            callNumber(searchText)
         }}
       >
         <FontAwesomeIcon
@@ -214,17 +187,15 @@ export function SearchNumberBox({
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={AddUserIcon} />
         <p className="font-normal">
-          {t('Common.Add')} {searchText.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
+          {t('Common.Add')} {searchText?.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
         </p>
       </div>
       <div className={`border-b dark:border-borderDark border-borderLight`}></div>
       <div className="overflow-y-auto max-h-[178px]">
         {filteredPhoneNumbers.map((user, index) => (
           <SearchNumber
-            key={index}
+            key={'SearchNumber_' + index}
             user={user}
-            callUser={callUser}
-            searchText={searchText}
             className="dark:hover:bg-hoverDark hover:bg-hoverLight"
           />
         ))}

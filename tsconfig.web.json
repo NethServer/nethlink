@@ -6,7 +6,6 @@
     "src/renderer/src/**/*.tsx",
     "src/preload/*.d.ts",
     "src/shared/**/*",
-    "src/main/classes/controllers/StoreController.ts",
   ],
   "exclude": [
     "node_modules"

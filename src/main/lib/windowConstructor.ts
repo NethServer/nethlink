@@ -1,11 +1,9 @@
 import { is } from '@electron-toolkit/utils'
-import { BrowserWindow, app, ipcMain, nativeTheme } from 'electron'
+import { BrowserWindow, app, ipcMain } from 'electron'
 import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
-import { AccountController, PhoneIslandController } from '@/classes/controllers'
 import { AppController } from '@/classes/controllers/AppController'
-
 
 export type WindowOptions = {
   rendererPath?: string
@@ -25,6 +23,7 @@ export function createWindow(
 ): BrowserWindow {
   const mainWindow = new BrowserWindow({
     parent: undefined,
+    title: id,
     ...config,
     titleBarStyle: config.titleBarStyle ?? (process.platform === 'darwin' ? 'customButtonsOnHover' : 'hidden'),
     ...(process.platform === 'linux' ? (config.icon ? { icon: config.icon } : {}) : {}),
@@ -37,11 +36,12 @@ export function createWindow(
   })
   params = ({
     appVersion: app.getVersion(),
+    page: id,
     ...params
   })
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     const propsUrl = params
-      ? Object.entries(params).reduce((p, c) => `${p}${p !== '&' ? '?' : ''}${c[0]}=${c[1]}`, '')
+      ? Object.entries(params).reduce((p, c) => `${p}${p === '?' ? '' : '&'}${c[0]}=${c[1]}`, '?')
       : ''
     const devServerURL = `${process.env['ELECTRON_RENDERER_URL']!}/#/${id}${propsUrl}`
     mainWindow.loadURL(devServerURL, {})
@@ -53,15 +53,19 @@ export function createWindow(
     })
   }
 
-
   mainWindow.on('hide', () => { })
 
   mainWindow.on('close', () => {
-    AccountController.instance.stopAuthPolling()
     AppController.safeQuit()
   })
 
   mainBindings(ipcMain, mainWindow, fs)
+
+  mainWindow.on('ready-to-show', () => {
+    mainWindow.webContents.openDevTools({
+      mode: 'detach'
+    })
+  })
 
   return mainWindow
 }

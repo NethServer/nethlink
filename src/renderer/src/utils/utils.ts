@@ -3,8 +3,11 @@ import { twMerge } from 'tailwind-merge'
 import { PropsWithChildren } from 'react'
 import { log } from '@shared/utils/logger'
 import { NotificationConstructorOptions } from 'electron'
+import { AvailableThemes } from '@shared/types'
 
-
+export const parseThemeToClassName = (theme: AvailableThemes | undefined) => {
+  return theme === 'system' ? getSystemTheme() : theme || 'dark'
+}
 export function sendNotification(title: string, body: string, openUrl?: string) {
   const notificationoption: NotificationConstructorOptions = {
     title,

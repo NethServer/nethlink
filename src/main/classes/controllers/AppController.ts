@@ -7,7 +7,8 @@ import { SplashScreenController } from "./SplashScreenController"
 import { TrayController } from "./TrayController"
 import { log } from "@shared/utils/logger"
 import { DevToolsController } from "./DevToolsController"
-import { delay } from "@shared/utils/utils"
+import { store } from "@/lib/mainStore"
+import { isDev } from "@shared/utils/utils"
 
 export class AppController {
   static _app: Electron.App
@@ -20,51 +21,21 @@ export class AppController {
   static async safeQuit() {
     if (!AppController.onQuit) {
       AppController.onQuit = true
-      log('SAFE QUIT')
-      SplashScreenController.instance.window.hide()
-      NethLinkController.instance.window.hide()
-      PhoneIslandController.instance.window.hide()
-      LoginController.instance.window.hide()
-      AccountController.instance.removeAllEventListener()
-      const account = AccountController.instance.getLoggedAccount()
+      isDev() && log('SAFE QUIT')
+      PhoneIslandController.instance.logout()
+      NethLinkController.instance.logout()
       try {
-        if (account) {
-          await AccountController.instance.logout(true)
-        }
+        TrayController.instance.tray.destroy()
       } catch (e) {
         log(e)
       }
       setTimeout(async () => {
         try {
-          SplashScreenController.instance.window.quit()
-        } catch (e) {
-          log(e)
-        }
-        try {
-          NethLinkController.instance.window.quit()
-        } catch (e) {
-          log(e)
-        }
-        try {
-          PhoneIslandController.instance.window.quit()
-        } catch (e) {
-          log(e)
-        }
-        try {
-          LoginController.instance.window.quit()
-        } catch (e) {
-          log(e)
-        }
-        try {
-          TrayController.instance.tray.destroy()
-        } catch (e) {
-          log(e)
-        }
-        try {
           DevToolsController.instance?.window?.quit()
         } catch (e) {
           log(e)
         }
+        store.saveToDisk()
         AppController._app.exit()
       }, 1500)
     }

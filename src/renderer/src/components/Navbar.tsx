@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { SearchBox } from './SearchBox'
+import { SearchBox } from './Modules/SearchResults/SearchBox'
 import {
   faXmarkCircle as ExitIcon,
   faSliders as ThemeMenuIcon,
@@ -13,12 +13,13 @@ import {
 import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes, OperatorData } from '@shared/types'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { t } from 'i18next'
 import { Button } from './Nethesis'
 import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { isDev } from '@shared/utils/utils'
+import { useStoreState } from '@renderer/store'
+import { createRef, useRef } from 'react'
 
 export interface NavabarProps {
   search: string
@@ -38,49 +39,46 @@ const themeOptions = [
   { id: 3, name: 'dark', icon: DarkIcon }
 ]
 
-export function Navbar({
-  search,
-  account,
-  callUser,
-  onSelectTheme,
-  logout,
-  handleSearch,
-  handleReset,
-  goToNethVoicePage,
-  exitNethLink
-}: NavabarProps): JSX.Element {
+export function Navbar(): JSX.Element {
   const { status } = useAccount()
-  const operators = useSubscriber<OperatorData>('operators')
-  const theme = useSubscriber<AvailableThemes>('theme')
+  const [account] = useStoreState<Account>('account')
+  const [operators] = useStoreState<OperatorData>('operators')
+  const [theme, setTheme] = useStoreState<AvailableThemes>('theme')
 
   function handleSetTheme(theme) {
-    onSelectTheme(theme)
+    setTheme(theme)
   }
+  function handleGoToNethVoicePage() {
+    window.api.openHostPage('/')
+  }
+
+  function handleExitNethLink() {
+    window.api.exitNethLink()
+  }
+
+  function handleLogout() {
+    window.api.logout()
+  }
+
+  if (!account) return <></>
 
   return (
     <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 py-2">
-      <SearchBox
-        search={search}
-        callUser={callUser}
-        handleSearch={handleSearch}
-        handleReset={handleReset}
-      />
+      <SearchBox />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
-            <div>
-              <Listbox.Button>
-                <Button
-                  variant="ghost"
-                  className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1"
-                >
-                  <FontAwesomeIcon
-                    icon={ThemeMenuIcon}
-                    className="h-5 w-5 dark:text-gray-50 text-gray-700"
-                  />
-                </Button>
-              </Listbox.Button>
-            </div>
+            <Listbox.Button>
+              <Button
+                variant="ghost"
+                className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1"
+              >
+                <FontAwesomeIcon
+                  icon={ThemeMenuIcon}
+                  className="h-5 w-5 dark:text-gray-50 text-gray-700"
+                />
+              </Button>
+            </Listbox.Button>
             <Listbox.Options
               className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
@@ -158,7 +156,7 @@ export function Navbar({
               >
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6"
-                  onClick={goToNethVoicePage}
+                  onClick={handleGoToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={GoToNethVoiceIcon} />
                   <p className="font-normal inline">{t('TopBar.Go to NethVoice CTI')}</p>
@@ -168,7 +166,7 @@ export function Navbar({
                 as={'div'}
                 className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
-                <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={logout}>
+                <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={handleLogout}>
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
                   <p className="font-normal">{t('TopBar.Logout')}</p>
                 </div>
@@ -179,7 +177,7 @@ export function Navbar({
               >
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-6"
-                  onClick={exitNethLink}
+                  onClick={handleExitNethLink}
                 >
                   <FontAwesomeIcon className="text-base" icon={ExitIcon} />
                   <p className="font-normal">{t('Common.Quit')}</p>

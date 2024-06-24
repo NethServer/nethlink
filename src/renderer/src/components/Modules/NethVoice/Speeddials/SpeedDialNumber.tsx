@@ -6,21 +6,22 @@ import {
   faTrash as DeleteIcon,
   faCircleUser as UserIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { Avatar, Button } from './Nethesis/'
-import { NumberCaller } from './NumberCaller'
 import { Menu } from '@headlessui/react'
 import { ContactType, OperatorData } from '@shared/types'
 import { t } from 'i18next'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
-import { truncate } from '@renderer/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
+import { useStoreState } from '@renderer/store'
+import { Avatar, Button } from '@renderer/components/Nethesis'
+import { truncate } from '@renderer/utils'
+import { NumberCaller } from '@renderer/components/NumberCaller'
+import { isDev } from '@shared/utils/utils'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
   className?: string
   callUser: () => void
-  handleSelectedSpeedDial: (selectedSpeedDial: ContactType) => void
-  handleDeleteSpeedDial: (deletedSpeedDial: ContactType) => void
+  handleEditSpeedDial: (editSpeedDial: ContactType) => void
+  handleDeleteSpeedDial: (deleteSpeedDial: ContactType) => void
   isLastItem: boolean
 }
 
@@ -28,11 +29,11 @@ export function SpeedDialNumber({
   speedDial,
   className,
   callUser,
-  handleSelectedSpeedDial,
+  handleEditSpeedDial,
   handleDeleteSpeedDial,
   isLastItem
 }: SpeedDialNumberProps): JSX.Element {
-  const operators = useSubscriber<OperatorData>('operators')
+  const [operators] = useStoreState<OperatorData>('operators')
   const { isCallsEnabled } = useAccount()
   const avatarSrc =
     operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
@@ -54,7 +55,7 @@ export function SpeedDialNumber({
         />
         <div className="flex flex-col gap-1">
           <p className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
-            {truncate(speedDial.name!, 20)}
+            {isDev() && `[${speedDial.id}] `}{truncate(speedDial.name!, 20)}
           </p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
@@ -95,7 +96,7 @@ export function SpeedDialNumber({
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2"
                   onClick={() => {
-                    handleSelectedSpeedDial(speedDial)
+                    handleEditSpeedDial(speedDial)
                   }}
                 >
                   <div className="flex gap-3 items-center">

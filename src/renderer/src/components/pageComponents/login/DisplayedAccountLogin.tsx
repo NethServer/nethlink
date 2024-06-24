@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHeadset as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
-import { Avatar } from './Nethesis'
+import { Avatar } from '../../Nethesis'
 
 type DisplayedAccountLoginProps = {
   account?: Account

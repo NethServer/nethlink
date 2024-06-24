@@ -1,6 +1,7 @@
 import { IPC_EVENTS } from '@shared/constants'
 import { LOGIN_WINDOW_WIDTH, LoginWindow } from '../windows'
 import { AccountController } from './AccountController'
+import { log } from '@shared/utils/logger'
 
 export class LoginController {
   static instance: LoginController
@@ -20,12 +21,20 @@ export class LoginController {
     }
   }
   show() {
-    const availableAccounts = AccountController.instance.listAvailableAccounts()
-    this.window.emit(IPC_EVENTS.LOAD_ACCOUNTS, availableAccounts)
     this.window.show()
   }
 
   hide() {
     this.window!.hide()
   }
+
+  quit() {
+    try {
+      this.window.quit()
+    } catch (e) {
+      log(e)
+    }
+  }
+
+
 }

@@ -1,29 +1,23 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare as ShowMissedCallIcon } from '@fortawesome/free-solid-svg-icons'
-import { MissedCall } from './MissedCall'
+import { MissedCall } from './LastCall'
 import { CallData } from '@shared/types'
-import { Button } from './Nethesis/Button'
 import { t } from 'i18next'
-import { SkeletonRow } from './SkeletonRow'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { useStoreState } from '@renderer/store'
+import { Button } from '@renderer/components/Nethesis'
+import { SkeletonRow } from '@renderer/components/SkeletonRow'
 
-export interface MissedCallsBoxProps {
-  missedCalls: CallData[]
-  viewAllMissedCalls?: () => void
-  handleSelectedMissedCall: (number: string, company: string | undefined) => void
-}
+export function MissedCallsBox({ showContactForm }): JSX.Element {
 
-export function MissedCallsBox({
-  missedCalls,
-  viewAllMissedCalls,
-  handleSelectedMissedCall
-}: MissedCallsBoxProps): JSX.Element {
-
-  const isDataLoaded = useSubscriber<boolean>('loadDataEnded')
-  const missedCallsIn = missedCalls?.filter(
+  const [lastCalls] = useStoreState<CallData[]>('lastCalls')
+  const missedCallsIn = lastCalls?.filter(
     (call) => call.direction === 'in' && call.disposition === 'NO ANSWER'
   )
-  const title = `${t('QueueManager.Missed calls')} (${missedCallsIn.length})`
+  const title = `${t('QueueManager.Missed calls')} (${missedCallsIn?.length || 0})`
+
+  const viewAllMissedCalls = () => {
+    window.api.openHostPage('/history')
+  }
 
   return (
     <>
@@ -47,7 +41,7 @@ export function MissedCallsBox({
           </Button>
         </div>
         <div className="flex flex-col max-h-[240px] overflow-y-auto">
-          {isDataLoaded ? (missedCallsIn.map((call, idx) => {
+          {missedCallsIn ? missedCallsIn.map((call, idx) => {
             return (
               <div
                 className={`${idx === missedCallsIn.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
@@ -55,12 +49,12 @@ export function MissedCallsBox({
               >
                 <MissedCall
                   call={call}
+                  showContactForm={showContactForm}
                   className="dark:hover:bg-hoverDark hover:bg-hoverLight"
-                  handleSelectedMissedCall={handleSelectedMissedCall}
                 />
               </div>
             )
-          })) : Array(3).fill('').map((_, idx) => {
+          }) : Array(3).fill('').map((_, idx) => {
             return <div
               className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
               key={idx}

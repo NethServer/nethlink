@@ -2,11 +2,13 @@ import { PAGES, PageType } from '@shared/types'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { useStoreState } from '@renderer/store'
+import { useEffect } from 'react'
+import { log } from '@shared/utils/logger'
 
 export const DevToolsPage = () => {
-  const page = useSubscriber<PageType>('page')
-  useInitialize(() => {}, true)
+  const [page] = useStoreState<PageType>('page')
+  useInitialize(() => { }, true)
 
   return (
     <div className="flex flex-col gap-1 h-[100vh] justify-center items-stretch bg-gray-100 dark:bg-gray-900 ">

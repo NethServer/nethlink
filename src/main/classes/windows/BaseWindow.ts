@@ -20,38 +20,42 @@ export class BaseWindow {
     params = {
       ...params,
     }
-    this._window = createWindow(id, config, params)
-    const onReady = (_e, completed_id) => {
-      if (id === completed_id) {
-        this._callbacks.forEach((c) => c())
-        //once called I remove them
-        this._callbacks = []
-      }
+    const window = createWindow(id, config, params)
+    window.setTitle(id)
+    const instance = this
+    this._window = window
+    const onReady = (_e) => {
+      this._callbacks.forEach((c) => c())
+      //once called I remove them
+      this._callbacks = []
+
     }
 
-    const onOpenDevTools = (_e, page_id) => {
-      log('open dev tool of', page_id === PAGES.SPLASHSCREEN)
-      let targetWindow: BaseWindow | undefined
-      switch (page_id) {
-        case PAGES.DEVTOOLS: targetWindow = DevToolsController.instance.window; break;
-        case PAGES.LOGIN: targetWindow = LoginController.instance.window; break;
-        case PAGES.SPLASHSCREEN: targetWindow = SplashScreenController.instance.window; break;
-        case PAGES.NETHLINK: targetWindow = NethLinkController.instance.window; break;
-        case PAGES.PHONEISLAND: targetWindow = PhoneIslandController.instance.window; break;
-      }
-      if (targetWindow) {
-        targetWindow!.openDevTool()
-      }
+    function onOpenDevTools(e, page) {
+      instance.openDevTool(page,)
     }
-    this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
+
+    window.once('ready-to-show', onReady)
+    window.on('hide', () => {
+      //window.webContents.closeDevTools()
+    })
+    //this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
     this._window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
   }
-  openDevTool() {
-    this._window!.webContents.isDevToolsOpened()
-      ? this._window!.webContents.closeDevTools()
-      : this._window!.webContents.openDevTools({
-        mode: 'detach'
-      })
+
+  openDevTool(page) {
+    const windows = BrowserWindow.getAllWindows()
+    const target = windows.find((w) => {
+      return w.title === page
+    })
+    if (target) {
+      target.webContents.isDevToolsOpened()
+        ? target.webContents.closeDevTools()
+        : target.webContents.openDevTools({
+          title: target.title,
+          mode: 'detach'
+        })
+    }
   }
 
   getWindow() {

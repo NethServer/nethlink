@@ -1,51 +1,93 @@
 import { PhoneIsland } from '@nethesis/phone-island'
 import { eventDispatch } from '@renderer/hooks/eventDispatch'
-import { useEventListener } from '@renderer/hooks/useEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
-import { PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account, Extension, Size } from '@shared/types'
+import { useStoreState } from '@renderer/store'
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
+import { Account, Extension, OperatorData, OperatorsType, PhoneIslandConfig, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
-import { useState, useRef, useMemo, useCallback, createRef } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
+import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
+import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 
 export function PhoneIslandPage() {
-  const [dataConfig, setDataConfig] = useState<string | undefined>()
+  const [account] = useStoreState<Account | undefined>('account')
+  const [operators] = useStoreState<OperatorsType | undefined>('operators')
+  const { NethVoiceAPI } = useLoggedNethVoiceAPI()
+
+  const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
+  const [deviceInformationObject, setDeviceInformationObject] = useState<Extension | undefined>(undefined)
+
+  const isDataConfigCreated = useRef<boolean>(false)
+  const phoneIslandTokenLoginResponse = useRef<string>()
+  const loadPath = useRef<string | undefined>(undefined)
+  const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
+  const [onMainPresenceData, setMainPresenceData] = useState<{
+    op: {
+      [username: string]: any;
+    }
+  } | undefined>(undefined)
+
+  const {
+    onMainPresence,
+    onQueueUpdate
+  } = usePhoneIslandEventHandler()
+
   const isOnCall = useRef<boolean>(false)
   const isExpanded = useRef<boolean>(true)
   const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS>()
   const isMinimized = useRef<boolean>(false)
-  const loadPath = useRef<string | undefined>(undefined)
-  const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
+  const isDisconnected = useRef<boolean>(false)
 
   useInitialize(() => {
     loadPath.current = getI18nLoadPath()
-    window.api.onDataConfigChange(updateDataConfig)
-    window.api.onStartCall((number: number | string) => {
+    window.electron.receive(IPC_EVENTS.LOGOUT, logout)
+
+    window.electron.receive(IPC_EVENTS.START_CALL, (number: number | string) => {
+      log(account)
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
         number
       })
     })
 
-    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-user-already-login'], () => {
-      window.api.logout()
-    })
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
-      window.addEventListener(event, () => {
-        log('EVENT', event)
+      window.addEventListener(event, (...data) => {
+        const customEvent = data[0]
+        const detail = customEvent['detail']
+        log(event, detail)
         switch (event) {
+          case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
+            log('phone-island-default-device-changed', detail)
+            break
+          case PHONE_ISLAND_EVENTS['phone-island-user-already-login']:
+            window.api.logout()
+            break
+          case PHONE_ISLAND_EVENTS['phone-island-main-presence']:
+            setMainPresenceData(detail)
+            break
+          case PHONE_ISLAND_EVENTS['phone-island-queue-update']:
+            //onQueueUpdate(detail)
+            break
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
             window.api.showPhoneIsland()
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
           case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
-            log(event)
+          case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
             window.api.hidePhoneIsland()
             isOnCall.current = false
             break
+          case PHONE_ISLAND_EVENTS['phone-island-server-disconnected']:
+          case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
+            isDisconnected.current = true
+            break
+          case PHONE_ISLAND_EVENTS['phone-island-server-reloaded']:
+          case PHONE_ISLAND_EVENTS['phone-island-socket-connected']:
+            isDisconnected.current = false
+            break
           case PHONE_ISLAND_EVENTS['phone-island-expanded']:
-            log(lastResizeEvent.current)
             isMinimized.current = false
             if (lastResizeEvent.current) {
               const previouEventSize = getSizeFromResizeEvent(lastResizeEvent.current)
@@ -76,6 +118,9 @@ export function PhoneIslandPage() {
             case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
               phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px')
               break
+            case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
+              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px')
+              break
             default:
               phoneIslandContainer.current?.children[1].setAttribute('style', '')
               break
@@ -92,67 +137,82 @@ export function PhoneIslandPage() {
         }
       })
     })
-  }, true)
+  })
+
+  useEffect(() => {
+    if (onMainPresenceData) {
+      log("UPDATE MAIN PRESENCE", operators, onMainPresenceData)
+      onMainPresence(onMainPresenceData)
+    }
+  }, [onMainPresenceData])
 
   function getSizeFromResizeEvent(event: string): Size | undefined {
     const resizeEvent = PHONE_ISLAND_RESIZE.get(event)
     if (resizeEvent) {
       if (event !== PHONE_ISLAND_EVENTS['phone-island-compressed'])
         lastResizeEvent.current = event as PHONE_ISLAND_EVENTS
-      const size = resizeEvent(isExpanded.current, isMinimized.current)
+      const size = resizeEvent(isExpanded.current, isMinimized.current, isDisconnected.current)
       return size
     }
     return undefined
   }
 
-  function updateDataConfig(dataConfig: string | undefined, account: Account) {
-    if (!dataConfig) {
-      //if I don't have the data config I am logging out
-      const deviceInformationObject = account.data?.endpoints.extension.find((e) => e.type === 'nethlink')
-      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
+  const createDataConfig = async () => {
+    if (account) {
+      try {
+        phoneIslandTokenLoginResponse.current = (await NethVoiceAPI.Authentication.phoneIslandTokenLogin()).token
+        log('phoneIslandTokenLoginResponse', phoneIslandTokenLoginResponse.current)
+        const deviceInformationObject = account.data!.endpoints.extension.find((e) => e.type === 'nethlink')
+        setDeviceInformationObject(deviceInformationObject)
+      } catch (e) {
+        log(e)
+        isDataConfigCreated.current = false
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (account) {
+      if (!isDataConfigCreated.current) {
+        isDataConfigCreated.current = true
+        createDataConfig()
+      }
+
+    } else {
+      logout()
+    }
+  }, [account?.username, isDataConfigCreated.current])
+
+  useEffect(() => {
+    if (deviceInformationObject && account && phoneIslandTokenLoginResponse.current) {
+      const hostname = account!.host
+      const config: PhoneIslandConfig = {
+        hostname,
+        username: account.username,
+        authToken: phoneIslandTokenLoginResponse.current,
+        sipExten: deviceInformationObject.id,
+        sipSecret: deviceInformationObject.secret,
+        sipHost: account.sipHost || '',
+        sipPort: account.sipPort || ''
+      }
+      const dataConfig = btoa(
+        `${config.hostname}:${config.username}:${config.authToken}:${config.sipExten}:${config.sipSecret}:${config.sipHost}:${config.sipPort}`
+      )
+      log(dataConfig, config)
+      setDataConfig(dataConfig)
+    }
+  }, [deviceInformationObject, account?.username])
+
+  function logout() {
+    log("LOGOUT")
+    isDataConfigCreated.current = false
+    setDataConfig(undefined)
+    eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
+    if (deviceInformationObject)
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-detach'], {
         deviceInformationObject
       })
-    } else {
-      const endpoints = account.data?.endpoints
-      if (endpoints?.extension) {
-        //retrive the default information about the extension of nethlink type
-        //if main device setted to webrtc we must change it to nethlink
-        //launch events to change default device type
-        const nethlinkData = endpoints?.extension.filter((phone) => phone?.type === 'nethlink')
-        if (account?.data?.default_device?.type !== 'nethlink') {
-          log('phone-island-default-device-change')
-          setMainDeviceId(nethlinkData[0])
-        }
-      }
-    }
-    setDataConfig(() => dataConfig)
   }
-
-  const setMainDeviceId = async (deviceInformationObject: Extension | null) => {
-    if (deviceInformationObject) {
-      try {
-        await window.api.deviceDefaultChange(deviceInformationObject)
-        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
-      } catch (err) {
-        log(err)
-      }
-    }
-  }
-
-  function redirectEventToMain(event: PHONE_ISLAND_EVENTS) {
-    //I subscribe to the event coming on the phone island window
-    useEventListener(event, (e) => {
-      //I turn the event to the electron main -> then the main propagates the event to the other windows that will have triggered the corresponding listener
-      window.api[event](e)
-    })
-  }
-
-  Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => redirectEventToMain(ev as PHONE_ISLAND_EVENTS))
-
-  const RenderPhoneIsland = useCallback(() => {
-    return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={loadPath.current} uaType='mobile' />
-  }, [dataConfig])
 
   return (
     <div
@@ -160,7 +220,34 @@ export function PhoneIslandPage() {
       className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''}`}
     >
       <div className="absolute h-[100vh] w-[100vw]  radius-md backdrop-hue-rotate-90"></div>
-      <RenderPhoneIsland />
+      {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject} />}
     </div>
   )
+}
+
+const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, i18nLoadPath }) => {
+  const [account] = useStoreState<Account>('account')
+  const { NethVoiceAPI } = useLoggedNethVoiceAPI()
+
+  useEffect(() => {
+    updateAccountInfo()
+  }, [dataConfig])
+
+  const updateAccountInfo = async () => {
+    if (account!.data!.default_device.type !== 'nethlink' && deviceInformationObject) {
+      try {
+        await NethVoiceAPI.User.default_device(deviceInformationObject)
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
+      } catch (err) {
+        log(err)
+      }
+    }
+    log("ACCOUNT", account)
+  }
+
+  const PhoneIslandCompoent = useMemo(() => {
+    return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={i18nLoadPath} uaType='mobile' />
+  }, [account?.username, dataConfig])
+
+  return PhoneIslandCompoent
 }

@@ -6,16 +6,16 @@ import lightHeader from '../assets/nethlinkLightHeader.svg'
 import darkLogo from '../assets/nethvoiceDarkIcon.svg'
 import lightLogo from '../assets/nethvoiceLightIcon.svg'
 import { t } from 'i18next'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { PageType } from '@shared/types'
+import { useContext } from 'react'
+import { PageCtx } from '@renderer/contexts/pageContext'
 
 export interface SplashScreenPageProps {
   themeMode: string
 }
 
 export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
-  const page = useSubscriber<PageType>('page')
-  useInitialize(() => { }, true)
+  const page = useContext<PageType | undefined>(PageCtx)
 
   return (
     <div className="h-[100vh] w-[100vw] p-1 rounded-[10px]">

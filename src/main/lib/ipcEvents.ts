@@ -1,15 +1,19 @@
-import { AccountController, DevToolsController, NethVoiceAPI } from '@/classes/controllers'
+import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { Account } from '@shared/types'
-import { Notification, NotificationConstructorOptions, app, ipcMain, shell } from 'electron'
+import { Account, PAGES } from '@shared/types'
+import { BrowserWindow, Notification, NotificationConstructorOptions, app, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import { log } from '@shared/utils/logger'
 import { cloneDeep } from 'lodash'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
 import moment from 'moment'
+import { store } from './mainStore'
+import { getPageFromQuery, isDev } from '@shared/utils/utils'
+import { NetworkController } from '@/classes/controllers/NetworkController'
+import { useLogin } from '@shared/useLogin'
 
 
 function onSyncEmitter<T>(
@@ -40,54 +44,32 @@ function onSyncEmitter<T>(
 export function registerIpcEvents() {
 
   //TODO: move each event to the controller it belongs to
-  onSyncEmitter(IPC_EVENTS.LOGIN, async (...args) => {
-    const [host, username, password] = args
-    const tempAccount: Account = {
-      host,
-      username,
-      theme: 'system'
-    }
-    return await AccountController.instance.login(tempAccount, password)
-  })
-
-  onSyncEmitter(IPC_EVENTS.ADD_CONTACT_PHONEBOOK, (contact) =>
-    NethVoiceAPI.api().Phonebook.createContact(contact)
-  )
-
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
     return app.getSystemLocale()
   })
-  onSyncEmitter(IPC_EVENTS.ADD_CONTACT_SPEEDDIAL, async (contact) => {
-    await NethVoiceAPI.api().Phonebook.createSpeeddial(contact)
-    const speeddials = await NethVoiceAPI.api().Phonebook.speeddials()
-    return speeddials
-  }
-  )
-  onSyncEmitter(IPC_EVENTS.EDIT_SPEEDDIAL_CONTACT, (editContact, currentContact) =>
-    NethVoiceAPI.api().Phonebook.updateSpeeddial(editContact, currentContact)
-  )
 
-  onSyncEmitter(IPC_EVENTS.DELETE_SPEEDDIAL, (contact) =>
-    NethVoiceAPI.api().Phonebook.deleteSpeeddial(contact)
-  )
+  ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (event, newState, page, selector) => {
+    const windows = BrowserWindow.getAllWindows();
+    //const page = getPageFromQuery(event?.sender?.getTitle())
+    store.updateStore(newState)
+    const logData = Object.entries(newState).reduce((p, [k, v]) => {
+      p[k] = JSON.stringify(v)?.length;
+      return p
+    }, {})
+    windows.forEach(win => {
+      if (page !== win.webContents.getTitle()) {
+        win.webContents.send(IPC_EVENTS.SHARED_STATE_UPDATED, newState, page);
+        isDev() && log(IPC_EVENTS.SHARED_STATE_UPDATED, 'from:', page, 'to:', win.webContents.getTitle(), selector, logData)
+      }
+    });
+    isDev() && log(IPC_EVENTS.UPDATE_SHARED_STATE, page, selector, logData)
+  });
 
-  onSyncEmitter(IPC_EVENTS.DEVICE_DEFAULT_CHANGE, (deviceIdInformation) => new Promise(async (resolve, reject) => {
-    try {
-      const d = await NethVoiceAPI.api().User.default_device(deviceIdInformation)
-      await NethVoiceAPI.api().User.me()
-      resolve(d)
-    } catch (e) {
-      reject(e)
-    }
-  })
-
-  )
-
-  ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
-    log('logout from event')
-    AccountController.instance.logout()
-    NethLinkController.instance.hide()
-  })
+  ipcMain.on(IPC_EVENTS.REQUEST_SHARED_STATE, (event) => {
+    const page = getPageFromQuery(event?.sender?.getTitle())
+    event.sender.send(IPC_EVENTS.SHARED_STATE_UPDATED, store.store);
+    isDev() && log(IPC_EVENTS.REQUEST_SHARED_STATE, page)
+  });
 
   ipcMain.on(IPC_EVENTS.HIDE_NETH_LINK, async (event) => {
     NethLinkController.instance.window.hideWindowFromRenderer()
@@ -98,17 +80,14 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_HOST_PAGE, async (_, path) => {
-    const account = AccountController.instance.getLoggedAccount()
-    shell.openExternal(join(account!.host, path))
+    const account = store.store['account']
+    shell.openExternal(join('https://' + account!.host, path))
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_EXTERNAL_PAGE, async (_, path) => {
     shell.openExternal(join(path))
   })
 
-  ipcMain.on(IPC_EVENTS.START_CALL, async (_event, phoneNumber) => {
-    PhoneIslandController.instance.call(phoneNumber)
-  })
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (event, w, h) => {
     PhoneIslandController.instance.resize(w, h)
   })
@@ -133,9 +112,12 @@ export function registerIpcEvents() {
     NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
   })
 
-  ipcMain.on(IPC_EVENTS.SEARCH_TEXT, async (event, searchText) => {
-    const res = await NethVoiceAPI.api().Phonebook.search(searchText)
-    NethLinkController.instance.window.emit(IPC_EVENTS.RECEIVE_SEARCH_RESULT, res)
+  ipcMain.on(IPC_EVENTS.GET_NETHVOICE_CONFIG, async (e, account) => {
+    //I import the config file of this host to take the information about SIP_host and port only if I am on demo-leopard I have to take them static
+    const { parseConfig } = useLogin()
+    const config: string = await NetworkController.instance.get(`https://${account.host}/config/config.production.js`)
+    account = parseConfig(account, config)
+    e.reply(IPC_EVENTS.SET_NETHVOICE_CONFIG, account)
   })
 
   ipcMain.on(IPC_EVENTS.SEND_NOTIFICATION, (event, options: NotificationConstructorOptions, openUrl) => {
@@ -164,33 +146,6 @@ export function registerIpcEvents() {
 
   })
 
-  //SEND BACK ALL PHONE ISLAND EVENTS
-  Object.keys(PHONE_ISLAND_EVENTS).forEach((ev) => {
-    ipcMain.on(ev, async (_event, ...args) => {
-      const evName = `on-${ev}`
-      log('send back', evName)
-      NethLinkController.instance.window.emit(evName, ...args)
-      switch (ev) {
-        case PHONE_ISLAND_EVENTS['phone-island-call-answered']:
-        case PHONE_ISLAND_EVENTS['phone-island-call-started']:
-          const account = AccountController.instance.getLoggedAccount()
-          const nethlinkExtension = account!.data!.endpoints.extension.find((el) => el.type === 'nethlink')
-          NethVoiceAPI.api().User.heartbeat(`${nethlinkExtension!.id}`)
-          break;
-        case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
-          NethLinkController.instance.loadData()
-          break;
-        case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
-          const me = await NethVoiceAPI.api().User.me()
-          NethLinkController.instance.window.emit(IPC_EVENTS['ACCOUNT_CHANGE'], me)
-          PhoneIslandController.instance.window.emit(IPC_EVENTS['ACCOUNT_CHANGE'], me)
-          break;
-        case PHONE_ISLAND_EVENTS['phone-island-webrtc-registered']:
-          NethVoiceAPI.api().User.setPresence('online')
-          break;
-      }
-    })
-  })
 }
 
 

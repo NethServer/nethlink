@@ -5,31 +5,35 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { MissedCallIcon } from '@renderer/icons'
-import { Avatar, Button } from './Nethesis/'
-import { NumberCaller } from './NumberCaller'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { Avatar, Button } from '../../../Nethesis'
+import { NumberCaller } from '../../../NumberCaller'
 import { useEffect, useState } from 'react'
-import { Account, CallData, OperatorData, QueuesType } from '@shared/types'
+import { Account, CallData, ContactType, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
-import { CallsDate } from './Nethesis/CallsDate'
+import { CallsDate } from '../../../Nethesis/CallsDate'
 import { truncate } from '@renderer/utils'
 import { Tooltip } from 'react-tooltip'
-import { Badge } from './Nethesis/Badge'
+import { Badge } from '../../../Nethesis/Badge'
 import { useAccount } from '@renderer/hooks/useAccount'
+import { useStoreState } from '@renderer/store'
+import { useLastCallsModule } from './hook/useLastCallsModule'
+import { usePhonebookModule } from '../PhonebookModule/hook/usePhonebookModule'
 
 export interface MissedCallProps {
   call: CallData
+  showContactForm: () => void
   className?: string
-  handleSelectedMissedCall: (number, company) => void
 }
 
 export function MissedCall({
   call,
-  className,
-  handleSelectedMissedCall
+  showContactForm,
+  className
 }: MissedCallProps): JSX.Element {
-  const queues = useSubscriber<QueuesType>('queues')
-  const operators = useSubscriber<OperatorData>('operators')
+  const phonebookModule = usePhonebookModule()
+  const [selectedContact, setSelectedContact] = phonebookModule.selectedContact
+  const [queues] = useStoreState<QueuesType>('queues')
+  const [operators] = useStoreState<OperatorData>('operators')
   const { isCallsEnabled } = useAccount()
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
   const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
@@ -62,6 +66,16 @@ export function MissedCall({
     }
   }, [queues])
 
+  const handleSelectedMissedCall = (number: string, company: string | undefined) => {
+    if (company === undefined) {
+      setSelectedContact({ number, company: '' })
+    } else setSelectedContact({ number, company })
+  }
+
+  const handleCreateContact = () => {
+    handleSelectedMissedCall(call.cnum || '', call.ccompany)
+    showContactForm()
+  }
   return (
     <div
       className={`flex flex-grow gap-3 min-h-[72px] p-2 px-5 ${className}`}
@@ -149,7 +163,7 @@ export function MissedCall({
           <Button
             variant="ghost"
             className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto"
-            onClick={() => handleSelectedMissedCall(call.cnum, call.ccompany)}
+            onClick={handleCreateContact}
           >
             <FontAwesomeIcon
               className="text-base dark:text-textBlueDark text-textBlueLight"

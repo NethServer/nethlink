@@ -1,27 +1,25 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button, TextInput } from './Nethesis'
+import { Button, TextInput } from '../../../Nethesis'
 import { faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NewContactType, ContactType, NewSpeedDialType } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useSpeedDialsModule } from './hook/useSpeedDialsModule'
+import { sendNotification } from '@renderer/utils'
 
 type SpeedDialFormBoxData = {
   name: string
   speeddial_num: string
 }
 
-interface SpeedDialFormBoxProps {
-  initialData?: ContactType
-  onSubmit: (data: NewContactType | NewSpeedDialType) => Promise<void>
-  onCancel: () => void
-}
-
-export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialFormBoxProps) {
+export function SpeedDialFormBox({ close }) {
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const speedDialModule = useSpeedDialsModule()
+  const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
   const submitButtonRef = useRef<HTMLButtonElement>(null)
 
   const schema: z.ZodType<SpeedDialFormBoxData> = z.object({
@@ -42,34 +40,62 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
     handleSubmit,
     reset,
     formState: { errors }
-  } = useForm<NewContactType | NewSpeedDialType>({
-    defaultValues: initialData,
+  } = useForm<ContactType>({
     resolver: zodResolver(schema)
   })
 
-  const onSubmitForm: SubmitHandler<NewContactType | NewSpeedDialType> = (data) => {
+  const onSubmitForm: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
   }
 
-  function handleSave(data: NewContactType | NewSpeedDialType) {
+  const handleClose = () => {
+    reset()
+    close()
+  }
+
+  useEffect(() => {
+    reset(selectedSpeedDial)
+  }, [selectedSpeedDial])
+
+  function handleSave(data: ContactType) {
     setIsLoading(true)
-    onSubmit(data)
-      .then(() => {
-        reset()
-      })
-      .catch((error) => {
-        log(error)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    speedDialModule.upsertSpeedDial(data).then(() => {
+      if (selectedSpeedDial) {
+        sendNotification(
+          t('Notification.speeddial_modified_title'),
+          t('Notification.speeddial_modified_description')
+        )
+      } else {
+        sendNotification(
+          t('Notification.speeddial_created_title'),
+          t('Notification.speeddial_created_description')
+        )
+      }
+      reset()
+      close()
+    }).catch((error) => {
+      if (selectedSpeedDial) {
+        sendNotification(
+          t('Notification.speeddial_not_modified_title'),
+          t('Notification.speeddial_not_modified_description')
+        )
+      } else {
+        sendNotification(
+          t('Notification.speeddial_not_created_title'),
+          t('Notification.speeddial_not_created_description')
+        )
+      }
+      log(error)
+    }).finally(() => {
+      setIsLoading(false)
+    })
   }
 
   return (
     <div className="flex flex-col gap-3 h-full relative">
       <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] px-5 mt-3">
         <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
-          {initialData ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
+          {selectedSpeedDial ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
         </h1>
       </div>
       <form
@@ -112,7 +138,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
           className="font-medium text-[14px] leading-5"
         />
         <div className="absolute bottom-1 right-0 flex flex-row gap-4 px-5">
-          <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
+          <Button variant="ghost" onClick={handleClose} disabled={isLoading}>
             <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
               {t('Common.Cancel')}
             </p>
@@ -123,7 +149,7 @@ export function SpeedDialFormBox({ initialData, onSubmit, onCancel }: SpeedDialF
             className="gap-3"
           >
             <p className="dark:text-titleLight text-titleDark font-medium text-[14px] leading-5">
-              {initialData ? t('Common.Edit') : t('SpeedDial.Create')}
+              {selectedSpeedDial ? t('Common.Edit') : t('SpeedDial.Create')}
             </p>
             {isLoading && (
               <FontAwesomeIcon
