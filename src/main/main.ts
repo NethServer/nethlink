@@ -136,7 +136,7 @@ const resetApp = async () => {
 }
 
 const startApp = async () => {
-  await resetApp()
+  //await resetApp()
   store.getFromDisk()
   const auth: AuthAppData | undefined = store.store['auth']
   //await delay(1500)
@@ -179,7 +179,7 @@ ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
   PhoneIslandController.instance.call(phoneNumber)
 })
 ipcMain.on(IPC_EVENTS.LOGIN, (e, password) => {
-  if (LoginController.instance.window.isOpen()) {
+  if (LoginController.instance && LoginController.instance.window.isOpen()) {
     LoginController.instance.quit()
     AccountController.instance.saveLoggedAccount(store.store['account']!, password)
   }

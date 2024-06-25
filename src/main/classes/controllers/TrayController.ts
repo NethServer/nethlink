@@ -24,7 +24,7 @@ export class TrayController {
     this.tray.setIgnoreDoubleClickEvents(true)
     this.tray.on('click', () => {
       if (this.enableClick) {
-        if (LoginController.instance.window?.isOpen()) LoginController.instance.hide()
+        if (LoginController.instance && LoginController.instance.window?.isOpen()) LoginController.instance.hide()
         else if (NethLinkController.instance.window?.isOpen()) NethLinkController.instance.hide()
         else if (store.store['account']) NethLinkController.instance.show()
         else LoginController.instance.show()
