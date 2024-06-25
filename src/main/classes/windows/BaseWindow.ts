@@ -79,7 +79,12 @@ export class BaseWindow {
   }
 
   isOpen(..._args: any) {
-    return this._window?.isVisible()
+    try {
+
+      return this._window?.isVisible()
+    } catch (e) {
+      return false
+    }
   }
 
   addOnBuildListener(callback: () => void) {
