@@ -67,7 +67,7 @@ export function PhoneIslandPage() {
             onMainPresence(detail)
             break
           case PHONE_ISLAND_EVENTS['phone-island-queue-update']:
-            //onQueueUpdate(detail)
+            onQueueUpdate(detail)
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
             window.api.showPhoneIsland()

@@ -13,6 +13,7 @@ export const useAccount = () => {
     if (account) {
 
       const _status: StatusTypes = account.data?.mainPresence || status
+      log('ACCOUNT STATUS', _status)
       setStatus(() => _status)
       setIsCallsEnabled(() => !(_status === 'busy' || _status === 'ringing' || _status === 'dnd' || _status === 'offline'))
     } else {
@@ -20,7 +21,7 @@ export const useAccount = () => {
       setIsCallsEnabled(false)
     }
 
-  }, [account])
+  }, [account?.data])
 
 
   return {

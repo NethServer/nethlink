@@ -8,7 +8,7 @@ import { IPC_EVENTS } from "@shared/constants"
 
 export const usePhoneIslandEventHandler = () => {
 
-  const [account] = useStoreState<Account>('account')
+  const [account, setAccount] = useStoreState<Account>('account')
   const [operators, setOperators] = useStoreState<OperatorData>('operators')
   const [speeddials, setSpeeddials] = useStoreState<ContactType[]>('speeddials')
   const [queues, setQueues] = useStoreState<QueuesType>('queues')
@@ -40,6 +40,7 @@ export const usePhoneIslandEventHandler = () => {
       }
       if (account && username === account.username) {
         account.data!.mainPresence = operator.mainPresence
+        setAccount(() => account)
       }
     }
     setOperators(() => updatedOperators)
