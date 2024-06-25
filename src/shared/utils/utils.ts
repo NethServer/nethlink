@@ -46,7 +46,7 @@ export function isDev() {
   } catch (e) {
     _isDev = process.env['DEV'] === 'true'
   }
-  return true //_isDev
+  return _isDev
 }
 
 
