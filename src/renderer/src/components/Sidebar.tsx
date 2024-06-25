@@ -19,6 +19,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
     setNethLinkPageData((p) => ({
       ...p,
       selectedSidebarMenu: menuElement,
+      showPhonebookSearchModule: false,
       phonebookSearchModule: {
         searchText: undefined
       }
