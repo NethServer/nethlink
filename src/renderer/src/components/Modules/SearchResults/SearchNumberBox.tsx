@@ -179,7 +179,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
       </div>
 
       <div
-        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${isCallsEnabled && canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
+        className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
         onClick={() => {
           if (canAddToPhonebook)
             showAddContactToPhonebook()
