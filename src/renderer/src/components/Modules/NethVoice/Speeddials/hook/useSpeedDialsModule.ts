@@ -42,7 +42,6 @@ export const useSpeedDialsModule = (): {
       if (selectedSpeedDial) {
         const updatedSpeedDial = await NethVoiceAPI.Phonebook.updateSpeeddial(speedDial, selectedSpeedDial)
         if (updatedSpeedDial) {
-          log({ updatedSpeedDial })
           const newSpeedDials = speedDials?.map((speedDial) =>
             speedDial.id?.toString() === updatedSpeedDial['id'] ? (updatedSpeedDial! as ContactType) : speedDial
           )
@@ -50,7 +49,6 @@ export const useSpeedDialsModule = (): {
         }
       } else {
         const newSpeedDial = await NethVoiceAPI.Phonebook.createSpeeddial(speedDial)
-        log({ newSpeedDial })
         const speedDials = await NethVoiceAPI.Phonebook.getSpeeddials()
         setSpeedDials((p) => speedDials)
       }

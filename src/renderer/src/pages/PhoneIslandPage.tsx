@@ -40,14 +40,12 @@ export function PhoneIslandPage() {
     window.electron.receive(IPC_EVENTS.LOGOUT, logout)
 
     window.electron.receive(IPC_EVENTS.START_CALL, (number: number | string) => {
-      log(account)
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
         number
       })
     })
 
     window.electron.receive(IPC_EVENTS.RECONNECT_PHONE_ISLAND, () => {
-      log('RECONNECT AFTER SUSPEND')
       logout()
     })
 
@@ -55,7 +53,6 @@ export function PhoneIslandPage() {
       window.addEventListener(event, (...data) => {
         const customEvent = data[0]
         const detail = customEvent['detail']
-        log(event, detail)
         switch (event) {
           case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
             log('phone-island-default-device-changed', detail)
@@ -154,7 +151,6 @@ export function PhoneIslandPage() {
     if (account) {
       try {
         phoneIslandTokenLoginResponse.current = (await NethVoiceAPI.Authentication.phoneIslandTokenLogin()).token
-        log('phoneIslandTokenLoginResponse', phoneIslandTokenLoginResponse.current)
         const deviceInformationObject = account.data!.endpoints.extension.find((e) => e.type === 'nethlink')
         setDeviceInformationObject(deviceInformationObject)
       } catch (e) {
@@ -191,13 +187,11 @@ export function PhoneIslandPage() {
       const dataConfig = btoa(
         `${config.hostname}:${config.username}:${config.authToken}:${config.sipExten}:${config.sipSecret}:${config.sipHost}:${config.sipPort}`
       )
-      log(dataConfig, config)
       setDataConfig(dataConfig)
     }
   }, [deviceInformationObject, account?.username])
 
   function logout() {
-    log("LOGOUT")
     isDataConfigCreated.current = false
     setDataConfig(undefined)
     eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
@@ -235,7 +229,6 @@ const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, i18nLoadPat
         log(err)
       }
     }
-    log("ACCOUNT", account)
   }
 
   const PhoneIslandCompoent = useMemo(() => {

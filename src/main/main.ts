@@ -190,8 +190,8 @@ ipcMain.on(IPC_EVENTS.LOGIN, (e, password) => {
     NethLinkController.instance.show()
     setTimeout(() => {
       new PhoneIslandController()
+      checkForUpdate()
     }, 1000)
-    checkForUpdate()
   }, 500)
 })
 

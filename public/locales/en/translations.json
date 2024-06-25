@@ -63,8 +63,8 @@
     "Minimize": "minimize",
     "This field is required": "This field is required",
     "This field must be at least": "This field must be at least {{number}} characters",
-    "This is not a phone number":"This is not a phone number",
-    "Quit":"Quit" 
+    "This is not a phone number": "This is not a phone number",
+    "Quit": "Quit"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -109,8 +109,8 @@
     "speeddial_deleted_description": "SpeedDial successfully eliminated",
     "speeddial_not_deleted_title": "SpeedDial not deleted!",
     "speeddial_not_deleted_description": "Error in deleting SpeedDial",
-    "application_update_title":"Application update available.",
-    "application_update_body":"Click here to open the page where you can download the new release"
+    "application_update_title": "Application update available.",
+    "application_update_body": "Click here to open the page where you can download the new release"
   },
   "Phonebook": {
     "Phonebook": "Phonebook",
@@ -848,5 +848,11 @@
   },
   "Transfer": {
     "No users found": "No users found"
+  },
+  "About": {
+    "title": "Information",
+    "current_version": "Current version: nethlink {{version}}",
+    "update_available": "Update available for download",
+    "download": "Download the update"
   }
 }

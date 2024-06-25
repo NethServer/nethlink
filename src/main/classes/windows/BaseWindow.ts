@@ -32,7 +32,7 @@ export class BaseWindow {
     }
 
     function onOpenDevTools(e, page) {
-      instance.openDevTool(page,)
+      instance.openDevTool(page)
     }
 
     window.once('ready-to-show', onReady)
@@ -65,6 +65,7 @@ export class BaseWindow {
   emit(event: IPC_EVENTS | string, ...args: any[]) {
     try {
       this._window?.webContents.send(event, ...args)
+      log('EMIT', event, { args })
     } catch (e) {
       log('ERROR on window.emit', e, { event, args })
     }

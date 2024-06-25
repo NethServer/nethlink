@@ -64,7 +64,6 @@ export const LoginForm = () => {
 
   useEffect(() => {
     const errorCount = Object.keys(errors).filter((key) => errors[key]).length
-    log(errorCount)
     const additionalHeight = errorCount * 18
     if (auth?.isFirstStart) {
       if (error) {

@@ -2,16 +2,16 @@ import { PAGES } from '@shared/types'
 import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
+import { NethLinkPageSize } from '@shared/constants'
 
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
   size: { w: number; h: number } | undefined
   screenBounds: Electron.Rectangle
   constructor() {
-    const size = { w: 400, h: 380 }
     super(PAGES.NETHLINK, {
-      width: size.w,
-      height: size.h,
+      width: NethLinkPageSize.w,
+      height: NethLinkPageSize.h,
       show: false,
       fullscreenable: false,
       autoHideMenuBar: true,
@@ -34,7 +34,7 @@ export class NethLinkWindow extends BaseWindow {
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
-    this.size = size
+    this.size = NethLinkPageSize
     this.screenBounds = screen.getPrimaryDisplay().bounds
     NethLinkWindow.instance = this
   }
