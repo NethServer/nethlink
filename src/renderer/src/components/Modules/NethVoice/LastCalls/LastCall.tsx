@@ -4,7 +4,6 @@ import {
   faCircleUser
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MissedCallIcon } from '@renderer/icons'
 import { Avatar, Button } from '../../../Nethesis'
 import { NumberCaller } from '../../../NumberCaller'
 import { useEffect, useState } from 'react'
@@ -18,18 +17,19 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { useStoreState } from '@renderer/store'
 import { useLastCallsModule } from './hook/useLastCallsModule'
 import { usePhonebookModule } from '../PhonebookModule/hook/usePhonebookModule'
+import { InCallIcon, LostCallIcon, OutCallIcon } from '@renderer/icons'
 
-export interface MissedCallProps {
+export interface LastCallProps {
   call: CallData
   showContactForm: () => void
   className?: string
 }
 
-export function MissedCall({
+export function LastCall({
   call,
   showContactForm,
   className
-}: MissedCallProps): JSX.Element {
+}: LastCallProps): JSX.Element {
   const phonebookModule = usePhonebookModule()
   const [selectedContact, setSelectedContact] = phonebookModule.selectedContact
   const [queues] = useStoreState<QueuesType>('queues')
@@ -66,14 +66,14 @@ export function MissedCall({
     }
   }, [queues])
 
-  const handleSelectedMissedCall = (number: string, company: string | undefined) => {
+  const handleSelectedCallContact = (number: string, company: string | undefined) => {
     if (company === undefined) {
       setSelectedContact({ number, company: '' })
     } else setSelectedContact({ number, company })
   }
 
   const handleCreateContact = () => {
-    handleSelectedMissedCall(call.cnum || '', call.ccompany)
+    handleSelectedCallContact(call.cnum || '', call.ccompany)
     showContactForm()
   }
   return (
@@ -106,7 +106,7 @@ export function MissedCall({
       <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
         <p className="font-medium text-[14px] leading-5">{truncate(getCallName(call), 15)}</p>
         <div className="flex flex-row gap-2 items-center">
-          <MissedCallIcon />
+          {call.direction === 'in' ? <InCallIcon /> : call.disposition === 'NO ANSWARE' ? <LostCallIcon /> : <OutCallIcon />}
           <NumberCaller
             number={getCallExt(call)}
             disabled={!isCallsEnabled}

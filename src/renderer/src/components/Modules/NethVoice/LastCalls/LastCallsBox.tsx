@@ -1,19 +1,16 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare as ShowMissedCallIcon } from '@fortawesome/free-solid-svg-icons'
-import { MissedCall } from './LastCall'
+import { LastCall } from './LastCall'
 import { CallData } from '@shared/types'
 import { t } from 'i18next'
 import { useStoreState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
 
-export function MissedCallsBox({ showContactForm }): JSX.Element {
+export function LastCallsBox({ showContactForm }): JSX.Element {
 
   const [lastCalls] = useStoreState<CallData[]>('lastCalls')
-  const missedCallsIn = lastCalls?.filter(
-    (call) => call.direction === 'in' && call.disposition === 'NO ANSWER'
-  )
-  const title = `${t('QueueManager.Missed calls')} (${missedCallsIn?.length || 0})`
+  const title = `${t('QueueManager.Calls')} (${lastCalls?.length || 0})`
 
   const viewAllMissedCalls = () => {
     window.api.openHostPage('/history')
@@ -41,13 +38,13 @@ export function MissedCallsBox({ showContactForm }): JSX.Element {
           </Button>
         </div>
         <div className="flex flex-col max-h-[240px] overflow-y-auto">
-          {missedCallsIn ? missedCallsIn.map((call, idx) => {
+          {lastCalls ? lastCalls.map((call, idx) => {
             return (
               <div
-                className={`${idx === missedCallsIn.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+                className={`${idx === lastCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
                 key={idx}
               >
-                <MissedCall
+                <LastCall
                   call={call}
                   showContactForm={showContactForm}
                   className="dark:hover:bg-hoverDark hover:bg-hoverLight"
