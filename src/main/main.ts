@@ -34,6 +34,7 @@ powerMonitor.on('resume', async () => {
   store.getFromDisk()
   setTimeout(() => {
     ipcMain.emit('update-shared-state', undefined, store.store)
+    PhoneIslandController.instance && PhoneIslandController.instance.reconnect()
   }, 500)
 });
 

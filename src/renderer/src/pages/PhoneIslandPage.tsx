@@ -51,6 +51,11 @@ export function PhoneIslandPage() {
       })
     })
 
+    window.electron.receive(IPC_EVENTS.RECONNECT_PHONE_ISLAND, () => {
+      log('RECONNECT AFTER SUSPEND')
+      logout()
+    })
+
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
       window.addEventListener(event, (...data) => {
         const customEvent = data[0]

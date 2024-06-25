@@ -84,4 +84,8 @@ export class PhoneIslandController {
     this.showPhoneIsland()
   }
 
+  reconnect() {
+    this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
+  }
+
 }
