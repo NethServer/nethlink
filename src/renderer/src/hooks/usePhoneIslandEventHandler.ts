@@ -31,7 +31,7 @@ export const usePhoneIslandEventHandler = () => {
       //the other data only comes to me from the fetch and so I can take it as valid
       avatars: operators?.avatars || {},
       groups: operators?.groups || {},
-      extensions: operators?.extensions || {},
+      extensions: operators?.extensions || {}
     }
     for (const [username, operator] of Object.entries(op)) {
       updatedOperators.operators[username] = {
@@ -39,8 +39,13 @@ export const usePhoneIslandEventHandler = () => {
         ...operator
       }
       if (account && username === account.username) {
-        account.data!.mainPresence = operator.mainPresence
-        setAccount(() => account)
+        setAccount((p) => ({
+          ...p,
+          data: {
+            ...p.data!,
+            mainPresence: operator.mainPresence
+          }
+        }))
       }
     }
     setOperators(() => updatedOperators)

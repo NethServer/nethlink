@@ -13,8 +13,7 @@ import {
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { debouncer } from '@shared/utils/utils'
 import {
-  faMinusCircle as MinimizeIcon,
-  faTriangleExclamation as WarningIcon
+  faMinusCircle as MinimizeIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -26,6 +25,7 @@ import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { MENU_ELEMENT } from '@shared/constants'
+import { PresenceBadge } from '@renderer/components/Modules/NethVoice/Presence/PresenceBadge'
 
 export interface NethLinkPageProps {
   themeMode: string
@@ -120,7 +120,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       log('ME', me)
       setAccount((p) => ({
         ...p!,
-        data: me
+        data: {
+          ...p?.data,
+          ...me
+        }
       }))
     })
   }
@@ -140,23 +143,24 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   return (
     <div className="h-[100vh] w-[100vw] overflow-hidden">
       <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm">
-        <div
-          className={`flex flex-col min-w-[400px] min-h-[380px] h-full items-center justify-between`}
-        >
-          <div
-            className={`draggableAnchor flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950 dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
-          >
-            <FontAwesomeIcon
-              className={` text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 noDraggableAnchor`}
-              icon={MinimizeIcon}
-              onClick={hideNethLink}
-            />
+        <div className={`flex flex-col min-w-[400px] min-h-[420px] h-full items-center justify-between`}>
+          <div className={`draggableAnchor flex justify-end flex-row gap-1 items-center pr-4 pl-1 pb-[18px] pt-[8px] w-full bg-gray-950 dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}>
+            <div className={`flex h-6 ${!navigator.userAgent.includes('Windows') ? 'flex-row pl-4' : 'flex-row-reverse'} items-center justify-between w-full`}>
+              <div className={`${!navigator.userAgent.includes('Windows') ? 'w-full' : ''}`}>
+                <PresenceBadge presence={account?.data?.mainPresence} />
+              </div>
+              <FontAwesomeIcon
+                className={` text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 noDraggableAnchor -translate-y-[0px]`}
+                icon={MinimizeIcon}
+                onClick={hideNethLink}
+              />
+            </div>
           </div>
           <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-bgDark bg-bgLight w-full">
             <div className="flex flex-col gap-3 w-full">
               <Navbar onClickAccount={() => me()} />
               <div className="relative w-full">
-                <div className="w-full h-[274px] pb-2 z-1">
+                <div className="w-full h-[326px] pb-2 z-1">
                   <NethLinkModules />
                 </div>
               </div>

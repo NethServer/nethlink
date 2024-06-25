@@ -8,7 +8,7 @@ export class NethLinkWindow extends BaseWindow {
   size: { w: number; h: number } | undefined
   screenBounds: Electron.Rectangle
   constructor() {
-    const size = { w: 400, h: 380 }
+    const size = { w: 400, h: 440 }
     super(PAGES.NETHLINK, {
       width: size.w,
       height: size.h,
