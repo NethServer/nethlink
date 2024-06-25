@@ -23,11 +23,6 @@ export function PhoneIslandPage() {
   const phoneIslandTokenLoginResponse = useRef<string>()
   const loadPath = useRef<string | undefined>(undefined)
   const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
-  const [onMainPresenceData, setMainPresenceData] = useState<{
-    op: {
-      [username: string]: any;
-    }
-  } | undefined>(undefined)
 
   const {
     onMainPresence,
@@ -69,7 +64,7 @@ export function PhoneIslandPage() {
             window.api.logout()
             break
           case PHONE_ISLAND_EVENTS['phone-island-main-presence']:
-            setMainPresenceData(detail)
+            onMainPresence(detail)
             break
           case PHONE_ISLAND_EVENTS['phone-island-queue-update']:
             //onQueueUpdate(detail)
@@ -143,13 +138,6 @@ export function PhoneIslandPage() {
       })
     })
   })
-
-  useEffect(() => {
-    if (onMainPresenceData) {
-      log("UPDATE MAIN PRESENCE", operators, onMainPresenceData)
-      onMainPresence(onMainPresenceData)
-    }
-  }, [onMainPresenceData])
 
   function getSizeFromResizeEvent(event: string): Size | undefined {
     const resizeEvent = PHONE_ISLAND_RESIZE.get(event)
