@@ -55,9 +55,9 @@ export const LoginForm = () => {
     formState: { errors }
   } = useForm<LoginData>({
     defaultValues: {
-      host: 'https://cti.demo-heron.sf.nethserver.net',
-      username: 'lorenzo',
-      password: 'NethVoice,1234'
+      // host: 'https://cti.demo-heron.sf.nethserver.net',
+      // username: 'lorenzo',
+      // password: 'NethVoice,1234'
     },
     resolver: zodResolver(schema)
   })
