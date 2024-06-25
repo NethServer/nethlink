@@ -17,20 +17,12 @@ import { t } from 'i18next'
 import { Button } from './Nethesis'
 import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { isDev } from '@shared/utils/utils'
+import { debouncer, isDev } from '@shared/utils/utils'
 import { useStoreState } from '@renderer/store'
 import { createRef, useRef } from 'react'
 
-export interface NavabarProps {
-  search: string
-  account: Account
-  callUser: (phoneNumber: string) => void
-  onSelectTheme: (theme: AvailableThemes) => void
-  logout: () => void
-  handleSearch: (searchText: string) => Promise<void>
-  handleReset: () => void
-  goToNethVoicePage: () => void
-  exitNethLink: () => void
+export interface NavbarProps {
+  onClickAccount: () => void
 }
 
 const themeOptions = [
@@ -39,7 +31,7 @@ const themeOptions = [
   { id: 3, name: 'dark', icon: DarkIcon }
 ]
 
-export function Navbar(): JSX.Element {
+export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const { status } = useAccount()
   const [account] = useStoreState<Account>('account')
   const [operators] = useStoreState<OperatorData>('operators')
@@ -68,7 +60,7 @@ export function Navbar(): JSX.Element {
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
-            <Listbox.Button>
+            <Listbox.Button >
               <Button
                 variant="ghost"
                 className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1"
@@ -121,7 +113,7 @@ export function Navbar(): JSX.Element {
 
         <div className={'max-h-8'}>
           <Menu >
-            <Menu.Button className="cursor-pointer">
+            <Menu.Button className="cursor-pointer" onClick={() => { debouncer('reload_me', onClickAccount, 1000) }}>
               <Avatar
                 size="small"
                 status={status}

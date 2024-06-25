@@ -45,6 +45,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const operatorFetchLoopInterval = useRef<NodeJS.Timeout>()
+  const accountMeInterval = useRef<NodeJS.Timeout>()
 
   useInitialize(() => {
     initialize()
@@ -58,6 +59,9 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
         operatorFetchLoopInterval.current = setInterval(() => {
           loadData()
         }, 1000 * 60 * 60 * 24)
+        accountMeInterval.current = setInterval(() => {
+          me()
+        }, 1000 * 60 * 45)
         setNethLinkPageData({
           selectedSidebarMenu: MENU_ELEMENT.SPEEDDIALS,
           phonebookModule: {
@@ -76,13 +80,18 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       log('ACCOUNT', account)
     } else {
       log('account logout')
-      if (operatorFetchLoopInterval.current) {
-        clearInterval(operatorFetchLoopInterval.current)
-        operatorFetchLoopInterval.current = undefined
-      }
+      stopInterval(operatorFetchLoopInterval)
+      stopInterval(accountMeInterval)
       //initialize nethLink data
     }
   }, [account?.username])
+
+  function stopInterval(interval: MutableRefObject<NodeJS.Timeout | undefined>) {
+    if (interval.current) {
+      clearInterval(interval.current)
+      interval.current = undefined
+    }
+  }
 
   // useEffect(() => {
   //   debouncer('reload-data', () => loadData(), 1000)
@@ -106,11 +115,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     )
   }
 
-  async function loadData() {
-    NethVoiceAPI.fetchOperators().then(saveOperators)
-    NethVoiceAPI.HistoryCall.interval().then(saveLastCalls)
-    NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
-    NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
+  function me() {
     NethVoiceAPI.User.me().then((me) => {
       log('ME', me)
       setAccount((p) => ({
@@ -118,6 +123,14 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
         data: me
       }))
     })
+  }
+
+  async function loadData() {
+    NethVoiceAPI.fetchOperators().then(saveOperators)
+    NethVoiceAPI.HistoryCall.interval().then(saveLastCalls)
+    NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
+    NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
+    me()
   }
 
   function hideNethLink() {
@@ -141,14 +154,14 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           </div>
           <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-bgDark bg-bgLight w-full">
             <div className="flex flex-col gap-3 w-full">
-              <Navbar />
+              <Navbar onClickAccount={() => me()} />
               <div className="relative w-full">
                 <div className="w-full h-[274px] pb-2 z-1">
                   <NethLinkModules />
                 </div>
               </div>
             </div>
-            <Sidebar />
+            <Sidebar onChangeMenu={() => me()} />
           </div>
         </div>
       </div>
