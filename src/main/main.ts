@@ -142,7 +142,7 @@ const startApp = async () => {
   const auth: AuthAppData | undefined = store.store['auth']
   //await delay(1500)
   await getPermissions()
-  if (!auth?.isFirstStart) {
+  if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
     const isLastUserLogged = await AccountController.instance.tokenLogin()
     if (isLastUserLogged) {
       ipcMain.emit(IPC_EVENTS.LOGIN)
