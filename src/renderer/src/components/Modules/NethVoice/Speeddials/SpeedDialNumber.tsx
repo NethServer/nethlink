@@ -35,6 +35,7 @@ export function SpeedDialNumber({
 }: SpeedDialNumberProps): JSX.Element {
   const [operators] = useStoreState<OperatorData>('operators')
   const { isCallsEnabled } = useAccount()
+
   const avatarSrc =
     operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
 
@@ -55,7 +56,7 @@ export function SpeedDialNumber({
         />
         <div className="flex flex-col gap-1">
           <p className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
-            {isDev() && `[${speedDial.id}] `}{truncate(speedDial.name!, 20)}
+            {isDev() && `[${speedDial.id}] `}{truncate(speedDial.name || speedDial.company || `${t('Common.Unknown')}`, 20)}
           </p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon

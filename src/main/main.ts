@@ -13,7 +13,7 @@ import { debouncer, delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
-import { store, useStoreState } from './lib/mainStore'
+import { store } from './lib/mainStore'
 
 new AppController(app)
 new NetworkController()
