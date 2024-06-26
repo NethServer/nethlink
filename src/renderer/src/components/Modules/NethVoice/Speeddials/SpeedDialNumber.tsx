@@ -15,6 +15,8 @@ import { Avatar, Button } from '@renderer/components/Nethesis'
 import { truncate } from '@renderer/utils'
 import { NumberCaller } from '@renderer/components/NumberCaller'
 import { isDev } from '@shared/utils/utils'
+import classNames from 'classnames'
+import { useTheme } from '@renderer/theme/Context'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
@@ -33,6 +35,7 @@ export function SpeedDialNumber({
   handleDeleteSpeedDial,
   isLastItem
 }: SpeedDialNumberProps): JSX.Element {
+  const { theme: nethTheme } = useTheme()
   const [operators] = useStoreState<OperatorData>('operators')
   const { isCallsEnabled } = useAccount()
 
@@ -78,16 +81,11 @@ export function SpeedDialNumber({
         <div>
           <Menu>
             <div>
-              <Menu.Button>
-                <Button
-                  variant="ghost"
-                  className="flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-bgDark hover:bg-bgLight"
-                >
-                  <FontAwesomeIcon
-                    className="dark:text-titleDark text-titleLight text-base"
-                    icon={MenuIcon}
-                  />
-                </Button>
+              <Menu.Button className={classNames('flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-bgDark hover:bg-bgLight', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
+                <FontAwesomeIcon
+                  className="dark:text-titleDark text-titleLight text-base"
+                  icon={MenuIcon}
+                />
               </Menu.Button>
             </div>
             <Menu.Items
@@ -126,7 +124,7 @@ export function SpeedDialNumber({
             </Menu.Items>
           </Menu>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }

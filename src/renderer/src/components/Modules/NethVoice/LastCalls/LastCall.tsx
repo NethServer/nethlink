@@ -15,9 +15,9 @@ import { Tooltip } from 'react-tooltip'
 import { Badge } from '../../../Nethesis/Badge'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { useStoreState } from '@renderer/store'
-import { useLastCallsModule } from './hook/useLastCallsModule'
 import { usePhonebookModule } from '../PhonebookModule/hook/usePhonebookModule'
 import { InCallIcon, LostCallIcon, OutCallIcon } from '@renderer/icons'
+import { log } from '@shared/utils/logger'
 
 export interface LastCallProps {
   call: CallData
@@ -37,6 +37,7 @@ export function LastCall({
   const { isCallsEnabled } = useAccount()
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
   const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
+  log(operators)
   const [isQueueLoading, setIsQueueLoading] = useState<boolean>(true)
 
   function getCallName(call: CallData): string {
@@ -56,7 +57,7 @@ export function LastCall({
     const operatorFound: any = getOperatorByPhoneNumber(call?.dst as string, operators?.operators || {})
 
     if (operatorFound) {
-      call.dst_cnam = operatorFound?.name
+      call.dst_cnam = operatorFound?.name || operatorFound?.company
     }
   }
 
@@ -106,7 +107,7 @@ export function LastCall({
       <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
         <p className="font-medium text-[14px] leading-5">{truncate(getCallName(call), 15)}</p>
         <div className="flex flex-row gap-2 items-center">
-          {call.direction === 'in' ? <InCallIcon /> : call.disposition === 'NO ANSWARE' ? <LostCallIcon /> : <OutCallIcon />}
+          {call.direction === 'in' ? (call.disposition === 'NO ANSWER' ? <LostCallIcon /> : <InCallIcon />) : <OutCallIcon />}
           <NumberCaller
             number={getCallExt(call)}
             disabled={!isCallsEnabled}

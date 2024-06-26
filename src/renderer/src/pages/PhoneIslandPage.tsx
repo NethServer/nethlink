@@ -4,16 +4,24 @@ import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useStoreState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account, Extension, OperatorData, OperatorsType, PhoneIslandConfig, Size } from '@shared/types'
+import { Account, CallData, Extension, OperatorsType, PhoneIslandConfig, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
+import { differenceWith, forEach, isEqual } from 'lodash'
+import { sendNotification } from '@renderer/utils'
+import i18next, { t } from 'i18next'
+import { formatDistance } from 'date-fns'
+import { format, utcToZonedTime } from 'date-fns-tz'
+import { getTimeDifference } from '@renderer/lib/dateTime'
+import { enGB, it } from 'date-fns/locale'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
   const [operators] = useStoreState<OperatorsType | undefined>('operators')
+  const [lastCalls] = useStoreState<CallData[]>('lastCalls')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
@@ -26,7 +34,8 @@ export function PhoneIslandPage() {
 
   const {
     onMainPresence,
-    onQueueUpdate
+    onQueueUpdate,
+    saveLastCalls
   } = usePhoneIslandEventHandler()
 
   const isOnCall = useRef<boolean>(false)
@@ -73,6 +82,32 @@ export function PhoneIslandPage() {
             window.api.showPhoneIsland()
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
+            NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
+              count: number, rows: CallData[]
+            }) => {
+              const diff = differenceWith(newLastCalls.rows, lastCalls || [], (a, b) => isEqual(a.uniqueid, b.uniqueid))
+              log({ lastCalls, newLastCalls, diff })
+              if (diff.length > 0) {
+                diff.forEach((c) => {
+                  if (c.direction === 'in' && c.disposition === 'NO ANSWER') {
+                    const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account!, false))
+                    let localTimeZone = getLocalTimezoneOffset()
+                    const timeDiff = formatDistance(
+                      utcToZonedTime(c.time! * 1000, differenceBetweenTimezone),
+                      utcToZonedTime(new Date(), localTimeZone),
+                      {
+                        addSuffix: true,
+                        includeSeconds: true,
+                        locale: i18next?.languages[0] === 'it' ? it : enGB
+                      }
+                    )
+                    sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('', { number: c.src, datetime: timeDiff }))
+                  }
+
+                })
+              }
+              saveLastCalls(newLastCalls)
+            })
           case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
@@ -138,6 +173,25 @@ export function PhoneIslandPage() {
       })
     })
   })
+
+  const diffValueConversation = (diffValueOriginal: any) => {
+    // determine the sign
+    const sign = diffValueOriginal >= 0 ? '+' : '-'
+
+    // convert hours to string and pad with leading zeros if necessary
+    const hours = Math.abs(diffValueOriginal).toString().padStart(2, '0')
+
+    // minutes are always '00'
+    const minutes = '00'
+    return `${sign}${hours}${minutes}`
+  }
+
+  const getLocalTimezoneOffset = () => {
+    let localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const now = new Date()
+    const offset = format(now, 'xx', { timeZone: localTimezone })
+    return offset
+  }
 
   function getSizeFromResizeEvent(event: string): Size | undefined {
     const resizeEvent = PHONE_ISLAND_RESIZE.get(event)
