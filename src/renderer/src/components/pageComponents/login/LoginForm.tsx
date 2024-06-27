@@ -1,4 +1,3 @@
-
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, SubmitHandler } from 'react-hook-form'
@@ -21,7 +20,6 @@ import { useLogin } from '@shared/useLogin'
 import { useNetwork } from '@shared/useNetwork'
 
 export const LoginForm = () => {
-
   const { parseConfig } = useLogin()
   const { NethVoiceAPI } = useNethVoiceAPI()
   const submitButtonRef = useRef<HTMLButtonElement>(null)
@@ -149,11 +147,16 @@ export const LoginForm = () => {
       resizeWindow(windowHeight + (!!e ? 100 : 0))
       setError(() => e)
       setIsLoading(true)
-      const hostReg = /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
+      const hostReg =
+        /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
       const res = hostReg.exec(data.host)
       if (res) {
         try {
-          const loggedAccount = await NethVoiceAPI.Authentication.login(res[2], data.username, data.password)
+          const loggedAccount = await NethVoiceAPI.Authentication.login(
+            res[2],
+            data.username,
+            data.password
+          )
           window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
           window.electron.receive(IPC_EVENTS.SET_NETHVOICE_CONFIG, (account) => {
             setAccount(() => account)
@@ -172,7 +175,6 @@ export const LoginForm = () => {
           else setError(() => error)
           //setFormValues(data)
         }
-
       } else {
         setFormValues(data)
         setError(() => new Error(t('Login.Wrong host or username or password')!))
@@ -199,14 +201,14 @@ export const LoginForm = () => {
   const RenderError = () => {
     return (
       !!error && (
-        <div className="relative flex flex-col p-4 border-l-[3px] border-rose-500 bg-rose-100 rounded-md mb-8">
+        <div className="relative flex flex-col p-4 border-l-[3px] border-rose-500 dark:border-rose-400 bg-rose-100 dark:bg-rose-900 rounded-md mb-8">
           <div className="flex flex-row items-center gap-2">
-            <FontAwesomeIcon icon={ErrorIcon} className="text-red-700" />
-            <p className="font-medium text-[14px] leading-5 text-red-800">
+            <FontAwesomeIcon icon={ErrorIcon} className="text-red-700 dark:text-rose-100" />
+            <p className="font-medium text-[14px] leading-5 text-red-800 dark:text-rose-100">
               {t('Login.Login failed')}
             </p>
           </div>
-          <p className="pl-6 font-normal text-[14px] leading-5 text-rose-700">
+          <p className="pl-6 font-normal text-[14px] leading-5 text-rose-700 dark:text-rose-200">
             {error?.message}
           </p>
         </div>
@@ -215,12 +217,12 @@ export const LoginForm = () => {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmitForm)}
-    >
+    <form onSubmit={handleSubmit(onSubmitForm)}>
       <div className="mt-7">
         <p className="text-titleLight  dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2">
-          {loginData?.selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
+          {loginData?.selectedAccount
+            ? t('Login.Account List title')
+            : t('Login.New Account title')}
         </p>
         <p className="text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7">
           {loginData?.selectedAccount
@@ -290,5 +292,4 @@ export const LoginForm = () => {
       </div>
     </form>
   )
-
 }
