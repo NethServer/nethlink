@@ -12,6 +12,7 @@ import { cleanRegex, getIsPhoneNumber, sortByProperty } from '@renderer/lib/util
 import { useStoreState } from '@renderer/store'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
+import { Scrollable } from '@renderer/components/Scrollable'
 
 interface SearchNumberBoxProps {
   searchResult: SearchData[] | undefined
@@ -184,7 +185,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
           {t('Common.Add')} {searchText?.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
         </p>
       </div>
-      <div className="overflow-y-auto max-h-[178px]">
+      <Scrollable className="max-h-[178px]">
         {filteredPhoneNumbers.map((user, index) => (
           <SearchNumber
             key={'SearchNumber_' + index}
@@ -192,7 +193,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
             className="dark:hover:bg-hoverDark hover:bg-hoverLight"
           />
         ))}
-      </div>
+      </Scrollable>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import { t } from 'i18next'
 import { useStoreState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
+import { Scrollable } from '@renderer/components/Scrollable'
 
 export function MissedCallsBox({ showContactForm }): JSX.Element {
   const [lastCalls] = useStoreState<CallData[]>('lastCalls')
@@ -41,7 +42,8 @@ export function MissedCallsBox({ showContactForm }): JSX.Element {
             </Button>
           </div>
         </div>
-        <div className="flex flex-col max-h-[240px] overflow-y-auto">
+
+        <Scrollable className="flex flex-col max-h-[240px]">
           {missedCallsIn
             ? missedCallsIn.map((call, idx) => {
                 return (
@@ -69,7 +71,7 @@ export function MissedCallsBox({ showContactForm }): JSX.Element {
                     </div>
                   )
                 })}
-        </div>
+        </Scrollable>
       </div>
     </>
   )

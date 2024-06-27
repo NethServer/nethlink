@@ -9,6 +9,7 @@ import { Button } from '@renderer/components/Nethesis'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useSpeedDialsModule } from './hook/useSpeedDialsModule'
 import { log } from '@shared/utils/logger'
+import { Scrollable } from '@renderer/components/Scrollable'
 
 export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }): JSX.Element {
   const [speeddials] = useStoreState<ContactType[]>('speeddials')
@@ -54,7 +55,7 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
           </Button>
         </div>
       </div>
-      <div className="flex flex-col min-h-[120px] max-h-[240px] overflow-y-auto">
+      <Scrollable className="flex flex-col min-h-[120px] max-h-[240px]">
         {speeddials ? (
           speeddials.length > 0 ? (
             speeddials?.map((e, idx) => {
@@ -95,7 +96,7 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
               )
             })
         )}
-      </div>
+      </Scrollable>
     </div>
   )
 }
