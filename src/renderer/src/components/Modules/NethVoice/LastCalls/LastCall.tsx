@@ -4,7 +4,6 @@ import {
   faCircleUser
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { MissedCallIcon } from '@renderer/icons'
 import { Avatar, Button } from '../../../Nethesis'
 import { NumberCaller } from '../../../NumberCaller'
 import { useEffect, useState } from 'react'
@@ -16,38 +15,30 @@ import { Tooltip } from 'react-tooltip'
 import { Badge } from '../../../Nethesis/Badge'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { useStoreState } from '@renderer/store'
-import { useLastCallsModule } from './hook/useLastCallsModule'
 import { usePhonebookModule } from '../PhonebookModule/hook/usePhonebookModule'
+import { InCallIcon, LostCallIcon, OutCallIcon } from '@renderer/icons'
+import { log } from '@shared/utils/logger'
 
-export interface MissedCallProps {
-  call: CallData
+export interface LastCallProps {
+  call: CallData & { username: string }
   showContactForm: () => void
   className?: string
 }
 
-export function MissedCall({
+export function LastCall({
   call,
   showContactForm,
   className
-}: MissedCallProps): JSX.Element {
+}: LastCallProps): JSX.Element {
   const phonebookModule = usePhonebookModule()
   const [selectedContact, setSelectedContact] = phonebookModule.selectedContact
   const [queues] = useStoreState<QueuesType>('queues')
   const [operators] = useStoreState<OperatorData>('operators')
   const { isCallsEnabled } = useAccount()
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
-  const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
   const [isQueueLoading, setIsQueueLoading] = useState<boolean>(true)
+  const avatarSrc = operators?.avatars?.[call.username]
 
-  function getCallName(call: CallData): string {
-    if (call.direction === 'in') return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
-    return call?.dst_cnam || call?.dst_ccompany || `${t('Common.Unknown')}`
-  }
-
-  function getCallExt(call: CallData): string {
-    if (call.direction === 'in') return call.src || ''
-    return call.dst || ''
-  }
   function getOperatorByPhoneNumber(phoneNumber: string, operators: any) {
     return Object.values(operators).find((extensions: any) => extensions.id === phoneNumber)
   }
@@ -56,7 +47,7 @@ export function MissedCall({
     const operatorFound: any = getOperatorByPhoneNumber(call?.dst as string, operators?.operators || {})
 
     if (operatorFound) {
-      call.dst_cnam = operatorFound?.name
+      call.dst_cnam = operatorFound?.name || operatorFound?.company
     }
   }
 
@@ -66,21 +57,22 @@ export function MissedCall({
     }
   }, [queues])
 
-  const handleSelectedMissedCall = (number: string, company: string | undefined) => {
+  const handleSelectedCallContact = (number: string, company: string | undefined) => {
     if (company === undefined) {
       setSelectedContact({ number, company: '' })
     } else setSelectedContact({ number, company })
   }
 
   const handleCreateContact = () => {
-    handleSelectedMissedCall(call.cnum || '', call.ccompany)
+    handleSelectedCallContact(call.cnum || '', call.ccompany)
     showContactForm()
   }
+
   return (
     <div
       className={`flex flex-grow gap-3 min-h-[72px] p-2 px-5 ${className}`}
       onMouseEnter={() => {
-        if (getCallName(call) === t('Common.Unknown')) {
+        if (call.username === t('Common.Unknown')) {
           setShowCreateButton(() => true)
         }
       }}
@@ -91,10 +83,7 @@ export function MissedCall({
           <Avatar
             size="small"
             src={avatarSrc}
-            status={
-              operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
-                ?.mainPresence || undefined
-            }
+            status={operators?.operators?.[call.username]?.mainPresence}
           />
         ) : (
           <FontAwesomeIcon
@@ -104,11 +93,11 @@ export function MissedCall({
         )}
       </div>
       <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
-        <p className="font-medium text-[14px] leading-5">{truncate(getCallName(call), 15)}</p>
+        <p className="font-medium text-[14px] leading-5">{truncate(call.username, 15)}</p>
         <div className="flex flex-row gap-2 items-center">
-          <MissedCallIcon />
+          {call.direction === 'in' ? (call.disposition === 'NO ANSWER' ? <LostCallIcon /> : <InCallIcon />) : <OutCallIcon />}
           <NumberCaller
-            number={getCallExt(call)}
+            number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
             disabled={!isCallsEnabled}
             className={"dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline"}
           >

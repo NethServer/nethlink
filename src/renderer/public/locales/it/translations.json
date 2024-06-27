@@ -110,7 +110,9 @@
     "speeddial_not_deleted_title": "SpeedDial non eliminata!",
     "speeddial_not_deleted_description": "Errore nell'eliminazione della SpeedDial",
     "application_update_title": "Aggiornamento dell'applicazione disponibile",
-    "application_update_body": "Clicca quì per aprire la pagina dove potrai scaricare la nuova release"
+    "application_update_body": "Clicca quì per aprire la pagina dove potrai scaricare la nuova release",
+    "lost_call_title": "Chiamata persa da {{user}}",
+    "lost_call_body": "Hai ricevuto una chiamata da {{number}} {{datetime}}"
   },
   "Phonebook": {
     "Phonebook": "Rubrica",

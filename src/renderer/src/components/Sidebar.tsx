@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { SidebarButton } from './SidebarButton'
 import {
   faBolt as SpeedDialMenuIcon,
@@ -6,7 +6,7 @@ import {
   faInfoCircle as InfoMenuIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { useStoreState } from '@renderer/store'
-import { NethLinkPageData, NotificationData } from '@shared/types'
+import { CallData, NethLinkPageData, NotificationData } from '@shared/types'
 import { MENU_ELEMENT } from '@shared/constants'
 
 export interface SidebarProps {
@@ -16,6 +16,8 @@ export interface SidebarProps {
 export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
 
   const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [lostCallNotifications, setLostCallNotifications] = useStoreState<CallData[]>('lostCallNotifications')
+  const lostCallTimer = useRef<NodeJS.Timeout>()
   const [notifications] = useStoreState<NotificationData>('notifications')
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setNethLinkPageData((p) => ({
@@ -29,8 +31,19 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   }
 
   useEffect(() => {
-    if (nethLinkPageData && nethLinkPageData.selectedSidebarMenu)
+    if (nethLinkPageData && nethLinkPageData.selectedSidebarMenu) {
       onChangeMenu(nethLinkPageData.selectedSidebarMenu)
+      if (nethLinkPageData.selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS) {
+        lostCallTimer.current = setTimeout(() => {
+          setLostCallNotifications([])
+        }, 5000)
+      }
+    }
+    return () => {
+      if (lostCallTimer.current) {
+        clearTimeout(lostCallTimer.current)
+      }
+    }
   }, [nethLinkPageData?.selectedSidebarMenu])
 
   return (
@@ -46,7 +59,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
         <SidebarButton
           icon={MissedCallMenuIcon}
           focus={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS}
-          hasNotification={false}
+          hasNotification={!!lostCallNotifications && lostCallNotifications.length > 0}
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.LAST_CALLS)}
           className={`${nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS ? '' : 'dark:hover:bg-hoverDark hover:bg-hoverLight'}`}
         />

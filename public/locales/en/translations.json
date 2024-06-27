@@ -110,7 +110,9 @@
     "speeddial_not_deleted_title": "SpeedDial not deleted!",
     "speeddial_not_deleted_description": "Error in deleting SpeedDial",
     "application_update_title": "Application update available.",
-    "application_update_body": "Click here to open the page where you can download the new release"
+    "application_update_body": "Click here to open the page where you can download the new release",
+    "lost_call_title": "Missed call from {{user}}",
+    "lost_call_body": "You received a call from {{number}} {{datetime}}"
   },
   "Phonebook": {
     "Phonebook": "Phonebook",
