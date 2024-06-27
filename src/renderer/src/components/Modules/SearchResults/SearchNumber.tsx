@@ -100,7 +100,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
           <NumberCaller
             number={phoneNumber}
             disabled={!isCallsEnabled}
-            className="dark:text-textBlueDark text-textBlueLight text-[1rem] font-normal hover:underline mr-auto"
+            className="dark:text-textBlueDark text-textBlueLight text-[1rem] hover:underline mr-auto"
           >
             {highlightedNumber}
           </NumberCaller>

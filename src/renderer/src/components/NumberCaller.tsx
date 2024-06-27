@@ -25,7 +25,9 @@ export const NumberCaller = ({
       className={ClassNames(className)}
       {...args}
     >
-      <div className={`${isNumberHiglighted ? 'dark:text-titleDark text-titleLight' : ''} `}>
+      <div
+        className={`${isNumberHiglighted ? 'dark:text-titleDark text-titleLight' : ''} font-normal`}
+      >
         {children}
       </div>
     </a>

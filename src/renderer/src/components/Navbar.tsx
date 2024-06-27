@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchBox } from './Modules/SearchResults/SearchBox'
 import {
   faXmarkCircle as ExitIcon,
-  faSliders as ThemeMenuIcon,
+  faGear as ThemeMenuIcon,
   faArrowRightFromBracket as LogoutIcon,
   faPalette as SystemIcon,
   faSun as LightIcon,
@@ -60,7 +60,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
-            <Listbox.Button >
+            <Listbox.Button>
               <Button
                 variant="ghost"
                 className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1"
@@ -112,13 +112,18 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
         </div>
 
         <div className={'max-h-8'}>
-          <Menu >
-            <Menu.Button className="cursor-pointer" onClick={() => { debouncer('reload_me', onClickAccount, 1000) }}>
+          <Menu>
+            <Menu.Button
+              className="cursor-pointer"
+              onClick={() => {
+                debouncer('reload_me', onClickAccount, 1000)
+              }}
+            >
               <Avatar
                 size="small"
                 status={status}
                 src={operators?.avatars?.[account.username] || undefined}
-                placeholderType='operator'
+                placeholderType="operator"
               />
             </Menu.Button>
             <Menu.Items
@@ -134,11 +139,11 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                     <p className="dark:text-gray-50 text-gray-700 font-normal">
                       {account.data?.endpoints.mainextension[0].id}
                     </p>
-                    {isDev() &&
+                    {isDev() && (
                       <p className="dark:text-gray-50 text-gray-700 font-normal">
                         [{account.data?.default_device.type}]
                       </p>
-                    }
+                    )}
                   </div>
                 </div>
               </Menu.Item>
@@ -158,7 +163,10 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                 as={'div'}
                 className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
-                <div className="flex flex-row items-center gap-4 py-[10px] px-6" onClick={handleLogout}>
+                <div
+                  className="flex flex-row items-center gap-4 py-[10px] px-6"
+                  onClick={handleLogout}
+                >
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
                   <p className="font-normal">{t('TopBar.Logout')}</p>
                 </div>
