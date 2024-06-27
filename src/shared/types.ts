@@ -356,6 +356,7 @@ export type LocalStorageData = {
   theme?: AvailableThemes,
   loginPageData?: LoginPageData
   nethLinkPageData?: NethLinkPageData
+  lostCallNotifications?: CallData[]
 }
 
 export type LoginPageData = {

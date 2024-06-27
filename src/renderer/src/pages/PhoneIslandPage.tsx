@@ -22,6 +22,7 @@ export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
   const [operators] = useStoreState<OperatorsType | undefined>('operators')
   const [lastCalls] = useStoreState<CallData[]>('lastCalls')
+  const [lostCallNotifications, setLostCallNotifications] = useStoreState<CallData[]>('lostCallNotifications')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
@@ -103,8 +104,8 @@ export function PhoneIslandPage() {
                     )
                     sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('', { number: c.src, datetime: timeDiff }))
                   }
-
                 })
+                setLostCallNotifications(diff)
               }
               saveLastCalls(newLastCalls)
             })
