@@ -170,12 +170,14 @@ export const LoginForm = () => {
           })
           setError(() => undefined)
         } catch (error: any) {
+          setIsLoading(false)
           if (error.message === 'Unauthorized')
             setError(() => new Error(t('Login.Wrong host or username or password')!))
           else setError(() => error)
           //setFormValues(data)
         }
       } else {
+        setIsLoading(false)
         setFormValues(data)
         setError(() => new Error(t('Login.Wrong host or username or password')!))
       }
