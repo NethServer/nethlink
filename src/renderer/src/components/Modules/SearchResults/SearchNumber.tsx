@@ -107,7 +107,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
         </div>
       </div>
       <Button
-        className="dark:hover:bg-bgDark hover:bg-bgLight"
+        className="dark:hover:bg-hoverDark hover:bg-hoverLight"
         variant="ghost"
         disabled={!isCallsEnabled}
         onClick={() => {

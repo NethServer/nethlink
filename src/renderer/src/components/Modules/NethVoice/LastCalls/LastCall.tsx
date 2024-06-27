@@ -112,6 +112,7 @@ export function MissedCall({ call, showContactForm, className }: MissedCallProps
             className={
               'dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline'
             }
+            isNumberHiglighted={false}
           >
             {call.cnum}
           </NumberCaller>
@@ -163,7 +164,7 @@ export function MissedCall({ call, showContactForm, className }: MissedCallProps
         {showCreateButton && (
           <Button
             variant="ghost"
-            className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto"
+            className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto dark:hover:bg-hoverDark hover:bg-hoverLight"
             onClick={handleCreateContact}
           >
             <FontAwesomeIcon

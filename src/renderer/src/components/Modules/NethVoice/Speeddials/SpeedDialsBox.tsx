@@ -63,11 +63,9 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
                   <div className="px-5">
                     <div
                       className={`${idx === speeddials.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-                      //key={idx}
                     >
                       <SpeedDialNumber
                         speedDial={e}
-                        //className="dark:hover:bg-hoverDark hover:bg-hoverLight"
                         callUser={() => callNumber(e.speeddial_num!)}
                         handleEditSpeedDial={handleEditSpeedDial}
                         handleDeleteSpeedDial={handleDeleteSpeedDial}

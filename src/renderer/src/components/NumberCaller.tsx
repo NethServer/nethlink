@@ -7,12 +7,14 @@ type NumberCallerProps = {
   children: JSX.Element | JSX.Element[] | ReactNode | ReactNode[]
   disabled: boolean
   className?: string
+  isNumberHiglighted?: boolean
 }
 export const NumberCaller = ({
   number,
   children,
   disabled,
   className,
+  isNumberHiglighted = true,
   ...args
 }: NumberCallerProps) => {
   return disabled ? (
@@ -23,7 +25,9 @@ export const NumberCaller = ({
       className={ClassNames(className)}
       {...args}
     >
-      <div className="dark:text-titleDark text-titleLight">{children}</div>
+      <div className={`${isNumberHiglighted ? 'dark:text-titleDark text-titleLight' : ''} `}>
+        {children}
+      </div>
     </a>
   )
 }

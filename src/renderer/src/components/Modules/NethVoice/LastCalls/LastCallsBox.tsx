@@ -51,11 +51,7 @@ export function MissedCallsBox({ showContactForm }): JSX.Element {
                         className={`${idx === missedCallsIn.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
                         key={idx}
                       >
-                        <MissedCall
-                          call={call}
-                          showContactForm={showContactForm}
-                          //className="dark:hover:bg-hoverDark hover:bg-hoverLight"
-                        />
+                        <MissedCall call={call} showContactForm={showContactForm} />
                       </div>
                     </div>
                   </div>

@@ -70,6 +70,7 @@ export function SpeedDialNumber({
               number={speedDial.speeddial_num!}
               disabled={!isCallsEnabled}
               className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
+              isNumberHiglighted={false}
             >
               {truncate(speedDial.speeddial_num!, 19)}
             </NumberCaller>
@@ -83,7 +84,7 @@ export function SpeedDialNumber({
               <Menu.Button>
                 <Button
                   variant="ghost"
-                  className="flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-bgDark hover:bg-bgLight"
+                  className="flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-hoverDark hover:bg-hoverLight"
                 >
                   <FontAwesomeIcon
                     className="dark:text-titleDark text-titleLight text-base"
