@@ -360,6 +360,7 @@ export type LocalStorageData = {
   nethLinkPageData?: NethLinkPageData
   missedCalls?: CallData[],
   notifications?: NotificationData
+  lostCallNotifications?: CallData[]
 }
 
 export type LoginPageData = {
