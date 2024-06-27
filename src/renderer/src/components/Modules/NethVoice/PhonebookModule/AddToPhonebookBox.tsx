@@ -14,7 +14,6 @@ import { usePhonebookModule } from './hook/usePhonebookModule'
 import { log } from '@shared/utils/logger'
 
 export function AddToPhonebookBox({ close }) {
-
   const phoneBookSearchModule = usePhonebookSearchModule()
   const phonebookModule = usePhonebookModule()
   const [searchText] = phoneBookSearchModule.searchTextState
@@ -130,7 +129,8 @@ export function AddToPhonebookBox({ close }) {
       if (watchType === 'company') {
         data.name = '-'
       }
-      phonebookModule.handleAddContactToPhonebook(data)
+      phonebookModule
+        .handleAddContactToPhonebook(data)
         .then(() => {
           sendNotification(
             t('Notification.contact_created_title'),
@@ -138,7 +138,8 @@ export function AddToPhonebookBox({ close }) {
           )
           reset()
           close()
-        }).catch((error) => {
+        })
+        .catch((error) => {
           sendNotification(
             t('Notification.contact_not_created_title'),
             t('Notification.contact_not_created_description')
@@ -167,12 +168,14 @@ export function AddToPhonebookBox({ close }) {
   }
 
   return (
-    <div className="absolute top-0 left-0 z-[100] dark:bg-bgDark bg-bgLight h-full w-full rounded-bl-lg" >
+    <div className="absolute top-0 left-0 z-[100] dark:bg-bgDark bg-bgLight h-full w-full rounded-bl-lg">
       <div className="w-full h-full">
-        <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] px-5">
-          <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
-            {t('Phonebook.Add to Phonebook')}
-          </h1>
+        <div className="px-5">
+          <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px]">
+            <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
+              {t('Phonebook.Add to Phonebook')}
+            </h1>
+          </div>
         </div>
         <form
           className="flex flex-col gap-5 p-2 h-full overflow-y-auto max-h-[240px] px-5"

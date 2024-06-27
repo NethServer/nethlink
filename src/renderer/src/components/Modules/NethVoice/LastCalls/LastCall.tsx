@@ -25,11 +25,7 @@ export interface MissedCallProps {
   className?: string
 }
 
-export function MissedCall({
-  call,
-  showContactForm,
-  className
-}: MissedCallProps): JSX.Element {
+export function MissedCall({ call, showContactForm, className }: MissedCallProps): JSX.Element {
   const phonebookModule = usePhonebookModule()
   const [selectedContact, setSelectedContact] = phonebookModule.selectedContact
   const [queues] = useStoreState<QueuesType>('queues')
@@ -53,7 +49,10 @@ export function MissedCall({
   }
 
   if (call?.dst_cnam === '') {
-    const operatorFound: any = getOperatorByPhoneNumber(call?.dst as string, operators?.operators || {})
+    const operatorFound: any = getOperatorByPhoneNumber(
+      call?.dst as string,
+      operators?.operators || {}
+    )
 
     if (operatorFound) {
       call.dst_cnam = operatorFound?.name
@@ -78,7 +77,7 @@ export function MissedCall({
   }
   return (
     <div
-      className={`flex flex-grow gap-3 min-h-[72px] p-2 px-5 ${className}`}
+      className={`flex flex-grow gap-3 min-h-[72px] p-2 ${className}`}
       onMouseEnter={() => {
         if (getCallName(call) === t('Common.Unknown')) {
           setShowCreateButton(() => true)
@@ -110,7 +109,9 @@ export function MissedCall({
           <NumberCaller
             number={getCallExt(call)}
             disabled={!isCallsEnabled}
-            className={"dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline"}
+            className={
+              'dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline'
+            }
           >
             {call.cnum}
           </NumberCaller>
@@ -175,6 +176,6 @@ export function MissedCall({
           </Button>
         )}
       </div>
-    </div >
+    </div>
   )
 }

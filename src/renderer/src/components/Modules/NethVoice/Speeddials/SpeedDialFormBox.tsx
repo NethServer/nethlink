@@ -97,10 +97,12 @@ export function SpeedDialFormBox({ close }) {
 
   return (
     <div className="flex flex-col gap-3 h-full relative">
-      <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] px-5 mt-3">
-        <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
-          {selectedSpeedDial ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
-        </h1>
+      <div className=" px-5">
+        <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] mt-3">
+          <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
+            {selectedSpeedDial ? t('SpeedDial.Edit speed dial') : t('SpeedDial.Create speed dial')}
+          </h1>
+        </div>
       </div>
       <form
         className={`flex flex-col ${errors.name?.message ? '' : 'gap-4'} px-5`}

@@ -14,11 +14,12 @@ import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 
 interface SearchNumberBoxProps {
-  searchResult: SearchData[] | undefined,
+  searchResult: SearchData[] | undefined
   showContactForm: () => void
 }
 export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberBoxProps) {
-  const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [nethLinkPageData, setNethLinkPageData] =
+    useStoreState<NethLinkPageData>('nethLinkPageData')
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
@@ -27,10 +28,8 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
   const [canAddToPhonebook, setCanAddToPhonebook] = useState<boolean>(false)
   const { isCallsEnabled } = useAccount()
 
-
   useEffect(() => {
-    if (searchResult)
-      preparePhoneNumbers(searchResult)
+    if (searchResult) preparePhoneNumbers(searchResult)
   }, [searchResult, searchText])
 
   const showAddContactToPhonebook = () => {
@@ -57,9 +56,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
     return operatorsResults
   }
 
-
   function preparePhoneNumbers(unFilteredNumbers: SearchData[]) {
-
     const cleanQuery = searchText?.replace(cleanRegex, '') || ''
     if (cleanQuery.length == 0) {
       return
@@ -94,43 +91,45 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
     })
 
     const getId = (o) => parseInt(o?.endpoints?.['extension']?.[0]?.['id']) || -1
-    const mappedOperators: SearchData[] = filteredOperators.filter((o) => getId(o) !== -1).map((o) => {
-      const id = getId(o)
-      return {
-        ...o,
-        cellphone: o?.endpoints?.['cellphone']?.[0]?.['id'],
-        fax: '',
-        homecity: '',
-        homecountry: '',
-        homeemail: '',
-        homephone: '',
-        homepob: '',
-        homepostalcode: '',
-        homeprovince: '',
-        homestreet: '',
-        id: id,
-        notes: '',
-        owner_id: '',
-        source: '',
-        speeddial_num: o?.endpoints?.['mainextension']?.[0]?.id || '',
-        title: '',
-        type: '',
-        url: '',
-        workcity: '',
-        workcountry: '',
-        workemail: '',
-        workphone: '',
-        workpob: '',
-        workpostalcode: '',
-        workprovince: '',
-        workstreet: '',
-        company: '',
-        extension: o?.endpoints?.['mainextension']?.[0]?.id || '',
-        isOperator: true,
-        kind: 'person',
-        displayName: o?.name
-      }
-    })
+    const mappedOperators: SearchData[] = filteredOperators
+      .filter((o) => getId(o) !== -1)
+      .map((o) => {
+        const id = getId(o)
+        return {
+          ...o,
+          cellphone: o?.endpoints?.['cellphone']?.[0]?.['id'],
+          fax: '',
+          homecity: '',
+          homecountry: '',
+          homeemail: '',
+          homephone: '',
+          homepob: '',
+          homepostalcode: '',
+          homeprovince: '',
+          homestreet: '',
+          id: id,
+          notes: '',
+          owner_id: '',
+          source: '',
+          speeddial_num: o?.endpoints?.['mainextension']?.[0]?.id || '',
+          title: '',
+          type: '',
+          url: '',
+          workcity: '',
+          workcountry: '',
+          workemail: '',
+          workphone: '',
+          workpob: '',
+          workpostalcode: '',
+          workprovince: '',
+          workstreet: '',
+          company: '',
+          extension: o?.endpoints?.['mainextension']?.[0]?.id || '',
+          isOperator: true,
+          kind: 'person',
+          displayName: o?.name
+        }
+      })
     const names = mappedOperators.map((o) => o?.name?.toLowerCase()?.replace(/\s/g, ''))
 
     unFilteredNumbers = unFilteredNumbers.filter((e) => {
@@ -142,10 +141,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
       //I make sure I have a set
       return false
     })
-    const copy = [
-      ...mappedOperators,
-      ...unFilteredNumbers
-    ]
+    const copy = [...mappedOperators, ...unFilteredNumbers]
 
     let _canAddInPhonebook = isPhoneNumber
 
@@ -156,17 +152,16 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
     setCanAddToPhonebook(() => _canAddInPhonebook)
   }
 
-  const isCallButtonEnabled = searchText && isCallsEnabled && getIsPhoneNumber(searchText) && searchText.length > 1
+  const isCallButtonEnabled =
+    searchText && isCallsEnabled && getIsPhoneNumber(searchText) && searchText.length > 1
 
   return (
     <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight">
       <div
         className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
-
         onClick={() => {
           log(isCallButtonEnabled, searchText)
-          if (isCallButtonEnabled && searchText)
-            callNumber(searchText)
+          if (isCallButtonEnabled && searchText) callNumber(searchText)
         }}
       >
         <FontAwesomeIcon
@@ -181,8 +176,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
       <div
         className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
         onClick={() => {
-          if (canAddToPhonebook)
-            showAddContactToPhonebook()
+          if (canAddToPhonebook) showAddContactToPhonebook()
         }}
       >
         <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={AddUserIcon} />
@@ -190,7 +184,6 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
           {t('Common.Add')} {searchText?.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
         </p>
       </div>
-      <div className={`border-b dark:border-borderDark border-borderLight`}></div>
       <div className="overflow-y-auto max-h-[178px]">
         {filteredPhoneNumbers.map((user, index) => (
           <SearchNumber

@@ -40,7 +40,7 @@ export function SpeedDialNumber({
 
   return (
     <div
-      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 px-5 ${className}`}
+      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 ${className}`}
     >
       <div className="flex gap-6 items-center">
         <Avatar
@@ -51,11 +51,14 @@ export function SpeedDialNumber({
               ?.mainPresence || undefined
           }
           className="z-0"
-          placeholderType={operators?.extensions[speedDial.speeddial_num || ''] ? 'operator' : 'person'}
+          placeholderType={
+            operators?.extensions[speedDial.speeddial_num || ''] ? 'operator' : 'person'
+          }
         />
         <div className="flex flex-col gap-1">
           <p className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
-            {isDev() && `[${speedDial.id}] `}{truncate(speedDial.name!, 20)}
+            {isDev() && `[${speedDial.id}] `}
+            {truncate(speedDial.name!, 20)}
           </p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
