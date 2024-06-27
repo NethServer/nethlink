@@ -178,9 +178,9 @@ export function AddToPhonebookBox({ close }) {
             </h1>
           </div>
         </div>
-        <Scrollable>
+        <Scrollable innerClassName={' max-w-[344px]'}>
           <form
-            className="flex flex-col gap-5 p-2 h-full max-h-[240px] px-5"
+            className="flex flex-col gap-5 h-full max-h-[236px] px-5 py-2"
             onSubmit={(e) => {
               e.preventDefault()
               handleSubmit(onSubmitForm)(e)
