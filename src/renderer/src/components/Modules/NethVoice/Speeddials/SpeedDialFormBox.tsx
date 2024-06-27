@@ -59,36 +59,40 @@ export function SpeedDialFormBox({ close }) {
 
   function handleSave(data: ContactType) {
     setIsLoading(true)
-    speedDialModule.upsertSpeedDial(data).then(() => {
-      if (selectedSpeedDial) {
-        sendNotification(
-          t('Notification.speeddial_modified_title'),
-          t('Notification.speeddial_modified_description')
-        )
-      } else {
-        sendNotification(
-          t('Notification.speeddial_created_title'),
-          t('Notification.speeddial_created_description')
-        )
-      }
-      reset()
-      close()
-    }).catch((error) => {
-      if (selectedSpeedDial) {
-        sendNotification(
-          t('Notification.speeddial_not_modified_title'),
-          t('Notification.speeddial_not_modified_description')
-        )
-      } else {
-        sendNotification(
-          t('Notification.speeddial_not_created_title'),
-          t('Notification.speeddial_not_created_description')
-        )
-      }
-      log(error)
-    }).finally(() => {
-      setIsLoading(false)
-    })
+    speedDialModule
+      .upsertSpeedDial(data)
+      .then(() => {
+        if (selectedSpeedDial) {
+          sendNotification(
+            t('Notification.speeddial_modified_title'),
+            t('Notification.speeddial_modified_description')
+          )
+        } else {
+          sendNotification(
+            t('Notification.speeddial_created_title'),
+            t('Notification.speeddial_created_description')
+          )
+        }
+        reset()
+        close()
+      })
+      .catch((error) => {
+        if (selectedSpeedDial) {
+          sendNotification(
+            t('Notification.speeddial_not_modified_title'),
+            t('Notification.speeddial_not_modified_description')
+          )
+        } else {
+          sendNotification(
+            t('Notification.speeddial_not_created_title'),
+            t('Notification.speeddial_not_created_description')
+          )
+        }
+        log(error)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }
 
   return (
@@ -99,7 +103,7 @@ export function SpeedDialFormBox({ close }) {
         </h1>
       </div>
       <form
-        className="flex flex-col gap-4 px-5"
+        className={`flex flex-col ${errors.name?.message ? '' : 'gap-4'} px-5`}
         onSubmit={(e) => {
           e.preventDefault()
           handleSubmit(onSubmitForm)(e)
@@ -137,17 +141,13 @@ export function SpeedDialFormBox({ close }) {
           }}
           className="font-medium text-[14px] leading-5"
         />
-        <div className="absolute bottom-1 right-0 flex flex-row gap-4 px-5">
+        <div className="absolute bottom-4 right-0 flex flex-row gap-4 px-5">
           <Button variant="ghost" onClick={handleClose} disabled={isLoading}>
             <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
               {t('Common.Cancel')}
             </p>
           </Button>
-          <Button
-            type="submit"
-            ref={submitButtonRef}
-            className="gap-3"
-          >
+          <Button type="submit" ref={submitButtonRef} className="gap-3">
             <p className="dark:text-titleLight text-titleDark font-medium text-[14px] leading-5">
               {selectedSpeedDial ? t('Common.Edit') : t('SpeedDial.Create')}
             </p>
