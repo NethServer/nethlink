@@ -1,19 +1,58 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare as ShowMissedCallIcon } from '@fortawesome/free-solid-svg-icons'
 import { LastCall } from './LastCall'
-import { CallData } from '@shared/types'
+import { CallData, OperatorData } from '@shared/types'
 import { t } from 'i18next'
 import { useStoreState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
+import { useEffect, useState } from 'react'
 
 export function LastCallsBox({ showContactForm }): JSX.Element {
 
   const [lastCalls] = useStoreState<CallData[]>('lastCalls')
+  const [operators] = useStoreState<OperatorData>('operators')
+  const [preparedCalls, setPreparedCalls] = useState<(CallData & { username: string })[]>([])
   const title = `${t('QueueManager.Calls')} (${lastCalls?.length || 0})`
+
+  useEffect(() => {
+    prepareCalls()
+  }, [lastCalls])
 
   const viewAllMissedCalls = () => {
     window.api.openHostPage('/history')
+  }
+
+  const prepareCalls = () => {
+    if (lastCalls) {
+      const preparedCalls: (CallData & { username: string })[] = lastCalls.map((c) => {
+        const elem: CallData & { username: string } = {
+          ...c,
+          username: getCallName(c)
+        }
+        return elem
+      })
+      setPreparedCalls((p) => preparedCalls)
+    }
+  }
+
+  function getCallName(call: CallData): string {
+    //`${t('Common.Unknown')}`
+    let callName = call.direction === 'out'
+      ? (call?.dst_cnam || call?.dst_ccompany)
+      : call.direction === 'in'
+        ? (call?.cnam || call?.ccompany)
+        : undefined
+    let operator: any = null
+    if (callName) {
+      operator = Object.values(operators?.operators || {}).find((operator: any) => operator.name === callName)
+    } else {
+      operator = Object.values(operators?.operators || {}).find((operator: any) => {
+        const isExten = operator.endpoints.extension.find((exten: any) => exten.id === call.dst)
+        return isExten ? true : false
+      })
+    }
+    return operator?.username || t('Common.Unknown')
   }
 
   return (
@@ -38,14 +77,14 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
           </Button>
         </div>
         <div className="flex flex-col max-h-[240px] overflow-y-auto">
-          {lastCalls ? lastCalls.map((call, idx) => {
+          {preparedCalls ? preparedCalls.map((preparedCall, idx) => {
             return (
               <div
-                className={`${idx === lastCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+                className={`${idx === preparedCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
                 key={idx}
               >
                 <LastCall
-                  call={call}
+                  call={preparedCall}
                   showContactForm={showContactForm}
                   className="dark:hover:bg-hoverDark hover:bg-hoverLight"
                 />

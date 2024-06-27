@@ -5,7 +5,6 @@ import { log } from "./utils/logger"
 export const useLogin = () => {
 
   const parseConfig = (account: Account, config): Account => {
-    log(IPC_EVENTS.GET_NETHVOICE_CONFIG)
     const voiceHost = account.host.split('.')
     voiceHost.shift()
     voiceHost.join('.')

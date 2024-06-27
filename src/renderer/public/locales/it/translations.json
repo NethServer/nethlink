@@ -850,5 +850,11 @@
   },
   "Transfer": {
     "No users found": "Nessun utente trovato"
+  },
+  "About": {
+    "title": "Informazioni",
+    "current_version": "Versione corrente: nethlink {{version}}",
+    "update_available": "Aggiornamento disponibile per il download",
+    "download": "Scarica l'aggiornamento"
   }
 }

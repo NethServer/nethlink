@@ -20,7 +20,7 @@ import { InCallIcon, LostCallIcon, OutCallIcon } from '@renderer/icons'
 import { log } from '@shared/utils/logger'
 
 export interface LastCallProps {
-  call: CallData
+  call: CallData & { username: string }
   showContactForm: () => void
   className?: string
 }
@@ -36,19 +36,9 @@ export function LastCall({
   const [operators] = useStoreState<OperatorData>('operators')
   const { isCallsEnabled } = useAccount()
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
-  const avatarSrc = operators?.avatars?.[operators?.extensions[getCallExt(call)]?.username]
-  log(operators)
   const [isQueueLoading, setIsQueueLoading] = useState<boolean>(true)
+  const avatarSrc = operators?.avatars?.[call.username]
 
-  function getCallName(call: CallData): string {
-    if (call.direction === 'in') return call?.cnam || call?.ccompany || `${t('Common.Unknown')}`
-    return call?.dst_cnam || call?.dst_ccompany || `${t('Common.Unknown')}`
-  }
-
-  function getCallExt(call: CallData): string {
-    if (call.direction === 'in') return call.src || ''
-    return call.dst || ''
-  }
   function getOperatorByPhoneNumber(phoneNumber: string, operators: any) {
     return Object.values(operators).find((extensions: any) => extensions.id === phoneNumber)
   }
@@ -77,11 +67,12 @@ export function LastCall({
     handleSelectedCallContact(call.cnum || '', call.ccompany)
     showContactForm()
   }
+
   return (
     <div
       className={`flex flex-grow gap-3 min-h-[72px] p-2 px-5 ${className}`}
       onMouseEnter={() => {
-        if (getCallName(call) === t('Common.Unknown')) {
+        if (call.username === t('Common.Unknown')) {
           setShowCreateButton(() => true)
         }
       }}
@@ -92,10 +83,7 @@ export function LastCall({
           <Avatar
             size="small"
             src={avatarSrc}
-            status={
-              operators?.operators?.[operators?.extensions[getCallExt(call)]?.username]
-                ?.mainPresence || undefined
-            }
+            status={operators?.operators?.[call.username]?.mainPresence}
           />
         ) : (
           <FontAwesomeIcon
@@ -105,11 +93,11 @@ export function LastCall({
         )}
       </div>
       <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
-        <p className="font-medium text-[14px] leading-5">{truncate(getCallName(call), 15)}</p>
+        <p className="font-medium text-[14px] leading-5">{truncate(call.username, 15)}</p>
         <div className="flex flex-row gap-2 items-center">
           {call.direction === 'in' ? (call.disposition === 'NO ANSWER' ? <LostCallIcon /> : <InCallIcon />) : <OutCallIcon />}
           <NumberCaller
-            number={getCallExt(call)}
+            number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
             disabled={!isCallsEnabled}
             className={"dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline"}
           >

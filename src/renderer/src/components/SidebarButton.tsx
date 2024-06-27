@@ -31,6 +31,11 @@ export function SidebarButton({
       <div className="absolute inset-0 flex items-center justify-center">
         <FontAwesomeIcon size="1x" icon={icon} className="text-[20px]" />
       </div>
+      {hasNotification && (
+        <div
+          className={`absolute top-[1px] left-[1px] w-3 h-3 dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 ${focus ? 'dark:border-gray-700 border-gray-100' : 'dark:border-gray-900 border-gray-50'}`}
+        />
+      )}
     </div>
   )
 }

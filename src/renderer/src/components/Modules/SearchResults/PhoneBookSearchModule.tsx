@@ -24,7 +24,6 @@ export const PhoneBookSearchModule = () => {
         'search',
         async () => {
           const result = await searchPhonebookContacts()
-          log(result)
           setSearchResult(() => result)
         },
         250
