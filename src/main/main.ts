@@ -1,4 +1,4 @@
-import { BrowserWindow, app, ipcMain, nativeTheme, powerMonitor, protocol, shell, systemPreferences } from 'electron'
+import { BrowserWindow, app, clipboard, globalShortcut, ipcMain, nativeTheme, powerMonitor, protocol, shell, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, DevToolsController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -185,14 +185,7 @@ ipcMain.on(IPC_EVENTS.LOGIN, (e, password) => {
     AccountController.instance.saveLoggedAccount(store.store['account']!, password)
   }
   store.saveToDisk()
-  setTimeout(() => {
-    new NethLinkController()
-    NethLinkController.instance.show()
-    setTimeout(() => {
-      new PhoneIslandController()
-      checkForUpdate()
-    }, 1000)
-  }, 500)
+  createNethLink()
 })
 
 ipcMain.on(IPC_EVENTS.LOGOUT, (_event) => {
@@ -240,3 +233,22 @@ async function getPermissions() {
   }
 }
 
+
+const createNethLink = async () => {
+  const getClipboardSelection = () => {
+
+    return clipboard.readText('selection')
+
+  }
+  globalShortcut.register('CommandOrControl+c+F11', () => {
+    const selection = getClipboardSelection()
+    //log('clipboard:', selection)
+    handleTelProtocol(selection)
+  })
+  await delay(500)
+  new NethLinkController()
+  NethLinkController.instance.show()
+  await delay(1000)
+  new PhoneIslandController()
+  checkForUpdate()
+}
