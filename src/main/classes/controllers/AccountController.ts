@@ -63,6 +63,12 @@ export class AccountController {
       const lastLoggedAccount = authAppData.availableAccounts[authAppData.lastUser]
       if (lastLoggedAccount && authAppData.lastUserCryptPsw) {
         try {
+          try {
+            authAppData.lastUserCryptPsw = Object.values(authAppData.lastUserCryptPsw)[1] as any;
+            log('converted from object')
+          } catch (e) {
+            //log(e)
+          }
           const psw: Buffer = Buffer.from((authAppData.lastUserCryptPsw as Uint8Array))
           const decryptString = safeStorage.decryptString(psw)
           const _accountData = JSON.parse(decryptString)

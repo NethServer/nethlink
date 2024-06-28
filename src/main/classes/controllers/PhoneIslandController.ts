@@ -4,6 +4,7 @@ import { log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
 import { ipcMain, screen } from 'electron'
 import { debouncer } from '@shared/utils/utils'
+import { once } from '@/lib/ipcEvents'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -72,12 +73,18 @@ export class PhoneIslandController {
   }
 
   logout() {
-    try {
-      this.window.emit(IPC_EVENTS.LOGOUT)
-      this.window.quit()
-    } catch (e) {
-      log(e)
-    }
+    return new Promise<void>((resolve, reject) => {
+      try {
+        this.window.emit(IPC_EVENTS.LOGOUT)
+        once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
+          this.window.quit()
+          resolve()
+        })
+      } catch (e) {
+        log(e)
+        reject()
+      }
+    })
   }
   call(number: string) {
     this.window.emit(IPC_EVENTS.START_CALL, number)

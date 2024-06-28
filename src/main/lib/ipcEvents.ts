@@ -40,7 +40,11 @@ function onSyncEmitter<T>(
     event.returnValue = syncResponse
   })
 }
-
+export function once(event: IPC_EVENTS, callback: () => void) {
+  ipcMain.once(event, () => {
+    callback()
+  })
+}
 export function registerIpcEvents() {
 
   //TODO: move each event to the controller it belongs to
