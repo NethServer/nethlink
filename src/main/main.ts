@@ -195,9 +195,9 @@ ipcMain.on(IPC_EVENTS.LOGIN, (e, password) => {
   }, 500)
 })
 
-ipcMain.on(IPC_EVENTS.LOGOUT, (_event) => {
+ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
   isDev() && log('logout from event')
-  PhoneIslandController.instance.logout()
+  await PhoneIslandController.instance.logout()
   NethLinkController.instance.logout()
   AccountController.instance.logout()
   showLogin()
