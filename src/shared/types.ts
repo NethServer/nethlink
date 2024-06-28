@@ -186,6 +186,8 @@ export type CallData = {
   queue?: string
 }
 
+export type LastCallData = CallData & { username: string, hasNotification: boolean }
+
 export type StatusTypes =
   | 'available'
   | 'online'
@@ -356,7 +358,7 @@ export type LocalStorageData = {
   theme?: AvailableThemes,
   loginPageData?: LoginPageData
   nethLinkPageData?: NethLinkPageData
-  lostCallNotifications?: CallData[],
+  missedCalls?: CallData[],
   notifications?: NotificationData
 }
 

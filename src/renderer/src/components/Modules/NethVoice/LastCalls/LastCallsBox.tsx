@@ -1,23 +1,25 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare as ShowMissedCallIcon } from '@fortawesome/free-solid-svg-icons'
 import { LastCall } from './LastCall'
-import { CallData, OperatorData } from '@shared/types'
+import { CallData, LastCallData, OperatorData } from '@shared/types'
 import { t } from 'i18next'
 import { useStoreState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
 import { useEffect, useState } from 'react'
+import { log } from '@shared/utils/logger'
 
 export function LastCallsBox({ showContactForm }): JSX.Element {
 
   const [lastCalls] = useStoreState<CallData[]>('lastCalls')
   const [operators] = useStoreState<OperatorData>('operators')
-  const [preparedCalls, setPreparedCalls] = useState<(CallData & { username: string })[]>([])
+  const [missedCalls, setMissedCalls] = useStoreState<CallData[]>('missedCalls')
+  const [preparedCalls, setPreparedCalls] = useState<LastCallData[]>([])
   const title = `${t('QueueManager.Calls')} (${lastCalls?.length || 0})`
 
   useEffect(() => {
     prepareCalls()
-  }, [lastCalls])
+  }, [lastCalls, missedCalls])
 
   const viewAllMissedCalls = () => {
     window.api.openHostPage('/history')
@@ -25,10 +27,11 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
 
   const prepareCalls = () => {
     if (lastCalls) {
-      const preparedCalls: (CallData & { username: string })[] = lastCalls.map((c) => {
-        const elem: CallData & { username: string } = {
+      const preparedCalls: LastCallData[] = lastCalls.map((c) => {
+        const elem: LastCallData = {
           ...c,
-          username: getCallName(c)
+          username: getCallName(c),
+          hasNotification: missedCalls?.map((c) => c.uniqueid).includes(c.uniqueid) || false
         }
         return elem
       })
@@ -53,6 +56,13 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
       })
     }
     return operator?.username || t('Common.Unknown')
+  }
+
+  const handleClearNotification = (missedCall: CallData) => {
+    log(missedCall, missedCalls)
+    setMissedCalls((p) => {
+      return p?.filter((c) => c.uniqueid !== missedCall.uniqueid) || []
+    })
   }
 
   return (
@@ -86,6 +96,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
                 <LastCall
                   call={preparedCall}
                   showContactForm={showContactForm}
+                  clearNotification={handleClearNotification}
                   className="dark:hover:bg-hoverDark hover:bg-hoverLight"
                 />
               </div>

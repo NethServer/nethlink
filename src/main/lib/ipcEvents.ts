@@ -116,6 +116,7 @@ export function registerIpcEvents() {
     if (process.platform !== 'darwin') {
       options.icon = "../../../public/TrayNotificationIcon.svg"
     }
+    log(options)
     const notification: Notification = new Notification(options)
 
     setTimeout(() => {

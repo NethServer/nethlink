@@ -7,7 +7,7 @@ import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/co
 import { Account, CallData, Extension, OperatorsType, PhoneIslandConfig, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { differenceWith, forEach, isEqual } from 'lodash'
@@ -17,12 +17,15 @@ import { formatDistance } from 'date-fns'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import { getTimeDifference } from '@renderer/lib/dateTime'
 import { enGB, it } from 'date-fns/locale'
+import { useRefStat as useRefState } from '@renderer/hooks/useRefState'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
   const [operators] = useStoreState<OperatorsType | undefined>('operators')
-  const [lastCalls] = useStoreState<CallData[]>('lastCalls')
-  const [lostCallNotifications, setLostCallNotifications] = useStoreState<CallData[]>('lostCallNotifications')
+
+  const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('lastCalls'))
+  const [missedCalls, setMissedCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('missedCalls'))
+
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
@@ -44,6 +47,36 @@ export function PhoneIslandPage() {
   const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS>()
   const isMinimized = useRef<boolean>(false)
   const isDisconnected = useRef<boolean>(false)
+
+  const gestLastCalls = (newLastCalls: {
+    count: number, rows: CallData[]
+  }) => {
+    const diff = differenceWith(newLastCalls.rows, lastCalls.current || [], (a, b) => a.uniqueid === b.uniqueid)
+    const _missedCalls: CallData[] = [
+      ...(missedCalls.current || [])
+    ]
+    let missed: CallData[] = []
+    if (diff.length > 0) {
+      diff.forEach((c) => {
+        if (c.direction === 'in' && c.disposition === 'NO ANSWER') {
+          _missedCalls.push(c)
+          const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account!, false))
+          const timeDiff = format(utcToZonedTime(c.time! * 1000, differenceBetweenTimezone), 'HH:mm')
+          sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('Notification.lost_call_body', { number: c.src, datetime: timeDiff }))
+        }
+      })
+
+      setMissedCalls((p) => {
+        const pmap = p?.map((c) => c.uniqueid) || []
+        missed = [
+          ...(p || []),
+          ..._missedCalls.filter((c) => !pmap.includes(c.uniqueid))
+        ]
+        return missed
+      })
+    }
+    setLastCalls(newLastCalls.rows)
+  }
 
   useInitialize(() => {
     loadPath.current = getI18nLoadPath()
@@ -83,28 +116,7 @@ export function PhoneIslandPage() {
             NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
               count: number, rows: CallData[]
             }) => {
-              const diff = differenceWith(newLastCalls.rows, lastCalls || [], (a, b) => isEqual(a.uniqueid, b.uniqueid))
-              log({ lastCalls, newLastCalls, diff })
-              if (diff.length > 0) {
-                diff.forEach((c) => {
-                  if (c.direction === 'in' && c.disposition === 'NO ANSWER') {
-                    const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account!, false))
-                    let localTimeZone = getLocalTimezoneOffset()
-                    const timeDiff = formatDistance(
-                      utcToZonedTime(c.time! * 1000, differenceBetweenTimezone),
-                      utcToZonedTime(new Date(), localTimeZone),
-                      {
-                        addSuffix: true,
-                        includeSeconds: true,
-                        locale: i18next?.languages[0] === 'it' ? it : enGB
-                      }
-                    )
-                    sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('', { number: c.src, datetime: timeDiff }))
-                  }
-                })
-                setLostCallNotifications(diff)
-              }
-              saveLastCalls(newLastCalls)
+              gestLastCalls(newLastCalls)
             })
           case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:

@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Avatar, Button } from '../../../Nethesis'
 import { NumberCaller } from '../../../NumberCaller'
 import { useEffect, useState } from 'react'
-import { Account, CallData, ContactType, OperatorData, QueuesType } from '@shared/types'
+import { Account, CallData, ContactType, LastCallData, OperatorData, QueuesType } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from '../../../Nethesis/CallsDate'
 import { truncate } from '@renderer/utils'
@@ -20,14 +20,16 @@ import { InCallIcon, LostCallIcon, OutCallIcon } from '@renderer/icons'
 import { log } from '@shared/utils/logger'
 
 export interface LastCallProps {
-  call: CallData & { username: string }
+  call: LastCallData
   showContactForm: () => void
+  clearNotification: (call: LastCallData) => void
   className?: string
 }
 
 export function LastCall({
   call,
   showContactForm,
+  clearNotification,
   className
 }: LastCallProps): JSX.Element {
   const phonebookModule = usePhonebookModule()
@@ -77,8 +79,14 @@ export function LastCall({
         }
       }}
       onMouseLeave={() => setShowCreateButton(() => false)}
+      onClick={() => {
+        clearNotification(call)
+      }}
     >
-      <div className="flex flex-col h-full min-w-6 pt-[6px]">
+      {call.hasNotification && <div className={`relative w-0 h-0 z-0 overflow-visible mr-[-12px]`}>
+        <div className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-gray-900 border-gray-50`} />
+      </div>}
+      <div className="flex flex-col h-full min-w-6 pt-[6px] z-10">
         {avatarSrc ? (
           <Avatar
             size="small"
@@ -101,7 +109,7 @@ export function LastCall({
             disabled={!isCallsEnabled}
             className={"dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline"}
           >
-            {call.cnum}
+            {(call.direction === 'in' ? call.src : call.dst) || t('Common.Unknown')}
           </NumberCaller>
         </div>
         <div className="flex flex-row gap-1">
