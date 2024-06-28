@@ -14,7 +14,6 @@ import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
-  const [operators] = useStoreState<OperatorsType | undefined>('operators')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
