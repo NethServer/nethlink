@@ -55,7 +55,7 @@ const ModalComponent: FC<ModalProps> = ({
         {...cleanProps}
       >
         <Transition.Child as={Fragment} {...theme.panel.transition}>
-          <div className={classNames(theme.background.base, 'rounded-lg top-[40px] h-[calc(100vh-40px)] w-[calc100vw]')} />
+          <div className={classNames(theme.background.base, 'rounded-b-lg top-[40px] h-[calc(100vh-40px)] w-[calc100vw]')} />
         </Transition.Child>
         <div className="
         fixed inset-0 z-50

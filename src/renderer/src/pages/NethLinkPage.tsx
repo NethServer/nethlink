@@ -150,7 +150,19 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           className={`flex flex-col min-w-[400px] min-h-[400px] h-full items-center justify-between`}
         >
           <div
-            className={`draggableAnchor flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950 dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
+            className={`
+              relative bottom-[-8px]
+              draggableAnchor
+              pr-4 pl-2 pb-[18px] pt-[8px]
+              w-full
+              h-[40px]
+              flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'}
+              items-center
+              gap-1
+              bg-gray-950 dark:bg-gray-950
+              rounded-t-lg
+              z-0
+            `}
           >
             <FontAwesomeIcon
               className={` text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 noDraggableAnchor`}
@@ -158,7 +170,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
               onClick={hideNethLink}
             />
           </div>
-          <div className="flex flex-row rounded-lg relative z-10 dark:bg-bgDark bg-bgLight w-full h-full">
+          <div className="flex flex-row rounded-b-lg relative z-10 dark:bg-bgDark bg-bgLight w-full h-full">
             <div className="flex flex-col gap-3 w-full h-full">
               <Navbar onClickAccount={() => me()} />
               <NethLinkModules />
