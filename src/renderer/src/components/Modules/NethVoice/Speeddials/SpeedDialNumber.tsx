@@ -84,7 +84,7 @@ export function SpeedDialNumber({
               <Menu.Button>
                 <Button
                   variant="ghost"
-                  className="flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-hoverDark hover:bg-hoverLight"
+                  className="flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-transparent hover:bg-transparent"
                 >
                   <FontAwesomeIcon
                     className="dark:text-titleDark text-titleLight text-base"

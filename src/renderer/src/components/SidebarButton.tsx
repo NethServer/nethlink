@@ -20,7 +20,7 @@ export function SidebarButton({
 }: SidebarButtonProps): JSX.Element {
   return (
     <div
-      className={`relative w-[32px] h-[32px] rounded-lg flex flex-row justify-center items-center cursor-pointer ${focus ? 'dark:bg-gray-700 bg-gray-100 dark:text-titleDark text-titleLight' : 'bg-transparent dark:text-gray-400 text-gray-600'} ${className}`}
+      className={`relative w-[32px] h-[32px] rounded-lg flex flex-row justify-center items-center cursor-pointer ${focus ? 'dark:bg-hoverDark bg-hoverLight dark:text-titleDark text-titleLight' : 'bg-transparent dark:text-gray-400 text-gray-600'} ${className}`}
       onClick={onClick}
     >
       {focus && (

@@ -78,7 +78,8 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 icon={Icon}
                 className={classNames(
                   size === 'large' ? theme.icon.size.large : theme.icon.size.base,
-                  error ? theme.icon.red : theme.icon.gray,
+                  //error ? theme.icon.red : theme.icon.gray,
+                  theme.icon.gray,
                   onIconClick && 'cursor-pointer'
                 )}
                 onClick={() => onIconClick && onIconClick()}
