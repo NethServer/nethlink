@@ -11,7 +11,6 @@ import {
 
 } from '@shared/types'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
-import { debouncer } from '@shared/utils/utils'
 import {
   faMinusCircle as MinimizeIcon
 } from '@fortawesome/free-solid-svg-icons'
@@ -129,11 +128,15 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   async function loadData() {
-    NethVoiceAPI.fetchOperators().then(saveOperators)
+    NethVoiceAPI.fetchOperators().then((op) => {
+      saveOperators(op)
+      me()
+    })
     NethVoiceAPI.HistoryCall.interval().then(saveLastCalls)
     NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
     NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
     me()
+
   }
 
   function hideNethLink() {

@@ -49,11 +49,7 @@ app.whenReady().then(async () => {
   })
 
   protocol.handle('nethlink', (req) => {
-    //we have to define the purpose of the nethlink custom protocol
-    isDev() && log(req)
-    //TODO: define actions
-    return new Promise((resolve) => resolve)
-
+    return handleNethLinkProtocol(req.url)
   })
 
 
@@ -108,6 +104,24 @@ app.dock?.hide()
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
+    // Print out data received from the second instance.
+    log({ event, commandLine, workingDirectory, additionalData })
+    const cmd = commandLine.pop()
+    if (cmd) {
+      log({ cmd })
+      const [protocol, data] = cmd.split('://')
+      log(protocol, data)
+      switch (protocol) {
+        case 'nethlink': handleNethLinkProtocol(data); break;
+        case 'tel':
+        case 'callto':
+          handleTelProtocol(data);
+          break;
+      }
+    }
+  })
 }
 
 nativeTheme.on('updated', () => {
@@ -195,9 +209,9 @@ ipcMain.on(IPC_EVENTS.LOGIN, (e, password) => {
   }, 500)
 })
 
-ipcMain.on(IPC_EVENTS.LOGOUT, (_event) => {
+ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
   isDev() && log('logout from event')
-  PhoneIslandController.instance.logout()
+  await PhoneIslandController.instance.logout()
   NethLinkController.instance.logout()
   AccountController.instance.logout()
   showLogin()
@@ -222,6 +236,17 @@ function handleTelProtocol(url: string): Promise<Response> {
   return new Promise((resolve) => resolve)
 }
 
+function handleNethLinkProtocol(data: string): Promise<Response> {
+  //we have to define the purpose of the nethlink custom protocol
+  isDev() && log(data)
+  //TODO: define actions
+  try {
+    NethLinkController.instance.show()
+  } catch (e) {
+
+  }
+  return new Promise((resolve) => resolve)
+}
 async function getPermissions() {
   if (process.platform === 'darwin') {
     const cameraPermissionState = systemPreferences.getMediaAccessStatus('camera')

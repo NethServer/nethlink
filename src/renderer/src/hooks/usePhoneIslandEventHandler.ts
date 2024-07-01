@@ -1,18 +1,19 @@
 import { useStoreState } from "@renderer/store"
-import { Account, CallData, ContactType, HistoryCallData, OperatorData, QueuesType } from "@shared/types"
+import { Account, CallData, ContactType, HistoryCallData, OperatorData, OperatorsType, QueuesType } from "@shared/types"
 import { log } from "@shared/utils/logger"
 import { useAccount } from "./useAccount"
 import { validatePhoneNumber } from "@renderer/utils"
 import { useCallback, useMemo } from "react"
 import { IPC_EVENTS } from "@shared/constants"
+import { useRefState } from "./useRefState"
 
 export const usePhoneIslandEventHandler = () => {
 
-  const [account, setAccount] = useStoreState<Account>('account')
-  const [operators, setOperators] = useStoreState<OperatorData>('operators')
-  const [speeddials, setSpeeddials] = useStoreState<ContactType[]>('speeddials')
-  const [queues, setQueues] = useStoreState<QueuesType>('queues')
-  const [lastCalls, setLastCalls] = useStoreState<CallData[]>('lastCalls')
+  const [account, setAccount] = useRefState<Account>(useStoreState<Account>('account'))
+  const [operators, setOperators] = useRefState<OperatorData | undefined>(useStoreState<OperatorData | undefined>('operators'))
+  const [speeddials, setSpeeddials] = useRefState<ContactType[]>(useStoreState<ContactType[]>('speeddials'))
+  const [queues, setQueues] = useRefState<ContactType[]>(useStoreState<ContactType[]>('queues'))
+  const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('lastCalls'))
   const { isCallsEnabled } = useAccount()
 
   function callNumber(number: string) {
@@ -26,30 +27,25 @@ export const usePhoneIslandEventHandler = () => {
     log('onMainPresence', operators, op)
     // eslint-disable-next-line no-prototype-builtins
     const updatedOperators = {
-      operators: operators?.operators || {},
-      userEndpoints: operators?.operators || {},
+      operators: operators.current?.operators || {},
+      userEndpoints: operators.current?.operators || {},
       //the other data only comes to me from the fetch and so I can take it as valid
-      avatars: operators?.avatars || {},
-      groups: operators?.groups || {},
-      extensions: operators?.extensions || {}
+      avatars: operators.current?.avatars || {},
+      groups: operators.current?.groups || {},
+      extensions: operators.current?.extensions || {},
     }
     for (const [username, operator] of Object.entries(op)) {
       updatedOperators.operators[username] = {
         ...(updatedOperators.operators[username] || operator),
         ...operator
       }
-      if (account && username === account.username) {
-        setAccount((p) => ({
-          ...p,
-          data: {
-            ...p.data!,
-            mainPresence: operator.mainPresence
-          }
-        }))
+      if (account.current && username === account.current.username) {
+        account.current.data!.mainPresence = operator.mainPresence
+        setAccount(() => account.current)
       }
     }
     setOperators(() => updatedOperators)
-  }, [account, operators])
+  }, [account.current, operators.current])
 
   function onQueueUpdate(queues: { [queueId: string]: any }) {
     setQueues((p) => ({

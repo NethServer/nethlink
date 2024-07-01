@@ -4,6 +4,7 @@ import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
 import { AppController } from '@/classes/controllers/AppController'
+import { isDev } from '@shared/utils/utils'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -62,7 +63,7 @@ export function createWindow(
   mainBindings(ipcMain, mainWindow, fs)
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.webContents.openDevTools({
+    isDev() && mainWindow.webContents.openDevTools({
       mode: 'detach'
     })
   })
