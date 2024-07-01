@@ -1,4 +1,4 @@
-export function InCallIcon() {
+export function OutCallAnsweredIcon() {
   return (
     <svg
       viewBox="0 0 448 512"

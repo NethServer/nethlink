@@ -16,7 +16,12 @@ import { Badge } from '../../../Nethesis/Badge'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { useStoreState } from '@renderer/store'
 import { usePhonebookModule } from '../PhonebookModule/hook/usePhonebookModule'
-import { InCallIcon, LostCallIcon, OutCallIcon } from '@renderer/icons'
+import {
+  OutCallAnsweredIcon,
+  OutCallNotAnsweredIcon,
+  InCallAnsweredIcon,
+  InCallNotAnsweredIcon
+} from '@renderer/icons'
 import { log } from '@shared/utils/logger'
 
 export interface LastCallProps {
@@ -102,8 +107,19 @@ export function LastCall({
       </div>
       <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
         <p className="font-medium text-[14px] leading-5">{truncate(call.username, 15)}</p>
+
         <div className="flex flex-row gap-2 items-center">
-          {call.direction === 'in' ? (call.disposition === 'NO ANSWER' ? <LostCallIcon /> : <InCallIcon />) : <OutCallIcon />}
+          {
+            call.disposition === 'NO ANSWER'
+              ? (call.direction === 'in'
+                ? <InCallNotAnsweredIcon />
+                : <OutCallNotAnsweredIcon />
+              )
+              : (call.direction === 'in'
+                ? <InCallAnsweredIcon />
+                : <OutCallAnsweredIcon />
+              )
+          }
           <NumberCaller
             number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
             disabled={!isCallsEnabled}

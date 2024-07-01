@@ -1,3 +1,4 @@
-export * from './OutCallIcon'
-export * from './LostCallIcon'
-export * from './InCallIcon'
+export * from './OutCallAnsweredIcon'
+export * from './InCallNotAnsweredIcon'
+export * from './InCallAnsweredIcon'
+export * from './OutCallNotAnsweredIcon'

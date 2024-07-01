@@ -1,4 +1,4 @@
-export function LostCallIcon() {
+export function OutCallNotAnsweredIcon() {
   return (
     <svg
       viewBox="0 0 384 512"
