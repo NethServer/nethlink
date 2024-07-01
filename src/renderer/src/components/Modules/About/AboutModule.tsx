@@ -32,7 +32,7 @@ export function AboutModule({ }: AboutBoxProps) {
       </div>
       <div className='mt-8 mb-4 flex flex-col items-center gap-2'>
         <img src={NethLinkLogoSimple} className="h-10 overflow-hidden object-cover place-items-start"></img>
-        <div className='font-medium'>NehLink by <span className='text-blue-500 cursor-pointer' onClick={openNethesisPage}>Nethesis</span></div>
+        <div className='font-medium'>NethLink by <span className='text-blue-500 cursor-pointer' onClick={openNethesisPage}>Nethesis</span></div>
       </div>
       <div className='text-gray-400'>{t('About.current_version', { version: page?.props.appVersion })}</div>
       {!!notifications?.system?.update && <div className='mt-8 flex flex-col gap-3 items-center'>
