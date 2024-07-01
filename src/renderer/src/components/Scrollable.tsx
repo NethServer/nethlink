@@ -10,7 +10,7 @@ export const Scrollable = ({
   innerClassName?: string
 }) => {
   return (
-    <div className={classNames('overflow-y-auto mr-[6px]', className)}>
+    <div className={classNames('overflow-y-auto mr-[6px] max-h-[calc(100vh-146px)]', className)}>
       <div className={innerClassName}>{children}</div>
     </div>
   )

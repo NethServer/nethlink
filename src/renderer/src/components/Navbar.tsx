@@ -58,7 +58,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   if (!account) return <></>
 
   return (
-    <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 py-2">
+    <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 pt-2">
       <SearchBox />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>

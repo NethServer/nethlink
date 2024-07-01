@@ -158,14 +158,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
               onClick={hideNethLink}
             />
           </div>
-          <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-bgDark bg-bgLight w-full">
-            <div className="flex flex-col gap-3 w-full">
+          <div className="flex flex-row rounded-lg relative z-10 dark:bg-bgDark bg-bgLight w-full h-full">
+            <div className="flex flex-col gap-3 w-full h-full">
               <Navbar onClickAccount={() => me()} />
-              <div className="relative w-full">
-                <div className={`w-full h-[298px] pb-2 z-1`}>
-                  <NethLinkModules />
-                </div>
-              </div>
+              <NethLinkModules />
             </div>
             <Sidebar onChangeMenu={() => me()} />
           </div>

@@ -9,6 +9,7 @@ import { SkeletonRow } from '@renderer/components/SkeletonRow'
 import { useEffect, useState } from 'react'
 import { log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
+import { ModuleTitle } from '@renderer/components/ModuleTitle'
 
 export function LastCallsBox({ showContactForm }): JSX.Element {
 
@@ -68,60 +69,44 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
 
   return (
     <>
-      <div className="flex flex-col h-full">
-        <div className="px-5">
-          <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] mt-3">
-            <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
-              {title}
-            </h1>
-            <Button
-              variant="ghost"
-              className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1"
-              onClick={viewAllMissedCalls}
-            >
-              <FontAwesomeIcon
-                className="text-base dark:text-textBlueDark text-textBlueLight"
-                icon={ShowMissedCallIcon}
-              />
-              <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
-                {t('Common.View all')}
-              </p>
-            </Button>
-          </div>
-        </div>
-        <Scrollable className="flex flex-col max-h-[240px]">
-          {
-            preparedCalls ? preparedCalls.map((preparedCall, idx) => {
-              return (
-                <div
-                  className="dark:hover:bg-hoverDark hover:bg-hoverLight"
-                  key={idx}
-                >
-                  <div className="px-5">
-                    <div
-                      className={`${idx === preparedCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-                    >
-                      <LastCall
-                        call={preparedCall}
-                        showContactForm={showContactForm}
-                        clearNotification={handleClearNotification}
-                        className="dark:hover:bg-hoverDark hover:bg-hoverLight"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )
-            }) : Array(3).fill('').map((_, idx) => {
-              return <div
-                className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+      <ModuleTitle
+        title={title}
+        action={viewAllMissedCalls}
+        actionIcon={ShowMissedCallIcon}
+        actionText={t('Common.View all')}
+      />
+      <Scrollable className="flex flex-col max-h-[240px]">
+        {
+          preparedCalls ? preparedCalls.map((preparedCall, idx) => {
+            return (
+              <div
+                className="dark:hover:bg-hoverDark hover:bg-hoverLight"
                 key={idx}
               >
-                <SkeletonRow />
+                <div className="px-5">
+                  <div
+                    className={`${idx === preparedCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+                  >
+                    <LastCall
+                      call={preparedCall}
+                      showContactForm={showContactForm}
+                      clearNotification={handleClearNotification}
+                      className="dark:hover:bg-hoverDark hover:bg-hoverLight"
+                    />
+                  </div>
+                </div>
               </div>
-            })
-          }
-        </Scrollable >
-      </div >
+            )
+          }) : Array(3).fill('').map((_, idx) => {
+            return <div
+              className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+              key={idx}
+            >
+              <SkeletonRow />
+            </div>
+          })
+        }
+      </Scrollable >
     </>
   )
 }

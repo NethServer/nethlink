@@ -43,7 +43,8 @@ export function SearchBox(): JSX.Element {
     if (nethLinkPageData?.phonebookSearchModule?.searchText != null) {
       setNethLinkPageData((p) => ({
         ...p,
-        showPhonebookSearchModule: !!searchText
+        showPhonebookSearchModule: !!searchText,
+        showAddContactModule: false
       }))
     } else {
       reset()
@@ -52,9 +53,6 @@ export function SearchBox(): JSX.Element {
 
   const tempSearchText = watch('searchText')
 
-  function submit(data: FormDataType): void {
-    setSearchText(data.searchText)
-  }
 
   useEffect(() => {
     if (tempSearchText) {
@@ -67,6 +65,10 @@ export function SearchBox(): JSX.Element {
       }))
     }
   }, [tempSearchText])
+
+  function submit(data: FormDataType): void {
+    setSearchText(data.searchText)
+  }
 
   function handleCallUser(e) {
     if (e.key === 'Enter') {

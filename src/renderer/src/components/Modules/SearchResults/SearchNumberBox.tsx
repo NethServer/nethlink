@@ -28,7 +28,6 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
   const [canAddToPhonebook, setCanAddToPhonebook] = useState<boolean>(false)
   const { isCallsEnabled } = useAccount()
-
   useEffect(() => {
     if (searchResult) preparePhoneNumbers(searchResult)
   }, [searchResult, searchText])
