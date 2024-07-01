@@ -179,19 +179,23 @@ export function LastCall({
         )}
 
         {showCreateButton && (
-          <Button
-            variant="ghost"
-            className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto dark:hover:bg-hoverDark hover:bg-hoverLight"
-            onClick={handleCreateContact}
-          >
-            <FontAwesomeIcon
-              className="text-base dark:text-textBlueDark text-textBlueLight"
-              icon={AddUserIcon}
-            />
-            <p className="dark:text-textBlueDark text-textBlueLight font-medium">
-              {t('SpeedDial.Create')}
-            </p>
-          </Button>
+          <div className='relative right-[-8px]'>
+            <div className='absolute right-0'>
+              <Button
+                variant="ghost"
+                className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto dark:hover:bg-hoverDark hover:bg-hoverLight"
+                onClick={handleCreateContact}
+              >
+                <FontAwesomeIcon
+                  className="text-base dark:text-textBlueDark text-textBlueLight"
+                  icon={AddUserIcon}
+                />
+                <p className="dark:text-textBlueDark text-textBlueLight font-medium">
+                  {t('SpeedDial.Create')}
+                </p>
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </div>
