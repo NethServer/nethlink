@@ -580,7 +580,9 @@
     "Sort by": "Sort by",
     "Newest": "Newest",
     "Oldest": "Oldest",
-    "Call": "Call"
+    "Call": "Call",
+    "Calls_one": "Call",
+    "Calls_other": "Calls"
   },
   "NavBars": {
     "Speed dials": "Speed dials",

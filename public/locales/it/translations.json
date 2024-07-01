@@ -580,7 +580,9 @@
     "Sort by": "Ordina per",
     "Newest": "Più recenti",
     "Oldest": "Meno recenti",
-    "Call": "Chiama"
+    "Call": "Chiama",
+    "Calls_one": "Chiamata",
+    "Calls_other": "Chiamate"
   },
   "NavBars": {
     "Speed dial": "Chiamata rapida",

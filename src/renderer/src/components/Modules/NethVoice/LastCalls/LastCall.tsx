@@ -79,124 +79,126 @@ export function LastCall({
   }
 
   return (
-    <div
-      className={`flex flex-grow gap-3 min-h-[72px] p-2 ${className}`}
-      onMouseEnter={() => {
-        if (call.username === t('Common.Unknown')) {
-          setShowCreateButton(() => true)
-        }
-      }}
-      onMouseLeave={() => setShowCreateButton(() => false)}
-      onClick={() => {
-        clearNotification(call)
-      }}
-    >
-      {call.hasNotification && <div className={`relative w-0 h-0 z-0 overflow-visible mr-[-12px]`}>
-        <div className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-gray-900 border-gray-50`} />
-      </div>}
-      <div className="flex flex-col h-full min-w-6 pt-[6px] z-10">
-        {avatarSrc ? (
-          <Avatar
-            size="small"
-            src={avatarSrc}
-            status={operators?.operators?.[call.username]?.mainPresence}
-          />
-        ) : (
-          <FontAwesomeIcon
-            icon={faCircleUser}
-            className="h-8 w-8 dark:text-gray-200 text-gray-400"
-          />
-        )}
-      </div>
-      <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
-        <p className="font-medium text-[14px] leading-5">{truncate(call.username, 15)}</p>
-
-        <div className="flex flex-row gap-2 items-center">
-          {
-            call.disposition === 'NO ANSWER'
-              ? (call.direction === 'in'
-                ? <InCallNotAnsweredIcon />
-                : <OutCallNotAnsweredIcon />
-              )
-              : (call.direction === 'in'
-                ? <InCallAnsweredIcon />
-                : <OutCallAnsweredIcon />
-              )
+    <div className='group'>
+      <div
+        className={`flex flex-grow gap-3 min-h-[72px] p-2 ${className}`}
+        onMouseEnter={() => {
+          if (call.username === t('Common.Unknown')) {
+            setShowCreateButton(() => true)
           }
-          <NumberCaller
-            number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
-            disabled={!isCallsEnabled}
-            className={
-              'dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline'
-            }
-            isNumberHiglighted={false}
-          >
-            {(call.direction === 'in' ? call.src : call.dst) || t('Common.Unknown')}
-          </NumberCaller>
+        }}
+        onMouseLeave={() => setShowCreateButton(() => false)}
+        onClick={() => {
+          clearNotification(call)
+        }}
+      >
+        {call.hasNotification && <div className={`relative w-0 h-0 z-0 overflow-visible mr-[-12px]`}>
+          <div className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-bgDark border-bgLight dark:group-hover:border-hoverDark group-hover:border-hoverLight`} />
+        </div>}
+        <div className="flex flex-col h-full min-w-6 pt-[6px] z-10">
+          {avatarSrc ? (
+            <Avatar
+              size="small"
+              src={avatarSrc}
+              status={operators?.operators?.[call.username]?.mainPresence}
+            />
+          ) : (
+            <FontAwesomeIcon
+              icon={faCircleUser}
+              className="h-8 w-8 dark:text-gray-200 text-gray-400"
+            />
+          )}
         </div>
-        <div className="flex flex-row gap-1">
-          <CallsDate call={call} spaced={true} />
-        </div>
-      </div>
+        <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
+          <p className="font-medium text-[14px] leading-5">{truncate(call.username, 15)}</p>
 
-      <div className="flex flex-col justify-between ml-auto items-center">
-        {call.channel?.includes('from-queue') && (
-          <>
-            {isQueueLoading ? (
-              <Badge
-                variant="offline"
-                rounded="full"
-                className={`animate-pulse overflow-hidden ml-1 w-[108px] min-h-4`}
-              ></Badge>
-            ) : (
-              <>
+          <div className="flex flex-row gap-2 items-center">
+            {
+              call.disposition === 'NO ANSWER'
+                ? (call.direction === 'in'
+                  ? <InCallNotAnsweredIcon />
+                  : <OutCallNotAnsweredIcon />
+                )
+                : (call.direction === 'in'
+                  ? <InCallAnsweredIcon />
+                  : <OutCallAnsweredIcon />
+                )
+            }
+            <NumberCaller
+              number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
+              disabled={!isCallsEnabled}
+              className={
+                'dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline inset-pink-600'
+              }
+              isNumberHiglighted={false}
+            >
+              {(call.direction === 'in' ? call.src : call.dst) || t('Common.Unknown')}
+            </NumberCaller>
+          </div>
+          <div className="flex flex-row gap-1">
+            <CallsDate call={call} spaced={true} />
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between ml-auto items-center">
+          {call.channel?.includes('from-queue') && (
+            <>
+              {isQueueLoading ? (
                 <Badge
-                  size="small"
                   variant="offline"
                   rounded="full"
-                  className={`overflow-hidden ml-1 tooltip-queue-${call?.queue}`}
-                >
-                  {' '}
-                  <FontAwesomeIcon
-                    icon={BadgeIcon}
-                    className="h-4 w-4 mr-2 ml-1"
-                    aria-hidden="true"
-                  />
-                  <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
+                  className={`animate-pulse overflow-hidden ml-1 w-[108px] min-h-4`}
+                ></Badge>
+              ) : (
+                <>
+                  <Badge
+                    size="small"
+                    variant="offline"
+                    rounded="full"
+                    className={`overflow-hidden ml-1 tooltip-queue-${call?.queue}`}
+                  >
+                    {' '}
+                    <FontAwesomeIcon
+                      icon={BadgeIcon}
+                      className="h-4 w-4 mr-2 ml-1"
+                      aria-hidden="true"
+                    />
+                    <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
+                      {queues?.[call.queue!]?.name
+                        ? queues?.[call.queue!]?.name + ' ' + call?.queue
+                        : t('QueueManager.Queue')}
+                    </div>
+                  </Badge>
+                  <Tooltip anchorSelect={`.tooltip-queue-${call?.queue}`}>
                     {queues?.[call.queue!]?.name
                       ? queues?.[call.queue!]?.name + ' ' + call?.queue
-                      : t('QueueManager.Queue')}
-                  </div>
-                </Badge>
-                <Tooltip anchorSelect={`.tooltip-queue-${call?.queue}`}>
-                  {queues?.[call.queue!]?.name
-                    ? queues?.[call.queue!]?.name + ' ' + call?.queue
-                    : t('QueueManager.Queue')}{' '}
-                </Tooltip>
-              </>
-            )}
-          </>
-        )}
+                      : t('QueueManager.Queue')}{' '}
+                  </Tooltip>
+                </>
+              )}
+            </>
+          )}
 
-        {showCreateButton && (
-          <div className='relative right-[-8px]'>
-            <div className='absolute right-0'>
-              <Button
-                variant="ghost"
-                className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto dark:hover:bg-hoverDark hover:bg-hoverLight"
-                onClick={handleCreateContact}
-              >
-                <FontAwesomeIcon
-                  className="text-base dark:text-textBlueDark text-textBlueLight"
-                  icon={AddUserIcon}
-                />
-                <p className="dark:text-textBlueDark text-textBlueLight font-medium">
-                  {t('SpeedDial.Create')}
-                </p>
-              </Button>
+          {showCreateButton && (
+            <div className='relative right-[-8px]'>
+              <div className='absolute right-0'>
+                <Button
+                  variant="ghost"
+                  className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto dark:hover:bg-hoverDark hover:bg-hoverLight"
+                  onClick={handleCreateContact}
+                >
+                  <FontAwesomeIcon
+                    className="text-base dark:text-textBlueDark text-textBlueLight"
+                    icon={AddUserIcon}
+                  />
+                  <p className="dark:text-textBlueDark text-textBlueLight font-medium">
+                    {t('SpeedDial.Create')}
+                  </p>
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   )

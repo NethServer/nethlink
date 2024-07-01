@@ -43,14 +43,14 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
           focus={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.SPEEDDIALS}
           hasNotification={false}
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.SPEEDDIALS)}
-          className={`${nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.SPEEDDIALS ? '' : 'dark:hover:bg-hoverDark hover:bg-hoverLight'}`}
+          isSelected={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.SPEEDDIALS}
         />
         <SidebarButton
           icon={MissedCallMenuIcon}
           focus={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS}
           hasNotification={!!missedCalls && missedCalls.length > 0}
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.LAST_CALLS)}
-          className={`${nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS ? '' : 'dark:hover:bg-hoverDark hover:bg-hoverLight'}`}
+          isSelected={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS}
         />
       </div>
       <SidebarButton
@@ -58,7 +58,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
         focus={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.ABOUT}
         hasNotification={!!notifications?.system?.update}
         onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.ABOUT)}
-        className={`${nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.ABOUT ? '' : 'dark:hover:bg-hoverDark hover:bg-hoverLight'}`}
+        isSelected={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.ABOUT}
       />
     </div>
   )

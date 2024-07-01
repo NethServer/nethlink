@@ -112,7 +112,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
         <div className={'max-h-8'}>
           <Menu>
             <Menu.Button
-              className="cursor-pointer"
+              className="cursor-pointer dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-full  "
               onClick={() => {
                 debouncer('reload_me', onClickAccount, 1000)
               }}

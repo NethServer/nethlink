@@ -16,7 +16,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
   const [operators] = useStoreState<OperatorData>('operators')
   const [missedCalls, setMissedCalls] = useStoreState<CallData[]>('missedCalls')
   const [preparedCalls, setPreparedCalls] = useState<LastCallData[]>([])
-  const title = `${t('QueueManager.Calls')} (${lastCalls?.length || 0})`
+  const title = `${t('LastCalls.Calls', { count: lastCalls?.length })} (${lastCalls?.length || 0})`
 
   useEffect(() => {
     prepareCalls()
