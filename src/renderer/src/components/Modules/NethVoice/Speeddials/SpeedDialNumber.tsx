@@ -44,7 +44,7 @@ export function SpeedDialNumber({
 
   return (
     <div
-      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 px-5 ${className}`}
+      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 ${className}`}
     >
       <div className="flex gap-6 items-center">
         <Avatar
@@ -55,7 +55,9 @@ export function SpeedDialNumber({
               ?.mainPresence || undefined
           }
           className="z-0"
-          placeholderType={operators?.extensions[speedDial.speeddial_num || ''] ? 'operator' : 'person'}
+          placeholderType={
+            operators?.extensions[speedDial.speeddial_num || ''] ? 'operator' : 'person'
+          }
         />
         <div className="flex flex-col gap-1">
           <p className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
@@ -71,6 +73,7 @@ export function SpeedDialNumber({
               number={speedDial.speeddial_num!}
               disabled={!isCallsEnabled}
               className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
+              isNumberHiglighted={false}
             >
               {truncate(speedDial.speeddial_num!, 19)}
             </NumberCaller>
@@ -81,7 +84,7 @@ export function SpeedDialNumber({
         <div>
           <Menu>
             <div>
-              <Menu.Button className={classNames('flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-bgDark hover:bg-bgLight', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
+              <Menu.Button className={classNames('flex items-center justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
                 <FontAwesomeIcon
                   className="dark:text-titleDark text-titleLight text-base"
                   icon={MenuIcon}
@@ -122,8 +125,8 @@ export function SpeedDialNumber({
                 </div>
               </Menu.Item>
             </Menu.Items>
-          </Menu>
-        </div>
+          </Menu >
+        </div >
       </div >
     </div >
   )

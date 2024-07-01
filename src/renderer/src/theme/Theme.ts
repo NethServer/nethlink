@@ -11,7 +11,7 @@ const theme = {
     white:
       'border shadow-sm border-gray-300 dark:border-gray-500 bg-transparent dark:bg-transparent text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:focus:ring-primaryDark focus:ring-2 focus:ring-offset-2',
     ghost:
-      'border-gray-300 text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 dark:hover:bg-gray-600 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:focus:ring-blue-200',
+      'border-gray-300 text-primary dark:text-primaryDark hover:bg-hoverLight dark:hover:bg-hoverDark dark:focus:ring-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:focus:ring-blue-200',
     dashboard:
       'border-gray-300 text-primary dark:text-primaryDark hover:bg-gray-200 dark:border-gray-600  dark:hover:bg-gray-700 dark:hover:disabled:bg-transparent hover:disabled:bg-transparent dark:focus:ring-primaryDark',
     danger:

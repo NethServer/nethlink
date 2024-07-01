@@ -51,7 +51,10 @@ export function LastCall({
   }
 
   if (call?.dst_cnam === '') {
-    const operatorFound: any = getOperatorByPhoneNumber(call?.dst as string, operators?.operators || {})
+    const operatorFound: any = getOperatorByPhoneNumber(
+      call?.dst as string,
+      operators?.operators || {}
+    )
 
     if (operatorFound) {
       call.dst_cnam = operatorFound?.name || operatorFound?.company
@@ -77,7 +80,7 @@ export function LastCall({
 
   return (
     <div
-      className={`flex flex-grow gap-3 min-h-[72px] p-2 px-5 ${className}`}
+      className={`flex flex-grow gap-3 min-h-[72px] p-2 ${className}`}
       onMouseEnter={() => {
         if (call.username === t('Common.Unknown')) {
           setShowCreateButton(() => true)
@@ -123,7 +126,10 @@ export function LastCall({
           <NumberCaller
             number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
             disabled={!isCallsEnabled}
-            className={"dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline"}
+            className={
+              'dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline'
+            }
+            isNumberHiglighted={false}
           >
             {(call.direction === 'in' ? call.src : call.dst) || t('Common.Unknown')}
           </NumberCaller>
@@ -175,7 +181,7 @@ export function LastCall({
         {showCreateButton && (
           <Button
             variant="ghost"
-            className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto"
+            className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto dark:hover:bg-hoverDark hover:bg-hoverLight"
             onClick={handleCreateContact}
           >
             <FontAwesomeIcon
@@ -188,6 +194,6 @@ export function LastCall({
           </Button>
         )}
       </div>
-    </div >
+    </div>
   )
 }

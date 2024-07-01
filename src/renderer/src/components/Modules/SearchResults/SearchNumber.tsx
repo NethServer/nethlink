@@ -37,7 +37,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
       while (index !== -1) {
         parts.push(number.substring(lastIndex, index))
         parts.push(
-          <span className="dark:text-textBlueDark text-textBlueLight font-bold text-[1.1rem]">
+          <span className="dark:text-textBlueDark text-textBlueLight font-medium text-[1rem]">
             {number.substring(index, index + searchText.length)}
           </span>
         )
@@ -61,11 +61,12 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
     }
   }
 
-  phoneNumber = phoneNumber || keys.reduce((p, c) => {
-    if (p === '')
-      p = user[c] || ''
-    return p
-  }, '')
+  phoneNumber =
+    phoneNumber ||
+    keys.reduce((p, c) => {
+      if (p === '') p = user[c] || ''
+      return p
+    }, '')
 
   const highlightedNumber = highlightMatch(phoneNumber, searchText || '')
 
@@ -93,18 +94,20 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
           </div>
         )}
         <div className="flex flex-col gap-1">
-          <p className="font-normal text-[14px] leading-5 dark:text-titleDark text-titleLight">{user.name}</p>
+          <p className="font-normal text-[14px] leading-5 dark:text-titleDark text-titleLight">
+            {user.name}
+          </p>
           <NumberCaller
             number={phoneNumber}
             disabled={!isCallsEnabled}
-            className="dark:text-textBlueDark text-textBlueLight text-[1rem] font-normal hover:underline mr-auto"
+            className="dark:text-textBlueDark text-textBlueLight text-[1rem] hover:underline mr-auto"
           >
             {highlightedNumber}
           </NumberCaller>
         </div>
       </div>
       <Button
-        className="dark:hover:bg-bgDark hover:bg-bgLight"
+        className="hover:bg-transparent"
         variant="ghost"
         disabled={!isCallsEnabled}
         onClick={() => {
