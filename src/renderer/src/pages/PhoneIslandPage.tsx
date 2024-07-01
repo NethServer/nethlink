@@ -4,7 +4,7 @@ import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useStoreState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account, Extension, OperatorsType, PhoneIslandConfig, Size } from '@shared/types'
+import { Account, Extension, PhoneIslandConfig, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
 import { useRefState } from '@renderer/hooks/useRefState'
@@ -229,11 +229,15 @@ export function PhoneIslandPage() {
   return (
     <div
       ref={phoneIslandContainer}
-      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''}`}
+      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''} overflow-hidden`}
     >
-      <div className="absolute h-[100vh] w-[100vw]  radius-md backdrop-hue-rotate-90"></div>
-      {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
-    </div>
+      <div className="absolute h-[100vh] w-[100vw] radius-md backdrop-hue-rotate-90"></div>
+      <div className='flex flex-col items-center '>
+        <div className='relative h-[100vh] w-[100vw]'>
+          {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
+        </div>
+      </div>
+    </div >
   )
 }
 
