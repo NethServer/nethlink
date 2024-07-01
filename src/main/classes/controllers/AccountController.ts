@@ -64,8 +64,12 @@ export class AccountController {
       if (lastLoggedAccount && authAppData.lastUserCryptPsw) {
         try {
           try {
-            authAppData.lastUserCryptPsw = Object.values(authAppData.lastUserCryptPsw)[1] as any;
-            log('converted from object')
+            const bfs = Object.values(authAppData.lastUserCryptPsw) as any;
+            if (bfs[0] === 'Buffer') {
+              authAppData.lastUserCryptPsw = bfs[1]
+            } else {
+              authAppData.lastUserCryptPsw = bfs
+            }
           } catch (e) {
             //log(e)
           }
