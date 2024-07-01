@@ -170,15 +170,16 @@ export function AddToPhonebookBox({ close }) {
 
   return (
     <div className="absolute top-0 left-0 z-[100] dark:bg-bgDark bg-bgLight h-full w-full rounded-bl-lg">
-      <div className="w-full h-full">
-        <div className="px-5">
-          <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px]">
-            <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
-              {t('Phonebook.Add to Phonebook')}
-            </h1>
+      <Scrollable innerClassName={' max-w-[344px]'}>
+        <div className="w-full h-full">
+          <div className="px-5">
+            <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px]">
+              <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
+                {t('Phonebook.Add to Phonebook')}
+              </h1>
+            </div>
           </div>
-        </div>
-        <Scrollable innerClassName={' max-w-[344px]'}>
+
           <form
             className="flex flex-col gap-5 h-full max-h-[236px] px-5 py-2"
             onSubmit={(e) => {
@@ -352,8 +353,8 @@ export function AddToPhonebookBox({ close }) {
               </Button>
             </div>
           </form>
-        </Scrollable>
-      </div>
+        </div>
+      </Scrollable>
     </div>
   )
 }

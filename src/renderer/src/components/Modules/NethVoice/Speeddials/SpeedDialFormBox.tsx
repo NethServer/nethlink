@@ -98,18 +98,19 @@ export function SpeedDialFormBox({ close }) {
   //${errors.name?.message ? '' :
 
   return (
-    <div className="flex flex-col gap-3 h-full relative">
-      <div className="h-full w-full">
-        <div className="px-5">
-          <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] mt-3">
-            <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
-              {selectedSpeedDial
-                ? t('SpeedDial.Edit speed dial')
-                : t('SpeedDial.Create speed dial')}
-            </h1>
+    <Scrollable innerClassName={' max-w-[344px]'}>
+      <div className="flex flex-col gap-3 h-full relative">
+        <div className="h-full w-full">
+          <div className="px-5">
+            <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] mt-3">
+              <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
+                {selectedSpeedDial
+                  ? t('SpeedDial.Edit speed dial')
+                  : t('SpeedDial.Create speed dial')}
+              </h1>
+            </div>
           </div>
-        </div>
-        <Scrollable innerClassName={' max-w-[344px]'}>
+
           <form
             className="flex flex-col gap-5 h-full max-h-[220px] px-5 py-2"
             onSubmit={(e) => {
@@ -168,8 +169,8 @@ export function SpeedDialFormBox({ close }) {
               </Button>
             </div>
           </form>
-        </Scrollable>
+        </div>
       </div>
-    </div>
+    </Scrollable>
   )
 }
