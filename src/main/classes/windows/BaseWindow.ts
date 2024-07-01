@@ -32,7 +32,7 @@ export class BaseWindow {
     }
 
     function onOpenDevTools(e, page) {
-      instance.openDevTool(page,)
+      instance.openDevTool(page)
     }
 
     window.once('ready-to-show', onReady)

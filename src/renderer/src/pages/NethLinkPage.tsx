@@ -8,6 +8,7 @@ import {
   ContactType,
   NewSpeedDialType,
   NethLinkPageData,
+  NotificationData,
 
 } from '@shared/types'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
@@ -24,7 +25,7 @@ import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { MENU_ELEMENT } from '@shared/constants'
+import { IPC_EVENTS, MENU_ELEMENT } from '@shared/constants'
 
 export interface NethLinkPageProps {
   themeMode: string
@@ -34,6 +35,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   const [account, setAccount] = useStoreState<Account | undefined>('account')
   const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [notifications, setNotifications] = useStoreState<NotificationData>('notifications')
 
   const {
     saveOperators,
@@ -53,7 +55,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   useEffect(() => {
     if (account) {
       if (!operatorFetchLoopInterval.current) {
-        log('account changed', account.username)
         loadData()
         operatorFetchLoopInterval.current = setInterval(() => {
           loadData()
@@ -76,7 +77,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           showPhonebookSearchModule: false
         })
       }
-      log('ACCOUNT', account)
     } else {
       log('account logout')
       stopInterval(operatorFetchLoopInterval)
@@ -102,21 +102,24 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     }).catch((e) => {
       log(e)
     })
-    window.api.onUpdateAppNotification(showUpdateAppNotification)
+    window.electron.receive(IPC_EVENTS.UPDATE_APP_NOTIFICATION, showUpdateAppNotification)
   }
 
   const showUpdateAppNotification = () => {
+    log('UPDATE')
     const updateLink = 'https://nethesis.github.io/nethlink/'
-    sendNotification(
-      t('Notification.application_update_title'),
-      t('Notification.application_update_body'),
-      updateLink
-    )
+    setNotifications((p) => ({
+      ...p,
+      system: {
+        update: {
+          message: updateLink
+        }
+      }
+    }))
   }
 
   function me() {
     NethVoiceAPI.User.me().then((me) => {
-      log('ME', me)
       setAccount((p) => ({
         ...p!,
         data: me
@@ -144,7 +147,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     <div className="h-[100vh] w-[100vw] overflow-hidden">
       <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm">
         <div
-          className={`flex flex-col min-w-[400px] min-h-[380px] h-full items-center justify-between`}
+          className={`flex flex-col min-w-[400px] min-h-[400px] h-full items-center justify-between`}
         >
           <div
             className={`draggableAnchor flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950 dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
@@ -159,7 +162,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
             <div className="flex flex-col gap-3 w-full">
               <Navbar onClickAccount={() => me()} />
               <div className="relative w-full">
-                <div className="w-full h-[274px] pb-2 z-1">
+                <div className={`w-full h-[298px] pb-2 z-1`}>
                   <NethLinkModules />
                 </div>
               </div>

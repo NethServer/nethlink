@@ -24,7 +24,6 @@ export const usePhoneIslandEventHandler = () => {
   }
 
   const onMainPresence = useCallback((op: { [username: string]: any }) => {
-    log('onMainPresence', operators, op)
     // eslint-disable-next-line no-prototype-builtins
     const updatedOperators = {
       operators: operators.current?.operators || {},
