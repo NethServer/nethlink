@@ -4,6 +4,7 @@ import { MENU_ELEMENT } from "@shared/constants"
 import { useCallback, useEffect, useMemo } from "react"
 import { PhonebookModule, SpeeddialsModule, LastCallsModule, PhoneBookSearchModule } from "."
 import { usePhonebookSearchModule } from "./SearchResults/hook/usePhoneBookSearchModule"
+import { AboutModule } from "./About/AboutModule"
 
 export const NethLinkModules = () => {
   const phonebookSearchModule = usePhonebookSearchModule()
@@ -24,6 +25,8 @@ export const NethLinkModules = () => {
         return <SpeeddialsModule />
       case MENU_ELEMENT.LAST_CALLS:
         return <LastCallsModule />
+      case MENU_ELEMENT.ABOUT:
+        return <AboutModule />
       default:
         <>modules</>
     }

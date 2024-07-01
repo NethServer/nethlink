@@ -356,6 +356,8 @@ export type LocalStorageData = {
   theme?: AvailableThemes,
   loginPageData?: LoginPageData
   nethLinkPageData?: NethLinkPageData
+  lostCallNotifications?: CallData[],
+  notifications?: NotificationData
 }
 
 export type LoginPageData = {
@@ -378,7 +380,7 @@ export type NethLinkPageData = {
   showAddContactModule?: boolean,
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData
-  phonebookModule?: PhonebookModuleData
+  phonebookModule?: PhonebookModuleData,
 }
 
 export type SpeedDialModuleData = {
@@ -396,4 +398,15 @@ export type PhonebookModuleData = {
 export type SelectedContact = {
   number?: string
   company?: string
+}
+
+
+export type NotificationData = {
+  system: {
+    update: NotificationItem
+  }
+}
+
+export type NotificationItem = {
+  message: string,
 }

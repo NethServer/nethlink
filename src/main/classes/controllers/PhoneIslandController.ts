@@ -1,9 +1,10 @@
 import { PhoneIslandWindow } from '../windows'
-import { IPC_EVENTS } from '@shared/constants'
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
 import { ipcMain, screen } from 'electron'
-import { debouncer } from '@shared/utils/utils'
+import { debouncer, isDev } from '@shared/utils/utils'
+import { once } from '@/lib/ipcEvents'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -29,16 +30,24 @@ export class PhoneIslandController {
     try {
       const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
       const window = this.window.getWindow()
-
+      const bounds = PHONE_ISLAND_RESIZE.get(PHONE_ISLAND_EVENTS['phone-island-call-ringing'])!(false, false, false)
       if (phoneIslandPosition) {
         const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
           const area = display.workArea
+          isDev() && log({
+            area,
+            phoneIslandPosition,
+            x: phoneIslandPosition.x >= area.x,
+            y: phoneIslandPosition.y >= area.y,
+            w: (phoneIslandPosition.x + bounds.w) < (area.x + area.width),
+            h: (phoneIslandPosition.y + bounds.h) < (area.y + area.height)
+          })
           return (
             result ||
             (phoneIslandPosition.x >= area.x &&
               phoneIslandPosition.y >= area.y &&
-              phoneIslandPosition.x + 420 < area.x + area.width &&
-              phoneIslandPosition.y + 98 < area.y + area.height)
+              (phoneIslandPosition.x + bounds.w) < (area.x + area.width) &&
+              (phoneIslandPosition.y + bounds.h) < (area.y + area.height))
           )
         }, false)
         if (isPhoneIslandOnDisplay) {
@@ -72,12 +81,18 @@ export class PhoneIslandController {
   }
 
   logout() {
-    try {
-      this.window.emit(IPC_EVENTS.LOGOUT)
-      this.window.quit()
-    } catch (e) {
-      log(e)
-    }
+    return new Promise<void>((resolve, reject) => {
+      try {
+        this.window.emit(IPC_EVENTS.LOGOUT)
+        once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
+          this.window.quit()
+          resolve()
+        })
+      } catch (e) {
+        log(e)
+        reject()
+      }
+    })
   }
   call(number: string) {
     this.window.emit(IPC_EVENTS.START_CALL, number)

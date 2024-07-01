@@ -57,7 +57,6 @@ export function SearchBox(): JSX.Element {
   }
 
   useEffect(() => {
-    log({ tempSearchText })
     if (tempSearchText) {
       setSearchText(tempSearchText)
     } else {

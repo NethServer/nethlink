@@ -15,6 +15,8 @@ import { Avatar, Button } from '@renderer/components/Nethesis'
 import { truncate } from '@renderer/utils'
 import { NumberCaller } from '@renderer/components/NumberCaller'
 import { isDev } from '@shared/utils/utils'
+import classNames from 'classnames'
+import { useTheme } from '@renderer/theme/Context'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
@@ -33,8 +35,10 @@ export function SpeedDialNumber({
   handleDeleteSpeedDial,
   isLastItem
 }: SpeedDialNumberProps): JSX.Element {
+  const { theme: nethTheme } = useTheme()
   const [operators] = useStoreState<OperatorData>('operators')
   const { isCallsEnabled } = useAccount()
+
   const avatarSrc =
     operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
 
@@ -57,8 +61,7 @@ export function SpeedDialNumber({
         />
         <div className="flex flex-col gap-1">
           <p className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
-            {isDev() && `[${speedDial.id}] `}
-            {truncate(speedDial.name!, 20)}
+            {isDev() && `[${speedDial.id}] `}{truncate(speedDial.name || speedDial.company || `${t('Common.Unknown')}`, 20)}
           </p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon
@@ -81,16 +84,11 @@ export function SpeedDialNumber({
         <div>
           <Menu>
             <div>
-              <Menu.Button>
-                <Button
-                  variant="ghost"
-                  className="flex items-center justify-center min-w-8 min-h-8 dark:hover:bg-transparent hover:bg-transparent"
-                >
-                  <FontAwesomeIcon
-                    className="dark:text-titleDark text-titleLight text-base"
-                    icon={MenuIcon}
-                  />
-                </Button>
+              <Menu.Button className={classNames('flex items-center justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
+                <FontAwesomeIcon
+                  className="dark:text-titleDark text-titleLight text-base"
+                  icon={MenuIcon}
+                />
               </Menu.Button>
             </div>
             <Menu.Items
@@ -127,9 +125,9 @@ export function SpeedDialNumber({
                 </div>
               </Menu.Item>
             </Menu.Items>
-          </Menu>
-        </div>
-      </div>
-    </div>
+          </Menu >
+        </div >
+      </div >
+    </div >
   )
 }

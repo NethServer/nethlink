@@ -1,4 +1,4 @@
-import { BrowserWindow, app, ipcMain, nativeTheme, powerMonitor, protocol, shell, systemPreferences } from 'electron'
+import { BrowserWindow, app, clipboard, globalShortcut, ipcMain, nativeTheme, powerMonitor, protocol, shell, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController, DevToolsController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -13,7 +13,7 @@ import { debouncer, delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
-import { store, useStoreState } from './lib/mainStore'
+import { store } from './lib/mainStore'
 
 new AppController(app)
 new NetworkController()
@@ -49,11 +49,7 @@ app.whenReady().then(async () => {
   })
 
   protocol.handle('nethlink', (req) => {
-    //we have to define the purpose of the nethlink custom protocol
-    isDev() && log(req)
-    //TODO: define actions
-    return new Promise((resolve) => resolve)
-
+    return handleNethLinkProtocol(req.url)
   })
 
 
@@ -108,6 +104,24 @@ app.dock?.hide()
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
+    // Print out data received from the second instance.
+    log({ event, commandLine, workingDirectory, additionalData })
+    const cmd = commandLine.pop()
+    if (cmd) {
+      log({ cmd })
+      const [protocol, data] = cmd.split('://')
+      log(protocol, data)
+      switch (protocol) {
+        case 'nethlink': handleNethLinkProtocol(data); break;
+        case 'tel':
+        case 'callto':
+          handleTelProtocol(data);
+          break;
+      }
+    }
+  })
 }
 
 nativeTheme.on('updated', () => {
@@ -185,19 +199,12 @@ ipcMain.on(IPC_EVENTS.LOGIN, (e, password) => {
     AccountController.instance.saveLoggedAccount(store.store['account']!, password)
   }
   store.saveToDisk()
-  setTimeout(() => {
-    new NethLinkController()
-    NethLinkController.instance.show()
-    setTimeout(() => {
-      new PhoneIslandController()
-    }, 1000)
-    checkForUpdate()
-  }, 500)
+  createNethLink()
 })
 
-ipcMain.on(IPC_EVENTS.LOGOUT, (_event) => {
+ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
   isDev() && log('logout from event')
-  PhoneIslandController.instance.logout()
+  await PhoneIslandController.instance.logout()
   NethLinkController.instance.logout()
   AccountController.instance.logout()
   showLogin()
@@ -222,6 +229,17 @@ function handleTelProtocol(url: string): Promise<Response> {
   return new Promise((resolve) => resolve)
 }
 
+function handleNethLinkProtocol(data: string): Promise<Response> {
+  //we have to define the purpose of the nethlink custom protocol
+  isDev() && log(data)
+  //TODO: define actions
+  try {
+    NethLinkController.instance.show()
+  } catch (e) {
+
+  }
+  return new Promise((resolve) => resolve)
+}
 async function getPermissions() {
   if (process.platform === 'darwin') {
     const cameraPermissionState = systemPreferences.getMediaAccessStatus('camera')
@@ -240,3 +258,22 @@ async function getPermissions() {
   }
 }
 
+
+const createNethLink = async () => {
+  const getClipboardSelection = () => {
+
+    return clipboard.readText('selection')
+
+  }
+  globalShortcut.register('CommandOrControl+c+F11', () => {
+    const selection = getClipboardSelection()
+    //log('clipboard:', selection)
+    handleTelProtocol(selection)
+  })
+  await delay(500)
+  new NethLinkController()
+  NethLinkController.instance.show()
+  await delay(1000)
+  new PhoneIslandController()
+  checkForUpdate()
+}

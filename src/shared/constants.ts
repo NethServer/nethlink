@@ -1,11 +1,17 @@
 import { Size } from "./types"
 import { log } from "./utils/logger"
 
+
+export const NethLinkPageSize = {
+  w: 400,
+  h: 400
+}
 export const NEW_ACCOUNT = 'New Account'
 
 export enum MENU_ELEMENT {
   SPEEDDIALS,
-  LAST_CALLS
+  LAST_CALLS,
+  ABOUT
 }
 export enum IPC_EVENTS {
   LOAD_ACCOUNTS = 'LOAD_ACCOUNTS',
@@ -48,7 +54,8 @@ export enum IPC_EVENTS {
   REQUEST_SHARED_STATE = "REQUEST_SHARED_STATE",
   GET_NETHVOICE_CONFIG = "GET_NETHVOICE_CONFIG",
   SET_NETHVOICE_CONFIG = "SET_NETHVOICE_CONFIG",
-  RECONNECT_PHONE_ISLAND = "RECONNECT_PHONE_ISLAND"
+  RECONNECT_PHONE_ISLAND = "RECONNECT_PHONE_ISLAND",
+  LOGOUT_COMPLETED = "LOGOUT_COMPLETED"
 }
 
 //PHONE ISLAND EVENTS
@@ -169,11 +176,6 @@ function getSize(normalSize: Size, collapsedSize?: Size, minimizedSize: Size = {
     if (isDisconnected) {
       size.h += 50
     }
-    log('phone-island-resize', size, {
-      isMinimized,
-      isExpanded,
-      isDisconnected
-    })
     return size
   }
 }

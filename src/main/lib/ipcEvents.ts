@@ -40,7 +40,11 @@ function onSyncEmitter<T>(
     event.returnValue = syncResponse
   })
 }
-
+export function once(event: IPC_EVENTS, callback: () => void) {
+  ipcMain.once(event, () => {
+    callback()
+  })
+}
 export function registerIpcEvents() {
 
   //TODO: move each event to the controller it belongs to
@@ -50,25 +54,17 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (event, newState, page, selector) => {
     const windows = BrowserWindow.getAllWindows();
-    //const page = getPageFromQuery(event?.sender?.getTitle())
     store.updateStore(newState)
-    const logData = Object.entries(newState).reduce((p, [k, v]) => {
-      p[k] = JSON.stringify(v)?.length;
-      return p
-    }, {})
     windows.forEach(win => {
       if (page !== win.webContents.getTitle()) {
         win.webContents.send(IPC_EVENTS.SHARED_STATE_UPDATED, newState, page);
-        isDev() && log(IPC_EVENTS.SHARED_STATE_UPDATED, 'from:', page, 'to:', win.webContents.getTitle(), selector, logData)
       }
     });
-    isDev() && log(IPC_EVENTS.UPDATE_SHARED_STATE, page, selector, logData)
   });
 
   ipcMain.on(IPC_EVENTS.REQUEST_SHARED_STATE, (event) => {
     const page = getPageFromQuery(event?.sender?.getTitle())
-    event.sender.send(IPC_EVENTS.SHARED_STATE_UPDATED, store.store);
-    isDev() && log(IPC_EVENTS.REQUEST_SHARED_STATE, page)
+    event.sender.send(IPC_EVENTS.SHARED_STATE_UPDATED, store.store, page);
   });
 
   ipcMain.on(IPC_EVENTS.HIDE_NETH_LINK, async (event) => {

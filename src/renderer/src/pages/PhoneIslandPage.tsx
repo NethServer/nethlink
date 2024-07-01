@@ -4,20 +4,29 @@ import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useStoreState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account, Extension, OperatorData, OperatorsType, PhoneIslandConfig, Size } from '@shared/types'
+import { Account, CallData, Extension, OperatorsType, PhoneIslandConfig, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
+import { useRefState } from '@renderer/hooks/useRefState'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
+import { differenceWith, forEach, isEqual } from 'lodash'
+import { sendNotification } from '@renderer/utils'
+import i18next, { t } from 'i18next'
+import { formatDistance } from 'date-fns'
+import { format, utcToZonedTime } from 'date-fns-tz'
+import { getTimeDifference } from '@renderer/lib/dateTime'
+import { enGB, it } from 'date-fns/locale'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
-  const [operators] = useStoreState<OperatorsType | undefined>('operators')
+  const [lastCalls] = useStoreState<CallData[]>('lastCalls')
+  const [lostCallNotifications, setLostCallNotifications] = useStoreState<CallData[]>('lostCallNotifications')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
-  const [deviceInformationObject, setDeviceInformationObject] = useState<Extension | undefined>(undefined)
+  const [deviceInformationObject, setDeviceInformationObject] = useRefState<Extension | undefined>(useState<Extension | undefined>(undefined))
 
   const isDataConfigCreated = useRef<boolean>(false)
   const phoneIslandTokenLoginResponse = useRef<string>()
@@ -26,7 +35,8 @@ export function PhoneIslandPage() {
 
   const {
     onMainPresence,
-    onQueueUpdate
+    onQueueUpdate,
+    saveLastCalls
   } = usePhoneIslandEventHandler()
 
   const isOnCall = useRef<boolean>(false)
@@ -40,14 +50,12 @@ export function PhoneIslandPage() {
     window.electron.receive(IPC_EVENTS.LOGOUT, logout)
 
     window.electron.receive(IPC_EVENTS.START_CALL, (number: number | string) => {
-      log(account)
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
         number
       })
     })
 
     window.electron.receive(IPC_EVENTS.RECONNECT_PHONE_ISLAND, () => {
-      log('RECONNECT AFTER SUSPEND')
       logout()
     })
 
@@ -55,7 +63,6 @@ export function PhoneIslandPage() {
       window.addEventListener(event, (...data) => {
         const customEvent = data[0]
         const detail = customEvent['detail']
-        log(event, detail)
         switch (event) {
           case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
             log('phone-island-default-device-changed', detail)
@@ -73,6 +80,32 @@ export function PhoneIslandPage() {
             window.api.showPhoneIsland()
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
+            NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
+              count: number, rows: CallData[]
+            }) => {
+              const diff = differenceWith(newLastCalls.rows, lastCalls || [], (a, b) => isEqual(a.uniqueid, b.uniqueid))
+              log({ lastCalls, newLastCalls, diff })
+              if (diff.length > 0) {
+                diff.forEach((c) => {
+                  if (c.direction === 'in' && c.disposition === 'NO ANSWER') {
+                    const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account!, false))
+                    let localTimeZone = getLocalTimezoneOffset()
+                    const timeDiff = formatDistance(
+                      utcToZonedTime(c.time! * 1000, differenceBetweenTimezone),
+                      utcToZonedTime(new Date(), localTimeZone),
+                      {
+                        addSuffix: true,
+                        includeSeconds: true,
+                        locale: i18next?.languages[0] === 'it' ? it : enGB
+                      }
+                    )
+                    sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('', { number: c.src, datetime: timeDiff }))
+                  }
+                })
+                setLostCallNotifications(diff)
+              }
+              saveLastCalls(newLastCalls)
+            })
           case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
@@ -139,6 +172,25 @@ export function PhoneIslandPage() {
     })
   })
 
+  const diffValueConversation = (diffValueOriginal: any) => {
+    // determine the sign
+    const sign = diffValueOriginal >= 0 ? '+' : '-'
+
+    // convert hours to string and pad with leading zeros if necessary
+    const hours = Math.abs(diffValueOriginal).toString().padStart(2, '0')
+
+    // minutes are always '00'
+    const minutes = '00'
+    return `${sign}${hours}${minutes}`
+  }
+
+  const getLocalTimezoneOffset = () => {
+    let localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    const now = new Date()
+    const offset = format(now, 'xx', { timeZone: localTimezone })
+    return offset
+  }
+
   function getSizeFromResizeEvent(event: string): Size | undefined {
     const resizeEvent = PHONE_ISLAND_RESIZE.get(event)
     if (resizeEvent) {
@@ -154,7 +206,6 @@ export function PhoneIslandPage() {
     if (account) {
       try {
         phoneIslandTokenLoginResponse.current = (await NethVoiceAPI.Authentication.phoneIslandTokenLogin()).token
-        log('phoneIslandTokenLoginResponse', phoneIslandTokenLoginResponse.current)
         const deviceInformationObject = account.data!.endpoints.extension.find((e) => e.type === 'nethlink')
         setDeviceInformationObject(deviceInformationObject)
       } catch (e) {
@@ -170,51 +221,73 @@ export function PhoneIslandPage() {
         isDataConfigCreated.current = true
         createDataConfig()
       }
-
-    } else {
-      logout()
     }
   }, [account?.username, isDataConfigCreated.current])
 
   useEffect(() => {
-    if (deviceInformationObject && account && phoneIslandTokenLoginResponse.current) {
+    if (deviceInformationObject.current && account && phoneIslandTokenLoginResponse.current) {
       const hostname = account!.host
       const config: PhoneIslandConfig = {
         hostname,
         username: account.username,
         authToken: phoneIslandTokenLoginResponse.current,
-        sipExten: deviceInformationObject.id,
-        sipSecret: deviceInformationObject.secret,
+        sipExten: deviceInformationObject.current.id,
+        sipSecret: deviceInformationObject.current.secret,
         sipHost: account.sipHost || '',
         sipPort: account.sipPort || ''
       }
       const dataConfig = btoa(
         `${config.hostname}:${config.username}:${config.authToken}:${config.sipExten}:${config.sipSecret}:${config.sipHost}:${config.sipPort}`
       )
-      log(dataConfig, config)
       setDataConfig(dataConfig)
     }
-  }, [deviceInformationObject, account?.username])
+  }, [deviceInformationObject.current, account?.username])
 
-  function logout() {
-    log("LOGOUT")
+  const dispatchAndWait = async (event: PHONE_ISLAND_EVENTS, awaitEvent: PHONE_ISLAND_EVENTS, data?: any) => {
+    return new Promise<void>((resolve) => {
+      eventDispatch(event, data)
+      const listener = () => {
+        log('received', awaitEvent)
+        timer && clearTimeout(timer)
+        window.removeEventListener(awaitEvent, listener)
+        resolve()
+      }
+      let timer = setTimeout(() => {
+        log('timeout')
+        window.removeEventListener(awaitEvent, listener)
+        resolve()
+      }, 300)
+      window.addEventListener(awaitEvent, listener)
+    })
+  }
+  async function logout() {
+    log('LOGOUT', deviceInformationObject.current)
+    await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-call-end'], PHONE_ISLAND_EVENTS['phone-island-call-ended'])
+    log('phone-island-call-ended', deviceInformationObject.current)
+    if (deviceInformationObject.current) {
+      await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-detach'], PHONE_ISLAND_EVENTS['phone-island-detached'], {
+        deviceInformationObject: deviceInformationObject.current
+      })
+      log('detached and LOGOUT_COMPLETED')
+    }
+    log('LOGOUT_COMPLETED')
     isDataConfigCreated.current = false
     setDataConfig(undefined)
-    eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
-    if (deviceInformationObject)
-      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-detach'], {
-        deviceInformationObject
-      })
+    window.electron.send(IPC_EVENTS.LOGOUT_COMPLETED)
   }
 
   return (
     <div
       ref={phoneIslandContainer}
-      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''}`}
+      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''} overflow-hidden`}
     >
-      <div className="absolute h-[100vh] w-[100vw]  radius-md backdrop-hue-rotate-90"></div>
-      {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject} />}
-    </div>
+      <div className="absolute h-[100vh] w-[100vw] radius-md backdrop-hue-rotate-90"></div>
+      <div className='flex flex-col items-center '>
+        <div className='relative h-[100vh] w-[100vw]'>
+          {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
+        </div>
+      </div>
+    </div >
   )
 }
 
@@ -235,7 +308,6 @@ const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, i18nLoadPat
         log(err)
       }
     }
-    log("ACCOUNT", account)
   }
 
   const PhoneIslandCompoent = useMemo(() => {

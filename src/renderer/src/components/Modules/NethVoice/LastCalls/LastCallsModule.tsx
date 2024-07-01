@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { MissedCallsBox } from "./LastCallsBox"
+import { LastCallsBox } from "./LastCallsBox"
 import { AddToPhonebookBox } from "../PhonebookModule/AddToPhonebookBox"
 import { usePhonebookModule } from "../PhonebookModule/hook/usePhonebookModule"
 
@@ -12,7 +12,7 @@ export const LastCallsModule = () => {
 
   return (
     <>
-      {!(isContactFormOpen) && <MissedCallsBox showContactForm={() => setContactFormOpen(true)} />}
+      {!(isContactFormOpen) && <LastCallsBox showContactForm={() => setContactFormOpen(true)} />}
 
       {isContactFormOpen && <AddToPhonebookBox
         close={() => {

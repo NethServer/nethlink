@@ -20,6 +20,8 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { debouncer, isDev } from '@shared/utils/utils'
 import { useStoreState } from '@renderer/store'
 import { createRef, useRef } from 'react'
+import classNames from 'classnames'
+import { useTheme } from '@renderer/theme/Context'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -32,6 +34,7 @@ const themeOptions = [
 ]
 
 export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
+  const { theme: nethTheme } = useTheme()
   const { status } = useAccount()
   const [account] = useStoreState<Account>('account')
   const [operators] = useStoreState<OperatorData>('operators')
@@ -60,16 +63,11 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
-            <Listbox.Button>
-              <Button
-                variant="ghost"
-                className="flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1"
-              >
-                <FontAwesomeIcon
-                  icon={ThemeMenuIcon}
-                  className="h-5 w-5 dark:text-gray-50 text-gray-700"
-                />
-              </Button>
+            <Listbox.Button className={classNames('flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
+              <FontAwesomeIcon
+                icon={ThemeMenuIcon}
+                className="h-5 w-5 dark:text-gray-50 text-gray-700"
+              />
             </Listbox.Button>
             <Listbox.Options
               className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-[200] translate-x-[calc(-100%+36px)]`}

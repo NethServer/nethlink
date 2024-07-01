@@ -23,7 +23,6 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
   }
 
   function handleEditSpeedDial(speedDial: ContactType): void {
-    log('EDIT', speedDial)
     setSelectedSpeedDial(speedDial)
     showSpeedDialForm()
   }
