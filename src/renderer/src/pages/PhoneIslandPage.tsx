@@ -24,6 +24,7 @@ export function PhoneIslandPage() {
 
   const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('lastCalls'))
   const [missedCalls, setMissedCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('missedCalls'))
+  const [lostCallNotifications, setLostCallNotifications] = useStoreState<CallData[]>('lostCallNotifications')
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
@@ -290,11 +291,15 @@ export function PhoneIslandPage() {
   return (
     <div
       ref={phoneIslandContainer}
-      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''}`}
+      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''} overflow-hidden`}
     >
-      <div className="absolute h-[100vh] w-[100vw]  radius-md backdrop-hue-rotate-90"></div>
-      {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
-    </div>
+      <div className="absolute h-[100vh] w-[100vw] radius-md backdrop-hue-rotate-90"></div>
+      <div className='flex flex-col items-center '>
+        <div className='relative h-[100vh] w-[100vw]'>
+          {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
+        </div>
+      </div>
+    </div >
   )
 }
 
