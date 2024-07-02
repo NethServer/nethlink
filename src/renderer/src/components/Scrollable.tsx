@@ -5,7 +5,7 @@ export const Scrollable = ({
   className,
   innerClassName
 }: {
-  children?: JSX.Element | JSX.Element[]
+  children?: React.ReactNode
   className?: string
   innerClassName?: string
 }) => {

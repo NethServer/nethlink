@@ -168,7 +168,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
             ></PresenceItem>
             {/* check callforward permission */}
             {account?.data?.profile?.macro_permissions?.settings?.permissions?.call_forward
-              ?.value ? (
+              ?.value && (
               <PresenceItem
                 onClick={() => setIsForwardDialogOpen(true)}
                 status="callforward"
@@ -176,10 +176,8 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
                 presenceDescription={t('TopBar.Forward incoming calls to another phone number')}
                 icon={CallForwardIcon}
               ></PresenceItem>
-            ) : (
-              <></>
             )}
-            {!isEmpty(account?.data?.endpoints.cellphone) ? (
+            {!isEmpty(account?.data?.endpoints.cellphone) && (
               <PresenceItem
                 onClick={() =>
                   onSelectPresence('callforward', account!.data!.endpoints.cellphone[0]!.id)
@@ -189,10 +187,8 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
                 presenceDescription={t('TopBar.Do not receive any calls')}
                 icon={CallForwardMobileIcon}
               ></PresenceItem>
-            ) : (
-              <></>
             )}
-            {!isEmpty(account?.data?.endpoints.voicemail) ? (
+            {!isEmpty(account?.data?.endpoints.voicemail) && (
               <PresenceItem
                 onClick={() => onSelectPresence('voicemail')}
                 status="voicemail"
@@ -200,11 +196,9 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
                 presenceDescription={t('TopBar.Activate voicemail')}
                 icon={VoiceMailIcon}
               ></PresenceItem>
-            ) : (
-              <></>
             )}
             {/* check dnd permission */}
-            {account?.data?.profile?.macro_permissions?.settings?.permissions?.dnd?.value ? (
+            {account?.data?.profile?.macro_permissions?.settings?.permissions?.dnd?.value && (
               <PresenceItem
                 onClick={onSelectPresence}
                 status="dnd"
@@ -212,8 +206,6 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
                 presenceDescription={t('TopBar.Do not receive any calls')}
                 hasTopBar={true}
               ></PresenceItem>
-            ) : (
-              <></>
             )}
           </Scrollable>
         </div>
