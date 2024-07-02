@@ -18,16 +18,6 @@ export const PresenceBadge = ({ presence, className }: PresenceBadgeProps) => {
   const [operators] = useStoreState<OperatorData>('operators')
   const { badge: theme, status: statuses } = useTheme().theme
 
-  log('Account data: ', account?.data)
-
-  if (account != undefined) {
-    if (account.data != undefined) {
-      if (account.data.mainextension != undefined) {
-        log('Operator: ', operators?.extensions[account.data.mainextension])
-      }
-    }
-  }
-
   if (['callforward', 'voicemail', 'cellphone'].includes(presence as string)) {
     const isCallforward = ['callforward', 'voicemail'].includes(presence as string)
     if (!(account?.data?.mainextension && operators?.extensions[account.data.mainextension])) {
