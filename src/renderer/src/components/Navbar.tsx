@@ -57,7 +57,6 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
     window.api.logout()
   }
 
-
   function showPresenceDialog(e) {
     e.preventDefault()
     setIsPresenceDialogVisible(true)
@@ -71,7 +70,14 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
-            <Listbox.Button className={classNames('flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
+            <Listbox.Button
+              className={classNames(
+                'flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1',
+                nethTheme.button.ghost,
+                nethTheme.button.base,
+                nethTheme.button.rounded.base
+              )}
+            >
               <FontAwesomeIcon
                 icon={ThemeMenuIcon}
                 className="h-5 w-5 dark:text-gray-50 text-gray-700"
@@ -168,7 +174,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight rounded-b-lg"
+                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
                   className="flex flex-row items-center gap-4 py-[10px] px-7"
@@ -206,7 +212,10 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
           </Menu>
         </div>
       </div>
-      <PresenceBox isOpen={isPresenceDialogVisible} onClose={() => setIsPresenceDialogVisible(false)} />
+      <PresenceBox
+        isOpen={isPresenceDialogVisible}
+        onClose={() => setIsPresenceDialogVisible(false)}
+      />
     </div>
   )
 }
