@@ -7,6 +7,7 @@ import { store, useStoreState } from '@/lib/mainStore'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
+import { isDev } from '@shared/utils/utils'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -84,7 +85,7 @@ export class AccountController {
           await this.saveLoggedAccount(loggedAccount, password)
           return true
         } catch (e) {
-          log(e)
+          isDev() && log(e, authAppData.lastUserCryptPsw)
           return false
         }
       }

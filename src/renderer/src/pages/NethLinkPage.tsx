@@ -13,8 +13,7 @@ import {
 } from '@shared/types'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import {
-  faMinusCircle as MinimizeIcon,
-  faTriangleExclamation as WarningIcon
+  faMinusCircle as MinimizeIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -26,6 +25,8 @@ import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { IPC_EVENTS, MENU_ELEMENT } from '@shared/constants'
+import { PresenceBadge } from '@renderer/components/Modules/NethVoice/Presence/PresenceBadge'
+import classNames from 'classnames'
 
 export interface NethLinkPageProps {
   themeMode: string
@@ -122,7 +123,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     NethVoiceAPI.User.me().then((me) => {
       setAccount((p) => ({
         ...p!,
-        data: me
+        data: {
+          ...p?.data,
+          ...me
+        }
       }))
     })
   }
@@ -150,27 +154,31 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           className={`flex flex-col min-w-[400px] min-h-[400px] h-full items-center justify-between`}
         >
           <div
-            className={`
-              relative bottom-[-8px]
+            className={classNames(`
+              relative
+              px-4
               draggableAnchor
-              pr-4 pl-2 pb-[18px] pt-[8px]
               w-full
-              h-[40px]
-              flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'}
+              h-[34px]
+              flex justify-between
               items-center
-              gap-1
               bg-gray-950 dark:bg-gray-950
               rounded-t-lg
               z-0
-            `}
+            `, !navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'
+            )}
           >
+            <PresenceBadge presence={account?.data?.mainPresence}
+              className={classNames(
+                !navigator.userAgent.includes('Windows') ? 'right-4' : 'left-4')
+              } />
             <FontAwesomeIcon
-              className={` text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 noDraggableAnchor`}
+              className={`absolute top-2 w-4 h-4 text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 noDraggableAnchor`}
               icon={MinimizeIcon}
               onClick={hideNethLink}
             />
           </div>
-          <div className="flex flex-row rounded-b-lg relative z-10 dark:bg-bgDark bg-bgLight w-full h-full">
+          <div className="relative  flex flex-row rounded-b-lg z-10 dark:bg-bgDark bg-bgLight w-full h-full">
             <div className="flex flex-col gap-3 w-full h-full">
               <Navbar onClickAccount={() => me()} />
               <NethLinkModules />

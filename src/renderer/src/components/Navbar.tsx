@@ -14,14 +14,15 @@ import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes, OperatorData } from '@shared/types'
 import { t } from 'i18next'
-import { Button } from './Nethesis'
+import { Button, StatusDot } from './Nethesis'
 import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { debouncer, isDev } from '@shared/utils/utils'
 import { useStoreState } from '@renderer/store'
-import { createRef, useRef } from 'react'
-import classNames from 'classnames'
+import { useState } from 'react'
 import { useTheme } from '@renderer/theme/Context'
+import { PresenceBox } from './Modules/NethVoice/Presence/PresenceBox'
+import classNames from 'classnames'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -39,6 +40,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const [account] = useStoreState<Account>('account')
   const [operators] = useStoreState<OperatorData>('operators')
   const [theme, setTheme] = useStoreState<AvailableThemes>('theme')
+  const [isPresenceDialogVisible, setIsPresenceDialogVisible] = useState(false)
 
   function handleSetTheme(theme) {
     setTheme(theme)
@@ -53,6 +55,12 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
 
   function handleLogout() {
     window.api.logout()
+  }
+
+
+  function showPresenceDialog(e) {
+    e.preventDefault()
+    setIsPresenceDialogVisible(true)
   }
 
   if (!account) return <></>
@@ -125,6 +133,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
               />
             </Menu.Button>
             <Menu.Items
+              static={isPresenceDialogVisible}
               className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
@@ -159,6 +168,18 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
               </Menu.Item>
               <Menu.Item
                 as={'div'}
+                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight rounded-b-lg"
+              >
+                <div
+                  className="flex flex-row items-center gap-4 py-[10px] px-7"
+                  onClick={showPresenceDialog}
+                >
+                  <StatusDot status={status} />
+                  <p className="font-normal pl-1">{t('TopBar.Presence')}</p>
+                </div>
+              </Menu.Item>
+              <Menu.Item
+                as={'div'}
                 className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
@@ -185,6 +206,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
           </Menu>
         </div>
       </div>
+      <PresenceBox isOpen={isPresenceDialogVisible} onClose={() => setIsPresenceDialogVisible(false)} />
     </div>
   )
 }

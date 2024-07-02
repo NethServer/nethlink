@@ -138,10 +138,10 @@ const theme = {
   status: {
     available: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
-        dot: 'bg-emerald-500 dark:bg-emerald-500',
+        dot: 'bg-green-500 dark:bg-green-500',
       },
       card: {
         border: 'border-green-500 dark:border-green-500',
@@ -149,13 +149,13 @@ const theme = {
     },
     online: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
       },
       card: {
-        border: 'border-emerald-500 dark:border-emerald-500',
+        border: 'border-green-500 dark:border-green-500',
       },
     },
     dnd: {
@@ -171,7 +171,7 @@ const theme = {
     },
     voicemail: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
@@ -182,7 +182,7 @@ const theme = {
     },
     cellphone: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
@@ -193,7 +193,7 @@ const theme = {
     },
     callforward: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',

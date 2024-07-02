@@ -86,7 +86,8 @@ export type AccountData = BaseAccountData & {
     outbound_routes_permissions: OutboundRoutePermission[]
   }
   default_device: Extension
-  settings: UserSettings
+  settings: UserSettings,
+  mainextension?: string
 }
 
 export type BaseEndpoint = {
