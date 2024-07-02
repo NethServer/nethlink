@@ -1,6 +1,6 @@
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm, SubmitHandler, FieldErrors } from 'react-hook-form'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faEye as EyeIcon,
@@ -19,8 +19,12 @@ import { log } from '@shared/utils/logger'
 import { useLogin } from '@shared/useLogin'
 import { useNetwork } from '@shared/useNetwork'
 
-export const LoginForm = () => {
-  const { parseConfig } = useLogin()
+export interface LoginFormProps {
+  onError: (formErrors: FieldErrors<LoginData>, generalError: Error | undefined) => void
+}
+export const LoginForm = ({
+  onError
+}) => {
   const { NethVoiceAPI } = useNethVoiceAPI()
   const submitButtonRef = useRef<HTMLButtonElement>(null)
   const [auth] = useStoreState<AuthAppData>('auth')
@@ -61,33 +65,8 @@ export const LoginForm = () => {
   })
 
   useEffect(() => {
-    const errorCount = Object.keys(errors).filter((key) => errors[key]).length
-    const additionalHeight = errorCount * 18
-    if (auth?.isFirstStart) {
-      if (error) {
-        resizeWindow(570 + additionalHeight + 100)
-      } else resizeWindow(570 + additionalHeight)
-    } else {
-      if (loginData?.selectedAccount) {
-        if (loginData.selectedAccount === NEW_ACCOUNT) {
-          if (error) {
-            resizeWindow(620 + additionalHeight + 100)
-          } else resizeWindow(620 + additionalHeight)
-        } else {
-          if (error) {
-            resizeWindow(515 + 18 + 100)
-          } else resizeWindow(515 + 18)
-        }
-      }
-    }
+    onError(errors, error)
   }, [Object.keys(errors).length, error])
-
-  const resizeWindow = (value: number) => {
-    setLoginData((p) => ({
-      ...p,
-      windowHeight: value
-    }))
-  }
 
   const setIsLoading = (value: boolean) => {
     setLoginData((p) => ({
@@ -99,14 +78,11 @@ export const LoginForm = () => {
   useEffect(() => {
     setIsLoading(false)
     if (auth?.availableAccounts) {
-      const availableAccountsLen = Object.keys(auth.availableAccounts).length
       if (loginData?.selectedAccount) {
         if (loginData.selectedAccount === NEW_ACCOUNT) {
-          resizeWindow(620)
           reset()
           focus('host')
         } else {
-          resizeWindow(515)
           reset()
           setValue('host', loginData.selectedAccount.host)
           setValue('username', loginData.selectedAccount.username)
@@ -114,13 +90,6 @@ export const LoginForm = () => {
         }
       } else {
         setError(undefined)
-        if (availableAccountsLen === 1) {
-          resizeWindow(375)
-        } else if (availableAccountsLen === 2) {
-          resizeWindow(455)
-        } else if (availableAccountsLen >= 3) {
-          resizeWindow(535)
-        }
         focus('host')
       }
     }
@@ -129,21 +98,6 @@ export const LoginForm = () => {
   async function handleLogin(data: LoginData) {
     if (!loginData?.isLoading) {
       let e: Error | undefined = undefined
-      let windowHeight = 570
-      if (auth?.isFirstStart) {
-        windowHeight = 570
-      } else if (loginData?.selectedAccount === NEW_ACCOUNT) {
-        windowHeight = 620
-      } else {
-        if (!auth?.isFirstStart) {
-          windowHeight = 515
-        } else {
-          //Added because of possible error banner
-          windowHeight = 570
-        }
-      }
-
-      resizeWindow(windowHeight + (!!e ? 100 : 0))
       setError(() => e)
       setIsLoading(true)
       const hostReg =

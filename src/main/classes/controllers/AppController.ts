@@ -23,10 +23,18 @@ export class AppController {
       AppController.onQuit = true
       isDev() && log('SAFE QUIT')
       if (PhoneIslandController.instance) {
-        await PhoneIslandController.instance.logout()
+        try {
+          await PhoneIslandController.instance.logout()
+        } catch (e) {
+          log(e)
+        }
       }
       if (NethLinkController.instance) {
-        NethLinkController.instance.logout()
+        try {
+          NethLinkController.instance.logout()
+        } catch (e) {
+          log(e)
+        }
       }
       try {
         TrayController.instance.tray.destroy()

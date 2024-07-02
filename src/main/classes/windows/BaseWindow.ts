@@ -67,6 +67,7 @@ export class BaseWindow {
       this._window?.webContents.send(event, ...args)
     } catch (e) {
       log('ERROR on window.emit', e, { event, args })
+      throw (e)
     }
   }
 
