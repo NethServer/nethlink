@@ -171,7 +171,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
             )}
           >
             <PresenceBadge
-              presence={account?.data?.mainPresence}
+              mainPresence={account?.data?.mainPresence}
               className={classNames(
                 !navigator.userAgent.includes('Windows') ? 'right-4' : 'left-4'
               )}

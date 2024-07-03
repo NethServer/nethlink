@@ -4,22 +4,21 @@ import { Badge } from '@renderer/components/Nethesis/Badge'
 import { useStoreState } from '@renderer/store'
 import { Account, OperatorData, StatusTypes } from '@shared/types'
 import { t } from 'i18next'
-import { SkeletonRow } from '@renderer/components/SkeletonRow'
 import { useTheme } from '@renderer/theme/Context'
 import classNames from 'classnames'
 import { log } from '@shared/utils/logger'
 
 export interface PresenceBadgeProps {
-  presence: StatusTypes | undefined
+  mainPresence: StatusTypes | undefined
   className?: string
 }
-export const PresenceBadge = ({ presence, className }: PresenceBadgeProps) => {
+export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) => {
   const [account] = useStoreState<Account>('account')
   const [operators] = useStoreState<OperatorData>('operators')
   const { badge: theme, status: statuses } = useTheme().theme
 
-  if (['callforward', 'voicemail', 'cellphone'].includes(presence as string)) {
-    const isCallforward = ['callforward', 'voicemail'].includes(presence as string)
+  if (['callforward', 'voicemail', 'cellphone'].includes(mainPresence as string)) {
+    const isCallforward = ['callforward', 'voicemail'].includes(mainPresence as string)
     if (!(account?.data?.mainextension && operators?.extensions[account.data.mainextension])) {
       return (
         <div
@@ -28,8 +27,7 @@ export const PresenceBadge = ({ presence, className }: PresenceBadgeProps) => {
             !navigator.userAgent.includes('Windows') ? `absolute right-4` : 'absolute left-4',
             theme.base,
             theme.rounded['full'],
-            //statuses[isCallforward ? 'callforward' : 'voicemail']?.badge.base,
-            statuses['voicemail']?.badge.base,
+            statuses[isCallforward ? 'callforward' : 'voicemail']?.badge.base,
             theme.sizes['small']
           )}
         ></div>
@@ -38,17 +36,16 @@ export const PresenceBadge = ({ presence, className }: PresenceBadgeProps) => {
       return (
         <div className={classNames('absolute top-[5px] z-[100]', className)}>
           <Badge
-            //variant={isCallforward ? 'callforward' : 'voicemail'}
-            variant={'voicemail'}
+            variant={isCallforward ? 'callforward' : 'voicemail'}
             rounded="full"
             size="small"
             className="p-0 h-[22px] max-w-[300px]"
           >
             <FontAwesomeIcon
               icon={
-                presence === 'callforward'
+                mainPresence === 'callforward'
                   ? faArrowRight
-                  : presence === 'cellphone'
+                  : mainPresence === 'cellphone'
                     ? faMobile
                     : faVoicemail
               }
@@ -56,18 +53,18 @@ export const PresenceBadge = ({ presence, className }: PresenceBadgeProps) => {
               aria-hidden="true"
             />
             <span className="font-medium text-xs leading-[18px]">
-              {presence === 'callforward'
+              {mainPresence === 'callforward'
                 ? t('TopBar.Call forward')
-                : presence === 'cellphone'
+                : mainPresence === 'cellphone'
                   ? t('TopBar.Cellphone')
                   : t('TopBar.Voicemail')}
             </span>
             <p className="font-medium text-xs leading-[18px]">
               {account?.data?.endpoints?.cellphone[0]?.id &&
-                presence === 'cellphone' &&
+                mainPresence === 'cellphone' &&
                 `${': ' + account?.data?.endpoints?.cellphone[0]?.id}`}
               {operators?.extensions[account.data.mainextension]?.cf !== '' &&
-                presence === 'callforward' &&
+                mainPresence === 'callforward' &&
                 `${': ' + operators?.extensions[account.data.mainextension]?.cf}`}
             </p>
           </Badge>
