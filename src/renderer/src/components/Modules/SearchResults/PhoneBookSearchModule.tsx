@@ -2,10 +2,10 @@ import { debouncer } from "@shared/utils/utils"
 import { SearchNumberBox } from "./SearchNumberBox"
 import { useEffect, useState } from "react"
 import { usePhonebookSearchModule } from "./hook/usePhoneBookSearchModule"
-import { SearchData } from "@shared/types"
+import { NethLinkPageData, SearchData } from "@shared/types"
 import { log } from "@shared/utils/logger"
-import { AddToPhonebookBox } from "../NethVoice/PhonebookModule/AddToPhonebookBox"
 import { usePhonebookModule } from "../NethVoice/PhonebookModule/hook/usePhonebookModule"
+import { useStoreState } from "@renderer/store"
 
 export const PhoneBookSearchModule = () => {
 
@@ -13,10 +13,7 @@ export const PhoneBookSearchModule = () => {
   const { searchPhonebookContacts } = phoneBookModule
   const [searchText] = phoneBookModule.searchTextState
   const [searchResult, setSearchResult] = useState<SearchData[]>()
-
-  const phonebookModule = usePhonebookModule()
-  const [selectedContact, setSelectedContact] = phonebookModule.selectedContact
-  const [isContactFormOpen, setContactFormOpen] = useState<boolean>(false)
+  const [nethlinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
 
   useEffect(() => {
     if ((searchText?.length || 0) >= 3) {
@@ -33,18 +30,14 @@ export const PhoneBookSearchModule = () => {
     }
   }, [searchText])
 
-
   return (
     <>
-      <SearchNumberBox searchResult={searchResult} showContactForm={() => setContactFormOpen(true)} />
-      {
-        isContactFormOpen && <AddToPhonebookBox
-          close={() => {
-            setSelectedContact(undefined)
-            setContactFormOpen(false)
-          }}
-        />
-      }
+      <SearchNumberBox searchResult={searchResult}
+        showContactForm={() => setNethLinkPageData((p) => ({
+          ...p,
+          showPhonebookSearchModule: false,
+          showAddContactModule: true
+        }))} />
     </>
   )
 }

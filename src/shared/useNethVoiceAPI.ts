@@ -230,7 +230,8 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   const User = {
     me: async (): Promise<AccountData> => {
-      const data = await _GET('/webrest/user/me')
+      const data: AccountData = await _GET('/webrest/user/me')
+      data.mainextension = data!.endpoints.mainextension[0].id
       return data
     },
     all: async () => await _GET('/webrest/user/all'),
@@ -238,7 +239,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     all_endpoints: async () => await _GET('/webrest/user/endpoints/all'),
     heartbeat: async (extension: string) => await _POST('/webrest/user/nethlink', { extension }),
     default_device: async (deviceIdInformation: Extension) => await _POST('/webrest/user/default_device', { id: deviceIdInformation.id }),
-    setPresence: async (status: StatusTypes) => await _POST('/webrest/user/presence', { status })
+    setPresence: async (status: StatusTypes, to?: string) => await _POST('/webrest/user/presence', { status, ...(to ? { to } : {}) })
   }
 
   const Voicemail = {}

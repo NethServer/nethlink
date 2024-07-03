@@ -55,9 +55,14 @@ const ModalComponent: FC<ModalProps> = ({
         {...cleanProps}
       >
         <Transition.Child as={Fragment} {...theme.panel.transition}>
-          <div className={theme.background.base} />
+          <div className={classNames(theme.background.base, 'rounded-b-lg top-[40px] h-[calc(100vh-40px)] w-[calc100vw]')} />
         </Transition.Child>
-        <div className="fixed inset-0 z-50 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full scrollbar-thumb-opacity-50 scrollbar-track-gray-200 dark:scrollbar-track-gray-900 scrollbar-track-rounded-full scrollbar-track-opacity-25">
+        <div className="
+        fixed inset-0 z-50
+        overflow-y-auto
+        top-[40px]
+        scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full scrollbar-thumb-opacity-50 scrollbar-track-gray-200 dark:scrollbar-track-gray-900 scrollbar-track-rounded-full scrollbar-track-opacity-25
+        ">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
             <Transition.Child as={Fragment} {...theme.background.transition}>
               <Dialog.Panel className={theme.panel.base}>{children}</Dialog.Panel>

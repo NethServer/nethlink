@@ -14,14 +14,16 @@ import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes, OperatorData } from '@shared/types'
 import { t } from 'i18next'
-import { Button } from './Nethesis'
+import { Button, StatusDot } from './Nethesis'
 import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { debouncer, isDev } from '@shared/utils/utils'
 import { useStoreState } from '@renderer/store'
-import { createRef, useRef } from 'react'
-import classNames from 'classnames'
+import { useState } from 'react'
 import { useTheme } from '@renderer/theme/Context'
+import { PresenceBox } from './Modules/NethVoice/Presence/PresenceBox'
+import classNames from 'classnames'
+import { truncate } from 'lodash'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -39,6 +41,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const [account] = useStoreState<Account>('account')
   const [operators] = useStoreState<OperatorData>('operators')
   const [theme, setTheme] = useStoreState<AvailableThemes>('theme')
+  const [isPresenceDialogVisible, setIsPresenceDialogVisible] = useState(false)
 
   function handleSetTheme(theme) {
     setTheme(theme)
@@ -55,15 +58,27 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
     window.api.logout()
   }
 
+  function showPresenceDialog(e) {
+    e.preventDefault()
+    setIsPresenceDialogVisible(true)
+  }
+
   if (!account) return <></>
 
   return (
-    <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 py-2">
+    <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 pt-2">
       <SearchBox />
       <div className="flex flex-row min-w-20 gap-4 items-center">
         <div>
           <Listbox>
-            <Listbox.Button className={classNames('flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
+            <Listbox.Button
+              className={classNames(
+                'flex items-center justify-center min-w-8 min-h-8 pt-1 pr-1 pb-1 pl-1',
+                nethTheme.button.ghost,
+                nethTheme.button.base,
+                nethTheme.button.rounded.base
+              )}
+            >
               <FontAwesomeIcon
                 icon={ThemeMenuIcon}
                 className="h-5 w-5 dark:text-gray-50 text-gray-700"
@@ -112,7 +127,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
         <div className={'max-h-8'}>
           <Menu>
             <Menu.Button
-              className="cursor-pointer"
+              className="cursor-pointer dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-full  "
               onClick={() => {
                 debouncer('reload_me', onClickAccount, 1000)
               }}
@@ -125,20 +140,21 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
               />
             </Menu.Button>
             <Menu.Items
-              className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
+              static={isPresenceDialogVisible}
+              className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight mt-2 pb-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
-                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-borderDark border-borderLight">
+                <div className="flex flex-col w-full py-[10px] px-4 border-b-[1px] dark:border-borderDark border-borderLight">
                   <p className="dark:text-gray-400 text-gray-700">{t('TopBar.Signed in as')}</p>
-                  <div className="flex flex-row gap-4">
+                  <div className="flex flex-row justify-between">
                     <p className="dark:text-titleDark text-titleLight font-medium">
-                      {account.data?.name}
+                      {truncate(account.data?.name, { length: 20 })}
                     </p>
                     <p className="dark:text-gray-50 text-gray-700 font-normal">
                       {account.data?.endpoints.mainextension[0].id}
                     </p>
                     {isDev() && (
-                      <p className="dark:text-gray-50 text-gray-700 font-normal">
+                      <p className="absolute top-0 right-0 dark:text-gray-50 text-gray-700 font-normal">
                         [{account.data?.default_device.type}]
                       </p>
                     )}
@@ -150,7 +166,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                 className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6"
+                  className="flex flex-row items-center gap-4 py-[10px] px-4"
                   onClick={handleGoToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={GoToNethVoiceIcon} />
@@ -162,7 +178,19 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                 className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6"
+                  className="flex flex-row items-center gap-4 py-[10px] px-5"
+                  onClick={showPresenceDialog}
+                >
+                  <StatusDot status={status} />
+                  <p className="font-normal pl-1">{t('TopBar.Presence')}</p>
+                </div>
+              </Menu.Item>
+              <Menu.Item
+                as={'div'}
+                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
+              >
+                <div
+                  className="flex flex-row items-center gap-4 py-[10px] px-4"
                   onClick={handleLogout}
                 >
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
@@ -171,10 +199,10 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight rounded-b-lg"
+                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6"
+                  className="flex flex-row items-center gap-4 py-[10px] px-4"
                   onClick={handleExitNethLink}
                 >
                   <FontAwesomeIcon className="text-base" icon={ExitIcon} />
@@ -185,6 +213,10 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
           </Menu>
         </div>
       </div>
+      <PresenceBox
+        isOpen={isPresenceDialogVisible}
+        onClose={() => setIsPresenceDialogVisible(false)}
+      />
     </div>
   )
 }

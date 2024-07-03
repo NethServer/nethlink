@@ -7,8 +7,11 @@ import darkLogo from '../assets/nethvoiceDarkIcon.svg'
 import lightLogo from '../assets/nethvoiceLightIcon.svg'
 import { t } from 'i18next'
 import { PageType } from '@shared/types'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { PageCtx } from '@renderer/contexts/pageContext'
+import { useStoreState } from '@renderer/store'
+import { IPC_EVENTS } from '@shared/constants'
+import { ConnectionErrorDialog } from '@renderer/components'
 
 export interface SplashScreenPageProps {
   themeMode: string
@@ -16,6 +19,17 @@ export interface SplashScreenPageProps {
 
 export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
   const page = useContext<PageType | undefined>(PageCtx)
+  const [connection] = useStoreState<boolean>('connection')
+  const [isNoConnectionDialogOpen, setIsnoConnectionDialogOpen] = useState<boolean>(false)
+  useInitialize(() => {
+    window.electron.receive(IPC_EVENTS.SHOW_NO_CONNECTION, () => {
+      setIsnoConnectionDialogOpen(true)
+    })
+  })
+
+  function exitApp() {
+    window.api.exitNethLink()
+  }
 
   return (
     <div className="h-[100vh] w-[100vw] p-1 rounded-[10px]">
@@ -50,6 +64,14 @@ export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
           </p>
         </div>
       </div>
-    </div>
+      {isNoConnectionDialogOpen && !connection && (
+        <ConnectionErrorDialog
+          variant='splashscreen'
+          onButtonClick={exitApp}
+          buttonText={t('Common.Quit')}
+        />
+      )
+      }
+    </div >
   )
 }

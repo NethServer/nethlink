@@ -52,6 +52,16 @@ export function registerIpcEvents() {
     return app.getSystemLocale()
   })
 
+  // ipcMain.on(IPC_EVENTS.DEV_TOOL_TOGGLE_CONNECTION, (e) => {
+  //   const windows = BrowserWindow.getAllWindows();
+  //   windows.forEach(win => {
+  //     log(win.webContents?.session)
+  //     win.webContents?.session.enableNetworkEmulation({
+  //       offline: false
+  //     });
+  //   });
+  // })
+
   ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (event, newState, page, selector) => {
     const windows = BrowserWindow.getAllWindows();
     store.updateStore(newState)
@@ -60,6 +70,11 @@ export function registerIpcEvents() {
         win.webContents.send(IPC_EVENTS.SHARED_STATE_UPDATED, newState, page);
       }
     });
+  });
+
+  ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (event, isOnline) => {
+    log('CONNECTION STATE', isOnline)
+    store.set('connection', isOnline)
   });
 
   ipcMain.on(IPC_EVENTS.REQUEST_SHARED_STATE, (event) => {
@@ -120,6 +135,7 @@ export function registerIpcEvents() {
     if (process.platform !== 'darwin') {
       options.icon = "../../../public/TrayNotificationIcon.svg"
     }
+    log(options)
     const notification: Notification = new Notification(options)
 
     setTimeout(() => {

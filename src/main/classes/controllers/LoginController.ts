@@ -17,7 +17,14 @@ export class LoginController {
     const loginPage = this.window!.getWindow()
     if (loginPage) {
       const bounds = loginPage.getBounds()
-      loginPage.setBounds({ ...bounds, width: LOGIN_WINDOW_WIDTH, height: h }, true)
+      loginPage.setBounds({
+        ...bounds,
+        width: LOGIN_WINDOW_WIDTH,
+        height: h
+      }, true)
+      if (bounds.height === 0) {
+        loginPage.center()
+      }
     }
   }
   show() {

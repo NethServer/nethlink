@@ -5,20 +5,27 @@ import { useCallback, useEffect, useMemo } from "react"
 import { PhonebookModule, SpeeddialsModule, LastCallsModule, PhoneBookSearchModule } from "."
 import { usePhonebookSearchModule } from "./SearchResults/hook/usePhoneBookSearchModule"
 import { AboutModule } from "./About/AboutModule"
+import classNames from "classnames"
 
 export const NethLinkModules = () => {
   const phonebookSearchModule = usePhonebookSearchModule()
   const [searchText, setSearchText] = phonebookSearchModule.searchTextState
-  const [nethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
 
   useEffect(() => {
     setSearchText(null)
+    if (nethLinkPageData?.showAddContactModule) {
+      setNethLinkPageData((p) => ({
+        ...p,
+        showAddContactModule: false
+      }))
+    }
   }, [nethLinkPageData?.selectedSidebarMenu])
 
   const VisibleModule = useCallback(() => {
 
-    if (nethLinkPageData?.showPhonebookSearchModule) return <PhoneBookSearchModule />
     if (nethLinkPageData?.showAddContactModule) return <PhonebookModule />
+    if (nethLinkPageData?.showPhonebookSearchModule) return <PhoneBookSearchModule />
 
     switch (nethLinkPageData?.selectedSidebarMenu) {
       case MENU_ELEMENT.SPEEDDIALS:
@@ -33,9 +40,14 @@ export const NethLinkModules = () => {
   }, [nethLinkPageData?.showAddContactModule, nethLinkPageData?.showPhonebookSearchModule, nethLinkPageData?.selectedSidebarMenu])
 
   return (
-    <div className="absolute top-0 left-0 z-[100] dark:bg-bgDark bg-bgLight h-full w-full rounded-bl-lg">
-      <VisibleModule />
-    </div>
+    <div className={classNames(
+      "z-[100] h-full w-full rounded-bl-lg "
+      //dark:bg-bgDark bg-bgLight
+    )}>
+      <div className={classNames('max-h-[calc(100vh-105px)] h-full pt-1')}>
+        <VisibleModule />
+      </div>
+    </div >
   )
 
 }

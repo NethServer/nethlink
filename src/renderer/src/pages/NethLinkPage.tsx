@@ -9,13 +9,10 @@ import {
   NewSpeedDialType,
   NethLinkPageData,
   NotificationData,
-
+  PhoneIslandPageData
 } from '@shared/types'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
-import {
-  faMinusCircle as MinimizeIcon,
-  faTriangleExclamation as WarningIcon
-} from '@fortawesome/free-solid-svg-icons'
+import { faMinusCircle as MinimizeIcon } from '@fortawesome/free-solid-svg-icons'
 import { log } from '@shared/utils/logger'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { t } from 'i18next'
@@ -26,23 +23,26 @@ import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { IPC_EVENTS, MENU_ELEMENT } from '@shared/constants'
+import { PresenceBadge } from '@renderer/components/Modules/NethVoice/Presence/PresenceBadge'
+import classNames from 'classnames'
+import { ConnectionErrorDialog } from '@renderer/components'
+import { debouncer, isDev } from '@shared/utils/utils'
 
 export interface NethLinkPageProps {
   themeMode: string
 }
 
 export function NethLinkPage({ themeMode }: NethLinkPageProps) {
-
   const [account, setAccount] = useStoreState<Account | undefined>('account')
-  const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [phoneIslandPageData] = useStoreState<PhoneIslandPageData>('phoneIslandPageData')
+  const [nethLinkPageData, setNethLinkPageData] =
+    useStoreState<NethLinkPageData>('nethLinkPageData')
   const [notifications, setNotifications] = useStoreState<NotificationData>('notifications')
+  const [connection] = useStoreState<boolean>('connection')
+  const [isConnectionErrorDialogOpen, setIsConnectionErrorDialogOpen] = useState<boolean>(false)
 
-  const {
-    saveOperators,
-    onQueueUpdate,
-    saveLastCalls,
-    saveSpeeddials
-  } = usePhoneIslandEventHandler()
+  const { saveOperators, onQueueUpdate, saveLastCalls, saveSpeeddials } =
+    usePhoneIslandEventHandler()
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const operatorFetchLoopInterval = useRef<NodeJS.Timeout>()
@@ -56,16 +56,22 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     if (account) {
       if (!operatorFetchLoopInterval.current) {
         loadData()
-        operatorFetchLoopInterval.current = setInterval(() => {
-          loadData()
-        }, 1000 * 60 * 60 * 24)
-        accountMeInterval.current = setInterval(() => {
-          me()
-        }, 1000 * 60 * 45)
+        operatorFetchLoopInterval.current = setInterval(
+          () => {
+            loadData()
+          },
+          1000 * 60 * 60 * 24
+        )
+        accountMeInterval.current = setInterval(
+          () => {
+            me()
+          },
+          1000 * 60 * 45
+        )
         setNethLinkPageData({
           selectedSidebarMenu: MENU_ELEMENT.SPEEDDIALS,
           phonebookModule: {
-            selectedContact: undefined,
+            selectedContact: undefined
           },
           speeddialsModule: {
             selectedSpeeDial: undefined
@@ -85,6 +91,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     }
   }, [account?.username])
 
+  useEffect(() => {
+    setIsConnectionErrorDialogOpen(!connection)
+  }, [connection])
+
   function stopInterval(interval: MutableRefObject<NodeJS.Timeout | undefined>) {
     if (interval.current) {
       clearInterval(interval.current)
@@ -97,11 +107,13 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   // }, [nethLinkPageData?.selectedSidebarMenu])
 
   function initialize() {
-    Notification.requestPermission().then(() => {
-      log("requested notification permission")
-    }).catch((e) => {
-      log(e)
-    })
+    Notification.requestPermission()
+      .then(() => {
+        log('requested notification permission')
+      })
+      .catch((e) => {
+        log(e)
+      })
     window.electron.receive(IPC_EVENTS.UPDATE_APP_NOTIFICATION, showUpdateAppNotification)
   }
 
@@ -122,7 +134,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     NethVoiceAPI.User.me().then((me) => {
       setAccount((p) => ({
         ...p!,
-        data: me
+        data: {
+          ...p?.data,
+          ...me
+        }
       }))
     })
   }
@@ -136,41 +151,79 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
     NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
     me()
+  }
 
+  useEffect(() => {
+    if (phoneIslandPageData?.isDisconnected && connection) {
+      reconnect()
+      isDev() && log('RECONNECT')
+    }
+  }, [phoneIslandPageData?.isDisconnected, connection])
+
+  const reconnect = async () => {
+    loadData()
   }
 
   function hideNethLink() {
     window.api.hideNethLink()
   }
 
+  function onConnectionErrorButtonClick(): void {
+    isDev() && log('refresh', navigator.onLine)
+    debouncer('update-connection-state', () => {
+      window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
+    }, 250)
+  }
+
   return (
     <div className="h-[100vh] w-[100vw] overflow-hidden">
       <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm">
         <div
-          className={`flex flex-col min-w-[400px] min-h-[400px] h-full items-center justify-between`}
+          className={`flex flex-col min-w-[400px] min-h-[400px] h-full w-full items-center justify-between`}
         >
           <div
-            className={`draggableAnchor flex justify-end ${navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'} gap-1 items-center pr-4 pl-2 pb-[18px] pt-[8px] w-full bg-gray-950 dark:bg-gray-950 rounded-lg relative bottom-[-8px] z-0`}
+            className={classNames(
+              `
+              relative
+              px-4
+              draggableAnchor
+              w-full
+              h-[34px]
+              flex justify-between
+              items-center
+              bg-gray-950 dark:bg-gray-950
+              rounded-t-lg
+              z-0
+            `,
+              !navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'
+            )}
           >
+            <PresenceBadge
+              mainPresence={account?.data?.mainPresence}
+              className={classNames(
+                !navigator.userAgent.includes('Windows') ? 'right-4' : 'left-4'
+              )}
+            />
             <FontAwesomeIcon
-              className={` text-yellow-500 hover:text-yellow-400 cursor-pointer ml-2 noDraggableAnchor`}
+              className={`absolute top-2 w-4 h-4 text-yellow-500 hover:text-yellow-400 cursor-pointer noDraggableAnchor`}
               icon={MinimizeIcon}
               onClick={hideNethLink}
             />
           </div>
-          <div className="flex flex-row rounded-lg relative z-10 bottom-1 dark:bg-bgDark bg-bgLight w-full">
-            <div className="flex flex-col gap-3 w-full">
+          <div className="relative  flex flex-row rounded-b-lg z-10 dark:bg-bgDark bg-bgLight w-full h-full">
+            <div className="flex flex-col gap-3 w-full h-full">
               <Navbar onClickAccount={() => me()} />
-              <div className="relative w-full">
-                <div className={`w-full h-[298px] pb-2 z-1`}>
-                  <NethLinkModules />
-                </div>
-              </div>
+              <NethLinkModules />
             </div>
             <Sidebar onChangeMenu={() => me()} />
           </div>
         </div>
       </div>
+      {isConnectionErrorDialogOpen && <ConnectionErrorDialog
+        variant='nethlink'
+        onButtonClick={onConnectionErrorButtonClick}
+        buttonText={t('Common.Refresh')}
+      />}
     </div>
   )
 }

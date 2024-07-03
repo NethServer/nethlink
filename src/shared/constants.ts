@@ -55,7 +55,10 @@ export enum IPC_EVENTS {
   GET_NETHVOICE_CONFIG = "GET_NETHVOICE_CONFIG",
   SET_NETHVOICE_CONFIG = "SET_NETHVOICE_CONFIG",
   RECONNECT_PHONE_ISLAND = "RECONNECT_PHONE_ISLAND",
-  LOGOUT_COMPLETED = "LOGOUT_COMPLETED"
+  LOGOUT_COMPLETED = "LOGOUT_COMPLETED",
+  SHOW_NO_CONNECTION = "SHOW_NO_CONNECTION",
+  UPDATE_CONNECTION_STATE = "UPDATE_CONNECTION_STATE",
+  DEV_TOOL_TOGGLE_CONNECTION = "DEV_TOOL_TOGGLE_CONNECTION"
 }
 
 //PHONE ISLAND EVENTS
@@ -105,7 +108,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-ringing' = 'phone-island-call-ringing',
   'phone-island-call-started' = 'phone-island-call-started',
   'phone-island-call-answered' = 'phone-island-call-answered',
-  'phone-island-call-ended' = 'phone-island-call-ended', //TODO:fare reload delle chiamate perse
+  'phone-island-call-ended' = 'phone-island-call-ended',
   'phone-island-call-held' = 'phone-island-call-held',
   'phone-island-call-unheld' = 'phone-island-call-unheld',
   'phone-island-call-muted' = 'phone-island-call-muted',

@@ -64,7 +64,10 @@
     "This field is required": "This field is required",
     "This field must be at least": "This field must be at least {{number}} characters",
     "This is not a phone number": "This is not a phone number",
-    "Quit": "Quit"
+    "Quit": "Quit",
+    "No internet connection title": "No internet connection",
+    "No internet connection description": "Please check your connection and try again",
+    "Refresh": "Refresh"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -112,7 +115,7 @@
     "application_update_title": "Application update available.",
     "application_update_body": "Click here to open the page where you can download the new release",
     "lost_call_title": "Missed call from {{user}}",
-    "lost_call_body": "You received a call from {{number}} {{datetime}}"
+    "lost_call_body": "You received a call from {{number}} at {{datetime}}"
   },
   "Phonebook": {
     "Phonebook": "Phonebook",
@@ -325,6 +328,7 @@
     "Open sidebar": "Open sidebar",
     "Main device": "Main device",
     "Voicemail": "Voicemail",
+    "Mobile": "Mobile",
     "Activate voicemail": "Activate voicemail",
     "Go to NethVoice CTI": "Go to NethVoice CTI"
   },
@@ -580,7 +584,9 @@
     "Sort by": "Sort by",
     "Newest": "Newest",
     "Oldest": "Oldest",
-    "Call": "Call"
+    "Call": "Call",
+    "Calls_one": "Call",
+    "Calls_other": "Calls"
   },
   "NavBars": {
     "Speed dials": "Speed dials",

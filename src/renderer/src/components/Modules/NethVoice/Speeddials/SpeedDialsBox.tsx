@@ -10,6 +10,7 @@ import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventH
 import { useSpeedDialsModule } from './hook/useSpeedDialsModule'
 import { log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
+import { ModuleTitle } from '@renderer/components/ModuleTitle'
 
 export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }): JSX.Element {
   const [speeddials] = useStoreState<ContactType[]>('speeddials')
@@ -33,28 +34,14 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="px-5">
-        <div className="flex justify-between items-center pb-4 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight max-h-[28px] mt-3">
-          <h1 className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
-            {t('SpeedDial.Speed dial')}
-          </h1>
-          <Button
-            variant="ghost"
-            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1"
-            onClick={handleCreateSpeedDial}
-          >
-            <FontAwesomeIcon
-              className="dark:text-textBlueDark text-textBlueLight text-base"
-              icon={AddSpeedDialIcon}
-            />
-            <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
-              {t('SpeedDial.Create')}
-            </p>
-          </Button>
-        </div>
-      </div>
-      <Scrollable className="flex flex-col min-h-[120px] max-h-[240px]">
+    <>
+      <ModuleTitle
+        title={t('SpeedDial.Speed dial')}
+        action={handleCreateSpeedDial}
+        actionIcon={AddSpeedDialIcon}
+        actionText={t('SpeedDial.Create')}
+      />
+      <Scrollable >
         {speeddials ? (
           speeddials.length > 0 ? (
             speeddials?.map((e, idx) => {
@@ -96,6 +83,6 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
             })
         )}
       </Scrollable>
-    </div>
+    </>
   )
 }

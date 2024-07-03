@@ -86,7 +86,8 @@ export type AccountData = BaseAccountData & {
     outbound_routes_permissions: OutboundRoutePermission[]
   }
   default_device: Extension
-  settings: UserSettings
+  settings: UserSettings,
+  mainextension?: string
 }
 
 export type BaseEndpoint = {
@@ -185,6 +186,8 @@ export type CallData = {
   direction?: string
   queue?: string
 }
+
+export type LastCallData = CallData & { username: string, hasNotification: boolean }
 
 export type StatusTypes =
   | 'available'
@@ -347,17 +350,26 @@ export type Size = { w: number; h: number }
 
 export type LocalStorageData = {
   account?: Account,
-  auth?: AuthAppData
+  auth?: AuthAppData,
   page?: PageType,
   operators?: OperatorData,
   queues?: QueuesType,
   lastCalls?: CallData[],
   speeddials?: ContactType[],
   theme?: AvailableThemes,
-  loginPageData?: LoginPageData
-  nethLinkPageData?: NethLinkPageData
+  loginPageData?: LoginPageData,
+  nethLinkPageData?: NethLinkPageData,
+  phoneIslandPageData?: PhoneIslandPageData,
+  missedCalls?: CallData[],
+  notifications?: NotificationData,
   lostCallNotifications?: CallData[],
-  notifications?: NotificationData
+  connection: boolean
+}
+
+export type PhoneIslandPageData = {
+  isExpanded: boolean,
+  isMinimized: boolean,
+  isDisconnected: boolean
 }
 
 export type LoginPageData = {

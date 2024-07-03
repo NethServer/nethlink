@@ -7,6 +7,7 @@ import { store, useStoreState } from '@/lib/mainStore'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
+import { isDev } from '@shared/utils/utils'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -52,7 +53,8 @@ export class AccountController {
         lastUserCryptPsw: undefined
       },
       account: undefined,
-      theme: 'system'
+      theme: 'system',
+      connection: store.store['connection'] || false
     })
   }
 
@@ -84,7 +86,7 @@ export class AccountController {
           await this.saveLoggedAccount(loggedAccount, password)
           return true
         } catch (e) {
-          log(e)
+          isDev() && log(e, authAppData.lastUserCryptPsw)
           return false
         }
       }
@@ -109,7 +111,8 @@ export class AccountController {
           isFirstStart: false,
           lastUser: accountUID,
           lastUserCryptPsw: cryptString
-        }
+        },
+        connection: store.store['connection'] || false
       })
       store.saveToDisk()
       return account
@@ -141,18 +144,19 @@ export class AccountController {
   }
 
   setAccountPhoneIslandPosition(phoneIslandPosition: { x: number; y: number }): void {
-    const [account, setAccount] = useStoreState<Account>('account')
-    const [_auth, setAuth] = useStoreState<AuthAppData>('auth')
+    const account = store.store.account
+    const auth = store.store.auth
     if (account) {
       account!.phoneIslandPosition = phoneIslandPosition
-      setAccount(() => account)
-      setAuth((p) => ({
-        ...p,
+      store.set('account', account)
+      const _auth = {
+        ...auth,
         availableAccounts: {
-          ...p.availableAccounts,
+          ...auth?.availableAccounts,
           [this._getAccountUID(account)]: account
         }
-      }))
+      }
+      store.set('auth', _auth)
     }
   }
 }

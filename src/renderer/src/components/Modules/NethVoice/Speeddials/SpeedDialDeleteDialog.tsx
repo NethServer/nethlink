@@ -55,10 +55,10 @@ export const SpeedDialDeleteDialog = ({
       onClose={() => close()}
       afterLeave={() => setSelectedSpeedDial(undefined)}
       themeMode={parseThemeToClassName(theme)}
-      className="font-Poppins"
+      className="font-Poppins w-[100px]"
     >
       <Modal.Content>
-        <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-bgAmberLight dark:bg-bgAmberDark">
+        <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-bgAmberLight dark:bg-bgAmberDark ">
           <FontAwesomeIcon
             icon={WarningIcon}
             className="h-6 w-6 text-iconAmberLight dark:text-iconAmberDark"
