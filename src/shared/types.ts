@@ -350,18 +350,26 @@ export type Size = { w: number; h: number }
 
 export type LocalStorageData = {
   account?: Account,
-  auth?: AuthAppData
+  auth?: AuthAppData,
   page?: PageType,
   operators?: OperatorData,
   queues?: QueuesType,
   lastCalls?: CallData[],
   speeddials?: ContactType[],
   theme?: AvailableThemes,
-  loginPageData?: LoginPageData
-  nethLinkPageData?: NethLinkPageData
+  loginPageData?: LoginPageData,
+  nethLinkPageData?: NethLinkPageData,
+  phoneIslandPageData?: PhoneIslandPageData,
   missedCalls?: CallData[],
-  notifications?: NotificationData
-  lostCallNotifications?: CallData[]
+  notifications?: NotificationData,
+  lostCallNotifications?: CallData[],
+  connection: boolean
+}
+
+export type PhoneIslandPageData = {
+  isExpanded: boolean,
+  isMinimized: boolean,
+  isDisconnected: boolean
 }
 
 export type LoginPageData = {

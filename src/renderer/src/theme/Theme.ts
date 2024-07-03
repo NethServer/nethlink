@@ -462,6 +462,22 @@ const theme = {
   datePicker: {
     base: 'bg-white border-gray-300 dark:bg-gray-900 dark:border-gray-600 dark:disabled:bg-gray-900 dark:disabled:border-gray-700 dark:disabled:text-gray-400 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-100 disabled:bg-gray-50 disabled:border-gray-200 disabled:cursor-not-allowed disabled:text-gray-500 focus:border-primaryLight focus:ring-primaryLight placeholder:text-gray-400 placeholder:text-gray-500 rounded-md sm:text-sm text-gray-900 w-full',
   },
+  connectionErrorDialog: {
+    backdrop: {
+      base: 'absolute bg-black dark:bg-white overflow-visible z-[100] opacity-20 flex items-center',
+      variant: {
+        splashscreen: 'top-0 left-0 h-full w-full rounded-2xl',
+        nethlink: 'top-[32px] left-0 h-[calc(100%-32px)] w-full rounded-b-lg'
+      }
+    },
+    dialog: {
+      base: 'absolute top-[32px] left-0 w-full h-[calc(100%-32px)] flex items-center',
+      variant: {
+        splashscreen: '',
+        nethlink: ''
+      }
+    }
+  }
 }
 
 export default theme

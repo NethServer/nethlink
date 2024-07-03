@@ -41,7 +41,7 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
         actionIcon={AddSpeedDialIcon}
         actionText={t('SpeedDial.Create')}
       />
-      <Scrollable className="flex flex-col min-h-[120px] max-h-[240px]">
+      <Scrollable >
         {speeddials ? (
           speeddials.length > 0 ? (
             speeddials?.map((e, idx) => {

@@ -12,6 +12,7 @@ import { getSystemTheme, parseThemeToClassName } from './utils'
 import { useRegisterStoreHook, useStoreState } from "@renderer/store";
 import { PageContext, PageCtx, usePageCtx } from './contexts/pageContext'
 import { IPC_EVENTS } from '@shared/constants'
+import { useRefState } from './hooks/useRefState'
 
 
 const RequestStateComponent = () => {
@@ -22,11 +23,18 @@ const RequestStateComponent = () => {
   const [account, setAccount] = useStoreState<Account>('account')
   const [hasWindowConfig, setHasWindowConfig] = useState<boolean>(false)
 
-
   useEffect(() => {
     if (!isRequestInitialized.current) {
       isRequestInitialized.current = true
       window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE);
+      window.ononline = (d) => {
+        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, true);
+      }
+      window.onoffline = (d) => {
+        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, false);
+      }
+      window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine);
+      log("registered, connection:", navigator.onLine)
     }
   }, [pageData?.page])
 

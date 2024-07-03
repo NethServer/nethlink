@@ -19,8 +19,6 @@ interface SearchNumberBoxProps {
   showContactForm: () => void
 }
 export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberBoxProps) {
-  const [nethLinkPageData, setNethLinkPageData] =
-    useStoreState<NethLinkPageData>('nethLinkPageData')
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
@@ -156,7 +154,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
     searchText && isCallsEnabled && getIsPhoneNumber(searchText) && searchText.length > 1
 
   return (
-    <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight">
+    <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight h-full">
       <div className='mr-[6px]'>
         <div
           className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
@@ -186,7 +184,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
           </p>
         </div>
       </div>
-      <Scrollable className="max-h-[178px]">
+      <Scrollable >
         {filteredPhoneNumbers.map((user, index) => (
           <SearchNumber
             key={'SearchNumber_' + index}

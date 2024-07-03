@@ -25,13 +25,16 @@ export interface LoginPageProps {
 
 enum LoginSizes {
   BASE = 550,
-  ACCOUNT_FORM = 518,
+  ACCOUNT_FORM = 488,
   BACK_BUTTON = 60,
   INPUT_ERROR = 22,
   LOGIN_FAILURE = 104,
   ONE_ACCOUNT = 375,
   TWO_ACCOUNT = 455,
-  MULTIPLE_ACCOUNT = 535
+  MULTIPLE_ACCOUNT = 535,
+  CONNECTION_FAILURE_NO_ACCOUNTS = 380,
+  CONNECTION_FAILURE_ON_ACCOUNT_FORM = 500,
+  CONNECTION_FAILURE_BASE = 388
 }
 
 type ErrorsData = {
@@ -44,6 +47,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
   const [auth] = useStoreState<AuthAppData>('auth')
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
   const [loginData, setLoginData] = useStoreState<LoginPageData>('loginPageData')
+  const [connection] = useStoreState<boolean>('connection')
   const [errorsData, setErrorsData] = useState<ErrorsData>()
 
   useEffect(() => {
@@ -54,11 +58,15 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     if (loginData?.selectedAccount) {
       if (loginData.selectedAccount === NEW_ACCOUNT) {
         loginWindowHeight = LoginSizes.BASE
+        if (!connection)
+          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_BASE
         if (!auth?.isFirstStart) {
           loginWindowHeight += LoginSizes.BACK_BUTTON - 24
         }
       } else {
         loginWindowHeight = LoginSizes.ACCOUNT_FORM
+        if (!connection)
+          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_ON_ACCOUNT_FORM
       }
     } else {
       //List of account is shown
@@ -79,6 +87,8 @@ export function LoginPage({ themeMode }: LoginPageProps) {
           loginWindowHeight = LoginSizes.MULTIPLE_ACCOUNT
           break
       }
+      if (!connection)
+        loginWindowHeight = LoginSizes.CONNECTION_FAILURE_NO_ACCOUNTS
     }
     loginWindowHeight += LoginSizes.INPUT_ERROR * errorCount
     if (errorsData?.generalError) {

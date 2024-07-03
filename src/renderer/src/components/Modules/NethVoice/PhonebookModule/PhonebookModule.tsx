@@ -12,17 +12,15 @@ export const PhonebookModule = () => {
   const [selectedContact, setSelectedContact] = phonebookModule.selectedContact
 
   return (
-    <>
-      <AddToPhonebookBox
-        close={() => {
-          setSelectedContact(undefined)
-          setNethLinkPageData((p) => ({
-            ...p,
-            showPhonebookSearchModule: !!nethlinkPageData?.phonebookSearchModule, //if i previously searched anything then i would return to the search page
-            showAddContactModule: false
-          }))
-        }}
-      />
-    </>
+    <AddToPhonebookBox
+      close={() => {
+        setSelectedContact(undefined)
+        setNethLinkPageData((p) => ({
+          ...p,
+          showPhonebookSearchModule: !!nethlinkPageData?.phonebookSearchModule, //if i previously searched anything then i would return to the search page
+          showAddContactModule: false
+        }))
+      }}
+    />
   )
 }

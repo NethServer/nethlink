@@ -8,7 +8,8 @@ import {
   ContactType,
   NewSpeedDialType,
   NethLinkPageData,
-  NotificationData
+  NotificationData,
+  PhoneIslandPageData
 } from '@shared/types'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { faMinusCircle as MinimizeIcon } from '@fortawesome/free-solid-svg-icons'
@@ -24,6 +25,8 @@ import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { IPC_EVENTS, MENU_ELEMENT } from '@shared/constants'
 import { PresenceBadge } from '@renderer/components/Modules/NethVoice/Presence/PresenceBadge'
 import classNames from 'classnames'
+import { ConnectionErrorDialog } from '@renderer/components'
+import { debouncer, isDev } from '@shared/utils/utils'
 
 export interface NethLinkPageProps {
   themeMode: string
@@ -31,9 +34,12 @@ export interface NethLinkPageProps {
 
 export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const [account, setAccount] = useStoreState<Account | undefined>('account')
+  const [phoneIslandPageData] = useStoreState<PhoneIslandPageData>('phoneIslandPageData')
   const [nethLinkPageData, setNethLinkPageData] =
     useStoreState<NethLinkPageData>('nethLinkPageData')
   const [notifications, setNotifications] = useStoreState<NotificationData>('notifications')
+  const [connection] = useStoreState<boolean>('connection')
+  const [isConnectionErrorDialogOpen, setIsConnectionErrorDialogOpen] = useState<boolean>(false)
 
   const { saveOperators, onQueueUpdate, saveLastCalls, saveSpeeddials } =
     usePhoneIslandEventHandler()
@@ -84,6 +90,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       //initialize nethLink data
     }
   }, [account?.username])
+
+  useEffect(() => {
+    setIsConnectionErrorDialogOpen(!connection)
+  }, [connection])
 
   function stopInterval(interval: MutableRefObject<NodeJS.Timeout | undefined>) {
     if (interval.current) {
@@ -143,15 +153,33 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     me()
   }
 
+  useEffect(() => {
+    if (phoneIslandPageData?.isDisconnected && connection) {
+      reconnect()
+      isDev() && log('RECONNECT')
+    }
+  }, [phoneIslandPageData?.isDisconnected, connection])
+
+  const reconnect = async () => {
+    loadData()
+  }
+
   function hideNethLink() {
     window.api.hideNethLink()
+  }
+
+  function onConnectionErrorButtonClick(): void {
+    isDev() && log('refresh', navigator.onLine)
+    debouncer('update-connection-state', () => {
+      window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
+    }, 250)
   }
 
   return (
     <div className="h-[100vh] w-[100vw] overflow-hidden">
       <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm">
         <div
-          className={`flex flex-col min-w-[400px] min-h-[400px] h-full items-center justify-between`}
+          className={`flex flex-col min-w-[400px] min-h-[400px] h-full w-full items-center justify-between`}
         >
           <div
             className={classNames(
@@ -191,6 +219,11 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           </div>
         </div>
       </div>
+      {isConnectionErrorDialogOpen && <ConnectionErrorDialog
+        variant='nethlink'
+        onButtonClick={onConnectionErrorButtonClick}
+        buttonText={t('Common.Refresh')}
+      />}
     </div>
   )
 }

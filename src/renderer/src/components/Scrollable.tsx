@@ -1,4 +1,6 @@
+import { log } from '@shared/utils/logger'
 import classNames from 'classnames'
+import { createRef, useEffect, useState } from 'react'
 
 export const Scrollable = ({
   children,
@@ -9,8 +11,10 @@ export const Scrollable = ({
   className?: string
   innerClassName?: string
 }) => {
+
+
   return (
-    <div className={classNames('overflow-y-auto mr-[6px] max-h-[calc(100vh-146px)]', className)}>
+    <div className={classNames('relative overflow-y-auto h-[calc(100%-28px)] mr-1.5', className)}>
       <div className={innerClassName}>{children}</div>
     </div>
   )

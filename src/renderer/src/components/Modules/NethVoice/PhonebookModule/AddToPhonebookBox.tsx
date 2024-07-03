@@ -171,13 +171,12 @@ export function AddToPhonebookBox({ close }) {
 
   return (
     <>
-
       <ModuleTitle
         title={t('Phonebook.Add to Phonebook')}
       />
-      <Scrollable innerClassName={' max-w-[344px]'}>
+      <Scrollable innerClassName={'max-w-[344px]'}>
         <form
-          className="flex flex-col gap-5 h-full  px-5"
+          className="flex flex-col gap-5 h-full px-5 pt-2"
           onSubmit={(e) => {
             e.preventDefault()
             handleSubmit(onSubmitForm)(e)

@@ -18,6 +18,7 @@ import { useStoreState } from '@renderer/store'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
+import classNames from 'classnames'
 
 export interface PresenceBoxProps {
   isOpen: boolean
@@ -59,7 +60,6 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
       e.preventDefault()
       e.stopPropagation()
       setIsForwardDialogOpen(false)
-      onClosePresenceDialog()
     }
 
     async function submit(data) {
@@ -83,7 +83,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
     const to = watch('to')
 
     return (
-      <div className="absolute top-[72px] left-0 z-[203]">
+      <div className="absolute top-[72px] left-0 z-[205] ">
         <div className=" bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-lg m-8 p-0 ">
           <div className="p-4  flex flex-col gap-2">
             <div>{t('TopBar.Enter phone number for call forward')}</div>
@@ -119,10 +119,10 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
     )
   }
 
-  function Backdrop({ onBackdropClick, z, background }) {
+  function Backdrop({ onBackdropClick, className }) {
     return (
       <div
-        className={`absolute w-[100vw] h-[100%] rounded-b-lg ${background} z-[${z}] top-0 left-0`}
+        className={classNames(`absolute w-[100vw] h-[100%] rounded-b-lg top-0 left-0`, className)}
         onClick={(e) => {
           e.preventDefault()
           e.stopPropagation()
@@ -158,8 +158,8 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
   return (
     isOpen && (
       <>
-        <div className="absolute left-12 top-[66px] w-[280px] bg-bgLight dark:bg-bgDark border rounded-lg z-[202] py-3 dark:border-borderDark border-borderLight">
-          <Scrollable>
+        <div className="absolute left-[48px] top-[62px] w-[280px] bg-bgLight dark:bg-bgDark border rounded-lg z-[203] py-3 dark:border-borderDark border-borderLight">
+          <Scrollable className='max-h-[260px]'>
             <PresenceItem
               onClick={onSelectPresence}
               status="online"
@@ -169,14 +169,14 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
             {/* check callforward permission */}
             {account?.data?.profile?.macro_permissions?.settings?.permissions?.call_forward
               ?.value && (
-              <PresenceItem
-                onClick={() => setIsForwardDialogOpen(true)}
-                status="callforward"
-                presenceName={t('TopBar.Call forward')}
-                presenceDescription={t('TopBar.Forward incoming calls to another phone number')}
-                icon={CallForwardIcon}
-              ></PresenceItem>
-            )}
+                <PresenceItem
+                  onClick={() => setIsForwardDialogOpen(true)}
+                  status="callforward"
+                  presenceName={t('TopBar.Call forward')}
+                  presenceDescription={t('TopBar.Forward incoming calls to another phone number')}
+                  icon={CallForwardIcon}
+                ></PresenceItem>
+              )}
             {!isEmpty(account?.data?.endpoints.cellphone) && (
               <PresenceItem
                 onClick={() =>
@@ -209,7 +209,10 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
             )}
           </Scrollable>
         </div>
-        <Backdrop onBackdropClick={onClosePresenceDialog} z={201} background={'bg-transparent'} />
+        <Backdrop
+          onBackdropClick={onClosePresenceDialog}
+          className={'bg-transparent z-[202]'}
+        />
         {isForwardDialogOpen && (
           <>
             <ForwardDialog
@@ -219,8 +222,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
             />
             <Backdrop
               onBackdropClick={() => setIsForwardDialogOpen(false)}
-              z={202}
-              background={'bg-white opacity-[0.25]'}
+              className={'bg-white opacity-[0.25] z-[204]'}
             />
           </>
         )}

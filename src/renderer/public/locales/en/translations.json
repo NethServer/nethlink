@@ -64,7 +64,10 @@
     "This field is required": "This field is required",
     "This field must be at least": "This field must be at least {{number}} characters",
     "This is not a phone number": "This is not a phone number",
-    "Quit": "Quit"
+    "Quit": "Quit",
+    "No internet connection title": "No internet connection",
+    "No internet connection description": "Please check your connection and try again",
+    "Refresh": "Refresh"
   },
   "Login": {
     "Welcome": "Welcome",

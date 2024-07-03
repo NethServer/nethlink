@@ -74,7 +74,13 @@ export function LastCall({
   }
 
   const handleCreateContact = () => {
-    handleSelectedCallContact(call.cnum || '', call.ccompany)
+    handleSelectedCallContact(
+      (call.direction === 'in' ? call.src : call.dst) || '',
+      call.direction === 'out'
+        ? (call?.dst_cnam || call?.dst_ccompany)
+        : call.direction === 'in'
+          ? (call?.cnam || call?.ccompany)
+          : undefined)
     showContactForm()
   }
 
@@ -113,17 +119,39 @@ export function LastCall({
           <p className="font-medium text-[14px] leading-5">{truncate(call.username, 15)}</p>
 
           <div className="flex flex-row gap-2 items-center">
-            {
-              call.disposition === 'NO ANSWER'
+            <div
+              className={`h-4 w-4 call_${call.uniqueid?.replace('.', '_')}`}
+            >
+              {
+                call.disposition === 'NO ANSWER'
+                  ? (call.direction === 'in'
+                    ? <InCallNotAnsweredIcon />
+                    : <OutCallNotAnsweredIcon />
+                  )
+                  : (call.direction === 'in'
+                    ? <InCallAnsweredIcon />
+                    : <OutCallAnsweredIcon />
+                  )
+              }
+            </div>
+            <Tooltip
+              anchorSelect={`.call_${call.uniqueid?.replace('.', '_')}`}
+              place='right'
+              className='z-10'
+              opacity={1}
+              noArrow={false}
+            >
+              {call.disposition === 'NO ANSWER'
                 ? (call.direction === 'in'
-                  ? <InCallNotAnsweredIcon />
-                  : <OutCallNotAnsweredIcon />
+                  ? t('History.Incoming missed')
+                  : t('History.Outgoing missed')
                 )
                 : (call.direction === 'in'
-                  ? <InCallAnsweredIcon />
-                  : <OutCallAnsweredIcon />
+                  ? t('History.Incoming answered')
+                  : t('History.Outgoing answered')
                 )
-            }
+              }
+            </Tooltip>
             <NumberCaller
               number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
               disabled={!isCallsEnabled}

@@ -4,7 +4,7 @@ import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useStoreState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account, CallData, Extension, OperatorsType, PhoneIslandConfig, Size } from '@shared/types'
+import { Account, CallData, Extension, OperatorsType, PhoneIslandConfig, PhoneIslandPageData, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
 import { useRefState } from '@renderer/hooks/useRefState'
@@ -24,7 +24,6 @@ export function PhoneIslandPage() {
 
   const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('lastCalls'))
   const [missedCalls, setMissedCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('missedCalls'))
-  const [lostCallNotifications, setLostCallNotifications] = useStoreState<CallData[]>('lostCallNotifications')
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
@@ -43,10 +42,9 @@ export function PhoneIslandPage() {
   } = usePhoneIslandEventHandler()
 
   const isOnCall = useRef<boolean>(false)
-  const isExpanded = useRef<boolean>(true)
   const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS>()
-  const isMinimized = useRef<boolean>(false)
-  const isDisconnected = useRef<boolean>(false)
+  const [phoneIslandPageData, setPhoneIslandPageData] = useRefState<PhoneIslandPageData>(useStoreState<PhoneIslandPageData>('phoneIslandPageData'))
+
 
   const gestLastCalls = (newLastCalls: {
     count: number, rows: CallData[]
@@ -80,6 +78,11 @@ export function PhoneIslandPage() {
 
   useInitialize(() => {
     loadPath.current = getI18nLoadPath()
+    setPhoneIslandPageData(() => ({
+      isExpanded: true,
+      isMinimized: false,
+      isDisconnected: false
+    }))
     window.electron.receive(IPC_EVENTS.LOGOUT, logout)
 
     window.electron.receive(IPC_EVENTS.START_CALL, (number: number | string) => {
@@ -93,9 +96,10 @@ export function PhoneIslandPage() {
     })
 
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
-      window.addEventListener(event, (...data) => {
+      window.addEventListener(event, async (...data) => {
         const customEvent = data[0]
         const detail = customEvent['detail']
+        isDev() && log(event, detail)
         switch (event) {
           case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
             log('phone-island-default-device-changed', detail)
@@ -112,28 +116,46 @@ export function PhoneIslandPage() {
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
             window.api.showPhoneIsland()
             break
+          case PHONE_ISLAND_EVENTS['phone-island-server-disconnected']:
+          case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
+            setPhoneIslandPageData((p) => ({
+              ...p,
+              isDisconnected: true
+            }))
+            await dispatchAndWait(
+              PHONE_ISLAND_EVENTS['phone-island-call-end'],
+              PHONE_ISLAND_EVENTS['phone-island-call-ended'],
+              {
+                timeout: 2000
+              })
+            window.api.hidePhoneIsland()
+            isOnCall.current = false
+            break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
             NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
               count: number, rows: CallData[]
             }) => {
               gestLastCalls(newLastCalls)
             })
+            break;
           case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
             window.api.hidePhoneIsland()
             isOnCall.current = false
             break
-          case PHONE_ISLAND_EVENTS['phone-island-server-disconnected']:
-          case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
-            isDisconnected.current = true
-            break
           case PHONE_ISLAND_EVENTS['phone-island-server-reloaded']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-connected']:
-            isDisconnected.current = false
+            setPhoneIslandPageData((p) => ({
+              ...p,
+              isDisconnected: false
+            }))
             break
           case PHONE_ISLAND_EVENTS['phone-island-expanded']:
-            isMinimized.current = false
+            setPhoneIslandPageData((p) => ({
+              ...p,
+              isMinimized: false
+            }))
             if (lastResizeEvent.current) {
               const previouEventSize = getSizeFromResizeEvent(lastResizeEvent.current)
               if (previouEventSize)
@@ -141,7 +163,10 @@ export function PhoneIslandPage() {
             }
             break
           case PHONE_ISLAND_EVENTS['phone-island-compressed']:
-            isMinimized.current = true
+            setPhoneIslandPageData((p) => ({
+              ...p,
+              isMinimized: true
+            }))
             if (lastResizeEvent.current) {
               const previouEventSize = getSizeFromResizeEvent(lastResizeEvent.current)
               if (previouEventSize)
@@ -152,19 +177,25 @@ export function PhoneIslandPage() {
         if (PHONE_ISLAND_RESIZE.has(event)) {
           switch (event) {
             case PHONE_ISLAND_EVENTS['phone-island-call-actions-opened']:
-              isExpanded.current = false
+              setPhoneIslandPageData((p) => ({
+                ...p,
+                isExpanded: false
+              }))
               break
             case PHONE_ISLAND_EVENTS['phone-island-call-actions-closed']:
-              isExpanded.current = true
+              setPhoneIslandPageData((p) => ({
+                ...p,
+                isExpanded: true
+              }))
               break
             case PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px')
+              phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
               break
             case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px')
+              phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
               break
             case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'padding-top: 40px')
+              phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
               break
             default:
               phoneIslandContainer.current?.children[1].setAttribute('style', '')
@@ -208,7 +239,11 @@ export function PhoneIslandPage() {
     if (resizeEvent) {
       if (event !== PHONE_ISLAND_EVENTS['phone-island-compressed'])
         lastResizeEvent.current = event as PHONE_ISLAND_EVENTS
-      const size = resizeEvent(isExpanded.current, isMinimized.current, isDisconnected.current)
+      const size = resizeEvent(
+        phoneIslandPageData.current?.isExpanded ?? true,
+        phoneIslandPageData.current?.isMinimized ?? false,
+        phoneIslandPageData.current?.isDisconnected ?? false
+      )
       return size
     }
     return undefined
@@ -255,9 +290,11 @@ export function PhoneIslandPage() {
     }
   }, [deviceInformationObject.current, account?.username])
 
-  const dispatchAndWait = async (event: PHONE_ISLAND_EVENTS, awaitEvent: PHONE_ISLAND_EVENTS, data?: any) => {
+  const dispatchAndWait = async (event: PHONE_ISLAND_EVENTS, awaitEvent: PHONE_ISLAND_EVENTS, options?: {
+    data?: any,
+    timeout?: number
+  }) => {
     return new Promise<void>((resolve) => {
-      eventDispatch(event, data)
       const listener = () => {
         log('received', awaitEvent)
         timer && clearTimeout(timer)
@@ -268,8 +305,11 @@ export function PhoneIslandPage() {
         log('timeout')
         window.removeEventListener(awaitEvent, listener)
         resolve()
-      }, 300)
+      }, options?.timeout || 300)
+      log('AddEventListener', awaitEvent)
       window.addEventListener(awaitEvent, listener)
+      log('DispatchEvent', event)
+      eventDispatch(event, options?.data)
     })
   }
   async function logout() {
@@ -278,7 +318,9 @@ export function PhoneIslandPage() {
     log('phone-island-call-ended', deviceInformationObject.current)
     if (deviceInformationObject.current) {
       await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-detach'], PHONE_ISLAND_EVENTS['phone-island-detached'], {
-        deviceInformationObject: deviceInformationObject.current
+        data: {
+          deviceInformationObject: deviceInformationObject.current
+        }
       })
       log('detached and LOGOUT_COMPLETED')
     }
@@ -294,10 +336,9 @@ export function PhoneIslandPage() {
       className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''} overflow-hidden`}
     >
       <div className="absolute h-[100vh] w-[100vw] radius-md backdrop-hue-rotate-90"></div>
-      <div className='flex flex-col items-center '>
-        <div className='relative h-[100vh] w-[100vw]'>
-          {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
-        </div>
+      <div className='flex flex-col items-start'>
+
+        {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
       </div>
     </div >
   )
@@ -322,9 +363,9 @@ const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, i18nLoadPat
     }
   }
 
-  const PhoneIslandCompoent = useMemo(() => {
+  const PhoneIslandComponent = useMemo(() => {
     return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={i18nLoadPath} uaType='mobile' />
   }, [account?.username, dataConfig])
 
-  return PhoneIslandCompoent
+  return PhoneIslandComponent
 }

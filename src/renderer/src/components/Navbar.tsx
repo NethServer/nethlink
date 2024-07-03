@@ -23,6 +23,7 @@ import { useState } from 'react'
 import { useTheme } from '@renderer/theme/Context'
 import { PresenceBox } from './Modules/NethVoice/Presence/PresenceBox'
 import classNames from 'classnames'
+import { truncate } from 'lodash'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -140,20 +141,20 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
             </Menu.Button>
             <Menu.Items
               static={isPresenceDialogVisible}
-              className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight mt-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
+              className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight mt-2 pb-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <Menu.Item>
-                <div className="flex flex-col w-full py-[10px] px-6 border-b-[1px] dark:border-borderDark border-borderLight">
+                <div className="flex flex-col w-full py-[10px] px-4 border-b-[1px] dark:border-borderDark border-borderLight">
                   <p className="dark:text-gray-400 text-gray-700">{t('TopBar.Signed in as')}</p>
-                  <div className="flex flex-row gap-4">
+                  <div className="flex flex-row justify-between">
                     <p className="dark:text-titleDark text-titleLight font-medium">
-                      {account.data?.name}
+                      {truncate(account.data?.name, { length: 20 })}
                     </p>
                     <p className="dark:text-gray-50 text-gray-700 font-normal">
                       {account.data?.endpoints.mainextension[0].id}
                     </p>
                     {isDev() && (
-                      <p className="dark:text-gray-50 text-gray-700 font-normal">
+                      <p className="absolute top-0 right-0 dark:text-gray-50 text-gray-700 font-normal">
                         [{account.data?.default_device.type}]
                       </p>
                     )}
@@ -165,7 +166,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                 className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6"
+                  className="flex flex-row items-center gap-4 py-[10px] px-4"
                   onClick={handleGoToNethVoicePage}
                 >
                   <FontAwesomeIcon className="text-base" icon={GoToNethVoiceIcon} />
@@ -177,7 +178,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                 className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-7"
+                  className="flex flex-row items-center gap-4 py-[10px] px-5"
                   onClick={showPresenceDialog}
                 >
                   <StatusDot status={status} />
@@ -189,7 +190,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                 className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6"
+                  className="flex flex-row items-center gap-4 py-[10px] px-4"
                   onClick={handleLogout}
                 >
                   <FontAwesomeIcon className="text-base" icon={LogoutIcon} />
@@ -198,10 +199,10 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
               </Menu.Item>
               <Menu.Item
                 as={'div'}
-                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight rounded-b-lg"
+                className="cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight"
               >
                 <div
-                  className="flex flex-row items-center gap-4 py-[10px] px-6"
+                  className="flex flex-row items-center gap-4 py-[10px] px-4"
                   onClick={handleExitNethLink}
                 >
                   <FontAwesomeIcon className="text-base" icon={ExitIcon} />

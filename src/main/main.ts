@@ -18,6 +18,7 @@ import { store } from './lib/mainStore'
 new AppController(app)
 new NetworkController()
 new AccountController(app)
+let retryAppStart: NodeJS.Timeout | undefined = undefined
 //log all events that the frontend part issues to the backend
 registerIpcEvents()
 
@@ -39,6 +40,7 @@ powerMonitor.on('resume', async () => {
 });
 
 app.whenReady().then(async () => {
+  //await resetApp()
   isDev() && log('APP READY')
   //I assign the app as usable for tel and callto protocol response
   protocol.handle('tel', (req) => {
@@ -63,7 +65,7 @@ app.whenReady().then(async () => {
 
   //I display the splashscreen when the splashscreen component is correctly loaded.
   SplashScreenController.instance.window.addOnBuildListener(() => {
-    setTimeout(startApp, 500)
+    setTimeout(startApp, 2500)
   })
   SplashScreenController.instance.show()
 })
@@ -73,6 +75,9 @@ app.on('window-all-closed', () => {
 })
 
 app.on('quit', () => {
+  if (retryAppStart) {
+    clearTimeout(retryAppStart)
+  }
   isDev() && log('quit')
 })
 
@@ -143,42 +148,56 @@ const resetApp = async () => {
       lastUser: undefined,
       lastUserCryptPsw: undefined
     },
-    theme: 'system'
+    theme: 'system',
+    connection: false
   })
   await delay(100)
   store.saveToDisk()
   await delay(100)
 }
 
-const startApp = async () => {
-  //await resetApp()
+const startApp = async (attempt = 0) => {
   store.getFromDisk()
-  const auth: AuthAppData | undefined = store.store['auth']
   //await delay(1500)
-  await getPermissions()
-  if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
-    const isLastUserLogged = await AccountController.instance.tokenLogin()
-    if (isLastUserLogged) {
-      ipcMain.emit(IPC_EVENTS.LOGIN)
+  if (!store.store.connection) {
+    log('NO CONNECTION', attempt, store.store)
+    if (attempt >= 3)
+      SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
+    retryAppStart = setTimeout(() => {
+      startApp(++attempt)
+    }, 1000)
+  } else {
+    log('START APP', attempt, store.store)
+    if (retryAppStart) {
+      clearTimeout(retryAppStart)
+    }
+    const auth: AuthAppData | undefined = store.store['auth']
+    await getPermissions()
+    if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
+      const isLastUserLogged = await AccountController.instance.tokenLogin()
+      if (isLastUserLogged) {
+        ipcMain.emit(IPC_EVENTS.LOGIN)
+      } else {
+        store.updateStore({
+          auth: {
+            ...store.store['auth']!,
+            lastUser: undefined,
+            lastUserCryptPsw: undefined
+          },
+          account: undefined,
+          theme: 'system',
+          connection: store.store['connection'] || false
+        })
+        showLogin()
+      }
     } else {
-      store.updateStore({
-        auth: {
-          ...store.store['auth']!,
-          lastUser: undefined,
-          lastUserCryptPsw: undefined
-        },
-        account: undefined,
-        theme: 'system'
-      })
+      await resetApp()
       showLogin()
     }
-  } else {
-    await resetApp()
-    showLogin()
+    SplashScreenController.instance.window.quit()
+    //once the loading is complete I enable the ability to click on the icon in the tray
+    TrayController.instance.enableClick = true
   }
-  SplashScreenController.instance.window.quit()
-  //once the loading is complete I enable the ability to click on the icon in the tray
-  TrayController.instance.enableClick = true
 
 }
 

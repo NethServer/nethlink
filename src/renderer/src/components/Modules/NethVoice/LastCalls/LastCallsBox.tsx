@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare as ShowMissedCallIcon } from '@fortawesome/free-solid-svg-icons'
 import { LastCall } from './LastCall'
-import { CallData, LastCallData, OperatorData } from '@shared/types'
+import { CallData, ContactType, LastCallData, OperatorData } from '@shared/types'
 import { t } from 'i18next'
 import { useStoreState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
@@ -15,6 +15,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
 
   const [lastCalls] = useStoreState<CallData[]>('lastCalls')
   const [operators] = useStoreState<OperatorData>('operators')
+  const [speeddials] = useStoreState<ContactType[]>('speeddials')
   const [missedCalls, setMissedCalls] = useStoreState<CallData[]>('missedCalls')
   const [preparedCalls, setPreparedCalls] = useState<LastCallData[]>([])
   const title = `${t('LastCalls.Calls', { count: lastCalls?.length })} (${lastCalls?.length || 0})`
@@ -57,7 +58,17 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
         return isExten ? true : false
       })
     }
-    return operator?.username || t('Common.Unknown')
+    //TODO: evaluate the research even from phonebook's contacts
+    // let speeddialName: string | undefined | null = undefined
+    // if (!operator?.username) {
+    //   const speeddial = speeddials?.find((s) => s.speeddial_num === callName)
+    //   log(speeddialName, operator, operators, speeddials, speeddial)
+    //   speeddialName = speeddial?.name || speeddial?.company || t('Common.Unknown')
+    // }
+    // if (!speeddialName) {
+
+    // }
+    return operator?.username || t('Common.Unknown') //speeddialName ||
   }
 
   const handleClearNotification = (missedCall: CallData) => {
@@ -75,7 +86,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
         actionIcon={ShowMissedCallIcon}
         actionText={t('Common.View all')}
       />
-      <Scrollable className="flex flex-col max-h-[240px]">
+      <Scrollable className="">
         {
           preparedCalls ? preparedCalls.map((preparedCall, idx) => {
             return (

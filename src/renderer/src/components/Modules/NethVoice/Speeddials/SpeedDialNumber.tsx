@@ -61,7 +61,7 @@ export function SpeedDialNumber({
         />
         <div className="flex flex-col gap-1">
           <p className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
-            {isDev() && `[${speedDial.id}] `}{truncate(speedDial.name || speedDial.company || `${t('Common.Unknown')}`, 20)}
+            {isDev() && <span className='absolute top-0 right-[-16px] text-[8px]'>[{speedDial.id}]</span>}{truncate(speedDial.name || speedDial.company || `${t('Common.Unknown')}`, 20)}
           </p>
           <div className="flex gap-2 items-center">
             <FontAwesomeIcon

@@ -14,7 +14,7 @@ export const useRefState = <T>(targetState: [T | undefined, Dispatch<SetStateAct
       v = (arg0 as (ex: T | undefined) => T | undefined)(stateRef.current as T | undefined)
     }
     stateRef.current = v
-    targetState[1](v)
+    targetState[1](() => v)
   }
 
   return [
