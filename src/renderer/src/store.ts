@@ -10,7 +10,7 @@ import { PageCtx, usePageCtx } from './contexts/pageContext';
 type SharedState = {
   [selector in keyof LocalStorageData]: any;
 } & {
-  setData: (selector: keyof LocalStorageData, data) => LocalStorageData;
+  setData: (selector: keyof LocalStorageData, data: any) => LocalStorageData;
 };
 
 

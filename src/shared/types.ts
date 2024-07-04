@@ -363,7 +363,7 @@ export type LocalStorageData = {
   missedCalls?: CallData[],
   notifications?: NotificationData,
   lostCallNotifications?: CallData[],
-  connection: boolean
+  connection?: boolean
 }
 
 export type PhoneIslandPageData = {
