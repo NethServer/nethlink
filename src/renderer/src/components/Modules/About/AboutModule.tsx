@@ -11,9 +11,9 @@ import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
 import { parseThemeToClassName } from '@renderer/utils'
 
-export interface AboutBoxProps {}
+export interface AboutBoxProps { }
 
-export function AboutModule({}: AboutBoxProps) {
+export function AboutModule({ }: AboutBoxProps) {
   const page = usePageCtx()
   const [theme] = useStoreState<AvailableThemes>('theme')
   const [notifications] = useStoreState<NotificationData>('notifications')
@@ -43,7 +43,7 @@ export function AboutModule({}: AboutBoxProps) {
             <div className="font-medium">
               NethLink by{' '}
               <span
-                className="text-textBlueLight dark:text-textBlueDark cursor-pointer"
+                className="text-textBlueLight dark:text-textBlueDark cursor-pointer hover:underline"
                 onClick={openNethesisPage}
               >
                 Nethesis

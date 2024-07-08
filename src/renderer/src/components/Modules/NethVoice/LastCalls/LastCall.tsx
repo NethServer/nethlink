@@ -23,6 +23,7 @@ import {
   InCallNotAnsweredIcon
 } from '@renderer/icons'
 import { log } from '@shared/utils/logger'
+import classNames from 'classnames'
 
 export interface LastCallProps {
   call: LastCallData
@@ -116,8 +117,10 @@ export function LastCall({
           )}
         </div>
         <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
-          <p className="font-medium text-[14px] leading-5">{truncate(call.username, 15)}</p>
-
+          <p className={`tooltip-username-${call?.username} font-medium text-[14px] leading-5`}>{truncate(call.username + 'sjedfhgsdejhfgsjhdefjusdhg', 13)}</p>
+          <Tooltip anchorSelect={`.tooltip-username-${call?.username}`}>
+            {call.username}
+          </Tooltip>
           <div className="flex flex-row gap-2 items-center">
             <div
               className={`h-4 w-4 call_${call.uniqueid?.replace('.', '_')}`}
@@ -170,46 +173,47 @@ export function LastCall({
 
         <div className="flex flex-col justify-between ml-auto items-center">
           {call.channel?.includes('from-queue') && (
-            <>
-              {isQueueLoading ? (
-                <Badge
-                  variant="offline"
-                  rounded="full"
-                  className={`animate-pulse overflow-hidden ml-1 w-[108px] min-h-4`}
-                ></Badge>
-              ) : (
-                <>
+            <div className='absolute w-0 overflow-visible flex flex-row-reverse '>
+              <div className='relative right-[-16px]'>
+                {isQueueLoading ? (
                   <Badge
-                    size="small"
                     variant="offline"
                     rounded="full"
-                    className={`overflow-hidden ml-1 tooltip-queue-${call?.queue}`}
-                  >
-                    {' '}
-                    <FontAwesomeIcon
-                      icon={BadgeIcon}
-                      className="h-4 w-4 mr-2 ml-1"
-                      aria-hidden="true"
-                    />
-                    <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
+                    className={`animate-pulse overflow-hidden ml-1 w-[108px] min-h-4`}
+                  ></Badge>
+                ) : (
+                  <>
+                    <Badge
+                      size="small"
+                      variant="offline"
+                      rounded="full"
+                      className={`overflow-hidden ml-1 tooltip-queue-${call?.queue}`}
+                    >
+                      <FontAwesomeIcon
+                        icon={BadgeIcon}
+                        className="h-4 w-4 mr-2 ml-1"
+                        aria-hidden="true"
+                      />
+                      <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
+                        {truncate(queues?.[call.queue!]?.name
+                          ? queues?.[call.queue!]?.name + ' ' + call?.queue
+                          : t('QueueManager.Queue') + 'asikjedfgbskdibgfkisbgf', 15)}
+                      </div>
+                    </Badge>
+                    <Tooltip anchorSelect={`.tooltip-queue-${call?.queue}`}>
                       {queues?.[call.queue!]?.name
                         ? queues?.[call.queue!]?.name + ' ' + call?.queue
                         : t('QueueManager.Queue')}
-                    </div>
-                  </Badge>
-                  <Tooltip anchorSelect={`.tooltip-queue-${call?.queue}`}>
-                    {queues?.[call.queue!]?.name
-                      ? queues?.[call.queue!]?.name + ' ' + call?.queue
-                      : t('QueueManager.Queue')}{' '}
-                  </Tooltip>
-                </>
-              )}
-            </>
+                    </Tooltip>
+                  </>
+                )}
+              </div>
+            </div>
           )}
 
           {showCreateButton && (
-            <div className='relative right-[-8px]'>
-              <div className='absolute right-0'>
+            <div className={classNames('flex relative right-[-16px] h-full items-center')}>
+              <div className={classNames('absolute right-0')}>
                 <Button
                   variant="ghost"
                   className="flex gap-3 items-center py-2 px-3 border dark:border-borderDark border-borderLight ml-auto dark:hover:bg-hoverDark hover:bg-hoverLight"

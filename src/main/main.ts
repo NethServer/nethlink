@@ -116,14 +116,21 @@ if (!gotTheLock) {
     const cmd = commandLine.pop()
     if (cmd) {
       log({ cmd })
-      const [protocol, data] = cmd.split('://')
-      log(protocol, data)
-      switch (protocol) {
-        case 'nethlink': handleNethLinkProtocol(data); break;
-        case 'tel':
-        case 'callto':
-          handleTelProtocol(data);
-          break;
+      const regex = /(\w+):(?:\/\/?)?([^\/?]+(?:\/[^?]*)?(?:\?.*)?)/;
+      const match = cmd.match(regex)
+      log(match)
+      if (match) {
+        const [protocol, data] = [match[1], match[2]]
+        log(protocol, data)
+        switch (protocol) {
+          case 'nethlink':
+            handleNethLinkProtocol(data);
+            break;
+          case 'tel':
+          case 'callto':
+            handleTelProtocol(data);
+            break;
+        }
       }
     }
   })
