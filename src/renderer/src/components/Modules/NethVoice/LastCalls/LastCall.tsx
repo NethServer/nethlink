@@ -117,7 +117,7 @@ export function LastCall({
           )}
         </div>
         <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
-          <p className={`tooltip-username-${call?.username} font-medium text-[14px] leading-5`}>{truncate(call.username + 'sjedfhgsdejhfgsjhdefjusdhg', 13)}</p>
+          <p className={`tooltip-username-${call?.username} font-medium text-[14px] leading-5`}>{truncate(call.username, 13)}</p>
           <Tooltip anchorSelect={`.tooltip-username-${call?.username}`}>
             {call.username}
           </Tooltip>
@@ -197,7 +197,7 @@ export function LastCall({
                       <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
                         {truncate(queues?.[call.queue!]?.name
                           ? queues?.[call.queue!]?.name + ' ' + call?.queue
-                          : t('QueueManager.Queue') + 'asikjedfgbskdibgfkisbgf', 15)}
+                          : t('QueueManager.Queue'), 15)}
                       </div>
                     </Badge>
                     <Tooltip anchorSelect={`.tooltip-queue-${call?.queue}`}>
