@@ -4,7 +4,10 @@ copyright: 'prova copyright'
 afterSign: electron-builder-notarize
 electronLanguages:
   - en
+  - en_US
+  - en_UK
   - it
+  - it_IT
 directories:
   buildResources: build
 files:
