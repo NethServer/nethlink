@@ -1,4 +1,4 @@
-import { PAGES } from "@shared/types"
+import { Account, PAGES } from "@shared/types"
 import { log } from "./logger"
 
 const debounceEvents = {}
@@ -56,7 +56,7 @@ export const isDeepEqual = (obj1: object, obj2: object) => {
 
   if (objKeys1.length !== objKeys2.length) return false;
 
-  for (var key of objKeys1) {
+  for (const key of objKeys1) {
     const value1 = obj1[key];
     const value2 = obj2[key];
 
@@ -75,4 +75,9 @@ export const isDeepEqual = (obj1: object, obj2: object) => {
 const isObject = (object) => {
   return object != null && typeof object === "object";
 };
+
+
+export const getAccountUID = (a: Account) => {
+  return `${a.host}@${a.username}`
+}
 

@@ -9,7 +9,7 @@ import {
   faWarning as AlertIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button, TextInput } from '@renderer/components/Nethesis'
 import { Account, AuthAppData, LoginData, LoginPageData } from '@shared/types'
 import { DisplayedAccountLogin } from './DisplayedAccountLogin'
@@ -17,16 +17,12 @@ import { useStoreState } from '@renderer/store'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { IPC_EVENTS, NEW_ACCOUNT } from '@shared/constants'
 import { log } from '@shared/utils/logger'
-import { useLogin } from '@shared/useLogin'
-import { useNetwork } from '@shared/useNetwork'
-import { debouncer } from '@shared/utils/utils'
+import { debouncer, getAccountUID } from '@shared/utils/utils'
 
 export interface LoginFormProps {
   onError: (formErrors: FieldErrors<LoginData>, generalError: Error | undefined) => void
 }
-export const LoginForm = ({
-  onError
-}) => {
+export const LoginForm = ({ onError }) => {
   const { NethVoiceAPI } = useNethVoiceAPI()
   const submitButtonRef = useRef<HTMLButtonElement>(null)
   const [auth] = useStoreState<AuthAppData>('auth')
@@ -113,11 +109,16 @@ export const LoginForm = ({
             data.username,
             data.password
           )
-          window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
+
           window.electron.receive(IPC_EVENTS.SET_NETHVOICE_CONFIG, (account) => {
-            setAccount(() => account)
+            const previousLoggedAccount = auth?.availableAccounts[getAccountUID(account)]
+            setAccount(() => ({
+              ...account,
+              theme: previousLoggedAccount ? previousLoggedAccount.theme : 'system'
+            }))
             window.electron.send(IPC_EVENTS.LOGIN, data.password)
           })
+          window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
 
           setFormValues({
             host: '',
@@ -160,9 +161,13 @@ export const LoginForm = ({
 
   const handleRefreshConnection = () => {
     log('refresh', navigator.onLine)
-    debouncer('update-connection-state', () => {
-      window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
-    }, 250)
+    debouncer(
+      'update-connection-state',
+      () => {
+        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
+      },
+      250
+    )
   }
 
   const RenderError = () => {
@@ -182,7 +187,6 @@ export const LoginForm = ({
   }
 
   const RenderConnectionError = ({ handleRefreshConnection }) => {
-
     return (
       <div>
         <div className="relative flex flex-col p-4 border-l-[3px] border-amber-500 dark:border-amber-400 bg-amber-50 dark:bg-amber-900 rounded-md mb-8">
@@ -196,35 +200,22 @@ export const LoginForm = ({
             {t('Common.No internet connection description')}
           </p>
         </div>
-        <Button
-          variant='white'
-          className='w-full'
-          onClick={handleRefreshConnection}
-        >
-          {
-            t('Common.Refresh')
-          }
+        <Button variant="white" className="w-full" onClick={handleRefreshConnection}>
+          {t('Common.Refresh')}
         </Button>
       </div>
     )
   }
 
-
   return (
     <div className="mt-7">
       <p className="text-titleLight  dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2">
-        {
-          loginData?.selectedAccount
-            ? t('Login.Account List title')
-            : t('Login.New Account title')
-        }
+        {loginData?.selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
       </p>
       <p className="text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7">
-        {
-          loginData?.selectedAccount
-            ? t('Login.Account List description')
-            : t('Login.New Account description')
-        }
+        {loginData?.selectedAccount
+          ? t('Login.Account List description')
+          : t('Login.New Account description')}
       </p>
       {error && <RenderError />}
       {loginData?.selectedAccount && loginData.selectedAccount !== NEW_ACCOUNT && (
@@ -233,70 +224,68 @@ export const LoginForm = ({
           imageSrc={loginData.selectedAccount.data?.settings.avatar}
         />
       )}
-      {connection
-        ? (
-          <form onSubmit={handleSubmit(onSubmitForm)}>
-            <div className="flex flex-col gap-7">
-              {!(loginData?.selectedAccount && loginData.selectedAccount !== NEW_ACCOUNT) && (
-                <>
-                  <TextInput
-                    {...register('host')}
-                    type="text"
-                    label={t('Login.Host') as string}
-                    helper={errors.host?.message || undefined}
-                    error={!!errors.host?.message}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        submitButtonRef.current?.focus()
-                        handleSubmit(onSubmitForm)(e)
-                      }
-                    }}
-                  />
-                  <TextInput
-                    {...register('username')}
-                    type="text"
-                    label={t('Login.Username') as string}
-                    helper={errors.username?.message || undefined}
-                    error={!!errors.username?.message}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault()
-                        submitButtonRef.current?.focus()
-                        handleSubmit(onSubmitForm)(e)
-                      }
-                    }}
-                  />
-                </>
-              )
-              }
-              <TextInput
-                {...register('password')}
-                label={t('Login.Password') as string}
-                type={pwdVisible ? 'text' : 'password'}
-                icon={pwdVisible ? EyeIcon : EyeSlashIcon}
-                onIconClick={() => setPwdVisible(!pwdVisible)}
-                trailingIcon={true}
-                helper={errors.password?.message || undefined}
-                error={!!errors.password?.message}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    submitButtonRef.current?.focus()
-                    handleSubmit(onSubmitForm)(e)
-                  }
-                }}
-              />
-              <Button ref={submitButtonRef} type="submit" variant="primary">
-                {t('Login.Sign in')}
-              </Button>
-            </div>
-          </form >
-        )
-        : <div>
+      {connection ? (
+        <form onSubmit={handleSubmit(onSubmitForm)}>
+          <div className="flex flex-col gap-7">
+            {!(loginData?.selectedAccount && loginData.selectedAccount !== NEW_ACCOUNT) && (
+              <>
+                <TextInput
+                  {...register('host')}
+                  type="text"
+                  label={t('Login.Host') as string}
+                  helper={errors.host?.message || undefined}
+                  error={!!errors.host?.message}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      submitButtonRef.current?.focus()
+                      handleSubmit(onSubmitForm)(e)
+                    }
+                  }}
+                />
+                <TextInput
+                  {...register('username')}
+                  type="text"
+                  label={t('Login.Username') as string}
+                  helper={errors.username?.message || undefined}
+                  error={!!errors.username?.message}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      submitButtonRef.current?.focus()
+                      handleSubmit(onSubmitForm)(e)
+                    }
+                  }}
+                />
+              </>
+            )}
+            <TextInput
+              {...register('password')}
+              label={t('Login.Password') as string}
+              type={pwdVisible ? 'text' : 'password'}
+              icon={pwdVisible ? EyeIcon : EyeSlashIcon}
+              onIconClick={() => setPwdVisible(!pwdVisible)}
+              trailingIcon={true}
+              helper={errors.password?.message || undefined}
+              error={!!errors.password?.message}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  submitButtonRef.current?.focus()
+                  handleSubmit(onSubmitForm)(e)
+                }
+              }}
+            />
+            <Button ref={submitButtonRef} type="submit" variant="primary">
+              {t('Login.Sign in')}
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <div>
           <RenderConnectionError handleRefreshConnection={handleRefreshConnection} />
         </div>
-      }
-    </div >
+      )}
+    </div>
   )
 }

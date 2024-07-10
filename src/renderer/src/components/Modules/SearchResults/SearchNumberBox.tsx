@@ -155,12 +155,11 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
 
   return (
     <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight h-full">
-      <div className='mr-[6px]'>
+      <div className="mr-[6px]">
         <div
           className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
           onClick={() => {
-            if (isCallButtonEnabled && searchText)
-              callNumber(searchText)
+            if (isCallButtonEnabled && searchText) callNumber(searchText)
           }}
         >
           <FontAwesomeIcon
@@ -172,25 +171,29 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
           </p>
         </div>
 
-        <div
-          className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
-          onClick={() => {
-            if (canAddToPhonebook) showAddContactToPhonebook()
-          }}
-        >
-          <FontAwesomeIcon className="text-base dark:text-gray-50 text-gray-600" icon={AddUserIcon} />
-          <p className="font-normal">
-            {t('Common.Add')} {searchText?.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
-          </p>
+        <div className="group">
+          <div
+            className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
+            onClick={() => {
+              if (canAddToPhonebook) showAddContactToPhonebook()
+            }}
+          >
+            <FontAwesomeIcon
+              className="text-base dark:text-gray-50 text-gray-600"
+              icon={AddUserIcon}
+            />
+            <p className="font-normal">
+              {t('Common.Add')} {searchText?.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
+            </p>
+          </div>
+          <div className="px-4">
+            <div className="border-b dark:border-borderDark border-borderLight group-hover:border-transparent"></div>
+          </div>
         </div>
       </div>
-      <Scrollable >
+      <Scrollable>
         {filteredPhoneNumbers.map((user, index) => (
-          <SearchNumber
-            key={'SearchNumber_' + index}
-            user={user}
-            className="dark:hover:bg-hoverDark hover:bg-hoverLight"
-          />
+          <SearchNumber key={'SearchNumber_' + index} user={user} />
         ))}
       </Scrollable>
     </div>

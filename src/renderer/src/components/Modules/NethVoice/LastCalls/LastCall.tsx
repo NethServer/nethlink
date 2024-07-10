@@ -7,7 +7,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Avatar, Button } from '../../../Nethesis'
 import { NumberCaller } from '../../../NumberCaller'
 import { useEffect, useState } from 'react'
-import { Account, CallData, ContactType, LastCallData, OperatorData, QueuesType } from '@shared/types'
+import {
+  Account,
+  CallData,
+  ContactType,
+  LastCallData,
+  OperatorData,
+  QueuesType
+} from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from '../../../Nethesis/CallsDate'
 import { truncate } from '@renderer/utils'
@@ -78,15 +85,16 @@ export function LastCall({
     handleSelectedCallContact(
       (call.direction === 'in' ? call.src : call.dst) || '',
       call.direction === 'out'
-        ? (call?.dst_cnam || call?.dst_ccompany)
+        ? call?.dst_cnam || call?.dst_ccompany
         : call.direction === 'in'
-          ? (call?.cnam || call?.ccompany)
-          : undefined)
+          ? call?.cnam || call?.ccompany
+          : undefined
+    )
     showContactForm()
   }
 
   return (
-    <div className='group'>
+    <div className="group">
       <div
         className={`flex flex-grow gap-3 min-h-[72px] p-2 ${className}`}
         onMouseEnter={() => {
@@ -99,9 +107,13 @@ export function LastCall({
           clearNotification(call)
         }}
       >
-        {call.hasNotification && <div className={`relative w-0 h-0 z-0 overflow-visible mr-[-12px]`}>
-          <div className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-bgDark border-bgLight dark:group-hover:border-hoverDark group-hover:border-hoverLight`} />
-        </div>}
+        {call.hasNotification && (
+          <div className={`relative w-0 h-0 z-0 overflow-visible mr-[-12px]`}>
+            <div
+              className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-bgDark border-bgLight dark:group-hover:border-hoverDark group-hover:border-hoverLight`}
+            />
+          </div>
+        )}
         <div className="flex flex-col h-full min-w-6 pt-[6px] z-10">
           {avatarSrc ? (
             <Avatar
@@ -117,43 +129,38 @@ export function LastCall({
           )}
         </div>
         <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
-          <p className={`tooltip-username-${call?.username} font-medium text-[14px] leading-5`}>{truncate(call.username, 13)}</p>
-          <Tooltip anchorSelect={`.tooltip-username-${call?.username}`}>
-            {call.username}
-          </Tooltip>
+          <p className={`tooltip-username-${call?.username} font-medium text-[14px] leading-5`}>
+            {truncate(call.username, 13)}
+          </p>
+          <Tooltip anchorSelect={`.tooltip-username-${call?.username}`}>{call.username}</Tooltip>
           <div className="flex flex-row gap-2 items-center">
-            <div
-              className={`h-4 w-4 call_${call.uniqueid?.replace('.', '_')}`}
-            >
-              {
-                call.disposition === 'NO ANSWER'
-                  ? (call.direction === 'in'
-                    ? <InCallNotAnsweredIcon />
-                    : <OutCallNotAnsweredIcon />
-                  )
-                  : (call.direction === 'in'
-                    ? <InCallAnsweredIcon />
-                    : <OutCallAnsweredIcon />
-                  )
-              }
+            <div className={`h-4 w-4 call_${call.uniqueid?.replace('.', '_')}`}>
+              {call.disposition === 'NO ANSWER' ? (
+                call.direction === 'in' ? (
+                  <InCallNotAnsweredIcon />
+                ) : (
+                  <OutCallNotAnsweredIcon />
+                )
+              ) : call.direction === 'in' ? (
+                <InCallAnsweredIcon />
+              ) : (
+                <OutCallAnsweredIcon />
+              )}
             </div>
             <Tooltip
               anchorSelect={`.call_${call.uniqueid?.replace('.', '_')}`}
-              place='right'
-              className='z-10'
+              place="right"
+              className="z-10"
               opacity={1}
               noArrow={false}
             >
               {call.disposition === 'NO ANSWER'
-                ? (call.direction === 'in'
+                ? call.direction === 'in'
                   ? t('History.Incoming missed')
                   : t('History.Outgoing missed')
-                )
-                : (call.direction === 'in'
+                : call.direction === 'in'
                   ? t('History.Incoming answered')
-                  : t('History.Outgoing answered')
-                )
-              }
+                  : t('History.Outgoing answered')}
             </Tooltip>
             <NumberCaller
               number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
@@ -173,8 +180,8 @@ export function LastCall({
 
         <div className="flex flex-col justify-between ml-auto items-center">
           {call.channel?.includes('from-queue') && (
-            <div className='absolute w-0 overflow-visible flex flex-row-reverse '>
-              <div className='relative right-[-16px]'>
+            <div className="absolute w-0 overflow-visible flex flex-row-reverse ">
+              <div className="relative right-[-16px]">
                 {isQueueLoading ? (
                   <Badge
                     variant="offline"
@@ -195,9 +202,12 @@ export function LastCall({
                         aria-hidden="true"
                       />
                       <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
-                        {truncate(queues?.[call.queue!]?.name
-                          ? queues?.[call.queue!]?.name + ' ' + call?.queue
-                          : t('QueueManager.Queue'), 15)}
+                        {truncate(
+                          queues?.[call.queue!]?.name
+                            ? queues?.[call.queue!]?.name + ' ' + call?.queue
+                            : t('QueueManager.Queue'),
+                          15
+                        )}
                       </div>
                     </Badge>
                     <Tooltip anchorSelect={`.tooltip-queue-${call?.queue}`}>

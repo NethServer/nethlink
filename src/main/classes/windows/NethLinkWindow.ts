@@ -7,7 +7,7 @@ import { NethLinkPageSize } from '@shared/constants'
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
   size: { w: number; h: number } | undefined
-  screenBounds: Electron.Rectangle
+
   constructor() {
     super(PAGES.NETHLINK, {
       width: NethLinkPageSize.w,
@@ -35,22 +35,30 @@ export class NethLinkWindow extends BaseWindow {
       trafficLightPosition: { x: 0, y: 0 }
     })
     this.size = NethLinkPageSize
-    this.screenBounds = screen.getPrimaryDisplay().bounds
     NethLinkWindow.instance = this
   }
 
   _setBounds() {
+    const MARGIN = 8
+    const LINUXBARHEIGHT = 32
+    const MACBARHEIGHT = 25
+    const WINDOWSBARHEIGHT = 40
+    const screenBounds: Electron.Rectangle = screen.getPrimaryDisplay().bounds
     const { w, h } = this.size!
-    let x = this.screenBounds.width - w - 8
-    let y = 16
+    let x = screenBounds.width - w - MARGIN
+    let y = 0
     if (process.platform === 'win32') {
       const trayBounds = TrayController.instance.tray.getBounds()
-      y = this.screenBounds.height - h - 60
+      y = screenBounds.height - h - WINDOWSBARHEIGHT - MARGIN
     }
     if (process.platform === 'linux') {
-      x = this.screenBounds.x + this.screenBounds.width - w - 12
-      y = this.screenBounds.y + 36
+      x = screenBounds.x + screenBounds.width - w - MARGIN
+      y = screenBounds.y + LINUXBARHEIGHT + MARGIN
     }
+    if (process.platform === 'darwin') {
+      y = screenBounds.y + MACBARHEIGHT + MARGIN
+    }
+
     const bound = { x, y, w, h }
     this._window?.setBounds(bound, false)
   }

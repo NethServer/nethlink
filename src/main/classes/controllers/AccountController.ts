@@ -7,7 +7,7 @@ import { store, useStoreState } from '@/lib/mainStore'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
-import { isDev } from '@shared/utils/utils'
+import { getAccountUID, isDev } from '@shared/utils/utils'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -41,9 +41,7 @@ export class AccountController {
   }
 
 
-  private _getAccountUID = (a: Account) => {
-    return `${a.host}@${a.username}`
-  }
+
 
   async logout() {
     store.updateStore({
@@ -53,9 +51,10 @@ export class AccountController {
         lastUserCryptPsw: undefined
       },
       account: undefined,
-      theme: 'system',
+      theme: store.store.theme,
       connection: store.store['connection'] || false
     })
+    store.saveToDisk()
   }
 
   async tokenLogin(): Promise<boolean> {
@@ -79,7 +78,10 @@ export class AccountController {
           const decryptString = safeStorage.decryptString(psw)
           const _accountData = JSON.parse(decryptString)
           const password = _accountData.password
-          let loggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
+          //let loggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
+          const tempLoggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
+          let loggedAccount: Account = { ...tempLoggedAccount, theme: lastLoggedAccount.theme }
+
           const { parseConfig } = useLogin()
           const config: string = await NetworkController.instance.get(`https://${loggedAccount.host}/config/config.production.js`)
           loggedAccount = parseConfig(loggedAccount, config)
@@ -99,7 +101,7 @@ export class AccountController {
       //
       const clearString = JSON.stringify({ host: account.host, username: account.username, password: password })
       const cryptString = safeStorage.encryptString(clearString)
-      const accountUID = this._getAccountUID(account)
+      const accountUID = getAccountUID(account)
       store.updateStore({
         account,
         theme: account.theme,
@@ -123,21 +125,23 @@ export class AccountController {
     }
   }
 
+
+
   updateTheme(theme: any) {
-    const [account, setAccount] = useStoreState<Account>('account')
-    const [_auth, setAuth] = useStoreState<AuthAppData>('auth')
+    const account = store.store.account
+    store.set('theme', theme)
     if (account) {
-      account!.theme = theme
-      setAccount(() => account)
-      setAuth((p) => ({
-        ...p,
-        availableAccounts: {
-          ...p.availableAccounts,
-          [this._getAccountUID(account)]: account
-        }
-      }))
+      account.theme = theme
+
+      store.set('account', account)
+      const auth = store.store.auth
+
+      auth!.availableAccounts[getAccountUID(account)] = account
+      store.set('auth', auth)
     }
   }
+
+
 
   getAccountPhoneIslandPosition(): { x: number; y: number } | undefined {
     return store.store['account']?.phoneIslandPosition
@@ -153,7 +157,7 @@ export class AccountController {
         ...auth,
         availableAccounts: {
           ...auth?.availableAccounts,
-          [this._getAccountUID(account)]: account
+          [getAccountUID(account)]: account
         }
       }
       store.set('auth', _auth)

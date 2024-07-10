@@ -141,8 +141,13 @@ nativeTheme.on('updated', () => {
   const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
     ? 'dark'
     : 'light'
+
+  if (store.store.account?.theme === 'dark' || store.store.account?.theme === 'light') {
+    store.set('theme', store.store.account?.theme)
+  } else {
+    store.set('theme', updatedSystemTheme)
+  }
   //update theme state on the store
-  store.set('theme', updatedSystemTheme)
   TrayController.instance.changeIconByTheme(updatedSystemTheme)
 })
 
@@ -251,7 +256,11 @@ function handleTelProtocol(url: string): Promise<Response> {
     .replace(/callto:\/\//g, '')
     .replace(/\//g, '')
   isDev() && log('TEL:', tel)
-  PhoneIslandController.instance.call(tel)
+  try {
+    PhoneIslandController.instance.call(tel)
+  } catch (e) {
+    log(e)
+  }
   return new Promise((resolve) => resolve)
 }
 

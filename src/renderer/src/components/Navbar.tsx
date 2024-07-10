@@ -14,16 +14,16 @@ import { Avatar } from './Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
 import { Account, AvailableThemes, OperatorData } from '@shared/types'
 import { t } from 'i18next'
-import { Button, StatusDot } from './Nethesis'
-import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
+import { StatusDot } from './Nethesis'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { debouncer, isDev } from '@shared/utils/utils'
+import { debouncer, getAccountUID, isDev } from '@shared/utils/utils'
 import { useStoreState } from '@renderer/store'
-import { useState } from 'react'
+import { createRef, useState } from 'react'
 import { useTheme } from '@renderer/theme/Context'
 import { PresenceBox } from './Modules/NethVoice/Presence/PresenceBox'
 import classNames from 'classnames'
 import { truncate } from 'lodash'
+import { log } from '@shared/utils/logger'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -38,14 +38,27 @@ const themeOptions = [
 export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const { theme: nethTheme } = useTheme()
   const { status } = useAccount()
-  const [account] = useStoreState<Account>('account')
+  const [account, setAccount] = useStoreState<Account>('account')
+  const [auth, setAuth] = useStoreState('auth')
   const [operators] = useStoreState<OperatorData>('operators')
   const [theme, setTheme] = useStoreState<AvailableThemes>('theme')
   const [isPresenceDialogVisible, setIsPresenceDialogVisible] = useState(false)
 
+  const btnRef = createRef<HTMLButtonElement>()
+
   function handleSetTheme(theme) {
-    setTheme(theme)
+    setTheme(() => theme)
+    const updatedAccount = { ...account!, theme: theme }
+    setAccount(() => updatedAccount)
+    setAuth((p) => ({
+      ...p,
+      availableAccounts: {
+        ...p.availableAccounts,
+        [getAccountUID(updatedAccount as Account)]: updatedAccount
+      }
+    }))
   }
+
   function handleGoToNethVoicePage() {
     window.api.openHostPage('/')
   }
@@ -85,6 +98,19 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
               />
             </Listbox.Button>
             <Listbox.Options
+              onBlur={(e) => {
+                const el: HTMLButtonElement = e.target.parentElement!
+                  .children[0]! as HTMLButtonElement
+                el.addEventListener(
+                  'focus',
+                  (e) => {
+                    ;(e.target! as HTMLButtonElement).blur()
+                  },
+                  {
+                    once: true
+                  }
+                )
+              }}
               className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight rounded-lg mt-2 fixed min-w-[225px] min-h-[145px] z-[200] translate-x-[calc(-100%+36px)]`}
             >
               <p className="dark:text-titleDark text-titleLight text-xs leading-[18px] py-1 px-4 mt-1">
@@ -97,10 +123,10 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                   className="cursor-pointer"
                 >
                   <div
-                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2 ${theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'} ${availableTheme.name === 'dark' ? 'dark:hover:rounded-bl-[8px] dark:hover:rounded-br-[8px] hover:rounded-bl-[8px] hover:rounded-br-[8px]' : ''}`}
+                    className={`flex flex-row items-center gap-4 dark:text-gray-50 text-gray-700 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2 ${account.theme === availableTheme.name ? 'py-2 px-4' : 'py-2 pr-4 pl-12'} ${availableTheme.name === 'dark' ? 'dark:hover:rounded-bl-[8px] dark:hover:rounded-br-[8px] hover:rounded-bl-[8px] hover:rounded-br-[8px]' : ''}`}
                     onClick={() => handleSetTheme(availableTheme.name)}
                   >
-                    {theme === availableTheme.name && (
+                    {account.theme === availableTheme.name && (
                       <FontAwesomeIcon
                         className="dark:text-textBlueDark text-textBlueLight"
                         style={{ fontSize: '16px' }}
@@ -140,6 +166,19 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
               />
             </Menu.Button>
             <Menu.Items
+              onBlur={(e) => {
+                const el: HTMLButtonElement = e.target.parentElement!
+                  .children[0]! as HTMLButtonElement
+                el.addEventListener(
+                  'focus',
+                  (e) => {
+                    ;(e.target! as HTMLButtonElement).blur()
+                  },
+                  {
+                    once: true
+                  }
+                )
+              }}
               static={isPresenceDialogVisible}
               className={`dark:bg-bgDark bg-bgLight border dark:border-borderDark border-borderLight mt-2 pb-2 fixed rounded-lg min-w-[225px] min-h-[125px] z-[200] translate-x-[calc(-100%+36px)]`}
             >

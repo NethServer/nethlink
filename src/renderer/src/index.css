@@ -42,7 +42,7 @@
 
 .light ::-webkit-scrollbar-thumb {
   width: 5px;
-  background-color: #374151;
+  background-color: #d1d5db;
   -webkit-app-region: no-drag;
   border-radius: 9999px;
 }
