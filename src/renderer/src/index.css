@@ -9,7 +9,6 @@
 }
 
 #phone-island-container {
-
   .draggableAnchor,
   .pi-absolute,
   .pi-pointer-events-auto {
@@ -24,8 +23,10 @@
     -webkit-app-region: no-drag !important;
   }
 
-  .pi-absolute.pi-w-full.pi-bg-gray-500.pi-flex.pi-justify-between.-pi-mt-10.-pi-z-10.pi-font-sans.pi-items-top.pi-px-4.pi-pt-3>*,
-  .pi-absolute.pi-w-full.pi-bg-gray-500.pi-flex.pi-justify-between.-pi-mt-10.-pi-z-10.pi-font-sans.pi-items-top.pi-px-6.pi-pt-3>* {
+  .pi-absolute.pi-w-full.pi-bg-gray-500.pi-flex.pi-justify-between.-pi-mt-10.-pi-z-10.pi-font-sans.pi-items-top.pi-px-4.pi-pt-3
+    > *,
+  .pi-absolute.pi-w-full.pi-bg-gray-500.pi-flex.pi-justify-between.-pi-mt-10.-pi-z-10.pi-font-sans.pi-items-top.pi-px-6.pi-pt-3
+    > * {
     -webkit-app-region: no-drag !important;
     cursor: pointer !important;
     pointer-events: all;
@@ -41,9 +42,9 @@
 
 .light ::-webkit-scrollbar-thumb {
   width: 5px;
-  background-color: #374151;
+  background-color: #d1d5db;
   -webkit-app-region: no-drag;
-  border-radius: 6px;
+  border-radius: 9999px;
 }
 
 .dark ::-webkit-scrollbar {
@@ -56,7 +57,7 @@
   width: 5px;
   background-color: #374151;
   -webkit-app-region: no-drag;
-  border-radius: 6px;
+  border-radius: 9999px;
 }
 
 * {

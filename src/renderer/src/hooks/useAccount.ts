@@ -1,22 +1,26 @@
 import { Account, OperatorData, StatusTypes } from "@shared/types"
-import { useSubscriber } from "./useSubscriber"
 import { useEffect, useState } from "react"
 import { log } from "@shared/utils/logger"
+import { useStoreState } from "@renderer/store"
 
 export const useAccount = () => {
-  const account = useSubscriber<Account>('user')
-  const operators = useSubscriber<OperatorData>('operators')
+  const [account] = useStoreState<Account>('account')
 
   const [status, setStatus] = useState<StatusTypes>('offline')
   const [isCallsEnabled, setIsCallsEnabled] = useState<boolean>(false)
 
   useEffect(() => {
-    const _status: StatusTypes = operators?.operators?.[account.username]?.mainPresence || account.data?.mainPresence || status
-    log('STATUS', _status, account, operators)
-    setStatus(() => _status)
-    setIsCallsEnabled(() => !(_status === 'busy' || _status === 'ringing' || _status === 'dnd' || _status === 'offline'))
+    if (account) {
 
-  }, [account, operators])
+      const _status: StatusTypes = account.data?.mainPresence || status
+      setStatus(() => _status)
+      setIsCallsEnabled(() => !(_status === 'busy' || _status === 'ringing' || _status === 'dnd' || _status === 'offline'))
+    } else {
+      setStatus('offline')
+      setIsCallsEnabled(false)
+    }
+
+  }, [account?.data])
 
 
   return {

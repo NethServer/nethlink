@@ -1,11 +1,11 @@
-import { Account, PhoneIslandConfig } from '@shared/types'
 import { PhoneIslandWindow } from '../windows'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
 import { log } from '@shared/utils/logger'
-import { NethVoiceAPI } from './NethCTIController'
 import { AccountController } from './AccountController'
-import { ipcMain, screen } from 'electron'
-import { debouncer } from '@shared/utils/utils'
+import { debouncer, isDev } from '@shared/utils/utils'
+import { once } from '@/lib/ipcEvents'
+import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
+import { store } from '@/lib/mainStore'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -14,35 +14,6 @@ export class PhoneIslandController {
   constructor() {
     PhoneIslandController.instance = this
     this.window = new PhoneIslandWindow()
-  }
-
-  async login(account: Account) {
-    const API = NethVoiceAPI.api()
-    log('API', API.Authentication)
-    const phoneIslandTokenLoginResponse = await API.Authentication.phoneIslandTokenLogin()
-    this.updateDataConfig(phoneIslandTokenLoginResponse.token, account)
-  }
-
-  private updateDataConfig(token: string, account: Account) {
-    const nethlinkExtension = account!.data!.endpoints.extension.find((el) => el.type === 'nethlink')
-    if (nethlinkExtension && account) {
-      const hostname = account!.host.split('://')[1]
-      const config: PhoneIslandConfig = {
-        hostname,
-        username: account.username,
-        authToken: token,
-        sipExten: nethlinkExtension.id,
-        sipSecret: nethlinkExtension.secret,
-        sipHost: account.sipHost || '',
-        sipPort: account.sipPort || ''
-      }
-      const dataConfig = btoa(
-        `${config.hostname}:${config.username}:${config.authToken}:${config.sipExten}:${config.sipSecret}:${config.sipHost}:${config.sipPort}`
-      )
-      this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, dataConfig, account)
-    } else {
-      throw new Error('Incorrect configuration for the logged user')
-    }
   }
 
   resize(w: number, h: number) {
@@ -58,28 +29,48 @@ export class PhoneIslandController {
 
   showPhoneIsland() {
     try {
-      const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
+      const phoneIslandPosition = store.store['account']?.phoneIslandPosition
       const window = this.window.getWindow()
+      const windowBounds = window?.getBounds()
+      const bounds = PHONE_ISLAND_RESIZE.get(PHONE_ISLAND_EVENTS['phone-island-call-ringing'])!(
+        store.store.phoneIslandPageData?.isExpanded ?? true,
+        store.store.phoneIslandPageData?.isMinimized ?? false,
+        store.store.phoneIslandPageData?.isDisconnected ?? false
+      )
 
-      if (phoneIslandPosition) {
-        const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
-          const area = display.workArea
-          return (
-            result ||
-            (phoneIslandPosition.x >= area.x &&
-              phoneIslandPosition.y >= area.y &&
-              phoneIslandPosition.x + 420 < area.x + area.width &&
-              phoneIslandPosition.y + 98 < area.y + area.height)
-          )
-        }, false)
-        if (isPhoneIslandOnDisplay) {
-          window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
-        } else {
-          window?.center()
-        }
-      } else {
-        window?.center()
-      }
+      window?.setBounds({
+        height: bounds.h,
+        width: bounds.w,
+      })
+
+      // if (phoneIslandPosition) {
+      //   const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
+      //     const area = display.workArea
+      //     isDev() && log({
+      //       area,
+      //       phoneIslandPosition,
+      //       x: phoneIslandPosition.x >= area.x,
+      //       y: phoneIslandPosition.y >= area.y,
+      //       w: (phoneIslandPosition.x + bounds.w) < (area.x + area.width),
+      //       h: (phoneIslandPosition.y + bounds.h) < (area.y + area.height)
+      //     })
+      //     return (
+      //       result ||
+      //       (phoneIslandPosition.x >= area.x &&
+      //         phoneIslandPosition.y >= area.y &&
+      //         (phoneIslandPosition.x + bounds.w) < (area.x + area.width) &&
+      //         (phoneIslandPosition.y + bounds.h) < (area.y + area.height))
+      //     )
+      //   }, false)
+      //   if (isPhoneIslandOnDisplay) {
+      //     window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
+      //   } else {
+      //     window?.center()
+      //   }
+      // } else {
+      //window?.setBounds({}, false)
+      window?.center()
+      //}
       window?.show()
     } catch (e) {
       log(e)
@@ -102,27 +93,31 @@ export class PhoneIslandController {
     }
   }
 
-  call(number: string) {
-    this.window.emit(IPC_EVENTS.EMIT_START_CALL, number)
-    this.showPhoneIsland()
-  }
-
-  async logout(account: Account) {
-    let isResolved = false
+  logout() {
     return new Promise<void>((resolve, reject) => {
-      this.window.emit(IPC_EVENTS.ON_DATA_CONFIG_CHANGE, undefined, account)
       try {
-        ipcMain.on(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], () => {
-          this.hidePhoneIsland()
-          isResolved = true
+        this.window.emit(IPC_EVENTS.LOGOUT)
+        once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
+          this.window.quit()
           resolve()
         })
-        setTimeout(() => {
-          if (!isResolved) reject(new Error('timeout logout'))
-        }, 5000)
       } catch (e) {
-        reject(e)
+        log(e)
+        reject()
       }
     })
   }
+  call(number: string) {
+    const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
+    NethVoiceAPI.User.me().then((me) => {
+      isDev() && log('me before call start', { me })
+      this.window.emit(IPC_EVENTS.START_CALL, number)
+      this.showPhoneIsland()
+    })
+  }
+
+  reconnect() {
+    this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
+  }
+
 }

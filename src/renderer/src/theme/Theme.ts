@@ -11,7 +11,7 @@ const theme = {
     white:
       'border shadow-sm border-gray-300 dark:border-gray-500 bg-transparent dark:bg-transparent text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:focus:ring-primaryDark focus:ring-2 focus:ring-offset-2',
     ghost:
-      'border-gray-300 text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 dark:hover:bg-gray-600 hover:bg-gray-200 dark:focus:ring-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:focus:ring-blue-200',
+      'border-gray-300 text-primary dark:text-primaryDark hover:bg-hoverLight dark:hover:bg-hoverDark dark:focus:ring-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:focus:ring-blue-200',
     dashboard:
       'border-gray-300 text-primary dark:text-primaryDark hover:bg-gray-200 dark:border-gray-600  dark:hover:bg-gray-700 dark:hover:disabled:bg-transparent hover:disabled:bg-transparent dark:focus:ring-primaryDark',
     danger:
@@ -138,10 +138,10 @@ const theme = {
   status: {
     available: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
-        dot: 'bg-emerald-500 dark:bg-emerald-500',
+        dot: 'bg-green-500 dark:bg-green-500',
       },
       card: {
         border: 'border-green-500 dark:border-green-500',
@@ -149,13 +149,13 @@ const theme = {
     },
     online: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
       },
       card: {
-        border: 'border-emerald-500 dark:border-emerald-500',
+        border: 'border-green-500 dark:border-green-500',
       },
     },
     dnd: {
@@ -171,7 +171,7 @@ const theme = {
     },
     voicemail: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
@@ -182,7 +182,7 @@ const theme = {
     },
     cellphone: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
@@ -193,7 +193,7 @@ const theme = {
     },
     callforward: {
       badge: {
-        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
+        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
@@ -462,6 +462,22 @@ const theme = {
   datePicker: {
     base: 'bg-white border-gray-300 dark:bg-gray-900 dark:border-gray-600 dark:disabled:bg-gray-900 dark:disabled:border-gray-700 dark:disabled:text-gray-400 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-100 disabled:bg-gray-50 disabled:border-gray-200 disabled:cursor-not-allowed disabled:text-gray-500 focus:border-primaryLight focus:ring-primaryLight placeholder:text-gray-400 placeholder:text-gray-500 rounded-md sm:text-sm text-gray-900 w-full',
   },
+  connectionErrorDialog: {
+    backdrop: {
+      base: 'absolute bg-black dark:bg-white overflow-visible z-[100] opacity-20 flex items-center',
+      variant: {
+        splashscreen: 'top-0 left-0 h-full w-full rounded-2xl',
+        nethlink: 'top-[32px] left-0 h-[calc(100%-32px)] w-full rounded-b-lg'
+      }
+    },
+    dialog: {
+      base: 'absolute top-[32px] left-0 w-full h-[calc(100%-32px)] flex items-center',
+      variant: {
+        splashscreen: '',
+        nethlink: ''
+      }
+    }
+  }
 }
 
 export default theme

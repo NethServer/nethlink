@@ -60,6 +60,7 @@ export default {
         //background
         bgLight: '#f9fafb', // gray-50
         bgDark: '#111827', // gray-900
+        bgEmerald: '#15803D', // gray-900
 
         //modal
         bgAmberLight: '#fef3c7', //amber-100

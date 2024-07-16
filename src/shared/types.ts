@@ -1,3 +1,5 @@
+import { MENU_ELEMENT, NEW_ACCOUNT } from "./constants"
+
 export type AvailableThemes = 'system' | 'light' | 'dark'
 
 export enum PAGES {
@@ -8,6 +10,10 @@ export enum PAGES {
   DEVTOOLS = "devtoolspage"
 
 }
+
+export type StateType<T> = [(T | undefined), (value: T | undefined) => void]
+export type UseStoreStateType = <T>(selector: keyof LocalStorageData) => [T | undefined, (arg0: T | ((ex: T) => T | undefined) | undefined) => void]
+
 export type Account = {
   username: string
   accessToken?: string
@@ -17,11 +23,18 @@ export type Account = {
   phoneIslandPosition?: { x: number; y: number }
   sipPort?: string
   sipHost?: string
+  voiceEndpoint?: string
   numeric_timezone?: string
   timezone?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData,
-  cryptPsw?: Buffer
+}
+
+
+export type LoginData = {
+  host: string
+  username: string
+  password: string
 }
 
 export type ConfigFile = {
@@ -73,7 +86,8 @@ export type AccountData = BaseAccountData & {
     outbound_routes_permissions: OutboundRoutePermission[]
   }
   default_device: Extension
-  settings: UserSettings
+  settings: UserSettings,
+  mainextension?: string
 }
 
 export type BaseEndpoint = {
@@ -172,6 +186,8 @@ export type CallData = {
   direction?: string
   queue?: string
 }
+
+export type LastCallData = CallData & { username: string, hasNotification: boolean }
 
 export type StatusTypes =
   | 'available'
@@ -322,11 +338,87 @@ export type QueuesType = {
 
 export type PageType = {
   query: string
+  page: keyof typeof PAGES | 'main'
   props: {
-    appVersion?: string
+    appVersion?: string,
+    page: keyof typeof PAGES | 'main'
   }
 }
 
 
 export type Size = { w: number; h: number }
 
+export type LocalStorageData = {
+  account?: Account,
+  auth?: AuthAppData,
+  page?: PageType,
+  operators?: OperatorData,
+  queues?: QueuesType,
+  lastCalls?: CallData[],
+  speeddials?: ContactType[],
+  theme?: AvailableThemes,
+  loginPageData?: LoginPageData,
+  nethLinkPageData?: NethLinkPageData,
+  phoneIslandPageData?: PhoneIslandPageData,
+  missedCalls?: CallData[],
+  notifications?: NotificationData,
+  lostCallNotifications?: CallData[],
+  connection?: boolean
+}
+
+export type PhoneIslandPageData = {
+  isExpanded: boolean,
+  isMinimized: boolean,
+  isDisconnected: boolean
+}
+
+export type LoginPageData = {
+  selectedAccount?: Account | typeof NEW_ACCOUNT
+  isLoading: boolean
+  windowHeight?: number
+}
+
+export type AuthAppData = {
+  lastUser: string | undefined,
+  lastUserCryptPsw?: Buffer
+  isFirstStart: boolean,
+  availableAccounts: {
+    [accountUID: string]: Account
+  }
+}
+export type NethLinkPageData = {
+  selectedSidebarMenu: MENU_ELEMENT,
+  showPhonebookSearchModule?: boolean,
+  showAddContactModule?: boolean,
+  speeddialsModule?: SpeedDialModuleData
+  phonebookSearchModule?: PhonebookSearchModuleData
+  phonebookModule?: PhonebookModuleData,
+}
+
+export type SpeedDialModuleData = {
+  selectedSpeeDial?: ContactType
+}
+
+export type PhonebookSearchModuleData = {
+  searchText?: string | null,
+}
+
+export type PhonebookModuleData = {
+  selectedContact?: SelectedContact
+}
+
+export type SelectedContact = {
+  number?: string
+  company?: string
+}
+
+
+export type NotificationData = {
+  system: {
+    update: NotificationItem
+  }
+}
+
+export type NotificationItem = {
+  message: string,
+}

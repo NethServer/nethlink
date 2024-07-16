@@ -1,334 +1,132 @@
-import { Account } from '@shared/types'
+import { AuthAppData, LoginData, LoginPageData } from '@shared/types'
 import classNames from 'classnames'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
-import { useForm, SubmitHandler } from 'react-hook-form'
 import spinner from '../assets/loginPageSpinner.svg'
 import darkHeader from '../assets/nethlinkDarkHeader.svg'
 import lightHeader from '../assets/nethlinkLightHeader.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowLeft as ArrowIcon,
-  faEye as EyeIcon,
-  faEyeSlash as EyeSlashIcon,
   faXmark as CrossIcon,
-  faXmarkCircle as ErrorIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { TextInput } from '@renderer/components/Nethesis/TextInput'
-import { DisplayedAccountLogin } from '@renderer/components/DisplayedAccountLogin'
-import { useInitialize } from '@renderer/hooks/useInitialize'
-import { log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { Button } from '@renderer/components/Nethesis'
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+
 import './LoginPage.css'
+import { useStoreState } from '@renderer/store'
+import { AvailableAccountList, LoginForm } from '@renderer/components/pageComponents'
+import { NEW_ACCOUNT } from '@shared/constants'
+import { log } from '@shared/utils/logger'
+import { FieldErrors } from 'react-hook-form'
 
 export interface LoginPageProps {
   themeMode: string
 }
 
-type LoginData = {
-  host: string
-  username: string
-  password: string
+enum LoginSizes {
+  BASE = 550,
+  ACCOUNT_FORM = 488,
+  BACK_BUTTON = 60,
+  INPUT_ERROR = 22,
+  LOGIN_FAILURE = 104,
+  ONE_ACCOUNT = 375,
+  TWO_ACCOUNT = 455,
+  MULTIPLE_ACCOUNT = 535,
+  CONNECTION_FAILURE_NO_ACCOUNTS = 380,
+  CONNECTION_FAILURE_ON_ACCOUNT_FORM = 500,
+  CONNECTION_FAILURE_BASE = 388
 }
 
-const NEW_ACCOUNT = 'New Account'
-
+type ErrorsData = {
+  formErrors: FieldErrors<LoginData>,
+  generalError: Error | undefined
+}
 export function LoginPage({ themeMode }: LoginPageProps) {
-  const [availableAccounts, setAvailableAccounts] = useState<Account[]>([])
-  const [selectedAccount, setSelectedAccount] = useState<Account | typeof NEW_ACCOUNT>()
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [loginError, setLoginError] = useState<Error | undefined>(undefined)
-  const [pwdVisible, setPwdVisible] = useState<boolean>(false)
-  const windowHeight = useRef<number>(0)
+
+
+  const [auth] = useStoreState<AuthAppData>('auth')
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
-  const submitButtonRef = useRef<HTMLButtonElement>(null)
-
-  const schema: z.ZodType<LoginData> = z.object({
-    host: z
-      .string()
-      .trim()
-      .min(1, `${t('Common.This field is required')}`),
-    username: z
-      .string()
-      .trim()
-      .min(1, `${t('Common.This field is required')}`),
-    password: z
-      .string()
-      .trim()
-      .min(1, `${t('Common.This field is required')}`)
-  })
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    setFocus,
-    formState: { errors }
-  } = useForm<LoginData>({
-    defaultValues: {
-      host: '',
-      username: '',
-      password: ''
-    },
-    resolver: zodResolver(schema)
-  })
-
-  const isFirstLogin = availableAccounts.length === 0
-
-  useInitialize(() => {
-    window.api.onLoadAccounts((accounts: Account[]) => {
-      setAvailableAccounts(accounts)
-      log(windowHeight.current)
-      setTimeout(() => {
-        log(loginWindowRef.current?.clientHeight)
-        windowHeight.current = loginWindowRef.current?.clientHeight || 0
-      }, 250)
-    })
-  }, true)
+  const [loginData, setLoginData] = useStoreState<LoginPageData>('loginPageData')
+  const [connection] = useStoreState<boolean>('connection')
+  const [errorsData, setErrorsData] = useState<ErrorsData>()
 
   useEffect(() => {
-    const errorCount = Object.keys(errors).filter((key) => errors[key]).length
-    console.log(errorCount)
-    const additionalHeight = errorCount * 18
-    if (isFirstLogin) {
-      if (loginError) {
-        window.api.resizeLoginWindow(570 + additionalHeight + 100)
-      } else window.api.resizeLoginWindow(570 + additionalHeight)
-    } else {
-      if (selectedAccount) {
-        if (selectedAccount === NEW_ACCOUNT) {
-          if (loginError) {
-            window.api.resizeLoginWindow(620 + additionalHeight + 100)
-          } else window.api.resizeLoginWindow(620 + additionalHeight)
-        } else {
-          if (loginError) {
-            window.api.resizeLoginWindow(515 + 18 + 100)
-          } else window.api.resizeLoginWindow(515 + 18)
+    let loginWindowHeight = 0
+    const accounts = Object.keys(auth?.availableAccounts || {})
+    const errorCount = Object.values(errorsData?.formErrors || {}).filter((v) => v.message).length
+    //Login form is shown
+    if (loginData?.selectedAccount) {
+      if (loginData.selectedAccount === NEW_ACCOUNT) {
+        loginWindowHeight = LoginSizes.BASE
+        if (!connection)
+          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_BASE
+        if (!auth?.isFirstStart) {
+          loginWindowHeight += LoginSizes.BACK_BUTTON - 24
         }
+      } else {
+        loginWindowHeight = LoginSizes.ACCOUNT_FORM
+        if (!connection)
+          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_ON_ACCOUNT_FORM
       }
+    } else {
+      //List of account is shown
+      switch (accounts.length) {
+        case 0:
+          loginWindowHeight = LoginSizes.BASE
+          if (!auth?.isFirstStart) {
+            loginWindowHeight += LoginSizes.BACK_BUTTON
+          }
+          break
+        case 1:
+          loginWindowHeight = LoginSizes.ONE_ACCOUNT
+          break
+        case 2:
+          loginWindowHeight = LoginSizes.TWO_ACCOUNT
+          break
+        default:
+          loginWindowHeight = LoginSizes.MULTIPLE_ACCOUNT
+          break
+      }
+      if (!connection)
+        loginWindowHeight = LoginSizes.CONNECTION_FAILURE_NO_ACCOUNTS
     }
-  }, [Object.keys(errors).length])
+    loginWindowHeight += LoginSizes.INPUT_ERROR * errorCount
+    if (errorsData?.generalError) {
+      loginWindowHeight += LoginSizes.LOGIN_FAILURE
+    }
+    log({ loginWindowHeight })
+    setLoginData((p) => ({
+      ...p,
+      windowHeight: loginWindowHeight
+    }))
+  }, [loginData?.selectedAccount, auth, errorsData])
 
-  function resizeThisWindow(h: number) {
-    windowHeight.current = h
-    const finalH = h + (loginError ? 100 : 0)
-    window.api.resizeLoginWindow(finalH)
-  }
+  useEffect(() => {
+    if (loginData) {
+      window.api.resizeLoginWindow(loginData.windowHeight || 0)
+    }
+  }, [loginData?.windowHeight])
 
   function exitLoginWindow() {
     window.api.exitNethLink()
   }
 
-  function setFormValues(data: LoginData) {
-    setValue('host', data.host)
-    setValue('username', data.username)
-    setValue('password', data.password)
-  }
-
-  async function handleLogin(data: LoginData) {
-    setLoginError(undefined)
-    if (isFirstLogin) {
-      window.api.resizeLoginWindow(570)
-    } else if (selectedAccount === NEW_ACCOUNT) {
-      window.api.resizeLoginWindow(620)
-    } else {
-      if (!isFirstLogin) {
-        window.api.resizeLoginWindow(515)
-      } else {
-        //Added because of possible error banner
-        window.api.resizeLoginWindow(570)
-      }
-    }
-
-    const hostReg =
-      /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
-    const res = hostReg.exec(data.host)
-    if (res) {
-      setIsLoading(true)
-      const host = `${'https://'}${res[2]}`
-      window.api
-        .login(host, data.username, data.password)
-        .catch((error) => {
-          setFormValues(data)
-          if (error.message === 'Unauthorized')
-            setLoginError(new Error(t('Login.Wrong host or username or password')!))
-          else setLoginError(error)
-        })
-        .finally(() => setIsLoading(false))
-    } else {
-      setLoginError(new Error(t('Login.Wrong host or username or password')!))
-      setFormValues(data)
-    }
-  }
-
-  const onSubmitForm: SubmitHandler<LoginData> = (data) => {
-    handleLogin(data)
-  }
-
-  const focus = (selector: keyof LoginData) => {
-    setTimeout(() => {
-      setFocus(selector)
-    }, 100)
-  }
-
   const goBack = () => {
-    setLoginError(undefined)
-    setSelectedAccount(undefined)
+    setLoginData((p) => ({
+      ...p,
+      error: undefined,
+      selectedAccount: undefined
+    }))
+    setErrorsData({ formErrors: {}, generalError: undefined })
   }
 
-  useEffect(() => {
-    if (selectedAccount) {
-      if (selectedAccount === NEW_ACCOUNT) {
-        resizeThisWindow(620)
-        reset()
-        focus('host')
-      } else {
-        resizeThisWindow(515)
-        reset()
-        setValue('host', selectedAccount.host)
-        setValue('username', selectedAccount.username)
-        focus('password')
-      }
-    } else {
-      setLoginError(undefined)
-      if (availableAccounts.length === 1) {
-        resizeThisWindow(375)
-      } else if (availableAccounts.length === 2) {
-        resizeThisWindow(455)
-      } else if (availableAccounts.length >= 3) {
-        resizeThisWindow(535)
-      }
-      focus('host')
-    }
-  }, [availableAccounts, selectedAccount])
 
-  const RenderError = () => {
-    loginError && resizeThisWindow(windowHeight.current)
-    return (
-      !!loginError && (
-        <div className="relative flex flex-col p-4 border-l-[3px] border-rose-500 bg-rose-100 rounded-md mb-8">
-          <div className="flex flex-row items-center gap-2">
-            <FontAwesomeIcon icon={ErrorIcon} className="text-red-700" />
-            <p className="font-medium text-[14px] leading-5 text-red-800">
-              {t('Login.Login failed')}
-            </p>
-          </div>
-          <p className="pl-6 font-normal text-[14px] leading-5 text-rose-700">
-            {loginError?.message}
-          </p>
-        </div>
-      )
-    )
+  const onFormErrors = (formErrors: FieldErrors<LoginData>, generalError: Error | undefined) => {
+    setErrorsData({
+      formErrors,
+      generalError
+    })
   }
-
-  const DisplayAvailableAccount = () => {
-    return (
-      <div className="w-full mt-7">
-        <p className="text-titleLight dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2">
-          {t('Login.Account List title')}
-        </p>
-        <p className="text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7">
-          {t('Login.Account List description')}
-        </p>
-        <div className="max-h-60 overflow-y-auto">
-          {availableAccounts.map((account, idx) => {
-            return (
-              <DisplayedAccountLogin
-                key={idx}
-                account={account}
-                imageSrc={account.data?.settings.avatar}
-                handleClick={() => setSelectedAccount(account)}
-              />
-            )
-          })}
-        </div>
-        <DisplayedAccountLogin handleClick={() => setSelectedAccount(NEW_ACCOUNT)} />
-      </div>
-    )
-  }
-
-  const LoginForm = (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        handleSubmit(onSubmitForm)(e)
-      }}
-    >
-      <div className="mt-7">
-        <p className="text-titleLight  dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2">
-          {selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
-        </p>
-        <p className="text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7">
-          {selectedAccount
-            ? t('Login.Account List description')
-            : t('Login.New Account description')}
-        </p>
-        <RenderError />
-        <div className="flex flex-col gap-7">
-          {selectedAccount && selectedAccount !== NEW_ACCOUNT ? (
-            <DisplayedAccountLogin
-              account={selectedAccount}
-              imageSrc={selectedAccount.data?.settings.avatar}
-            />
-          ) : (
-            <>
-              <TextInput
-                {...register('host')}
-                type="text"
-                label={t('Login.Host') as string}
-                helper={errors.host?.message || undefined}
-                error={!!errors.host?.message}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    submitButtonRef.current?.focus()
-                    handleSubmit(onSubmitForm)(e)
-                  }
-                }}
-              />
-              <TextInput
-                {...register('username')}
-                type="text"
-                label={t('Login.Username') as string}
-                helper={errors.username?.message || undefined}
-                error={!!errors.username?.message}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    submitButtonRef.current?.focus()
-                    handleSubmit(onSubmitForm)(e)
-                  }
-                }}
-              />
-            </>
-          )}
-          <TextInput
-            {...register('password')}
-            label={t('Login.Password') as string}
-            type={pwdVisible ? 'text' : 'password'}
-            icon={pwdVisible ? EyeIcon : EyeSlashIcon}
-            onIconClick={() => setPwdVisible(!pwdVisible)}
-            trailingIcon={true}
-            helper={errors.password?.message || undefined}
-            error={!!errors.password?.message}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault()
-                submitButtonRef.current?.focus()
-                handleSubmit(onSubmitForm)(e)
-              }
-            }}
-          />
-          <Button ref={submitButtonRef} type="submit" variant="primary">
-            {t('Login.Sign in')}
-          </Button>
-        </div>
-      </div>
-    </form>
-  )
 
   return (
     <div
@@ -346,24 +144,29 @@ export function LoginPage({ themeMode }: LoginPageProps) {
             />
           </Button>
         </div>
-        {availableAccounts.length > 0 && selectedAccount && (
-          <Button
-            variant="ghost"
-            className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6"
-            onClick={goBack}
-          >
-            <FontAwesomeIcon
-              icon={ArrowIcon}
-              className="h-5 w-5 dark:text-textBlueDark text-textBlueLight"
-            />
-            <p className="dark:text-textBlueDark text-textBlueLight font-medium">
-              {t('Login.Back')}
-            </p>
-          </Button>
-        )}
-        {isFirstLogin || selectedAccount ? LoginForm : <DisplayAvailableAccount />}
+        {
+          auth && <>
+            {
+              Object.keys(auth.availableAccounts).length > 0 && loginData?.selectedAccount && (
+                <Button
+                  variant="ghost"
+                  className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6"
+                  onClick={goBack}
+                >
+                  <FontAwesomeIcon
+                    icon={ArrowIcon}
+                    className="h-5 w-5 dark:text-textBlueDark text-textBlueLight"
+                  />
+                  <p className="dark:text-textBlueDark text-textBlueLight font-medium">
+                    {t('Login.Back')}
+                  </p>
+                </Button>
+              )}
+            {auth.isFirstStart || loginData?.selectedAccount ? <LoginForm onError={onFormErrors} /> : <AvailableAccountList />}
+          </>
+        }
       </div>
-      {isLoading && (
+      {loginData?.isLoading && (
         <div className="absolute top-0 left-0 bg-spinnerBgLight dark:bg-spinnerBgDark bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center rounded-[10px] z-[1000]">
           <img src={spinner} className="animate-spin"></img>
         </div>

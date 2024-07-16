@@ -3,8 +3,11 @@ productName: 'NethLink'
 copyright: 'prova copyright'
 afterSign: electron-builder-notarize
 electronLanguages:
+  - en
+  - en_US
+  - en_UK
   - it
-  - en-US
+  - it_IT
 directories:
   buildResources: build
 files:

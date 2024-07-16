@@ -31,26 +31,4 @@ export class LoginWindow extends BaseWindow {
     })
   }
 
-  show(..._args: any): void {
-    let loginWindowHeight = 0
-    const accounts = AccountController.instance.listAvailableAccounts()
-    switch (accounts.length) {
-      case 0:
-        loginWindowHeight = 570
-        break
-      case 1:
-        loginWindowHeight = 375
-        break
-      case 2:
-        loginWindowHeight = 455
-        break
-      default:
-        loginWindowHeight = 535
-        break
-    }
-    const bounds = this._window?.getBounds()
-    this._window!.setBounds({ ...bounds, height: loginWindowHeight }, true)
-    super.show(_args)
-    this._window!.center()
-  }
 }

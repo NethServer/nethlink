@@ -2,15 +2,25 @@ import { PAGES, PageType } from '@shared/types'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
+import { useStoreState } from '@renderer/store'
+import { ConnectionStatus } from '@renderer/components'
+import { IPC_EVENTS } from '@shared/constants'
 
 export const DevToolsPage = () => {
-  const page = useSubscriber<PageType>('page')
-  useInitialize(() => {}, true)
+  const [page] = useStoreState<PageType>('page')
+  useInitialize(() => { }, true)
+
+  const toggleConnection = () => {
+    window.electron.send(IPC_EVENTS.DEV_TOOL_TOGGLE_CONNECTION)
+  }
 
   return (
-    <div className="flex flex-col gap-1 h-[100vh] justify-center items-stretch bg-gray-100 dark:bg-gray-900 ">
-      <div className="text-left pl-2 text-gray-900 dark:text-gray-100">Click to open dev tools</div>
+    <div className="flex flex-col gap-1 h-[100vh] justify-start items-stretch bg-gray-100 dark:bg-gray-900 pt-2">
+      <div className="flex flex-row justify-between items-center text-left px-2 text-gray-900 dark:text-gray-100">
+        <span>
+          Click to open dev tools
+        </span>
+      </div>
       {...Object.values(PAGES).map((elem) => {
         return (
           // eslint-disable-next-line react/jsx-key
@@ -30,6 +40,9 @@ export const DevToolsPage = () => {
       <p className="dark:text-gray-300 text-gray-700 text-sm px-5 text-center mt-4">
         v{page?.props.appVersion}
       </p>
+      <button onClick={toggleConnection}>
+        <ConnectionStatus className='top-[260px]' />
+      </button>
     </div>
   )
 }

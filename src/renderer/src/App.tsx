@@ -3,115 +3,67 @@ import { useInitialize } from '@/hooks/useInitialize'
 import { LoginPage, PhoneIslandPage, SplashScreenPage, NethLinkPage } from '@/pages'
 import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
-import { useEffect, useState } from 'react'
-import { useLocalStoreState } from './hooks/useLocalStoreState'
-import { Account, AvailableThemes, OperatorData, OperatorsType, PAGES, PageType } from '@shared/types'
+import { ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { Account, AvailableThemes, PAGES } from '@shared/types'
 import { delay } from '@shared/utils/utils'
 import i18next from 'i18next'
 import { DevToolsPage } from './pages/DevToolsPage'
-import { getSystemTheme } from './utils'
+import { getSystemTheme, parseThemeToClassName } from './utils'
+import { useRegisterStoreHook, useStoreState } from "@renderer/store";
+import { PageContext, PageCtx, usePageCtx } from './contexts/pageContext'
+import { IPC_EVENTS } from '@shared/constants'
+import { useRefState } from './hooks/useRefState'
 
-function Layout({ theme }: { theme?: AvailableThemes }) {
-  return (
-    <div className={`${theme} font-Poppins`} id="phone-island-container">
-      <Outlet />
-    </div>
-  )
-}
 
-export default function App() {
-  const [page, setPage] = useLocalStoreState<PageType>('page')
-  const [theme, setTheme] = useLocalStoreState<AvailableThemes>('theme')
-  const [classNameTheme, setClassNameTheme] = useState<AvailableThemes>(getSystemTheme())
-  const [account, setAccount, accountRef] = useLocalStoreState<Account>('user')
-  const [operators, setOperators, operatorsRef] = useLocalStoreState<OperatorData>('operators')
-
-  useInitialize(() => {
-    log('hash', location.hash)
-    log('search', location.search)
-    loadI18n()
-    const query = location.search || location.hash
-    const props =
-      query
-        .split('?')[1]
-        ?.split('&')
-        ?.reduce<any>((p, c) => {
-          const [k, v] = c.split('=')
-          return {
-            ...p,
-            [k]: v
-          }
-        }, {}) || {}
-
-    setPage({
-      query,
-      props
-    })
-
-    window.api.onAccountChange(updateAccount)
-    window.api.onSystemThemeChange(updateSystemTheme)
-    window.api.onThemeChange(updateTheme)
-  })
+const RequestStateComponent = () => {
+  const pageData = usePageCtx()
+  const isRequestInitialized = useRef(false)
+  useRegisterStoreHook()
+  const [theme, setTheme] = useStoreState<AvailableThemes>('theme')
+  const [account, setAccount] = useStoreState<Account>('account')
+  const [hasWindowConfig, setHasWindowConfig] = useState<boolean>(false)
 
   useEffect(() => {
-    setClassNameTheme((_) => {
-      return theme === 'system' ? getSystemTheme() : theme || 'dark'
-    })
-  }, [theme])
+    if (!isRequestInitialized.current) {
+      isRequestInitialized.current = true
+      window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE);
+      window.ononline = (d) => {
+        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, true);
+      }
+      window.onoffline = (d) => {
+        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, false);
+      }
+      window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine);
+      log("registered, connection:", navigator.onLine)
+    }
+  }, [pageData?.page])
 
   useEffect(() => {
-    log('account changed', account)
     if (account) {
-      updateTheme(account.theme)
-    } else {
-      setTheme(getSystemTheme())
-    }
-  }, [account])
-
-  const updateTheme = (theme: AvailableThemes) => {
-    log('FROM WINDOW', theme, accountRef.current)
-    setTheme(theme)
-    if (accountRef.current) accountRef.current!.theme = theme
-  }
-
-  const updateSystemTheme = (theme: AvailableThemes) => {
-    log('FROM SYSTEM', theme, accountRef.current)
-    if (accountRef.current === undefined) {
-      updateTheme(getSystemTheme())
-    }
-    if (accountRef.current?.theme === 'system') {
-      setClassNameTheme(getSystemTheme())
-    }
-  }
-
-  function updateAccount(account: Account | undefined) {
-    log('account change', account?.theme)
-    setAccount(account)
-    if (account && account.data) {
-      const _operators: OperatorsType = {
-        ...(operatorsRef.current?.operators || {}),
-        [account!.username]: {
-          endpoints: account.data.endpoints,
-          name: account.data.name,
-          presence: account.data.presence,
-          presenceOnBusy: account.data.presenceOnBusy,
-          presenceOnUnavailable: account.data.presenceOnUnavailable,
-          recallOnBusy: account.data.recallOnBusy,
-          username: account.username,
-          mainPresence: 'online'
+      if (!window['CONFIG']) {
+        // @ts-ignore (define in dts)
+        window.CONFIG = {
+          PRODUCT_NAME: 'NethLink',
+          COMPANY_NAME: 'Nethesis',
+          COMPANY_SUBNAME: 'CTI',
+          COMPANY_URL: 'https://www.nethesis.it/',
+          API_ENDPOINT: `${account.host}`,
+          API_SCHEME: 'https://',
+          WS_ENDPOINT: `wss://${account.host}/ws`,
+          NUMERIC_TIMEZONE: account.numeric_timezone,
+          SIP_HOST: account.sipHost,
+          SIP_PORT: account.sipPort,
+          TIMEZONE: account.timezone,
+          VOICE_ENDPOINT: account.voiceEndpoint
         }
+        log(window['CONFIG'])
+        setHasWindowConfig(true)
       }
-      const op: OperatorData = {
-        ...(operatorsRef.current || {}),
-        operators: _operators,
-        userEndpoints: _operators,
-        extensions: {},
-        avatars: {},
-        groups: {}
-      }
-      setOperators(op)
+    } else {
+      window['CONFIG'] = undefined
+      setHasWindowConfig(false)
     }
-  }
+  }, [account, pageData?.page])
 
   const loader = async () => {
     let time = 0
@@ -126,24 +78,24 @@ export default function App() {
   const router = createHashRouter([
     {
       path: '/',
-      element: <Layout theme={classNameTheme} />,
+      element: <Layout theme={parseThemeToClassName(theme)} />,
       loader: loader,
       children: [
         {
           path: PAGES.SPLASHSCREEN,
-          element: <SplashScreenPage themeMode={classNameTheme} />
+          element: <SplashScreenPage themeMode={parseThemeToClassName(theme)} />
         },
         {
           path: PAGES.LOGIN,
-          element: <LoginPage themeMode={classNameTheme} />
+          element: <LoginPage themeMode={parseThemeToClassName(theme)} />
         },
         {
           path: PAGES.PHONEISLAND,
-          element: <PhoneIslandPage />
+          element: hasWindowConfig && <PhoneIslandPage />
         },
         {
           path: PAGES.NETHLINK,
-          element: <NethLinkPage themeMode={classNameTheme} />
+          element: <NethLinkPage themeMode={parseThemeToClassName(theme)} />
         },
         {
           path: PAGES.DEVTOOLS,
@@ -154,4 +106,24 @@ export default function App() {
   ])
 
   return <RouterProvider router={router} />
+}
+const Layout = ({ theme }: { theme?: AvailableThemes }) => {
+  return (
+    <div className={`${theme} font-Poppins`} id="phone-island-container">
+      <Outlet />
+    </div>
+  )
+}
+
+export default function App() {
+
+  useInitialize(() => {
+    loadI18n()
+  })
+
+  return (
+    <PageContext>
+      <RequestStateComponent />
+    </PageContext>
+  )
 }

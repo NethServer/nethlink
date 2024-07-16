@@ -12,8 +12,9 @@ import {
 import i18next from 'i18next'
 import { UTCDate } from '@date-fns/utc'
 import { Account } from '@shared/types'
-import { useSubscriber } from '@renderer/hooks/useSubscriber'
 import { log } from '@shared/utils/logger'
+import { isDev } from '@shared/utils/utils'
+import { useStoreState } from '@renderer/store'
 
 interface CallsDateProps {
   call: any
@@ -23,7 +24,7 @@ interface CallsDateProps {
 }
 
 export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnnouncement }) => {
-  const account = useSubscriber<Account>('user')
+  const [account] = useStoreState<Account>('account')
 
   const [selectedLanguage, setSelectedLanguage] = useState('')
 
@@ -144,13 +145,13 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnn
 
   // check browser language and set the selected language
   useEffect(() => {
-    log("LANGUAGE", i18next?.languages)
     if (i18next?.languages[0] !== '') {
       setSelectedLanguage(i18next?.languages[0])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18next?.languages[0]])
 
+  if (!account) return <></>
   return (
     <>
       <div className={`flex flex-col justify-center flex-shrink-0 ${spaced ? 'gap-1.5' : ''}`}>

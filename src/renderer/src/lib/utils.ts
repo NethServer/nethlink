@@ -97,11 +97,6 @@ export const sortByFavorite = (a: any, b: any) => {
   return 0
 }
 
-export function callPhoneNumber(phoneNumber: string) {
-  eventDispatch('phone-island-call-start', { number: phoneNumber })
-  //log('callPhoneNumber', phoneNumber) ////
-}
-
 export function getProductName() {
   if (typeof window === 'undefined') {
     return ''
