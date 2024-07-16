@@ -342,8 +342,9 @@ async function getPermissions() {
 
 
 const createNethLink = async () => {
-  registerShortcutForCall('CommandOrControl+c+F11')
-  registerShortcutForCall('F11')
+  //TODO: evaluate the correct shortcut
+  //registerShortcutForCall('CommandOrControl+c+F11')
+  //registerShortcutForCall('F11')
   await delay(500)
   new NethLinkController()
   NethLinkController.instance.show()
