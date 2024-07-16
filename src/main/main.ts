@@ -297,16 +297,16 @@ const checkForUpdate = async () => {
 }
 
 function handleTelProtocol(url: string): Promise<Response> {
-  const tel = decodeURI(url)
-    .replace(/ /g, '')
-    .replace(/tel:\/\//g, '')
-    .replace(/callto:\/\//g, '')
-    .replace(/\//g, '')
-  isDev() && log('TEL:', tel)
-  try {
-    PhoneIslandController.instance.call(tel)
-  } catch (e) {
-    log(e)
+  const regex = /(\+?\*?\d+)/;
+  const match = url.match(regex)
+  log(url, match)
+  if (match) {
+    isDev() && log('TEL:', match[0])
+    try {
+      PhoneIslandController.instance.call(match[0])
+    } catch (e) {
+      log(e)
+    }
   }
   return new Promise((resolve) => resolve)
 }
