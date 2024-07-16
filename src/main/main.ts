@@ -14,6 +14,52 @@ import { IPC_EVENTS } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
 import { store } from './lib/mainStore'
+import fs from 'fs'
+import path from 'path'
+
+
+///LOGGER
+const logFilePath = path.join(app.getPath("userData"), './logs/app.log');
+ipcMain.on('log-message', (e, message) => {
+  if (message && isDev())
+    logOnFile(message)
+})
+
+const logOnFile = async (message) => {
+  const logDir = path.dirname(logFilePath);
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+  if (!message) {
+    // Crea un nuovo oggetto Error per ottenere lo stack trace
+    const error = new Error();
+    // Ottieni lo stack trace come stringa
+    const stack = error.stack;
+    // Dividi lo stack trace in linee
+    const stackLines = stack?.split('\n');
+    // Recupera la linea che contiene la chiamata alla funzione (la terza linea)
+    const callerLine = stackLines?.[2].split('at ')[1];
+    message = callerLine
+  }
+  fs.appendFile(logFilePath, message + '\n', (err) => {
+    if (err) throw err;
+  });
+}
+
+function deleteLogFile() {
+  if (fs.existsSync(logFilePath)) {
+    fs.rmSync(logFilePath);
+  }
+}
+deleteLogFile()
+
+//BEGIN APP
+//get app parameter
+const params = process.argv
+if (params.includes('DEV=true')) {
+  process.env['DEV'] = 'true'
+}
+log(params)
 
 new AppController(app)
 new NetworkController()
@@ -295,20 +341,24 @@ async function getPermissions() {
 
 
 const createNethLink = async () => {
-  const getClipboardSelection = () => {
-
-    return clipboard.readText('selection')
-
-  }
-  globalShortcut.register('CommandOrControl+c+F11', () => {
-    const selection = getClipboardSelection()
-    //log('clipboard:', selection)
-    handleTelProtocol(selection)
-  })
+  registerShortcutForCall('CommandOrControl+c+F11')
+  registerShortcutForCall('F11')
   await delay(500)
   new NethLinkController()
   NethLinkController.instance.show()
   await delay(1000)
   new PhoneIslandController()
   checkForUpdate()
+}
+
+
+const registerShortcutForCall = (shortcut) => {
+  const getClipboardSelection = () => {
+    return clipboard.readText('selection')
+  }
+  globalShortcut.register(shortcut, () => {
+    const selection = getClipboardSelection()
+    //log('clipboard:', selection)
+    handleTelProtocol(selection)
+  })
 }
