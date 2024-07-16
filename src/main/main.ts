@@ -20,6 +20,7 @@ import path from 'path'
 
 ///LOGGER
 const logFilePath = path.join(app.getPath("userData"), './logs/app.log');
+log(logFilePath)
 ipcMain.on('log-message', (e, message) => {
   if (message && isDev())
     logOnFile(message)
