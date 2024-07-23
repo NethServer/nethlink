@@ -100,7 +100,7 @@ export function PhoneIslandPage() {
       window.addEventListener(event, async (...data) => {
         const customEvent = data[0]
         const detail = customEvent['detail']
-        isDev() && log(event, detail)
+        log(event, detail)
         switch (event) {
           case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
             log('phone-island-default-device-changed', detail)

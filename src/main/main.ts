@@ -88,7 +88,7 @@ powerMonitor.on('resume', async () => {
 
 app.whenReady().then(async () => {
   //await resetApp()
-  isDev() && log('APP READY')
+  log('APP READY')
   //I assign the app as usable for tel and callto protocol response
   protocol.handle('tel', (req) => {
     return handleTelProtocol(req.url)
@@ -125,7 +125,7 @@ app.on('quit', () => {
   if (retryAppStart) {
     clearTimeout(retryAppStart)
   }
-  isDev() && log('quit')
+  log('quit')
 })
 
 // remove so we can register each time as we run the app.
@@ -281,7 +281,7 @@ ipcMain.on(IPC_EVENTS.LOGIN, (e, password) => {
 })
 
 ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
-  isDev() && log('logout from event')
+  log('logout from event')
   await PhoneIslandController.instance.logout()
   NethLinkController.instance.logout()
   AccountController.instance.logout()
@@ -290,7 +290,7 @@ ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
 
 const checkForUpdate = async () => {
   const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
-  isDev() && log(app.getVersion())
+  log(app.getVersion())
   if (latestVersionData.name !== app.getVersion() || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
@@ -301,7 +301,7 @@ function handleTelProtocol(url: string): Promise<Response> {
   const match = url.match(regex)
   log(url, match)
   if (match) {
-    isDev() && log('TEL:', match[0])
+    log('TEL:', match[0])
     try {
       PhoneIslandController.instance.call(match[0])
     } catch (e) {
@@ -313,7 +313,7 @@ function handleTelProtocol(url: string): Promise<Response> {
 
 function handleNethLinkProtocol(data: string): Promise<Response> {
   //we have to define the purpose of the nethlink custom protocol
-  isDev() && log(data)
+  log(data)
   //TODO: define actions
   try {
     NethLinkController.instance.show()
@@ -328,7 +328,7 @@ async function getPermissions() {
     const cameraPermission = await systemPreferences.askForMediaAccess('camera')
     const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
     const microphonePermission = await systemPreferences.askForMediaAccess('microphone')
-    isDev() && log(
+    log(
       'Permissions:',
       {
         cameraPermissionState,
