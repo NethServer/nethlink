@@ -42,7 +42,8 @@ export function PhoneIslandPage() {
   } = usePhoneIslandEventHandler()
 
   const isOnCall = useRef<boolean>(false)
-  const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS>()
+  const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS | undefined>(undefined)
+  const phoneIslandState = useRef<PHONE_ISLAND_EVENTS | undefined>(undefined)
   const [phoneIslandPageData, setPhoneIslandPageData] = useRefState<PhoneIslandPageData>(useStoreState<PhoneIslandPageData>('phoneIslandPageData'))
 
 
@@ -114,6 +115,7 @@ export function PhoneIslandPage() {
             onQueueUpdate(detail)
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
+            phoneIslandState.current = event
             window.api.showPhoneIsland()
             break
           case PHONE_ISLAND_EVENTS['phone-island-server-disconnected']:
@@ -137,6 +139,8 @@ export function PhoneIslandPage() {
             }) => {
               gestLastCalls(newLastCalls)
             })
+            lastResizeEvent.current = undefined
+            phoneIslandState.current = PHONE_ISLAND_EVENTS['phone-island-call-end']
             break;
           case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
@@ -235,7 +239,11 @@ export function PhoneIslandPage() {
   }
 
   function getSizeFromResizeEvent(event: string): Size | undefined {
+    if (event === PHONE_ISLAND_EVENTS['phone-island-call-ended'] && phoneIslandState.current === PHONE_ISLAND_EVENTS['phone-island-call-ringing']) {
+      event = phoneIslandState.current
+    }
     const resizeEvent = PHONE_ISLAND_RESIZE.get(event)
+    log('RESIZE FROM: ', { event, lastResizeEvent: lastResizeEvent.current, phoneIslandState: phoneIslandState.current })
     if (resizeEvent) {
       if (event !== PHONE_ISLAND_EVENTS['phone-island-compressed'])
         lastResizeEvent.current = event as PHONE_ISLAND_EVENTS
@@ -244,6 +252,7 @@ export function PhoneIslandPage() {
         phoneIslandPageData.current?.isMinimized ?? false,
         phoneIslandPageData.current?.isDisconnected ?? false
       )
+      log("RESIZE SIZE: ", size)
       return size
     }
     return undefined
