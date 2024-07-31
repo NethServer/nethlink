@@ -17,8 +17,10 @@ export const usePhoneIslandEventHandler = () => {
   const { isCallsEnabled } = useAccount()
 
   function callNumber(number: string) {
-    if (number && validatePhoneNumber(number) && isCallsEnabled)
-      window.electron.send(IPC_EVENTS.EMIT_START_CALL, number)
+    const numberCleanerRegex = /\s+/g
+    const cleanNumber = (`${number}`).replace(numberCleanerRegex, '')
+    if (number && validatePhoneNumber(cleanNumber) && isCallsEnabled)
+      window.electron.send(IPC_EVENTS.EMIT_START_CALL, cleanNumber)
     else
       log('unable to call', number)
   }
