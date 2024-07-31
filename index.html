@@ -28,8 +28,7 @@
       document.addEventListener('DOMContentLoaded', async function () {
         const translations = {
           en: {
-            description:
-              'Download NethLink update with bug fixes and new features.',
+            description: 'Download NethLink update with bug fixes and new features.',
             release: 'Release: ',
             downloadUpdate: 'Download update',
             chooseOS: 'Choose your operating system and click to start the download',
@@ -118,12 +117,13 @@
             const downloadUrls = data.assets
               .filter(
                 (asset) =>
-                  asset.content_type === 'application/octet-stream' &&
+                  (asset.content_type === 'application/octet-stream' ||
+                    asset.content_type === 'application/x-ms-dos-executable') &&
                   !asset.browser_download_url.endsWith('.blockmap')
               )
               .reduce((acc, asset) => {
                 const url = asset.browser_download_url
-                if (url.includes('setup.exe')) {
+                if (url.includes('.exe')) {
                   acc.windowsUrl = url
                 } else if (url.includes('.AppImage')) {
                   acc.linuxUrl = url

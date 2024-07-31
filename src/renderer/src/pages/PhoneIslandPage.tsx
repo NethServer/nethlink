@@ -85,7 +85,7 @@ export function PhoneIslandPage() {
     }))
     window.electron.receive(IPC_EVENTS.LOGOUT, logout)
 
-    window.electron.receive(IPC_EVENTS.START_CALL, (number: number | string) => {
+    window.electron.receive(IPC_EVENTS.START_CALL, (number: string) => {
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
         number
       })
