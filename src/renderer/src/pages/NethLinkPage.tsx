@@ -156,7 +156,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   useEffect(() => {
     if (phoneIslandPageData?.isDisconnected && connection) {
       reconnect()
-      isDev() && log('RECONNECT')
+      log('RECONNECT')
     }
   }, [phoneIslandPageData?.isDisconnected, connection])
 
@@ -169,7 +169,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   function onConnectionErrorButtonClick(): void {
-    isDev() && log('refresh', navigator.onLine)
+    log('refresh', navigator.onLine)
     debouncer('update-connection-state', () => {
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
     }, 250)

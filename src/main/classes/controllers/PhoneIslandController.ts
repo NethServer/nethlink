@@ -46,7 +46,7 @@ export class PhoneIslandController {
       // if (phoneIslandPosition) {
       //   const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
       //     const area = display.workArea
-      //     isDev() && log({
+      //      log({
       //       area,
       //       phoneIslandPosition,
       //       x: phoneIslandPosition.x >= area.x,
@@ -110,7 +110,7 @@ export class PhoneIslandController {
   call(number: string) {
     const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
     NethVoiceAPI.User.me().then((me) => {
-      isDev() && log('me before call start', { me })
+      log('me before call start', { me })
       this.window.emit(IPC_EVENTS.START_CALL, number)
       this.showPhoneIsland()
     })
