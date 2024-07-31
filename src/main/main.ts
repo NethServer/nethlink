@@ -74,17 +74,30 @@ app.setLoginItemSettings({
   openAtLogin: true
 })
 
-powerMonitor.on('suspend', () => {
-  store.saveToDisk()
-});
+//Define how the nethlink have to manage the power suspend and after the power resume events
+powerMonitor.on('suspend', onAppSuspend);
+powerMonitor.on('resume', onAppResume);
 
-powerMonitor.on('resume', async () => {
+export function onAppSuspend() {
+  log('APP POWER SUSPEND')
+  store.saveToDisk()
+}
+
+export async function onAppResume() {
+  log('APP POWER RESUME')
   store.getFromDisk()
-  setTimeout(() => {
-    ipcMain.emit('update-shared-state', undefined, store.store)
-    PhoneIslandController.instance && PhoneIslandController.instance.reconnect()
+  setTimeout(async () => {
+    PhoneIslandController.instance && PhoneIslandController.instance.logout()
+    if (NethLinkController.instance) {
+      await PhoneIslandController.instance.logout()
+      NethLinkController.instance.logout()
+      const autoLoginResult = await AccountController.instance.autoLogin()
+      if (autoLoginResult) {
+        ipcMain.emit(IPC_EVENTS.LOGIN)
+      }
+    }
   }, 500)
-});
+}
 
 app.whenReady().then(async () => {
   //await resetApp()
@@ -198,6 +211,8 @@ nativeTheme.on('updated', () => {
   TrayController.instance.changeIconByTheme(updatedSystemTheme)
 })
 
+
+//CAUTION!! this function will destroy all current persistant data. use it only if absolutely necessary
 const resetApp = async () => {
   store.updateStore({
     account: undefined,
@@ -217,6 +232,7 @@ const resetApp = async () => {
 
 const startApp = async (attempt = 0) => {
   store.getFromDisk()
+  log('START APP, retry:', attempt)
   //await delay(1500)
   if (!store.store.connection) {
     log('NO CONNECTION', attempt, store.store)
@@ -226,14 +242,13 @@ const startApp = async (attempt = 0) => {
       startApp(++attempt)
     }, 1000)
   } else {
-    log('START APP', attempt, store.store)
     if (retryAppStart) {
       clearTimeout(retryAppStart)
     }
     const auth: AuthAppData | undefined = store.store['auth']
     await getPermissions()
     if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
-      const isLastUserLogged = await AccountController.instance.tokenLogin()
+      const isLastUserLogged = await AccountController.instance.autoLogin()
       if (isLastUserLogged) {
         ipcMain.emit(IPC_EVENTS.LOGIN)
       } else {
