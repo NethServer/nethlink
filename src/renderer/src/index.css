@@ -1,14 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-#openDevToolButton {
-  pointer-events: all;
-  border: 0 solid transparent;
-  border-radius: 0 8px 0 0;
-}
-
-#phone-island-container {
+#app-container {
   .draggableAnchor,
   .pi-absolute,
   .pi-pointer-events-auto {
@@ -32,6 +22,24 @@
     pointer-events: all;
   }
 }
+
+
+#phone-island-container [id^="headlessui-menu-items-"]{
+  position: relative;
+  margin-inline: 0;
+  margin-block: 0;
+  margin-top: calc(20px - 100%);
+  right: 100%;
+}
+
+
+
+#openDevToolButton {
+  pointer-events: all;
+  border: 0 solid transparent;
+  border-radius: 0 8px 0 0;
+}
+
 
 .light ::-webkit-scrollbar {
   width: 5px;
@@ -64,14 +72,4 @@
   outline-color: transparent !important;
 }
 
-@layer base {
-  #root {
-    @apply h-full;
-  }
 
-  html,
-  body {
-    @apply h-full;
-    @apply select-none;
-  }
-}

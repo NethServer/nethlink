@@ -78,7 +78,7 @@ const RequestStateComponent = () => {
   const router = createHashRouter([
     {
       path: '/',
-      element: <Layout theme={parseThemeToClassName(theme)} />,
+      element: <Layout theme={parseThemeToClassName(theme)} page={pageData?.page as PAGES} />,
       loader: loader,
       children: [
         {
@@ -107,11 +107,34 @@ const RequestStateComponent = () => {
 
   return <RouterProvider router={router} />
 }
-const Layout = ({ theme }: { theme?: AvailableThemes }) => {
+const Layout = ({ theme, page }: { theme?: AvailableThemes, page?: PAGES }) => {
+
+  const [isCSSLoaded, setIsCSSLoaded] = useState(false);
+  useEffect(() => {
+    if (page) {
+      importStyle()
+    }
+  }, [page]);
+
+  const importStyle = async () => {
+    // Importa dinamicamente il CSS quando la pagina non è 'PHONEISLAND'
+    if (page !== PAGES.PHONEISLAND) {
+      await import('./tailwind.css')
+    }
+    await import('./index.css')
+    setIsCSSLoaded(true);
+  }
+
+  if (!isCSSLoaded) {
+    return <div></div>;
+  }
+
   return (
-    <div className={`${theme} font-Poppins`} id="phone-island-container">
-      <Outlet />
-    </div>
+    <>
+      <div className={`${theme} font-Poppins`} id="app-container">
+        <Outlet />
+      </div>
+    </>
   )
 }
 

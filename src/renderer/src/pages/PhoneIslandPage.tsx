@@ -196,7 +196,6 @@ export function PhoneIslandPage() {
               break
             case PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened']:
             case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
-            case PHONE_ISLAND_EVENTS['phone-island-call-transfer-closed']:
             case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
               phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
               break
@@ -342,11 +341,32 @@ export function PhoneIslandPage() {
   return (
     <div
       ref={phoneIslandContainer}
-      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''} overflow-hidden`}
+      id={'phone-island-container'}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        height: '100vh',
+        width: '100vw',
+        zIndex: 9999,
+        overflow: 'hidden',
+      }}
     >
-      <div className="absolute h-[100vh] w-[100vw] radius-md backdrop-hue-rotate-90"></div>
-      <div className='flex flex-col items-start'>
+      <div style={{
+        position: 'absolute',
+        height: '100vh',
+        width: '100vw',
+        ...(isDev() ? {
+          backgroundColor: '#058D1150',
+        } : {}),
 
+      }}
+      ></div>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'start'
+      }}>
         {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
       </div>
     </div >
