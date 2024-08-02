@@ -176,9 +176,6 @@ export enum PHONE_ISLAND_EVENTS {
 function getSize(normalSize: Size, collapsedSize?: Size, minimizedSize: Size = { w: 168, h: 40 }) {
   return (isExpanded: boolean = true, isMinimized: boolean = false, isDisconnected: boolean = false): Size => {
     const size = isMinimized ? minimizedSize : ((isExpanded ? normalSize : collapsedSize) || normalSize)
-    // if (isDisconnected) {
-    //   size.h += 50
-    // }
     return size
   }
 }
