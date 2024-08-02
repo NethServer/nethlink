@@ -57,7 +57,7 @@ export class AccountController {
     store.saveToDisk()
   }
 
-  async tokenLogin(): Promise<boolean> {
+  async autoLogin(): Promise<boolean> {
     //
     const authAppData = store.store['auth']
     if (authAppData?.lastUser) {

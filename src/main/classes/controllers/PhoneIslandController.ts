@@ -118,6 +118,10 @@ export class PhoneIslandController {
 
   reconnect() {
     this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
+    once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
+      this.window.quit()
+      new PhoneIslandController()
+    })
   }
 
 }
