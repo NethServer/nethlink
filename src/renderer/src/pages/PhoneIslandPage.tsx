@@ -100,7 +100,6 @@ export function PhoneIslandPage() {
       window.addEventListener(event, async (...data) => {
         const customEvent = data[0]
         const detail = customEvent['detail']
-        log(event, detail)
         switch (event) {
           case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
             log('phone-island-default-device-changed', detail)
@@ -115,8 +114,10 @@ export function PhoneIslandPage() {
             onQueueUpdate(detail)
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
-            phoneIslandState.current = event
-            window.api.showPhoneIsland()
+            if (phoneIslandState.current !== event) {
+              phoneIslandState.current = event
+              window.api.showPhoneIsland()
+            }
             break
           case PHONE_ISLAND_EVENTS['phone-island-server-disconnected']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
@@ -134,6 +135,7 @@ export function PhoneIslandPage() {
             isOnCall.current = false
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
+            log(event, detail)
             NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
               count: number, rows: CallData[]
             }) => {
@@ -142,8 +144,7 @@ export function PhoneIslandPage() {
             lastResizeEvent.current = undefined
             phoneIslandState.current = PHONE_ISLAND_EVENTS['phone-island-call-end']
             break;
-          case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
-          case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
+          //case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
             window.api.hidePhoneIsland()
             isOnCall.current = false
@@ -179,6 +180,7 @@ export function PhoneIslandPage() {
             break
         }
         if (PHONE_ISLAND_RESIZE.has(event)) {
+          log(event, detail)
           switch (event) {
             case PHONE_ISLAND_EVENTS['phone-island-call-actions-opened']:
               setPhoneIslandPageData((p) => ({
@@ -193,12 +195,9 @@ export function PhoneIslandPage() {
               }))
               break
             case PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
-              break
             case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
-              break
-            case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
+            case PHONE_ISLAND_EVENTS['phone-island-call-transfer-closed']:
+            case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
               phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
               break
             default:
@@ -213,6 +212,7 @@ export function PhoneIslandPage() {
             }
           }
           const size = getSizeFromResizeEvent(event)!
+          log("RESIZE EVENT", event, size)
           window.api.resizePhoneIsland(size.w, size.h)
         }
       })

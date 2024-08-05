@@ -174,6 +174,7 @@ export enum PHONE_ISLAND_EVENTS {
 }
 
 function getSize(normalSize: Size, collapsedSize?: Size, minimizedSize: Size = { w: 168, h: 40 }) {
+
   return (isExpanded: boolean = true, isMinimized: boolean = false, isDisconnected: boolean = false): Size => {
     const size = isMinimized ? minimizedSize : ((isExpanded ? normalSize : collapsedSize) || normalSize)
     return size
@@ -201,7 +202,7 @@ export const PHONE_ISLAND_RESIZE = new Map<string, (isExpanded: boolean, isMinim
   ],
   [
     PHONE_ISLAND_EVENTS['phone-island-call-transfered'],
-    getSize({ w: 350, h: 310 }, { w: 350, h: 370 })
+    getSize({ w: 350, h: 278 }, { w: 350, h: 370 })
   ],
   [PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened'], getSize({ w: 340, h: 442 }, undefined, { w: 168, h: 80 })],
   [
