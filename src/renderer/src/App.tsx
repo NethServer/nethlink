@@ -117,7 +117,7 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes, page?: PAGES }) => {
   }, [page]);
 
   const importStyle = async () => {
-    // Importa dinamicamente il CSS quando la pagina non è 'PHONEISLAND'
+    // Importing CSS dynamically when the page is not 'PHONEISLAND'
     if (page !== PAGES.PHONEISLAND) {
       await import('./tailwind.css')
     }
