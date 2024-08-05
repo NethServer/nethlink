@@ -4,20 +4,18 @@ import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useStoreState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account, CallData, Extension, OperatorsType, PhoneIslandConfig, PhoneIslandPageData, Size } from '@shared/types'
+import { Account, CallData, Extension, PhoneIslandConfig, PhoneIslandPageData, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
 import { useRefState } from '@renderer/hooks/useRefState'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { differenceWith, forEach, isEqual } from 'lodash'
+import { differenceWith } from 'lodash'
 import { sendNotification } from '@renderer/utils'
-import i18next, { t } from 'i18next'
-import { formatDistance } from 'date-fns'
+import { t } from 'i18next'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import { getTimeDifference } from '@renderer/lib/dateTime'
-import { enGB, it } from 'date-fns/locale'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
@@ -34,6 +32,7 @@ export function PhoneIslandPage() {
   const phoneIslandTokenLoginResponse = useRef<string>()
   const loadPath = useRef<string | undefined>(undefined)
   const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
+  const phoneIslandDisconnectionPopupOpen = useRef<boolean>(false)
 
   const {
     onMainPresence,
@@ -114,6 +113,14 @@ export function PhoneIslandPage() {
           case PHONE_ISLAND_EVENTS['phone-island-queue-update']:
             onQueueUpdate(detail)
             break
+          //case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-open']:
+          case PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully-popup-open']:
+            sendNotification(t('Notification.call_transferred_title'), t('Notification.call_transferred_body'))
+            break
+          //case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-close']:
+          //case PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully-popup-close']:
+          //  window.api.hidePhoneIsland()
+          //  break
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
             if (phoneIslandState.current !== event) {
               phoneIslandState.current = event
@@ -132,11 +139,23 @@ export function PhoneIslandPage() {
               {
                 timeout: 2000
               })
-            const size = getSizeFromResizeEvent(event)!
-            window.api.resizePhoneIsland(size.w, size.h)
             //window.api.hidePhoneIsland()
             isOnCall.current = false
             break
+          //case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-open']:
+          //  if (!phoneIslandDisconnectionPopupOpen.current) {
+          //    phoneIslandDisconnectionPopupOpen.current = true
+          //    const size = getSizeFromResizeEvent(event)!
+          //    window.api.resizePhoneIsland(size.w, size.h)
+          //  }
+          //  break
+          //case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-close']:
+          //  if (phoneIslandDisconnectionPopupOpen.current) {
+          //    phoneIslandDisconnectionPopupOpen.current = false
+          //    const size = getSizeFromResizeEvent(event)!
+          //    window.api.resizePhoneIsland(size.w, size.h)
+          //  }
+          //  break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
             NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
               count: number, rows: CallData[]

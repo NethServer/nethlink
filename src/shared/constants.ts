@@ -91,6 +91,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-transfer-close' = 'phone-island-call-transfer-close',
   'phone-island-call-transfer-switch' = 'phone-island-call-transfer-switch',
   'phone-island-call-transfer-cancel' = 'phone-island-call-transfer-cancel',
+  'phone-island-call-transfer-failed' = 'phone-island-call-transfer-failed',
+  'phone-island-call-transfer-successfully' = 'phone-island-call-transfer-successfully',
   'phone-island-call-transfer' = 'phone-island-call-transfer',
   'phone-island-call-keypad-open' = 'phone-island-call-keypad-open',
   'phone-island-call-keypad-close' = 'phone-island-call-keypad-close',
@@ -117,6 +119,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-transfer-closed' = 'phone-island-call-transfer-closed',
   'phone-island-call-transfer-switched' = 'phone-island-call-transfer-switched',
   'phone-island-call-transfer-canceled' = 'phone-island-call-transfer-canceled',
+  'phone-island-call-transfer-successfully-popup-open' = 'phone-island-call-transfer-successfully-popup-open',
+  'phone-island-call-transfer-successfully-popup-close' = 'phone-island-call-transfer-successfully-popup-close',
   'phone-island-call-transfered' = 'phone-island-call-transfered',
   'phone-island-call-keypad-opened' = 'phone-island-call-keypad-opened',
   'phone-island-call-keypad-closed' = 'phone-island-call-keypad-closed',
@@ -170,7 +174,10 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-server-disconnected' = 'phone-island-server-disconnected',
   'phone-island-socket-connected' = 'phone-island-socket-connected',
   'phone-island-socket-disconnected' = 'phone-island-socket-disconnected',
-  'phone-island-socket-reconnected' = 'phone-island-socket-reconnected'
+  'phone-island-socket-reconnected' = 'phone-island-socket-reconnected',
+  'phone-island-socket-disconnected-popup-open' = 'phone-island-socket-disconnected-popup-open',
+  'phone-island-socket-disconnected-popup-close' = 'phone-island-socket-disconnected-popup-close',
+
 }
 
 function getSize(normalSize: Size, collapsedSize?: Size, minimizedSize: Size = { w: 168, h: 40 }) {
@@ -182,8 +189,12 @@ function getSize(normalSize: Size, collapsedSize?: Size, minimizedSize: Size = {
 }
 
 export const PHONE_ISLAND_RESIZE = new Map<string, (isExpanded: boolean, isMinimized: boolean, isDisconnected: boolean) => Size>([
-  [PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], getSize({ w: 420, h: 36 })],
-  [PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], getSize({ w: 420, h: 36 })],
+  //[PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-open'], getSize({ w: 20, h: 36 })],
+  //[PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-close'], getSize({ w: 20, h: 36 })],
+  //[PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully-popup-open'], getSize({ w: 20, h: 36 })],
+  //[PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully-popup-close'], getSize({ w: 20, h: 36 })],
+  [PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], getSize({ w: 420, h: 136 })],
+  [PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], getSize({ w: 420, h: 136 })],
   [PHONE_ISLAND_EVENTS['phone-island-call-ringing'], getSize({ w: 420, h: 98 })],
   [PHONE_ISLAND_EVENTS['phone-island-call-started'], getSize({ w: 420, h: 98 })],
   [PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], getSize({ w: 350, h: 306 })],
@@ -205,6 +216,10 @@ export const PHONE_ISLAND_RESIZE = new Map<string, (isExpanded: boolean, isMinim
   [
     PHONE_ISLAND_EVENTS['phone-island-call-transfered'],
     getSize({ w: 350, h: 278 }, { w: 350, h: 370 })
+  ],
+  [
+    PHONE_ISLAND_EVENTS['phone-island-call-transfer-failed'],
+    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
   ],
   [PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened'], getSize({ w: 340, h: 442 }, undefined, { w: 168, h: 80 })],
   [
