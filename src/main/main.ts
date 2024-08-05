@@ -87,7 +87,6 @@ export async function onAppResume() {
   log('APP POWER RESUME')
   store.getFromDisk()
   setTimeout(async () => {
-    PhoneIslandController.instance && PhoneIslandController.instance.logout()
     if (NethLinkController.instance) {
       await PhoneIslandController.instance.logout()
       NethLinkController.instance.logout()
