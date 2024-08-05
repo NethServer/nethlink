@@ -48,8 +48,8 @@ export class PhoneIslandController {
           store.store.phoneIslandPageData?.isMinimized ?? false,
           store.store.phoneIslandPageData?.isDisconnected ?? false
         )
-        window?.center()
         this.resize(bounds.w, bounds.h)
+        window?.center()
       }
     } catch (e) {
       log(e)
