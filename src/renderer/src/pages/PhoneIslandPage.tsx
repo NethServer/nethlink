@@ -138,6 +138,7 @@ export function PhoneIslandPage() {
             isOnCall.current = false
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
+            log(event, detail)
             NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
               count: number, rows: CallData[]
             }) => {
@@ -146,7 +147,6 @@ export function PhoneIslandPage() {
             lastResizeEvent.current = undefined
             phoneIslandState.current = PHONE_ISLAND_EVENTS['phone-island-call-end']
             break;
-
           case PHONE_ISLAND_EVENTS['phone-island-server-reloaded']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-connected']:
             setPhoneIslandPageData((p) => ({
@@ -181,6 +181,7 @@ export function PhoneIslandPage() {
             break
         }
         if (PHONE_ISLAND_RESIZE.has(event)) {
+          log(event, detail)
           switch (event) {
             case PHONE_ISLAND_EVENTS['phone-island-call-actions-opened']:
               setPhoneIslandPageData((p) => ({
