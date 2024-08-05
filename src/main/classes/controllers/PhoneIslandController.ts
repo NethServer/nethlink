@@ -21,15 +21,16 @@ export class PhoneIslandController {
       const window = this.window.getWindow()
       if (window) {
         let b = window.getBounds()
-        if (w === 420 && h === 98) {
-          log('')
-        }
         if (b.height !== h || b.width !== w) {
           window.setBounds({ width: w, height: h })
         }
-        if (!window.isVisible()) {
-          window.show()
-          window.setAlwaysOnTop(true)
+        if (h === 1 && w === 1) {
+          window.hide()
+        } else {
+          if (!window.isVisible()) {
+            window.show()
+            window.setAlwaysOnTop(true)
+          }
         }
       }
     } catch (e) {
