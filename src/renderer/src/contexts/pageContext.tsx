@@ -34,7 +34,7 @@ export const PageContext = ({ children }) => {
       page: props.page,
       props
     }
-    isDev() && log(pageData)
+    log(pageData)
     setPage(() => pageData)
     window.document.title = pageData.page
   }, [])
