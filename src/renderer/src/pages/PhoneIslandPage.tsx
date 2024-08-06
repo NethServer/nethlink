@@ -113,14 +113,9 @@ export function PhoneIslandPage() {
           case PHONE_ISLAND_EVENTS['phone-island-queue-update']:
             onQueueUpdate(detail)
             break
-          //case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-open']:
           case PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully-popup-open']:
             sendNotification(t('Notification.call_transferred_title'), t('Notification.call_transferred_body'))
             break
-          //case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-close']:
-          //case PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully-popup-close']:
-          //  window.api.hidePhoneIsland()
-          //  break
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
             if (phoneIslandState.current !== event) {
               phoneIslandState.current = event
@@ -139,23 +134,8 @@ export function PhoneIslandPage() {
               {
                 timeout: 2000
               })
-            //window.api.hidePhoneIsland()
             isOnCall.current = false
             break
-          //case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-open']:
-          //  if (!phoneIslandDisconnectionPopupOpen.current) {
-          //    phoneIslandDisconnectionPopupOpen.current = true
-          //    const size = getSizeFromResizeEvent(event)!
-          //    window.api.resizePhoneIsland(size.w, size.h)
-          //  }
-          //  break
-          //case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-close']:
-          //  if (phoneIslandDisconnectionPopupOpen.current) {
-          //    phoneIslandDisconnectionPopupOpen.current = false
-          //    const size = getSizeFromResizeEvent(event)!
-          //    window.api.resizePhoneIsland(size.w, size.h)
-          //  }
-          //  break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
             NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
               count: number, rows: CallData[]
