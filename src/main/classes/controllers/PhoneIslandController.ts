@@ -48,8 +48,8 @@ export class PhoneIslandController {
           store.store.phoneIslandPageData?.isMinimized ?? false,
           store.store.phoneIslandPageData?.isDisconnected ?? false
         )
-        window?.center()
         this.resize(bounds.w, bounds.h)
+        window?.center()
       }
     } catch (e) {
       log(e)
@@ -91,7 +91,6 @@ export class PhoneIslandController {
     NethVoiceAPI.User.me().then((me) => {
       log('me before call start', { me })
       this.window.emit(IPC_EVENTS.START_CALL, number)
-      //this.showPhoneIsland()
     })
   }
 
