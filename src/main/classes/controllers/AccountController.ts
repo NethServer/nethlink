@@ -88,7 +88,7 @@ export class AccountController {
           await this.saveLoggedAccount(loggedAccount, password)
           return true
         } catch (e) {
-          isDev() && log(e, authAppData.lastUserCryptPsw)
+          log(e, authAppData.lastUserCryptPsw)
           return false
         }
       }

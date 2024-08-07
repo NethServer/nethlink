@@ -115,7 +115,9 @@
     "application_update_title": "Aggiornamento dell'applicazione disponibile",
     "application_update_body": "Clicca quì per aprire la pagina dove potrai scaricare la nuova release",
     "lost_call_title": "Chiamata persa da {{user}}",
-    "lost_call_body": "Hai ricevuto una chiamata da {{number}} alle {{datetime}}"
+    "lost_call_body": "Hai ricevuto una chiamata da {{number}} alle {{datetime}}",
+    "call_transferred_title": "Traferimento di chiamata",
+    "call_transferred_body": "La chiamata è stata trasferita con successo"
   },
   "Phonebook": {
     "Phonebook": "Rubrica",
@@ -612,7 +614,7 @@
     "Start recording": "Inizia registrazione",
     "Switch call": "Scambia chiamata",
     "Call to transfer": "Chiamata da trasferire",
-    "Hangup and transfer": "Chiudi e trasferisci",
+    "Hangup and transfer": "Trasferisci",
     "Answer": "Rispondi",
     "Settings": "Impostazioni"
   },

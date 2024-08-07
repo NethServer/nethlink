@@ -7,3 +7,4 @@ out
 yarn.lock
 certification
 *.env
+test/

@@ -21,7 +21,7 @@ export class AppController {
   static async safeQuit() {
     if (!AppController.onQuit) {
       AppController.onQuit = true
-      isDev() && log('SAFE QUIT')
+      log('SAFE QUIT')
       if (PhoneIslandController.instance) {
         try {
           await PhoneIslandController.instance.logout()

@@ -4,20 +4,18 @@ import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useStoreState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
-import { Account, CallData, Extension, OperatorsType, PhoneIslandConfig, PhoneIslandPageData, Size } from '@shared/types'
+import { Account, CallData, Extension, PhoneIslandConfig, PhoneIslandPageData, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
 import { useRefState } from '@renderer/hooks/useRefState'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { differenceWith, forEach, isEqual } from 'lodash'
+import { differenceWith } from 'lodash'
 import { sendNotification } from '@renderer/utils'
-import i18next, { t } from 'i18next'
-import { formatDistance } from 'date-fns'
+import { t } from 'i18next'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import { getTimeDifference } from '@renderer/lib/dateTime'
-import { enGB, it } from 'date-fns/locale'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
@@ -34,6 +32,7 @@ export function PhoneIslandPage() {
   const phoneIslandTokenLoginResponse = useRef<string>()
   const loadPath = useRef<string | undefined>(undefined)
   const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
+  const phoneIslandDisconnectionPopupOpen = useRef<boolean>(false)
 
   const {
     onMainPresence,
@@ -42,7 +41,8 @@ export function PhoneIslandPage() {
   } = usePhoneIslandEventHandler()
 
   const isOnCall = useRef<boolean>(false)
-  const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS>()
+  const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS | undefined>(undefined)
+  const phoneIslandState = useRef<PHONE_ISLAND_EVENTS | undefined>(undefined)
   const [phoneIslandPageData, setPhoneIslandPageData] = useRefState<PhoneIslandPageData>(useStoreState<PhoneIslandPageData>('phoneIslandPageData'))
 
 
@@ -97,9 +97,9 @@ export function PhoneIslandPage() {
 
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
       window.addEventListener(event, async (...data) => {
+        log(event, data)
         const customEvent = data[0]
         const detail = customEvent['detail']
-        isDev() && log(event, detail)
         switch (event) {
           case PHONE_ISLAND_EVENTS['phone-island-default-device-changed']:
             log('phone-island-default-device-changed', detail)
@@ -113,8 +113,14 @@ export function PhoneIslandPage() {
           case PHONE_ISLAND_EVENTS['phone-island-queue-update']:
             onQueueUpdate(detail)
             break
+          case PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully-popup-open']:
+            sendNotification(t('Notification.call_transferred_title'), t('Notification.call_transferred_body'))
+            break
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
-            window.api.showPhoneIsland()
+            if (phoneIslandState.current !== event) {
+              phoneIslandState.current = event
+              window.api.showPhoneIsland()
+            }
             break
           case PHONE_ISLAND_EVENTS['phone-island-server-disconnected']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
@@ -128,7 +134,6 @@ export function PhoneIslandPage() {
               {
                 timeout: 2000
               })
-            window.api.hidePhoneIsland()
             isOnCall.current = false
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
@@ -137,19 +142,18 @@ export function PhoneIslandPage() {
             }) => {
               gestLastCalls(newLastCalls)
             })
+            lastResizeEvent.current = undefined
+            phoneIslandState.current = PHONE_ISLAND_EVENTS['phone-island-call-end']
             break;
-          case PHONE_ISLAND_EVENTS['phone-island-call-parked']:
-          case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
-          case PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']:
-            window.api.hidePhoneIsland()
-            isOnCall.current = false
-            break
           case PHONE_ISLAND_EVENTS['phone-island-server-reloaded']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-connected']:
             setPhoneIslandPageData((p) => ({
               ...p,
               isDisconnected: false
             }))
+            if (!isOnCall.current) {
+              window.api.hidePhoneIsland()
+            }
             break
           case PHONE_ISLAND_EVENTS['phone-island-expanded']:
             setPhoneIslandPageData((p) => ({
@@ -189,12 +193,8 @@ export function PhoneIslandPage() {
               }))
               break
             case PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
-              break
             case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
-              phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
-              break
-            case PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']:
+            case PHONE_ISLAND_EVENTS['phone-island-call-transfered']:
               phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
               break
             default:
@@ -209,6 +209,7 @@ export function PhoneIslandPage() {
             }
           }
           const size = getSizeFromResizeEvent(event)!
+          log("RESIZE EVENT", event, size)
           window.api.resizePhoneIsland(size.w, size.h)
         }
       })
@@ -235,7 +236,11 @@ export function PhoneIslandPage() {
   }
 
   function getSizeFromResizeEvent(event: string): Size | undefined {
+    if (event === PHONE_ISLAND_EVENTS['phone-island-call-ended'] && phoneIslandState.current === PHONE_ISLAND_EVENTS['phone-island-call-ringing']) {
+      event = phoneIslandState.current
+    }
     const resizeEvent = PHONE_ISLAND_RESIZE.get(event)
+    log('RESIZE FROM: ', { event, lastResizeEvent: lastResizeEvent.current, phoneIslandState: phoneIslandState.current })
     if (resizeEvent) {
       if (event !== PHONE_ISLAND_EVENTS['phone-island-compressed'])
         lastResizeEvent.current = event as PHONE_ISLAND_EVENTS
@@ -244,6 +249,7 @@ export function PhoneIslandPage() {
         phoneIslandPageData.current?.isMinimized ?? false,
         phoneIslandPageData.current?.isDisconnected ?? false
       )
+      log("RESIZE SIZE: ", size)
       return size
     }
     return undefined
@@ -333,11 +339,32 @@ export function PhoneIslandPage() {
   return (
     <div
       ref={phoneIslandContainer}
-      className={`absolute top-0 left-0 h-[100vh] w-[100vw] z-[9999] ${isDev() ? 'bg-red-700' : ''} overflow-hidden`}
+      id={'phone-island-container'}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        height: '100vh',
+        width: '100vw',
+        zIndex: 9999,
+        overflow: 'hidden',
+      }}
     >
-      <div className="absolute h-[100vh] w-[100vw] radius-md backdrop-hue-rotate-90"></div>
-      <div className='flex flex-col items-start'>
+      <div style={{
+        position: 'absolute',
+        height: '100vh',
+        width: '100vw',
+        ...(isDev() ? {
+          backgroundColor: '#058D1150',
+        } : {}),
 
+      }}
+      ></div>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'start'
+      }}>
         {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
       </div>
     </div >
