@@ -16,6 +16,8 @@ import { sendNotification } from '@renderer/utils'
 import { t } from 'i18next'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import { getTimeDifference } from '@renderer/lib/dateTime'
+import { enGB, it } from 'date-fns/locale'
+import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
@@ -300,6 +302,8 @@ export function PhoneIslandPage() {
     }
   }, [deviceInformationObject.current, account?.username])
 
+
+
   const dispatchAndWait = async (event: PHONE_ISLAND_EVENTS, awaitEvent: PHONE_ISLAND_EVENTS, options?: {
     data?: any,
     timeout?: number
@@ -354,6 +358,7 @@ export function PhoneIslandPage() {
         overflow: 'hidden',
       }}
     >
+
       <div style={{
         position: 'absolute',
         height: '100vh',
@@ -364,13 +369,17 @@ export function PhoneIslandPage() {
 
       }}
       ></div>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'start'
-      }}>
-        {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
-      </div>
+      <ElectronDraggableWindow>
+        <div
+          id="phone-island-container"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'start'
+          }}>
+          {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
+        </div>
+      </ElectronDraggableWindow>
     </div >
   )
 }

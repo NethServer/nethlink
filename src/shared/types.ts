@@ -6,7 +6,7 @@ export enum PAGES {
   SPLASHSCREEN = "splashscreenpage",
   LOGIN = "loginpage",
   PHONEISLAND = "phoneislandpage",
-  NETHLINK = "nethlinkpage",
+  NETHLINK = "NethLink",
   DEVTOOLS = "devtoolspage"
 
 }
@@ -363,7 +363,17 @@ export type LocalStorageData = {
   missedCalls?: CallData[],
   notifications?: NotificationData,
   lostCallNotifications?: CallData[],
-  connection?: boolean
+  connection?: boolean,
+}
+
+export type OnDraggingWindow = {
+  [key: string]: DraggingWindow
+}
+
+export type DraggingWindow = {
+  interval: number,
+  startMousePosition: { x: number, y: number },
+  startWindowPosition: { x: number, y: number }
 }
 
 export type PhoneIslandPageData = {

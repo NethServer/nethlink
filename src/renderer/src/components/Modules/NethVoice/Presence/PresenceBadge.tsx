@@ -6,25 +6,28 @@ import { Account, OperatorData, StatusTypes } from '@shared/types'
 import { t } from 'i18next'
 import { useTheme } from '@renderer/theme/Context'
 import classNames from 'classnames'
+import { Tooltip } from 'react-tooltip'
 import { log } from '@shared/utils/logger'
 
 export interface PresenceBadgeProps {
   mainPresence: StatusTypes | undefined
   className?: string
 }
+
+export const PresenceBadgeVisibility = ['callforward', 'voicemail', 'cellphone']
 export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) => {
   const [account] = useStoreState<Account>('account')
   const [operators] = useStoreState<OperatorData>('operators')
   const { badge: theme, status: statuses } = useTheme().theme
 
-  if (['callforward', 'voicemail', 'cellphone'].includes(mainPresence as string)) {
+  if (PresenceBadgeVisibility.includes(mainPresence as string)) {
     const isCallforward = ['callforward', 'voicemail'].includes(mainPresence as string)
     if (!(account?.data?.mainextension && operators?.extensions[account.data.mainextension])) {
       return (
         <div
           className={classNames(
-            'animate-pulse h-[25px] w-[106px] bg-gray-300 dark:bg-gray-600 z-[100]',
-            !navigator.userAgent.includes('Windows') ? `absolute right-4` : 'absolute left-4',
+            'animate-pulse h-5 w-8 bg-gray-300 dark:bg-gray-600 z-[100]',
+            //!navigator.userAgent.includes('Windows') ? `absolute right-4` : 'absolute left-4',
             theme.base,
             theme.rounded['full'],
             statuses[isCallforward ? 'callforward' : 'voicemail']?.badge.base,
@@ -34,12 +37,13 @@ export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) =
       )
     } else {
       return (
-        <div className={classNames('absolute top-[5px] z-[100]', className)}>
+        <div className={classNames('h-5 w-8 z-[100]', className)}>
           <Badge
+
             variant={isCallforward ? 'callforward' : 'voicemail'}
             rounded="full"
             size="small"
-            className="p-0 h-[22px] max-w-[300px]"
+            className={`flex flex-row justify-center px-2.5 py-0.5 h-5 w-full presence_box overflow-hidden`}
           >
             <FontAwesomeIcon
               icon={
@@ -49,25 +53,40 @@ export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) =
                     ? faMobile
                     : faVoicemail
               }
-              className="h-4 w-4  mr-2 text-topBarText dark:text-topBarTextDark"
+              className="h-4 w-4 text-topBarText dark:text-topBarTextDark"
               aria-hidden="true"
             />
-            <span className="font-medium text-xs leading-[18px]">
-              {mainPresence === 'callforward'
-                ? t('TopBar.Call forward')
-                : mainPresence === 'cellphone'
-                  ? t('TopBar.Cellphone')
-                  : t('TopBar.Voicemail')}
-            </span>
-            <p className="font-medium text-xs leading-[18px]">
-              {account?.data?.endpoints?.cellphone[0]?.id &&
-                mainPresence === 'cellphone' &&
-                `${': ' + account?.data?.endpoints?.cellphone[0]?.id}`}
-              {operators?.extensions[account.data.mainextension]?.cf !== '' &&
-                mainPresence === 'callforward' &&
-                `${': ' + operators?.extensions[account.data.mainextension]?.cf}`}
-            </p>
+
           </Badge>
+
+          <Tooltip
+            anchorSelect={`.presence_box`}
+            place="bottom"
+            className="z-[100000]"
+            opacity={1}
+            noArrow={false}
+
+          >
+            <span className="font-medium text-xs leading-[18px]">
+              {
+                mainPresence === 'callforward'
+                  ? t('TopBar.Call forward')
+                  : mainPresence === 'cellphone'
+                    ? t('TopBar.Cellphone')
+                    : t('TopBar.Voicemail')
+              }
+              {
+                account?.data?.endpoints?.cellphone[0]?.id &&
+                mainPresence === 'cellphone' &&
+                `${': ' + account?.data?.endpoints?.cellphone[0]?.id}`
+              }
+              {
+                operators?.extensions[account.data.mainextension]?.cf !== '' &&
+                mainPresence === 'callforward' &&
+                `${': ' + operators?.extensions[account.data.mainextension]?.cf}`
+              }
+            </span>
+          </Tooltip>
         </div>
       )
     }

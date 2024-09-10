@@ -1,25 +1,11 @@
 #app-container {
+#phone-island-container {
   .draggableAnchor,
   .pi-absolute,
   .pi-pointer-events-auto {
     transform: none !important;
-    -webkit-app-region: drag !important;
-  }
-
-  .noDraggableAnchor,
-  button,
-  .pi-flex,
-  .pi-relative {
-    -webkit-app-region: no-drag !important;
-  }
-
-  .pi-absolute.pi-w-full.pi-bg-gray-500.pi-flex.pi-justify-between.-pi-mt-10.-pi-z-10.pi-font-sans.pi-items-top.pi-px-4.pi-pt-3
-    > *,
-  .pi-absolute.pi-w-full.pi-bg-gray-500.pi-flex.pi-justify-between.-pi-mt-10.-pi-z-10.pi-font-sans.pi-items-top.pi-px-6.pi-pt-3
-    > * {
-    -webkit-app-region: no-drag !important;
-    cursor: pointer !important;
-    pointer-events: all;
+    /* -webkit-app-region: no-drag !important; */
+    /* -webkit-app-region: drag !important; */
   }
 }
 
@@ -73,3 +59,4 @@
 }
 
 
+}

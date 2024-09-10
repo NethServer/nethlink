@@ -222,7 +222,7 @@ const resetApp = async () => {
       lastUserCryptPsw: undefined
     },
     theme: 'system',
-    connection: false
+    connection: false,
   })
   await delay(100)
   store.saveToDisk()
@@ -259,7 +259,7 @@ const startApp = async (attempt = 0) => {
           },
           account: undefined,
           theme: 'system',
-          connection: store.store['connection'] || false
+          connection: store.store['connection'] || false,
         })
         showLogin()
       }

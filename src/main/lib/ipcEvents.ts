@@ -2,8 +2,8 @@ import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
-import { Account, PAGES } from '@shared/types'
-import { BrowserWindow, Notification, NotificationConstructorOptions, app, ipcMain, shell } from 'electron'
+import { Account, OnDraggingWindow, PAGES } from '@shared/types'
+import { BrowserWindow, Notification, NotificationConstructorOptions, app, ipcMain, screen, shell } from 'electron'
 import { join } from 'path'
 import { log } from '@shared/utils/logger'
 import { cloneDeep } from 'lodash'
@@ -47,6 +47,8 @@ export function once(event: IPC_EVENTS, callback: () => void) {
 }
 export function registerIpcEvents() {
 
+  let draggingWindows: OnDraggingWindow = {}
+
   //TODO: move each event to the controller it belongs to
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
     return app.getSystemLocale()
@@ -72,6 +74,58 @@ export function registerIpcEvents() {
     });
   });
 
+  ipcMain.on(IPC_EVENTS.START_DRAG, (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (window) {
+      const cursorPosition = screen.getCursorScreenPoint();
+      const startMousePosition = { x: cursorPosition.x, y: cursorPosition.y };
+      const [x, y] = window.getPosition()
+      const startWindowPosition = {
+        x, y
+      }
+      if (!draggingWindows.hasOwnProperty(window.title)) {
+        const interval: number = setInterval(() => {
+          updateWindowPosition(window)
+        }, 1000 / 60) as unknown as number; // => 60 frames per seconds
+        draggingWindows = {
+          ...draggingWindows,
+          [window.title]: {
+            interval,
+            startMousePosition,
+            startWindowPosition
+          }
+        }
+      }
+    }
+  });
+
+  ipcMain.on(IPC_EVENTS.STOP_DRAG, (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (window && draggingWindows.hasOwnProperty(window.title)) {
+      clearInterval(draggingWindows[window.title].interval)
+      delete draggingWindows[window.title]
+    }
+  });
+
+
+  function updateWindowPosition(window: Electron.BrowserWindow) {
+    try {
+      const draggingWindow = draggingWindows[window.title]
+      if (draggingWindow) {
+        const cursorPosition = screen.getCursorScreenPoint();
+        const deltaX = cursorPosition.x - draggingWindow.startMousePosition.x;
+        const deltaY = cursorPosition.y - draggingWindow.startMousePosition.y;
+        const newX = draggingWindow.startWindowPosition.x + deltaX;
+        const newY = draggingWindow.startWindowPosition.y + deltaY;
+        window.setPosition(newX, newY);
+      }
+    } catch (e) {
+
+    }
+  }
+
+
+
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (event, isOnline) => {
     log('CONNECTION STATE', isOnline)
     store.set('connection', isOnline)
@@ -81,10 +135,6 @@ export function registerIpcEvents() {
     const page = getPageFromQuery(event?.sender?.getTitle())
     event.sender.send(IPC_EVENTS.SHARED_STATE_UPDATED, store.store, page);
   });
-
-  ipcMain.on(IPC_EVENTS.HIDE_NETH_LINK, async (event) => {
-    NethLinkController.instance.window.hideWindowFromRenderer()
-  })
 
   ipcMain.on(IPC_EVENTS.CLOSE_NETH_LINK, async (event) => {
     AppController.safeQuit()

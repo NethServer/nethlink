@@ -24,6 +24,7 @@ import { PresenceBox } from './Modules/NethVoice/Presence/PresenceBox'
 import classNames from 'classnames'
 import { truncate } from 'lodash'
 import { log } from '@shared/utils/logger'
+import { PresenceBadge } from './Modules/NethVoice/Presence/PresenceBadge'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -79,9 +80,13 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   if (!account) return <></>
 
   return (
-    <div className="flex flex-row items-center justify-between gap-4 max-w-[318px] px-4 pt-2">
+    <div className="flex flex-row items-center justify-between gap-4 px-4 pt-2">
       <SearchBox />
-      <div className="flex flex-row min-w-20 gap-4 items-center">
+      <div className="flex flex-row min-w-30 gap-2 items-center">
+        <PresenceBadge
+          mainPresence={account?.data?.mainPresence}
+          className={classNames()}
+        />
         <div>
           <Listbox>
             <Listbox.Button
@@ -104,7 +109,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                 el.addEventListener(
                   'focus',
                   (e) => {
-                    ;(e.target! as HTMLButtonElement).blur()
+                    ; (e.target! as HTMLButtonElement).blur()
                   },
                   {
                     once: true
@@ -172,7 +177,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
                 el.addEventListener(
                   'focus',
                   (e) => {
-                    ;(e.target! as HTMLButtonElement).blur()
+                    ; (e.target! as HTMLButtonElement).blur()
                   },
                   {
                     once: true

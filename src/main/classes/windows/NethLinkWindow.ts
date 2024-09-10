@@ -1,7 +1,7 @@
 import { PAGES } from '@shared/types'
 import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
-import { screen } from 'electron'
+import { screen, BrowserViewConstructorOptions } from 'electron'
 import { NethLinkPageSize } from '@shared/constants'
 
 export class NethLinkWindow extends BaseWindow {
@@ -12,27 +12,33 @@ export class NethLinkWindow extends BaseWindow {
     super(PAGES.NETHLINK, {
       width: NethLinkPageSize.w,
       height: NethLinkPageSize.h,
+      minWidth: NethLinkPageSize.w,
+      minHeight: NethLinkPageSize.h,
       show: false,
       fullscreenable: false,
+      titleBarStyle: 'default',
       autoHideMenuBar: true,
-      closable: true,
-      alwaysOnTop: true,
-      minimizable: false,
+      closable: false,
+      alwaysOnTop: false,
+      minimizable: true,
       maximizable: false,
       movable: true,
-      resizable: false,
+      resizable: true,
       skipTaskbar: true,
-      roundedCorners: false,
+      roundedCorners: true,
       parent: undefined,
-      transparent: true,
-      hiddenInMissionControl: true,
-      hasShadow: false,
+      //transparent: false,
+      //hiddenInMissionControl: true,
+      hasShadow: true,
       center: false,
       fullscreen: false,
-      acceptFirstMouse: false,
-      frame: false,
-      thickFrame: false,
-      trafficLightPosition: { x: 0, y: 0 }
+      //acceptFirstMouse: false,
+      //frame: false,
+      thickFrame: true,
+      //trafficLightPosition: { x: 0, y: 0 }
+      icon: '../../public/LogoBlueSimpleDark.svg',
+      titleBarOverlay: true
+
     })
     this.size = NethLinkPageSize
     NethLinkWindow.instance = this
@@ -48,7 +54,6 @@ export class NethLinkWindow extends BaseWindow {
     let x = screenBounds.width - w - MARGIN
     let y = 0
     if (process.platform === 'win32') {
-      const trayBounds = TrayController.instance.tray.getBounds()
       y = screenBounds.height - h - WINDOWSBARHEIGHT - MARGIN
     }
     if (process.platform === 'linux') {
@@ -59,7 +64,7 @@ export class NethLinkWindow extends BaseWindow {
       y = screenBounds.y + MACBARHEIGHT + MARGIN
     }
 
-    const bound = { x, y, w, h }
+    const bound: Electron.Rectangle = { x, y, width: w, height: h }
     this._window?.setBounds(bound, false)
   }
 
@@ -71,7 +76,7 @@ export class NethLinkWindow extends BaseWindow {
     this._window?.setVisibleOnAllWorkspaces(false)
   }
 
-  hideWindowFromRenderer() {
-    super.hide()
+  hide(..._args: any): void {
+    this._window?.minimize()
   }
 }

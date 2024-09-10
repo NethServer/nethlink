@@ -16,7 +16,7 @@ export class PhoneIslandWindow extends BaseWindow {
       movable: true,
       resizable: false,
       skipTaskbar: true,
-      roundedCorners: false,
+      roundedCorners: true,
       parent: undefined,
       transparent: true,
       hiddenInMissionControl: true,
