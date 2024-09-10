@@ -6,6 +6,7 @@ import { debouncer, isDev } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { store } from '@/lib/mainStore'
+import { screen } from 'electron'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -49,7 +50,39 @@ export class PhoneIslandController {
           store.store.phoneIslandPageData?.isDisconnected ?? false
         )
         this.resize(bounds.w, bounds.h)
-        window?.center()
+        if (process.platform !== 'linux') {
+          const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
+          if (phoneIslandPosition) {
+            const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
+              const area = display.workArea
+              log({
+                area,
+                phoneIslandPosition,
+                x: phoneIslandPosition.x >= area.x,
+                y: phoneIslandPosition.y >= area.y,
+                w: (phoneIslandPosition.x + bounds.w) < (area.x + area.width),
+                h: (phoneIslandPosition.y + bounds.h) < (area.y + area.height)
+              })
+              return (
+                result ||
+                (phoneIslandPosition.x >= area.x &&
+                  phoneIslandPosition.y >= area.y &&
+                  (phoneIslandPosition.x + bounds.w) < (area.x + area.width) &&
+                  (phoneIslandPosition.y + bounds.h) < (area.y + area.height))
+              )
+            }, false)
+            if (isPhoneIslandOnDisplay) {
+              window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
+            } else {
+              window?.center()
+            }
+          }
+          else {
+            window?.center()
+          }
+        } else {
+          window?.center()
+        }
       }
     } catch (e) {
       log(e)
