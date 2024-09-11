@@ -13,7 +13,7 @@ export class PhoneIslandWindow extends BaseWindow {
       alwaysOnTop: true,
       minimizable: false,
       maximizable: false,
-      movable: true,
+      movable: false,
       resizable: false,
       skipTaskbar: true,
       roundedCorners: true,

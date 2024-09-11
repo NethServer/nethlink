@@ -21,7 +21,7 @@ export class NethLinkWindow extends BaseWindow {
       closable: false,
       alwaysOnTop: false,
       minimizable: true,
-      maximizable: false,
+      maximizable: true,
       movable: true,
       resizable: true,
       skipTaskbar: true,

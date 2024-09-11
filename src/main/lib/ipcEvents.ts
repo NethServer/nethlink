@@ -11,7 +11,7 @@ import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
 import moment from 'moment'
 import { store } from './mainStore'
-import { getPageFromQuery, isDev } from '@shared/utils/utils'
+import { debouncer, getPageFromQuery, isDev } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 
@@ -102,8 +102,17 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.STOP_DRAG, (event) => {
     const window = BrowserWindow.fromWebContents(event.sender);
     if (window && draggingWindows.hasOwnProperty(window.title)) {
-      clearInterval(draggingWindows[window.title].interval)
+      const draggingWindow = draggingWindows[window.title]
+      clearInterval(draggingWindow.interval)
       delete draggingWindows[window.title]
+      const cursorPosition = screen.getCursorScreenPoint();
+      const deltaX = cursorPosition.x - draggingWindow.startMousePosition.x;
+      const deltaY = cursorPosition.y - draggingWindow.startMousePosition.y;
+      if (deltaX === 0 && deltaY === 0) {
+        debouncer(IPC_EVENTS.ENABLE_CLICK, () => {
+          event.sender.send(IPC_EVENTS.ENABLE_CLICK)
+        }, 100)
+      }
     }
   });
 
@@ -115,9 +124,11 @@ export function registerIpcEvents() {
         const cursorPosition = screen.getCursorScreenPoint();
         const deltaX = cursorPosition.x - draggingWindow.startMousePosition.x;
         const deltaY = cursorPosition.y - draggingWindow.startMousePosition.y;
-        const newX = draggingWindow.startWindowPosition.x + deltaX;
-        const newY = draggingWindow.startWindowPosition.y + deltaY;
-        window.setPosition(newX, newY);
+        if (deltaX !== 0 || deltaY !== 0) {
+          const newX = draggingWindow.startWindowPosition.x + deltaX;
+          const newY = draggingWindow.startWindowPosition.y + deltaY;
+          window.setPosition(newX, newY);
+        }
       }
     } catch (e) {
 
