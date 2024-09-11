@@ -117,7 +117,7 @@ export function PhoneIslandPage() {
             sendNotification(t('Notification.call_transferred_title'), t('Notification.call_transferred_body'))
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
-            if (phoneIslandState.current !== event) {
+            if (phoneIslandState.current !== event && !isOnCall.current) {
               phoneIslandState.current = event
               window.api.showPhoneIsland()
             }
@@ -144,6 +144,10 @@ export function PhoneIslandPage() {
             })
             lastResizeEvent.current = undefined
             phoneIslandState.current = PHONE_ISLAND_EVENTS['phone-island-call-end']
+            // when blind transfer is not answered and then the call come back we need to ensure could also not answer [this is a workaroud because after the call-end we receive anoter call-ringing from the target of the call transfer]
+            setTimeout(() => {
+              isOnCall.current = false
+            }, 250)
             break;
           case PHONE_ISLAND_EVENTS['phone-island-server-reloaded']:
           case PHONE_ISLAND_EVENTS['phone-island-socket-connected']:
