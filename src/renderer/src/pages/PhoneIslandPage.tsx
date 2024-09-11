@@ -144,7 +144,7 @@ export function PhoneIslandPage() {
             })
             lastResizeEvent.current = undefined
             phoneIslandState.current = PHONE_ISLAND_EVENTS['phone-island-call-end']
-            //TODO: when blind transfer is not answered and then the call come back we need to ensure could also not answer [this is a workaroud becouse after the call-end we receive anoter call-ringing from the target of the call transfer]
+            // when blind transfer is not answered and then the call come back we need to ensure could also not answer [this is a workaroud because after the call-end we receive anoter call-ringing from the target of the call transfer]
             setTimeout(() => {
               isOnCall.current = false
             }, 250)
