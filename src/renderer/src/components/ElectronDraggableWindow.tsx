@@ -13,14 +13,12 @@ export const ElectronDraggableWindow = ({ children }) => {
   const handleMouseClick = (e: MouseEvent) => {
     if (e.isTrusted || !e['nethlink']) {
       target = e.target
-      console.log('CAPTURE', e)
       e.stopImmediatePropagation()
       e.stopPropagation()
       e.preventDefault()
     } else if (e['nethlink'] && target && passthroughEvent.current) {
       target = null
       passthroughEvent.current = false
-      console.log('passthrough click event', e['nethlink'])
     }
   };
 
@@ -48,7 +46,6 @@ export const ElectronDraggableWindow = ({ children }) => {
     });
 
     window.electron.receive(IPC_EVENTS.ENABLE_CLICK, () => {
-      console.log('CLICK', target)
       if (target && !passthroughEvent.current) {
         passthroughEvent.current = true
         const newEvent = new MouseEvent('click', {

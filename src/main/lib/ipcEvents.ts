@@ -127,7 +127,14 @@ export function registerIpcEvents() {
         if (deltaX !== 0 || deltaY !== 0) {
           const newX = draggingWindow.startWindowPosition.x + deltaX;
           const newY = draggingWindow.startWindowPosition.y + deltaY;
-          window.setPosition(newX, newY);
+          //window.setPosition(newX, newY);
+          const [w, h] = window.getSize()
+          window.setBounds({
+            x: newX,
+            y: newY,
+            width: w,
+            height: h
+          })
         }
       }
     } catch (e) {
