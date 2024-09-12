@@ -14,6 +14,7 @@ import { store } from './mainStore'
 import { debouncer, getPageFromQuery, isDev } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
+import { PhoneIslandWindow } from '@/classes/windows'
 
 
 function onSyncEmitter<T>(
@@ -127,14 +128,24 @@ export function registerIpcEvents() {
         if (deltaX !== 0 || deltaY !== 0) {
           const newX = draggingWindow.startWindowPosition.x + deltaX;
           const newY = draggingWindow.startWindowPosition.y + deltaY;
-          //window.setPosition(newX, newY);
-          const [w, h] = window.getSize()
-          window.setBounds({
-            x: newX,
-            y: newY,
-            width: w,
-            height: h
-          })
+          log(PhoneIslandWindow.currentSize, window)
+          if (window.title === PAGES.PHONEISLAND) {
+            const { width, height } = PhoneIslandWindow.currentSize
+            window.setBounds({
+              x: newX,
+              y: newY,
+              width,
+              height
+            }, false)
+          } else {
+            const [w, h] = window.getContentSize()
+            window.setBounds({
+              x: newX,
+              y: newY,
+              width: w,
+              height: h
+            }, false)
+          }
         }
       }
     } catch (e) {

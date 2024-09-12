@@ -2,6 +2,8 @@ import { PAGES } from '@shared/types'
 import { BaseWindow } from './BaseWindow'
 
 export class PhoneIslandWindow extends BaseWindow {
+
+  public static currentSize: Partial<Electron.Rectangle> = {}
   constructor() {
     super(PAGES.PHONEISLAND, {
       width: 1,
