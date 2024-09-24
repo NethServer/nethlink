@@ -16,19 +16,27 @@ export class NethLinkController {
   }
 
   init() {
-    this.show()
+    try {
+      this.show()
+    } catch (e) { log(e) }
   }
 
   show() {
-    this.window.show()
+    try {
+      this.window.show()
+    } catch (e) { log(e) }
   }
 
   hide() {
-    this.window.hide()
+    try {
+      this.window.hide()
+    } catch (e) { log(e) }
   }
 
   sendUpdateNotification() {
-    this.window.emit(IPC_EVENTS.UPDATE_APP_NOTIFICATION)
+    try {
+      this.window.emit(IPC_EVENTS.UPDATE_APP_NOTIFICATION)
+    } catch (e) { log(e) }
   }
 
   logout() {

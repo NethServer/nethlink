@@ -121,19 +121,28 @@ export class PhoneIslandController {
     })
   }
   call(number: string) {
-    const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
-    NethVoiceAPI.User.me().then((me) => {
-      log('me before call start', { me })
-      this.window.emit(IPC_EVENTS.START_CALL, number)
-    })
+    try {
+
+      const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
+      NethVoiceAPI.User.me().then((me) => {
+        log('me before call start', { me })
+        this.window.emit(IPC_EVENTS.START_CALL, number)
+      })
+    } catch (e) {
+      log(e)
+    }
   }
 
   reconnect() {
-    this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
-    once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-      this.window.quit()
-      new PhoneIslandController()
-    })
+    try {
+      this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
+      once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
+        this.window.quit()
+        new PhoneIslandController()
+      })
+    } catch (e) {
+      log(e)
+    }
   }
 
 }

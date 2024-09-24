@@ -76,7 +76,7 @@ export class BaseWindow {
   }
 
   show(..._args: any) {
-    this._window!.show()
+    this._window?.show()
   }
 
   isOpen(..._args: any) {

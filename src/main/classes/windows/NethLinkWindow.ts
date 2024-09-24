@@ -3,6 +3,7 @@ import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
 import { screen, BrowserViewConstructorOptions } from 'electron'
 import { NethLinkPageSize } from '@shared/constants'
+import { log } from '@shared/utils/logger'
 
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
@@ -45,38 +46,51 @@ export class NethLinkWindow extends BaseWindow {
   }
 
   _setBounds() {
-    const MARGIN = 8
-    const LINUXBARHEIGHT = 32
-    const MACBARHEIGHT = 25
-    const WINDOWSBARHEIGHT = 40
-    const screenBounds: Electron.Rectangle = screen.getPrimaryDisplay().bounds
-    const { w, h } = this.size!
-    let x = screenBounds.width - w - MARGIN
-    let y = 0
-    if (process.platform === 'win32') {
-      y = screenBounds.height - h - WINDOWSBARHEIGHT - MARGIN
-    }
-    if (process.platform === 'linux') {
-      x = screenBounds.x + screenBounds.width - w - MARGIN
-      y = screenBounds.y + LINUXBARHEIGHT + MARGIN
-    }
-    if (process.platform === 'darwin') {
-      y = screenBounds.y + MACBARHEIGHT + MARGIN
-    }
+    try {
+      const MARGIN = 8
+      const LINUXBARHEIGHT = 32
+      const MACBARHEIGHT = 25
+      const WINDOWSBARHEIGHT = 40
+      const screenBounds: Electron.Rectangle = screen.getPrimaryDisplay().bounds
+      const { w, h } = this.size!
+      let x = screenBounds.width - w - MARGIN
+      let y = 0
+      if (process.platform === 'win32') {
+        y = screenBounds.height - h - WINDOWSBARHEIGHT - MARGIN
+      }
+      if (process.platform === 'linux') {
+        x = screenBounds.x + screenBounds.width - w - MARGIN
+        y = screenBounds.y + LINUXBARHEIGHT + MARGIN
+      }
+      if (process.platform === 'darwin') {
+        y = screenBounds.y + MACBARHEIGHT + MARGIN
+      }
 
-    const bound: Electron.Rectangle = { x, y, width: w, height: h }
-    this._window?.setBounds(bound, false)
+      const bound: Electron.Rectangle = { x, y, width: w, height: h }
+      this._window?.setBounds(bound, false)
+    } catch (e) {
+      log(e)
+    }
   }
 
   show(): void {
-    this._setBounds()
-    super.show()
-    this._window?.setVisibleOnAllWorkspaces(true)
-    this._window?.focus()
-    this._window?.setVisibleOnAllWorkspaces(false)
+    try {
+      this._setBounds()
+      super.show()
+      this._window?.setVisibleOnAllWorkspaces(true)
+      this._window?.focus()
+      this._window?.setVisibleOnAllWorkspaces(false)
+    }
+    catch (e) {
+      log(e)
+    }
   }
 
   hide(..._args: any): void {
-    this._window?.minimize()
+    try {
+      this._window?.minimize()
+    } catch (e) {
+      log(e)
+    }
   }
 }

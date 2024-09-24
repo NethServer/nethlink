@@ -14,25 +14,31 @@ export class LoginController {
   }
 
   resize(h: number) {
-    const loginPage = this.window!.getWindow()
-    if (loginPage) {
-      const bounds = loginPage.getBounds()
-      loginPage.setBounds({
-        ...bounds,
-        width: LOGIN_WINDOW_WIDTH,
-        height: h
-      }, true)
-      if (bounds.height === 0) {
-        loginPage.center()
+    try {
+      const loginPage = this.window!.getWindow()
+      if (loginPage) {
+        const bounds = loginPage.getBounds()
+        loginPage.setBounds({
+          ...bounds,
+          width: LOGIN_WINDOW_WIDTH,
+          height: h
+        }, true)
+        if (bounds.height === 0) {
+          loginPage.center()
+        }
       }
-    }
+    } catch (e) { log(e) }
   }
   show() {
-    this.window.show()
+    try {
+      this.window.show()
+    } catch (e) { log(e) }
   }
 
   hide() {
-    this.window!.hide()
+    try {
+      this.window!.hide()
+    } catch (e) { log(e) }
   }
 
   quit() {

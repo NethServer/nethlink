@@ -1,3 +1,4 @@
+import { log } from '@shared/utils/logger'
 import { SplashScreenWindow } from '../windows'
 
 export class SplashScreenController {
@@ -9,10 +10,18 @@ export class SplashScreenController {
   }
 
   show(): void {
-    this.window!.show()
+    try {
+      this.window!.show()
+    } catch (e) {
+      log(e)
+    }
   }
 
   hide(): void {
-    this.window.hide()
+    try {
+      this.window.hide()
+    } catch (e) {
+      log(e)
+    }
   }
 }
