@@ -16,7 +16,7 @@ export class NethLinkWindow extends BaseWindow {
       minWidth: NethLinkPageSize.w,
       minHeight: NethLinkPageSize.h,
       show: false,
-      fullscreenable: false,
+      fullscreenable: true,
       titleBarStyle: 'default',
       autoHideMenuBar: true,
       closable: false,
