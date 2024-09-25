@@ -22,16 +22,23 @@ export class AppController {
     if (!AppController.onQuit) {
       AppController.onQuit = true
       log('SAFE QUIT')
+      if (LoginController.instance) {
+        try {
+          LoginController.instance.safeQuit()
+        } catch (e) {
+          log(e)
+        }
+      }
       if (PhoneIslandController.instance) {
         try {
-          await PhoneIslandController.instance.logout()
+          await PhoneIslandController.instance.safeQuit()
         } catch (e) {
           log(e)
         }
       }
       if (NethLinkController.instance) {
         try {
-          NethLinkController.instance.logout()
+          NethLinkController.instance.safeQuit()
         } catch (e) {
           log(e)
         }

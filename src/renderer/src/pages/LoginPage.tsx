@@ -7,7 +7,6 @@ import lightHeader from '../assets/nethlinkLightHeader.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowLeft as ArrowIcon,
-  faXmark as CrossIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { Button } from '@renderer/components/Nethesis'
@@ -107,10 +106,6 @@ export function LoginPage({ themeMode }: LoginPageProps) {
     }
   }, [loginData?.windowHeight])
 
-  function exitLoginWindow() {
-    window.api.exitNethLink()
-  }
-
   const goBack = () => {
     setLoginData((p) => ({
       ...p,
@@ -130,19 +125,12 @@ export function LoginPage({ themeMode }: LoginPageProps) {
 
   return (
     <div
-      className="draggableAnchor h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 rounded-[10px] text-sm hide-scrollbar"
+      className="draggableAnchor h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 text-sm hide-scrollbar"
       ref={loginWindowRef}
     >
       <div className={classNames('noDraggableAnchor', 'h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
           <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
-          <Button variant="ghost" className="pt-2 pr-1 pb-2 pl-1">
-            <FontAwesomeIcon
-              icon={CrossIcon}
-              className="h-5 w-5 dark:text-gray-50 text-gray-900"
-              onClick={() => exitLoginWindow()}
-            />
-          </Button>
         </div>
         {
           auth && <>

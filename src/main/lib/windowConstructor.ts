@@ -56,9 +56,7 @@ export function createWindow(
 
   mainWindow.on('hide', () => { })
 
-  mainWindow.on('close', () => {
-    AppController.safeQuit()
-  })
+  mainWindow.on('close', () => { })
 
   mainBindings(ipcMain, mainWindow, fs)
 

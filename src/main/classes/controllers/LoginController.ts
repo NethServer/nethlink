@@ -4,6 +4,7 @@ import { AccountController } from './AccountController'
 import { log } from '@shared/utils/logger'
 
 export class LoginController {
+
   static instance: LoginController
 
   window: LoginWindow
@@ -18,12 +19,18 @@ export class LoginController {
       const loginPage = this.window!.getWindow()
       if (loginPage) {
         const bounds = loginPage.getBounds()
+        const height = h + 32
         loginPage.setBounds({
           ...bounds,
           width: LOGIN_WINDOW_WIDTH,
-          height: h
+          height
         }, true)
         if (bounds.height === 0) {
+          loginPage.setBounds({
+            ...bounds,
+            width: LOGIN_WINDOW_WIDTH,
+            height: 500
+          }, true)
           loginPage.center()
         }
       }
@@ -49,5 +56,8 @@ export class LoginController {
     }
   }
 
+  safeQuit() {
+    this.quit()
+  }
 
 }

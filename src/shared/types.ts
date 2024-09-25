@@ -4,7 +4,7 @@ export type AvailableThemes = 'system' | 'light' | 'dark'
 
 export enum PAGES {
   SPLASHSCREEN = "splashscreenpage",
-  LOGIN = "loginpage",
+  LOGIN = "NethLink-Login",
   PHONEISLAND = "phoneislandpage",
   NETHLINK = "NethLink",
   DEVTOOLS = "devtoolspage"

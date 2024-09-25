@@ -145,4 +145,8 @@ export class PhoneIslandController {
     }
   }
 
+
+  async safeQuit() {
+    await this.logout()
+  }
 }

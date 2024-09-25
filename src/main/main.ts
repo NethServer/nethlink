@@ -182,7 +182,9 @@ function attachOnReadyProcess() {
       }
       SplashScreenController.instance.window.quit()
       //once the loading is complete I enable the ability to click on the icon in the tray
-      TrayController.instance.enableClick = true
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
     }
 
   }

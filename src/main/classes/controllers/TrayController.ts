@@ -9,10 +9,11 @@ import { AppController } from './AppController'
 import { log } from '@shared/utils/logger'
 import { store } from '@/lib/mainStore'
 
+export type TrayUpdaterProps = {
+  enableShowButton?: boolean
+}
 export class TrayController {
   tray: Tray
-  enableClick = false
-
   static instance: TrayController
   constructor() {
     TrayController.instance = this
@@ -21,29 +22,7 @@ export class TrayController {
       : 'light'
     const image = this.getImage(theme)
     this.tray = new Tray(image)
-    this.tray.setIgnoreDoubleClickEvents(true)
-    this.tray.on('click', () => {
-      if (this.enableClick) {
-        if (LoginController.instance && LoginController.instance.window?.isOpen()) LoginController.instance.hide()
-        else if (NethLinkController.instance.window?.isOpen()) NethLinkController.instance.hide()
-        else if (store.store['account']) NethLinkController.instance.show()
-        else LoginController.instance.show()
-      }
-    })
-    const menu: (MenuItemConstructorOptions | MenuItem)[] = [
-      {
-        role: 'close',
-        commandId: 1,
-        click: () => {
-          AppController.safeQuit()
-        }
-      }
-    ]
-    this.tray.on('right-click', () => {
-      this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
-    })
-
-
+    this.updateTray()
   }
 
   getImage(theme: 'light' | 'dark') {
@@ -62,6 +41,40 @@ export class TrayController {
   changeIconByTheme(theme: 'light' | 'dark') {
     const image = this.getImage(theme)
     this.tray.setImage(image)
+  }
+
+  updateTray({
+    enableShowButton
+  }: TrayUpdaterProps = {}) {
+    const menu: (MenuItemConstructorOptions | MenuItem)[] = [
+      {
+        role: 'window',
+        label: "NethLink",
+        commandId: 1,
+        enabled: enableShowButton ?? false,
+        click: () => {
+          if (enableShowButton) {
+            if (LoginController.instance && LoginController.instance.window?.isOpen()) LoginController.instance.hide()
+            else if (NethLinkController.instance && NethLinkController.instance.window?.isOpen()) NethLinkController.instance.hide()
+            else if (store.store['account']) NethLinkController.instance.show()
+            else LoginController.instance.show()
+          }
+        }
+      },
+      {
+        role: 'close',
+        commandId: 2,
+        click: () => {
+          AppController.safeQuit()
+        }
+      }
+    ]
+    this.tray.on('right-click', () => {
+      this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
+    })
+    this.tray.on('click', () => {
+      this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
+    })
   }
 
 }

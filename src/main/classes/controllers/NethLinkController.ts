@@ -46,4 +46,8 @@ export class NethLinkController {
       log(e)
     }
   }
+
+  safeQuit() {
+    this.logout()
+  }
 }

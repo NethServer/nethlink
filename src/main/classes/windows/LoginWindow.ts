@@ -1,33 +1,41 @@
 import { PAGES } from '@shared/types'
-import { AccountController } from '../controllers'
+import { AccountController, TrayController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
+import { LoginPageSize } from '@shared/constants'
 
 export const LOGIN_WINDOW_WIDTH = 500
 export class LoginWindow extends BaseWindow {
   constructor() {
     super(PAGES.LOGIN, {
-      width: LOGIN_WINDOW_WIDTH,
-      height: 0,
+      width: LoginPageSize.w,
+      height: LoginPageSize.h,
+      minWidth: LoginPageSize.w,
+      minHeight: LoginPageSize.h,
       show: false,
-      fullscreenable: false,
+      fullscreenable: true,
+      titleBarStyle: 'default',
       autoHideMenuBar: true,
-      closable: false,
-      alwaysOnTop: true,
-      minimizable: false,
+      closable: true,
+      alwaysOnTop: false,
+      minimizable: true,
       maximizable: false,
       movable: true,
       resizable: false,
-      skipTaskbar: true,
+      skipTaskbar: false,
       roundedCorners: true,
       parent: undefined,
-      transparent: true,
-      hiddenInMissionControl: true,
-      hasShadow: false,
+      hasShadow: true,
       center: true,
       fullscreen: false,
-      acceptFirstMouse: false,
-      frame: false,
-      thickFrame: false
+      thickFrame: true,
+      icon: '../../public/LogoBlueSimpleDark.svg',
+      titleBarOverlay: true,
+
+    })
+
+    this._window?.on('close', (e) => {
+      e.preventDefault()
+      this.hide()
     })
   }
 

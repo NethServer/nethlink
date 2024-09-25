@@ -6,6 +6,11 @@ export const NethLinkPageSize = {
   w: 440,
   h: 440
 }
+
+export const LoginPageSize = {
+  w: 500,
+  h: 0
+}
 export const NEW_ACCOUNT = 'New Account'
 
 export enum MENU_ELEMENT {

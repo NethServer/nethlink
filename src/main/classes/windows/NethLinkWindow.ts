@@ -19,13 +19,13 @@ export class NethLinkWindow extends BaseWindow {
       fullscreenable: true,
       titleBarStyle: 'default',
       autoHideMenuBar: true,
-      closable: false,
+      closable: true,
       alwaysOnTop: false,
       minimizable: true,
       maximizable: true,
       movable: true,
       resizable: true,
-      skipTaskbar: true,
+      skipTaskbar: false,
       roundedCorners: true,
       parent: undefined,
       //transparent: false,
@@ -43,6 +43,11 @@ export class NethLinkWindow extends BaseWindow {
     })
     this.size = NethLinkPageSize
     NethLinkWindow.instance = this
+
+    this._window?.on('close', (e) => {
+      e.preventDefault()
+      this.hide()
+    })
   }
 
   _setBounds() {
@@ -88,7 +93,7 @@ export class NethLinkWindow extends BaseWindow {
 
   hide(..._args: any): void {
     try {
-      this._window?.minimize()
+      this._window?.hide()
     } catch (e) {
       log(e)
     }
