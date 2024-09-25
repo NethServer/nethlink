@@ -1,7 +1,7 @@
 import { PAGES } from '@shared/types'
 import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
-import { screen, BrowserViewConstructorOptions } from 'electron'
+import { screen } from 'electron'
 import { NethLinkPageSize } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 
@@ -28,15 +28,10 @@ export class NethLinkWindow extends BaseWindow {
       skipTaskbar: false,
       roundedCorners: true,
       parent: undefined,
-      //transparent: false,
-      //hiddenInMissionControl: true,
       hasShadow: true,
       center: false,
       fullscreen: false,
-      //acceptFirstMouse: false,
-      //frame: false,
       thickFrame: true,
-      //trafficLightPosition: { x: 0, y: 0 }
       icon: '../../public/LogoBlueSimpleDark.svg',
       titleBarOverlay: true
 
@@ -85,6 +80,9 @@ export class NethLinkWindow extends BaseWindow {
       this._window?.setVisibleOnAllWorkspaces(true)
       this._window?.focus()
       this._window?.setVisibleOnAllWorkspaces(false)
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
     }
     catch (e) {
       log(e)
@@ -94,6 +92,9 @@ export class NethLinkWindow extends BaseWindow {
   hide(..._args: any): void {
     try {
       this._window?.hide()
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
     } catch (e) {
       log(e)
     }

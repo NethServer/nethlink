@@ -8,9 +8,11 @@ import { PhoneIslandController } from './PhoneIslandController'
 import { AppController } from './AppController'
 import { log } from '@shared/utils/logger'
 import { store } from '@/lib/mainStore'
+import { platform } from 'os'
 
 export type TrayUpdaterProps = {
-  enableShowButton?: boolean
+  enableShowButton?: boolean,
+  isShowButtonVisible?: boolean
 }
 export class TrayController {
   tray: Tray
@@ -44,15 +46,22 @@ export class TrayController {
   }
 
   updateTray({
-    enableShowButton
-  }: TrayUpdaterProps = {}) {
+    enableShowButton,
+    isShowButtonVisible
+  }: TrayUpdaterProps = {
+      isShowButtonVisible: true
+    }) {
+    const _isShowButtonVisible = isShowButtonVisible === undefined ? true : isShowButtonVisible
     const menu: (MenuItemConstructorOptions | MenuItem)[] = [
       {
         role: 'window',
-        label: "NethLink",
+        label: (LoginController.instance && LoginController.instance.window?.isOpen()) ? 'Hide Login' :
+          (NethLinkController.instance && NethLinkController.instance.window?.isOpen()) ? 'Hide NethLink' :
+            (store.store['account']) ? 'Show NethLink' : 'Show Login',
         commandId: 1,
         enabled: enableShowButton ?? false,
-        click: () => {
+        visible: _isShowButtonVisible,
+        click: (menuItem, window, event) => {
           if (enableShowButton) {
             if (LoginController.instance && LoginController.instance.window?.isOpen()) LoginController.instance.hide()
             else if (NethLinkController.instance && NethLinkController.instance.window?.isOpen()) NethLinkController.instance.hide()
@@ -62,19 +71,17 @@ export class TrayController {
         }
       },
       {
-        role: 'close',
+        role: process.platform === 'win32' ? 'close' : 'window',
+        label: 'Quit NethLink',
         commandId: 2,
-        click: () => {
+        enabled: enableShowButton ?? false,
+        click: (menuItem, window, event) => {
+          console.log(event)
           AppController.safeQuit()
         }
       }
     ]
-    this.tray.on('right-click', () => {
-      this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
-    })
-    this.tray.on('click', () => {
-      this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
-    })
+    this.tray.setContextMenu(Menu.buildFromTemplate(menu))
   }
 
 }

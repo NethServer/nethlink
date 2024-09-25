@@ -1,7 +1,8 @@
 import { PAGES } from '@shared/types'
-import { AccountController, TrayController } from '../controllers'
+import { TrayController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
 import { LoginPageSize } from '@shared/constants'
+import { log } from '@shared/utils/logger'
 
 export const LOGIN_WINDOW_WIDTH = 500
 export class LoginWindow extends BaseWindow {
@@ -12,7 +13,7 @@ export class LoginWindow extends BaseWindow {
       minWidth: LoginPageSize.w,
       minHeight: LoginPageSize.h,
       show: false,
-      fullscreenable: true,
+      fullscreenable: false,
       titleBarStyle: 'default',
       autoHideMenuBar: true,
       closable: true,
@@ -37,6 +38,29 @@ export class LoginWindow extends BaseWindow {
       e.preventDefault()
       this.hide()
     })
+  }
+
+  show(): void {
+    try {
+      super.show()
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
+    }
+    catch (e) {
+      log(e)
+    }
+  }
+
+  hide(..._args: any): void {
+    try {
+      this._window?.hide()
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
+    } catch (e) {
+      log(e)
+    }
   }
 
 }
