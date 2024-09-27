@@ -43,6 +43,12 @@ export class LoginWindow extends BaseWindow {
   show(): void {
     try {
       super.show()
+      const bounds = this._window?.getBounds()
+      if (bounds && (bounds?.height === LoginPageSize.h)) {
+        bounds.height = 500;
+        this._window?.setBounds(bounds)
+        this._window?.center()
+      }
       TrayController.instance.updateTray({
         enableShowButton: true
       })

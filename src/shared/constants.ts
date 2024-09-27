@@ -9,7 +9,7 @@ export const NethLinkPageSize = {
 
 export const LoginPageSize = {
   w: 500,
-  h: 0
+  h: 100
 }
 export const NEW_ACCOUNT = 'New Account'
 
