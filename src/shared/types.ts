@@ -21,6 +21,7 @@ export type Account = {
   host: string
   theme: AvailableThemes
   phoneIslandPosition?: { x: number; y: number }
+  nethlinkBounds?: Electron.Rectangle
   sipPort?: string
   sipHost?: string
   voiceEndpoint?: string

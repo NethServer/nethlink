@@ -116,7 +116,7 @@ export const LoginForm = ({ onError }) => {
               ...account,
               theme: previousLoggedAccount ? previousLoggedAccount.theme : 'system'
             }))
-            window.electron.send(IPC_EVENTS.LOGIN, data.password)
+            window.electron.send(IPC_EVENTS.LOGIN, { password: data.password })
           })
           window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
 

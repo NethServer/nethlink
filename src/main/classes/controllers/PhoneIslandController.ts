@@ -111,7 +111,7 @@ export class PhoneIslandController {
       try {
         this.window.emit(IPC_EVENTS.LOGOUT)
         once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-          this.window.quit()
+          this.window.quit(true)
           resolve()
         })
       } catch (e) {
@@ -120,6 +120,7 @@ export class PhoneIslandController {
       }
     })
   }
+
   call(number: string) {
     try {
 
@@ -135,9 +136,11 @@ export class PhoneIslandController {
 
   reconnect() {
     try {
+      log('PHONE ISLAND RECONNECT')
       this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
       once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-        this.window.quit()
+        log('PHONE ISLAND RECONNECTION AFTER LOGOUT')
+        this.window.quit(false)
         new PhoneIslandController()
       })
     } catch (e) {

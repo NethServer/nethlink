@@ -39,15 +39,15 @@ export class NethLinkController {
     } catch (e) { log(e) }
   }
 
-  logout() {
+  async logout() {
     try {
-      this.window.quit()
+      await this.window.quit(true)
     } catch (e) {
       log(e)
     }
   }
 
-  safeQuit() {
-    this.logout()
+  async safeQuit() {
+    await this.logout()
   }
 }

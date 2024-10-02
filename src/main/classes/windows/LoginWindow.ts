@@ -3,6 +3,7 @@ import { TrayController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
 import { LoginPageSize } from '@shared/constants'
 import { log } from '@shared/utils/logger'
+import { debouncer, delay } from '@shared/utils/utils'
 
 export const LOGIN_WINDOW_WIDTH = 500
 export class LoginWindow extends BaseWindow {
@@ -33,11 +34,6 @@ export class LoginWindow extends BaseWindow {
       titleBarOverlay: true,
 
     })
-
-    this._window?.on('close', (e) => {
-      e.preventDefault()
-      this.hide()
-    })
   }
 
   show(): void {
@@ -49,24 +45,41 @@ export class LoginWindow extends BaseWindow {
         this._window?.setBounds(bounds)
         this._window?.center()
       }
-      TrayController.instance.updateTray({
-        enableShowButton: true
-      })
     }
-    catch (e) {
-      log(e)
+    catch (e: any) {
+      if (e.message === 'Object has been destroyed') {
+        this.buildWindow()
+        return this.show()
+      } else {
+        log(e)
+      }
     }
   }
 
   hide(..._args: any): void {
     try {
       this._window?.hide()
-      TrayController.instance.updateTray({
-        enableShowButton: true
-      })
     } catch (e) {
       log(e)
     }
   }
 
+  buildWindow(): void {
+    super.buildWindow()
+    this._window?.on('hide', this.toggleVisibility)
+    this._window?.on('show', this.toggleVisibility)
+    this._window?.on('close', (e) => {
+      e.preventDefault()
+      this.hide()
+    })
+    this._window?.on('closed', this.toggleVisibility)
+  }
+
+  async toggleVisibility() {
+    debouncer('loginToggleVisibility', async () => {
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
+    })
+  }
 }

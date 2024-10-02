@@ -8,7 +8,7 @@ import { TrayController } from "./TrayController"
 import { log } from "@shared/utils/logger"
 import { DevToolsController } from "./DevToolsController"
 import { store } from "@/lib/mainStore"
-import { isDev } from "@shared/utils/utils"
+import { delay, isDev } from "@shared/utils/utils"
 
 export class AppController {
   static _app: Electron.App
@@ -24,7 +24,7 @@ export class AppController {
       log('SAFE QUIT')
       if (LoginController.instance) {
         try {
-          LoginController.instance.safeQuit()
+          await LoginController.instance.safeQuit()
         } catch (e) {
           log(e)
         }
@@ -38,7 +38,7 @@ export class AppController {
       }
       if (NethLinkController.instance) {
         try {
-          NethLinkController.instance.safeQuit()
+          await NethLinkController.instance.safeQuit()
         } catch (e) {
           log(e)
         }
@@ -48,15 +48,15 @@ export class AppController {
       } catch (e) {
         log(e)
       }
-      setTimeout(async () => {
-        try {
-          DevToolsController.instance?.window?.quit()
-        } catch (e) {
-          log(e)
-        }
-        store.saveToDisk()
-        AppController._app.exit()
-      }, 1500)
+      try {
+        await DevToolsController.instance?.window?.quit(true)
+      } catch (e) {
+        log(e)
+      }
+      await delay(200)
+      store.saveToDisk()
+      await delay(500)
+      AppController._app.exit()
     }
   }
 }

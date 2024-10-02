@@ -37,9 +37,8 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const [phoneIslandPageData] = useStoreState<PhoneIslandPageData>('phoneIslandPageData')
   const [nethLinkPageData, setNethLinkPageData] =
     useStoreState<NethLinkPageData>('nethLinkPageData')
-  const [notifications, setNotifications] = useStoreState<NotificationData>('notifications')
+  const [, setNotifications] = useStoreState<NotificationData>('notifications')
   const [connection] = useStoreState<boolean>('connection')
-  const [isConnectionErrorDialogOpen, setIsConnectionErrorDialogOpen] = useState<boolean>(false)
 
   const { saveOperators, onQueueUpdate, saveLastCalls, saveSpeeddials } =
     usePhoneIslandEventHandler()
@@ -91,10 +90,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     }
   }, [account?.username])
 
-  useEffect(() => {
-    setIsConnectionErrorDialogOpen(!connection)
-  }, [connection])
-
   function stopInterval(interval: MutableRefObject<NodeJS.Timeout | undefined>) {
     if (interval.current) {
       clearInterval(interval.current)
@@ -105,6 +100,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   // useEffect(() => {
   //   debouncer('reload-data', () => loadData(), 1000)
   // }, [nethLinkPageData?.selectedSidebarMenu])
+
+  useEffect(() => {
+    log('connection effect', connection)
+  }, [connection])
 
   function initialize() {
     Notification.requestPermission()
@@ -154,7 +153,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   useEffect(() => {
-    if (phoneIslandPageData?.isDisconnected && connection) {
+    if (!phoneIslandPageData?.isDisconnected && connection) {
       reconnect()
       log('RECONNECT')
     }
@@ -165,8 +164,8 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   function onConnectionErrorButtonClick(): void {
-    log('refresh', navigator.onLine)
     debouncer('update-connection-state', () => {
+      log('refresh', navigator.onLine, connection)
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
     }, 250)
   }
@@ -184,7 +183,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           </div>
         </div>
       </div>
-      {isConnectionErrorDialogOpen && <ConnectionErrorDialog
+      {!connection && <ConnectionErrorDialog
         variant='nethlink'
         onButtonClick={onConnectionErrorButtonClick}
         buttonText={t('Common.Refresh')}

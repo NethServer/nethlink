@@ -1,46 +1,22 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
-import { is } from '@electron-toolkit/utils'
 import { IPC_EVENTS } from '@shared/constants'
-import { AvailableThemes, PAGES } from '@shared/types'
 import { log } from '@shared/utils/logger'
-import { debouncer } from '@shared/utils/utils'
-import { BrowserWindow, nativeTheme } from 'electron'
-import { DevToolsController, LoginController, PhoneIslandController } from '../controllers'
-import { SplashScreenController } from '../controllers/SplashScreenController'
-import { NethLinkController } from '../controllers/NethLinkController'
+import { delay, isDev } from '@shared/utils/utils'
+import { BrowserWindow } from 'electron'
 
 type Callback = (...args: any) => any
 export class BaseWindow {
   protected _window: BrowserWindow | undefined
   protected _callbacks: Callback[] = []
   protected _id: string
+  private _params: Record<string, string>
+  private _config: WindowOptions
 
   constructor(id: string, config?: WindowOptions, params?: Record<string, string>) {
     this._id = id
-    params = {
-      ...params,
-    }
-    const window = createWindow(id, config, params)
-    window.setTitle(id)
-    const instance = this
-    this._window = window
-    const onReady = (_e) => {
-      this._callbacks.forEach((c) => c())
-      //once called I remove them
-      this._callbacks = []
-
-    }
-
-    function onOpenDevTools(e, page) {
-      instance.openDevTool(page)
-    }
-
-    window.once('ready-to-show', onReady)
-    window.on('hide', () => {
-      //window.webContents.closeDevTools()
-    })
-    //this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
-    this._window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
+    this._params = Object.assign({}, params)
+    this._config = Object.assign({}, config)
+    this.buildWindow()
   }
 
   openDevTool(page) {
@@ -72,17 +48,28 @@ export class BaseWindow {
   }
 
   hide(..._args: any) {
-    this._window?.hide()
+    try {
+      this._window?.hide()
+    } catch (e) {
+      log(e)
+    }
   }
 
   show(..._args: any) {
-    this._window?.show()
+    try {
+      this._window?.show()
+    } catch (e: any) {
+      log(e)
+    }
   }
 
   isOpen(..._args: any) {
     try {
-
-      return this._window?.isVisible()
+      const visible = this._window?.isVisible()
+      const minimized = this._window?.isMinimized()
+      const destroyed = this._window?.isDestroyed()
+      log({ visible, minimized, destroyed })
+      return visible && !minimized && !destroyed
     } catch (e) {
       return false
     }
@@ -96,13 +83,42 @@ export class BaseWindow {
     this._window!.webContents.ipc.on(event, callback)
   }
 
-  quit() {
+  async quit(forceClose: boolean) {
     try {
-      this._window?.hide()
-      this._window?.destroy()
+      if (forceClose) {
+        log(`destroy ${this._id}`)
+        this._window?.destroy()
+        await delay(50)
+      } else {
+        log(`hide ${this._id}`)
+        this._window?.hide()
+        await delay(50)
+      }
     } catch (e) {
       log(e)
     }
+  }
+
+  buildWindow() {
+    const window = createWindow(this._id, this._config, this._params)
+    window.setTitle(this._id)
+    const instance = this
+
+    const onReady = (_e) => {
+      this._callbacks.forEach((c) => c())
+      //once called I remove them
+      this._callbacks = []
+    }
+
+    function onOpenDevTools(e, page) {
+      instance.openDevTool(page)
+    }
+
+    window.once('ready-to-show', onReady)
+    //this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
+    isDev() && window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
+
+    this._window = window
   }
 }
 

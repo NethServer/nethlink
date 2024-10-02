@@ -33,7 +33,8 @@ export function createWindow(
       sandbox: false,
       contextIsolation: false,
       nodeIntegration: true
-    }
+    },
+    hiddenInMissionControl: false,
   })
   params = ({
     appVersion: app.getVersion(),
@@ -58,13 +59,10 @@ export function createWindow(
 
   mainWindow.on('close', () => { })
 
+  mainWindow.on('ready-to-show', () => { })
+
   mainBindings(ipcMain, mainWindow, fs)
 
-  mainWindow.on('ready-to-show', () => {
-    isDev() && mainWindow.webContents.openDevTools({
-      mode: 'detach'
-    })
-  })
 
   return mainWindow
 }

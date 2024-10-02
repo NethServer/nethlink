@@ -31,9 +31,9 @@ enum LoginSizes {
   ONE_ACCOUNT = 375,
   TWO_ACCOUNT = 455,
   MULTIPLE_ACCOUNT = 535,
-  CONNECTION_FAILURE_NO_ACCOUNTS = 380,
+  CONNECTION_FAILURE_NO_ACCOUNTS = 100,
   CONNECTION_FAILURE_ON_ACCOUNT_FORM = 500,
-  CONNECTION_FAILURE_BASE = 388
+  CONNECTION_FAILURE_BASE = 388,
 }
 
 type ErrorsData = {
@@ -86,8 +86,9 @@ export function LoginPage({ themeMode }: LoginPageProps) {
           loginWindowHeight = LoginSizes.MULTIPLE_ACCOUNT
           break
       }
-      if (!connection)
-        loginWindowHeight = LoginSizes.CONNECTION_FAILURE_NO_ACCOUNTS
+      // if (!connection)
+      //   loginWindowHeight += LoginSizes.CONNECTION_FAILURE_NO_ACCOUNTS
+
     }
     loginWindowHeight += LoginSizes.INPUT_ERROR * errorCount
     if (errorsData?.generalError) {
@@ -98,7 +99,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       ...p,
       windowHeight: loginWindowHeight
     }))
-  }, [loginData?.selectedAccount, auth, errorsData])
+  }, [loginData?.selectedAccount, auth, errorsData, connection])
 
   useEffect(() => {
     if (loginData) {

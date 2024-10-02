@@ -1,6 +1,7 @@
 import { DevToolsWindow } from '../windows'
 
 export class DevToolsController {
+
   static instance: DevToolsController
   window: DevToolsWindow
   constructor() {
@@ -14,5 +15,13 @@ export class DevToolsController {
 
   hide(): void {
     this.window.hide()
+  }
+
+  toggle() {
+    if (this.window.isOpen()) {
+      this.hide()
+    } else {
+      this.show()
+    }
   }
 }

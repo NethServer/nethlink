@@ -67,7 +67,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (event, newState, page, selector) => {
     const windows = BrowserWindow.getAllWindows();
-    store.updateStore(newState)
+    store.updateStore(newState, `${page}[${selector}]`)
     windows.forEach(win => {
       if (page !== win.webContents.getTitle()) {
         win.webContents.send(IPC_EVENTS.SHARED_STATE_UPDATED, newState, page);
@@ -155,7 +155,7 @@ export function registerIpcEvents() {
 
 
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (event, isOnline) => {
-    log('CONNECTION STATE', isOnline)
+    log('CONNECTION STATE', isOnline, event.sender.getTitle())
     store.set('connection', isOnline)
   });
 

@@ -1,8 +1,8 @@
-import { BrowserWindow, app, clipboard, globalShortcut, ipcMain, nativeTheme, powerMonitor, protocol, shell, systemPreferences } from 'electron'
+import { app, clipboard, globalShortcut, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
-import { AccountController, DevToolsController } from './classes/controllers'
+import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
-import { Account, AuthAppData, AvailableThemes } from '@shared/types'
+import { AuthAppData, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
 import { resolve } from 'path'
@@ -32,6 +32,7 @@ function startup() {
   log('gotTheLock', gotTheLock)
 
   if (!gotTheLock) {
+    log('Block second instance')
     app.quit()
     return;
   } else {
@@ -47,13 +48,15 @@ function startup() {
     ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
       PhoneIslandController.instance.call(phoneNumber)
     })
-    ipcMain.on(IPC_EVENTS.LOGIN, (e, password) => {
-      if (LoginController.instance && LoginController.instance.window.isOpen()) {
-        LoginController.instance.quit()
+    ipcMain.on(IPC_EVENTS.LOGIN, async (e, props?: { password?: string, showNethlink: boolean }) => {
+      const { password, showNethlink } = props || { showNethlink: true }
+      if (LoginController.instance && LoginController.instance.window.isOpen() && password) {
+        log("LOGIN SUCCESS")
+        await LoginController.instance.quit()
         AccountController.instance.saveLoggedAccount(store.store['account']!, password)
       }
       store.saveToDisk()
-      createNethLink()
+      createNethLink(showNethlink)
     })
 
     ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
@@ -61,6 +64,10 @@ function startup() {
       await PhoneIslandController.instance.logout()
       NethLinkController.instance.logout()
       AccountController.instance.logout()
+      await delay(1000)
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
       showLogin()
     })
 
@@ -98,6 +105,7 @@ function startLogger() {
     fs.appendFile(logFilePath, message + '\n', (err) => {
       if (err) throw err;
     });
+    isDev() && console.log(message)
   }
   ipcMain.on('log-message', (e, message) => {
     if (message && isDev())
@@ -126,10 +134,6 @@ function attachOnReadyProcess() {
     log('APP READY')
 
     //I create the Tray controller instance - I define to it the function it should execute upon clicking on the icon
-    if (isDev()) {
-      new DevToolsController()
-      log(process.env)
-    }
     new SplashScreenController()
     new TrayController()
 
@@ -138,12 +142,32 @@ function attachOnReadyProcess() {
       setTimeout(startApp, 2500)
     })
     attachProtocolListeners()
+
+    app.on('activate', (e, isWindowOpen) => {
+      log('ACTIVATE WINDOW', e, isWindowOpen)
+      if (!isWindowOpen && !NethLinkController.instance.window.isOpen()) {
+        NethLinkController.instance.show()
+      }
+    })
     SplashScreenController.instance.show()
+
+    if (isDev()) {
+      const events: string[] = [
+        'accessibility-support-changed',
+        'activity-was-continued', 'before-quit', 'browser-window-blur', 'browser-window-created', 'browser-window-focus', 'certificate-error', 'child-process-gone', 'continue-activity', 'continue-activity-error', 'did-become-active', 'gpu-info-update', 'gpu-process-crashed', 'login', 'new-window-for-tab', 'open-file', 'render-process-gone', 'renderer-process-crashed', 'select-client-certificate',
+        'session-created', 'update-activity-state', 'web-contents-created', 'will-continue-activity', 'will-finish-launching', 'will-quit'
+      ]
+      events.forEach((e: any) => {
+        app.on(e, (...args) => {
+          log(`APP-EVENT ${e}`, args)
+        })
+      })
+    }
   })
 
-
   async function startApp(attempt = 0) {
-    store.getFromDisk()
+    const data = store.getFromDisk()
+    store.updateStore(data, 'startApp')
     log('START APP, retry:', attempt)
     //await delay(1500)
     if (!store.store.connection) {
@@ -162,7 +186,7 @@ function attachOnReadyProcess() {
       if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
         const isLastUserLogged = await AccountController.instance.autoLogin()
         if (isLastUserLogged) {
-          ipcMain.emit(IPC_EVENTS.LOGIN)
+          ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink: true })
         } else {
           store.updateStore({
             auth: {
@@ -173,14 +197,14 @@ function attachOnReadyProcess() {
             account: undefined,
             theme: 'system',
             connection: store.store['connection'] || false,
-          })
+          }, 'showLogin')
           showLogin()
         }
       } else {
         await resetApp()
         showLogin()
       }
-      SplashScreenController.instance.window.quit()
+      SplashScreenController.instance.window.quit(true)
       //once the loading is complete I enable the ability to click on the icon in the tray
       TrayController.instance.updateTray({
         enableShowButton: true
@@ -306,24 +330,29 @@ function attachPowerMonitor() {
   powerMonitor.on('suspend', onAppSuspend);
   powerMonitor.on('resume', onAppResume);
 
-  function onAppSuspend() {
-    log('APP POWER SUSPEND')
+  async function onAppSuspend() {
     store.saveToDisk()
+    log('APP POWER SUSPEND')
   }
 
   async function onAppResume() {
-    log('APP POWER RESUME')
-    store.getFromDisk()
-    setTimeout(async () => {
-      if (NethLinkController.instance) {
+    debouncer('onAppResume', async () => {
+      const data = store.getFromDisk()
+      store.updateStore(data, 'onAppResume')
+      log('APP POWER RESUME')
+      let showNethlink = true
+      if (store.store['account'] && NethLinkController.instance) {
+        const isOpen = NethLinkController.instance.window.isOpen()
+        showNethlink = isOpen ?? true
         await PhoneIslandController.instance.logout()
         NethLinkController.instance.logout()
         const autoLoginResult = await AccountController.instance.autoLogin()
         if (autoLoginResult) {
-          ipcMain.emit(IPC_EVENTS.LOGIN)
+          ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
         }
       }
-    }, 500)
+
+    }, 2000)
   }
 }
 
@@ -357,7 +386,7 @@ async function resetApp() {
     },
     theme: 'system',
     connection: false,
-  })
+  }, 'resetApp')
   await delay(100)
   store.saveToDisk()
   await delay(100)
@@ -389,13 +418,15 @@ function showLogin() {
   }, 100)
 }
 
-async function createNethLink() {
+async function createNethLink(show: boolean = true) {
   //TODO: evaluate the correct shortcut
   //registerShortcutForCall('CommandOrControl+c+F11')
   //registerShortcutForCall('F11')
   await delay(500)
   new NethLinkController()
-  NethLinkController.instance.show()
+  await delay(250)
+  if (show)
+    NethLinkController.instance.show()
   await delay(1000)
   new PhoneIslandController()
   checkForUpdate()

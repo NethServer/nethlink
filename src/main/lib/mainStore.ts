@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { IPC_EVENTS } from '@shared/constants';
 import { log } from '@shared/utils/logger';
+import { difference, differenceBy, differenceWith } from 'lodash';
 
 const USER_DATA_PATH = path.join(app.getPath("userData"), 'user_data.json');
 
@@ -23,13 +24,23 @@ class Store<T> {
     return this.store[selector]
   }
 
-  set(selector: keyof T, value) {
-    this.store[selector] = value
-    ipcMain.emit(IPC_EVENTS.UPDATE_SHARED_STATE, undefined, this.store, 'main', selector)
+  set(selector: keyof T, value: any) {
+    const o = Object.assign({}, this.store)
+    o[selector] = value
+    const diff = difference(Object.values(o), Object.values(this.store as any))
+    //log('difference', selector, diff.length)
+    if (diff.length > 0) {
+      this.store = o
+      ipcMain.emit(IPC_EVENTS.UPDATE_SHARED_STATE, undefined, this.store, 'main', selector)
+    }
   }
 
-  updateStore(newState: T) {
-    this.store = newState
+  updateStore(newState: T, from: string) {
+    const diff = difference(Object.values(newState as any), Object.values(this.store as any))
+    //log('try update store from', from, diff.length)
+    if (diff.length > 0) {
+      this.store = Object.assign({}, newState)
+    }
   }
 
   saveToDisk() {

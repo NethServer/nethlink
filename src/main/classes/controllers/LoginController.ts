@@ -26,11 +26,6 @@ export class LoginController {
           height
         }, true)
         if (bounds.height === 0) {
-          loginPage.setBounds({
-            ...bounds,
-            width: LOGIN_WINDOW_WIDTH,
-            height: 500
-          }, true)
           loginPage.center()
         }
       }
@@ -48,16 +43,16 @@ export class LoginController {
     } catch (e) { log(e) }
   }
 
-  quit() {
+  async quit() {
     try {
-      this.window.quit()
+      await this.window.quit(true)
     } catch (e) {
       log(e)
     }
   }
 
-  safeQuit() {
-    this.quit()
+  async safeQuit() {
+    await this.quit()
   }
 
 }

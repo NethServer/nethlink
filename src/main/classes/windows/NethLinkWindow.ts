@@ -4,11 +4,13 @@ import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
 import { NethLinkPageSize } from '@shared/constants'
 import { log } from '@shared/utils/logger'
+import { debouncer, delay } from '@shared/utils/utils'
+import { store } from '@/lib/mainStore'
+import { AccountController } from '../controllers'
 
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
   size: { w: number; h: number } | undefined
-
   constructor() {
     super(PAGES.NETHLINK, {
       width: NethLinkPageSize.w,
@@ -38,11 +40,6 @@ export class NethLinkWindow extends BaseWindow {
     })
     this.size = NethLinkPageSize
     NethLinkWindow.instance = this
-
-    this._window?.on('close', (e) => {
-      e.preventDefault()
-      this.hide()
-    })
   }
 
   _setBounds() {
@@ -65,9 +62,9 @@ export class NethLinkWindow extends BaseWindow {
       if (process.platform === 'darwin') {
         y = screenBounds.y + MACBARHEIGHT + MARGIN
       }
-
-      const bound: Electron.Rectangle = { x, y, width: w, height: h }
-      this._window?.setBounds(bound, false)
+      const nethlinkBounds: Electron.Rectangle = { x, y, width: w, height: h }
+      //this.saveBounds(nethlinkBounds)
+      this._window?.setBounds(nethlinkBounds, false)
     } catch (e) {
       log(e)
     }
@@ -75,28 +72,84 @@ export class NethLinkWindow extends BaseWindow {
 
   show(): void {
     try {
-      this._setBounds()
+      const accountBounds = AccountController.instance.getAccountNethLinkBounds()
+      log('NethLink bounds', accountBounds)
+      if (accountBounds) {
+        const isAccountBoundsOnDisplay = screen.getAllDisplays().reduce((result, display) => {
+          const area = display.workArea
+          log('NethLink bounds is on display', {
+            area,
+            accountBounds,
+            x: accountBounds.x >= area.x,
+            y: accountBounds.y >= area.y,
+            w: (accountBounds.x + accountBounds.width) < (area.x + area.width),
+            h: (accountBounds.y + accountBounds.height) < (area.y + area.height)
+          })
+          return (
+            result ||
+            (accountBounds.x >= area.x &&
+              accountBounds.y >= area.y &&
+              (accountBounds.x + accountBounds.width) < (area.x + area.width) &&
+              (accountBounds.y + accountBounds.height) < (area.y + area.height))
+          )
+        }, false)
+        if (isAccountBoundsOnDisplay) {
+          this._window?.setBounds(accountBounds, false)
+        } else {
+          this._setBounds()
+        }
+      } else {
+        this._setBounds()
+      }
       super.show()
       this._window?.setVisibleOnAllWorkspaces(true)
       this._window?.focus()
       this._window?.setVisibleOnAllWorkspaces(false)
-      TrayController.instance.updateTray({
-        enableShowButton: true
-      })
     }
-    catch (e) {
-      log(e)
+    catch (e: any) {
+      if (e.message === 'Object has been destroyed') {
+        this.buildWindow()
+        return this.show()
+      } else {
+        log(e)
+      }
     }
   }
 
   hide(..._args: any): void {
     try {
+      this.saveBounds()
       this._window?.hide()
-      TrayController.instance.updateTray({
-        enableShowButton: true
-      })
     } catch (e) {
       log(e)
     }
+  }
+
+  saveBounds(bounds: Electron.Rectangle | undefined = undefined) {
+    const nethlinkBounds = bounds || this._window?.getBounds()
+    AccountController.instance.setAccountNethLinkBounds(nethlinkBounds)
+  }
+
+  buildWindow(): void {
+    super.buildWindow()
+    this._window?.on('hide', this.toggleVisibility)
+    this._window?.on('moved', () => {
+      this.saveBounds()
+    })
+    this._window?.on('show', this.toggleVisibility)
+    this._window?.on('closed', this.toggleVisibility)
+    this._window?.on('close', (e) => {
+      e.preventDefault()
+      this.hide()
+    })
+  }
+
+  async toggleVisibility() {
+    debouncer('nethlinkToggleVisibility', async () => {
+      await delay(250)
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
+    })
   }
 }
