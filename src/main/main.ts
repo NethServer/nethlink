@@ -329,6 +329,13 @@ function attachPowerMonitor() {
   //Define how the nethlink have to manage the power suspend and after the power resume events
   powerMonitor.on('suspend', onAppSuspend);
   powerMonitor.on('resume', onAppResume);
+  powerMonitor.on('shutdown', onAppShutdown)
+
+
+  async function onAppShutdown() {
+    log('APP POWER SHUTDOWN')
+    await AppController.safeQuit()
+  }
 
   async function onAppSuspend() {
     store.saveToDisk()
