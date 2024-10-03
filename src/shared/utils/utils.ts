@@ -44,7 +44,7 @@ export function isDev() {
   try {
     _isDev = window.api.env['DEV'] === 'true'
   } catch (e) {
-    _isDev = process.env['DEV'] === 'true'
+    _isDev = (import.meta.env.VITE_DEV ?? process.env['DEV']) === 'true'
   }
   return _isDev
 }

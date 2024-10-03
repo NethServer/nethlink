@@ -5,7 +5,7 @@ import {
   Account,
   ContactType,
 } from '@shared/types'
-import { preloadBindings } from 'i18next-electron-fs-backend'
+import { preloadBindings, mainBindings } from 'i18next-electron-fs-backend'
 
 export interface IElectronAPI {
   env: NodeJS.ProcessEnv

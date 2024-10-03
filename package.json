@@ -70,6 +70,7 @@
     "i18next": "^22.4.9",
     "i18next-browser-languagedetector": "^7.0.1",
     "i18next-electron-fs-backend": "^3.0.1",
+    "i18next-fs-backend": "^2.3.2",
     "i18next-http-backend": "^2.1.1",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
@@ -96,5 +97,6 @@
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

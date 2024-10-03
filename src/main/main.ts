@@ -5,7 +5,7 @@ import { PhoneIslandController } from './classes/controllers/PhoneIslandControll
 import { AuthAppData, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
-import { resolve } from 'path'
+import { join, resolve } from 'path'
 import { log } from '@shared/utils/logger'
 import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
@@ -16,6 +16,9 @@ import { AppController } from './classes/controllers/AppController'
 import { store } from './lib/mainStore'
 import fs from 'fs'
 import path from 'path'
+import i18next, { Module, Newable, NewableModule } from 'i18next'
+import Backend from 'i18next-fs-backend'
+import { uniq } from 'lodash'
 
 
 //get app parameter
@@ -83,6 +86,45 @@ function startup() {
 
 }
 
+async function startLocalization() {
+
+  const convertPath = (filename): string => {
+    let dir = __dirname
+    log({ dir })
+    let loadPath = join(`./public/locales/{{lng}}/${filename}.json`)
+    if (__dirname.includes('.asar')) {
+      loadPath = join(dir, `../renderer/locales/{{lng}}/${filename}.json`)
+    }
+    return loadPath
+  }
+
+  const getI18nLoadPath = (): string => convertPath('translations')
+
+  const fallbackLng = ['en']
+  const loadPath = getI18nLoadPath()
+  const config: any = {
+    backend: {
+      debug: isDev(),
+      loadPath,
+    },
+    fallbackLng,
+    debug: isDev(),
+  }
+  const electronDetector: any = {
+    type: 'languageDetector',
+    async: false,
+    init: Function.prototype,
+    detect: () => {
+      const locale = app.getSystemLocale()
+      const locales = uniq([locale!.split('-')[0], ...fallbackLng])
+      return locales
+    },
+    cacheUserLanguage: Function.prototype
+  }
+
+  log(config)
+  await i18next.use(Backend).use(electronDetector).init(config)
+}
 function startLogger() {
   const logFilePath = path.join(app.getPath("userData"), './logs/app.log');
   log(logFilePath)
@@ -132,6 +174,7 @@ function attachOnReadyProcess() {
   app.whenReady().then(async () => {
     //await resetApp()
     log('APP READY')
+    await startLocalization()
 
     //I create the Tray controller instance - I define to it the function it should execute upon clicking on the icon
     new SplashScreenController()

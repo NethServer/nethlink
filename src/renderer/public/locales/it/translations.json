@@ -1,4 +1,9 @@
 {
+  "Tray": {
+    "Quit": "Chiudi",
+    "Hide": "Nascondi",
+    "Show": "Mostra"
+  },
   "Common": {
     "Showing": "Mostrando",
     "of": "di",

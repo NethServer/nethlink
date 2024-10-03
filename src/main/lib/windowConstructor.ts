@@ -5,6 +5,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { AppController } from '@/classes/controllers/AppController'
 import { isDev } from '@shared/utils/utils'
+import { log } from '@shared/utils/logger'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -62,7 +63,6 @@ export function createWindow(
   mainWindow.on('ready-to-show', () => { })
 
   mainBindings(ipcMain, mainWindow, fs)
-
 
   return mainWindow
 }

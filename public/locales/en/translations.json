@@ -1,4 +1,9 @@
 {
+  "Tray": {
+    "Quit": "Quit",
+    "Hide": "Hide",
+    "Show": "Show"
+  },
   "Common": {
     "Showing": "Showing",
     "of": "of",
