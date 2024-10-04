@@ -7,7 +7,6 @@ import lightHeader from '../assets/nethlinkLightHeader.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faArrowLeft as ArrowIcon,
-  faXmark as CrossIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { Button } from '@renderer/components/Nethesis'
@@ -32,9 +31,9 @@ enum LoginSizes {
   ONE_ACCOUNT = 375,
   TWO_ACCOUNT = 455,
   MULTIPLE_ACCOUNT = 535,
-  CONNECTION_FAILURE_NO_ACCOUNTS = 380,
+  CONNECTION_FAILURE_NO_ACCOUNTS = 100,
   CONNECTION_FAILURE_ON_ACCOUNT_FORM = 500,
-  CONNECTION_FAILURE_BASE = 388
+  CONNECTION_FAILURE_BASE = 388,
 }
 
 type ErrorsData = {
@@ -87,8 +86,8 @@ export function LoginPage({ themeMode }: LoginPageProps) {
           loginWindowHeight = LoginSizes.MULTIPLE_ACCOUNT
           break
       }
-      if (!connection)
-        loginWindowHeight = LoginSizes.CONNECTION_FAILURE_NO_ACCOUNTS
+
+
     }
     loginWindowHeight += LoginSizes.INPUT_ERROR * errorCount
     if (errorsData?.generalError) {
@@ -99,17 +98,13 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       ...p,
       windowHeight: loginWindowHeight
     }))
-  }, [loginData?.selectedAccount, auth, errorsData])
+  }, [loginData?.selectedAccount, auth, errorsData, connection])
 
   useEffect(() => {
     if (loginData) {
       window.api.resizeLoginWindow(loginData.windowHeight || 0)
     }
   }, [loginData?.windowHeight])
-
-  function exitLoginWindow() {
-    window.api.exitNethLink()
-  }
 
   const goBack = () => {
     setLoginData((p) => ({
@@ -130,19 +125,12 @@ export function LoginPage({ themeMode }: LoginPageProps) {
 
   return (
     <div
-      className="draggableAnchor h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 rounded-[10px] text-sm hide-scrollbar"
+      className="draggableAnchor h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 text-sm hide-scrollbar"
       ref={loginWindowRef}
     >
       <div className={classNames('noDraggableAnchor', 'h-full w-full')}>
         <div className="flex flex-row justify-between items-center">
           <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
-          <Button variant="ghost" className="pt-2 pr-1 pb-2 pl-1">
-            <FontAwesomeIcon
-              icon={CrossIcon}
-              className="h-5 w-5 dark:text-gray-50 text-gray-900"
-              onClick={() => exitLoginWindow()}
-            />
-          </Button>
         </div>
         {
           auth && <>

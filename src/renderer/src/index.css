@@ -1,45 +1,29 @@
 #app-container {
-  .draggableAnchor,
-  .pi-absolute,
-  .pi-pointer-events-auto {
-    transform: none !important;
-    -webkit-app-region: drag !important;
+  #phone-island-container {
+    .draggableAnchor,
+    .pi-absolute,
+    .pi-pointer-events-auto {
+      transform: none !important;
+    }
   }
 
-  .noDraggableAnchor,
-  button,
-  .pi-flex,
-  .pi-relative {
-    -webkit-app-region: no-drag !important;
+
+  #phone-island-container [id^="headlessui-menu-items-"]{
+    position: relative;
+    margin-inline: 0;
+    margin-block: 0;
+    margin-top: calc(20px - 100%);
+    right: 100%;
   }
 
-  .pi-absolute.pi-w-full.pi-bg-gray-500.pi-flex.pi-justify-between.-pi-mt-10.-pi-z-10.pi-font-sans.pi-items-top.pi-px-4.pi-pt-3
-    > *,
-  .pi-absolute.pi-w-full.pi-bg-gray-500.pi-flex.pi-justify-between.-pi-mt-10.-pi-z-10.pi-font-sans.pi-items-top.pi-px-6.pi-pt-3
-    > * {
-    -webkit-app-region: no-drag !important;
-    cursor: pointer !important;
+
+
+  #openDevToolButton {
     pointer-events: all;
+    border: 0 solid transparent;
+    border-radius: 0 8px 0 0;
   }
 }
-
-
-#phone-island-container [id^="headlessui-menu-items-"]{
-  position: relative;
-  margin-inline: 0;
-  margin-block: 0;
-  margin-top: calc(20px - 100%);
-  right: 100%;
-}
-
-
-
-#openDevToolButton {
-  pointer-events: all;
-  border: 0 solid transparent;
-  border-radius: 0 8px 0 0;
-}
-
 
 .light ::-webkit-scrollbar {
   width: 5px;
@@ -71,5 +55,3 @@
 * {
   outline-color: transparent !important;
 }
-
-

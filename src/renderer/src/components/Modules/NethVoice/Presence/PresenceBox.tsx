@@ -83,7 +83,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
     const to = watch('to')
 
     return (
-      <div className="absolute top-[72px] left-0 z-[205] ">
+      <div className='absolute top-0 left-0 w-screen h-screen flex justify-center items-center z-[205]'>
         <div className=" bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-lg m-8 p-0 ">
           <div className="p-4  flex flex-col gap-2">
             <div>{t('TopBar.Enter phone number for call forward')}</div>
@@ -158,7 +158,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
   return (
     isOpen && (
       <>
-        <div className="absolute left-[48px] top-[62px] w-[280px] bg-bgLight dark:bg-bgDark border rounded-lg z-[203] py-3 dark:border-borderDark border-borderLight">
+        <div className="absolute right-[72px] top-[62px] w-[280px] bg-bgLight dark:bg-bgDark border rounded-lg z-[203] py-3 dark:border-borderDark border-borderLight">
           <Scrollable className='max-h-[260px]'>
             <PresenceItem
               onClick={onSelectPresence}

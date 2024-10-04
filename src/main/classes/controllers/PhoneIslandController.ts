@@ -6,6 +6,7 @@ import { debouncer, isDev } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { store } from '@/lib/mainStore'
+import { screen } from 'electron'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -23,6 +24,7 @@ export class PhoneIslandController {
         let b = window.getBounds()
         if (b.height !== h || b.width !== w) {
           window.setBounds({ width: w, height: h })
+          PhoneIslandWindow.currentSize = { width: w, height: h }
         }
         if (h === 1 && w === 1) {
           window.hide()
@@ -49,7 +51,39 @@ export class PhoneIslandController {
           store.store.phoneIslandPageData?.isDisconnected ?? false
         )
         this.resize(bounds.w, bounds.h)
-        window?.center()
+        if (process.platform !== 'linux') {
+          const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
+          if (phoneIslandPosition) {
+            const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
+              const area = display.workArea
+              log({
+                area,
+                phoneIslandPosition,
+                x: phoneIslandPosition.x >= area.x,
+                y: phoneIslandPosition.y >= area.y,
+                w: (phoneIslandPosition.x + bounds.w) < (area.x + area.width),
+                h: (phoneIslandPosition.y + bounds.h) < (area.y + area.height)
+              })
+              return (
+                result ||
+                (phoneIslandPosition.x >= area.x &&
+                  phoneIslandPosition.y >= area.y &&
+                  (phoneIslandPosition.x + bounds.w) < (area.x + area.width) &&
+                  (phoneIslandPosition.y + bounds.h) < (area.y + area.height))
+              )
+            }, false)
+            if (isPhoneIslandOnDisplay) {
+              window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
+            } else {
+              window?.center()
+            }
+          }
+          else {
+            window?.center()
+          }
+        } else {
+          window?.center()
+        }
       }
     } catch (e) {
       log(e)
@@ -77,7 +111,7 @@ export class PhoneIslandController {
       try {
         this.window.emit(IPC_EVENTS.LOGOUT)
         once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-          this.window.quit()
+          this.window.quit(true)
           resolve()
         })
       } catch (e) {
@@ -86,20 +120,36 @@ export class PhoneIslandController {
       }
     })
   }
+
   call(number: string) {
-    const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
-    NethVoiceAPI.User.me().then((me) => {
-      log('me before call start', { me })
-      this.window.emit(IPC_EVENTS.START_CALL, number)
-    })
+    try {
+
+      const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
+      NethVoiceAPI.User.me().then((me) => {
+        log('me before call start', { me })
+        this.window.emit(IPC_EVENTS.START_CALL, number)
+      })
+    } catch (e) {
+      log(e)
+    }
   }
 
   reconnect() {
-    this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
-    once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-      this.window.quit()
-      new PhoneIslandController()
-    })
+    try {
+      log('PHONE ISLAND RECONNECT')
+      this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
+      once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
+        log('PHONE ISLAND RECONNECTION AFTER LOGOUT')
+        this.window.quit(false)
+        new PhoneIslandController()
+      })
+    } catch (e) {
+      log(e)
+    }
   }
 
+
+  async safeQuit() {
+    await this.logout()
+  }
 }

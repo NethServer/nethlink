@@ -1,5 +1,7 @@
 import { PAGES } from '@shared/types'
 import { BaseWindow } from './BaseWindow'
+import { TrayController } from '../controllers'
+import { log } from '@shared/utils/logger'
 
 export class SplashScreenWindow extends BaseWindow {
   constructor() {
@@ -28,5 +30,29 @@ export class SplashScreenWindow extends BaseWindow {
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 }
     })
+  }
+
+  show(): void {
+    try {
+      super.show()
+      TrayController.instance.updateTray({
+        enableShowButton: true,
+        isShowButtonVisible: false
+      })
+    }
+    catch (e) {
+      log(e)
+    }
+  }
+
+  hide(..._args: any): void {
+    try {
+      this._window?.hide()
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
+    } catch (e) {
+      log(e)
+    }
   }
 }

@@ -5,6 +5,7 @@ import { join } from 'path'
 import fs from 'fs'
 import { AppController } from '@/classes/controllers/AppController'
 import { isDev } from '@shared/utils/utils'
+import { log } from '@shared/utils/logger'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -33,7 +34,8 @@ export function createWindow(
       sandbox: false,
       contextIsolation: false,
       nodeIntegration: true
-    }
+    },
+    hiddenInMissionControl: false,
   })
   params = ({
     appVersion: app.getVersion(),
@@ -56,17 +58,11 @@ export function createWindow(
 
   mainWindow.on('hide', () => { })
 
-  mainWindow.on('close', () => {
-    AppController.safeQuit()
-  })
+  mainWindow.on('close', () => { })
+
+  mainWindow.on('ready-to-show', () => { })
 
   mainBindings(ipcMain, mainWindow, fs)
-
-  mainWindow.on('ready-to-show', () => {
-    isDev() && mainWindow.webContents.openDevTools({
-      mode: 'detach'
-    })
-  })
 
   return mainWindow
 }

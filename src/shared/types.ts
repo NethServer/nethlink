@@ -4,9 +4,9 @@ export type AvailableThemes = 'system' | 'light' | 'dark'
 
 export enum PAGES {
   SPLASHSCREEN = "splashscreenpage",
-  LOGIN = "loginpage",
+  LOGIN = "NethLink-Login",
   PHONEISLAND = "phoneislandpage",
-  NETHLINK = "nethlinkpage",
+  NETHLINK = "NethLink",
   DEVTOOLS = "devtoolspage"
 
 }
@@ -21,6 +21,7 @@ export type Account = {
   host: string
   theme: AvailableThemes
   phoneIslandPosition?: { x: number; y: number }
+  nethlinkBounds?: Electron.Rectangle
   sipPort?: string
   sipHost?: string
   voiceEndpoint?: string
@@ -363,7 +364,17 @@ export type LocalStorageData = {
   missedCalls?: CallData[],
   notifications?: NotificationData,
   lostCallNotifications?: CallData[],
-  connection?: boolean
+  connection?: boolean,
+}
+
+export type OnDraggingWindow = {
+  [key: string]: DraggingWindow
+}
+
+export type DraggingWindow = {
+  interval: number,
+  startMousePosition: { x: number, y: number },
+  startWindowPosition: { x: number, y: number }
 }
 
 export type PhoneIslandPageData = {

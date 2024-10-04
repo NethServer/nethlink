@@ -5,7 +5,7 @@ import {
   Account,
   ContactType,
 } from '@shared/types'
-import { preloadBindings } from 'i18next-electron-fs-backend'
+import { preloadBindings, mainBindings } from 'i18next-electron-fs-backend'
 
 export interface IElectronAPI {
   env: NodeJS.ProcessEnv
@@ -36,7 +36,6 @@ export interface IElectronAPI {
   openHostPage(path: string): void
   openExternalPage(url: string): void
   exitNethLink(): void
-  hideNethLink(): void
   hidePhoneIsland(): void
   showPhoneIsland(): void
 
@@ -95,7 +94,6 @@ const api: IElectronAPI = {
   openHostPage: setEmitter(IPC_EVENTS.OPEN_HOST_PAGE),
   openExternalPage: setEmitter(IPC_EVENTS.OPEN_EXTERNAL_PAGE),
   exitNethLink: setEmitter(IPC_EVENTS.CLOSE_NETH_LINK),
-  hideNethLink: setEmitter(IPC_EVENTS.HIDE_NETH_LINK),
   hidePhoneIsland: setEmitter(IPC_EVENTS.HIDE_PHONE_ISLAND),
   showPhoneIsland: setEmitter(IPC_EVENTS.SHOW_PHONE_ISLAND),
 

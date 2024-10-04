@@ -1,18 +1,20 @@
-import { Menu, MenuItem, MenuItemConstructorOptions, Tray, app, nativeImage, nativeTheme } from 'electron'
-import path, { join } from 'path'
-import { AccountController } from './AccountController'
+import { Menu, MenuItem, MenuItemConstructorOptions, Tray, nativeImage, nativeTheme } from 'electron'
+import path from 'path'
 import { LoginController } from './LoginController'
 import { NethLinkController } from './NethLinkController'
-import { SplashScreenController } from './SplashScreenController'
-import { PhoneIslandController } from './PhoneIslandController'
 import { AppController } from './AppController'
-import { log } from '@shared/utils/logger'
 import { store } from '@/lib/mainStore'
+import { isDev } from '@shared/utils/utils'
+import { DevToolsController } from './DevToolsController'
+import { log } from '@shared/utils/logger'
+import i18next, { i18n, t } from 'i18next'
 
+export type TrayUpdaterProps = {
+  enableShowButton?: boolean,
+  isShowButtonVisible?: boolean
+}
 export class TrayController {
   tray: Tray
-  enableClick = false
-
   static instance: TrayController
   constructor() {
     TrayController.instance = this
@@ -21,29 +23,10 @@ export class TrayController {
       : 'light'
     const image = this.getImage(theme)
     this.tray = new Tray(image)
-    this.tray.setIgnoreDoubleClickEvents(true)
+    this.updateTray()
     this.tray.on('click', () => {
-      if (this.enableClick) {
-        if (LoginController.instance && LoginController.instance.window?.isOpen()) LoginController.instance.hide()
-        else if (NethLinkController.instance.window?.isOpen()) NethLinkController.instance.hide()
-        else if (store.store['account']) NethLinkController.instance.show()
-        else LoginController.instance.show()
-      }
+      this.tray.popUpContextMenu()
     })
-    const menu: (MenuItemConstructorOptions | MenuItem)[] = [
-      {
-        role: 'close',
-        commandId: 1,
-        click: () => {
-          AppController.safeQuit()
-        }
-      }
-    ]
-    this.tray.on('right-click', () => {
-      this.tray.popUpContextMenu(Menu.buildFromTemplate(menu))
-    })
-
-
   }
 
   getImage(theme: 'light' | 'dark') {
@@ -62,6 +45,77 @@ export class TrayController {
   changeIconByTheme(theme: 'light' | 'dark') {
     const image = this.getImage(theme)
     this.tray.setImage(image)
+  }
+
+  updateTray({
+    enableShowButton,
+    isShowButtonVisible
+  }: TrayUpdaterProps = {
+      isShowButtonVisible: true
+    }) {
+    try {
+      const _isShowButtonVisible = isShowButtonVisible === undefined ? true : isShowButtonVisible
+      const label = store.store['account']
+        //? "Toggle Nethlink"
+        ? ((NethLinkController.instance && NethLinkController.instance.window?.isOpen()) ? `${t('Tray.Hide')} NethLink` : `${t('Tray.Show')} NethLink`)
+        //: "Toggle Login"
+        : ((LoginController.instance && LoginController.instance.window?.isOpen()) ? `${t('Tray.Hide')} Login` : `${t('Tray.Show')} Login`)
+      log(`UPDATE TRAY: ${label}`)
+      const menu: (MenuItemConstructorOptions | MenuItem)[] = [
+        {
+          role: 'window',
+          label: label,
+          commandId: 1,
+          enabled: enableShowButton ?? false,
+          visible: _isShowButtonVisible,
+          click: (menuItem, window, event) => {
+            if (enableShowButton) {
+              if (store.store['account']) {
+                if (NethLinkController.instance && NethLinkController.instance.window?.isOpen())
+                  NethLinkController.instance.hide()
+                else
+                  NethLinkController.instance.show()
+              } else {
+                if (LoginController.instance && LoginController.instance.window?.isOpen())
+                  LoginController.instance.hide()
+                else
+                  LoginController.instance.show()
+              }
+
+            }
+          }
+        },
+        {
+          role: process.platform === 'win32' ? 'close' : 'window',
+          label: `${t('Tray.Quit')} NethLink`,
+          commandId: 2,
+          enabled: enableShowButton ?? false,
+          click: (menuItem, window, event) => {
+            console.log(event)
+            AppController.safeQuit()
+          }
+        }
+      ]
+
+      if (isDev()) {
+        menu.push({
+          role: 'window',
+          label: 'DevTool',
+          commandId: 3,
+          enabled: true,
+          click: (menuItem, window, event) => {
+            if (!DevToolsController.instance) {
+              new DevToolsController()
+            }
+            DevToolsController.instance.toggle()
+          }
+        })
+      }
+      this.tray.setContextMenu(Menu.buildFromTemplate(menu))
+    } catch (e) {
+      log(e)
+    }
+
   }
 
 }

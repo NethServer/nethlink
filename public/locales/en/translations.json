@@ -1,4 +1,9 @@
 {
+  "Tray": {
+    "Quit": "Quit",
+    "Hide": "Hide",
+    "Show": "Show"
+  },
   "Common": {
     "Showing": "Showing",
     "of": "of",
@@ -197,6 +202,8 @@
     "Outcome": "Outcome",
     "Duration": "Duration",
     "Recording": "Recording",
+    "Answer phone to start recording": "Answer phone to start recording",
+    "Close the call to stop recording": "Close the call to stop recording",
     "No calls": "No calls",
     "There are no calls in your history": "There are no calls in your history",
     "Play": "Play",
@@ -613,10 +620,14 @@
     "Confirm": "Confirm",
     "Start recording": "Start recording",
     "Switch call": "Switch call",
-    "Call to transfer": "Call to transfer",
+    "Call to transfer": "Click to transfer",
     "Hangup and transfer": "Transfer",
     "Answer": "Answer",
-    "Settings": "Settings"
+    "Settings": "Settings",
+    "Record": "Record",
+    "Stop recording": "Stop recording",
+    "Recording": "Recording",
+    "Interrupt recording": "Interrupt recording"
   },
   "QueueManager": {
     "Dashboard": "Dashboard",

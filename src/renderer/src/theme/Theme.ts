@@ -467,11 +467,11 @@ const theme = {
       base: 'absolute bg-black dark:bg-white overflow-visible z-[100] opacity-20 flex items-center',
       variant: {
         splashscreen: 'top-0 left-0 h-full w-full rounded-2xl',
-        nethlink: 'top-[32px] left-0 h-[calc(100%-32px)] w-full rounded-b-lg'
+        nethlink: 'top-0 left-0 h-full w-full rounded-b-lg'
       }
     },
     dialog: {
-      base: 'absolute top-[32px] left-0 w-full h-[calc(100%-32px)] flex items-center',
+      base: 'absolute top-0 left-0 w-full h-full flex items-center',
       variant: {
         splashscreen: '',
         nethlink: ''

@@ -87,14 +87,14 @@ export function SearchBox(): JSX.Element {
   }
 
   return (
-    <form className="flex flex-row items-center relative" onSubmit={handleSubmit(submit)}>
+    <form className="flex flex-row items-center relative w-full" onSubmit={handleSubmit(submit)}>
       <TextInput
         rounded="base"
         icon={SearchIcon}
         type="text"
         placeholder={t('Common.Call or compose') as string}
         onKeyDown={handleCallUser}
-        className="min-w-[222px] dark:text-titleDark text-titleLight"
+        className="min-w-[180px] dark:text-titleDark text-titleLight"
         {...register('searchText')}
       />
       {tempSearchText !== '' && (

@@ -4,7 +4,7 @@ import { BaseWindow } from './BaseWindow'
 export class DevToolsWindow extends BaseWindow {
   constructor() {
     super(PAGES.DEVTOOLS, {
-      show: true,
+      show: false,
       y: 80,
       x: 100,
       closable: false,

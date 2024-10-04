@@ -3,75 +3,152 @@ import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
 import { NethLinkPageSize } from '@shared/constants'
+import { log } from '@shared/utils/logger'
+import { debouncer, delay } from '@shared/utils/utils'
+import { store } from '@/lib/mainStore'
+import { AccountController } from '../controllers'
 
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
   size: { w: number; h: number } | undefined
-
   constructor() {
     super(PAGES.NETHLINK, {
       width: NethLinkPageSize.w,
       height: NethLinkPageSize.h,
+      minWidth: NethLinkPageSize.w,
+      minHeight: NethLinkPageSize.h,
       show: false,
-      fullscreenable: false,
+      fullscreenable: true,
+      titleBarStyle: 'default',
       autoHideMenuBar: true,
       closable: true,
-      alwaysOnTop: true,
-      minimizable: false,
-      maximizable: false,
+      alwaysOnTop: false,
+      minimizable: true,
+      maximizable: true,
       movable: true,
-      resizable: false,
-      skipTaskbar: true,
-      roundedCorners: false,
+      resizable: true,
+      skipTaskbar: false,
+      roundedCorners: true,
       parent: undefined,
-      transparent: true,
-      hiddenInMissionControl: true,
-      hasShadow: false,
+      hasShadow: true,
       center: false,
       fullscreen: false,
-      acceptFirstMouse: false,
-      frame: false,
-      thickFrame: false,
-      trafficLightPosition: { x: 0, y: 0 }
+      thickFrame: true,
+      icon: '../../public/LogoBlueSimpleDark.svg',
+      titleBarOverlay: true
+
     })
     this.size = NethLinkPageSize
     NethLinkWindow.instance = this
   }
 
   _setBounds() {
-    const MARGIN = 8
-    const LINUXBARHEIGHT = 32
-    const MACBARHEIGHT = 25
-    const WINDOWSBARHEIGHT = 40
-    const screenBounds: Electron.Rectangle = screen.getPrimaryDisplay().bounds
-    const { w, h } = this.size!
-    let x = screenBounds.width - w - MARGIN
-    let y = 0
-    if (process.platform === 'win32') {
-      const trayBounds = TrayController.instance.tray.getBounds()
-      y = screenBounds.height - h - WINDOWSBARHEIGHT - MARGIN
+    try {
+      const MARGIN = 8
+      const LINUXBARHEIGHT = 32
+      const MACBARHEIGHT = 25
+      const WINDOWSBARHEIGHT = 40
+      const screenBounds: Electron.Rectangle = screen.getPrimaryDisplay().bounds
+      const { w, h } = this.size!
+      let x = screenBounds.width - w - MARGIN
+      let y = 0
+      if (process.platform === 'win32') {
+        y = screenBounds.height - h - WINDOWSBARHEIGHT - MARGIN
+      }
+      if (process.platform === 'linux') {
+        x = screenBounds.x + screenBounds.width - w - MARGIN
+        y = screenBounds.y + LINUXBARHEIGHT + MARGIN
+      }
+      if (process.platform === 'darwin') {
+        y = screenBounds.y + MACBARHEIGHT + MARGIN
+      }
+      const nethlinkBounds: Electron.Rectangle = { x, y, width: w, height: h }
+      this._window?.setBounds(nethlinkBounds, false)
+    } catch (e) {
+      log(e)
     }
-    if (process.platform === 'linux') {
-      x = screenBounds.x + screenBounds.width - w - MARGIN
-      y = screenBounds.y + LINUXBARHEIGHT + MARGIN
-    }
-    if (process.platform === 'darwin') {
-      y = screenBounds.y + MACBARHEIGHT + MARGIN
-    }
-
-    const bound = { x, y, w, h }
-    this._window?.setBounds(bound, false)
   }
 
   show(): void {
-    this._setBounds()
-    super.show()
-    this._window?.setVisibleOnAllWorkspaces(true)
-    this._window?.focus()
-    this._window?.setVisibleOnAllWorkspaces(false)
+    try {
+      const accountBounds = AccountController.instance.getAccountNethLinkBounds()
+      log('NethLink bounds', accountBounds)
+      if (accountBounds) {
+        const isAccountBoundsOnDisplay = screen.getAllDisplays().reduce((result, display) => {
+          const area = display.workArea
+          log('NethLink bounds is on display', {
+            area,
+            accountBounds,
+            x: accountBounds.x >= area.x,
+            y: accountBounds.y >= area.y,
+            w: (accountBounds.x + accountBounds.width) < (area.x + area.width),
+            h: (accountBounds.y + accountBounds.height) < (area.y + area.height)
+          })
+          return (
+            result ||
+            (accountBounds.x >= area.x &&
+              accountBounds.y >= area.y &&
+              (accountBounds.x + accountBounds.width) < (area.x + area.width) &&
+              (accountBounds.y + accountBounds.height) < (area.y + area.height))
+          )
+        }, false)
+        if (isAccountBoundsOnDisplay) {
+          this._window?.setBounds(accountBounds, false)
+        } else {
+          this._setBounds()
+        }
+      } else {
+        this._setBounds()
+      }
+      super.show()
+      this._window?.setVisibleOnAllWorkspaces(true)
+      this._window?.focus()
+      this._window?.setVisibleOnAllWorkspaces(false)
+    }
+    catch (e: any) {
+      if (e.message === 'Object has been destroyed') {
+        this.buildWindow()
+        return this.show()
+      } else {
+        log(e)
+      }
+    }
   }
 
-  hideWindowFromRenderer() {
-    super.hide()
+  hide(..._args: any): void {
+    try {
+      this.saveBounds()
+      this._window?.hide()
+    } catch (e) {
+      log(e)
+    }
+  }
+
+  saveBounds(bounds: Electron.Rectangle | undefined = undefined) {
+    const nethlinkBounds = bounds || this._window?.getBounds()
+    AccountController.instance.setAccountNethLinkBounds(nethlinkBounds)
+  }
+
+  buildWindow(): void {
+    super.buildWindow()
+    this._window?.on('hide', this.toggleVisibility)
+    this._window?.on('moved', () => {
+      this.saveBounds()
+    })
+    this._window?.on('show', this.toggleVisibility)
+    this._window?.on('closed', this.toggleVisibility)
+    this._window?.on('close', (e) => {
+      e.preventDefault()
+      this.hide()
+    })
+  }
+
+  async toggleVisibility() {
+    debouncer('nethlinkToggleVisibility', async () => {
+      await delay(250)
+      TrayController.instance.updateTray({
+        enableShowButton: true
+      })
+    })
   }
 }

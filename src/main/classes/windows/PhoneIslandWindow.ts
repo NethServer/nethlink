@@ -2,6 +2,8 @@ import { PAGES } from '@shared/types'
 import { BaseWindow } from './BaseWindow'
 
 export class PhoneIslandWindow extends BaseWindow {
+
+  public static currentSize: Partial<Electron.Rectangle> = {}
   constructor() {
     super(PAGES.PHONEISLAND, {
       width: 1,
@@ -13,10 +15,10 @@ export class PhoneIslandWindow extends BaseWindow {
       alwaysOnTop: true,
       minimizable: false,
       maximizable: false,
-      movable: true,
+      movable: false,
       resizable: false,
       skipTaskbar: true,
-      roundedCorners: false,
+      roundedCorners: true,
       parent: undefined,
       transparent: true,
       hiddenInMissionControl: true,

@@ -1,4 +1,9 @@
 {
+  "Tray": {
+    "Quit": "Chiudi",
+    "Hide": "Nascondi",
+    "Show": "Mostra"
+  },
   "Common": {
     "Showing": "Mostrando",
     "of": "di",
@@ -60,6 +65,7 @@
     "to": "a",
     "Start recording message before": "Premi il pulsante qui sotto per registrare",
     "Start recording message after": "Puoi parlare tra poco...",
+    "Recording": "Registrazione",
     "Minimize": "minimize",
     "This field is required": "Questo campo è obbligatorio",
     "This field must be at least": "Questo campo deve avere almeno {{number}} caratteri",
@@ -67,7 +73,9 @@
     "Quit": "Chiudi",
     "No internet connection title": "Nessuna connessione internet",
     "No internet connection description": "Si prega di controllare la connessione e riprovare",
-    "Refresh": "Aggiorna"
+    "Refresh": "Aggiorna",
+    "Answer phone to start recording": "Rispondi al telefono per iniziare la registrazione",
+    "Close the call to stop recording": "Chiudi la chiamata per fermare la registrazione"
   },
   "Login": {
     "Welcome": "Benvenuto",
@@ -613,10 +621,14 @@
     "Confirm": "Conferma",
     "Start recording": "Inizia registrazione",
     "Switch call": "Scambia chiamata",
-    "Call to transfer": "Chiamata da trasferire",
+    "Call to transfer": "Clicca per trasferire",
     "Hangup and transfer": "Trasferisci",
     "Answer": "Rispondi",
-    "Settings": "Impostazioni"
+    "Settings": "Impostazioni",
+    "Record": "Registra",
+    "Stop recording": "Ferma registrazione",
+    "Recording": "Registrando",
+    "Interrupt recording": "Interrompi registrazione"
   },
   "QueueManager": {
     "Dashboard": "Dashboard",

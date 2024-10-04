@@ -6,7 +6,7 @@ import { useStoreState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
 import { Account, CallData, Extension, PhoneIslandConfig, PhoneIslandPageData, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
-import { isDev } from '@shared/utils/utils'
+import { delay, isDev } from '@shared/utils/utils'
 import { useRefState } from '@renderer/hooks/useRefState'
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
@@ -16,6 +16,8 @@ import { sendNotification } from '@renderer/utils'
 import { t } from 'i18next'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import { getTimeDifference } from '@renderer/lib/dateTime'
+import { enGB, it } from 'date-fns/locale'
+import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
@@ -32,7 +34,10 @@ export function PhoneIslandPage() {
   const phoneIslandTokenLoginResponse = useRef<string>()
   const loadPath = useRef<string | undefined>(undefined)
   const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
-  const phoneIslandDisconnectionPopupOpen = useRef<boolean>(false)
+  const isOnLogout = useRef<boolean>(false)
+  const listeners = useRef<{
+    [key: string]: (...data: any) => Promise<void>
+  }>({})
 
   const {
     onMainPresence,
@@ -96,7 +101,7 @@ export function PhoneIslandPage() {
     })
 
     Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
-      window.addEventListener(event, async (...data) => {
+      listeners.current[event] = async (...data: any) => {
         log(event, data)
         const customEvent = data[0]
         const detail = customEvent['detail']
@@ -119,7 +124,7 @@ export function PhoneIslandPage() {
           case PHONE_ISLAND_EVENTS['phone-island-call-ringing']:
             if (phoneIslandState.current !== event && !isOnCall.current) {
               phoneIslandState.current = event
-              window.api.showPhoneIsland()
+              show()
             }
             break
           case PHONE_ISLAND_EVENTS['phone-island-server-disconnected']:
@@ -167,7 +172,7 @@ export function PhoneIslandPage() {
             if (lastResizeEvent.current) {
               const previouEventSize = getSizeFromResizeEvent(lastResizeEvent.current)
               if (previouEventSize)
-                window.api.resizePhoneIsland(previouEventSize.w, previouEventSize.h)
+                resize(previouEventSize)
             }
             break
           case PHONE_ISLAND_EVENTS['phone-island-compressed']:
@@ -178,7 +183,7 @@ export function PhoneIslandPage() {
             if (lastResizeEvent.current) {
               const previouEventSize = getSizeFromResizeEvent(lastResizeEvent.current)
               if (previouEventSize)
-                window.api.resizePhoneIsland(previouEventSize.w, previouEventSize.h)
+                resize(previouEventSize)
             }
             break
         }
@@ -214,11 +219,21 @@ export function PhoneIslandPage() {
           }
           const size = getSizeFromResizeEvent(event)!
           log("RESIZE EVENT", event, size)
-          window.api.resizePhoneIsland(size.w, size.h)
+          resize(size)
         }
-      })
+      }
+      window.addEventListener(event, listeners.current[event])
     })
   })
+  const show = () => {
+    log(`SHOW PHONE ISLAND`)
+    window.api.showPhoneIsland()
+  }
+
+  const resize = (size: Size) => {
+    log(`RESIZE ${size.w}x${size.h} ${account?.username}`)
+    window.api.resizePhoneIsland(size.w, size.h)
+  }
 
   const diffValueConversation = (diffValueOriginal: any) => {
     // determine the sign
@@ -274,15 +289,16 @@ export function PhoneIslandPage() {
 
   useEffect(() => {
     if (account) {
-      if (!isDataConfigCreated.current) {
+      if (!isDataConfigCreated.current && !isOnLogout.current) {
         isDataConfigCreated.current = true
         createDataConfig()
       }
     }
-  }, [account?.username, isDataConfigCreated.current])
+  }, [account?.username, isDataConfigCreated.current, isOnLogout.current])
 
   useEffect(() => {
     if (deviceInformationObject.current && account && phoneIslandTokenLoginResponse.current) {
+      log('create data config')
       const hostname = account!.host
       const config: PhoneIslandConfig = {
         hostname,
@@ -299,6 +315,8 @@ export function PhoneIslandPage() {
       setDataConfig(dataConfig)
     }
   }, [deviceInformationObject.current, account?.username])
+
+
 
   const dispatchAndWait = async (event: PHONE_ISLAND_EVENTS, awaitEvent: PHONE_ISLAND_EVENTS, options?: {
     data?: any,
@@ -323,10 +341,11 @@ export function PhoneIslandPage() {
     })
   }
   async function logout() {
+    isOnLogout.current = true
     log('LOGOUT', deviceInformationObject.current)
-    await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-call-end'], PHONE_ISLAND_EVENTS['phone-island-call-ended'])
-    log('phone-island-call-ended', deviceInformationObject.current)
     if (deviceInformationObject.current) {
+      await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-call-end'], PHONE_ISLAND_EVENTS['phone-island-call-ended'])
+      log('completed phone-island-call-ended')
       await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-detach'], PHONE_ISLAND_EVENTS['phone-island-detached'], {
         data: {
           deviceInformationObject: deviceInformationObject.current
@@ -334,10 +353,14 @@ export function PhoneIslandPage() {
       })
       log('detached and LOGOUT_COMPLETED')
     }
-    log('LOGOUT_COMPLETED')
-    isDataConfigCreated.current = false
     setDataConfig(undefined)
+    isDataConfigCreated.current = false
+    Object.keys(PHONE_ISLAND_EVENTS).forEach((event) => {
+      window.removeEventListener(event, listeners.current[event])
+    })
+    await delay(250)
     window.electron.send(IPC_EVENTS.LOGOUT_COMPLETED)
+    log('LOGOUT_COMPLETED')
   }
 
   return (
@@ -354,6 +377,7 @@ export function PhoneIslandPage() {
         overflow: 'hidden',
       }}
     >
+
       <div style={{
         position: 'absolute',
         height: '100vh',
@@ -364,18 +388,22 @@ export function PhoneIslandPage() {
 
       }}
       ></div>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'start'
-      }}>
-        {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} />}
-      </div>
+      <ElectronDraggableWindow>
+        <div
+          id="phone-island-container"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'start'
+          }}>
+          {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} isDataConfigCreated={isDataConfigCreated.current} />}
+        </div>
+      </ElectronDraggableWindow>
     </div >
   )
 }
 
-const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, i18nLoadPath }) => {
+const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, isDataConfigCreated, i18nLoadPath }) => {
   const [account] = useStoreState<Account>('account')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
@@ -395,8 +423,9 @@ const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, i18nLoadPat
   }
 
   const PhoneIslandComponent = useMemo(() => {
-    return dataConfig && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={i18nLoadPath} uaType='mobile' />
-  }, [account?.username, dataConfig])
+    log('update PhoneIsland', account?.username, isDataConfigCreated, dataConfig)
+    return dataConfig && isDataConfigCreated && <PhoneIsland dataConfig={dataConfig} i18nLoadPath={i18nLoadPath} uaType='mobile' />
+  }, [account?.username, dataConfig, isDataConfigCreated])
 
   return PhoneIslandComponent
 }

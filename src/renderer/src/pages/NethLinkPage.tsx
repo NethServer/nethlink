@@ -37,9 +37,8 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   const [phoneIslandPageData] = useStoreState<PhoneIslandPageData>('phoneIslandPageData')
   const [nethLinkPageData, setNethLinkPageData] =
     useStoreState<NethLinkPageData>('nethLinkPageData')
-  const [notifications, setNotifications] = useStoreState<NotificationData>('notifications')
+  const [, setNotifications] = useStoreState<NotificationData>('notifications')
   const [connection] = useStoreState<boolean>('connection')
-  const [isConnectionErrorDialogOpen, setIsConnectionErrorDialogOpen] = useState<boolean>(false)
 
   const { saveOperators, onQueueUpdate, saveLastCalls, saveSpeeddials } =
     usePhoneIslandEventHandler()
@@ -91,10 +90,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     }
   }, [account?.username])
 
-  useEffect(() => {
-    setIsConnectionErrorDialogOpen(!connection)
-  }, [connection])
-
   function stopInterval(interval: MutableRefObject<NodeJS.Timeout | undefined>) {
     if (interval.current) {
       clearInterval(interval.current)
@@ -105,6 +100,10 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   // useEffect(() => {
   //   debouncer('reload-data', () => loadData(), 1000)
   // }, [nethLinkPageData?.selectedSidebarMenu])
+
+  useEffect(() => {
+    log('connection effect', connection)
+  }, [connection])
 
   function initialize() {
     Notification.requestPermission()
@@ -154,7 +153,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
   }
 
   useEffect(() => {
-    if (phoneIslandPageData?.isDisconnected && connection) {
+    if (!phoneIslandPageData?.isDisconnected && connection) {
       reconnect()
       log('RECONNECT')
     }
@@ -164,53 +163,18 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     loadData()
   }
 
-  function hideNethLink() {
-    window.api.hideNethLink()
-  }
-
   function onConnectionErrorButtonClick(): void {
-    log('refresh', navigator.onLine)
     debouncer('update-connection-state', () => {
+      log('refresh', navigator.onLine, connection)
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
     }, 250)
   }
 
   return (
-    <div className="h-[100vh] w-[100vw] overflow-hidden">
-      <div className="absolute container w-full h-full overflow-hidden flex flex-col justify-end items-center text-sm">
-        <div
-          className={`flex flex-col min-w-[400px] min-h-[400px] h-full w-full items-center justify-between`}
-        >
-          <div
-            className={classNames(
-              `
-              relative
-              px-4
-              draggableAnchor
-              w-full
-              h-[34px]
-              flex justify-between
-              items-center
-              bg-gray-950 dark:bg-gray-950
-              rounded-t-lg
-              z-0
-            `,
-              !navigator.userAgent.includes('Windows') ? 'flex-row' : 'flex-row-reverse'
-            )}
-          >
-            <PresenceBadge
-              mainPresence={account?.data?.mainPresence}
-              className={classNames(
-                !navigator.userAgent.includes('Windows') ? 'right-4' : 'left-4'
-              )}
-            />
-            <FontAwesomeIcon
-              className={`absolute top-2 w-4 h-4 text-yellow-500 hover:text-yellow-400 cursor-pointer noDraggableAnchor`}
-              icon={MinimizeIcon}
-              onClick={hideNethLink}
-            />
-          </div>
-          <div className="relative  flex flex-row rounded-b-lg z-10 dark:bg-bgDark bg-bgLight w-full h-full">
+    <div className="h-[100vh] w-[100vw] ">
+      <div className="absolute w-full h-full  flex flex-col justify-end items-center text-sm">
+        <div className={`flex flex-col h-full w-full items-center justify-between`}>
+          <div className="relative flex flex-row z-10 dark:bg-bgDark bg-bgLight w-full h-full">
             <div className="flex flex-col gap-3 w-full h-full">
               <Navbar onClickAccount={() => me()} />
               <NethLinkModules />
@@ -219,7 +183,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
           </div>
         </div>
       </div>
-      {isConnectionErrorDialogOpen && <ConnectionErrorDialog
+      {!connection && <ConnectionErrorDialog
         variant='nethlink'
         onButtonClick={onConnectionErrorButtonClick}
         buttonText={t('Common.Refresh')}

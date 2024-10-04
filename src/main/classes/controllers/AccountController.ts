@@ -40,9 +40,6 @@ export class AccountController {
     return []
   }
 
-
-
-
   async logout() {
     store.updateStore({
       auth: {
@@ -53,7 +50,7 @@ export class AccountController {
       account: undefined,
       theme: store.store.theme,
       connection: store.store['connection'] || false
-    })
+    }, 'logout')
     store.saveToDisk()
   }
 
@@ -80,7 +77,10 @@ export class AccountController {
           const password = _accountData.password
           //let loggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
           const tempLoggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
-          let loggedAccount: Account = { ...tempLoggedAccount, theme: lastLoggedAccount.theme }
+          let loggedAccount: Account = {
+            ...lastLoggedAccount,
+            ...tempLoggedAccount,
+          }
 
           const { parseConfig } = useLogin()
           const config: string = await NetworkController.instance.get(`https://${loggedAccount.host}/config/config.production.js`)
@@ -115,7 +115,7 @@ export class AccountController {
           lastUserCryptPsw: cryptString
         },
         connection: store.store['connection'] || false
-      })
+      }, 'saveLoggedAccount')
       store.saveToDisk()
       return account
     } catch (e) {
@@ -161,6 +161,31 @@ export class AccountController {
         }
       }
       store.set('auth', _auth)
+      log('phoneIslandPosition saved', phoneIslandPosition)
+      store.saveToDisk()
+    }
+  }
+
+  getAccountNethLinkBounds(): Electron.Rectangle | undefined {
+    return store.store['account']?.nethlinkBounds
+  }
+
+  setAccountNethLinkBounds(nethlinkBounds: Electron.Rectangle | undefined): void {
+    const account = store.store.account
+    const auth = store.store.auth
+    if (account) {
+      account!.nethlinkBounds = nethlinkBounds
+      store.set('account', account)
+      const _auth = {
+        ...auth,
+        availableAccounts: {
+          ...auth?.availableAccounts,
+          [getAccountUID(account)]: account
+        }
+      }
+      store.set('auth', _auth)
+      log('Nethlink bounds saved', nethlinkBounds)
+      store.saveToDisk()
     }
   }
 }
