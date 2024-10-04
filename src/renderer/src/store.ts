@@ -37,7 +37,6 @@ export const useRegisterStoreHook = () => {
     if (!isRegistered.current) {
       isRegistered.current = true
       window.electron.receive(IPC_EVENTS.SHARED_STATE_UPDATED, (newStore: LocalStorageData, fromPage: string) => {
-        //log('Update store from:', fromPage, newStore.connection)
         Object.keys(newStore).forEach((k: any) => {
           setData(k, newStore[k])
         })
