@@ -28,7 +28,6 @@ class Store<T> {
     const o = Object.assign({}, this.store)
     o[selector] = value
     const diff = difference(Object.values(o), Object.values(this.store as any))
-    //log('difference', selector, diff.length)
     if (diff.length > 0) {
       this.store = o
       ipcMain.emit(IPC_EVENTS.UPDATE_SHARED_STATE, undefined, this.store, 'main', selector)
