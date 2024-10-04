@@ -63,7 +63,6 @@ export class NethLinkWindow extends BaseWindow {
         y = screenBounds.y + MACBARHEIGHT + MARGIN
       }
       const nethlinkBounds: Electron.Rectangle = { x, y, width: w, height: h }
-      //this.saveBounds(nethlinkBounds)
       this._window?.setBounds(nethlinkBounds, false)
     } catch (e) {
       log(e)
