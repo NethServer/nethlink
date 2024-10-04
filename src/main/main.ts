@@ -136,7 +136,7 @@ function startLogger() {
     if (!message) {
       // Create new object error to get stack trace
       const error = new Error();
-      // Ottieni lo stack trace come stringa
+      // Get stack trace as string
       const stack = error.stack;
       // Dividi lo stack trace in linee
       const stackLines = stack?.split('\n');
