@@ -211,7 +211,6 @@ function attachOnReadyProcess() {
     const data = store.getFromDisk()
     store.updateStore(data, 'startApp')
     log('START APP, retry:', attempt)
-    //await delay(1500)
     if (!store.store.connection) {
       log('NO CONNECTION', attempt, store.store)
       if (attempt >= 3)
