@@ -115,7 +115,6 @@ export class BaseWindow {
     }
 
     window.once('ready-to-show', onReady)
-    //this._window.webContents.ipc.on(IPC_EVENTS.INITIALIZATION_COMPELTED, onReady)
     isDev() && window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
 
     this._window = window
