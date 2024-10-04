@@ -138,7 +138,7 @@ function startLogger() {
       const error = new Error();
       // Get stack trace as string
       const stack = error.stack;
-      // Dividi lo stack trace in linee
+      // Divide stack trace in lines
       const stackLines = stack?.split('\n');
       // Recupera la linea che contiene la chiamata alla funzione (la terza linea)
       const callerLine = stackLines?.[2].split('at ')[1];
