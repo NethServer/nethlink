@@ -86,8 +86,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
           loginWindowHeight = LoginSizes.MULTIPLE_ACCOUNT
           break
       }
-      // if (!connection)
-      //   loginWindowHeight += LoginSizes.CONNECTION_FAILURE_NO_ACCOUNTS
+
 
     }
     loginWindowHeight += LoginSizes.INPUT_ERROR * errorCount
