@@ -32,3 +32,16 @@ $ npm run build:mac
 # For Linux
 $ npm run build:linux
 ```
+
+### Release
+
+```bash
+# For major
+$ npm run publish:major
+
+# For minor
+$ npm run publish:minor
+
+# For patch
+$ npm run publish:patch
+```
