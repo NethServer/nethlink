@@ -467,9 +467,6 @@ function showLogin() {
 }
 
 async function createNethLink(show: boolean = true) {
-  //TODO: evaluate the correct shortcut
-  //registerShortcutForCall('CommandOrControl+c+F11')
-  //registerShortcutForCall('F11')
   await delay(500)
   new NethLinkController()
   await delay(250)
