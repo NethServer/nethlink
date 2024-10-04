@@ -134,7 +134,7 @@ function startLogger() {
       fs.mkdirSync(logDir, { recursive: true });
     }
     if (!message) {
-      // Crea un nuovo oggetto Error per ottenere lo stack trace
+      // Create new object error to get stack trace
       const error = new Error();
       // Ottieni lo stack trace come stringa
       const stack = error.stack;
