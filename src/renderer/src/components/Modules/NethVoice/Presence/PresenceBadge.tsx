@@ -27,7 +27,6 @@ export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) =
         <div
           className={classNames(
             'animate-pulse h-5 w-8 bg-gray-300 dark:bg-gray-600 z-[100]',
-            //!navigator.userAgent.includes('Windows') ? `absolute right-4` : 'absolute left-4',
             theme.base,
             theme.rounded['full'],
             statuses[isCallforward ? 'callforward' : 'voicemail']?.badge.base,
