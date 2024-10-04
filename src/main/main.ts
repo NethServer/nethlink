@@ -172,7 +172,6 @@ function attachOnReadyProcess() {
   let retryAppStart: NodeJS.Timeout | undefined = undefined
 
   app.whenReady().then(async () => {
-    //await resetApp()
     log('APP READY')
     await startLocalization()
 
