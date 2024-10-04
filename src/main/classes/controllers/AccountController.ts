@@ -80,7 +80,6 @@ export class AccountController {
           let loggedAccount: Account = {
             ...lastLoggedAccount,
             ...tempLoggedAccount,
-            //theme: lastLoggedAccount.theme 
           }
 
           const { parseConfig } = useLogin()
