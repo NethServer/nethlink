@@ -9,10 +9,6 @@ export const log = async (message?: any, ...optionalParams: any[]) => {
     const error = new Error();
     const stack = error.stack;
     const stackLines = stack?.split('\n');
-    // callerLine = `[${stackLines?.[2].split('at ')[1]}] `
-    // if (callerLine.includes('[http://') || callerLine.includes('[https://')) {
-    //   callerLine = `[] `
-    // }
 
     let formattedMessage = `${now.format('HH:mm:ss.SSSZ')} ##PAGE## ${callerLine}${typeof message === 'object'
       ? JSON.stringify(message)
