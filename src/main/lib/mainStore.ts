@@ -36,7 +36,6 @@ class Store<T> {
 
   updateStore(newState: T, from: string) {
     const diff = difference(Object.values(newState as any), Object.values(this.store as any))
-    //log('try update store from', from, diff.length)
     if (diff.length > 0) {
       this.store = Object.assign({}, newState)
     }
