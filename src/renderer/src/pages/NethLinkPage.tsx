@@ -118,7 +118,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
 
   const showUpdateAppNotification = () => {
     log('UPDATE')
-    const updateLink = 'https://nethesis.github.io/nethlink/'
+    const updateLink = 'https://nethserver.github.io/nethlink/'
     setNotifications((p) => ({
       ...p,
       system: {
