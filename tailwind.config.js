@@ -31,6 +31,10 @@ export default {
         textBlueLight: '#1d4ed8', //blue-700
         textBlueDark: '#3b82f6', // blue-500
 
+        //yellow text
+        textYellowLight: '#B45309', //yellow-700
+        textYellowDark: '#F59E0B', // yellow-500
+
         //amber icon
         iconAmberLight: '#b45309', //amber-700
         iconAmberDark: '#fef3c7', // amber-100
@@ -76,8 +80,14 @@ export default {
 
         //ring-offset
         ringOffsetDark: '#111827', // gray-900
-        ringOffsetLight: '#F9FAFB' // gray-50
-        //
+        ringOffsetLight: '#F9FAFB', // gray-50
+
+        //iconEmpty
+        emptyIconLight: '#9CA3AF',
+        emptyIconDark: '#6B7280',
+        //textEmpty
+        emptyTextLight: '#374151',
+        emptyTextDark: '#E5E7EB'
       },
       screens: {
         '3xl': '1792px',

@@ -3,7 +3,7 @@ import { eventDispatch } from '@renderer/hooks/eventDispatch'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useStoreState } from '@renderer/store'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
+import { IPC_EVENTS, PERMISSION, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
 import { Account, CallData, Extension, PhoneIslandConfig, PhoneIslandPageData, Size } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { delay, isDev } from '@shared/utils/utils'
@@ -18,6 +18,7 @@ import { format, utcToZonedTime } from 'date-fns-tz'
 import { getTimeDifference } from '@renderer/lib/dateTime'
 import { enGB, it } from 'date-fns/locale'
 import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export function PhoneIslandPage() {
   const [account] = useStoreState<Account | undefined>('account')
@@ -42,6 +43,7 @@ export function PhoneIslandPage() {
   const {
     onMainPresence,
     onQueueUpdate,
+    onParkingsUpdate,
     saveLastCalls
   } = usePhoneIslandEventHandler()
 
@@ -49,6 +51,7 @@ export function PhoneIslandPage() {
   const lastResizeEvent = useRef<PHONE_ISLAND_EVENTS | undefined>(undefined)
   const phoneIslandState = useRef<PHONE_ISLAND_EVENTS | undefined>(undefined)
   const [phoneIslandPageData, setPhoneIslandPageData] = useRefState<PhoneIslandPageData>(useStoreState<PhoneIslandPageData>('phoneIslandPageData'))
+  const { hasPermission } = useAccount()
 
 
   const gestLastCalls = (newLastCalls: {
@@ -118,6 +121,11 @@ export function PhoneIslandPage() {
           case PHONE_ISLAND_EVENTS['phone-island-queue-update']:
             onQueueUpdate(detail)
             break
+          case PHONE_ISLAND_EVENTS['phone-island-parking-update']:
+            if (hasPermission(PERMISSION.PARKINGS)) {
+              NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
+            }
+            break;
           case PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully-popup-open']:
             sendNotification(t('Notification.call_transferred_title'), t('Notification.call_transferred_body'))
             break

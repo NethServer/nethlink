@@ -2,12 +2,16 @@ import { Account, OperatorData, StatusTypes } from "@shared/types"
 import { useEffect, useState } from "react"
 import { log } from "@shared/utils/logger"
 import { useStoreState } from "@renderer/store"
+import { PERMISSION } from "@shared/constants"
+
+
 
 export const useAccount = () => {
   const [account] = useStoreState<Account>('account')
 
   const [status, setStatus] = useState<StatusTypes>('offline')
   const [isCallsEnabled, setIsCallsEnabled] = useState<boolean>(false)
+
 
   useEffect(() => {
     if (account) {
@@ -22,10 +26,14 @@ export const useAccount = () => {
 
   }, [account?.data])
 
+  const hasPermission = (permission: PERMISSION) => {
+    return account?.data?.profile?.macro_permissions?.settings?.permissions?.[permission]?.value
+  }
 
   return {
     status,
-    isCallsEnabled
+    isCallsEnabled,
+    hasPermission
   }
 
 }

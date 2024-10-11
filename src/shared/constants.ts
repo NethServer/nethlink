@@ -13,10 +13,24 @@ export const LoginPageSize = {
 }
 export const NEW_ACCOUNT = 'New Account'
 
+
+export enum PERMISSION {
+  CALL_FORWARD = 'call_forward',
+  PARKINGS = 'parkings',
+  DND = "dnd",
+  RECORDING = "recording",
+  CONFERENCE = "conference",
+  SPY = "spy",
+  INTRUDE = "intrude",
+  PICKUP = "pickup"
+}
+
+
 export enum MENU_ELEMENT {
   SPEEDDIALS,
   LAST_CALLS,
-  ABOUT
+  ABOUT,
+  PARKED_CALLS
 }
 export enum IPC_EVENTS {
   LOAD_ACCOUNTS = 'LOAD_ACCOUNTS',
