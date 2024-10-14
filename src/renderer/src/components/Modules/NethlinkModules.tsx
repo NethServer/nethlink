@@ -7,6 +7,7 @@ import { usePhonebookSearchModule } from "./SearchResults/hook/usePhoneBookSearc
 import { AboutModule } from "./About/AboutModule"
 import classNames from "classnames"
 import { PresenceBadge, PresenceBadgeVisibility } from "./NethVoice/Presence/PresenceBadge"
+import { FavouritesModule } from "./NethVoice/Speeddials/Favourites/FavouritesModule"
 
 export const NethLinkModules = () => {
   const phonebookSearchModule = usePhonebookSearchModule()
@@ -30,6 +31,8 @@ export const NethLinkModules = () => {
     if (nethLinkPageData?.showPhonebookSearchModule) return <PhoneBookSearchModule />
 
     switch (nethLinkPageData?.selectedSidebarMenu) {
+      case MENU_ELEMENT.FAVOURITES:
+        return <FavouritesModule />
       case MENU_ELEMENT.SPEEDDIALS:
         return <SpeeddialsModule />
       case MENU_ELEMENT.LAST_CALLS:

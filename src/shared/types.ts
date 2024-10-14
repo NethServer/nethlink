@@ -246,6 +246,7 @@ export type NewContactType = {
   type?: string
   speeddial_num?: string
   company?: string
+  note?: string
 }
 
 export type NewSpeedDialType = {
@@ -256,6 +257,7 @@ export type NewSpeedDialType = {
   setInput?: string
   type?: string
   speeddial_num?: string
+  note?: string
 }
 
 export type OperatorData = {
@@ -407,7 +409,8 @@ export type NethLinkPageData = {
 }
 
 export type SpeedDialModuleData = {
-  selectedSpeeDial?: ContactType
+  selectedSpeedDial?: ContactType
+  selectedFavourite?: ContactType
 }
 
 export type PhonebookSearchModuleData = {

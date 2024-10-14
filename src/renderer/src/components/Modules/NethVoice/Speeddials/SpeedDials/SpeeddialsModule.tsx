@@ -2,12 +2,14 @@ import { SpeedDialsBox } from "./SpeedDialsBox"
 import { useEffect, useState } from "react"
 import { SpeedDialFormBox } from "./SpeedDialFormBox"
 import { SpeedDialDeleteDialog } from "./SpeedDialDeleteDialog"
-import { useSpeedDialsModule } from "./hook/useSpeedDialsModule"
+import { useSpeedDialsModule } from "../hook/useSpeedDialsModule"
+
 
 export const SpeeddialsModule = () => {
 
   const speedDialModule = useSpeedDialsModule()
   const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
+  const [selectedFavourite, setSelectedFavourite] = speedDialModule.favouriteState
   const [isSpeedDialFormOpen, setSpeedDialFormOpen] = useState<boolean>(false)
   const [isDeleteSpeedDialDialogOpen, setDeleteSpeedDialDialogOpen] = useState<boolean>(false)
 

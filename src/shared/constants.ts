@@ -16,7 +16,8 @@ export const NEW_ACCOUNT = 'New Account'
 export enum MENU_ELEMENT {
   SPEEDDIALS,
   LAST_CALLS,
-  ABOUT
+  ABOUT,
+  FAVOURITES
 }
 export enum IPC_EVENTS {
   LOAD_ACCOUNTS = 'LOAD_ACCOUNTS',

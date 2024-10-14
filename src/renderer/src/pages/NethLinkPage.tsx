@@ -73,7 +73,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
             selectedContact: undefined
           },
           speeddialsModule: {
-            selectedSpeeDial: undefined
+            selectedSpeedDial: undefined
           },
           phonebookSearchModule: {
             searchText: null

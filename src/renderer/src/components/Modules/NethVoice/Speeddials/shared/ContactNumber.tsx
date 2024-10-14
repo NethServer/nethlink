@@ -22,18 +22,20 @@ export interface SpeedDialNumberProps {
   speedDial: ContactType
   className?: string
   callUser: () => void
-  handleEditSpeedDial: (editSpeedDial: ContactType) => void
-  handleDeleteSpeedDial: (deleteSpeedDial: ContactType) => void
+  handleEditSpeedDial?: (editSpeedDial: ContactType) => void
+  handleDeleteSpeedDial?: (deleteSpeedDial: ContactType) => void
   isLastItem: boolean
+  isFavourite: boolean
 }
 
-export function SpeedDialNumber({
+export function ContactNumber({
   speedDial,
   className,
   callUser,
   handleEditSpeedDial,
   handleDeleteSpeedDial,
-  isLastItem
+  isLastItem,
+  isFavourite
 }: SpeedDialNumberProps): JSX.Element {
   const { theme: nethTheme } = useTheme()
   const [operators] = useStoreState<OperatorData>('operators')
@@ -60,24 +62,33 @@ export function SpeedDialNumber({
           }
         />
         <div className="flex flex-col gap-1">
-          <p className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5">
-            {isDev() && <span className='absolute top-0 right-[-16px] text-[8px]'>[{speedDial.id}]</span>}{truncate(speedDial.name || speedDial.company || `${t('Common.Unknown')}`, 20)}
-          </p>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-row gap-2 ">
+            <p className='dark:text-titleDark text-titleLight font-medium text-[14px] leading-5'>
+              {isDev() && <span className='absolute top-0 right-[-16px] text-[8px]'>[{speedDial.id}]</span>}{truncate(speedDial.name || speedDial.company || `${t('Common.Unknown')}`, 20)}
+            </p>
             <FontAwesomeIcon
               className="dark:text-gray-400 text-gray-600 text-base"
               icon={CallIcon}
               onClick={callUser}
             />
-            <NumberCaller
-              number={speedDial.speeddial_num!}
-              disabled={!isCallsEnabled}
-              className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
-              isNumberHiglighted={false}
-            >
-              {truncate(speedDial.speeddial_num!, 19)}
-            </NumberCaller>
           </div>
+          {!isFavourite &&
+            <div className="flex gap-2 items-center">
+              <FontAwesomeIcon
+                className="dark:text-gray-400 text-gray-600 text-base"
+                icon={CallIcon}
+                onClick={callUser}
+              />
+              <NumberCaller
+                number={speedDial.speeddial_num!}
+                disabled={!isCallsEnabled}
+                className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
+                isNumberHiglighted={false}
+              >
+                {truncate(speedDial.speeddial_num!, 19)}
+              </NumberCaller>
+            </div>
+          }
         </div>
       </div>
       <div className="flex justify-center min-w-4 min-h-4">
@@ -98,7 +109,7 @@ export function SpeedDialNumber({
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2"
                   onClick={() => {
-                    handleEditSpeedDial(speedDial)
+                    handleEditSpeedDial?.(speedDial)
                   }}
                 >
                   <div className="flex gap-3 items-center">
@@ -116,7 +127,7 @@ export function SpeedDialNumber({
               <Menu.Item as={'div'} className="cursor-pointer">
                 <div
                   className="flex flex-row items-center py-[10px] px-6 dark:text-rose-500 text-rose-700 dark:hover:bg-rose-800 dark:hover:text-gray-50 hover:bg-rose-700 hover:text-gray-50 mb-2"
-                  onClick={() => handleDeleteSpeedDial(speedDial)}
+                  onClick={() => handleDeleteSpeedDial?.(speedDial)}
                 >
                   <div className="flex gap-3 items-center">
                     <FontAwesomeIcon className="text-base" icon={DeleteIcon} />

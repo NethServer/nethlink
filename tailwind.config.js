@@ -76,8 +76,14 @@ export default {
 
         //ring-offset
         ringOffsetDark: '#111827', // gray-900
-        ringOffsetLight: '#F9FAFB' // gray-50
-        //
+        ringOffsetLight: '#F9FAFB', // gray-50
+
+        //iconEmpty
+        emptyIconLight: '#9CA3AF',
+        emptyIconDark: '#6B7280',
+        //textEmpty
+        emptyTextLight: '#374151',
+        emptyTextDark: '#E5E7EB'
       },
       screens: {
         '3xl': '1792px',

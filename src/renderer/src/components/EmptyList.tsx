@@ -1,0 +1,19 @@
+import { IconProp } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+
+
+export interface EmptyListProps {
+  icon: IconProp,
+  text: string
+}
+export const EmptyList = ({ icon, text }: EmptyListProps) => {
+
+  return (
+    <div className="flex flex-col justify-between items-center gap-5 py-[28px] bg-hoverLight dark:bg-hoverDark min-h-[132px] mt-4 rounded-lg ml-5 mr-3">
+      <div className="text-emptyIconLight dark:text-emptyIconDark">
+        <FontAwesomeIcon icon={icon} className="text-[28px] " />
+      </div>
+      <span className="text-emptyTextLight dark:text-emptyTextDark text-sm">{text}</span>
+    </div>
+  )
+}
