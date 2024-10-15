@@ -495,6 +495,7 @@ async function checkForUpdate() {
 }
 
 function checkData(data: any): boolean {
+  log({ data })
   return data.hasOwnProperty('account') &&
     data.hasOwnProperty('auth') &&
     data.hasOwnProperty('theme') &&

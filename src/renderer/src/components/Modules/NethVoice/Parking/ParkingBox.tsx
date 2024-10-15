@@ -33,8 +33,6 @@ export const ParkingBox = () => {
     if (!isEmpty(parkingObjectInformations)) {
       try {
         await NethVoiceAPI.AstProxy.pickupParking(parkingObjectInformations)
-        //store.dispatch.park.setParkingCallTaken(true)
-        // retrieveParksList()
       } catch (error) {
         console.error(error)
       }

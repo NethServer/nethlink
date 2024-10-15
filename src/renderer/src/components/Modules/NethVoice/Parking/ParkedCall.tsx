@@ -12,6 +12,7 @@ import { isEmpty } from "lodash";
 import { useAccount } from "@renderer/hooks/useAccount";
 import { useStoreState } from "@renderer/store";
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI";
+import classNames from "classnames";
 
 export interface ParkingCallProps {
   parkingDetails: ParkingType,
@@ -25,14 +26,15 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setTime((prevTime) => {
-        if (prevTime === Math.ceil(parkingDetails.timeout / 2)) {
+        if (prevTime <= Math.ceil(parkingDetails.timeout / 2)) {
           setStatus('middle');
         }
-        if (prevTime === Math.ceil(parkingDetails.timeout / 4)) {
+        if (prevTime <= Math.ceil(parkingDetails.timeout / 4)) {
           setStatus('end');
         }
-        if (prevTime === 0) {
+        if (prevTime <= 0) {
           clearInterval(interval);
+          return 0
         }
         return prevTime - 1;
       });
@@ -75,7 +77,7 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
   }
 
   return (
-    <div className="relative flex flex-row justify-between items-center min-h-[44px] py-2 text-titleLight dark:text-titleDark">
+    <div className="relative flex flex-row justify-between items-center min-h-[44px] py-2 ">
       <div className="flex flex-col gap-0">
         <div className="flex flex-row items-center text-sm text-textYellowLight dark:text-textYellowDark gap-2">
           <FontAwesomeIcon size="1x" icon={ParkedCallIcon} className="text-[14px]" />
@@ -100,12 +102,12 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
       </div>
       <div>
         <span
-          className={`${status === 'begin'
+          className={classNames(status === 'begin'
             ? 'text-titleLight dark:text-titleDark'
             : status === 'middle'
               ? 'text-amber-700 dark:text-amber-500'
-              : 'text-red-700 dark:text-red-500'
-            } w-12 font-mono`}
+              : 'text-red-700 dark:text-red-500',
+            'w-12 font-mono')}
         >
           {formattedTime}
         </span>

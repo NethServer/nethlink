@@ -34,6 +34,9 @@ export default {
         //yellow text
         textYellowLight: '#B45309', //yellow-700
         textYellowDark: '#F59E0B', // yellow-500
+        //red text
+        textRedLight: '#BE123C', //red-700
+        textRedDark: '#F43F5E', // red-500
 
         //amber icon
         iconAmberLight: '#b45309', //amber-700

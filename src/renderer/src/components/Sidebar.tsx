@@ -10,6 +10,9 @@ import { useStoreState } from '@renderer/store'
 import { CallData, NethLinkPageData, NotificationData, ParkingType } from '@shared/types'
 import { MENU_ELEMENT, PERMISSION } from '@shared/constants'
 import { useAccount } from '@renderer/hooks/useAccount'
+import { useParkingModule } from './Modules/NethVoice/Parking/hook/useParkingModule'
+import { log } from '@shared/utils/logger'
+import { difference } from 'lodash'
 
 export interface SidebarProps {
   onChangeMenu: (menuElement: MENU_ELEMENT) => void
@@ -19,9 +22,14 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
 
   const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
   const [missedCalls] = useStoreState<CallData[]>('missedCalls')
-  const [parkedCalls] = useStoreState<ParkingType[]>('parkings')
   const [notifications] = useStoreState<NotificationData>('notifications')
+  const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
+
+  const viewedParkedCalls = useRef<ParkingType[]>([])
+  const [parkedPulse, setParkedPulse] = useState<boolean>(false)
+
   const { hasPermission } = useAccount()
+  const { parkedCalls } = useParkingModule()
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
     setNethLinkPageData((p) => ({
       ...p,
@@ -34,10 +42,25 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   }
 
   useEffect(() => {
-    if (nethLinkPageData && nethLinkPageData.selectedSidebarMenu) {
+    if (nethLinkPageData && nethLinkPageData.selectedSidebarMenu && lastMenu !== nethLinkPageData.selectedSidebarMenu) {
+      setLastMenu(() => nethLinkPageData.selectedSidebarMenu)
       onChangeMenu(nethLinkPageData.selectedSidebarMenu)
     }
   }, [nethLinkPageData?.selectedSidebarMenu])
+
+
+  useEffect(() => {
+    if (nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS) {
+      viewedParkedCalls.current = [...(parkedCalls || [])]
+    }
+    const currentNames = parkedCalls?.map((c) => c.parkedCaller.name) || []
+    viewedParkedCalls.current = viewedParkedCalls.current.filter((p) => currentNames.includes(p.parkedCaller.name))
+    const names = viewedParkedCalls.current.map((c) => c.parkedCaller.name)
+    const diff = difference(currentNames, names)
+    if (diff.length > 0) {
+      setParkedPulse(true)
+    }
+  }, [parkedCalls, nethLinkPageData?.selectedSidebarMenu])
 
   return (
     <div className="flex flex-col h-full max-w-[50px] justify-between pt-3 pb-2 px-2 border-0 border-l-[1px] dark:border-borderDark border-borderLight">
@@ -64,8 +87,12 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
             <SidebarButton
               icon={ParkedCallMenuIcon}
               focus={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS}
-              hasNotification={false}
-              onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.PARKED_CALLS)}
+              hasNotification={(parkedCalls?.length || 0) > 0}
+              hasPulseNotification={parkedPulse}
+              onClick={() => {
+                handleSidebarMenuSelection(MENU_ELEMENT.PARKED_CALLS)
+                setParkedPulse(false)
+              }}
               isSelected={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS}
             />
           )
