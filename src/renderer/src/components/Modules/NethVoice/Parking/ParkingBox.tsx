@@ -42,7 +42,7 @@ export const ParkingBox = () => {
   return (
     <>
       <ModuleTitle
-        title={`${t('Parks.Title')} ${parkedCalls && parkedCalls.length > 0 ? `(${parkedCalls.length})` : ''}`}
+        title={`${t('Parks.Parking')} ${parkedCalls && parkedCalls.length > 0 ? `(${parkedCalls.length})` : ''}`}
       />
       <Scrollable innerClassName={'min-w-[344px]'}>
         {parkedCalls ? (
