@@ -44,7 +44,6 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
   }, [parkingDetails.timeout]);
 
   const formattedTime = new Date(time * 1000).toISOString().slice(14, 19);
-  const nameText = useRef<null | HTMLDivElement>(null)
   const animationControls: any = useRef(null)
 
 
@@ -77,67 +76,60 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
   }
 
   return (
-    <div className="relative flex flex-row justify-between items-center min-h-[44px] py-2 mr-[-8px]">
-      <div className="flex flex-col gap-0">
-        <div className="flex flex-row items-center text-sm text-textYellowLight dark:text-textYellowDark gap-2">
-          <FontAwesomeIcon size="1x" icon={ParkedCallIcon} className="text-[14px]" />
-          <span>
-            {t('Parks.Parking')} {parkingDetails.name}
+    <div className="relative flex flex-row justify-end items-center min-h-[44px] py-2 ">
+      <div className="relative min-w-[calc(100%-200px)] min-h-[44px]">
+        <div className="absolute flex flex-col justify-start gap-0 w-full top-0 left-0">
+          <div className="flex flex-row items-center text-sm text-textYellowLight dark:text-textYellowDark gap-2">
+            <FontAwesomeIcon size="1x" icon={ParkedCallIcon} className="text-[14px]" />
+            <span>
+              {t('Parks.Parking')} {parkingDetails.name}
+            </span>
+          </div>
+          <span className='text-sm text-left text-gray-900 dark:text-gray-100 truncate tooltip-parked-user '>
+            {parkingDetails?.parkedCaller?.name}
           </span>
         </div>
-        <span className='text-sm text-left text-gray-900 dark:text-gray-100 truncate tooltip-parked-user'>
-          <div className='scrolling-text-container' ref={nameText}>
-            {nameText?.current?.clientWidth && nameText?.current?.clientWidth > 180 ? (
-              <>
-                <div className='scrolling-text'>{parkingDetails?.parkedCaller?.name}</div>
-              </>
-            ) : (
-              <>
-                <div >{parkingDetails?.parkedCaller?.name}</div>
-              </>
-            )}
-          </div>
-        </span>
       </div>
-      <div className='flex-grow' />
-      <span
-        className={classNames(status === 'begin'
-          ? 'text-titleLight dark:text-titleDark'
-          : status === 'middle'
-            ? 'text-amber-700 dark:text-amber-500'
-            : 'text-red-700 dark:text-red-500',
-          'w-10 font-mono')}
-      >
-        {formattedTime}
-      </span>
-      <div className='flex-grow' />
-      <div
-        className='relative'
-        onMouseDown={handleButtonDown}
-        onMouseUp={handleButtonUp}
-        onMouseLeave={handleButtonUp}
-      >
-
-        <motion.div
-          initial={{ width: 0 }}
-          animate={
-            cardPressStates
-              ? { width: '100%', transition: { duration: 2 } }
-              : { width: 0 }
-          }
-          className='absolute top-[1px] left-0 w-full h-8 bg-emerald-500 rounded-md overflow-hidden'
+      <div className="flex flex-row justify-end gap-6 items-center min-w-[200px] min-h-[44px]">
+        <span
+          className={classNames(status === 'begin'
+            ? 'text-titleLight dark:text-titleDark'
+            : status === 'middle'
+              ? 'text-amber-700 dark:text-amber-500'
+              : 'text-red-700 dark:text-red-500',
+            'w-10 font-mono min-w-10')}
         >
-        </motion.div>
-        <Button variant='white' className='tooltip-parking-button min-w-28' >
-          <FontAwesomeIcon
-            icon={CallIcon}
-            className='h-4 w-4 text-gray-500 dark:text-gray-200 mr-2'
-          />
-          <span className='w-16 overflow-hidden text-gray-100  whitespace-nowrap'>
-            {cardPressStates ? `${t('Parks.Hold')}` : `${t('Parks.Pick up')}`}
-          </span>
-        </Button>
+          {formattedTime}
+        </span>
+        <div
+          className='relative w-28'
+          onMouseDown={handleButtonDown}
+          onMouseUp={handleButtonUp}
+          onMouseLeave={handleButtonUp}
+        >
+
+          <motion.div
+            initial={{ width: 0 }}
+            animate={
+              cardPressStates
+                ? { width: '100%', transition: { duration: 2 } }
+                : { width: 0 }
+            }
+            className='absolute top-[1px] left-0 w-full min-h-[44px] bg-emerald-500 rounded-md overflow-hidden'
+          >
+          </motion.div>
+          <Button variant='white' className={classNames('tooltip-parking-button min-w-28 min-h-[44px]')} >
+            <FontAwesomeIcon
+              icon={CallIcon}
+              className={classNames('h-4 w-4 mr-2', cardPressStates ? 'text-gray-500 dark:text-gray-200' : 'textBlueLight dark:textBlueDark')}
+            />
+            <span className={classNames('w-16 overflow-hidden whitespace-nowrap', cardPressStates ? 'text-gray-500 dark:text-gray-200' : 'textBlueLight dark:textBlueDark')}>
+              {cardPressStates ? `${t('Parks.Hold')}` : `${t('Parks.Pick up')}`}
+            </span>
+          </Button>
+        </div>
       </div>
+
     </div>
 
   )
