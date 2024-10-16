@@ -54,7 +54,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
       operator = Object.values(operators?.operators || {}).find((operator: any) => operator.name === callName)
     } else {
       operator = Object.values(operators?.operators || {}).find((operator: any) => {
-        const isExten = operator.endpoints.extension.find((exten: any) => exten.id === call.dst)
+        const isExten = operator.endpoints?.extension?.find((exten: any) => exten.id === call.dst)
         return isExten ? true : false
       })
     }

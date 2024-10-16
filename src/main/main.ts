@@ -426,7 +426,7 @@ function attachThemeChangeListener() {
       store.set('theme', updatedSystemTheme)
     }
     //update theme state on the store
-    TrayController.instance.changeIconByTheme(updatedSystemTheme)
+    TrayController.instance?.changeIconByTheme(updatedSystemTheme)
   })
 }
 /**

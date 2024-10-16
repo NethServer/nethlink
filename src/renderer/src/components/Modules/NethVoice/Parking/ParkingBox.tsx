@@ -44,7 +44,7 @@ export const ParkingBox = () => {
       <ModuleTitle
         title={`${t('Parks.Parking')} ${parkedCalls && parkedCalls.length > 0 ? `(${parkedCalls.length})` : ''}`}
       />
-      <Scrollable innerClassName={'min-w-[344px]'}>
+      <Scrollable innerClassName={'min-w-[344px] mt-2'}>
         {parkedCalls ? (
           parkedCalls.length > 0 ? (
             parkedCalls?.map((e, idx) => {

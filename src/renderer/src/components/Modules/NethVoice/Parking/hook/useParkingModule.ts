@@ -14,8 +14,9 @@ export const useParkingModule = () => {
 
 
   const extractValidParkedCalls = (parkedCalls: ParkingType[]) => {
+
     setValidParkedCalls(() => [
-      ...(parkedCalls?.filter((p) => !!p.parkedCaller.name) || [])
+      ...(parkedCalls?.filter((p) => !!p.parkedCaller.name) || []),
     ]
     )
   }

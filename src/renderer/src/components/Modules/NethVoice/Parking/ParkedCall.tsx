@@ -1,4 +1,4 @@
-import { Account, ParkingType } from "@shared/types";
+import { ParkingType } from "@shared/types";
 import {
   faSquareParking as ParkedCallIcon,
   faPhone as CallIcon
@@ -8,11 +8,8 @@ import { Button } from "@renderer/components/Nethesis";
 import { t } from "i18next";
 import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from "react";
-import { isEmpty } from "lodash";
-import { useAccount } from "@renderer/hooks/useAccount";
-import { useStoreState } from "@renderer/store";
-import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI";
 import classNames from "classnames";
+import { Tooltip } from 'react-tooltip'
 
 export interface ParkingCallProps {
   parkingDetails: ParkingType,
@@ -81,13 +78,25 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
         <div className="absolute flex flex-col justify-start gap-0 w-full top-0 left-0">
           <div className="flex flex-row items-center text-sm text-textYellowLight dark:text-textYellowDark gap-2">
             <FontAwesomeIcon size="1x" icon={ParkedCallIcon} className="text-[14px]" />
-            <span>
+            <span className={`text-sm text-left truncate tooltip-parked-title-${parkingDetails.name}`}>
               {t('Parks.Parking')} {parkingDetails.name}
             </span>
+            <Tooltip anchorSelect={`.tooltip-parked-title-${parkingDetails.name}`} place="bottom"
+              className="z-[100000]"
+              opacity={1}
+              noArrow={false}>
+              {t('Parks.Parking')} {parkingDetails.name}
+            </Tooltip>
           </div>
-          <span className='text-sm text-left text-gray-900 dark:text-gray-100 truncate tooltip-parked-user '>
+          <span className={`text-sm text-left text-gray-900 dark:text-gray-100 truncate tooltip-parked-user-${parkingDetails.name} `}>
             {parkingDetails?.parkedCaller?.name}
           </span>
+          <Tooltip anchorSelect={`.tooltip-parked-user-${parkingDetails.name}`} place="bottom"
+            className="z-[100000]"
+            opacity={1}
+            noArrow={false}>
+            {parkingDetails?.parkedCaller?.name}
+          </Tooltip>
         </div>
       </div>
       <div className="flex flex-row justify-end gap-6 items-center min-w-[200px] min-h-[44px]">
