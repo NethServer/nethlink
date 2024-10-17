@@ -1,16 +1,17 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCirclePlus as AddSpeedDialIcon } from '@fortawesome/free-solid-svg-icons'
+import {
+  faCirclePlus as AddSpeedDialIcon,
+  faBolt as SpeedDialEmptyListIcon
+} from '@fortawesome/free-solid-svg-icons'
 import { SpeedDialNumber } from './SpeedDialNumber'
-import { ContactType, NethLinkPageData } from '@shared/types'
+import { ContactType } from '@shared/types'
 import { t } from 'i18next'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
 import { useStoreState } from '@renderer/store'
-import { Button } from '@renderer/components/Nethesis'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useSpeedDialsModule } from './hook/useSpeedDialsModule'
-import { log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
+import { EmptyList } from '@renderer/components/EmptyList'
 
 export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }): JSX.Element {
   const [speeddials] = useStoreState<ContactType[]>('speeddials')
@@ -64,9 +65,7 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
               )
             })
           ) : (
-            <div className="dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight px-5 py-2">
-              {t('SpeedDial.No speed dials')}
-            </div>
+            <EmptyList icon={SpeedDialEmptyListIcon} text={t('SpeedDial.No speed dials')} />
           )
         ) : (
           Array(3)

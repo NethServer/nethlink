@@ -1,5 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowUpRightFromSquare as ShowMissedCallIcon } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowUpRightFromSquare as ShowMissedCallIcon,
+  faPhone as EmptyResultIcon
+} from '@fortawesome/free-solid-svg-icons'
 import { LastCall } from './LastCall'
 import { CallData, ContactType, LastCallData, OperatorData } from '@shared/types'
 import { t } from 'i18next'
@@ -10,6 +13,7 @@ import { useEffect, useState } from 'react'
 import { log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
+import { EmptyList } from '@renderer/components/EmptyList'
 
 export function LastCallsBox({ showContactForm }): JSX.Element {
 
@@ -88,34 +92,38 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
       />
       <Scrollable className="">
         {
-          preparedCalls ? preparedCalls.map((preparedCall, idx) => {
-            return (
-              <div
-                className="dark:hover:bg-hoverDark hover:bg-hoverLight"
+          preparedCalls ?
+            preparedCalls.length > 0
+              ? preparedCalls.map((preparedCall, idx) => {
+                return (
+                  <div
+                    className="dark:hover:bg-hoverDark hover:bg-hoverLight"
+                    key={idx}
+                  >
+                    <div className="px-5">
+                      <div
+                        className={`${idx === preparedCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+                      >
+                        <LastCall
+                          call={preparedCall}
+                          showContactForm={showContactForm}
+                          clearNotification={handleClearNotification}
+                          className="dark:hover:bg-hoverDark hover:bg-hoverLight"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )
+              })
+              : <EmptyList icon={EmptyResultIcon} text={t('History.There are no calls in your history')} />
+            : Array(3).fill('').map((_, idx) => {
+              return <div
+                className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
                 key={idx}
               >
-                <div className="px-5">
-                  <div
-                    className={`${idx === preparedCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-                  >
-                    <LastCall
-                      call={preparedCall}
-                      showContactForm={showContactForm}
-                      clearNotification={handleClearNotification}
-                      className="dark:hover:bg-hoverDark hover:bg-hoverLight"
-                    />
-                  </div>
-                </div>
+                <SkeletonRow />
               </div>
-            )
-          }) : Array(3).fill('').map((_, idx) => {
-            return <div
-              className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-              key={idx}
-            >
-              <SkeletonRow />
-            </div>
-          })
+            })
         }
       </Scrollable >
     </>
