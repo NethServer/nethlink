@@ -34,30 +34,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
 
   const prepareCalls = () => {
     if (lastCalls) {
-      const preparedCalls: LastCallData[] = [{
-        "time": 1728927627,
-        "channel": "Local/252@from-queue-00000135;2",
-        "dstchannel": "PJSIP/92252-000003fb",
-        "uniqueid": "1728920427.9868",
-        "linkedid": "1728920413.9859",
-        "userfield": "",
-        "duration": 124,
-        "billsec": 118,
-        "disposition": "ANSWERED",
-        "dcontext": "from-queue-exten-only",
-        "lastapp": "Dial",
-        "recordingfile": "",
-        "cnum": "3927329351",
-        "cnam": "Alvaro Conforti",
-        "ccompany": "BURRESI & FOSSATI SAS",
-        "src": "3927329351",
-        "dst": "252",
-        "dst_cnam": "",
-        "dst_ccompany": "",
-        "clid": "\"RIV:Alvaro Conforti (BURRESI & FOSSATI SAS)\" <3927329351>",
-        "direction": "in",
-        "queue": "401"
-      }, ...lastCalls].map((c) => {
+      const preparedCalls: LastCallData[] = lastCalls.map((c) => {
         const elem: LastCallData = {
           ...c,
           username: getCallName(c),
