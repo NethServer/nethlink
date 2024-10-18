@@ -84,13 +84,22 @@ export function LastCall({
   const handleCreateContact = () => {
     handleSelectedCallContact(
       (call.direction === 'in' ? call.src : call.dst) || '',
-      call.direction === 'out'
-        ? call?.dst_cnam || call?.dst_ccompany
-        : call.direction === 'in'
-          ? call?.cnam || call?.ccompany
+      call.direction === 'in'
+        ? call?.cnam || call?.ccompany
+        : call.direction === 'out'
+          ? call?.dst_cnam || call?.dst_ccompany
           : undefined
     )
     showContactForm()
+  }
+
+  const getCallName = (call: LastCallData) => {
+    return `${call.direction === 'in'
+      ? (call.cnam || call.ccompany || t('Common.Unknown'))
+      : call.direction === 'out'
+        ? (call.dst_cnam || call.dst_ccompany || t('Common.Unknown'))
+        : t('Common.Unknown')
+      }`
   }
 
   return (
@@ -98,7 +107,13 @@ export function LastCall({
       <div
         className={`flex flex-grow gap-3 min-h-[72px] p-2 ${className}`}
         onMouseEnter={() => {
-          if (call.username === t('Common.Unknown')) {
+          if (
+            call.direction === 'in'
+              ? !(call.src || call.ccompany)
+              : call.direction === 'out'
+                ? !(call.dst_cnam || call.dst_ccompany)
+                : false
+          ) {
             setShowCreateButton(() => true)
           }
         }}
@@ -130,9 +145,9 @@ export function LastCall({
         </div>
         <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
           <p className={`tooltip-username-${call?.username} font-medium text-[14px] leading-5`}>
-            {truncate(call.username, 13)}
+            {truncate(getCallName(call), 13)}
           </p>
-          <Tooltip anchorSelect={`.tooltip-username-${call?.username}`}>{call.username}</Tooltip>
+          <Tooltip anchorSelect={`.tooltip-username-${call?.username}`}>{getCallName(call)}</Tooltip>
           <div className="flex flex-row gap-2 items-center">
             <div className={`h-4 w-4 call_${call.uniqueid?.replace('.', '_')}`}>
               {call.disposition === 'NO ANSWER' ? (

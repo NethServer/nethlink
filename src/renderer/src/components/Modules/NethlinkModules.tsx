@@ -7,6 +7,7 @@ import { usePhonebookSearchModule } from "./SearchResults/hook/usePhoneBookSearc
 import { AboutModule } from "./About/AboutModule"
 import classNames from "classnames"
 import { PresenceBadge, PresenceBadgeVisibility } from "./NethVoice/Presence/PresenceBadge"
+import { ParkingModule } from "./NethVoice/Parking/ParkingModule"
 
 export const NethLinkModules = () => {
   const phonebookSearchModule = usePhonebookSearchModule()
@@ -34,6 +35,8 @@ export const NethLinkModules = () => {
         return <SpeeddialsModule />
       case MENU_ELEMENT.LAST_CALLS:
         return <LastCallsModule />
+      case MENU_ELEMENT.PARKED_CALLS:
+        return <ParkingModule />
       case MENU_ELEMENT.ABOUT:
         return <AboutModule />
       default:

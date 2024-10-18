@@ -1,9 +1,12 @@
-import { faPhone as CallIcon, faUserPlus as AddUserIcon } from '@fortawesome/free-solid-svg-icons'
+import {
+  faPhone as CallIcon,
+  faUserPlus as AddUserIcon,
+  faSearch as EmptySearchIcon
+} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
-import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useEffect, useState } from 'react'
-import { NethLinkPageData, OperatorData, SearchCallData, SearchData } from '@shared/types'
+import { OperatorData, SearchData } from '@shared/types'
 import { t } from 'i18next'
 import { log } from '@shared/utils/logger'
 import { useAccount } from '@renderer/hooks/useAccount'
@@ -13,6 +16,7 @@ import { useStoreState } from '@renderer/store'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
+import { EmptyList } from '@renderer/components/EmptyList'
 
 interface SearchNumberBoxProps {
   searchResult: SearchData[] | undefined
@@ -192,9 +196,13 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
         </div>
       </div>
       <Scrollable>
-        {filteredPhoneNumbers.map((user, index) => (
-          <SearchNumber key={'SearchNumber_' + index} user={user} />
-        ))}
+        {
+          filteredPhoneNumbers.length > 0
+            ? filteredPhoneNumbers.map((user, index) => (
+              <SearchNumber key={'SearchNumber_' + index} user={user} />
+            ))
+            : <EmptyList icon={EmptySearchIcon} text={t('Devices.No results')} />
+        }
       </Scrollable>
     </div>
   )
