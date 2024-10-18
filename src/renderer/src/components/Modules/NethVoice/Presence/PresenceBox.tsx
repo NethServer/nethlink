@@ -19,6 +19,8 @@ import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
 import classNames from 'classnames'
+import { useAccount } from '@renderer/hooks/useAccount'
+import { PERMISSION } from '@shared/constants'
 
 export interface PresenceBoxProps {
   isOpen: boolean
@@ -30,6 +32,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
   const [account, setAccount] = useStoreState<Account>('account')
   //const [operators, setOperators] = useStoreState<OperatorData>('operators')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
+  const { hasPermission } = useAccount()
 
   const schema: z.ZodType<{ to: string }> = z.object({
     to: z
@@ -167,16 +170,15 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
               presenceDescription={t('TopBar.Make and receive phone calls')}
             ></PresenceItem>
             {/* check callforward permission */}
-            {account?.data?.profile?.macro_permissions?.settings?.permissions?.call_forward
-              ?.value && (
-                <PresenceItem
-                  onClick={() => setIsForwardDialogOpen(true)}
-                  status="callforward"
-                  presenceName={t('TopBar.Call forward')}
-                  presenceDescription={t('TopBar.Forward incoming calls to another phone number')}
-                  icon={CallForwardIcon}
-                ></PresenceItem>
-              )}
+            {hasPermission(PERMISSION.CALL_FORWARD) && (
+              <PresenceItem
+                onClick={() => setIsForwardDialogOpen(true)}
+                status="callforward"
+                presenceName={t('TopBar.Call forward')}
+                presenceDescription={t('TopBar.Forward incoming calls to another phone number')}
+                icon={CallForwardIcon}
+              ></PresenceItem>
+            )}
             {!isEmpty(account?.data?.endpoints.cellphone) && (
               <PresenceItem
                 onClick={() =>
@@ -198,7 +200,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
               ></PresenceItem>
             )}
             {/* check dnd permission */}
-            {account?.data?.profile?.macro_permissions?.settings?.permissions?.dnd?.value && (
+            {hasPermission(PERMISSION.DND) && (
               <PresenceItem
                 onClick={onSelectPresence}
                 status="dnd"

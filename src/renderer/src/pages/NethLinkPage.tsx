@@ -22,11 +22,12 @@ import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { IPC_EVENTS, MENU_ELEMENT } from '@shared/constants'
+import { IPC_EVENTS, MENU_ELEMENT, PERMISSION } from '@shared/constants'
 import { PresenceBadge } from '@renderer/components/Modules/NethVoice/Presence/PresenceBadge'
 import classNames from 'classnames'
 import { ConnectionErrorDialog } from '@renderer/components'
 import { debouncer, isDev } from '@shared/utils/utils'
+import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface NethLinkPageProps {
   themeMode: string
@@ -39,8 +40,9 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     useStoreState<NethLinkPageData>('nethLinkPageData')
   const [, setNotifications] = useStoreState<NotificationData>('notifications')
   const [connection] = useStoreState<boolean>('connection')
+  const { hasPermission } = useAccount()
 
-  const { saveOperators, onQueueUpdate, saveLastCalls, saveSpeeddials } =
+  const { saveOperators, onQueueUpdate, onParkingsUpdate, saveLastCalls, saveSpeeddials } =
     usePhoneIslandEventHandler()
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
@@ -149,6 +151,8 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     NethVoiceAPI.HistoryCall.interval().then(saveLastCalls)
     NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
     NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
+    if (hasPermission(PERMISSION.PARKINGS))
+      NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
     me()
   }
 

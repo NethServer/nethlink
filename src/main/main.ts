@@ -209,49 +209,58 @@ function attachOnReadyProcess() {
 
   async function startApp(attempt = 0) {
     const data = store.getFromDisk()
-    store.updateStore(data, 'startApp')
-    log('START APP, retry:', attempt)
-    if (!store.store.connection) {
-      log('NO CONNECTION', attempt, store.store)
-      if (attempt >= 3)
-        SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
-      retryAppStart = setTimeout(() => {
-        startApp(++attempt)
-      }, 1000)
-    } else {
-      if (retryAppStart) {
-        clearTimeout(retryAppStart)
-      }
-      const auth: AuthAppData | undefined = store.store['auth']
-      await getPermissions()
-      if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
-        const isLastUserLogged = await AccountController.instance.autoLogin()
-        if (isLastUserLogged) {
-          ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink: true })
+    if (checkData(data)) {
+      store.updateStore(data, 'startApp')
+      log('START APP, retry:', attempt)
+      if (!store.store.connection) {
+        log('NO CONNECTION', attempt, store.store)
+        if (attempt >= 3)
+          SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
+        retryAppStart = setTimeout(() => {
+          startApp(++attempt)
+        }, 1000)
+      } else {
+        if (retryAppStart) {
+          clearTimeout(retryAppStart)
+        }
+        const auth: AuthAppData | undefined = store.store['auth']
+        await getPermissions()
+        if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
+          const isLastUserLogged = await AccountController.instance.autoLogin()
+          if (isLastUserLogged) {
+            ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink: true })
+          } else {
+            store.updateStore({
+              auth: {
+                ...store.store['auth']!,
+                lastUser: undefined,
+                lastUserCryptPsw: undefined
+              },
+              account: undefined,
+              theme: 'system',
+              connection: store.store['connection'] || false,
+            }, 'showLogin')
+            showLogin()
+          }
         } else {
-          store.updateStore({
-            auth: {
-              ...store.store['auth']!,
-              lastUser: undefined,
-              lastUserCryptPsw: undefined
-            },
-            account: undefined,
-            theme: 'system',
-            connection: store.store['connection'] || false,
-          }, 'showLogin')
+          await resetApp()
           showLogin()
         }
-      } else {
-        await resetApp()
-        showLogin()
+        SplashScreenController.instance.window.quit(true)
+        //once the loading is complete I enable the ability to click on the icon in the tray
+        TrayController.instance.updateTray({
+          enableShowButton: true
+        })
       }
+    } else {
+      await resetApp()
+      showLogin()
       SplashScreenController.instance.window.quit(true)
       //once the loading is complete I enable the ability to click on the icon in the tray
       TrayController.instance.updateTray({
         enableShowButton: true
       })
     }
-
   }
 
   app.on('window-all-closed', () => {
@@ -417,7 +426,7 @@ function attachThemeChangeListener() {
       store.set('theme', updatedSystemTheme)
     }
     //update theme state on the store
-    TrayController.instance.changeIconByTheme(updatedSystemTheme)
+    TrayController.instance?.changeIconByTheme(updatedSystemTheme)
   })
 }
 /**
@@ -485,5 +494,14 @@ async function checkForUpdate() {
   }
 }
 
+function checkData(data: any): boolean {
+  log({ data })
+  return data.hasOwnProperty('account') &&
+    data.hasOwnProperty('auth') &&
+    data.hasOwnProperty('theme') &&
+    data.hasOwnProperty('connection')
+}
+
 //BEGIN APP
 startup()
+

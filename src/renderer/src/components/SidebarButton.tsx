@@ -10,6 +10,7 @@ export interface SidebarButtonProps {
   isSelected?: boolean
   className?: string
   hasNotification?: boolean
+  hasPulseNotification?: boolean
   onClick?: () => void
 }
 export function SidebarButton({
@@ -19,6 +20,7 @@ export function SidebarButton({
   isSelected,
   notificable,
   hasNotification,
+  hasPulseNotification,
   onClick
 }: SidebarButtonProps): JSX.Element {
   return (
@@ -46,18 +48,30 @@ export function SidebarButton({
           <FontAwesomeIcon size="1x" icon={icon} className="text-[20px]" />
         </div>
         {hasNotification && (
-          <div
-            className={classNames(`
-            absolute top-[1px] left-[1px]
-            w-3 h-3
-            dark:bg-textBlueDark bg-textBlueLight
-            rounded-full
-            border-2 `,
+          <div className='absolute top-[1px] left-[1px] flex justify-center items-center'>
+            <div className={classNames(`
+              w-3 h-3
+              dark:bg-textRedDark bg-textRedLight
+
+              rounded-full
+              border-2 `,
               focus
                 ? 'dark:border-hoverDark border-hoverLight'
                 : 'dark:border-bgDark border-bgLight dark:group-hover:border-hoverDark group-hover:border-hoverLight'
-            )}
-          />
+            )}>
+
+            </div>
+            {!focus && hasPulseNotification &&
+              <div
+                className={classNames(`
+                  absolute
+                  w-2.5 h-2.5
+                  dark:bg-textRedDark bg-textRedLight
+                  rounded-full
+                  animate-ping
+                `)}
+              />}
+          </div>
         )}
       </div>
     </div>

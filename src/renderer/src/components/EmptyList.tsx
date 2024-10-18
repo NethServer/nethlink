@@ -13,7 +13,7 @@ export const EmptyList = ({ icon, text }: EmptyListProps) => {
       <div className="text-emptyIconLight dark:text-emptyIconDark">
         <FontAwesomeIcon icon={icon} className="text-[28px] " />
       </div>
-      <span className="text-emptyTextLight dark:text-emptyTextDark text-sm">{text}</span>
+      <span className="text-center text-emptyTextLight dark:text-emptyTextDark text-sm">{text}</span>
     </div>
   )
 }

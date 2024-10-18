@@ -1,5 +1,5 @@
 import { useStoreState } from "@renderer/store"
-import { Account, CallData, ContactType, HistoryCallData, OperatorData, OperatorsType, QueuesType } from "@shared/types"
+import { Account, CallData, ContactType, HistoryCallData, OperatorData, OperatorsType, ParkingType, ParkingsType, QueuesType } from "@shared/types"
 import { log } from "@shared/utils/logger"
 import { useAccount } from "./useAccount"
 import { validatePhoneNumber } from "@renderer/utils"
@@ -13,6 +13,7 @@ export const usePhoneIslandEventHandler = () => {
   const [operators, setOperators] = useRefState<OperatorData | undefined>(useStoreState<OperatorData | undefined>('operators'))
   const [speeddials, setSpeeddials] = useRefState<ContactType[]>(useStoreState<ContactType[]>('speeddials'))
   const [queues, setQueues] = useRefState<ContactType[]>(useStoreState<ContactType[]>('queues'))
+  const [parkings, setParkings] = useRefState<ParkingType[]>(useStoreState<ParkingType[]>('parkings'))
   const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('lastCalls'))
   const { isCallsEnabled } = useAccount()
 
@@ -55,6 +56,11 @@ export const usePhoneIslandEventHandler = () => {
     }))
   }
 
+  function onParkingsUpdate(parkings: ParkingsType) {
+    const parkedCalls: ParkingType[] = Object.values(parkings)
+    setParkings(() => parkedCalls || [])
+  }
+
   function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
     setSpeeddials(() => speeddialsResponse || [])
   }
@@ -73,6 +79,7 @@ export const usePhoneIslandEventHandler = () => {
     saveOperators,
     saveSpeeddials,
     onQueueUpdate,
+    onParkingsUpdate,
     onMainPresence,
     saveLastCalls,
     callNumber

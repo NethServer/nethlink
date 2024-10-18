@@ -237,6 +237,13 @@ export type ContactType = {
   selectedPrefNum?: string
 }
 
+export type ParkingType = {
+  name: string,
+  parking: string,
+  timeout: number, //time in seconds
+  parkedCaller: any
+}
+
 export type NewContactType = {
   name: string
   privacy?: string
@@ -312,6 +319,11 @@ export type AvatarType = {
   [username: string]: string //if present there is base64
 }
 
+
+export type ParkingsType = {
+  [parkId: string]: ParkingType
+}
+
 export type QueuesType = {
   [username: string]: {
     name: string
@@ -357,6 +369,7 @@ export type LocalStorageData = {
   page?: PageType,
   operators?: OperatorData,
   queues?: QueuesType,
+  parkings?: ParkingType[],
   lastCalls?: CallData[],
   speeddials?: ContactType[],
   theme?: AvailableThemes,
@@ -436,3 +449,4 @@ export type NotificationData = {
 export type NotificationItem = {
   message: string,
 }
+
