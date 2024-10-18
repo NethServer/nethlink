@@ -587,7 +587,9 @@
     "Speed dial creation message": "Hai appena creato una nuova chiamata rapida: {{estensioneAttesa}}",
     "Speed dial created": "Chiamata rapida creata",
     "Speed dial edit message": "Hai appena modificato una chiamata rapida: {{estensioneAttesa}}",
-    "Speed dial edited": "Chiamata rapida modificata"
+    "Speed dial edited": "Chiamata rapida modificata",
+    "Favourites": "Favoriti",
+    "No favourites": "Nessun favorito trovato"
   },
   "LastCalls": {
     "Last calls": "Ultime chiamate",

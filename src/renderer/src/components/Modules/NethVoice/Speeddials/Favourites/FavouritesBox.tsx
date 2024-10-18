@@ -1,24 +1,20 @@
 import { ModuleTitle } from "@renderer/components/ModuleTitle"
 import { Scrollable } from "@renderer/components/Scrollable"
 import { SkeletonRow } from "@renderer/components/SkeletonRow"
-import { useStoreState } from "@renderer/store"
-import { ContactType } from "@shared/types"
 import { t } from "i18next"
 import { useFavouriteModule } from "../hook/useFavouriteModule"
 import { ContactNumber } from "../shared/ContactNumber"
-import { usePhoneIslandEventHandler } from "@renderer/hooks/usePhoneIslandEventHandler"
 import { EmptyList } from "@renderer/components/EmptyList"
 import { faStar as FavouriteIcon } from '@fortawesome/free-solid-svg-icons'
 
 export const FavouritesBox = () => {
 
   const { favourites } = useFavouriteModule()
-  const { callNumber } = usePhoneIslandEventHandler()
 
   return (
     <>
       <ModuleTitle
-        title={t('Favourites.Module title')}
+        title={t('SpeedDial.Favourites')}
       />
       <Scrollable >
         {favourites ? (
@@ -32,9 +28,8 @@ export const FavouritesBox = () => {
                     >
                       <ContactNumber
                         speedDial={e}
-                        callUser={() => callNumber(e.speeddial_num!)}
+                        isFavouritePage={true}
                         isLastItem={favourites.length === 1 ? false : idx === favourites.length - 1}
-                        isFavourite={true}
                       />
                     </div>
                   </div>
@@ -42,7 +37,7 @@ export const FavouritesBox = () => {
               )
             })
           ) : (
-            <EmptyList icon={FavouriteIcon} text={t('SpeedDial.No speed dials')} />
+            <EmptyList icon={FavouriteIcon} text={t('SpeedDial.No favourites')} />
           )
         ) : (
           Array(3)

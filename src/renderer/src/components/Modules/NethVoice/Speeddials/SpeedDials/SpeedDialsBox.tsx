@@ -19,7 +19,6 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
   const [speeddials] = useStoreState<ContactType[]>('speeddials')
   const speedDialModule = useSpeedDialsModule()
   const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
-  const { callNumber } = usePhoneIslandEventHandler()
 
   function handleCreateSpeedDial(): void {
     setSelectedSpeedDial(undefined)
@@ -56,11 +55,10 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
                     >
                       <ContactNumber
                         speedDial={e}
-                        callUser={() => callNumber(e.speeddial_num!)}
                         handleEditSpeedDial={handleEditSpeedDial}
                         handleDeleteSpeedDial={handleDeleteSpeedDial}
+                        isFavouritePage={false}
                         isLastItem={speeddials.length === 1 ? false : idx === speeddials.length - 1}
-                        isFavourite={false}
                       />
                     </div>
                   </div>

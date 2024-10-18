@@ -254,6 +254,7 @@ export type NewContactType = {
   speeddial_num?: string
   company?: string
   note?: string
+  notes?: string
 }
 
 export type NewSpeedDialType = {
@@ -265,6 +266,7 @@ export type NewSpeedDialType = {
   type?: string
   speeddial_num?: string
   note?: string
+  notes?: string
 }
 
 export type OperatorData = {
