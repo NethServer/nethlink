@@ -45,7 +45,6 @@ export const Avatar = ({
   ...props
 }: AvatarProps) => {
   const { avatar: theme } = useTheme().theme
-
   return (
     <div
       className={classNames(

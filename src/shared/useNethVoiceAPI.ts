@@ -172,15 +172,23 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         speeddial_num: create.speeddial_num,
         notes: 'speeddial-basic'
       }
-      await _POST(`/webrest/phonebook/create`, newSpeedDial)
-      return newSpeedDial
+      try {
+        await _POST(`/webrest/phonebook/create`, newSpeedDial)
+        return newSpeedDial
+      } catch (e) {
+        log(e)
+      }
     },
     updateSpeeddialBy: async (updatedContact: ContactType) => {
       if (updatedContact.name && updatedContact.speeddial_num) {
         const editedSpeedDial = Object.assign({}, updatedContact)
         editedSpeedDial.id = editedSpeedDial.id?.toString()
-        await _POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
-        return editedSpeedDial
+        try {
+          await _POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
+          return editedSpeedDial
+        } catch (e) {
+          log(e)
+        }
       }
     },
     updateSpeeddial: async (edit: NewSpeedDialType, current: ContactType) => {

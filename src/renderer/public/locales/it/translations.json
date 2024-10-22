@@ -589,7 +589,11 @@
     "Speed dial edit message": "Hai appena modificato una chiamata rapida: {{estensioneAttesa}}",
     "Speed dial edited": "Chiamata rapida modificata",
     "Favourites": "Favoriti",
-    "No favourites": "Nessun favorito trovato"
+    "No favourites": "Nessun favorito trovato",
+    "Order by": "Ordina per",
+    "A-Z": "Alfabetico A-Z",
+    "Z-A": "Alfabetico Z-A",
+    "EXT": "Estensione"
   },
   "LastCalls": {
     "Last calls": "Ultime chiamate",

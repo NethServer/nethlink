@@ -13,6 +13,17 @@ export const LoginPageSize = {
 }
 export const NEW_ACCOUNT = 'New Account'
 
+export enum FilterTypes {
+  AZ = 'A-Z',
+  ZA = 'Z-A',
+  EXT = 'EXT',
+}
+
+export enum SpeeddialTypes {
+  CLASSIC = 'speeddial-classic',
+  FAVOURITES = 'speeddial-favorite',
+  BASIC = 'speeddial-basic'
+}
 
 export enum PERMISSION {
   CALL_FORWARD = 'call_forward',

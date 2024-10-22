@@ -49,8 +49,9 @@ export const NethLinkModules = () => {
 
   return (
     <div className={classNames(
-      " h-full w-full ",
+      "relative h-full w-full ",
       'max-h-[calc(100vh-64px)]',
+      'max-w-[calc(100vw-64px)]'
     )}>
       <div className={classNames('h-full  pt-0')}>
         <VisibleModule />

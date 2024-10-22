@@ -6,6 +6,9 @@ import { useFavouriteModule } from "../hook/useFavouriteModule"
 import { ContactNumber } from "../shared/ContactNumber"
 import { EmptyList } from "@renderer/components/EmptyList"
 import { faStar as FavouriteIcon } from '@fortawesome/free-solid-svg-icons'
+import { FavouriteFilter } from "./FavouriteFilter"
+
+
 
 export const FavouritesBox = () => {
 
@@ -15,16 +18,18 @@ export const FavouritesBox = () => {
     <>
       <ModuleTitle
         title={t('SpeedDial.Favourites')}
+        actionComponent={<FavouriteFilter />}
       />
-      <Scrollable >
+      <Scrollable
+      >
         {favourites ? (
           favourites.length > 0 ? (
             favourites?.map((e, idx) => {
               return (
-                <div key={idx} className="dark:hover:bg-hoverDark hover:bg-hoverLight">
-                  <div className="px-5">
+                <div key={idx} className="dark:hover:bg-hoverDark hover:bg-hoverLight w-full ">
+                  <div className="px-5 w-full">
                     <div
-                      className={`${idx === favourites.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+                      className={`w-full ${idx === favourites.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
                     >
                       <ContactNumber
                         speedDial={e}

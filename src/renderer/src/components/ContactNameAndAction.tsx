@@ -1,0 +1,73 @@
+import { truncate } from "@renderer/utils"
+import { NumberCaller } from "./NumberCaller"
+import { ContactType, OperatorData } from "@shared/types"
+import { isDev } from "@shared/utils/utils"
+import { FavouriteStar } from "./FavouritesStar"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { useAccount } from "@renderer/hooks/useAccount"
+import { useStoreState } from "@renderer/store"
+import { usePhoneIslandEventHandler } from "@renderer/hooks/usePhoneIslandEventHandler"
+import { Avatar } from "./Nethesis"
+import {
+  faPhone as CallIcon,
+  faCircleUser as DefaultAvatar
+} from '@fortawesome/free-solid-svg-icons'
+import { t } from "i18next"
+import { ReactNode } from "react"
+import classNames from "classnames"
+import { useTheme } from "@renderer/theme/Context"
+export const ContactNameAndActions = ({ contact, number, isHighlight, displayedNumber, avatarDim, username }: {
+  contact: ContactType,
+  number: string,
+  isHighlight: boolean,
+  displayedNumber: string | ReactNode[],
+  avatarDim: "small" | "base" | "extra_small" | "large" | "extra_large",
+  username: string | undefined
+}) => {
+  const { isCallsEnabled } = useAccount()
+  const [operators] = useStoreState<OperatorData>('operators')
+  const { callNumber } = usePhoneIslandEventHandler()
+  const avatarSrc = username && operators?.avatars?.[username]
+
+  const isOperator = username && !!(operators?.operators?.[username])
+
+  return (
+    <div className={classNames(avatarDim === 'small' ? 'gap-3' : 'gap-6', "flex flex-row items-center w-full max-w-full")}>
+      <Avatar
+        size={avatarDim}
+        src={avatarSrc}
+        status={isOperator ? operators?.operators?.[username]?.mainPresence : undefined}
+        bordered={true}
+        placeholderType={operators?.extensions[contact.speeddial_num || ''] ? 'operator' : 'person'}
+      />
+      <div className='relative w-full h-[44px] '>
+        <div className="absolute top-0 left-0 flex flex-col gap-1 w-full ">
+          <div className="flex flex-row gap-2 w-full overflow-hidden">
+            <div className='dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap '>
+              {contact.name || contact.company || `${t('Common.Unknown')}`}
+              {false && isDev() && <span className='absolute top-[-4px] left-[-26px] text-[8px]'>[{contact.id}]</span>}
+            </div>
+            {isOperator && <FavouriteStar contact={contact} />}
+          </div>
+          <div className="flex flex-row gap-2 items-center">
+            {!isHighlight &&
+              <FontAwesomeIcon
+                className="dark:text-gray-400 text-gray-600 text-base"
+                icon={CallIcon}
+                onClick={() => callNumber(contact.speeddial_num!)}
+              />
+            }
+            <NumberCaller
+              number={number}
+              disabled={!isCallsEnabled}
+              className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
+              isNumberHiglighted={isHighlight}
+            >
+              {displayedNumber}
+            </NumberCaller>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

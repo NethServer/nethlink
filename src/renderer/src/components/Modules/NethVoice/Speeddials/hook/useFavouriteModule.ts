@@ -1,16 +1,11 @@
 import { useStoreState } from "@renderer/store"
-import { ContactType, NewSpeedDialType } from "@shared/types"
+import { ContactType, NewContactType, NewSpeedDialType } from "@shared/types"
 import { useEffect, useState } from "react"
 import { useSpeedDialsModule } from "./useSpeedDialsModule"
 import { debouncer } from "@shared/utils/utils"
 import { log } from "@shared/utils/logger"
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
-
-
-export enum SpeeddialTypes {
-  CLASSIC = 'speeddial-classic',
-  FAVOURITES = 'speeddial-favorite'
-}
+import { SpeeddialTypes } from "@shared/constants"
 export const useFavouriteModule = () => {
 
   const [speedDials, setSpeedDials] = useStoreState<ContactType[]>('speeddials')
@@ -31,25 +26,66 @@ export const useFavouriteModule = () => {
     return contact.notes?.includes(SpeeddialTypes.FAVOURITES)
   }
 
-  function toggleFavourite(contact: ContactType) {
+  function toggleFavourite(contact: ContactType, isSearch = false) {
     debouncer(`toggleFavourite-${contact.id}`, async () => {
       log('toggle ', contact)
       const notes = isFavourite(contact)
         ? contact.notes!.replace(SpeeddialTypes.FAVOURITES, SpeeddialTypes.CLASSIC)
-        : contact.notes?.includes(SpeeddialTypes.CLASSIC)
-          ? contact.notes.replace(SpeeddialTypes.CLASSIC, SpeeddialTypes.FAVOURITES)
-          : contact.notes?.concat(` ${SpeeddialTypes.FAVOURITES}`) || SpeeddialTypes.FAVOURITES
-      const updatedContact: ContactType = Object.assign({}, {
-        ...contact,
-        notes
-      })
-      await NethVoiceAPI.Phonebook.updateSpeeddialBy(updatedContact)
-      const speedDials = await NethVoiceAPI.Phonebook.getSpeeddials()
-      setSpeedDials((p) => speedDials)
+        : contact.notes
+          ? contact.notes?.includes(SpeeddialTypes.CLASSIC)
+            ? contact.notes.replace(SpeeddialTypes.CLASSIC, SpeeddialTypes.FAVOURITES)
+            : contact.notes?.concat(` ${SpeeddialTypes.FAVOURITES}`) || SpeeddialTypes.FAVOURITES
+          : SpeeddialTypes.FAVOURITES
+      const updatedContact: ContactType = convertSearchDataToContactType(contact, notes)
+      if (!speedDials?.map((c) => c.id).includes(contact.id)) {
+        log('Create new favourite', { updatedContact })
+        await NethVoiceAPI.Phonebook.createSpeeddial(updatedContact as NewContactType)
+      } else {
+        log('UPDATE', { updatedContact })
+        await NethVoiceAPI.Phonebook.updateSpeeddialBy(updatedContact)
+      }
+      const updatedSpeedDials = await NethVoiceAPI.Phonebook.getSpeeddials()
+      setSpeedDials(() => updatedSpeedDials)
     }, 100)
   }
 
 
+  function convertSearchDataToContactType(searchData: any, notes: string): ContactType {
+    return {
+      id: searchData.id?.toString() || null,
+      owner_id: searchData.owner_id || null,
+      type: searchData.type || null,
+      homeemail: searchData.homeemail || null,
+      workemail: searchData.workemail || null,
+      homephone: searchData.homephone || null,
+      workphone: searchData.workphone || null,
+      cellphone: searchData.cellphone || null,
+      fax: searchData.fax || null,
+      title: searchData.title || null,
+      company: searchData.company || null,
+      name: searchData.name || null,
+      homestreet: searchData.homestreet || null,
+      homepob: searchData.homepob || null,
+      homecity: searchData.homecity || null,
+      homeprovince: searchData.homeprovince || null,
+      homepostalcode: searchData.homepostalcode || null,
+      homecountry: searchData.homecountry || null,
+      workstreet: searchData.workstreet || null,
+      workpob: searchData.workpob || null,
+      workcity: searchData.workcity || null,
+      workprovince: searchData.workprovince || null,
+      workpostalcode: searchData.workpostalcode || null,
+      workcountry: searchData.workcountry || null,
+      url: searchData.url || null,
+      extension: searchData.extension || null,
+      speeddial_num: searchData.speeddial_num || null,
+      source: searchData.source || null,
+      privacy: searchData.privacy || null,
+      favorite: searchData.favorite,
+      selectedPrefNum: searchData.selectedPrefNum || null,
+      notes: notes,
+    };
+  }
 
 
   return {
@@ -58,3 +94,5 @@ export const useFavouriteModule = () => {
     isFavourite
   }
 }
+
+

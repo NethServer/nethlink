@@ -588,7 +588,11 @@
     "Speed dial edit message": "You've just edited a speed dial: {{extensionWaiting}}",
     "Speed dial edited": "Speed dial edited",
     "Favourites": "Favourites",
-    "No favourites": "No favourites found"
+    "No favourites": "No favourites found",
+    "Order by": "Order by",
+    "A-Z": "Alphabetic A-Z",
+    "Z-A": "Alphabetic Z-A",
+    "EXT": "Extension"
   },
   "LastCalls": {
     "Last calls": "Last calls",

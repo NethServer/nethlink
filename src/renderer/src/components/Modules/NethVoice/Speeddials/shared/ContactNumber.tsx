@@ -4,9 +4,7 @@ import {
   faEllipsisVertical as MenuIcon,
   faPenToSquare as ModifyIcon,
   faTrash as DeleteIcon,
-  faStar as FavouriteIcon,
 } from '@fortawesome/free-solid-svg-icons'
-import { faStar as UnfavouriteIcon } from '@fortawesome/free-regular-svg-icons'
 import { Menu } from '@headlessui/react'
 import { ContactType, OperatorData } from '@shared/types'
 import { t } from 'i18next'
@@ -20,6 +18,8 @@ import classNames from 'classnames'
 import { useTheme } from '@renderer/theme/Context'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useFavouriteModule } from '../hook/useFavouriteModule'
+import { FavouriteStar } from '@renderer/components/FavouritesStar'
+import { ContactNameAndActions } from '@renderer/components/ContactNameAndAction'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
@@ -40,64 +40,21 @@ export function ContactNumber({
 }: SpeedDialNumberProps): JSX.Element {
   const { theme: nethTheme } = useTheme()
   const [operators] = useStoreState<OperatorData>('operators')
-  const { isCallsEnabled } = useAccount()
-  const { callNumber } = usePhoneIslandEventHandler()
-  const { toggleFavourite, isFavourite } = useFavouriteModule()
-
-  const avatarSrc =
-    operators?.avatars?.[operators?.extensions[speedDial.speeddial_num || '']?.username]
-
-  const isOperator = !!(operators?.operators?.[operators?.extensions[speedDial.speeddial_num || '']?.username])
 
   return (
     <div
-      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 ${className}`}
+      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 w-full  ${className}`}
     >
-      <div className="flex gap-6 items-center">
-        <Avatar
-          size="base"
-          src={avatarSrc}
-          status={isOperator
-            ? operators.operators[operators.extensions[speedDial.speeddial_num!].username].mainPresence || undefined
-            : undefined
-          }
-          className="z-0"
-          placeholderType={
-            operators?.extensions[speedDial.speeddial_num || ''] ? 'operator' : 'person'
-          }
-        />
-        <div className="flex flex-col gap-1">
-          <div className="flex flex-row gap-2 ">
-            <p className='dark:text-titleDark text-titleLight font-medium text-[14px] leading-5'>
-              {isDev() && <span className='absolute top-0 right-[-16px] text-[8px]'>[{speedDial.id}]</span>}{truncate(speedDial.name || speedDial.company || `${t('Common.Unknown')}`, 20)}
-            </p>
-            {isOperator && (
-              <FontAwesomeIcon
-                className={classNames("text-base cursor-pointer", isFavourite(speedDial) ? 'dark:text-textBlueDark text-textBlueLight hover:' : 'dark:text-gray-400 text-gray-600')}
-                icon={isFavourite(speedDial) ? FavouriteIcon : UnfavouriteIcon}
-                amplitude={2}
-                onClick={() => toggleFavourite(speedDial)}
-              />
-            )}
-          </div>
-          <div className="flex gap-2 items-center">
-            <FontAwesomeIcon
-              className="dark:text-gray-400 text-gray-600 text-base"
-              icon={CallIcon}
-              onClick={() => callNumber(speedDial.speeddial_num!)}
-            />
-            <NumberCaller
-              number={speedDial.speeddial_num!}
-              disabled={!isCallsEnabled}
-              className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
-              isNumberHiglighted={false}
-            >
-              {truncate(speedDial.speeddial_num!, 19)}
-            </NumberCaller>
-          </div>
+      <ContactNameAndActions
+        contact={speedDial}
+        avatarDim='base'
+        displayedNumber={truncate(speedDial.speeddial_num || '', 19)}
+        isHighlight={false}
+        number={speedDial.speeddial_num!}
+        username={operators?.extensions[speedDial.speeddial_num || '']?.username}
 
-        </div>
-      </div>
+      />
+
       {!isFavouritePage &&
         <div className="flex justify-center min-w-4 min-h-4">
           <div>

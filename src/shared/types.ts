@@ -1,4 +1,4 @@
-import { MENU_ELEMENT, NEW_ACCOUNT } from "./constants"
+import { FilterTypes, MENU_ELEMENT, NEW_ACCOUNT } from "./constants"
 
 export type AvailableThemes = 'system' | 'light' | 'dark'
 
@@ -426,6 +426,7 @@ export type NethLinkPageData = {
 export type SpeedDialModuleData = {
   selectedSpeedDial?: ContactType
   selectedFavourite?: ContactType
+  favouriteOrder?: FilterTypes
 }
 
 export type PhonebookSearchModuleData = {
