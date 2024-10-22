@@ -1,4 +1,4 @@
-import { LocalStorageData } from '@shared/types';
+import { Account, LocalStorageData } from '@shared/types';
 import { app, ipcMain } from 'electron';
 import path from 'path';
 import fs from 'fs';
@@ -7,12 +7,27 @@ import { log } from '@shared/utils/logger';
 import { difference, differenceBy, differenceWith } from 'lodash';
 
 const USER_DATA_PATH = path.join(app.getPath("userData"), 'user_data.json');
+const AVAILABLE_USER_DATA_PATH = path.join(app.getPath("userData"), 'available_user_data.json');
 
 class Store<T> {
 
+
   constructor() {
-    if (!fs.existsSync(USER_DATA_PATH)) {
-      fs.writeFileSync(USER_DATA_PATH, JSON.stringify({}))
+    if (!fs.existsSync(USER_DATA_PATH) || !fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
+      if (!fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
+        if (!fs.existsSync(USER_DATA_PATH)) {
+          fs.writeFileSync(AVAILABLE_USER_DATA_PATH, JSON.stringify({}))
+        } else {
+          const data = fs.readFileSync(USER_DATA_PATH, 'utf-8');
+          const retrivedStore: LocalStorageData = JSON.parse(data);
+          if (retrivedStore.auth?.availableAccounts) {
+            fs.writeFileSync(AVAILABLE_USER_DATA_PATH, JSON.stringify(retrivedStore.auth!.availableAccounts))
+          } else {
+            fs.writeFileSync(AVAILABLE_USER_DATA_PATH, JSON.stringify({}))
+          }
+        }
+      }
+      !fs.existsSync(USER_DATA_PATH) && fs.writeFileSync(USER_DATA_PATH, JSON.stringify({}))
     } else {
       this.store = this.getFromDisk()
     }
@@ -35,20 +50,35 @@ class Store<T> {
   }
 
   updateStore(newState: T, from: string) {
-    const diff = difference(Object.values(newState as any), Object.values(this.store as any))
-    if (diff.length > 0) {
+    const diff = difference(Object.values(newState as any || {}), Object.values(this.store as any || {}))
+    if (diff.length > 0 || this.store === undefined) {
       this.store = Object.assign({}, newState)
     }
   }
 
   saveToDisk() {
+    const availableUserData = (this.store as LocalStorageData).auth?.availableAccounts
     fs.writeFileSync(USER_DATA_PATH, JSON.stringify(this.store));
+    if (Object.keys(availableUserData || {}).length > 0) {
+      fs.writeFileSync(AVAILABLE_USER_DATA_PATH, JSON.stringify(availableUserData));
+    }
+  }
+
+  getAvailableFromDisk(): { [accountUID: string]: Account; } {
+    if (fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
+      const availableUserData = fs.readFileSync(AVAILABLE_USER_DATA_PATH, 'utf-8');
+      return JSON.parse(availableUserData)
+    }
+    return {}
   }
 
   getFromDisk() {
     try {
       const data = fs.readFileSync(USER_DATA_PATH, 'utf-8');
-      return JSON.parse(data);
+      const availableUserData = fs.readFileSync(AVAILABLE_USER_DATA_PATH, 'utf-8');
+      const retrivedStore = JSON.parse(data);
+      (retrivedStore as LocalStorageData).auth!.availableAccounts = JSON.parse(availableUserData)
+      return retrivedStore
     } catch (error) {
       log('Error retrieving user data', error);
       // you may want to propagate the error, up to you
@@ -58,21 +88,6 @@ class Store<T> {
 }
 
 export const store: Store<LocalStorageData> = new Store<LocalStorageData>()
-export function useStoreState<T>(selector: keyof LocalStorageData): [T | undefined, (arg0: T | ((ex: T) => T | undefined) | undefined) => void] {
-
-  const setter = (arg0: (T | undefined) | ((ex: T) => T | undefined)) => {
-    let v: T | undefined = arg0 as (T | undefined)
-    if (typeof arg0 === 'function') {
-      v = (arg0 as (ex: T | undefined) => T | undefined)(store.store[selector] as T | undefined)
-    }
-    store.set(selector, v)
-  }
-
-  return [
-    store.get(selector) as T | undefined,
-    setter
-  ]
-}
 
 
 

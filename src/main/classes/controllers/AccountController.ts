@@ -3,7 +3,7 @@ import fs, { access } from 'fs'
 import { Account, AuthAppData, ConfigFile } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { safeStorage } from 'electron'
-import { store, useStoreState } from '@/lib/mainStore'
+import { store } from '@/lib/mainStore'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
@@ -128,16 +128,18 @@ export class AccountController {
 
 
   updateTheme(theme: any) {
-    const account = store.store.account
-    store.set('theme', theme)
-    if (account) {
-      account.theme = theme
+    if (store.store) {
+      const account = store.store.account
+      store.set('theme', theme)
+      if (account) {
+        account.theme = theme
 
-      store.set('account', account)
-      const auth = store.store.auth
+        store.set('account', account)
+        const auth = store.store.auth
 
-      auth!.availableAccounts[getAccountUID(account)] = account
-      store.set('auth', auth)
+        auth!.availableAccounts[getAccountUID(account)] = account
+        store.set('auth', auth)
+      }
     }
   }
 

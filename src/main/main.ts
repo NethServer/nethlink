@@ -208,14 +208,31 @@ function attachOnReadyProcess() {
   })
 
   async function startApp(attempt = 0) {
-    const data = store.getFromDisk()
-    if (checkData(data)) {
-      store.updateStore(data, 'startApp')
+    let data = store.store || store.getFromDisk()
+    if (!checkData(data)) {
+      if (attempt === 0) {
+        data = store.getFromDisk()
+        store.updateStore(data, 'startApp')
+        startApp(++attempt)
+        return;
+      } else {
+        await resetApp()
+        showLogin()
+        SplashScreenController.instance.window.quit(true)
+        //once the loading is complete I enable the ability to click on the icon in the tray
+        TrayController.instance.updateTray({
+          enableShowButton: true
+        })
+      }
+
+    } else {
+
       log('START APP, retry:', attempt)
       if (!store.store.connection) {
         log('NO CONNECTION', attempt, store.store)
         if (attempt >= 3)
           SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
+
         retryAppStart = setTimeout(() => {
           startApp(++attempt)
         }, 1000)
@@ -252,14 +269,6 @@ function attachOnReadyProcess() {
           enableShowButton: true
         })
       }
-    } else {
-      await resetApp()
-      showLogin()
-      SplashScreenController.instance.window.quit(true)
-      //once the loading is complete I enable the ability to click on the icon in the tray
-      TrayController.instance.updateTray({
-        enableShowButton: true
-      })
     }
   }
 
@@ -415,29 +424,32 @@ function attachPowerMonitor() {
 
 function attachThemeChangeListener() {
   nativeTheme.on('updated', () => {
-    const theme = store.store['theme']
-    const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
-      ? 'dark'
-      : 'light'
+    if (store.store) {
+      const theme = store.store['theme']
+      const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
+        ? 'dark'
+        : 'light'
 
-    if (store.store.account?.theme === 'dark' || store.store.account?.theme === 'light') {
-      store.set('theme', store.store.account?.theme)
-    } else {
-      store.set('theme', updatedSystemTheme)
+      if (store.store.account?.theme === 'dark' || store.store.account?.theme === 'light') {
+        store.set('theme', store.store.account?.theme)
+      } else {
+        store.set('theme', updatedSystemTheme)
+      }
+      //update theme state on the store
+      TrayController.instance?.changeIconByTheme(updatedSystemTheme)
     }
-    //update theme state on the store
-    TrayController.instance?.changeIconByTheme(updatedSystemTheme)
   })
 }
 /**
  * CAUTION!! this function will destroy all current persistant data. use it only if absolutely necessary
  */
 async function resetApp() {
+  const availableAccounts = store.getAvailableFromDisk()
   store.updateStore({
     account: undefined,
     auth: {
-      availableAccounts: {},
-      isFirstStart: true,
+      availableAccounts: availableAccounts,
+      isFirstStart: Object.keys(availableAccounts).length === 0,
       lastUser: undefined,
       lastUserCryptPsw: undefined
     },
@@ -471,6 +483,7 @@ function showLogin() {
   new LoginController()
   store.saveToDisk()
   setTimeout(() => {
+    log('show login', store.store)
     LoginController.instance.show()
   }, 100)
 }
@@ -495,11 +508,10 @@ async function checkForUpdate() {
 }
 
 function checkData(data: any): boolean {
-  log({ data })
-  return data.hasOwnProperty('account') &&
-    data.hasOwnProperty('auth') &&
-    data.hasOwnProperty('theme') &&
-    data.hasOwnProperty('connection')
+  log('checkData', { data })
+  return data?.hasOwnProperty('auth') &&
+    data?.hasOwnProperty('theme') &&
+    data?.hasOwnProperty('connection')
 }
 
 //BEGIN APP

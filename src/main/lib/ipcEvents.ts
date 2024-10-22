@@ -155,8 +155,13 @@ export function registerIpcEvents() {
 
 
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (event, isOnline) => {
-    log('CONNECTION STATE', isOnline, event.sender.getTitle())
-    store.set('connection', isOnline)
+    if (store.store) {
+      log('CONNECTION STATE', isOnline, event.sender.getTitle())
+      store.set('connection', isOnline)
+      if (!store.store.account) {
+        store.saveToDisk()
+      }
+    }
   });
 
   ipcMain.on(IPC_EVENTS.REQUEST_SHARED_STATE, (event) => {
