@@ -1,5 +1,5 @@
 import { useStoreState } from "@renderer/store"
-import { ContactType, NewContactType, NewSpeedDialType } from "@shared/types"
+import { ContactType, NewContactType } from "@shared/types"
 import { useEffect, useState } from "react"
 import { useSpeedDialsModule } from "./useSpeedDialsModule"
 import { debouncer } from "@shared/utils/utils"
@@ -23,10 +23,14 @@ export const useFavouriteModule = () => {
   }
 
   const isFavourite = (contact: ContactType) => {
-    return contact.notes?.includes(SpeeddialTypes.FAVOURITES)
+    const speedDial = contact.speeddial_num ? speedDials?.find((s) => s.speeddial_num === contact.speeddial_num) : undefined
+    if (speedDial) {
+      return speedDial.notes?.includes(SpeeddialTypes.FAVOURITES)
+    }
+    return false
   }
 
-  function toggleFavourite(contact: ContactType, isSearch = false) {
+  function toggleFavourite(contact: ContactType) {
     debouncer(`toggleFavourite-${contact.id}`, async () => {
       log('toggle ', contact)
       const notes = isFavourite(contact)
@@ -36,11 +40,14 @@ export const useFavouriteModule = () => {
             ? contact.notes.replace(SpeeddialTypes.CLASSIC, SpeeddialTypes.FAVOURITES)
             : contact.notes?.concat(` ${SpeeddialTypes.FAVOURITES}`) || SpeeddialTypes.FAVOURITES
           : SpeeddialTypes.FAVOURITES
-      const updatedContact: ContactType = convertSearchDataToContactType(contact, notes)
-      if (!speedDials?.map((c) => c.id).includes(contact.id)) {
+      const speedDial = contact.speeddial_num ? speedDials?.find((s) => s.speeddial_num === contact.speeddial_num) : undefined
+      if (!speedDial) {
+        const updatedContact: ContactType = convertSearchDataToContactType(contact, notes)
         log('Create new favourite', { updatedContact })
+        delete updatedContact.id
         await NethVoiceAPI.Phonebook.createSpeeddial(updatedContact as NewContactType)
       } else {
+        const updatedContact: ContactType = convertSearchDataToContactType(speedDial, notes)
         log('UPDATE', { updatedContact })
         await NethVoiceAPI.Phonebook.updateSpeeddialBy(updatedContact)
       }
@@ -91,7 +98,7 @@ export const useFavouriteModule = () => {
   return {
     favourites,
     toggleFavourite,
-    isFavourite
+    isFavourite,
   }
 }
 

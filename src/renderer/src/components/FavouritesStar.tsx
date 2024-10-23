@@ -11,10 +11,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export const FavouriteStar = ({ contact }: { contact: ContactType }) => {
   const { isFavourite, toggleFavourite } = useFavouriteModule()
+  const isContactFavourite = isFavourite(contact)
   return (
     <FontAwesomeIcon
-      className={classNames("text-base cursor-pointer", isFavourite(contact) ? 'dark:text-textBlueDark text-textBlueLight hover:' : 'dark:text-gray-400 text-gray-600')}
-      icon={isFavourite(contact) ? FavouriteIcon : UnfavouriteIcon}
+      className={classNames("text-base cursor-pointer", isContactFavourite ? 'dark:text-textBlueDark text-textBlueLight hover:' : 'dark:text-gray-400 text-gray-600')}
+      icon={isContactFavourite ? FavouriteIcon : UnfavouriteIcon}
       onClick={() => toggleFavourite(contact)}
     />
   )

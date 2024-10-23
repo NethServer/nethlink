@@ -1,17 +1,12 @@
 import { ReactNode } from 'react'
 import { t } from 'i18next'
 import { OperatorData, SearchData } from '@shared/types'
-import { faCircleUser as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { useStoreState } from '@renderer/store'
-import { Avatar, Button } from '@renderer/components/Nethesis'
-import { NumberCaller } from '@renderer/components/NumberCaller'
+import { Button } from '@renderer/components/Nethesis'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
-import classNames from 'classnames'
 import { useFavouriteModule } from '../NethVoice/Speeddials/hook/useFavouriteModule'
-import { FavouriteStar } from '@renderer/components/FavouritesStar'
 import { ContactNameAndActions } from '@renderer/components/ContactNameAndAction'
 
 export interface SearchNumberProps {

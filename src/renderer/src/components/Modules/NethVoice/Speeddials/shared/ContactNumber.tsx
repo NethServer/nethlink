@@ -1,6 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faPhone as CallIcon,
   faEllipsisVertical as MenuIcon,
   faPenToSquare as ModifyIcon,
   faTrash as DeleteIcon,
@@ -8,18 +7,11 @@ import {
 import { Menu } from '@headlessui/react'
 import { ContactType, OperatorData } from '@shared/types'
 import { t } from 'i18next'
-import { useAccount } from '@renderer/hooks/useAccount'
 import { useStoreState } from '@renderer/store'
-import { Avatar, Button } from '@renderer/components/Nethesis'
 import { truncate } from '@renderer/utils'
-import { NumberCaller } from '@renderer/components/NumberCaller'
-import { isDev } from '@shared/utils/utils'
-import classNames from 'classnames'
 import { useTheme } from '@renderer/theme/Context'
-import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
-import { useFavouriteModule } from '../hook/useFavouriteModule'
-import { FavouriteStar } from '@renderer/components/FavouritesStar'
 import { ContactNameAndActions } from '@renderer/components/ContactNameAndAction'
+import classNames from 'classnames'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType

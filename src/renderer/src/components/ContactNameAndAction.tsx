@@ -1,4 +1,3 @@
-import { truncate } from "@renderer/utils"
 import { NumberCaller } from "./NumberCaller"
 import { ContactType, OperatorData } from "@shared/types"
 import { isDev } from "@shared/utils/utils"
@@ -10,12 +9,10 @@ import { usePhoneIslandEventHandler } from "@renderer/hooks/usePhoneIslandEventH
 import { Avatar } from "./Nethesis"
 import {
   faPhone as CallIcon,
-  faCircleUser as DefaultAvatar
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from "i18next"
 import { ReactNode } from "react"
 import classNames from "classnames"
-import { useTheme } from "@renderer/theme/Context"
 export const ContactNameAndActions = ({ contact, number, isHighlight, displayedNumber, avatarDim, username }: {
   contact: ContactType,
   number: string,
