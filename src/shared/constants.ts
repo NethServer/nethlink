@@ -1,5 +1,4 @@
 import { Size } from "./types"
-import { log } from "./utils/logger"
 
 
 export const NethLinkPageSize = {
@@ -12,7 +11,7 @@ export const LoginPageSize = {
   h: 100
 }
 export const NEW_ACCOUNT = 'New Account'
-
+export const GIT_RELEASES_URL = `https://api.github.com/repos/nethesis/nethlink/releases/latest`
 
 export enum PERMISSION {
   CALL_FORWARD = 'call_forward',

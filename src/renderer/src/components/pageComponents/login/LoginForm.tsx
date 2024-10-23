@@ -21,8 +21,9 @@ import { debouncer, getAccountUID } from '@shared/utils/utils'
 
 export interface LoginFormProps {
   onError: (formErrors: FieldErrors<LoginData>, generalError: Error | undefined) => void
+  handleRefreshConnection: () => void
 }
-export const LoginForm = ({ onError }) => {
+export const LoginForm = ({ onError, handleRefreshConnection }) => {
   const { NethVoiceAPI } = useNethVoiceAPI()
   const submitButtonRef = useRef<HTMLButtonElement>(null)
   const [auth] = useStoreState<AuthAppData>('auth')
@@ -157,17 +158,6 @@ export const LoginForm = ({ onError }) => {
     setTimeout(() => {
       setFocus(selector)
     }, 100)
-  }
-
-  const handleRefreshConnection = () => {
-    log('refresh', navigator.onLine)
-    debouncer(
-      'update-connection-state',
-      () => {
-        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
-      },
-      250
-    )
   }
 
   const RenderError = () => {

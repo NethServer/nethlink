@@ -6,7 +6,10 @@ import { useStoreState } from '@renderer/store'
 import { ConnectionStatus } from '@renderer/components'
 import { IPC_EVENTS } from '@shared/constants'
 
-export const DevToolsPage = () => {
+interface DevToolProps {
+  handleRefreshConnection: () => void
+}
+export const DevToolsPage = ({ handleRefreshConnection }: DevToolProps) => {
   const [page] = useStoreState<PageType>('page')
   useInitialize(() => { }, true)
 

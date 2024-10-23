@@ -19,7 +19,8 @@ import { log } from '@shared/utils/logger'
 import { FieldErrors } from 'react-hook-form'
 
 export interface LoginPageProps {
-  themeMode: string
+  themeMode: string,
+  handleRefreshConnection: () => void
 }
 
 enum LoginSizes {
@@ -38,9 +39,9 @@ enum LoginSizes {
 
 type ErrorsData = {
   formErrors: FieldErrors<LoginData>,
-  generalError: Error | undefined
+  generalError: Error | undefined,
 }
-export function LoginPage({ themeMode }: LoginPageProps) {
+export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps) {
 
 
   const [auth] = useStoreState<AuthAppData>('auth')
@@ -164,7 +165,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                   </p>
                 </Button>
               )}
-            {(auth.isFirstStart || loginData?.selectedAccount || Object.keys(auth.availableAccounts).length === 0) ? <LoginForm onError={onFormErrors} /> : <AvailableAccountList handleDeleteAccount={handleDeleteAccount} />}
+            {(auth.isFirstStart || loginData?.selectedAccount || Object.keys(auth.availableAccounts).length === 0) ? <LoginForm onError={onFormErrors} handleRefreshConnection={handleRefreshConnection} /> : <AvailableAccountList handleDeleteAccount={handleDeleteAccount} />}
           </>
         }
       </div>

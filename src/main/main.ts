@@ -10,13 +10,13 @@ import { log } from '@shared/utils/logger'
 import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
 import { debouncer, delay, isDev } from '@shared/utils/utils'
-import { IPC_EVENTS } from '@shared/constants'
+import { IPC_EVENTS, GIT_RELEASES_URL } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
 import { store } from './lib/mainStore'
 import fs from 'fs'
 import path from 'path'
-import i18next, { Module, Newable, NewableModule } from 'i18next'
+import i18next from 'i18next'
 import Backend from 'i18next-fs-backend'
 import { uniq } from 'lodash'
 
@@ -226,7 +226,7 @@ function attachOnReadyProcess() {
       }
 
     } else {
-
+      await checkConnection()
       log('START APP, retry:', attempt)
       if (!store.store.connection) {
         log('NO CONNECTION', attempt, store.store)
@@ -500,7 +500,7 @@ async function createNethLink(show: boolean = true) {
 }
 
 async function checkForUpdate() {
-  const latestVersionData = await NetworkController.instance.get(`https://api.github.com/repos/nethesis/nethlink/releases/latest`)
+  const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
   log(app.getVersion())
   if (latestVersionData.name !== app.getVersion() || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
@@ -512,6 +512,20 @@ function checkData(data: any): boolean {
   return data?.hasOwnProperty('auth') &&
     data?.hasOwnProperty('theme') &&
     data?.hasOwnProperty('connection')
+}
+
+async function checkConnection() {
+  const connected = await new Promise((resolve) => {
+    NetworkController.instance.get(GIT_RELEASES_URL).then(() => {
+      resolve(true)
+    }).catch(() => {
+      resolve(false)
+    })
+  })
+  log("checkConnection:", { connected, connection: store.store.connection })
+  if (connected !== store.store.connection) {
+    ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, connected);
+  }
 }
 
 //BEGIN APP

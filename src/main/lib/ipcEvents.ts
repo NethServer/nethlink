@@ -156,7 +156,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (event, isOnline) => {
     if (store.store) {
-      log('CONNECTION STATE', isOnline, event.sender.getTitle())
+      log('CONNECTION STATE', isOnline)
       store.set('connection', isOnline)
       if (!store.store.account) {
         store.saveToDisk()

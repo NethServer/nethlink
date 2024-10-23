@@ -147,6 +147,7 @@ export function PhoneIslandPage() {
               {
                 timeout: 2000
               })
+            window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, false);
             isOnCall.current = false
             break
           case PHONE_ISLAND_EVENTS['phone-island-call-ended']:
@@ -171,6 +172,7 @@ export function PhoneIslandPage() {
             if (!isOnCall.current) {
               window.api.hidePhoneIsland()
             }
+            window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, true);
             break
           case PHONE_ISLAND_EVENTS['phone-island-expanded']:
             setPhoneIslandPageData((p) => ({

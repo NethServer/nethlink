@@ -32,13 +32,21 @@ export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
   }
 
   return (
-    <div className="h-[100vh] w-[100vw] p-1 rounded-[10px]">
+    <div className="relative h-screen w-screen p-1 rounded-[10px]  overflow-hidden">
       <img
         src={themeMode === 'dark' ? darkBackground : lightBackground}
         draggable={false}
-        className="absolute w-[100vw] h-[100vh] top-0 left-0"
+        className="absolute w-screen h-screen top-0 left-0 object-cover"
       />
-      <div className="absolute top-0 left-0 w-[100vw] h-[100vh]">
+      <div className="absolute top-0 left-0 w-screen h-screen">
+        {isNoConnectionDialogOpen && !connection && (
+          <ConnectionErrorDialog
+            variant='splashscreen'
+            onButtonClick={exitApp}
+            buttonText={t('Common.Quit')}
+          />
+        )
+        }
         <div className="h-full w-full flex flex-col items-center p-9">
           <img
             src={themeMode === 'dark' ? darkHeader : lightHeader}
@@ -64,14 +72,6 @@ export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
           </p>
         </div>
       </div>
-      {isNoConnectionDialogOpen && !connection && (
-        <ConnectionErrorDialog
-          variant='splashscreen'
-          onButtonClick={exitApp}
-          buttonText={t('Common.Quit')}
-        />
-      )
-      }
     </div >
   )
 }
