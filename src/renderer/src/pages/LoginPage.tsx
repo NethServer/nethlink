@@ -82,7 +82,6 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
     if (confirm) {
       window.electron.send(IPC_EVENTS.DELETE_ACCOUNT, account)
     }
-    //calculateHeight()
   }
 
   function calculateHeight() {
