@@ -2,19 +2,22 @@ import { Account } from '@shared/types'
 import classNames from 'classnames'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHeadset as DefaultAvatar } from '@fortawesome/free-solid-svg-icons'
+import { faRemove as DeleteIcon } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from '../../Nethesis'
+import { isDev } from '@shared/utils/utils'
 
 type DisplayedAccountLoginProps = {
   account?: Account
   imageSrc?: string
   handleClick?: () => void
+  handleDeleteClick?: () => void
 }
 
 export function DisplayedAccountLogin({
   account,
   imageSrc,
-  handleClick
+  handleClick,
+  handleDeleteClick
 }: DisplayedAccountLoginProps) {
   return (
     <div
@@ -31,11 +34,20 @@ export function DisplayedAccountLogin({
           size='large'
         />
       </div>
-      <p className="w-[325px] truncate">
-        {account
-          ? `${account.data?.name} (${account.data?.endpoints.mainextension[0].id})`
-          : t('Login.Use Another Account')}
-      </p>
+      <div className='flex flex-row justify-between  items-center w-[325px]'>
+        <p className="w-[300px] truncate">
+          {account
+            ? `${account.data?.name} (${account.data?.endpoints.mainextension[0].id})`
+            : t('Login.Use Another Account')}
+        </p>
+        {
+          isDev() && handleDeleteClick && <FontAwesomeIcon className={classNames('w-[25px] p-2 text-titleLight dark:text-titleDark  hover:text-textBlueLight dark:hover:text-textBlueDark')} icon={DeleteIcon} onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            handleDeleteClick()
+          }} />
+        }
+      </div>
     </div>
   )
 }

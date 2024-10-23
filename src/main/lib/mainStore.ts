@@ -39,11 +39,12 @@ class Store<T> {
     return this.store[selector]
   }
 
-  set(selector: keyof T, value: any) {
+  set(selector: keyof T, value: any, force: boolean = false) {
     const o = Object.assign({}, this.store)
     o[selector] = value
     const diff = difference(Object.values(o), Object.values(this.store as any))
-    if (diff.length > 0) {
+    log({ diff })
+    if (diff.length > 0 || force) {
       this.store = o
       ipcMain.emit(IPC_EVENTS.UPDATE_SHARED_STATE, undefined, this.store, 'main', selector)
     }
@@ -56,10 +57,10 @@ class Store<T> {
     }
   }
 
-  saveToDisk() {
+  saveToDisk(forceSave: boolean = false) {
     const availableUserData = (this.store as LocalStorageData).auth?.availableAccounts
     fs.writeFileSync(USER_DATA_PATH, JSON.stringify(this.store));
-    if (Object.keys(availableUserData || {}).length > 0) {
+    if (Object.keys(availableUserData || {}).length > 0 || forceSave) {
       fs.writeFileSync(AVAILABLE_USER_DATA_PATH, JSON.stringify(availableUserData));
     }
   }

@@ -1,10 +1,10 @@
 import { useStoreState } from "@renderer/store"
-import { AuthAppData, LoginPageData } from "@shared/types"
+import { Account, AuthAppData, LoginPageData } from "@shared/types"
 import { t } from "i18next"
 import { DisplayedAccountLogin } from "./DisplayedAccountLogin"
 import { NEW_ACCOUNT } from "@shared/constants"
 
-export const AvailableAccountList = () => {
+export const AvailableAccountList = ({ handleDeleteAccount }: { handleDeleteAccount: (a: Account) => void }) => {
   const [auth] = useStoreState<AuthAppData>('auth')
   const [loginData, setLoginData] = useStoreState<LoginPageData>('loginPageData')
   const handleSelectAccount = (account) => {
@@ -30,6 +30,7 @@ export const AvailableAccountList = () => {
               account={account}
               imageSrc={account.data?.settings.avatar}
               handleClick={() => handleSelectAccount(account)}
+              handleDeleteClick={() => handleDeleteAccount(account)}
             />
           )
         })}

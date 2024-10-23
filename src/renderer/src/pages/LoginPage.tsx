@@ -1,4 +1,4 @@
-import { AuthAppData, LoginData, LoginPageData } from '@shared/types'
+import { Account, AuthAppData, LoginData, LoginPageData } from '@shared/types'
 import classNames from 'classnames'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import spinner from '../assets/loginPageSpinner.svg'
@@ -14,7 +14,7 @@ import { Button } from '@renderer/components/Nethesis'
 import './LoginPage.css'
 import { useStoreState } from '@renderer/store'
 import { AvailableAccountList, LoginForm } from '@renderer/components/pageComponents'
-import { NEW_ACCOUNT } from '@shared/constants'
+import { IPC_EVENTS, NEW_ACCOUNT } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { FieldErrors } from 'react-hook-form'
 
@@ -50,54 +50,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
   const [errorsData, setErrorsData] = useState<ErrorsData>()
 
   useEffect(() => {
-    let loginWindowHeight = 0
-    const accounts = Object.keys(auth?.availableAccounts || {})
-    const errorCount = Object.values(errorsData?.formErrors || {}).filter((v) => v.message).length
-    //Login form is shown
-    if (loginData?.selectedAccount) {
-      if (loginData.selectedAccount === NEW_ACCOUNT) {
-        loginWindowHeight = LoginSizes.BASE
-        if (!connection)
-          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_BASE
-        if (!auth?.isFirstStart) {
-          loginWindowHeight += LoginSizes.BACK_BUTTON - 24
-        }
-      } else {
-        loginWindowHeight = LoginSizes.ACCOUNT_FORM
-        if (!connection)
-          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_ON_ACCOUNT_FORM
-      }
-    } else {
-      //List of account is shown
-      switch (accounts.length) {
-        case 0:
-          loginWindowHeight = LoginSizes.BASE
-          if (!auth?.isFirstStart) {
-            loginWindowHeight += LoginSizes.BACK_BUTTON
-          }
-          break
-        case 1:
-          loginWindowHeight = LoginSizes.ONE_ACCOUNT
-          break
-        case 2:
-          loginWindowHeight = LoginSizes.TWO_ACCOUNT
-          break
-        default:
-          loginWindowHeight = LoginSizes.MULTIPLE_ACCOUNT
-          break
-      }
-
-
-    }
-    loginWindowHeight += LoginSizes.INPUT_ERROR * errorCount
-    if (errorsData?.generalError) {
-      loginWindowHeight += LoginSizes.LOGIN_FAILURE
-    }
-    log({ loginWindowHeight })
-    setLoginData((p) => ({
-      ...p,
-      windowHeight: loginWindowHeight
-    }))
+    calculateHeight()
   }, [loginData?.selectedAccount, auth, errorsData, connection])
 
   useEffect(() => {
@@ -121,6 +74,67 @@ export function LoginPage({ themeMode }: LoginPageProps) {
       formErrors,
       generalError
     })
+  }
+
+  const handleDeleteAccount = (account: Account) => {
+    const confirm = window.confirm(`delete ${account.username}?`)
+    if (confirm) {
+      window.electron.send(IPC_EVENTS.DELETE_ACCOUNT, account)
+    }
+    //calculateHeight()
+  }
+
+  function calculateHeight() {
+    let loginWindowHeight = 0
+    const accounts = Object.keys(auth?.availableAccounts || {})
+    const errorCount = Object.values(errorsData?.formErrors || {}).filter((v) => v.message).length
+    //Login form is shown
+    if (loginData?.selectedAccount) {
+      if (loginData.selectedAccount === NEW_ACCOUNT) {
+        loginWindowHeight = LoginSizes.BASE
+        if (!connection)
+          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_BASE
+        if (!auth?.isFirstStart) {
+          loginWindowHeight += LoginSizes.BACK_BUTTON - 24
+        }
+      } else {
+        loginWindowHeight = LoginSizes.ACCOUNT_FORM
+        if (!connection)
+          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_ON_ACCOUNT_FORM
+      }
+    } else {
+      if (auth?.isFirstStart) {
+        loginWindowHeight = LoginSizes.BASE
+      } else {
+        //List of account is shown
+        switch (accounts.length) {
+          case 0:
+            loginWindowHeight = LoginSizes.BASE
+            if (auth && !auth.isFirstStart && Object.keys(auth.availableAccounts).length > 0) {
+              loginWindowHeight += LoginSizes.BACK_BUTTON
+            }
+            break
+          case 1:
+            loginWindowHeight = LoginSizes.ONE_ACCOUNT
+            break
+          case 2:
+            loginWindowHeight = LoginSizes.TWO_ACCOUNT
+            break
+          default:
+            loginWindowHeight = LoginSizes.MULTIPLE_ACCOUNT
+            break
+        }
+      }
+    }
+    loginWindowHeight += LoginSizes.INPUT_ERROR * errorCount
+    if (errorsData?.generalError) {
+      loginWindowHeight += LoginSizes.LOGIN_FAILURE
+    }
+    log({ loginWindowHeight })
+    setLoginData((p) => ({
+      ...p,
+      windowHeight: loginWindowHeight
+    }))
   }
 
   return (
@@ -150,7 +164,7 @@ export function LoginPage({ themeMode }: LoginPageProps) {
                   </p>
                 </Button>
               )}
-            {auth.isFirstStart || loginData?.selectedAccount ? <LoginForm onError={onFormErrors} /> : <AvailableAccountList />}
+            {(auth.isFirstStart || loginData?.selectedAccount || Object.keys(auth.availableAccounts).length === 0) ? <LoginForm onError={onFormErrors} /> : <AvailableAccountList handleDeleteAccount={handleDeleteAccount} />}
           </>
         }
       </div>
