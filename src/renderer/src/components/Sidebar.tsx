@@ -4,6 +4,7 @@ import {
   faBolt as SpeedDialMenuIcon,
   faPhone as MissedCallMenuIcon,
   faInfoCircle as InfoMenuIcon,
+  faStar as FavouriteMenuIcon,
   faSquareParking as ParkedCallMenuIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { useStoreState } from '@renderer/store'
@@ -23,7 +24,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
   const [missedCalls] = useStoreState<CallData[]>('missedCalls')
   const [notifications] = useStoreState<NotificationData>('notifications')
-  const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
+  const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.FAVOURITES)
 
   const viewedParkedCalls = useRef<ParkingType[]>([])
   const [parkedPulse, setParkedPulse] = useState<boolean>(false)
@@ -65,6 +66,14 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   return (
     <div className="flex flex-col h-full max-w-[50px] justify-between pt-3 pb-2 px-2 border-0 border-l-[1px] dark:border-borderDark border-borderLight">
       <div className="flex flex-col items-center gap-6">
+        {/* FAVOURITE */}
+        <SidebarButton
+          icon={FavouriteMenuIcon}
+          focus={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.FAVOURITES}
+          hasNotification={false}
+          onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.FAVOURITES)}
+          isSelected={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.FAVOURITES}
+        />
         {/* SPEEDDIALS */}
         <SidebarButton
           icon={SpeedDialMenuIcon}
@@ -106,8 +115,6 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
           isSelected={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.ABOUT}
         />
       </div>
-      <>
-      </>
     </div>
   )
 }

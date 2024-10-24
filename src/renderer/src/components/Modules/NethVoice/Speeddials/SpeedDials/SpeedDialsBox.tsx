@@ -1,23 +1,24 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faCirclePlus as AddSpeedDialIcon,
-  faBolt as SpeedDialEmptyListIcon
+  faBolt as SpeedDialIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { SpeedDialNumber } from './SpeedDialNumber'
-import { ContactType } from '@shared/types'
+import { ContactType, NethLinkPageData } from '@shared/types'
 import { t } from 'i18next'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
 import { useStoreState } from '@renderer/store'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
-import { useSpeedDialsModule } from './hook/useSpeedDialsModule'
+import { useSpeedDialsModule } from '../hook/useSpeedDialsModule'
+import { log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
+import { ContactNumber } from '../shared/ContactNumber'
 import { EmptyList } from '@renderer/components/EmptyList'
 
 export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }): JSX.Element {
   const [speeddials] = useStoreState<ContactType[]>('speeddials')
   const speedDialModule = useSpeedDialsModule()
   const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
-  const { callNumber } = usePhoneIslandEventHandler()
 
   function handleCreateSpeedDial(): void {
     setSelectedSpeedDial(undefined)
@@ -52,11 +53,11 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
                     <div
                       className={`${idx === speeddials.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
                     >
-                      <SpeedDialNumber
+                      <ContactNumber
                         speedDial={e}
-                        callUser={() => callNumber(e.speeddial_num!)}
                         handleEditSpeedDial={handleEditSpeedDial}
                         handleDeleteSpeedDial={handleDeleteSpeedDial}
+                        isFavouritePage={false}
                         isLastItem={speeddials.length === 1 ? false : idx === speeddials.length - 1}
                       />
                     </div>
@@ -65,7 +66,7 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
               )
             })
           ) : (
-            <EmptyList icon={SpeedDialEmptyListIcon} text={t('SpeedDial.No speed dials')} />
+            <EmptyList icon={SpeedDialIcon} text={t('SpeedDial.No speed dials')} />
           )
         ) : (
           Array(3)

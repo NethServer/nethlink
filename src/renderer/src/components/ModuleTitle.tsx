@@ -2,19 +2,22 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button } from "./Nethesis"
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
 import { DefaultTFuncReturn } from "i18next"
+import { ReactNode } from "react"
 
 export interface ModuleTitleProps {
   title: string | DefaultTFuncReturn,
   action?: () => void,
   actionText?: string | DefaultTFuncReturn,
   actionIcon?: IconProp
+  actionComponent?: ReactNode
 
 }
 export const ModuleTitle = ({
   title,
   action,
   actionText,
-  actionIcon
+  actionIcon,
+  actionComponent
 }: ModuleTitleProps) => {
 
   return (
@@ -40,6 +43,7 @@ export const ModuleTitle = ({
             }
           </Button>
         )}
+        {actionComponent}
       </div>
     </div>
   )

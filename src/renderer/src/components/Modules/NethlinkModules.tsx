@@ -7,6 +7,7 @@ import { usePhonebookSearchModule } from "./SearchResults/hook/usePhoneBookSearc
 import { AboutModule } from "./About/AboutModule"
 import classNames from "classnames"
 import { PresenceBadge, PresenceBadgeVisibility } from "./NethVoice/Presence/PresenceBadge"
+import { FavouritesModule } from "./NethVoice/Speeddials/Favourites/FavouritesModule"
 import { ParkingModule } from "./NethVoice/Parking/ParkingModule"
 
 export const NethLinkModules = () => {
@@ -31,6 +32,8 @@ export const NethLinkModules = () => {
     if (nethLinkPageData?.showPhonebookSearchModule) return <PhoneBookSearchModule />
 
     switch (nethLinkPageData?.selectedSidebarMenu) {
+      case MENU_ELEMENT.FAVOURITES:
+        return <FavouritesModule />
       case MENU_ELEMENT.SPEEDDIALS:
         return <SpeeddialsModule />
       case MENU_ELEMENT.LAST_CALLS:
@@ -46,8 +49,9 @@ export const NethLinkModules = () => {
 
   return (
     <div className={classNames(
-      " h-full w-full ",
+      "relative h-full w-full ",
       'max-h-[calc(100vh-64px)]',
+      'max-w-[calc(100vw-64px)]'
     )}>
       <div className={classNames('h-full  pt-0')}>
         <VisibleModule />

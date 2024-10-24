@@ -22,12 +22,14 @@ import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { IPC_EVENTS, MENU_ELEMENT, PERMISSION } from '@shared/constants'
+import { FilterTypes, IPC_EVENTS, MENU_ELEMENT, PERMISSION } from '@shared/constants'
 import { PresenceBadge } from '@renderer/components/Modules/NethVoice/Presence/PresenceBadge'
 import classNames from 'classnames'
 import { ConnectionErrorDialog } from '@renderer/components'
 import { debouncer, isDev } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
+import { FavouriteFilter } from '@renderer/components/Modules/NethVoice/Speeddials/Favourites/FavouriteFilter'
+
 
 export interface NethLinkPageProps {
   themeMode: string,
@@ -71,12 +73,15 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
           1000 * 60 * 45
         )
         setNethLinkPageData({
-          selectedSidebarMenu: MENU_ELEMENT.SPEEDDIALS,
+          selectedSidebarMenu: MENU_ELEMENT.FAVOURITES,
           phonebookModule: {
             selectedContact: undefined
           },
           speeddialsModule: {
-            selectedSpeeDial: undefined
+            selectedSpeedDial: undefined,
+            selectedFavourite: undefined,
+            favouriteOrder: FilterTypes.AZ
+
           },
           phonebookSearchModule: {
             searchText: null

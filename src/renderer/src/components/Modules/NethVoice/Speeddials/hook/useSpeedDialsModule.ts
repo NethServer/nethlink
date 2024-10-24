@@ -5,6 +5,7 @@ import { log } from "@shared/utils/logger"
 
 export const useSpeedDialsModule = (): {
   speedDialsState: StateType<ContactType>,
+  favouriteState: StateType<ContactType>,
   deleteSpeedDial: (speedDial: ContactType) => Promise<void>
   upsertSpeedDial(data: ContactType): Promise<void>
 } => {
@@ -38,7 +39,7 @@ export const useSpeedDialsModule = (): {
 
   const upsertSpeedDial = async (speedDial: NewSpeedDialType | NewContactType) => {
     try {
-      const selectedSpeedDial = nethLinkPageData?.speeddialsModule?.selectedSpeeDial
+      const selectedSpeedDial = nethLinkPageData?.speeddialsModule?.selectedSpeedDial
       if (selectedSpeedDial) {
         const updatedSpeedDial = await NethVoiceAPI.Phonebook.updateSpeeddial(speedDial, selectedSpeedDial)
         if (updatedSpeedDial) {
@@ -59,8 +60,9 @@ export const useSpeedDialsModule = (): {
   }
 
   return {
-    speedDialsState: [nethLinkPageData?.speeddialsModule?.selectedSpeeDial, update<ContactType>('selectedSpeeDial')] as StateType<ContactType>,
+    speedDialsState: [nethLinkPageData?.speeddialsModule?.selectedSpeedDial, update<ContactType>('selectedSpeedDial')] as StateType<ContactType>,
+    favouriteState: [nethLinkPageData?.speeddialsModule?.selectedFavourite, update<ContactType>('selectedFavourite')] as StateType<ContactType>,
     deleteSpeedDial,
-    upsertSpeedDial
+    upsertSpeedDial,
   }
 }

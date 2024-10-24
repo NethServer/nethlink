@@ -15,7 +15,7 @@ export const Scrollable = ({
 
   return (
     <div className={classNames('relative overflow-y-auto h-[calc(100%-28px)] mr-1.5', className)}>
-      <div className={innerClassName}>{children}</div>
+      <div className={classNames('relative ', innerClassName)}>{children}</div>
     </div>
   )
 }
