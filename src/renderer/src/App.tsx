@@ -3,7 +3,7 @@ import { useInitialize } from '@/hooks/useInitialize'
 import { LoginPage, PhoneIslandPage, SplashScreenPage, NethLinkPage } from '@/pages'
 import { loadI18n } from './lib/i18n'
 import { log } from '@shared/utils/logger'
-import { ReactNode, useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Account, AvailableThemes, PAGES } from '@shared/types'
 import { delay } from '@shared/utils/utils'
 import i18next from 'i18next'
@@ -11,32 +11,40 @@ import { DevToolsPage } from './pages/DevToolsPage'
 import { getSystemTheme, parseThemeToClassName } from './utils'
 import { useRegisterStoreHook, useStoreState } from "@renderer/store";
 import { PageContext, PageCtx, usePageCtx } from './contexts/pageContext'
-import { IPC_EVENTS } from '@shared/constants'
+import { GIT_RELEASES_URL, IPC_EVENTS } from '@shared/constants'
 import { useRefState } from './hooks/useRefState'
+import { useNetwork } from '@shared/useNetwork'
 
 
 const RequestStateComponent = () => {
   const pageData = usePageCtx()
   const isRequestInitialized = useRef(false)
   useRegisterStoreHook()
-  const [theme, setTheme] = useStoreState<AvailableThemes>('theme')
-  const [account, setAccount] = useStoreState<Account>('account')
+  const [theme,] = useStoreState<AvailableThemes>('theme')
+  const [account,] = useStoreState<Account>('account')
+  const [connection,] = useRefState(useStoreState<boolean>('connection'))
   const [hasWindowConfig, setHasWindowConfig] = useState<boolean>(false)
-
+  const { GET } = useNetwork()
   useEffect(() => {
     if (!isRequestInitialized.current) {
       isRequestInitialized.current = true
       window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE);
-      window.ononline = (d) => {
-        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, true);
-      }
-      window.onoffline = (d) => {
-        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, false);
-      }
-      window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine);
-      log("registered, connection:", navigator.onLine)
     }
   }, [pageData?.page])
+
+  async function checkConnection() {
+    const connected = await new Promise((resolve) => {
+      GET(GIT_RELEASES_URL).then(() => {
+        resolve(true)
+      }).catch(() => {
+        resolve(false)
+      })
+    })
+    log("checkConnection:", { connected, connection: connection.current })
+    if (connected !== connection.current) {
+      window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, connected);
+    }
+  }
 
   useEffect(() => {
     if (account) {
@@ -87,7 +95,7 @@ const RequestStateComponent = () => {
         },
         {
           path: PAGES.LOGIN,
-          element: <LoginPage themeMode={parseThemeToClassName(theme)} />
+          element: <LoginPage themeMode={parseThemeToClassName(theme)} handleRefreshConnection={checkConnection} />
         },
         {
           path: PAGES.PHONEISLAND,
@@ -95,11 +103,11 @@ const RequestStateComponent = () => {
         },
         {
           path: PAGES.NETHLINK,
-          element: <NethLinkPage themeMode={parseThemeToClassName(theme)} />
+          element: <NethLinkPage themeMode={parseThemeToClassName(theme)} handleRefreshConnection={checkConnection} />
         },
         {
           path: PAGES.DEVTOOLS,
-          element: <DevToolsPage />
+          element: <DevToolsPage handleRefreshConnection={checkConnection} />
         }
       ]
     }

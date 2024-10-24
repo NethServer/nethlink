@@ -11,7 +11,7 @@ import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
 import moment from 'moment'
 import { store } from './mainStore'
-import { debouncer, getPageFromQuery, isDev } from '@shared/utils/utils'
+import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
@@ -155,8 +155,13 @@ export function registerIpcEvents() {
 
 
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (event, isOnline) => {
-    log('CONNECTION STATE', isOnline, event.sender.getTitle())
-    store.set('connection', isOnline)
+    if (store.store) {
+      log('CONNECTION STATE', isOnline)
+      store.set('connection', isOnline)
+      if (!store.store.account) {
+        store.saveToDisk()
+      }
+    }
   });
 
   ipcMain.on(IPC_EVENTS.REQUEST_SHARED_STATE, (event) => {
@@ -188,6 +193,15 @@ export function registerIpcEvents() {
   })
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
     LoginController.instance.resize(h)
+  })
+  ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (event, account: Account) => {
+    log('DELETE ACCOUNT', account)
+    const accountUID = getAccountUID(account)
+    const newStore = Object.assign({}, store.store)
+    delete newStore.auth!.availableAccounts[accountUID]
+    store.set('auth', newStore.auth, true)
+    store.updateStore(newStore, 'delete account')
+    store.saveToDisk(true)
   })
   ipcMain.on(IPC_EVENTS.HIDE_LOGIN_WINDOW, () => {
     LoginController.instance.hide()

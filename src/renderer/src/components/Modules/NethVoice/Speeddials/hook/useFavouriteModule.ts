@@ -1,24 +1,40 @@
 import { useStoreState } from "@renderer/store"
-import { ContactType, NewContactType } from "@shared/types"
+import { ContactType, NethLinkPageData, NewContactType } from "@shared/types"
 import { useEffect, useState } from "react"
 import { useSpeedDialsModule } from "./useSpeedDialsModule"
 import { debouncer } from "@shared/utils/utils"
 import { log } from "@shared/utils/logger"
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
-import { SpeeddialTypes } from "@shared/constants"
+import { FilterTypes, SpeeddialTypes } from "@shared/constants"
 export const useFavouriteModule = () => {
-
+  const [nethLinkData] = useStoreState<NethLinkPageData>('nethLinkPageData')
   const [speedDials, setSpeedDials] = useStoreState<ContactType[]>('speeddials')
   const [favourites, setFavourites] = useState<ContactType[] | undefined>(undefined)
-  const { upsertSpeedDial } = useSpeedDialsModule()
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   useEffect(() => {
     log('UPDATE FAVOURITES', speedDials?.map((s) => ({ [`${s.id}`]: [s.name, s.notes] })))
-    speedDials && filterFavourites(speedDials)
-  }, [speedDials])
+    speedDials && filterFavourites(speedDials, nethLinkData?.speeddialsModule?.favouriteOrder || FilterTypes.AZ)
+  }, [speedDials, nethLinkData?.speeddialsModule?.favouriteOrder])
 
-  const filterFavourites = (rawSpeeddials: ContactType[]) => {
-    const favourites = rawSpeeddials.filter(isFavourite)
+  const getSorter = (order: FilterTypes) => {
+    let sorter: ((a: ContactType, b: ContactType) => number) | undefined = undefined
+    log({ order })
+    switch (order) {
+      case FilterTypes.ZA:
+        sorter = (a: ContactType, b: ContactType) => (a.name || '') < (b.name || '') ? 1 : -1
+        break;
+      case FilterTypes.EXT:
+        sorter = (a: ContactType, b: ContactType) => (a.speeddial_num || '') > (b.speeddial_num || '') ? 1 : -1
+        break;
+      default:
+        sorter = (a: ContactType, b: ContactType) => (a.name || '') > (b.name || '') ? 1 : -1
+        break;
+    }
+    return sorter
+  }
+
+  const filterFavourites = (rawSpeeddials: ContactType[], order: FilterTypes) => {
+    const favourites = rawSpeeddials.filter(isFavourite).sort(getSorter(order))
     setFavourites(() => [...favourites])
   }
 

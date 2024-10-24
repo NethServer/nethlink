@@ -24,7 +24,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
   const [missedCalls] = useStoreState<CallData[]>('missedCalls')
   const [notifications] = useStoreState<NotificationData>('notifications')
-  const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.SPEEDDIALS)
+  const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.FAVOURITES)
 
   const viewedParkedCalls = useRef<ParkingType[]>([])
   const [parkedPulse, setParkedPulse] = useState<boolean>(false)
@@ -115,8 +115,6 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
           isSelected={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.ABOUT}
         />
       </div>
-      <>
-      </>
     </div>
   )
 }

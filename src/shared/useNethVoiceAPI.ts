@@ -4,11 +4,10 @@ import hmacSHA1 from 'crypto-js/hmac-sha1'
 import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, LocalStorageData, UseStoreStateType, AccountData } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
-import { ipcMain } from 'electron'
-import { IPC_EVENTS } from './constants'
 
 export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) => {
   const { GET, POST } = useNetwork()
+  let isFirstHeartbeat = true
   let account: Account | undefined = loggedAccount || undefined
 
   function _joinUrl(url: string) {
@@ -90,6 +89,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
                 if (!nethlinkExtension)
                   reject(new Error("Questo utente non è abilitato all'uso del NethLink"))
                 else {
+
                   resolve(account)
                 }
               }
@@ -104,6 +104,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       })
     },
     logout: async () => {
+      isFirstHeartbeat = false
       return new Promise<void>(async (resolve) => {
         try {
           await _POST('/webrest/authentication/logout', {})
@@ -251,12 +252,19 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     me: async (): Promise<AccountData> => {
       const data: AccountData = await _GET('/webrest/user/me')
       data.mainextension = data!.endpoints.mainextension[0].id
+      const ext = data.endpoints.extension.find((e) => e.type === 'nethlink')
+      //the !loggedAccount flag allow to reduce the invocation only to the backend module and only at the first login
+      if (ext && !loggedAccount && isFirstHeartbeat) {
+        isFirstHeartbeat = false
+        const response = await User.heartbeat(ext.id, data.username)
+        log('Send HEARTBEAT', { response })
+      }
       return data
     },
     all: async () => await _GET('/webrest/user/all'),
     all_avatars: async () => await _GET('/webrest/user/all_avatars'),
     all_endpoints: async () => await _GET('/webrest/user/endpoints/all'),
-    heartbeat: async (extension: string) => await _POST('/webrest/user/nethlink', { extension }),
+    heartbeat: async (extension: string, username: string) => await _POST('/webrest/user/nethlink', { extension, username }),
     default_device: async (deviceIdInformation: Extension) => await _POST('/webrest/user/default_device', { id: deviceIdInformation.id }),
     setPresence: async (status: StatusTypes, to?: string) => await _POST('/webrest/user/presence', { status, ...(to ? { to } : {}) })
   }
