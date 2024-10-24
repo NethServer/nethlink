@@ -30,6 +30,7 @@ import { debouncer, isDev } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { FavouriteFilter } from '@renderer/components/Modules/NethVoice/Speeddials/Favourites/FavouriteFilter'
 
+
 export interface NethLinkPageProps {
   themeMode: string,
   handleRefreshConnection: () => void

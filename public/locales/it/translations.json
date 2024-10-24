@@ -593,7 +593,10 @@
     "Order by": "Ordina per",
     "A-Z": "Alfabetico A-Z",
     "Z-A": "Alfabetico Z-A",
-    "EXT": "Estensione"
+    "EXT": "Interno",
+    "A-Z label": "A-Z",
+    "Z-A label": "Z-A",
+    "EXT label": "Interno"
   },
   "LastCalls": {
     "Last calls": "Ultime chiamate",

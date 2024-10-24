@@ -15,8 +15,6 @@ import { NethLinkPageData } from "@shared/types"
 export const FavouriteFilter = () => {
   const { theme: nethTheme } = useTheme()
   const [nethLinkPageData, seNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
-  const [nethlinkData, setnethlinkData] = useStoreState('nethLinkPageData')
-  const [isFilterDialogOpen, setIsFilterDialogOpen] = useState<FilterTypes>(FilterTypes.AZ)
 
   const setFilter = (type: FilterTypes) => {
     seNethLinkPageData((p) => ({
@@ -57,9 +55,9 @@ export const FavouriteFilter = () => {
         <div>
           <Menu>
             <div>
-              <Menu.Button className={classNames('flex gap-2 justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
+              <Menu.Button className={classNames('flex gap-2 justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent px-1', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
                 <div>
-                  {nethLinkPageData?.speeddialsModule?.favouriteOrder}
+                  {t(`SpeedDial.${nethLinkPageData?.speeddialsModule?.favouriteOrder} label`)}
                 </div>
                 <FontAwesomeIcon
                   className={classNames("relative top-[-3px]  text-base", nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}
