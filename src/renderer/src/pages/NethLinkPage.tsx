@@ -30,10 +30,11 @@ import { debouncer, isDev } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 
 export interface NethLinkPageProps {
-  themeMode: string
+  themeMode: string,
+  handleRefreshConnection: () => void
 }
 
-export function NethLinkPage({ themeMode }: NethLinkPageProps) {
+export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPageProps) {
   const [account, setAccount] = useStoreState<Account | undefined>('account')
   const [phoneIslandPageData] = useStoreState<PhoneIslandPageData>('phoneIslandPageData')
   const [nethLinkPageData, setNethLinkPageData] =
@@ -167,13 +168,6 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
     loadData()
   }
 
-  function onConnectionErrorButtonClick(): void {
-    debouncer('update-connection-state', () => {
-      log('refresh', navigator.onLine, connection)
-      window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, navigator.onLine)
-    }, 250)
-  }
-
   return (
     <div className="h-[100vh] w-[100vw] ">
       <div className="absolute w-full h-full  flex flex-col justify-end items-center text-sm">
@@ -189,7 +183,7 @@ export function NethLinkPage({ themeMode }: NethLinkPageProps) {
       </div>
       {!connection && <ConnectionErrorDialog
         variant='nethlink'
-        onButtonClick={onConnectionErrorButtonClick}
+        onButtonClick={handleRefreshConnection}
         buttonText={t('Common.Refresh')}
       />}
     </div>
