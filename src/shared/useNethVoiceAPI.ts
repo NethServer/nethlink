@@ -4,6 +4,7 @@ import hmacSHA1 from 'crypto-js/hmac-sha1'
 import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, LocalStorageData, UseStoreStateType, AccountData } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
+import { SpeeddialTypes } from './constants'
 
 export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) => {
   const { GET, POST } = useNetwork()
@@ -171,7 +172,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         setInput: '',
         type: 'speeddial',
         speeddial_num: create.speeddial_num,
-        notes: 'speeddial-basic'
+        notes: SpeeddialTypes.CLASSIC
       }
       try {
         await _POST(`/webrest/phonebook/create`, newSpeedDial)

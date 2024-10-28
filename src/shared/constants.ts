@@ -20,8 +20,7 @@ export enum FilterTypes {
 
 export enum SpeeddialTypes {
   CLASSIC = 'speeddial-classic',
-  FAVOURITES = 'speeddial-favorite',
-  BASIC = 'speeddial-basic'
+  FAVOURITES = 'speeddial-favorite'
 }
 export const GIT_RELEASES_URL = `https://api.github.com/repos/nethserver/nethlink/releases/latest`
 
