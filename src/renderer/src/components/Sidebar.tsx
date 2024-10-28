@@ -14,6 +14,9 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { useParkingModule } from './Modules/NethVoice/Parking/hook/useParkingModule'
 import { log } from '@shared/utils/logger'
 import { difference } from 'lodash'
+import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
+import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
+import { debouncer } from '@shared/utils/utils'
 
 export interface SidebarProps {
   onChangeMenu: (menuElement: MENU_ELEMENT) => void
@@ -25,6 +28,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   const [missedCalls] = useStoreState<CallData[]>('missedCalls')
   const [notifications] = useStoreState<NotificationData>('notifications')
   const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.FAVOURITES)
+
 
   const viewedParkedCalls = useRef<ParkingType[]>([])
   const [parkedPulse, setParkedPulse] = useState<boolean>(false)
@@ -41,6 +45,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
       }
     }))
   }
+
 
   useEffect(() => {
     if (nethLinkPageData && nethLinkPageData.selectedSidebarMenu && lastMenu !== nethLinkPageData.selectedSidebarMenu) {

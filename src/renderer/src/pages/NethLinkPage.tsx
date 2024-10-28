@@ -39,11 +39,11 @@ export interface NethLinkPageProps {
 export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPageProps) {
   const [account, setAccount] = useStoreState<Account | undefined>('account')
   const [phoneIslandPageData] = useStoreState<PhoneIslandPageData>('phoneIslandPageData')
-  const [nethLinkPageData, setNethLinkPageData] =
-    useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
   const [, setNotifications] = useStoreState<NotificationData>('notifications')
   const [connection] = useStoreState<boolean>('connection')
   const { hasPermission } = useAccount()
+  const isFetching = useRef<boolean>(false)
 
   const { saveOperators, onQueueUpdate, onParkingsUpdate, saveLastCalls, saveSpeeddials } =
     usePhoneIslandEventHandler()
@@ -105,10 +105,6 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
     }
   }
 
-  // useEffect(() => {
-  //   debouncer('reload-data', () => loadData(), 1000)
-  // }, [nethLinkPageData?.selectedSidebarMenu])
-
   useEffect(() => {
     log('connection effect', connection)
   }, [connection])
@@ -155,11 +151,22 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
       me()
     })
     NethVoiceAPI.HistoryCall.interval().then(saveLastCalls)
-    NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
+
     NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
     if (hasPermission(PERMISSION.PARKINGS))
       NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
-    me()
+    reloadData()
+  }
+
+  async function reloadData() {
+    if (!isFetching.current) {
+      isFetching.current = true
+      NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
+      me()
+    }
+    debouncer('speeddial-fetch', () => {
+      isFetching.current = false
+    }, 1000)
   }
 
   useEffect(() => {
@@ -182,7 +189,7 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
               <Navbar onClickAccount={() => me()} />
               <NethLinkModules />
             </div>
-            <Sidebar onChangeMenu={() => me()} />
+            <Sidebar onChangeMenu={() => reloadData()} />
           </div>
         </div>
       </div>

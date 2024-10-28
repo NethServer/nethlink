@@ -16,27 +16,13 @@ import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 
 export const FavouriteStar = ({ contact }: { contact: ContactType }) => {
   const { isFavourite, toggleFavourite } = useFavouriteModule()
-  const { saveSpeeddials } = usePhoneIslandEventHandler()
-  const { NethVoiceAPI } = useLoggedNethVoiceAPI()
-
-  const isFetching = useRef<boolean>(false)
   const isContactFavourite = isFavourite(contact)
-  const reloadSpeedial = useCallback((): void => {
-    if (!isFetching.current) {
-      isFetching.current = true
-      NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
-    }
-    debouncer('speeddial-fetch', () => {
-      isFetching.current = false
-    }, 1000)
-  }, [isFetching.current])
 
   return (
     <FontAwesomeIcon
-      className={classNames("text-base cursor-pointer", isContactFavourite ? 'dark:text-textBlueDark text-textBlueLight hover:' : 'dark:text-gray-400 text-gray-600')}
+      className={classNames("text-base cursor-pointer", isContactFavourite ? 'dark:text-textBlueDark text-textBlueLight' : 'dark:text-gray-400 text-gray-600 hover:dark:text-textBlueDark hover:text-textBlueLight')}
       icon={isContactFavourite ? FavouriteIcon : UnfavouriteIcon}
       onClick={() => toggleFavourite(contact)}
-      onMouseEnter={() => reloadSpeedial()}
     />
   )
 
