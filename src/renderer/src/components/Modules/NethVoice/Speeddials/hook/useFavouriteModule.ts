@@ -1,5 +1,5 @@
 import { useStoreState } from "@renderer/store"
-import { ContactType, NethLinkPageData, NewContactType } from "@shared/types"
+import { ContactType, NethLinkPageData, NewContactType, OperatorData, SearchData } from "@shared/types"
 import { useEffect, useState } from "react"
 import { useSpeedDialsModule } from "./useSpeedDialsModule"
 import { debouncer } from "@shared/utils/utils"
@@ -8,13 +8,14 @@ import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { FilterTypes, SpeeddialTypes } from "@shared/constants"
 export const useFavouriteModule = () => {
   const [nethLinkData] = useStoreState<NethLinkPageData>('nethLinkPageData')
-  const [speedDials, setSpeedDials] = useStoreState<ContactType[]>('speeddials')
+  const [rawSpeedDials, setRawSpeedDials] = useStoreState<ContactType[]>('speeddials')
+  const [operators] = useStoreState<OperatorData>('operators')
   const [favourites, setFavourites] = useState<ContactType[] | undefined>(undefined)
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   useEffect(() => {
-    log('UPDATE FAVOURITES', speedDials?.map((s) => ({ [`${s.id}`]: [s.name, s.notes] })))
-    speedDials && filterFavourites(speedDials, nethLinkData?.speeddialsModule?.favouriteOrder || FilterTypes.AZ)
-  }, [speedDials, nethLinkData?.speeddialsModule?.favouriteOrder])
+    log('UPDATE FAVOURITES', rawSpeedDials?.map((s) => ({ [`${s.id}`]: [s.name, s.notes] })))
+    rawSpeedDials && filterFavourites(rawSpeedDials, nethLinkData?.speeddialsModule?.favouriteOrder || FilterTypes.AZ)
+  }, [rawSpeedDials, nethLinkData?.speeddialsModule?.favouriteOrder])
 
   const getSorter = (order: FilterTypes) => {
     let sorter: ((a: ContactType, b: ContactType) => number) | undefined = undefined
@@ -39,36 +40,38 @@ export const useFavouriteModule = () => {
   }
 
   const isFavourite = (contact: ContactType) => {
-    const speedDial = contact.speeddial_num ? speedDials?.find((s) => s.speeddial_num === contact.speeddial_num) : undefined
+    const speedDial = contact.speeddial_num ? rawSpeedDials?.find((s) => s.speeddial_num === contact.speeddial_num) : undefined
     if (speedDial) {
       return speedDial.notes?.includes(SpeeddialTypes.FAVOURITES)
     }
     return false
   }
 
-  function toggleFavourite(contact: ContactType) {
+  function toggleFavourite(contact: any) {
     debouncer(`toggleFavourite-${contact.id}`, async () => {
       log('toggle ', contact)
-      const notes = isFavourite(contact)
-        ? contact.notes!.replace(SpeeddialTypes.FAVOURITES, SpeeddialTypes.CLASSIC)
-        : contact.notes
-          ? contact.notes?.includes(SpeeddialTypes.CLASSIC)
-            ? contact.notes.replace(SpeeddialTypes.CLASSIC, SpeeddialTypes.FAVOURITES)
-            : contact.notes?.concat(` ${SpeeddialTypes.FAVOURITES}`) || SpeeddialTypes.FAVOURITES
-          : SpeeddialTypes.FAVOURITES
-      const speedDial = contact.speeddial_num ? speedDials?.find((s) => s.speeddial_num === contact.speeddial_num) : undefined
+      const speedDial = contact.speeddial_num ? rawSpeedDials?.find((s) => s.speeddial_num === contact.speeddial_num) : undefined
       if (!speedDial) {
-        const updatedContact: ContactType = convertSearchDataToContactType(contact, notes)
-        log('Create new favourite', { updatedContact })
-        delete updatedContact.id
-        await NethVoiceAPI.Phonebook.createSpeeddial(updatedContact as NewContactType)
+        const username = contact.username
+        const operator = username && operators?.operators[username]
+        log({ operator })
+        if (operator)
+          await NethVoiceAPI.Phonebook.createFavourite(operator)
       } else {
-        const updatedContact: ContactType = convertSearchDataToContactType(speedDial, notes)
-        log('UPDATE', { updatedContact })
-        await NethVoiceAPI.Phonebook.updateSpeeddialBy(updatedContact)
+        if (speedDial.notes?.includes(SpeeddialTypes.FAVOURITES)) {
+          await NethVoiceAPI.Phonebook.deleteSpeeddial({ id: `${speedDial.id!}` })
+        } else {
+          await NethVoiceAPI.Phonebook.deleteSpeeddial({ id: `${speedDial.id!}` })
+          let username: string | undefined = operators?.operators && Object.values(operators.operators).find((o) => o.endpoints.mainextension[0].id == contact.speeddial_num)?.username
+          const operator = username && operators?.operators[username]
+          log({ operator })
+          if (operator)
+            await NethVoiceAPI.Phonebook.createFavourite(operator)
+
+        }
       }
       const updatedSpeedDials = await NethVoiceAPI.Phonebook.getSpeeddials()
-      setSpeedDials(() => updatedSpeedDials)
+      setRawSpeedDials(() => updatedSpeedDials)
     }, 100)
   }
 

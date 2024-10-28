@@ -16,9 +16,9 @@ import { ContactNumber } from '../shared/ContactNumber'
 import { EmptyList } from '@renderer/components/EmptyList'
 
 export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }): JSX.Element {
-  const [speeddials] = useStoreState<ContactType[]>('speeddials')
   const speedDialModule = useSpeedDialsModule()
-  const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
+  const { speedDials } = speedDialModule
+  const [, setSelectedSpeedDial] = speedDialModule.speedDialsState
 
   function handleCreateSpeedDial(): void {
     setSelectedSpeedDial(undefined)
@@ -44,21 +44,21 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
         actionText={t('SpeedDial.Create')}
       />
       <Scrollable >
-        {speeddials ? (
-          speeddials.length > 0 ? (
-            speeddials?.map((e, idx) => {
+        {speedDials ? (
+          speedDials.length > 0 ? (
+            speedDials?.map((e, idx) => {
               return (
                 <div key={idx} className="dark:hover:bg-hoverDark hover:bg-hoverLight">
                   <div className="px-5">
                     <div
-                      className={`${idx === speeddials.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+                      className={`${idx === speedDials.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
                     >
                       <ContactNumber
                         speedDial={e}
                         handleEditSpeedDial={handleEditSpeedDial}
                         handleDeleteSpeedDial={handleDeleteSpeedDial}
                         isFavouritePage={false}
-                        isLastItem={speeddials.length === 1 ? false : idx === speeddials.length - 1}
+                        isLastItem={speedDials.length === 1 ? false : idx === speedDials.length - 1}
                       />
                     </div>
                   </div>

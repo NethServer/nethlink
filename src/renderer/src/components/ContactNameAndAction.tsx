@@ -13,13 +13,14 @@ import {
 import { t } from "i18next"
 import { ReactNode } from "react"
 import classNames from "classnames"
-export const ContactNameAndActions = ({ contact, number, isHighlight, displayedNumber, avatarDim, username }: {
+export const ContactNameAndActions = ({ contact, number, isHighlight, displayedNumber, avatarDim, username, isFavourite }: {
   contact: ContactType,
   number: string,
   isHighlight: boolean,
   displayedNumber: string | ReactNode[],
   avatarDim: "small" | "base" | "extra_small" | "large" | "extra_large",
-  username: string | undefined
+  username: string | undefined,
+  isFavourite: boolean
 }) => {
   const { isCallsEnabled } = useAccount()
   const [operators] = useStoreState<OperatorData>('operators')
@@ -41,7 +42,7 @@ export const ContactNameAndActions = ({ contact, number, isHighlight, displayedN
         <div className="absolute top-0 left-0 flex flex-col gap-1 w-full ">
           <div className="flex flex-row gap-2 w-full overflow-hidden">
             <div className='dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap '>
-              {contact.name || contact.company || `${t('Common.Unknown')}`}
+              {isFavourite ? (contact.company || `${t('Common.Unknown')}`) : (contact.name || contact.company || `${t('Common.Unknown')}`)}
               {false && isDev() && <span className='absolute top-[-4px] left-[-26px] text-[8px]'>[{contact.id}]</span>}
             </div>
             {isOperator && <FavouriteStar contact={contact} />}

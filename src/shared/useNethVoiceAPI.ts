@@ -1,7 +1,7 @@
 
 import moment from 'moment'
 import hmacSHA1 from 'crypto-js/hmac-sha1'
-import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, LocalStorageData, UseStoreStateType, AccountData } from '@shared/types'
+import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, LocalStorageData, UseStoreStateType, AccountData, BaseAccountData } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
 import { SpeeddialTypes } from './constants'
@@ -164,15 +164,36 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     },
     ///SPEEDDIALS
     createSpeeddial: async (create: NewContactType) => {
+      log({ CREATE: create })
       const newSpeedDial: NewContactType = {
-        name: create.name,
+        name: create.name!,
         privacy: 'private',
         favorite: true,
         selectedPrefNum: 'extension',
         setInput: '',
         type: 'speeddial',
         speeddial_num: create.speeddial_num,
-        notes: SpeeddialTypes.CLASSIC
+        notes: SpeeddialTypes.BASIC
+      }
+      try {
+        await _POST(`/webrest/phonebook/create`, newSpeedDial)
+        return newSpeedDial
+      } catch (e) {
+        log(e)
+      }
+    },
+    createFavourite: async (create: BaseAccountData) => {
+      log({ CREATE: create })
+      const newSpeedDial: NewContactType = {
+        name: create.username,//username
+        company: create.name, //veronome
+        privacy: 'private',
+        favorite: true,
+        selectedPrefNum: 'extension',
+        setInput: '',
+        type: 'speeddial',
+        speeddial_num: create.endpoints.mainextension[0].id,
+        notes: SpeeddialTypes.FAVOURITES
       }
       try {
         await _POST(`/webrest/phonebook/create`, newSpeedDial)
