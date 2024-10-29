@@ -295,11 +295,11 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   const fetchOperators = async (): Promise<OperatorData> => {
     const endpoints: OperatorsType = await User.all_endpoints() //all devices
-    const groups = await AstProxy.groups() //
+    const groups = await AstProxy.groups()
     const extensions = await AstProxy.extensions()
     const avatars = await User.all_avatars()
     return {
-      userEndpoints: endpoints, //TODO: remove this
+      userEndpoints: endpoints,
       operators: endpoints,
       extensions,
       groups,

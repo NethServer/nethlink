@@ -50,20 +50,9 @@ export function registerIpcEvents() {
 
   let draggingWindows: OnDraggingWindow = {}
 
-  //TODO: move each event to the controller it belongs to
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
     return app.getSystemLocale()
   })
-
-  // ipcMain.on(IPC_EVENTS.DEV_TOOL_TOGGLE_CONNECTION, (e) => {
-  //   const windows = BrowserWindow.getAllWindows();
-  //   windows.forEach(win => {
-  //     log(win.webContents?.session)
-  //     win.webContents?.session.enableNetworkEmulation({
-  //       offline: false
-  //     });
-  //   });
-  // })
 
   ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (event, newState, page, selector) => {
     const windows = BrowserWindow.getAllWindows();
