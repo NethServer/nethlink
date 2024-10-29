@@ -159,14 +159,15 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
   }
 
   async function reloadData() {
-    if (!isFetching.current) {
-      isFetching.current = true
-      NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
-      me()
-    }
-    debouncer('speeddial-fetch', () => {
-      isFetching.current = false
-    }, 1000)
+    log('RELOAD DATA', isFetching.current)
+    // if (!isFetching.current) {
+    // isFetching.current = true
+    NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
+    me()
+    // }
+    // debouncer('speeddial-fetch', () => {
+    //   isFetching.current = false
+    // }, 1000)
   }
 
   useEffect(() => {

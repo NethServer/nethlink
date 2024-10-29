@@ -37,11 +37,11 @@ export enum PERMISSION {
 
 
 export enum MENU_ELEMENT {
+  FAVOURITES = 1,
   SPEEDDIALS,
   LAST_CALLS,
+  PARKED_CALLS,
   ABOUT,
-  FAVOURITES,
-  PARKED_CALLS
 }
 export enum IPC_EVENTS {
   LOGIN = 'LOGIN',
