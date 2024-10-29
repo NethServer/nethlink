@@ -28,6 +28,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   const [missedCalls] = useStoreState<CallData[]>('missedCalls')
   const [notifications] = useStoreState<NotificationData>('notifications')
   const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.FAVOURITES)
+  const [isAboutVisited, setIsAboutVisited] = useState<boolean>(false)
 
 
   const viewedParkedCalls = useRef<ParkingType[]>([])
@@ -51,6 +52,9 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
     if (nethLinkPageData && nethLinkPageData.selectedSidebarMenu && lastMenu !== nethLinkPageData.selectedSidebarMenu) {
       setLastMenu(() => nethLinkPageData.selectedSidebarMenu)
       onChangeMenu(nethLinkPageData.selectedSidebarMenu)
+      if (!isAboutVisited && nethLinkPageData.selectedSidebarMenu === MENU_ELEMENT.ABOUT) {
+        setIsAboutVisited(() => true)
+      }
     }
   }, [nethLinkPageData?.selectedSidebarMenu])
 
@@ -116,6 +120,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
           icon={InfoMenuIcon}
           focus={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.ABOUT}
           hasNotification={!!notifications?.system?.update}
+          hasPulseNotification={!isAboutVisited}
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.ABOUT)}
           isSelected={nethLinkPageData?.selectedSidebarMenu === MENU_ELEMENT.ABOUT}
         />
