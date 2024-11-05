@@ -13,7 +13,7 @@ import {
 import { t } from "i18next"
 import { ReactNode } from "react"
 import classNames from "classnames"
-export const ContactNameAndActions = ({ contact, number, isHighlight, displayedNumber, avatarDim, username, isFavourite }: {
+export const ContactNameAndActions = ({ contact, number, isHighlight, displayedNumber, avatarDim, username, isFavourite, isSearchData }: {
   contact: ContactType,
   number: string,
   isHighlight: boolean,
@@ -21,6 +21,7 @@ export const ContactNameAndActions = ({ contact, number, isHighlight, displayedN
   avatarDim: "small" | "base" | "extra_small" | "large" | "extra_large",
   username: string | undefined,
   isFavourite: boolean
+  isSearchData: boolean
 }) => {
   const { isCallsEnabled } = useAccount()
   const [operators] = useStoreState<OperatorData>('operators')
@@ -45,7 +46,7 @@ export const ContactNameAndActions = ({ contact, number, isHighlight, displayedN
               {isFavourite ? (contact.company || `${t('Common.Unknown')}`) : (contact.name || contact.company || `${t('Common.Unknown')}`)}
               {false && isDev() && <span className='absolute top-[-4px] left-[-26px] text-[8px]'>[{contact.id}]</span>}
             </div>
-            {isOperator && <FavouriteStar contact={contact} />}
+            {isOperator && <FavouriteStar contact={contact} isSearchData={isSearchData} />}
           </div>
           <div className="flex flex-row gap-2 items-center">
             {!isHighlight &&

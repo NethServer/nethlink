@@ -1,6 +1,6 @@
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { useStoreState } from "@renderer/store"
-import { FilterTypes, SpeeddialTypes } from "@shared/constants"
+import { SpeeddialTypes } from "@shared/constants"
 import { ContactType, NethLinkPageData, NewContactType, NewSpeedDialType, SpeedDialModuleData, StateType } from "@shared/types"
 import { log } from "@shared/utils/logger"
 import { useEffect, useState } from "react"
@@ -27,7 +27,6 @@ export const useSpeedDialsModule = (): {
   }
 
   useEffect(() => {
-    log('UPDATE FAVOURITES', rawSpeedDials?.map((s) => ({ [`${s.id}`]: [s.name, s.notes] })))
     rawSpeedDials && filterSpeeddial(rawSpeedDials)
   }, [rawSpeedDials])
 
@@ -37,17 +36,13 @@ export const useSpeedDialsModule = (): {
   }
 
   const isSpeeddial = (contact: ContactType) => {
-    const speedDial = contact.speeddial_num ? rawSpeedDials?.find((s) => s.speeddial_num === contact.speeddial_num) : undefined
-    if (speedDial) {
-      return !speedDial.notes?.includes(SpeeddialTypes.FAVOURITES)
-    }
-    return false
+    return contact.notes?.includes(SpeeddialTypes.BASIC)
   }
 
 
   const deleteSpeedDial = async (speedDial) => {
     try {
-      const deletedSpeedDial = await NethVoiceAPI.Phonebook.deleteSpeeddial({
+      await NethVoiceAPI.Phonebook.deleteSpeeddial({
         id: `${speedDial.id}`
       })
       setRawSpeedDials((p) =>

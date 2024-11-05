@@ -45,6 +45,7 @@ export function ContactNumber({
         number={speedDial.speeddial_num!}
         username={operators?.extensions[speedDial.speeddial_num || '']?.username}
         isFavourite={isFavouritePage}
+        isSearchData={false}
       />
 
       {!isFavouritePage &&

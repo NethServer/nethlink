@@ -83,6 +83,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
           isHighlight={true}
           username={username}
           isFavourite={false}
+          isSearchData={true}
         />
         <Button
           className="group-hover:bg-transparent"

@@ -154,6 +154,7 @@ export type SearchData = {
   title: string
   type: string
   url: string
+  username?: string
   workcity: string
   workcountry: string
   workemail: string
