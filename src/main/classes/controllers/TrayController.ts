@@ -25,8 +25,11 @@ export class TrayController {
     this.tray = new Tray(image)
     this.updateTray()
     this.tray.on('click', () => {
-      //this.tray.popUpContextMenu()
-      this.toggleWindow(true)
+      if (process.platform === 'win32') {
+        this.toggleWindow(true)
+      } else {
+        this.tray.popUpContextMenu()
+      }
     })
   }
 
