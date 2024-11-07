@@ -52,19 +52,23 @@ export class TrayController {
   }
 
   toggleWindow(enableShowButton: boolean) {
-    if (enableShowButton) {
-      if (store.store['account']) {
-        if (NethLinkController.instance && NethLinkController.instance.window?.isOpen())
-          NethLinkController.instance.hide()
-        else
-          NethLinkController.instance.show()
-      } else {
-        if (LoginController.instance && LoginController.instance.window?.isOpen())
-          LoginController.instance.hide()
-        else
-          LoginController.instance.show()
-      }
+    try {
+      if (enableShowButton) {
+        if (store.store['account']) {
+          if (NethLinkController.instance && NethLinkController.instance.window?.isOpen())
+            NethLinkController.instance.hide()
+          else
+            NethLinkController.instance.show()
+        } else {
+          if (LoginController.instance && LoginController.instance.window?.isOpen())
+            LoginController.instance.hide()
+          else
+            LoginController.instance.show()
+        }
 
+      }
+    } catch (e) {
+      log(e)
     }
   }
 
