@@ -11,6 +11,17 @@ export const LoginPageSize = {
   h: 100
 }
 export const NEW_ACCOUNT = 'New Account'
+
+export enum FilterTypes {
+  AZ = 'A-Z',
+  ZA = 'Z-A',
+  EXT = 'EXT',
+}
+
+export enum SpeeddialTypes {
+  BASIC = 'speeddial-basic',
+  FAVOURITES = 'speeddial-favorite'
+}
 export const GIT_RELEASES_URL = `https://api.github.com/repos/nethserver/nethlink/releases/latest`
 
 export enum PERMISSION {
@@ -26,10 +37,11 @@ export enum PERMISSION {
 
 
 export enum MENU_ELEMENT {
+  FAVOURITES = 1,
   SPEEDDIALS,
   LAST_CALLS,
+  PARKED_CALLS,
   ABOUT,
-  PARKED_CALLS
 }
 export enum IPC_EVENTS {
   LOGIN = 'LOGIN',

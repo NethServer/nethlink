@@ -5,7 +5,7 @@ import { parseThemeToClassName, sendNotification, truncate } from "@renderer/uti
 import { AvailableThemes, ContactType } from "@shared/types"
 import { t } from "i18next"
 import { createRef } from "react"
-import { useSpeedDialsModule } from "./hook/useSpeedDialsModule"
+import { useSpeedDialsModule } from "../hook/useSpeedDialsModule"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
   faTriangleExclamation as WarningIcon

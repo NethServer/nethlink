@@ -78,25 +78,33 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
         <div className="absolute flex flex-col justify-start gap-0 w-full top-0 left-0">
           <div className="flex flex-row items-center text-sm text-textYellowLight dark:text-textYellowDark gap-2">
             <FontAwesomeIcon size="1x" icon={ParkedCallIcon} className="text-[14px]" />
-            <span className={`text-sm text-left truncate tooltip-parked-title-${parkingDetails.name}`}>
+            <span
+              className={`text-sm text-left truncate`}
+              data-tooltip-id={`tooltip-parked-title-${parkingDetails.name}`}
+              data-tooltip-content={`${t('Parks.Parking')} ${parkingDetails.name}`}
+            >
               {t('Parks.Parking')} {parkingDetails.name}
+              <Tooltip id={`tooltip-parked-title-${parkingDetails.name}`} place="bottom"
+                className="z-[100000]"
+                opacity={1}
+                noArrow={false}
+              />
             </span>
-            <Tooltip anchorSelect={`.tooltip-parked-title-${parkingDetails.name}`} place="bottom"
+
+          </div>
+          <span
+            data-tooltip-id={`tooltip-parked-user-${parkingDetails.name}`}
+            data-tooltip-content={parkingDetails?.parkedCaller?.name}
+            className={`text-sm text-left text-gray-900 dark:text-gray-100 truncate tooltip-parked-user-${parkingDetails.name} `}
+          >
+            {parkingDetails?.parkedCaller?.name}
+            <Tooltip
+              id={`tooltip-parked-user-${parkingDetails.name}`}
+              place="bottom"
               className="z-[100000]"
               opacity={1}
-              noArrow={false}>
-              {t('Parks.Parking')} {parkingDetails.name}
-            </Tooltip>
-          </div>
-          <span className={`text-sm text-left text-gray-900 dark:text-gray-100 truncate tooltip-parked-user-${parkingDetails.name} `}>
-            {parkingDetails?.parkedCaller?.name}
+              noArrow={false} />
           </span>
-          <Tooltip anchorSelect={`.tooltip-parked-user-${parkingDetails.name}`} place="bottom"
-            className="z-[100000]"
-            opacity={1}
-            noArrow={false}>
-            {parkingDetails?.parkedCaller?.name}
-          </Tooltip>
         </div>
       </div>
       <div className="flex flex-row justify-end gap-6 items-center min-w-[200px] min-h-[44px]">

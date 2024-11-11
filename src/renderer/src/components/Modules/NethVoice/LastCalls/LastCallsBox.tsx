@@ -47,7 +47,6 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
   }
 
   function getCallName(call: CallData): string {
-    //`${t('Common.Unknown')}`
     let callName = call.direction === 'out'
       ? (call?.dst_cnam || call?.dst_ccompany)
       : call.direction === 'in'
@@ -62,16 +61,6 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
         return isExten ? true : false
       })
     }
-    //TODO: evaluate the research even from phonebook's contacts
-    // let speeddialName: string | undefined | null = undefined
-    // if (!operator?.username) {
-    //   const speeddial = speeddials?.find((s) => s.speeddial_num === callName)
-    //   log(speeddialName, operator, operators, speeddials, speeddial)
-    //   speeddialName = speeddial?.name || speeddial?.company || t('Common.Unknown')
-    // }
-    // if (!speeddialName) {
-
-    // }
     return operator?.username || t('Common.Unknown') //speeddialName ||
   }
 

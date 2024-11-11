@@ -25,7 +25,11 @@ export class TrayController {
     this.tray = new Tray(image)
     this.updateTray()
     this.tray.on('click', () => {
-      this.tray.popUpContextMenu()
+      if (process.platform === 'win32') {
+        this.toggleWindow(true)
+      } else {
+        this.tray.popUpContextMenu()
+      }
     })
   }
 
@@ -45,6 +49,27 @@ export class TrayController {
   changeIconByTheme(theme: 'light' | 'dark') {
     const image = this.getImage(theme)
     this.tray.setImage(image)
+  }
+
+  toggleWindow(enableShowButton: boolean) {
+    try {
+      if (enableShowButton) {
+        if (store.store['account']) {
+          if (NethLinkController.instance && NethLinkController.instance.window?.isOpen())
+            NethLinkController.instance.hide()
+          else
+            NethLinkController.instance.show()
+        } else {
+          if (LoginController.instance && LoginController.instance.window?.isOpen())
+            LoginController.instance.hide()
+          else
+            LoginController.instance.show()
+        }
+
+      }
+    } catch (e) {
+      log(e)
+    }
   }
 
   updateTray({
@@ -69,20 +94,7 @@ export class TrayController {
           enabled: enableShowButton ?? false,
           visible: _isShowButtonVisible,
           click: (menuItem, window, event) => {
-            if (enableShowButton) {
-              if (store.store['account']) {
-                if (NethLinkController.instance && NethLinkController.instance.window?.isOpen())
-                  NethLinkController.instance.hide()
-                else
-                  NethLinkController.instance.show()
-              } else {
-                if (LoginController.instance && LoginController.instance.window?.isOpen())
-                  LoginController.instance.hide()
-                else
-                  LoginController.instance.show()
-              }
-
-            }
+            this.toggleWindow(enableShowButton ?? false)
           }
         },
         {

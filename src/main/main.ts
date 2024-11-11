@@ -454,7 +454,7 @@ async function resetApp() {
       lastUserCryptPsw: undefined
     },
     theme: 'system',
-    connection: false,
+    connection: true,
   }, 'resetApp')
   await delay(100)
   store.saveToDisk()

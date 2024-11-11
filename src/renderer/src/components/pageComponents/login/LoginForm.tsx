@@ -56,11 +56,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     setFocus,
     formState: { errors }
   } = useForm<LoginData>({
-    defaultValues: {
-      // host: 'https://cti.demo-heron.sf.nethserver.net',
-      // username: 'lorenzo',
-      // password: 'NethVoice,1234'
-    },
+    defaultValues: {},
     resolver: zodResolver(schema)
   })
 
@@ -134,7 +130,6 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
           else {
             setError(() => error)
           }
-          //setFormValues(data)
         }
       } else {
         setIsLoading(false)

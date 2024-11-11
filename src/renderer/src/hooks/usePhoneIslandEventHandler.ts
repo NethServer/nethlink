@@ -17,6 +17,7 @@ export const usePhoneIslandEventHandler = () => {
   const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('lastCalls'))
   const { isCallsEnabled } = useAccount()
 
+
   function callNumber(number: string) {
     const numberCleanerRegex = /\s+/g
     const cleanNumber = (`${number}`).replace(numberCleanerRegex, '')
@@ -74,6 +75,7 @@ export const usePhoneIslandEventHandler = () => {
   function saveOperators(newOperators: OperatorData | undefined) {
     setOperators(() => newOperators)
   }
+
 
   return {
     saveOperators,

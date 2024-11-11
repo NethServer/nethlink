@@ -42,7 +42,22 @@ export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) =
             variant={isCallforward ? 'callforward' : 'voicemail'}
             rounded="full"
             size="small"
-            className={`flex flex-row justify-center px-2.5 py-0.5 h-5 w-full presence_box overflow-hidden`}
+            className={`flex flex-row justify-center px-2.5 py-0.5 h-5 w-full overflow-hidden`}
+            data-tooltip-id={`presence_box`}
+            data-tooltip-content={
+              `${mainPresence === 'callforward'
+                ? t('TopBar.Call forward')
+                : mainPresence === 'cellphone'
+                  ? t('TopBar.Cellphone')
+                  : t('TopBar.Voicemail')
+              } ${account?.data?.endpoints?.cellphone[0]?.id &&
+                mainPresence === 'cellphone' ?
+                `${': ' + account?.data?.endpoints?.cellphone[0]?.id}` : ''
+              } ${operators?.extensions[account.data.mainextension]?.cf !== '' &&
+                mainPresence === 'callforward' ?
+                `${': ' + operators?.extensions[account.data.mainextension]?.cf}` : ''
+              }`
+            }
           >
             <FontAwesomeIcon
               icon={
@@ -56,36 +71,16 @@ export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) =
               aria-hidden="true"
             />
 
+            <Tooltip
+              id={`presence_box`}
+              place="bottom"
+              className="z-[100000] font-medium text-xs leading-[18px]"
+              opacity={1}
+              noArrow={false}
+
+            />
           </Badge>
 
-          <Tooltip
-            anchorSelect={`.presence_box`}
-            place="bottom"
-            className="z-[100000]"
-            opacity={1}
-            noArrow={false}
-
-          >
-            <span className="font-medium text-xs leading-[18px]">
-              {
-                mainPresence === 'callforward'
-                  ? t('TopBar.Call forward')
-                  : mainPresence === 'cellphone'
-                    ? t('TopBar.Cellphone')
-                    : t('TopBar.Voicemail')
-              }
-              {
-                account?.data?.endpoints?.cellphone[0]?.id &&
-                mainPresence === 'cellphone' &&
-                `${': ' + account?.data?.endpoints?.cellphone[0]?.id}`
-              }
-              {
-                operators?.extensions[account.data.mainextension]?.cf !== '' &&
-                mainPresence === 'callforward' &&
-                `${': ' + operators?.extensions[account.data.mainextension]?.cf}`
-              }
-            </span>
-          </Tooltip>
         </div>
       )
     }

@@ -1,9 +1,10 @@
 
 import moment from 'moment'
 import hmacSHA1 from 'crypto-js/hmac-sha1'
-import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, LocalStorageData, UseStoreStateType, AccountData } from '@shared/types'
+import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, LocalStorageData, UseStoreStateType, AccountData, BaseAccountData } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
+import { SpeeddialTypes } from './constants'
 
 export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) => {
   const { GET, POST } = useNetwork()
@@ -163,17 +164,55 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     },
     ///SPEEDDIALS
     createSpeeddial: async (create: NewContactType) => {
+      log({ CREATE: create })
       const newSpeedDial: NewContactType = {
-        name: create.name,
+        name: create.name!,
         privacy: 'private',
         favorite: true,
         selectedPrefNum: 'extension',
         setInput: '',
         type: 'speeddial',
-        speeddial_num: create.speeddial_num
+        speeddial_num: create.speeddial_num,
+        notes: SpeeddialTypes.BASIC
       }
-      await _POST(`/webrest/phonebook/create`, newSpeedDial)
-      return newSpeedDial
+      try {
+        await _POST(`/webrest/phonebook/create`, newSpeedDial)
+        return newSpeedDial
+      } catch (e) {
+        log(e)
+      }
+    },
+    createFavourite: async (create: BaseAccountData) => {
+      log({ CREATE: create })
+      const newSpeedDial: NewContactType = {
+        name: create.username,//username
+        company: create.name, //veronome
+        privacy: 'private',
+        favorite: true,
+        selectedPrefNum: 'extension',
+        setInput: '',
+        type: 'speeddial',
+        speeddial_num: create.endpoints.mainextension[0].id,
+        notes: SpeeddialTypes.FAVOURITES
+      }
+      try {
+        await _POST(`/webrest/phonebook/create`, newSpeedDial)
+        return newSpeedDial
+      } catch (e) {
+        log(e)
+      }
+    },
+    updateSpeeddialBy: async (updatedContact: ContactType) => {
+      if (updatedContact.name && updatedContact.speeddial_num) {
+        const editedSpeedDial = Object.assign({}, updatedContact)
+        editedSpeedDial.id = editedSpeedDial.id?.toString()
+        try {
+          await _POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
+          return editedSpeedDial
+        } catch (e) {
+          log(e)
+        }
+      }
     },
     updateSpeeddial: async (edit: NewSpeedDialType, current: ContactType) => {
       if (current.name && current.speeddial_num) {
@@ -256,11 +295,11 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   const fetchOperators = async (): Promise<OperatorData> => {
     const endpoints: OperatorsType = await User.all_endpoints() //all devices
-    const groups = await AstProxy.groups() //
+    const groups = await AstProxy.groups()
     const extensions = await AstProxy.extensions()
     const avatars = await User.all_avatars()
     return {
-      userEndpoints: endpoints, //TODO: remove this
+      userEndpoints: endpoints,
       operators: endpoints,
       extensions,
       groups,

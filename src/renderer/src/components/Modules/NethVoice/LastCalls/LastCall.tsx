@@ -102,6 +102,8 @@ export function LastCall({
       }`
   }
 
+  const tooltipId = call.uniqueid?.replace('.', '_')
+
   return (
     <div className="group">
       <div
@@ -143,13 +145,30 @@ export function LastCall({
             />
           )}
         </div>
-        <div className="flex flex-col gap-1 dark:text-titleDark text-titleLight">
-          <p className={`tooltip-username-${call?.username} font-medium text-[14px] leading-5`}>
-            {truncate(getCallName(call), 13)}
+        <div
+          className="flex flex-col gap-1 dark:text-titleDark text-titleLight"
+        >
+          <p className={`font-medium text-[14px] leading-5`}
+            data-tooltip-id={`tooltip-username-${tooltipId}`}
+            data-tooltip-content={getCallName(call)}
+          >
+            {truncate(getCallName(call), call.channel?.includes('from-queue') ? 13 : Infinity)}
           </p>
-          <Tooltip anchorSelect={`.tooltip-username-${call?.username}`}>{getCallName(call)}</Tooltip>
-          <div className="flex flex-row gap-2 items-center">
-            <div className={`h-4 w-4 call_${call.uniqueid?.replace('.', '_')}`}>
+          <Tooltip id={`tooltip-username-${tooltipId}`} place='bottom' opacity={1} className="z-10" />
+          <div
+            className="flex flex-row gap-2 items-center"
+            data-tooltip-id={`call_${tooltipId}`}
+            data-tooltip-content={call.disposition === 'NO ANSWER'
+              ? call.direction === 'in'
+                ? t('History.Incoming missed')
+                : t('History.Outgoing missed')
+              : call.direction === 'in'
+                ? t('History.Incoming answered')
+                : t('History.Outgoing answered')}
+          >
+            <div
+              className={`h-4 w-4`}
+            >
               {call.disposition === 'NO ANSWER' ? (
                 call.direction === 'in' ? (
                   <InCallNotAnsweredIcon />
@@ -163,20 +182,12 @@ export function LastCall({
               )}
             </div>
             <Tooltip
-              anchorSelect={`.call_${call.uniqueid?.replace('.', '_')}`}
+              id={`call_${tooltipId}`}
               place="right"
               className="z-10"
               opacity={1}
               noArrow={false}
-            >
-              {call.disposition === 'NO ANSWER'
-                ? call.direction === 'in'
-                  ? t('History.Incoming missed')
-                  : t('History.Outgoing missed')
-                : call.direction === 'in'
-                  ? t('History.Incoming answered')
-                  : t('History.Outgoing answered')}
-            </Tooltip>
+            />
             <NumberCaller
               number={(call.direction === 'in' ? call.src : call.dst) || 'no number'}
               disabled={!isCallsEnabled}
@@ -204,33 +215,31 @@ export function LastCall({
                     className={`animate-pulse overflow-hidden ml-1 w-[108px] min-h-4`}
                   ></Badge>
                 ) : (
-                  <>
-                    <Badge
-                      size="small"
-                      variant="offline"
-                      rounded="full"
-                      className={`overflow-hidden ml-1 tooltip-queue-${call?.queue}`}
-                    >
-                      <FontAwesomeIcon
-                        icon={BadgeIcon}
-                        className="h-4 w-4 mr-2 ml-1"
-                        aria-hidden="true"
-                      />
-                      <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
-                        {truncate(
-                          queues?.[call.queue!]?.name
-                            ? queues?.[call.queue!]?.name + ' ' + call?.queue
-                            : t('QueueManager.Queue'),
-                          15
-                        )}
-                      </div>
-                    </Badge>
-                    <Tooltip anchorSelect={`.tooltip-queue-${call?.queue}`}>
-                      {queues?.[call.queue!]?.name
-                        ? queues?.[call.queue!]?.name + ' ' + call?.queue
-                        : t('QueueManager.Queue')}
-                    </Tooltip>
-                  </>
+                  <Badge
+                    size="small"
+                    variant="offline"
+                    rounded="full"
+                    className={`overflow-hidden ml-1 `}
+                    data-tooltip-id={`tooltip-queue-${tooltipId}`}
+                    data-tooltip-content={queues?.[call.queue!]?.name
+                      ? queues?.[call.queue!]?.name + ' ' + call?.queue
+                      : t('QueueManager.Queue')}
+                  >
+                    <FontAwesomeIcon
+                      icon={BadgeIcon}
+                      className="h-4 w-4 mr-2 ml-1"
+                      aria-hidden="true"
+                    />
+                    <div className={`truncate ${call?.queue ? 'w-20 lg:w-16 xl:w-20' : ''}`}>
+                      {truncate(
+                        queues?.[call.queue!]?.name
+                          ? queues?.[call.queue!]?.name + ' ' + call?.queue
+                          : t('QueueManager.Queue'),
+                        15
+                      )}
+                    </div>
+                    <Tooltip id={`tooltip-queue-${tooltipId}`} place='bottom' className='z-[10]' opacity={1} />
+                  </Badge>
                 )}
               </div>
             </div>

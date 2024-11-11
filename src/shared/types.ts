@@ -1,4 +1,4 @@
-import { MENU_ELEMENT, NEW_ACCOUNT } from "./constants"
+import { FilterTypes, MENU_ELEMENT, NEW_ACCOUNT } from "./constants"
 
 export type AvailableThemes = 'system' | 'light' | 'dark'
 
@@ -154,6 +154,7 @@ export type SearchData = {
   title: string
   type: string
   url: string
+  username?: string
   workcity: string
   workcountry: string
   workemail: string
@@ -253,6 +254,8 @@ export type NewContactType = {
   type?: string
   speeddial_num?: string
   company?: string
+  note?: string
+  notes?: string
 }
 
 export type NewSpeedDialType = {
@@ -263,6 +266,8 @@ export type NewSpeedDialType = {
   setInput?: string
   type?: string
   speeddial_num?: string
+  note?: string
+  notes?: string
 }
 
 export type OperatorData = {
@@ -420,7 +425,9 @@ export type NethLinkPageData = {
 }
 
 export type SpeedDialModuleData = {
-  selectedSpeeDial?: ContactType
+  selectedSpeedDial?: ContactType
+  selectedFavourite?: ContactType
+  favouriteOrder?: FilterTypes
 }
 
 export type PhonebookSearchModuleData = {
