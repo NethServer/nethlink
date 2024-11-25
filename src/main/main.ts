@@ -19,6 +19,7 @@ import path from 'path'
 import i18next from 'i18next'
 import Backend from 'i18next-fs-backend'
 import { uniq } from 'lodash'
+import { Registry } from 'rage-edit';
 
 
 //get app parameter
@@ -41,9 +42,11 @@ function startup() {
   } else {
 
     //I set the app to open at operating system startup
-    app.setLoginItemSettings({
-      openAtLogin: true
-    })
+    if (process.env.node_env !== 'development') {
+      app.setLoginItemSettings({
+        openAtLogin: true
+      })
+    }
 
     ///LOGGER
     startLogger()
@@ -183,7 +186,7 @@ function attachOnReadyProcess() {
     SplashScreenController.instance.window.addOnBuildListener(() => {
       setTimeout(startApp, 2500)
     })
-    attachProtocolListeners()
+    await attachProtocolListeners()
 
     app.on('activate', (e, isWindowOpen) => {
       log('ACTIVATE WINDOW', e, isWindowOpen)
@@ -283,24 +286,73 @@ function attachOnReadyProcess() {
   })
 }
 
+async function registryProtocol(protocol: string) {
+  const AppName = app.getName();
 
-function attachProtocolListeners() {
-  // remove so we can register each time as we run the app.
-  app.removeAsDefaultProtocolClient('tel')
-  app.removeAsDefaultProtocolClient('callto')
-  app.removeAsDefaultProtocolClient('nethlink')
+  await Registry.set(`HKCU\\Software\\${AppName}\\Capabilities`, 'ApplicationName', AppName);
+  await Registry.set(`HKCU\\Software\\${AppName}\\Capabilities`, 'ApplicationDescription', AppName);
+
+  await Registry.set(`HKCU\\Software\\${AppName}\\Capabilities\\URLAssociations`, protocol, `${AppName}.${protocol}`);
+
+  await Registry.set(`HKCU\\Software\\Classes\\${AppName}.${protocol}\\DefaultIcon`, '', process.execPath);
+
+  await Registry.set(`HKCU\\Software\\Classes\\${AppName}.${protocol}\\shell\\open\\command`, '', `"${process.execPath}" "%1"`);
+
+  await Registry.set(`HKCU\\Software\\RegisteredApplications`, AppName, `Software\\${AppName}\\Capabilities`);
+
+}
+
+async function removeRegistryProtocol(protocol: string) {
+  const AppName = app.getName();
+
+  await Registry.delete(`HKCU\\Software\\${AppName}`);
+
+  await Registry.delete(`HKCU\\Software\\Classes\\${AppName}.${protocol}`);
+
+  await Registry.delete(`HKCU\\Software\\RegisteredApplications`, AppName);
+
+}
+
+async function attachProtocolListeners() {
+  if (process.env.node_env === 'development') {
+    // remove so we can register each time as we run the app.
+    if (process.platform === 'win32') {
+      await removeRegistryProtocol('tel')
+      await removeRegistryProtocol('callto')
+      await removeRegistryProtocol('nethlink')
+    } else {
+      app.removeAsDefaultProtocolClient('tel')
+      app.removeAsDefaultProtocolClient('callto')
+      app.removeAsDefaultProtocolClient('nethlink')
+
+    }
+  }
+
 
   // if we are running a non-packaged version of the app && on windows
-  if (process.env.node_env === 'development' && process.platform === 'win32') {
-    // set the path of electron.exe and your app.
-    // these two additional parameters are only available on windows.
-    app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
-    app.setAsDefaultProtocolClient('callto', process.execPath, [resolve(process.argv[1])])
-    app.setAsDefaultProtocolClient('nethlink', process.execPath, [resolve(process.argv[1])])
+  if (process.env.node_env === 'development' && process.argv.length > 2) {
+    log(process.argv.join('; '))
+    if (process.platform === 'win32') {
+      await registryProtocol('tel')
+      await registryProtocol('callto')
+      await registryProtocol('nethlink')
+    } else {
+      // set the path of electron.exe and your app.
+      // these two additional parameters are only available on windows.
+      app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
+      app.setAsDefaultProtocolClient('callto', process.execPath, [resolve(process.argv[1])])
+      app.setAsDefaultProtocolClient('nethlink', process.execPath, [resolve(process.argv[1])])
+    }
   } else {
-    app.setAsDefaultProtocolClient('tel')
-    app.setAsDefaultProtocolClient('callto')
-    app.setAsDefaultProtocolClient('nethlink')
+    if (process.platform === 'win32') {
+      await registryProtocol('tel')
+      await registryProtocol('callto')
+      await registryProtocol('nethlink')
+    } else {
+      app.setAsDefaultProtocolClient('tel')
+      app.setAsDefaultProtocolClient('callto')
+      app.setAsDefaultProtocolClient('nethlink')
+    }
   }
 
   app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
