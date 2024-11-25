@@ -327,33 +327,28 @@ async function attachProtocolListeners() {
 
     }
   }
-
+  if (process.platform === 'win32') {
+    await registryProtocol('tel')
+    await registryProtocol('callto')
+    await registryProtocol('nethlink')
+  }
 
   // if we are running a non-packaged version of the app && on windows
+  const res: { [protocol: string]: boolean } = {}
   if (process.env.node_env === 'development' && process.argv.length > 2) {
     log(process.argv.join('; '))
-    if (process.platform === 'win32') {
-      await registryProtocol('tel')
-      await registryProtocol('callto')
-      await registryProtocol('nethlink')
-    } else {
-      // set the path of electron.exe and your app.
-      // these two additional parameters are only available on windows.
-      app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
-      app.setAsDefaultProtocolClient('callto', process.execPath, [resolve(process.argv[1])])
-      app.setAsDefaultProtocolClient('nethlink', process.execPath, [resolve(process.argv[1])])
-    }
+    // set the path of electron.exe and your app.
+    // these two additional parameters are only available on windows.
+    res['tel'] = app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
+    res['callto'] = app.setAsDefaultProtocolClient('callto', process.execPath, [resolve(process.argv[1])])
+    res['nethlink'] = app.setAsDefaultProtocolClient('nethlink', process.execPath, [resolve(process.argv[1])])
   } else {
-    if (process.platform === 'win32') {
-      await registryProtocol('tel')
-      await registryProtocol('callto')
-      await registryProtocol('nethlink')
-    } else {
-      app.setAsDefaultProtocolClient('tel')
-      app.setAsDefaultProtocolClient('callto')
-      app.setAsDefaultProtocolClient('nethlink')
-    }
+    res['tel'] = app.setAsDefaultProtocolClient('tel')
+    res['callto'] = app.setAsDefaultProtocolClient('callto')
+    res['nethlink'] = app.setAsDefaultProtocolClient('nethlink')
+
   }
+  log('associated protocols:', res)
 
   app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
     // Print out data received from the second instance.
