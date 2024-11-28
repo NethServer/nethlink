@@ -65,6 +65,7 @@
     "to": "to",
     "Start recording message before": "Click the button below to start recording",
     "Start recording message after": "You can speak in a moment...",
+    "Recording": "Recording",
     "Minimize": "minimize",
     "This field is required": "This field is required",
     "This field must be at least": "This field must be at least {{number}} characters",
@@ -72,7 +73,10 @@
     "Quit": "Quit",
     "No internet connection title": "No internet connection",
     "No internet connection description": "Please check your connection and try again",
-    "Refresh": "Refresh"
+    "Refresh": "Refresh",
+    "Answer phone to start recording": "Answer phone to start recording",
+    "Close the call to stop recording": "Close the call to stop recording",
+    "Search": "Cerca"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -202,8 +206,6 @@
     "Outcome": "Outcome",
     "Duration": "Duration",
     "Recording": "Recording",
-    "Answer phone to start recording": "Answer phone to start recording",
-    "Close the call to stop recording": "Close the call to stop recording",
     "No calls": "No calls",
     "There are no calls in your history": "There are no calls in your history",
     "Play": "Play",
