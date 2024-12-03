@@ -186,7 +186,6 @@ export class AccountController {
         }
       }
       store.set('auth', _auth)
-      log('Nethlink bounds saved', nethlinkBounds)
       store.saveToDisk()
     }
   }

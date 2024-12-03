@@ -75,9 +75,9 @@ const RequestStateComponent = () => {
 
   const loader = async () => {
     let time = 0
-    //I wait for the language to load or 1 second
-    while (time < 10 && !i18next.isInitialized) {
-      await delay(100)
+    //I wait for the language to load or 200 milliseconds
+    while (time < 20 && !i18next.isInitialized) {
+      await delay(10)
       time++
     }
     return null

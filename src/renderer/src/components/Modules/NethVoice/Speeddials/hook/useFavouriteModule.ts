@@ -17,7 +17,6 @@ export const useFavouriteModule = () => {
 
   const getSorter = (order: FilterTypes) => {
     let sorter: ((a: ContactType, b: ContactType) => number) | undefined = undefined
-    log({ order })
     switch (order) {
       case FilterTypes.ZA:
         sorter = (a: ContactType, b: ContactType) => (a.name || '') < (b.name || '') ? 1 : -1
