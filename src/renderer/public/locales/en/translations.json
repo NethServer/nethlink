@@ -99,6 +99,7 @@
     "New Account description": "Sign in to NethLink with your NethVoice CTI username and password.",
     "Account List title": "Account list",
     "Account List description": "Choose an account to continue to NethLink.",
+    "Delete account": "Are you sure you want to delete {{username}}?",
     "Back": "Back"
   },
   "SplashScreen": {

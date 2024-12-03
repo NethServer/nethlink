@@ -17,6 +17,7 @@ import { AvailableAccountList, LoginForm } from '@renderer/components/pageCompon
 import { IPC_EVENTS, NEW_ACCOUNT } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { FieldErrors } from 'react-hook-form'
+import { AvailableAccountDeleteDialog } from '@renderer/components/pageComponents/login/AvailableAccountDeleteDialog'
 
 export interface LoginPageProps {
   themeMode: string,
@@ -49,6 +50,8 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
   const [loginData, setLoginData] = useStoreState<LoginPageData>('loginPageData')
   const [connection] = useStoreState<boolean>('connection')
   const [errorsData, setErrorsData] = useState<ErrorsData>()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
+  const [deleteDialogAccount, setDeleteDialogAccount] = useState<Account | undefined>(undefined)
 
   useEffect(() => {
     calculateHeight()
@@ -78,10 +81,18 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
   }
 
   const handleDeleteAccount = (account: Account) => {
-    const confirm = window.confirm(`delete ${account.username}?`)
-    if (confirm) {
+    setDeleteDialogOpen(true)
+    setDeleteDialogAccount(() => ({ ...account }))
+  }
+
+  const handleDeleteConfirmation = (account: Account | undefined) => {
+    if (account) {
       window.electron.send(IPC_EVENTS.DELETE_ACCOUNT, account)
     }
+    setDeleteDialogOpen(false)
+    setTimeout(() => {
+      setDeleteDialogAccount(() => undefined)
+    }, 250)
   }
 
   function calculateHeight() {
@@ -173,6 +184,16 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
           <img src={spinner} className="animate-spin"></img>
         </div>
       )}
+      <AvailableAccountDeleteDialog
+        isOpen={deleteDialogOpen}
+        close={() => {
+          handleDeleteConfirmation(undefined)
+        }}
+        account={deleteDialogAccount}
+        onDelete={() => {
+          handleDeleteConfirmation(deleteDialogAccount)
+        }}
+      />
     </div>
   )
 }

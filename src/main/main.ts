@@ -218,17 +218,11 @@ function attachOnReadyProcess() {
       if (!isGone && gone.exitCode !== 0) {
         isGone = true
         const account: Account = store.get('account') as Account
-        const ext = ["webrtc", "physical"].reduce<Extension | undefined>((p, c) => {
-          const ext = account.data?.endpoints.extension.find((e) => e.type === c)
-          if (!p && ext) {
-            p = ext
-          }
-          return p
-        }, undefined)
+        const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc") || account.data?.endpoints.extension.find((e) => e.type === "physical")
         if (ext) {
           const { NethVoiceAPI } = useNethVoiceAPI(account)
           const res = await NethVoiceAPI.User.default_device(ext)
-          log('GONE', res, ext)
+          log('GONE', res, ext.type, ext.id)
         }
       }
     })
