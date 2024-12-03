@@ -4,21 +4,6 @@ import { resolve } from 'path'
 
 export default defineConfig({
   main: {
-    build: {
-      target: ['node18'],
-      commonjsOptions: {
-        transformMixedEsModules: true
-      }
-    },
-    optimizeDeps: {
-      include: ['i18next-fs-backend'],
-      esbuildOptions: {
-        target: ['node18'],
-        supported: {
-          topLevelAwait: true
-        }
-      }
-    },
     plugins: [externalizeDepsPlugin()],
     resolve: {
       alias: {
