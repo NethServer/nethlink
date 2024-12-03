@@ -41,7 +41,7 @@ export function DisplayedAccountLogin({
             : t('Login.Use Another Account')}
         </p>
         {
-          isDev() && handleDeleteClick && <FontAwesomeIcon className={classNames('w-[25px] p-2 text-titleLight dark:text-titleDark  hover:text-textBlueLight dark:hover:text-textBlueDark')} icon={DeleteIcon} onClick={(e) => {
+          handleDeleteClick && <FontAwesomeIcon className={classNames('w-[25px] p-2 text-titleLight dark:text-titleDark  hover:text-textBlueLight dark:hover:text-textBlueDark')} icon={DeleteIcon} onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
             handleDeleteClick()

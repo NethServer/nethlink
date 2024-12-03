@@ -65,6 +65,7 @@
     "to": "to",
     "Start recording message before": "Click the button below to start recording",
     "Start recording message after": "You can speak in a moment...",
+    "Recording": "Recording",
     "Minimize": "minimize",
     "This field is required": "This field is required",
     "This field must be at least": "This field must be at least {{number}} characters",
@@ -72,7 +73,11 @@
     "Quit": "Quit",
     "No internet connection title": "No internet connection",
     "No internet connection description": "Please check your connection and try again",
-    "Refresh": "Refresh"
+    "Refresh": "Refresh",
+    "Answer phone to start recording": "Answer phone to start recording",
+    "Close the call to stop recording": "Close the call to stop recording",
+    "Search or type a contact": "Search or type a contact",
+    "Enter a phone number": "Enter a phone number"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -94,6 +99,7 @@
     "New Account description": "Sign in to NethLink with your NethVoice CTI username and password.",
     "Account List title": "Account list",
     "Account List description": "Choose an account to continue to NethLink.",
+    "Delete account": "Are you sure you want to delete {{username}}?",
     "Back": "Back"
   },
   "SplashScreen": {
@@ -202,8 +208,6 @@
     "Outcome": "Outcome",
     "Duration": "Duration",
     "Recording": "Recording",
-    "Answer phone to start recording": "Answer phone to start recording",
-    "Close the call to stop recording": "Close the call to stop recording",
     "No calls": "No calls",
     "There are no calls in your history": "There are no calls in your history",
     "Play": "Play",
@@ -876,7 +880,8 @@
   },
   "Call": {
     "In progress...": "In progress...",
-    "Outgoing call": "Outgoing call"
+    "Outgoing call": "Outgoing call",
+    "Incoming call": "Incoming call"
   },
   "Transfer": {
     "No users found": "No users found"
@@ -886,5 +891,21 @@
     "current_version": "Current version: nethlink {{version}}",
     "update_available": "Update available for download",
     "download": "Download the update"
+  },
+  "Errors": {
+    "browser_permissions": "Errore di autorizzazione",
+    "user_permissions": "Errore di autorizzazione",
+    "unknown_media_permissions": "Errore di autorizzazione",
+    "webrtc_down": "WebRTC non disponibile",
+    "socket_down": "Socket non disponibile",
+    "busy_camera": "Camera occupata",
+    "call_transfered": "Chiamata trasferita con successo",
+    "The browser doesn't have permission to access camera or microphone.": "Il browser non ha il permesso di accedere alla fotocamera o al microfono.",
+    "You must accept audio and video permissions.": "Devi accettare i permessi audio e video.",
+    "Web Phone can't access audio or camera on this device.": "Il Web Phone non può accedere all'audio o alla fotocamera su questo dispositivo.",
+    "Web Phone connection is down.": "La connessione del Web Phone è interrotta.",
+    "Server connection is down.": "La connessione al server è interrotta.",
+    "Camera is used by another application.": "La fotocamera è utilizzata da un'altra applicazione.",
+    "Call transferred successfully.": "Chiamata trasferita con successo."
   }
 }

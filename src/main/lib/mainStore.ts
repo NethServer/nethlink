@@ -4,21 +4,29 @@ import path from 'path';
 import fs from 'fs';
 import { IPC_EVENTS } from '@shared/constants';
 import { log } from '@shared/utils/logger';
-import { difference, differenceBy, differenceWith } from 'lodash';
+import { difference } from 'lodash';
 
-const USER_DATA_PATH = path.join(app.getPath("userData"), 'user_data.json');
-const AVAILABLE_USER_DATA_PATH = path.join(app.getPath("userData"), 'available_user_data.json');
+const AVAILABLE_USER_DATA_PATH = path.join(app.getPath("userData"), `available_user_data.json`);
 
 class Store<T> {
-
-
+  assignedInstanceID;
+  USER_DATA_PATH
   constructor() {
-    if (!fs.existsSync(USER_DATA_PATH) || !fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
+    const instance = process.argv.find(p => p.includes('INSTANCE='))
+    if (instance) {
+      const i = instance?.split('=')
+      this.assignedInstanceID = i[1]
+    } else {
+      this.assignedInstanceID = 0
+    }
+    log({ assignedInstanceID: this.assignedInstanceID })
+    this.USER_DATA_PATH = path.join(app.getPath("userData"), `user_data${this.assignedInstanceID || ''}.json`);
+    if (!fs.existsSync(this.USER_DATA_PATH) || !fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
       if (!fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
-        if (!fs.existsSync(USER_DATA_PATH)) {
+        if (!fs.existsSync(this.USER_DATA_PATH)) {
           fs.writeFileSync(AVAILABLE_USER_DATA_PATH, JSON.stringify({}))
         } else {
-          const data = fs.readFileSync(USER_DATA_PATH, 'utf-8');
+          const data = fs.readFileSync(this.USER_DATA_PATH, 'utf-8');
           const retrivedStore: LocalStorageData = JSON.parse(data);
           if (retrivedStore.auth?.availableAccounts) {
             fs.writeFileSync(AVAILABLE_USER_DATA_PATH, JSON.stringify(retrivedStore.auth!.availableAccounts))
@@ -27,7 +35,7 @@ class Store<T> {
           }
         }
       }
-      !fs.existsSync(USER_DATA_PATH) && fs.writeFileSync(USER_DATA_PATH, JSON.stringify({}))
+      !fs.existsSync(this.USER_DATA_PATH) && fs.writeFileSync(this.USER_DATA_PATH, JSON.stringify({}))
     } else {
       this.store = this.getFromDisk()
     }
@@ -43,7 +51,6 @@ class Store<T> {
     const o = Object.assign({}, this.store)
     o[selector] = value
     const diff = difference(Object.values(o), Object.values(this.store as any))
-    log({ diff })
     if (diff.length > 0 || force) {
       this.store = o
       ipcMain.emit(IPC_EVENTS.UPDATE_SHARED_STATE, undefined, this.store, 'main', selector)
@@ -59,7 +66,7 @@ class Store<T> {
 
   saveToDisk(forceSave: boolean = false) {
     const availableUserData = (this.store as LocalStorageData).auth?.availableAccounts
-    fs.writeFileSync(USER_DATA_PATH, JSON.stringify(this.store));
+    fs.writeFileSync(this.USER_DATA_PATH, JSON.stringify(this.store));
     if (Object.keys(availableUserData || {}).length > 0 || forceSave) {
       fs.writeFileSync(AVAILABLE_USER_DATA_PATH, JSON.stringify(availableUserData));
     }
@@ -75,7 +82,7 @@ class Store<T> {
 
   getFromDisk() {
     try {
-      const data = fs.readFileSync(USER_DATA_PATH, 'utf-8');
+      const data = fs.readFileSync(this.USER_DATA_PATH, 'utf-8');
       const availableUserData = fs.readFileSync(AVAILABLE_USER_DATA_PATH, 'utf-8');
       const retrivedStore = JSON.parse(data);
       (retrivedStore as LocalStorageData).auth!.availableAccounts = JSON.parse(availableUserData)

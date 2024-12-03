@@ -1,5 +1,5 @@
 import { PhoneIslandWindow } from '../windows'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS, PHONE_ISLAND_RESIZE } from '@shared/constants'
+import { IPC_EVENTS } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
 import { debouncer, isDev } from '@shared/utils/utils'
@@ -7,6 +7,7 @@ import { once } from '@/lib/ipcEvents'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { store } from '@/lib/mainStore'
 import { screen } from 'electron'
+import { Size } from '@shared/types'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -17,8 +18,9 @@ export class PhoneIslandController {
     this.window = new PhoneIslandWindow()
   }
 
-  resize(w: number, h: number) {
+  resize(size: Size) {
     try {
+      const { w, h } = size
       const window = this.window.getWindow()
       if (window) {
         let b = window.getBounds()
@@ -41,16 +43,12 @@ export class PhoneIslandController {
 
   }
 
-  showPhoneIsland() {
+  showPhoneIsland(size: Size) {
     try {
       const window = this.window.getWindow()
       if (window) {
-        const bounds = PHONE_ISLAND_RESIZE.get(PHONE_ISLAND_EVENTS['phone-island-call-ringing'])!(
-          store.store.phoneIslandPageData?.isExpanded ?? true,
-          store.store.phoneIslandPageData?.isMinimized ?? false,
-          store.store.phoneIslandPageData?.isDisconnected ?? false
-        )
-        this.resize(bounds.w, bounds.h)
+
+        this.resize(size)
         if (process.platform !== 'linux') {
           const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
           if (phoneIslandPosition) {
@@ -61,15 +59,15 @@ export class PhoneIslandController {
                 phoneIslandPosition,
                 x: phoneIslandPosition.x >= area.x,
                 y: phoneIslandPosition.y >= area.y,
-                w: (phoneIslandPosition.x + bounds.w) < (area.x + area.width),
-                h: (phoneIslandPosition.y + bounds.h) < (area.y + area.height)
+                w: (phoneIslandPosition.x + size.w) < (area.x + area.width),
+                h: (phoneIslandPosition.y + size.h) < (area.y + area.height)
               })
               return (
                 result ||
                 (phoneIslandPosition.x >= area.x &&
                   phoneIslandPosition.y >= area.y &&
-                  (phoneIslandPosition.x + bounds.w) < (area.x + area.width) &&
-                  (phoneIslandPosition.y + bounds.h) < (area.y + area.height))
+                  (phoneIslandPosition.x + size.w) < (area.x + area.width) &&
+                  (phoneIslandPosition.y + size.h) < (area.y + area.height))
               )
             }, false)
             if (isPhoneIslandOnDisplay) {

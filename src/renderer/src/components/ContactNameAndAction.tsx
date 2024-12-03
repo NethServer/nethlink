@@ -31,7 +31,10 @@ export const ContactNameAndActions = ({ contact, number, isHighlight, displayedN
   const isOperator = username && !!(operators?.operators?.[username])
 
   return (
-    <div className={classNames(avatarDim === 'small' ? 'gap-3' : 'gap-6', "flex flex-row items-center w-full max-w-full")}>
+    <div className={classNames(avatarDim === 'small' ? 'gap-3' : 'gap-6', "flex flex-row items-center w-full max-w-full")}
+      onClick={() => {
+        isDev() && navigator.clipboard.writeText(JSON.stringify({ contact, number, isHighlight, displayedNumber, avatarDim, username, isFavourite, isSearchData }))
+      }}>
       <Avatar
         size={avatarDim}
         src={avatarSrc}

@@ -23,7 +23,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
   const { isFavourite } = useFavouriteModule()
 
   const getUsernameFromPhoneNumber = (number: string) => {
-    return operators?.extensions[number]?.username
+    return user.type !== 'extension' ? operators?.extensions[number]?.username : undefined
   }
 
   function highlightMatch(number: string | undefined, searchText: string): ReactNode[] {

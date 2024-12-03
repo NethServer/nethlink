@@ -7,7 +7,7 @@ import { store } from '@/lib/mainStore'
 import { isDev } from '@shared/utils/utils'
 import { DevToolsController } from './DevToolsController'
 import { log } from '@shared/utils/logger'
-import i18next, { i18n, t } from 'i18next'
+import { t } from 'i18next'
 
 export type TrayUpdaterProps = {
   enableShowButton?: boolean,
@@ -81,15 +81,13 @@ export class TrayController {
     try {
       const _isShowButtonVisible = isShowButtonVisible === undefined ? true : isShowButtonVisible
       const label = store.store['account']
-        //? "Toggle Nethlink"
         ? ((NethLinkController.instance && NethLinkController.instance.window?.isOpen()) ? `${t('Tray.Hide')} NethLink` : `${t('Tray.Show')} NethLink`)
-        //: "Toggle Login"
         : ((LoginController.instance && LoginController.instance.window?.isOpen()) ? `${t('Tray.Hide')} Login` : `${t('Tray.Show')} Login`)
       log(`UPDATE TRAY: ${label}`)
       const menu: (MenuItemConstructorOptions | MenuItem)[] = [
         {
           role: 'window',
-          label: label,
+          label: label + (store.assignedInstanceID || ''),
           commandId: 1,
           enabled: enableShowButton ?? false,
           visible: _isShowButtonVisible,

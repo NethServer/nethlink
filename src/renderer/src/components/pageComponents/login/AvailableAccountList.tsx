@@ -3,10 +3,12 @@ import { Account, AuthAppData, LoginPageData } from "@shared/types"
 import { t } from "i18next"
 import { DisplayedAccountLogin } from "./DisplayedAccountLogin"
 import { NEW_ACCOUNT } from "@shared/constants"
+import { AvailableAccountDeleteDialog } from "./AvailableAccountDeleteDialog"
+import { useState } from "react"
 
 export const AvailableAccountList = ({ handleDeleteAccount }: { handleDeleteAccount: (a: Account) => void }) => {
   const [auth] = useStoreState<AuthAppData>('auth')
-  const [loginData, setLoginData] = useStoreState<LoginPageData>('loginPageData')
+  const [, setLoginData] = useStoreState<LoginPageData>('loginPageData')
   const handleSelectAccount = (account) => {
     setLoginData((p) => ({
       ...p,

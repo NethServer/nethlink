@@ -9,7 +9,6 @@ import {
   NewSpeedDialType,
   NethLinkPageData,
   NotificationData,
-  PhoneIslandPageData
 } from '@shared/types'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { faMinusCircle as MinimizeIcon } from '@fortawesome/free-solid-svg-icons'
@@ -38,7 +37,6 @@ export interface NethLinkPageProps {
 
 export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPageProps) {
   const [account, setAccount] = useStoreState<Account | undefined>('account')
-  const [phoneIslandPageData] = useStoreState<PhoneIslandPageData>('phoneIslandPageData')
   const [, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
   const [, setNotifications] = useStoreState<NotificationData>('notifications')
   const [connection] = useStoreState<boolean>('connection')
@@ -105,10 +103,6 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
     }
   }
 
-  useEffect(() => {
-    log('connection effect', connection)
-  }, [connection])
-
   function initialize() {
     Notification.requestPermission()
       .then(() => {
@@ -171,11 +165,11 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
   }
 
   useEffect(() => {
-    if (!phoneIslandPageData?.isDisconnected && connection) {
+    if (connection) {
       reconnect()
       log('RECONNECT')
     }
-  }, [phoneIslandPageData?.isDisconnected, connection])
+  }, [connection])
 
   const reconnect = async () => {
     loadData()

@@ -28,7 +28,6 @@ export const usePhonebookSearchModule = (): {
       contact.kind = 'company'
       contact.displayName = contact.company
     }
-    contact.isOperator = false
 
     // company contacts
     if (contact.contacts) {

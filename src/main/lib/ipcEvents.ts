@@ -54,7 +54,7 @@ export function registerIpcEvents() {
     return app.getSystemLocale()
   })
 
-  ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (event, newState, page, selector) => {
+  ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (_, newState, page, selector) => {
     const windows = BrowserWindow.getAllWindows();
     store.updateStore(newState, `${page}[${selector}]`)
     windows.forEach(win => {
@@ -143,7 +143,7 @@ export function registerIpcEvents() {
 
 
 
-  ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (event, isOnline) => {
+  ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (_, isOnline) => {
     if (store.store) {
       log('CONNECTION STATE', isOnline)
       store.set('connection', isOnline)
@@ -171,19 +171,19 @@ export function registerIpcEvents() {
     shell.openExternal(join(path))
   })
 
-  ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (event, w, h) => {
-    PhoneIslandController.instance.resize(w, h)
+  ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (_, size) => {
+    PhoneIslandController.instance.resize(size)
   })
-  ipcMain.on(IPC_EVENTS.SHOW_PHONE_ISLAND, (event) => {
-    PhoneIslandController.instance.showPhoneIsland()
+  ipcMain.on(IPC_EVENTS.SHOW_PHONE_ISLAND, (_, size) => {
+    PhoneIslandController.instance.showPhoneIsland(size)
   })
-  ipcMain.on(IPC_EVENTS.HIDE_PHONE_ISLAND, (event) => {
+  ipcMain.on(IPC_EVENTS.HIDE_PHONE_ISLAND, (_) => {
     PhoneIslandController.instance.hidePhoneIsland()
   })
-  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
+  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (_, h) => {
     LoginController.instance.resize(h)
   })
-  ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (event, account: Account) => {
+  ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (_, account: Account) => {
     log('DELETE ACCOUNT', account)
     const accountUID = getAccountUID(account)
     const newStore = Object.assign({}, store.store)
@@ -196,7 +196,7 @@ export function registerIpcEvents() {
     LoginController.instance.hide()
   })
 
-  ipcMain.on(IPC_EVENTS.CHANGE_THEME, (event, theme) => {
+  ipcMain.on(IPC_EVENTS.CHANGE_THEME, (_, theme) => {
     AccountController.instance.updateTheme(theme)
     PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
     LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
@@ -210,33 +210,6 @@ export function registerIpcEvents() {
     const config: string = await NetworkController.instance.get(`https://${account.host}/config/config.production.js`)
     account = parseConfig(account, config)
     e.reply(IPC_EVENTS.SET_NETHVOICE_CONFIG, account)
-  })
-
-  ipcMain.on(IPC_EVENTS.SEND_NOTIFICATION, (event, options: NotificationConstructorOptions, openUrl) => {
-    if (process.platform !== 'darwin') {
-      options.icon = "../../../public/TrayNotificationIcon.svg"
-    }
-    log(options)
-    const notification: Notification = new Notification(options)
-
-    setTimeout(() => {
-      notification.on('failed', () => log('NOTIFICATION failed'))
-      notification.on('action', () => log('NOTIFICATION action'))
-      notification.on('close', () => log('NOTIFICATION close'))
-      notification.on('reply', () => log('NOTIFICATION reply'))
-      notification.on('show', () => log('NOTIFICATION show'))
-
-      notification.on("click", () => {
-        log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
-        if (openUrl) {
-          shell.openExternal(openUrl)
-        }
-      })
-    }, 100);
-
-    notification.show()
-    log('RECEIVED SEND NOTIFICATION', options, openUrl, notification)
-
   })
 
 }
