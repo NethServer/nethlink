@@ -92,28 +92,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
     })
 
     const filteredOperators = getFoundedOperators()
-    // const op = filteredOperators.filter((o) => {
-    //   const elidx = unFilteredNumbers.findIndex((e) => e?.name?.toLowerCase()?.replace(/\s/g, '') === o?.name?.toLowerCase()?.replace(/\s/g, ''))
-    //   if (elidx >= 0)
-    //     unFilteredNumbers[elidx].notes = o.notes || ''
-    //   log(elidx, unFilteredNumbers[elidx]?.username)
-    //   return elidx === -1
-    // })
-
-    /*
-    unFilteredNumbers = unFilteredNumbers.filter((e) => {
-      const target = e?.name?.toLowerCase()?.replace(/\s/g, '')
-      if (!names.includes(target)) {
-        names.push(target)
-        return true
-      }
-      //I make sure I have a set
-      return false
-    })
-    */
-
     const copy = [...filteredOperators, ...unFilteredNumbers]
-
     let _canAddInPhonebook = isPhoneNumber
     setFilteredPhoneNumbers(() => copy as any)
     setCanAddToPhonebook(() => _canAddInPhonebook)
