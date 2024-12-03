@@ -2,7 +2,7 @@ import { app, clipboard, globalShortcut, ipcMain, nativeTheme, powerMonitor, pro
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
-import { AuthAppData, AvailableThemes } from '@shared/types'
+import { Account, AuthAppData, AvailableThemes, Extension } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
 import { join, resolve } from 'path'
@@ -20,19 +20,35 @@ import i18next from 'i18next'
 import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
-
+import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 
 //get app parameter
 const params = process.argv
-if (params.includes('DEV=true')) {
-  process.env['DEV'] = 'true'
+for (const arg of params) {
+  if (arg.includes('=')) {
+    const kv: any[] = arg.split('=')
+    if (kv[0] === 'DEV') {
+      kv[1] = kv[1] === 'true'
+    } else {
+      kv[1] = undefined
+    }
+    if (kv[1])
+      process.env[kv[0]] = kv[1]
+  }
 }
+const multipleInstances = !!process.env['INSTANCE']
+process.env['APP_VERSION'] = app.getVersion()
 log(params)
 
 function startup() {
+  app.setName('NethLink')
+  //if (isDev())
+  app.setAppUserModelId(app.getName()) //add app name to the notification title
+  ///LOGGER
+  startLogger()
+
   //windows
-  //verifico che questa sia l'unica istanza attiva
-  const gotTheLock = app.requestSingleInstanceLock()
+  const gotTheLock = multipleInstances || app.requestSingleInstanceLock()
   log('gotTheLock', gotTheLock)
 
   if (!gotTheLock) {
@@ -47,9 +63,6 @@ function startup() {
         openAtLogin: true
       })
     }
-
-    ///LOGGER
-    startLogger()
 
     ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
       PhoneIslandController.instance.call(phoneNumber)
@@ -85,6 +98,7 @@ function startup() {
     attachPowerMonitor()
 
     app.dock?.hide()
+
   }
 
 }
@@ -129,12 +143,15 @@ async function startLocalization() {
   await i18next.use(Backend).use(electronDetector).init(config)
 }
 function startLogger() {
-  const logFilePath = path.join(app.getPath("userData"), './logs/app.log');
-  log(logFilePath)
+  const today = new Date().toISOString().split('T')[0];
+  const logFilePath = path.join(app.getPath("userData"), `./logs/app_${today}_${store.assignedInstanceID}.log`);
   const logOnFile = async (message) => {
     const logDir = path.dirname(logFilePath);
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
+      fs.appendFile(logFilePath, `App Version: ${app.getVersion()}\n`, (err) => {
+        if (err) throw err;
+      });
     }
     if (!message) {
       // Create new object error to get stack trace
@@ -175,6 +192,7 @@ function attachOnReadyProcess() {
   let retryAppStart: NodeJS.Timeout | undefined = undefined
 
   app.whenReady().then(async () => {
+    let isGone = false
     log('APP READY')
     await startLocalization()
 
@@ -195,20 +213,65 @@ function attachOnReadyProcess() {
       }
     })
     SplashScreenController.instance.show()
+    app.on('render-process-gone', async (...args) => {
+      const gone = args[2]
+      if (!isGone && gone.exitCode !== 0) {
+        isGone = true
+        const account: Account = store.get('account') as Account
+        const ext = ["webrtc", "physical"].reduce<Extension | undefined>((p, c) => {
+          const ext = account.data?.endpoints.extension.find((e) => e.type === c)
+          if (!p && ext) {
+            p = ext
+          }
+          return p
+        }, undefined)
+        if (ext) {
+          const { NethVoiceAPI } = useNethVoiceAPI(account)
+          const res = await NethVoiceAPI.User.default_device(ext)
+          log('GONE', res, ext)
+        }
+      }
+    })
 
     if (isDev()) {
       const events: string[] = [
         'accessibility-support-changed',
-        'activity-was-continued', 'before-quit', 'browser-window-blur', 'browser-window-created', 'browser-window-focus', 'certificate-error', 'child-process-gone', 'continue-activity', 'continue-activity-error', 'did-become-active', 'gpu-info-update', 'gpu-process-crashed', 'login', 'new-window-for-tab', 'open-file', 'render-process-gone', 'renderer-process-crashed', 'select-client-certificate',
-        'session-created', 'update-activity-state', 'web-contents-created', 'will-continue-activity', 'will-finish-launching', 'will-quit'
+        'activity-was-continued',
+        'before-quit',
+        'browser-window-blur',
+        'browser-window-created',
+        'browser-window-focus',
+        'certificate-error',
+        'child-process-gone',
+        'continue-activity',
+        'continue-activity-error',
+        'did-become-active',
+        'gpu-info-update',
+        'login',
+        'new-window-for-tab',
+        'open-file',
+        'select-client-certificate',
+        'session-created',
+        'update-activity-state',
+        'web-contents-created',
+        'will-continue-activity',
+        'will-finish-launching',
+        'will-quit'
       ]
       events.forEach((e: any) => {
         app.on(e, (...args) => {
           log(`APP-EVENT ${e}`, args)
         })
       })
+
+
+
     }
   })
+
+  //TODO:da me.endpoints.extensions cerco il tipo e prendo il primo diverso da nethlink tra [webrtc, physical] (con questa priorità)
+  //post del defaultDevice
+
 
   async function startApp(attempt = 0) {
     let data = store.store || store.getFromDisk()
@@ -352,24 +415,26 @@ async function attachProtocolListeners() {
 
   app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
     // Print out data received from the second instance.
-    log({ event, commandLine, workingDirectory, additionalData })
     const cmd = commandLine.pop()
-    if (cmd) {
-      log({ cmd })
-      const regex = /(\w+):(?:\/\/?)?([^\/?]+(?:\/[^?]*)?(?:\?.*)?)/;
-      const match = cmd.match(regex)
-      log(match)
-      if (match) {
-        const [protocol, data] = [match[1], match[2]]
-        log(protocol, data)
-        switch (protocol) {
-          case 'nethlink':
-            handleNethLinkProtocol(data);
-            break;
-          case 'tel':
-          case 'callto':
-            handleTelProtocol(data);
-            break;
+    log('SECOND INSTANCE', { event, commandLine, workingDirectory, additionalData, cmd })
+    if (!multipleInstances) {
+      if (cmd) {
+        log({ cmd })
+        const regex = /(\w+):(?:\/\/?)?([^\/?]+(?:\/[^?]*)?(?:\?.*)?)/;
+        const match = cmd.match(regex)
+        log(match)
+        if (match) {
+          const [protocol, data] = [match[1], match[2]]
+          log(protocol, data)
+          switch (protocol) {
+            case 'nethlink':
+              handleNethLinkProtocol(data);
+              break;
+            case 'tel':
+            case 'callto':
+              handleTelProtocol(data);
+              break;
+          }
         }
       }
     }
@@ -577,4 +642,3 @@ async function checkConnection() {
 
 //BEGIN APP
 startup()
-

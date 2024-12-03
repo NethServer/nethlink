@@ -7,7 +7,7 @@ import { store } from '@/lib/mainStore'
 import { isDev } from '@shared/utils/utils'
 import { DevToolsController } from './DevToolsController'
 import { log } from '@shared/utils/logger'
-import i18next, { i18n, t } from 'i18next'
+import { t } from 'i18next'
 
 export type TrayUpdaterProps = {
   enableShowButton?: boolean,
@@ -89,7 +89,7 @@ export class TrayController {
       const menu: (MenuItemConstructorOptions | MenuItem)[] = [
         {
           role: 'window',
-          label: label,
+          label: label + (store.assignedInstanceID || ''),
           commandId: 1,
           enabled: enableShowButton ?? false,
           visible: _isShowButtonVisible,

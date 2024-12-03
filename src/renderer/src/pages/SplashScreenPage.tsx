@@ -68,7 +68,7 @@ export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
             ></img>
           </div>
           <p className="dark:text-gray-300 text-gray-700 text-sm px-5 text-center mt-5">
-            v{page?.props.appVersion}
+            v{window.api.appVersion}
           </p>
         </div>
       </div>

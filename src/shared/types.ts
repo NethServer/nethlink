@@ -63,6 +63,7 @@ export type BaseAccountData = {
   presenceOnBusy: StatusTypes
   presenceOnUnavailable: StatusTypes
   recallOnBusy: string
+  notes?: string
   endpoints: {
     email: BaseEndpoint[]
     jabber: Jabber[]
@@ -358,7 +359,6 @@ export type PageType = {
   query: string
   page: keyof typeof PAGES | 'main'
   props: {
-    appVersion?: string,
     page: keyof typeof PAGES | 'main'
   }
 }
@@ -378,7 +378,6 @@ export type LocalStorageData = {
   theme?: AvailableThemes,
   loginPageData?: LoginPageData,
   nethLinkPageData?: NethLinkPageData,
-  phoneIslandPageData?: PhoneIslandPageData,
   missedCalls?: CallData[],
   notifications?: NotificationData,
   lostCallNotifications?: CallData[],
@@ -393,12 +392,6 @@ export type DraggingWindow = {
   interval: number,
   startMousePosition: { x: number, y: number },
   startWindowPosition: { x: number, y: number }
-}
-
-export type PhoneIslandPageData = {
-  isExpanded: boolean,
-  isMinimized: boolean,
-  isDisconnected: boolean
 }
 
 export type LoginPageData = {
@@ -454,3 +447,33 @@ export type NotificationItem = {
   message: string,
 }
 
+export type PhoneIslandData = {
+  view: PhoneIslandView | null,
+  activeAlerts: {
+    [alertName: string]: boolean
+  },
+  isOpen: boolean,
+  isActionExpanded: boolean,
+  isListen: boolean,
+  currentCall: {
+    accepted: boolean,
+    transferring: boolean,
+    incoming: boolean,
+    outgoing: boolean
+  }
+}
+
+export type PhoneIslandSizes = {
+  size: Size;
+  borderRadius: number;
+  padding: string;
+}
+
+export enum PhoneIslandView {
+  CALL = 'call',
+  KEYPAD = 'keypad',
+  TRANSFER = 'transfer',
+  PLAYER = 'player',
+  RECORDER = 'recorder',
+  PHISICAL_PHONE_RECORDER = 'physicalPhoneRecorder'
+}

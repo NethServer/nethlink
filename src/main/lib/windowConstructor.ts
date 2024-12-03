@@ -1,11 +1,8 @@
 import { is } from '@electron-toolkit/utils'
-import { BrowserWindow, app, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
-import { AppController } from '@/classes/controllers/AppController'
-import { isDev } from '@shared/utils/utils'
-import { log } from '@shared/utils/logger'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -38,7 +35,6 @@ export function createWindow(
     hiddenInMissionControl: false,
   })
   params = ({
-    appVersion: app.getVersion(),
     page: id,
     ...params
   })

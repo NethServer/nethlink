@@ -4,11 +4,13 @@ import { IPC_EVENTS } from '@shared/constants'
 import {
   Account,
   ContactType,
+  Size,
 } from '@shared/types'
-import { preloadBindings, mainBindings } from 'i18next-electron-fs-backend'
+import { preloadBindings } from 'i18next-electron-fs-backend'
 
 export interface IElectronAPI {
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
+  appVersion: string,
 
   // Use `contextBridge` APIs to expose Electron APIs to
   // renderer only if context isolation is enabled, otherwise
@@ -31,13 +33,13 @@ export interface IElectronAPI {
   startCall(phoneNumber: string): void
   hideLoginWindow(): void
   resizeLoginWindow(height: number): void
-  resizePhoneIsland(offsetWidth: number, offsetHeight: number): void
+  resizePhoneIsland(size: Size): void
   sendInitializationCompleted(id: string): void
   openHostPage(path: string): void
   openExternalPage(url: string): void
   exitNethLink(): void
   hidePhoneIsland(): void
-  showPhoneIsland(): void
+  showPhoneIsland(size: Size): void
 
 }
 
@@ -78,6 +80,7 @@ function setEmitter(event) {
 // Custom APIs for renderer
 const api: IElectronAPI = {
   env: process.env,
+  appVersion: process.env['APP_VERSION'] || '0.0.1',
   i18nextElectronBackend: preloadBindings(ipcRenderer, process),
   //SYNC EMITTERS - expect response
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
@@ -85,7 +88,6 @@ const api: IElectronAPI = {
 
   //EMITTER - only emit, no response
   sendInitializationCompleted: setEmitter(IPC_EVENTS.INITIALIZATION_COMPELTED),
-  sendNotification: setEmitter(IPC_EVENTS.SEND_NOTIFICATION),
   openDevTool: setEmitter(IPC_EVENTS.OPEN_DEV_TOOLS),
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),

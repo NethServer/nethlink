@@ -51,7 +51,7 @@ export function AboutModule({ }: AboutBoxProps) {
             </div>
           </div>
           <div className="text-gray-400 mb-2">
-            {t('About.current_version', { version: page?.props.appVersion })}
+            {t('About.current_version', { version: window.api.appVersion })}
           </div>
           {!!notifications?.system?.update && (
             <div className="mt-6 flex flex-col gap-2 items-center">
