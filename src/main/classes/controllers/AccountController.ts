@@ -75,7 +75,6 @@ export class AccountController {
           const decryptString = safeStorage.decryptString(psw)
           const _accountData = JSON.parse(decryptString)
           const password = _accountData.password
-          //let loggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
           const tempLoggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
           let loggedAccount: Account = {
             ...lastLoggedAccount,

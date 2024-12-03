@@ -81,9 +81,7 @@ export class TrayController {
     try {
       const _isShowButtonVisible = isShowButtonVisible === undefined ? true : isShowButtonVisible
       const label = store.store['account']
-        //? "Toggle Nethlink"
         ? ((NethLinkController.instance && NethLinkController.instance.window?.isOpen()) ? `${t('Tray.Hide')} NethLink` : `${t('Tray.Show')} NethLink`)
-        //: "Toggle Login"
         : ((LoginController.instance && LoginController.instance.window?.isOpen()) ? `${t('Tray.Hide')} Login` : `${t('Tray.Show')} Login`)
       log(`UPDATE TRAY: ${label}`)
       const menu: (MenuItemConstructorOptions | MenuItem)[] = [

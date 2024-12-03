@@ -5,16 +5,16 @@ import { resolve } from 'path'
 export default defineConfig({
   main: {
     build: {
-      target: ['node18'], // Aggiungi supporto ES2022
+      target: ['node18'],
       commonjsOptions: {
-        transformMixedEsModules: true // Consenti la trasformazione di moduli misti
+        transformMixedEsModules: true
       }
     },
     optimizeDeps: {
       include: ['i18next-fs-backend'],
       esbuildOptions: {
-        target: ['node18'], // Supporto per caratteristiche moderne
-        supported: { // Abilita top-level await
+        target: ['node18'],
+        supported: {
           topLevelAwait: true
         }
       }
