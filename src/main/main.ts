@@ -38,7 +38,7 @@ for (const arg of params) {
 }
 const multipleInstances = !!process.env['INSTANCE']
 process.env['APP_VERSION'] = app.getVersion()
-log(params)
+log({ ENV: process.env })
 
 function startup() {
   app.setName('NethLink')
