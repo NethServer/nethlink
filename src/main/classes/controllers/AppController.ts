@@ -26,32 +26,32 @@ export class AppController {
         try {
           await LoginController.instance.safeQuit()
         } catch (e) {
-          log(e)
+          log('WARING unable to correctly close the Login Controller:', e)
         }
       }
       if (PhoneIslandController.instance) {
         try {
           await PhoneIslandController.instance.safeQuit()
         } catch (e) {
-          log(e)
+          log('WARING unable to correctly close the PhoneIslandController:', e)
         }
       }
       if (NethLinkController.instance) {
         try {
           await NethLinkController.instance.safeQuit()
         } catch (e) {
-          log(e)
+          log('WARING unable to correctly close the NethLinkController:', e)
         }
       }
       try {
         TrayController.instance.tray.destroy()
       } catch (e) {
-        log(e)
+        log('WARING unable to correctly close the TrayController:', e)
       }
       try {
         await DevToolsController.instance?.window?.quit(true)
       } catch (e) {
-        log(e)
+        log('WARING unable to correctly close the DevToolsController:', e)
       }
       await delay(200)
       store.saveToDisk()

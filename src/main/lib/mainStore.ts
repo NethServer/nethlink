@@ -19,7 +19,7 @@ class Store<T> {
     } else {
       this.assignedInstanceID = 0
     }
-    log({ assignedInstanceID: this.assignedInstanceID })
+    log('INFO:', { assignedInstanceID: this.assignedInstanceID })
     this.USER_DATA_PATH = path.join(app.getPath("userData"), `user_data${this.assignedInstanceID || ''}.json`);
     if (!fs.existsSync(this.USER_DATA_PATH) || !fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
       if (!fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
@@ -58,6 +58,7 @@ class Store<T> {
   }
 
   updateStore(newState: T, from: string) {
+    log('STORE', from, newState)
     const diff = difference(Object.values(newState as any || {}), Object.values(this.store as any || {}))
     if (diff.length > 0 || this.store === undefined) {
       this.store = Object.assign({}, newState)
@@ -88,7 +89,7 @@ class Store<T> {
       (retrivedStore as LocalStorageData).auth!.availableAccounts = JSON.parse(availableUserData)
       return retrivedStore
     } catch (error) {
-      log('Error retrieving user data', error);
+      log('ERROR retrieving user data', error);
       // you may want to propagate the error, up to you
       return null;
     }

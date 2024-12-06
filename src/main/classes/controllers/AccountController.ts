@@ -69,7 +69,7 @@ export class AccountController {
               authAppData.lastUserCryptPsw = bfs
             }
           } catch (e) {
-            //log(e)
+            log('WARNING auto login failed decrypt user:', e)
           }
           const psw: Buffer = Buffer.from((authAppData.lastUserCryptPsw as Uint8Array))
           const decryptString = safeStorage.decryptString(psw)
@@ -87,7 +87,7 @@ export class AccountController {
           await this.saveLoggedAccount(loggedAccount, password)
           return true
         } catch (e) {
-          log(e, authAppData.lastUserCryptPsw)
+          log('WARNING auto login failed:', e)
           return false
         }
       }
@@ -118,7 +118,7 @@ export class AccountController {
       store.saveToDisk()
       return account
     } catch (e) {
-      log('ERROR', e)
+      log('ERROR during save logged account data', e)
       this.logout()
       throw e
     }
@@ -162,7 +162,6 @@ export class AccountController {
         }
       }
       store.set('auth', _auth)
-      log('phoneIslandPosition saved', phoneIslandPosition)
       store.saveToDisk()
     }
   }

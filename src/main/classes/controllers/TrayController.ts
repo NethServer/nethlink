@@ -68,7 +68,7 @@ export class TrayController {
 
       }
     } catch (e) {
-      log(e)
+      log('WARNING error during toggling a NethLink window from the TrayIcon Button:', e)
     }
   }
 
@@ -83,7 +83,6 @@ export class TrayController {
       const label = store.store['account']
         ? ((NethLinkController.instance && NethLinkController.instance.window?.isOpen()) ? `${t('Tray.Hide')} NethLink` : `${t('Tray.Show')} NethLink`)
         : ((LoginController.instance && LoginController.instance.window?.isOpen()) ? `${t('Tray.Hide')} Login` : `${t('Tray.Show')} Login`)
-      log(`UPDATE TRAY: ${label}`)
       const menu: (MenuItemConstructorOptions | MenuItem)[] = [
         {
           role: 'window',
@@ -101,7 +100,6 @@ export class TrayController {
           commandId: 2,
           enabled: enableShowButton ?? false,
           click: (menuItem, window, event) => {
-            console.log(event)
             AppController.safeQuit()
           }
         }
@@ -123,7 +121,7 @@ export class TrayController {
       }
       this.tray.setContextMenu(Menu.buildFromTemplate(menu))
     } catch (e) {
-      log(e)
+      log('WARNING error during updating the Tray Icon menu context contents:', e)
     }
 
   }

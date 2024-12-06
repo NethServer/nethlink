@@ -3,10 +3,7 @@ import { Sidebar } from '../components/Sidebar'
 import { useInitialize } from '../hooks/useInitialize'
 import {
   Account,
-  AvailableThemes,
-  NewContactType,
-  ContactType,
-  NewSpeedDialType,
+
   NethLinkPageData,
   NotificationData,
 } from '@shared/types'
@@ -89,10 +86,8 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
         })
       }
     } else {
-      log('account logout')
       stopInterval(operatorFetchLoopInterval)
       stopInterval(accountMeInterval)
-      //initialize nethLink data
     }
   }, [account?.username])
 
@@ -106,16 +101,15 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
   function initialize() {
     Notification.requestPermission()
       .then(() => {
-        log('requested notification permission')
+        log('INFO: requested notification permission')
       })
       .catch((e) => {
-        log(e)
+        log('WARNING notification permission error or unsuccessfully acquired', e)
       })
     window.electron.receive(IPC_EVENTS.UPDATE_APP_NOTIFICATION, showUpdateAppNotification)
   }
 
   const showUpdateAppNotification = () => {
-    log('UPDATE')
     const updateLink = 'https://nethserver.github.io/nethlink/'
     setNotifications((p) => ({
       ...p,
@@ -166,8 +160,11 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
 
   useEffect(() => {
     if (connection) {
-      reconnect()
       log('RECONNECT')
+      debouncer('nethlink-reconnect', () => {
+        log('EFFECTIVE RECONNECT')
+        reconnect()
+      }, 3600)
     }
   }, [connection])
 

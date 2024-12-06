@@ -1,5 +1,5 @@
 import { PERMISSION, PHONE_ISLAND_EVENTS, getPhoneIslandSize } from "@shared/constants"
-import { Account, CallData, PhoneIslandData, PhoneIslandSizes, PhoneIslandView } from "@shared/types"
+import { Account, CallData, LocalStorageData, NethLinkData, PhoneIslandData, PhoneIslandSizes, PhoneIslandView } from "@shared/types"
 import { log } from "@shared/utils/logger"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { usePhoneIslandEventHandler } from "./usePhoneIslandEventHandler"
@@ -20,7 +20,10 @@ const defaultCall = {
   transferring: false
 }
 export const usePhoneIslandEventListener = () => {
-  const [account] = useStoreState<Account | undefined>('account')
+  const [account] = useStoreState<LocalStorageData, Account | undefined>('account')
+  const [connected, setConnected] = useRefState<boolean>(useStoreState<LocalStorageData, boolean>('connection'))
+  const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<NethLinkData, CallData[]>('lastCalls'))
+  const [missedCalls, setMissedCalls] = useRefState<CallData[]>(useStoreState<NethLinkData, CallData[]>('missedCalls'))
   const { hasPermission } = useAccount()
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const {
@@ -29,9 +32,6 @@ export const usePhoneIslandEventListener = () => {
     onParkingsUpdate,
   } = usePhoneIslandEventHandler()
 
-  const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('lastCalls'))
-  const [missedCalls, setMissedCalls] = useRefState<CallData[]>(useStoreState<CallData[]>('missedCalls'))
-  const [connected, setConnected] = useRefState<boolean>(useStoreState<boolean>('connection'))
 
   const [state, setState] = useState<PhoneIslandData>({
     activeAlerts: {},
@@ -43,23 +43,21 @@ export const usePhoneIslandEventListener = () => {
     isOpen: true,
     view: null
   })
-
   const [phoneIsalndSizes, setPhoneIslandSized] = useState<PhoneIslandSizes>(getPhoneIslandSize(state))
 
+
   const eventHandler = (event: PHONE_ISLAND_EVENTS, callback?: (data?: any) => void | Promise<void>) => ({
-    [event]: useCallback(async (...data) => {
+    [event]: useCallback((...data) => {
       const customEvent = data[0]
       const detail = customEvent['detail']
-      log(event)
-      await callback?.(detail)
+      log('PHONE ISLAND', event, data)
+      callback?.(detail)
     }, [state])
   })
 
   useEffect(() => {
     const a = getPhoneIslandSize(state)
-    log({ a, state })
     setPhoneIslandSized(() => ({ ...a }))
-
   }, [state])
 
 
@@ -168,6 +166,8 @@ export const usePhoneIslandEventListener = () => {
           count: number, rows: CallData[]
         }) => {
           gestLastCalls(newLastCalls)
+        }).catch(e => {
+          log('WARINGIN error during NethVoiceAPI.HistoryCall.interval', e)
         })
       }),
 
@@ -363,18 +363,16 @@ export const usePhoneIslandEventListener = () => {
         }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected"], () => {
-        setTimeout(() => {
-          if (account) {
-            setConnected(false)
-          }
-        }, 1000)
+        if (account && connected) {
+          setConnected(false)
+        }
+
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-close"], () => {
         setState((p) => ({
           ...p,
           activeAlerts: {},
         }))
-        setConnected(true)
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-open"], () => {
         setState((p) => ({
@@ -384,7 +382,6 @@ export const usePhoneIslandEventListener = () => {
             ['socket-disconnected']: true
           }
         }))
-        setConnected(false)
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-reconnected"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-theme-change"]),
@@ -400,12 +397,10 @@ export const usePhoneIslandEventListener = () => {
           activeAlerts: {},
           currentCall: {
             ...defaultCall
-          }
+          },
+          view: null
         }))
       }),
-
-
-
     }
   }
 }

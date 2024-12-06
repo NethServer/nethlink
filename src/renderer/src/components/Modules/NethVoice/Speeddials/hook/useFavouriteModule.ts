@@ -55,7 +55,6 @@ export const useFavouriteModule = () => {
         //if I am creating a favourite it means that I am from speeddial. in speeddial the username is saved in name
         const username = contact.name
         const operator = username && operators?.operators[username]
-        log({ operator })
         if (operator)
           await NethVoiceAPI.Phonebook.createFavourite(operator)
       } else {
@@ -74,7 +73,6 @@ export const useFavouriteModule = () => {
         //I am creating the favourite from the search so I find the username directly in searchData
         const username = contact.username
         const operator = username && operators?.operators[username]
-        log({ operator })
         if (operator)
           await NethVoiceAPI.Phonebook.createFavourite(operator)
       } else {

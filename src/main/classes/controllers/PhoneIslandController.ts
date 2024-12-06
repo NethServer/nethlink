@@ -38,7 +38,7 @@ export class PhoneIslandController {
         }
       }
     } catch (e) {
-      log(e)
+      log('WARNING error during resizing PhoneIslandWindow:', e)
     }
 
   }
@@ -54,14 +54,6 @@ export class PhoneIslandController {
           if (phoneIslandPosition) {
             const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
               const area = display.workArea
-              log({
-                area,
-                phoneIslandPosition,
-                x: phoneIslandPosition.x >= area.x,
-                y: phoneIslandPosition.y >= area.y,
-                w: (phoneIslandPosition.x + size.w) < (area.x + area.width),
-                h: (phoneIslandPosition.y + size.h) < (area.y + area.height)
-              })
               return (
                 result ||
                 (phoneIslandPosition.x >= area.x &&
@@ -84,7 +76,7 @@ export class PhoneIslandController {
         }
       }
     } catch (e) {
-      log(e)
+      log('WARNING error during showing PhoneIslandWindow:', e)
     }
   }
 
@@ -100,7 +92,7 @@ export class PhoneIslandController {
       }
       debouncer('hide', () => window?.hide(), 250)
     } catch (e) {
-      log(e)
+      log('WARNING error during hiding PhoneIslandWindow:', e)
     }
   }
 
@@ -113,7 +105,7 @@ export class PhoneIslandController {
           resolve()
         })
       } catch (e) {
-        log(e)
+        log('ERROR during emitting logout event to the PhoneIslandWindow:', e)
         reject()
       }
     })
@@ -124,11 +116,10 @@ export class PhoneIslandController {
 
       const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
       NethVoiceAPI.User.me().then((me) => {
-        log('me before call start', { me })
         this.window.emit(IPC_EVENTS.START_CALL, number)
       })
     } catch (e) {
-      log(e)
+      log('WARNING error during emitting start call event to the PhoneIslandWindow:', e)
     }
   }
 
@@ -142,7 +133,7 @@ export class PhoneIslandController {
         new PhoneIslandController()
       })
     } catch (e) {
-      log(e)
+      log('WARNING error during emitting reconnect event to the PhoneIslandWindow:', e)
     }
   }
 

@@ -78,7 +78,7 @@ export function SpeedDialFormBox({ close }) {
         reset()
         close()
       })
-      .catch((error) => {
+      .catch((e) => {
         if (selectedSpeedDial) {
           sendNotification(
             t('Notification.speeddial_not_modified_title'),
@@ -90,7 +90,7 @@ export function SpeedDialFormBox({ close }) {
             t('Notification.speeddial_not_created_description')
           )
         }
-        log(error)
+        log('WARNING error during speedDialModule.upsertSpeedDial:', e)
       })
       .finally(() => {
         setIsLoading(false)

@@ -51,7 +51,7 @@ export class LoginWindow extends BaseWindow {
         this.buildWindow()
         return this.show()
       } else {
-        log(e)
+        log('WARNING during showing the LoginWindow:', e)
       }
     }
   }
@@ -60,7 +60,7 @@ export class LoginWindow extends BaseWindow {
     try {
       this._window?.hide()
     } catch (e) {
-      log(e)
+      log('WARNING during hiding the LoginWindow:', e)
     }
   }
 

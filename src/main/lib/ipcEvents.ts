@@ -35,7 +35,6 @@ function onSyncEmitter<T>(
       } else {
         error.message = "Unknown error"
       }
-      log(e)
       syncResponse = [undefined, error]
     }
     event.returnValue = syncResponse
@@ -145,7 +144,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (_, isOnline) => {
     if (store.store) {
-      log('CONNECTION STATE', isOnline)
+      log('INFO update connection state:', isOnline)
       store.set('connection', isOnline)
       if (!store.store.account) {
         store.saveToDisk()

@@ -21,6 +21,7 @@ import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
+import { now } from 'moment'
 
 //get app parameter
 const params = process.argv
@@ -38,7 +39,7 @@ for (const arg of params) {
 }
 const multipleInstances = !!process.env['INSTANCE']
 process.env['APP_VERSION'] = app.getVersion()
-log({ ENV: process.env })
+log('ENV:', process.env)
 
 function startup() {
   app.setName('NethLink')
@@ -107,7 +108,6 @@ async function startLocalization() {
 
   const convertPath = (filename): string => {
     let dir = __dirname
-    log({ dir })
     let loadPath = join(`./public/locales/{{lng}}/${filename}.json`)
     if (__dirname.includes('.asar')) {
       loadPath = join(dir, `../renderer/locales/{{lng}}/${filename}.json`)
@@ -227,7 +227,7 @@ function attachOnReadyProcess() {
       }
     })
 
-    if (isDev()) {
+    if (isDev() && false) {
       const events: string[] = [
         'accessibility-support-changed',
         'activity-was-continued',
@@ -257,9 +257,6 @@ function attachOnReadyProcess() {
           log(`APP-EVENT ${e}`, args)
         })
       })
-
-
-
     }
   })
 
@@ -287,9 +284,9 @@ function attachOnReadyProcess() {
 
     } else {
       await checkConnection()
-      log('START APP, retry:', attempt)
+      log('START - START APP, retry:', attempt)
       if (!store.store.connection) {
-        log('NO CONNECTION', attempt, store.store)
+        log('START - NO CONNECTION', attempt, store.store)
         if (attempt >= 3)
           SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
 
@@ -301,12 +298,16 @@ function attachOnReadyProcess() {
           clearTimeout(retryAppStart)
         }
         const auth: AuthAppData | undefined = store.store['auth']
+        log('START - request permissions')
         await getPermissions()
         if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
+          log('START - try autologin')
           const isLastUserLogged = await AccountController.instance.autoLogin()
           if (isLastUserLogged) {
+            log('START - autologin success')
             ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink: true })
           } else {
+            log('START - autologin failed')
             store.updateStore({
               auth: {
                 ...store.store['auth']!,
@@ -339,7 +340,7 @@ function attachOnReadyProcess() {
     if (retryAppStart) {
       clearTimeout(retryAppStart)
     }
-    log('quit')
+    log('APP QUIT CORRECTLY')
   })
 }
 
@@ -393,7 +394,7 @@ async function attachProtocolListeners() {
   // if we are running a non-packaged version of the app && on windows
   const res: { [protocol: string]: boolean } = {}
   if (process.env.node_env === 'development' && process.argv.length > 2) {
-    log(process.argv.join('; '))
+    log('attachProtocolListeners:', process.argv.join('; '))
     // set the path of electron.exe and your app.
     // these two additional parameters are only available on windows.
     res['tel'] = app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
@@ -413,20 +414,17 @@ async function attachProtocolListeners() {
     log('SECOND INSTANCE', { event, commandLine, workingDirectory, additionalData, cmd })
     if (!multipleInstances) {
       if (cmd) {
-        log({ cmd })
         const regex = /(\w+):(?:\/\/?)?([^\/?]+(?:\/[^?]*)?(?:\?.*)?)/;
         const match = cmd.match(regex)
-        log(match)
         if (match) {
           const [protocol, data] = [match[1], match[2]]
-          log(protocol, data)
           switch (protocol) {
             case 'nethlink':
               handleNethLinkProtocol(data);
               break;
             case 'tel':
             case 'callto':
-              handleTelProtocol(data);
+              handleStartCallProtocols(data);
               break;
           }
         }
@@ -435,31 +433,30 @@ async function attachProtocolListeners() {
   })
 
   app.on('open-url', (ev, origin) => {
-    handleTelProtocol(origin)
+    handleStartCallProtocols(origin)
   })
 
   //I assign the app as usable for tel and callto protocol response
   protocol.handle('tel', (req) => {
-    return handleTelProtocol(req.url)
+    return handleStartCallProtocols(req.url)
   })
   protocol.handle('callto', (req) => {
-    return handleTelProtocol(req.url)
+    return handleStartCallProtocols(req.url)
   })
 
   protocol.handle('nethlink', (req) => {
     return handleNethLinkProtocol(req.url)
   })
 
-  function handleTelProtocol(url: string): Promise<Response> {
+  function handleStartCallProtocols(url: string): Promise<Response> {
     const regex = /(\+?\*?\d+)/;
     const match = url.match(regex)
-    log(url, match)
     if (match) {
-      log('TEL:', match[0])
+      log('HandleProtocol TEL/CALLTO:', match[0])
       try {
         PhoneIslandController.instance.call(match[0])
       } catch (e) {
-        log(e)
+        log('ERROR HandleProtocol TEL/CALLTO:', e)
       }
     }
     return new Promise((resolve) => resolve)
@@ -467,26 +464,27 @@ async function attachProtocolListeners() {
 
   function handleNethLinkProtocol(data: string): Promise<Response> {
     //we have to define the purpose of the nethlink custom protocol
-    log(data)
+    log('HandleProtocol Nethlink:', data)
     //TODO: define actions
     try {
       NethLinkController.instance.show()
     } catch (e) {
-
+      log('ERROR HandleProtocol Nethlink:', e)
     }
     return new Promise((resolve) => resolve)
   }
 
-  const registerShortcutForCall = (shortcut) => {
-    const getClipboardSelection = () => {
-      return clipboard.readText('selection')
-    }
-    globalShortcut.register(shortcut, () => {
-      const selection = getClipboardSelection()
-      //log('clipboard:', selection)
-      handleTelProtocol(selection)
-    })
-  }
+  // TODO: study a new strategy to register keyboard shortcut then enable this lines of code
+  // const registerShortcutForCall = (shortcut) => {
+  //   const getClipboardSelection = () => {
+  //     return clipboard.readText('selection')
+  //   }
+  //   globalShortcut.register(shortcut, () => {
+  //     const selection = getClipboardSelection()
+  //     //log('clipboard:', selection)
+  //     handleTelProtocol(selection)
+  //   })
+  // }
 
 }
 
@@ -574,7 +572,7 @@ async function getPermissions() {
     const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
     const microphonePermission = await systemPreferences.askForMediaAccess('microphone')
     log(
-      'Permissions:',
+      'START - acquired permissions:',
       {
         cameraPermissionState,
         cameraPermission,
@@ -589,7 +587,6 @@ function showLogin() {
   new LoginController()
   store.saveToDisk()
   setTimeout(() => {
-    log('show login', store.store)
     LoginController.instance.show()
   }, 100)
 }
@@ -607,14 +604,14 @@ async function createNethLink(show: boolean = true) {
 
 async function checkForUpdate() {
   const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
-  log(app.getVersion())
+  log('Current app version:', app.getVersion(), 'check for updates...')
   if (latestVersionData.name !== app.getVersion() || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }
 
 function checkData(data: any): boolean {
-  log('checkData', { data })
+  log('Verify app data:', { data })
   return data?.hasOwnProperty('auth') &&
     data?.hasOwnProperty('theme') &&
     data?.hasOwnProperty('connection')

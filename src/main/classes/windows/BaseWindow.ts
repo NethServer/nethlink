@@ -51,7 +51,7 @@ export class BaseWindow {
     try {
       this._window?.hide()
     } catch (e) {
-      log(e)
+      log('WARNING during hiding window:', e)
     }
   }
 
@@ -59,7 +59,7 @@ export class BaseWindow {
     try {
       this._window?.show()
     } catch (e: any) {
-      log(e)
+      log('WARNING during showing window:', e)
     }
   }
 
@@ -68,7 +68,6 @@ export class BaseWindow {
       const visible = this._window?.isVisible()
       const minimized = this._window?.isMinimized()
       const destroyed = this._window?.isDestroyed()
-      log({ visible, minimized, destroyed })
       return visible && !minimized && !destroyed
     } catch (e) {
       return false
@@ -86,16 +85,14 @@ export class BaseWindow {
   async quit(forceClose: boolean) {
     try {
       if (forceClose) {
-        log(`destroy ${this._id}`)
         this._window?.destroy()
         await delay(50)
       } else {
-        log(`hide ${this._id}`)
         this._window?.hide()
         await delay(50)
       }
     } catch (e) {
-      log(e)
+      log('WARNING during quitting window:', e)
     }
   }
 

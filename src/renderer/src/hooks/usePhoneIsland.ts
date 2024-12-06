@@ -11,7 +11,6 @@ export const usePhoneIsland = () => {
     const phoneIslandTokenLoginResponse = (await NethVoiceAPI.Authentication.phoneIslandTokenLogin()).token
     const deviceInformationObject: Extension | undefined = account.data!.endpoints.extension.find((e) => e.type === 'nethlink')
     if (deviceInformationObject) {
-      log('create data config')
       const hostname = account!.host
       const config: PhoneIslandConfig = {
         hostname,
@@ -36,19 +35,15 @@ export const usePhoneIsland = () => {
   }) => {
     return new Promise<void>((resolve) => {
       const listener = () => {
-        log('received', awaitEvent)
         timer && clearTimeout(timer)
         window.removeEventListener(awaitEvent, listener)
         resolve()
       }
       let timer = setTimeout(() => {
-        log('timeout')
         window.removeEventListener(awaitEvent, listener)
         resolve()
       }, options?.timeout || 300)
-      log('AddEventListener', awaitEvent)
       window.addEventListener(awaitEvent, listener)
-      log('DispatchEvent', event)
       eventDispatch(event, options?.data)
     })
   }

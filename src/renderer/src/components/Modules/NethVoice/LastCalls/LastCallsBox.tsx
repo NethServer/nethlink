@@ -65,7 +65,6 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
   }
 
   const handleClearNotification = (missedCall: CallData) => {
-    log(missedCall, missedCalls)
     setMissedCalls((p) => {
       return p?.filter((c) => c.uniqueid !== missedCall.uniqueid) || []
     })

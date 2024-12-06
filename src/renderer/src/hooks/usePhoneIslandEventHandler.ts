@@ -24,7 +24,7 @@ export const usePhoneIslandEventHandler = () => {
     if (number && validatePhoneNumber(cleanNumber) && isCallsEnabled)
       window.electron.send(IPC_EVENTS.EMIT_START_CALL, cleanNumber)
     else
-      log('unable to call', number)
+      log('WARNING unable to call', number)
   }
 
   const onMainPresence = useCallback((op: { [username: string]: any }) => {

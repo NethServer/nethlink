@@ -29,25 +29,25 @@ export class LoginController {
           loginPage.center()
         }
       }
-    } catch (e) { log(e) }
+    } catch (e) { log('WARNING error during resize LoginWindow: ', e) }
   }
   show() {
     try {
       this.window.show()
-    } catch (e) { log(e) }
+    } catch (e) { log('WARNING error during showing LoginWindow: ', e) }
   }
 
   hide() {
     try {
       this.window!.hide()
-    } catch (e) { log(e) }
+    } catch (e) { log('WARNING error during hiding LoginWindow: ', e) }
   }
 
   async quit() {
     try {
       await this.window.quit(true)
     } catch (e) {
-      log(e)
+      log('WARNING error during quitting LoginWindow: ', e)
     }
   }
 

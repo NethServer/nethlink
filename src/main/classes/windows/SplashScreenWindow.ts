@@ -41,7 +41,7 @@ export class SplashScreenWindow extends BaseWindow {
       })
     }
     catch (e) {
-      log(e)
+      log('WARNING during showing the SplashScreenWindow:', e)
     }
   }
 
@@ -52,7 +52,7 @@ export class SplashScreenWindow extends BaseWindow {
         enableShowButton: true
       })
     } catch (e) {
-      log(e)
+      log('WARNING during hiding the SplashScreenWindow:', e)
     }
   }
 }

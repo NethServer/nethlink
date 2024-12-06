@@ -51,7 +51,6 @@ export const useSpeedDialsModule = (): {
         )
       )
     } catch (e) {
-      log(e)
       throw new Error()
     }
   }

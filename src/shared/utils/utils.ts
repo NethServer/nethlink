@@ -17,7 +17,7 @@ function applyDebouncer(eventId: string, event: () => any, debouncer: number) {
     try {
       event()
     } catch (e) {
-      log(e)
+      log('WARNING error in debouncer:', e)
     }
     debounceEvents[eventId] = undefined
     debounceEvents[`${eventId}_timer`] = undefined

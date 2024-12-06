@@ -40,7 +40,6 @@ const RequestStateComponent = () => {
         resolve(false)
       })
     })
-    log("checkConnection:", { connected, connection: connection.current })
     if (connected !== connection.current) {
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, connected);
     }
@@ -64,7 +63,7 @@ const RequestStateComponent = () => {
           TIMEZONE: account.timezone,
           VOICE_ENDPOINT: account.voiceEndpoint
         }
-        log(window['CONFIG'])
+        log('INFO:', window['CONFIG'])
         setHasWindowConfig(true)
       }
     } else {

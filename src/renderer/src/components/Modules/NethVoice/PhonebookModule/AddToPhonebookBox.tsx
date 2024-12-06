@@ -146,7 +146,7 @@ export function AddToPhonebookBox({ close }) {
             t('Notification.contact_not_created_title'),
             t('Notification.contact_not_created_description')
           )
-          log(error)
+          log('WARNING error during phonebookModule.handleAddContactToPhonebook:', error)
           close()
           reset()
         })

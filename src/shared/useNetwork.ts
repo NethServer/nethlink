@@ -11,7 +11,7 @@ export const useNetwork = () => {
     } catch (e: any) {
       const err: AxiosError = e
       if (!path.includes('login'))
-        log(err.name, err.code, err.message, path, config, data)
+        log('ERROR during fetch POST', err.name, err.code, err.message, path, config, data)
       throw e
     }
   }
@@ -22,7 +22,7 @@ export const useNetwork = () => {
     } catch (e: any) {
       const err: AxiosError = e
 
-      log(err.name, err.code, err.message, path, config)
+      log('ERROR during fetch GET', err.name, err.code, err.message, path, config)
       throw e
     }
   }
