@@ -8,14 +8,41 @@ import { AvailableThemes } from '@shared/types'
 export const parseThemeToClassName = (theme: AvailableThemes | undefined) => {
   return theme === 'system' ? getSystemTheme() : theme || 'dark'
 }
-export function sendNotification(title: string, body: string, openUrl?: string) {
-  const notificationoption: NotificationConstructorOptions = {
-    title,
-    body,
-    silent: false,
-    urgency: 'normal'
+export async function sendNotification(title: string, body: string, openUrl?: string) {
+  let hasPermission = false
+  if (!("Notification" in window)) {
+    // Check if the browser supports notifications
+    alert("This browser does not support desktop notification");
+  } else if (Notification.permission === "granted") {
+    hasPermission = true
+  } else if (Notification.permission !== "denied") {
+    const permission = await Notification.requestPermission()
+    hasPermission = permission === "granted"
   }
-  window.api.sendNotification(notificationoption, openUrl)
+
+  if (hasPermission) {
+    const notificationoption: NotificationOptions = {
+      body,
+      icon: "./icons/Nethlink-logo.svg",
+      //image: "./icons/TrayNotificationIcon.svg",
+      silent: false,
+      badge: 'badge',
+      data: {
+        testData: '',
+      },
+    }
+    const notification = new window.Notification(title, notificationoption);
+    notification.onclick = () => {
+      openUrl && window.open(openUrl, '_blank')
+      log('onclick')
+    }
+    notification.onerror = (e) => {
+      log('NOTIFICATION ERROR:', e)
+    }
+    notification.onshow = (e) => {
+      log('NOTIFICATION SHOW:', e)
+    }
+  }
 }
 
 export const ClassNames = (...args: ClassValue[]) => {
