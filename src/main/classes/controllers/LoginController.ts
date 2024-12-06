@@ -1,6 +1,4 @@
-import { IPC_EVENTS } from '@shared/constants'
 import { LOGIN_WINDOW_WIDTH, LoginWindow } from '../windows'
-import { AccountController } from './AccountController'
 import { log } from '@shared/utils/logger'
 
 export class LoginController {

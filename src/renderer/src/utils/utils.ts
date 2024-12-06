@@ -26,10 +26,6 @@ export async function sendNotification(title: string, body: string, openUrl?: st
       icon: "./icons/Nethlink-logo.svg",
       //image: "./icons/TrayNotificationIcon.svg",
       silent: false,
-      badge: 'badge',
-      data: {
-        testData: '',
-      },
     }
     const notification = new window.Notification(title, notificationoption);
     notification.onclick = () => {

@@ -8,18 +8,17 @@ import { t } from 'i18next'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { sendNotification, validatePhoneNumber } from '@renderer/utils'
-import { usePhonebookSearchModule } from '../../SearchResults/hook/usePhoneBookSearchModule'
-import { useLastCallsModule } from '../LastCalls/hook/useLastCallsModule'
+
 import { usePhonebookModule } from './hook/usePhonebookModule'
 import { log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
-
+import { usePhonebookSearchModule } from '../SearchResults/hook/usePhoneBookSearchModule'
 export function AddToPhonebookBox({ close }) {
   const phoneBookSearchModule = usePhonebookSearchModule()
   const phonebookModule = usePhonebookModule()
   const [searchText] = phoneBookSearchModule.searchTextState
-  const [selectedContact, setSelectedContact] = phonebookModule.selectedContact
+  const [selectedContact] = phonebookModule.selectedContact
 
   const submitButtonRef = useRef<HTMLButtonElement>(null)
   const baseSchema = z.object({

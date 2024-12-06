@@ -9,7 +9,7 @@ import { t } from 'i18next'
 import { PageType } from '@shared/types'
 import { useContext, useState } from 'react'
 import { PageCtx } from '@renderer/contexts/pageContext'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { ConnectionErrorDialog } from '@renderer/components'
 
@@ -19,7 +19,7 @@ export interface SplashScreenPageProps {
 
 export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
   const page = useContext<PageType | undefined>(PageCtx)
-  const [connection] = useStoreState<boolean>('connection')
+  const [connection] = useSharedState('connection')
   const [isNoConnectionDialogOpen, setIsnoConnectionDialogOpen] = useState<boolean>(false)
   useInitialize(() => {
     window.electron.receive(IPC_EVENTS.SHOW_NO_CONNECTION, () => {

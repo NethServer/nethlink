@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faMobile, faVoicemail } from '@fortawesome/free-solid-svg-icons'
 import { Badge } from '@renderer/components/Nethesis/Badge'
-import { useStoreState } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { Account, OperatorData, StatusTypes } from '@shared/types'
 import { t } from 'i18next'
 import { useTheme } from '@renderer/theme/Context'
@@ -16,8 +16,8 @@ export interface PresenceBadgeProps {
 
 export const PresenceBadgeVisibility = ['callforward', 'voicemail', 'cellphone']
 export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) => {
-  const [account] = useStoreState<Account>('account')
-  const [operators] = useStoreState<OperatorData>('operators')
+  const [account] = useSharedState('account')
+  const [operators] = useSharedState('operators')
   const { badge: theme, status: statuses } = useTheme().theme
 
   if (PresenceBadgeVisibility.includes(mainPresence as string)) {

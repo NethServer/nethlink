@@ -1,7 +1,7 @@
 
 import moment from 'moment'
 import hmacSHA1 from 'crypto-js/hmac-sha1'
-import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, LocalStorageData, UseStoreStateType, AccountData, BaseAccountData } from '@shared/types'
+import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, AccountData, BaseAccountData } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
 import { SpeeddialTypes } from './constants'

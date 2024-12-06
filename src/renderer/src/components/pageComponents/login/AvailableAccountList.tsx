@@ -1,4 +1,4 @@
-import { useStoreState } from "@renderer/store"
+import { useLoginPageData, useNethlinkData, useSharedState } from "@renderer/store"
 import { Account, AuthAppData, LoginPageData } from "@shared/types"
 import { t } from "i18next"
 import { DisplayedAccountLogin } from "./DisplayedAccountLogin"
@@ -7,13 +7,10 @@ import { AvailableAccountDeleteDialog } from "./AvailableAccountDeleteDialog"
 import { useState } from "react"
 
 export const AvailableAccountList = ({ handleDeleteAccount }: { handleDeleteAccount: (a: Account) => void }) => {
-  const [auth] = useStoreState<AuthAppData>('auth')
-  const [, setLoginData] = useStoreState<LoginPageData>('loginPageData')
+  const [auth] = useSharedState('auth')
+  const [, setSelectedAccount] = useLoginPageData('selectedAccount')
   const handleSelectAccount = (account) => {
-    setLoginData((p) => ({
-      ...p,
-      selectedAccount: account
-    }))
+    setSelectedAccount(account)
   }
 
   return (

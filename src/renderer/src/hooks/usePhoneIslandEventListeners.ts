@@ -1,17 +1,12 @@
-import { PERMISSION, PHONE_ISLAND_EVENTS, getPhoneIslandSize } from "@shared/constants"
-import { Account, CallData, LocalStorageData, NethLinkData, PhoneIslandData, PhoneIslandSizes, PhoneIslandView } from "@shared/types"
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS, getPhoneIslandSize } from "@shared/constants"
+import { PhoneIslandData, PhoneIslandSizes, PhoneIslandView } from "@shared/types"
 import { log } from "@shared/utils/logger"
-import { useCallback, useEffect, useRef, useState } from "react"
-import { usePhoneIslandEventHandler } from "./usePhoneIslandEventHandler"
-import { useAccount } from "./useAccount"
-import { useLoggedNethVoiceAPI } from "./useLoggedNethVoiceAPI"
+import { useEffect, useState } from "react"
 import { t } from "i18next"
 import { sendNotification } from "@renderer/utils"
-import { differenceWith } from "lodash"
-import { useStoreState } from "@renderer/store"
-import { useRefState } from "./useRefState"
-import { getTimeDifference } from "@renderer/lib/dateTime"
-import { format, utcToZonedTime } from "date-fns-tz"
+import { useSharedState } from "@renderer/store"
+import { debouncer } from "@shared/utils/utils"
+
 
 const defaultCall = {
   accepted: false,
@@ -20,20 +15,10 @@ const defaultCall = {
   transferring: false
 }
 export const usePhoneIslandEventListener = () => {
-  const [account] = useStoreState<LocalStorageData, Account | undefined>('account')
-  const [connected, setConnected] = useRefState<boolean>(useStoreState<LocalStorageData, boolean>('connection'))
-  const [lastCalls, setLastCalls] = useRefState<CallData[]>(useStoreState<NethLinkData, CallData[]>('lastCalls'))
-  const [missedCalls, setMissedCalls] = useRefState<CallData[]>(useStoreState<NethLinkData, CallData[]>('missedCalls'))
-  const { hasPermission } = useAccount()
-  const { NethVoiceAPI } = useLoggedNethVoiceAPI()
-  const {
-    onMainPresence,
-    onQueueUpdate,
-    onParkingsUpdate,
-  } = usePhoneIslandEventHandler()
+  const [account] = useSharedState('account')
+  const [connected, setConnected] = useSharedState('connection')
 
-
-  const [state, setState] = useState<PhoneIslandData>({
+  const [phoneIslandData, setPhoneIslandData] = useState<PhoneIslandData>({
     activeAlerts: {},
     currentCall: {
       ...defaultCall
@@ -43,72 +28,31 @@ export const usePhoneIslandEventListener = () => {
     isOpen: true,
     view: null
   })
-  const [phoneIsalndSizes, setPhoneIslandSized] = useState<PhoneIslandSizes>(getPhoneIslandSize(state))
+  const [phoneIsalndSizes, setPhoneIslandSized] = useState<PhoneIslandSizes>(getPhoneIslandSize(phoneIslandData))
 
 
   const eventHandler = (event: PHONE_ISLAND_EVENTS, callback?: (data?: any) => void | Promise<void>) => ({
-    [event]: useCallback((...data) => {
+    [event]: (...data) => {
       const customEvent = data[0]
       const detail = customEvent['detail']
       log('PHONE ISLAND', event, data)
       callback?.(detail)
-    }, [state])
+    }
   })
 
   useEffect(() => {
-    const a = getPhoneIslandSize(state)
+    const a = getPhoneIslandSize(phoneIslandData)
+    log('INFO state', phoneIslandData, a)
     setPhoneIslandSized(() => ({ ...a }))
-  }, [state])
-
-
-  const gestLastCalls = (newLastCalls: {
-    count: number, rows: CallData[]
-  }) => {
-
-    const diffValueConversation = (diffValueOriginal: any) => {
-      // determine the sign
-      const sign = diffValueOriginal >= 0 ? '+' : '-'
-      // convert hours to string and pad with leading zeros if necessary
-      const hours = Math.abs(diffValueOriginal).toString().padStart(2, '0')
-      // minutes are always '00'
-      const minutes = '00'
-      return `${sign}${hours}${minutes}`
-    }
-
-    const diff = differenceWith(newLastCalls.rows, lastCalls.current || [], (a, b) => a.uniqueid === b.uniqueid)
-    const _missedCalls: CallData[] = [
-      ...(missedCalls.current || [])
-    ]
-    let missed: CallData[] = []
-    if (diff.length > 0) {
-      diff.forEach((c) => {
-        if (c.direction === 'in' && c.disposition === 'NO ANSWER') {
-          _missedCalls.push(c)
-          const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account!, false))
-          const timeDiff = format(utcToZonedTime(c.time! * 1000, differenceBetweenTimezone), 'HH:mm')
-          sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('Notification.lost_call_body', { number: c.src, datetime: timeDiff }))
-        }
-      })
-
-      setMissedCalls((p) => {
-        const pmap = p?.map((c) => c.uniqueid) || []
-        missed = [
-          ...(p || []),
-          ..._missedCalls.filter((c) => !pmap.includes(c.uniqueid))
-        ]
-        return missed
-      })
-    }
-    setLastCalls(newLastCalls.rows)
-  }
+  }, [phoneIslandData])
 
   return {
-    state,
+    state: phoneIslandData,
     phoneIsalndSizes,
     events: {
       //CALLS
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ringing"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p, currentCall: {
             ...p.currentCall,
             incoming: true
@@ -125,17 +69,17 @@ export const usePhoneIslandEventListener = () => {
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-actions-close"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-actions-closed"], () => {
-        setState((p) => ({ ...p, isActionExpanded: false }))
+        setPhoneIslandData((p) => ({ ...p, isActionExpanded: false }))
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-actions-open"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-actions-opened"], () => {
-        setState((p) => ({ ...p, isActionExpanded: true }))
+        setPhoneIslandData((p) => ({ ...p, isActionExpanded: true }))
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answer"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answered"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p, currentCall: {
             ...p.currentCall,
             accepted: true
@@ -150,7 +94,7 @@ export const usePhoneIslandEventListener = () => {
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-start"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-started"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           currentCall: {
             ...p.currentCall,
@@ -161,14 +105,22 @@ export const usePhoneIslandEventListener = () => {
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-end"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ended"], () => {
-        setState((p) => ({ ...p, currentCall: { ...defaultCall }, view: null }))
-        NethVoiceAPI.HistoryCall.interval().then((newLastCalls: {
-          count: number, rows: CallData[]
-        }) => {
-          gestLastCalls(newLastCalls)
-        }).catch(e => {
-          log('WARINGIN error during NethVoiceAPI.HistoryCall.interval', e)
-        })
+        log('CALL END')
+        //TODO: questo set fa rallentare l'app 
+        // setState((p) => ({
+        //   activeAlerts: {},
+        //   isActionExpanded: p.isActionExpanded,
+        //   isListen: p.isListen,
+        //   isOpen: p.isOpen,
+        //   currentCall: {
+        //     accepted: false,
+        //     incoming: false,
+        //     outgoing: false,
+        //     transferring: false
+        //   },
+        //   view: null
+        // }))
+        window.electron.send(IPC_EVENTS.EMIT_CALL_END)
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-intrude"]),
@@ -176,14 +128,14 @@ export const usePhoneIslandEventListener = () => {
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-close"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-closed"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           view: PhoneIslandView.CALL
         }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-open"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-opened"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           view: PhoneIslandView.KEYPAD
         }))
@@ -203,7 +155,7 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-parked"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfered"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           currentCall: {
             ...p.currentCall,
@@ -216,7 +168,7 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-canceled"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-close"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-closed"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           currentCall: {
             ...p.currentCall,
@@ -226,7 +178,7 @@ export const usePhoneIslandEventListener = () => {
         }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-failed"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           currentCall: {
             ...p.currentCall,
@@ -237,7 +189,7 @@ export const usePhoneIslandEventListener = () => {
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-open"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-opened"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           currentCall: {
             ...p.currentCall,
@@ -272,7 +224,7 @@ export const usePhoneIslandEventListener = () => {
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-compress"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-compressed"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           isOpen: false
         }))
@@ -280,7 +232,7 @@ export const usePhoneIslandEventListener = () => {
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expand"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expanded"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           isOpen: true
         }))
@@ -295,20 +247,22 @@ export const usePhoneIslandEventListener = () => {
 
 
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-main-presence"], onMainPresence),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-main-presence"], (data) => {
+        window.electron.send(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, data)
+      }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-parking-update"], () => {
-        if (hasPermission(PERMISSION.PARKINGS)) {
-          NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
-        }
+        window.electron.send(IPC_EVENTS.EMIT_PARKING_UPDATE)
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-queue-member-update"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-queue-update"], onQueueUpdate),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-queue-update"], (data) => {
+        window.electron.send(IPC_EVENTS.EMIT_QUEUE_UPDATE, data)
+      }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-close"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-closed"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           view: PhoneIslandView.CALL
         }))
@@ -329,7 +283,7 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-stopped"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-disconnected"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           activeAlerts: {
             ...p.activeAlerts,
@@ -341,7 +295,7 @@ export const usePhoneIslandEventListener = () => {
         }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-reloaded"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           activeAlerts: {
             ...p.activeAlerts,
@@ -351,7 +305,7 @@ export const usePhoneIslandEventListener = () => {
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-connected"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           activeAlerts: {
             ...p.activeAlerts,
@@ -369,13 +323,13 @@ export const usePhoneIslandEventListener = () => {
 
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-close"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           activeAlerts: {},
         }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-open"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           activeAlerts: {
             ...p.activeAlerts,
@@ -392,7 +346,7 @@ export const usePhoneIslandEventListener = () => {
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-webrtc-registered"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"], () => {
-        setState((p) => ({
+        setPhoneIslandData((p) => ({
           ...p,
           activeAlerts: {},
           currentCall: {

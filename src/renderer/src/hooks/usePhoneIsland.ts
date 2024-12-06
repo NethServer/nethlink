@@ -1,6 +1,5 @@
 import { useLoggedNethVoiceAPI } from "./useLoggedNethVoiceAPI"
 import { Account, Extension, PhoneIslandConfig } from "@shared/types"
-import { log } from "@shared/utils/logger"
 import { PHONE_ISLAND_EVENTS } from "@shared/constants"
 import { eventDispatch } from "./eventDispatch"
 export const usePhoneIsland = () => {

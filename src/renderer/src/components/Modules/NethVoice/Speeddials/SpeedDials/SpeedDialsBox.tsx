@@ -6,7 +6,6 @@ import {
 import { ContactType, NethLinkPageData } from '@shared/types'
 import { t } from 'i18next'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
-import { useStoreState } from '@renderer/store'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useSpeedDialsModule } from '../hook/useSpeedDialsModule'
 import { log } from '@shared/utils/logger'

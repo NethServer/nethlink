@@ -2,7 +2,7 @@ import { PhoneIslandWindow } from '../windows'
 import { IPC_EVENTS } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
-import { debouncer, isDev } from '@shared/utils/utils'
+import { debouncer } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { store } from '@/lib/mainStore'
@@ -114,7 +114,7 @@ export class PhoneIslandController {
   call(number: string) {
     try {
 
-      const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
+      const { NethVoiceAPI } = useNethVoiceAPI(store.store.account)
       NethVoiceAPI.User.me().then((me) => {
         this.window.emit(IPC_EVENTS.START_CALL, number)
       })

@@ -162,7 +162,7 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_HOST_PAGE, async (_, path) => {
-    const account = store.store['account']
+    const account = store.store.account
     shell.openExternal(join('https://' + account!.host, path))
   })
 
@@ -209,6 +209,22 @@ export function registerIpcEvents() {
     const config: string = await NetworkController.instance.get(`https://${account.host}/config/config.production.js`)
     account = parseConfig(account, config)
     e.reply(IPC_EVENTS.SET_NETHVOICE_CONFIG, account)
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_QUEUE_UPDATE, (_, queue) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_QUEUE_UPDATE, queue)
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_CALL_END)
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, (_, mainPresence) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, mainPresence)
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_PARKING_UPDATE, (_) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_PARKING_UPDATE)
   })
 
 }

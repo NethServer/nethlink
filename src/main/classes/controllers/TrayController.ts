@@ -54,7 +54,7 @@ export class TrayController {
   toggleWindow(enableShowButton: boolean) {
     try {
       if (enableShowButton) {
-        if (store.store['account']) {
+        if (store.store.account) {
           if (NethLinkController.instance && NethLinkController.instance.window?.isOpen())
             NethLinkController.instance.hide()
           else
@@ -80,7 +80,7 @@ export class TrayController {
     }) {
     try {
       const _isShowButtonVisible = isShowButtonVisible === undefined ? true : isShowButtonVisible
-      const label = store.store['account']
+      const label = store.store.account
         ? ((NethLinkController.instance && NethLinkController.instance.window?.isOpen()) ? `${t('Tray.Hide')} NethLink` : `${t('Tray.Show')} NethLink`)
         : ((LoginController.instance && LoginController.instance.window?.isOpen()) ? `${t('Tray.Hide')} Login` : `${t('Tray.Show')} Login`)
       const menu: (MenuItemConstructorOptions | MenuItem)[] = [

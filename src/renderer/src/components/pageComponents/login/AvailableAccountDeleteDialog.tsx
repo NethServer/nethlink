@@ -1,6 +1,6 @@
 import { Modal } from "@renderer/components"
 import { Button } from "@renderer/components/Nethesis"
-import { useStoreState } from "@renderer/store"
+import { useSharedState } from "@renderer/store"
 import { parseThemeToClassName, truncate } from "@renderer/utils"
 import { Account, AvailableThemes } from "@shared/types"
 import { t } from "i18next"
@@ -22,7 +22,7 @@ export const AvailableAccountDeleteDialog = ({
 }) => {
 
   const cancelDeleteButtonRef = createRef<HTMLButtonElement>()
-  const [theme] = useStoreState<AvailableThemes>('theme')
+  const [theme] = useSharedState('theme')
 
   const handleDeleteAccount = () => {
     onDelete()

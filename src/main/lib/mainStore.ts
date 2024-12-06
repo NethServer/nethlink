@@ -58,8 +58,8 @@ class Store<T> {
   }
 
   updateStore(newState: T, from: string) {
-    log('STORE', from, newState)
     const diff = difference(Object.values(newState as any || {}), Object.values(this.store as any || {}))
+    log('STORE update shared store from', from, diff.length)
     if (diff.length > 0 || this.store === undefined) {
       this.store = Object.assign({}, newState)
     }

@@ -56,7 +56,11 @@ export function createWindow(
 
   mainWindow.on('close', () => { })
 
-  mainWindow.on('ready-to-show', () => { })
+  mainWindow.on('ready-to-show', () => {
+    mainWindow.webContents.openDevTools({
+      mode: 'detach'
+    })
+  })
 
   mainBindings(ipcMain, mainWindow, fs)
 

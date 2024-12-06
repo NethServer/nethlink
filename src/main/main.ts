@@ -1,8 +1,8 @@
-import { app, clipboard, globalShortcut, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences } from 'electron'
+import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
-import { Account, AuthAppData, AvailableThemes, Extension } from '@shared/types'
+import { Account, AuthAppData, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
 import { join, resolve } from 'path'
@@ -21,7 +21,6 @@ import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
-import { now } from 'moment'
 
 //get app parameter
 const params = process.argv
@@ -59,7 +58,7 @@ function startup() {
   } else {
 
     //I set the app to open at operating system startup
-    if (process.env.node_env !== 'development') {
+    if (process.env.node_env !== 'development' && !isDev()) {
       app.setLoginItemSettings({
         openAtLogin: true
       })
@@ -68,12 +67,12 @@ function startup() {
     ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
       PhoneIslandController.instance.call(phoneNumber)
     })
-    ipcMain.on(IPC_EVENTS.LOGIN, async (e, props?: { password?: string, showNethlink: boolean }) => {
-      const { password, showNethlink } = props || { showNethlink: true }
-      if (LoginController.instance && LoginController.instance.window.isOpen() && password) {
+    ipcMain.on(IPC_EVENTS.LOGIN, async (e, props?: { account?: Account, password?: string, showNethlink: boolean, }) => {
+      const { password, showNethlink, account } = props || { showNethlink: true }
+      if (LoginController.instance && LoginController.instance.window.isOpen() && password && account) {
         log("LOGIN SUCCESS")
         await LoginController.instance.quit()
-        AccountController.instance.saveLoggedAccount(store.store['account']!, password)
+        AccountController.instance.saveLoggedAccount(account, password)
       }
       store.saveToDisk()
       createNethLink(showNethlink)
@@ -202,7 +201,7 @@ function attachOnReadyProcess() {
 
     //I display the splashscreen when the splashscreen component is correctly loaded.
     SplashScreenController.instance.window.addOnBuildListener(() => {
-      setTimeout(startApp, 2500)
+      setTimeout(startApp, 1000)
     })
     await attachProtocolListeners()
 
@@ -297,7 +296,7 @@ function attachOnReadyProcess() {
         if (retryAppStart) {
           clearTimeout(retryAppStart)
         }
-        const auth: AuthAppData | undefined = store.store['auth']
+        const auth: AuthAppData | undefined = store.store.auth
         log('START - request permissions')
         await getPermissions()
         if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
@@ -310,13 +309,13 @@ function attachOnReadyProcess() {
             log('START - autologin failed')
             store.updateStore({
               auth: {
-                ...store.store['auth']!,
+                ...store.store.auth!,
                 lastUser: undefined,
                 lastUserCryptPsw: undefined
               },
               account: undefined,
               theme: 'system',
-              connection: store.store['connection'] || false,
+              connection: store.store.connection || false,
             }, 'showLogin')
             showLogin()
           }
@@ -511,7 +510,7 @@ function attachPowerMonitor() {
       store.updateStore(data, 'onAppResume')
       log('APP POWER RESUME')
       let showNethlink = true
-      if (store.store['account'] && NethLinkController.instance) {
+      if (store.store.account && NethLinkController.instance) {
         const isOpen = NethLinkController.instance.window.isOpen()
         showNethlink = isOpen ?? true
         await PhoneIslandController.instance.logout()
@@ -529,7 +528,7 @@ function attachPowerMonitor() {
 function attachThemeChangeListener() {
   nativeTheme.on('updated', () => {
     if (store.store) {
-      const theme = store.store['theme']
+      const theme = store.store.theme
       const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
         ? 'dark'
         : 'light'
@@ -567,10 +566,16 @@ async function resetApp() {
 
 async function getPermissions() {
   if (process.platform === 'darwin') {
+    let cameraPermission = true
     const cameraPermissionState = systemPreferences.getMediaAccessStatus('camera')
-    const cameraPermission = await systemPreferences.askForMediaAccess('camera')
+    if (cameraPermissionState !== 'granted') {
+      cameraPermission = await systemPreferences.askForMediaAccess('camera')
+    }
+    let microphonePermission = true
     const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
-    const microphonePermission = await systemPreferences.askForMediaAccess('microphone')
+    if (microphonePermissionState !== 'granted') {
+      microphonePermission = await systemPreferences.askForMediaAccess('microphone')
+    }
     log(
       'START - acquired permissions:',
       {
@@ -603,18 +608,21 @@ async function createNethLink(show: boolean = true) {
 }
 
 async function checkForUpdate() {
-  const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
   log('Current app version:', app.getVersion(), 'check for updates...')
+  const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
+  log('Head add version:', latestVersionData.name)
   if (latestVersionData.name !== app.getVersion() || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }
 
 function checkData(data: any): boolean {
-  log('Verify app data:', { data })
-  return data?.hasOwnProperty('auth') &&
+  const isValid = data?.hasOwnProperty('auth') &&
     data?.hasOwnProperty('theme') &&
     data?.hasOwnProperty('connection')
+  log('Check if app data is valid:', isValid)
+  return isValid
+
 }
 
 async function checkConnection() {

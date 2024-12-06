@@ -2,19 +2,18 @@ import {
   faMagnifyingGlass as SearchIcon,
   faXmark as DeleteSearchIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { TextInput } from '../../Nethesis/TextInput'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button } from '../../Nethesis'
 import { validatePhoneNumber } from '@renderer/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { useEffect, useState } from 'react'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
-import { useStoreState } from '@renderer/store'
+import { useNethlinkData } from '@renderer/store'
 import { NethLinkPageData } from '@shared/types'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { log } from '@shared/utils/logger'
 import { useForm } from 'react-hook-form'
+import { Button, TextInput } from '@renderer/components/Nethesis'
 
 type FormDataType = {
   searchText: string | undefined;
@@ -25,7 +24,9 @@ export function SearchBox(): JSX.Element {
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookSearchModule = usePhonebookSearchModule()
   const [searchText, setSearchText] = phoneBookSearchModule.searchTextState
-  const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [phonebookSearchModule] = useNethlinkData('phonebookSearchModule')
+  const [, setShowPhonebookSearchModule] = useNethlinkData('showPhonebookSearchModule')
+  const [, setShowAddContactModule] = useNethlinkData('showAddContactModule')
 
   const {
     register,
@@ -40,12 +41,9 @@ export function SearchBox(): JSX.Element {
   })
 
   useEffect(() => {
-    if (nethLinkPageData?.phonebookSearchModule?.searchText != null) {
-      setNethLinkPageData((p) => ({
-        ...p,
-        showPhonebookSearchModule: !!searchText,
-        showAddContactModule: false
-      }))
+    if (phonebookSearchModule?.searchText != null) {
+      setShowPhonebookSearchModule(!!searchText)
+      setShowAddContactModule(false)
     } else {
       reset()
     }
@@ -59,10 +57,7 @@ export function SearchBox(): JSX.Element {
       setSearchText(tempSearchText)
     } else {
       setValue('searchText', '')
-      setNethLinkPageData((p) => ({
-        ...p,
-        showPhonebookSearchModule: false
-      }))
+      setShowPhonebookSearchModule(false)
     }
   }, [tempSearchText])
 

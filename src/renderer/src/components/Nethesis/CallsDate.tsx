@@ -14,7 +14,7 @@ import { UTCDate } from '@date-fns/utc'
 import { Account } from '@shared/types'
 import { log } from '@shared/utils/logger'
 import { isDev } from '@shared/utils/utils'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 
 interface CallsDateProps {
   call: any
@@ -24,7 +24,7 @@ interface CallsDateProps {
 }
 
 export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnnouncement }) => {
-  const [account] = useStoreState<Account>('account')
+  const [account] = useSharedState('account')
 
   const [selectedLanguage, setSelectedLanguage] = useState('')
 

@@ -6,7 +6,7 @@ import {
 import { LastCall } from './LastCall'
 import { CallData, ContactType, LastCallData, OperatorData } from '@shared/types'
 import { t } from 'i18next'
-import { useStoreState } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
 import { useEffect, useState } from 'react'
@@ -17,10 +17,10 @@ import { EmptyList } from '@renderer/components/EmptyList'
 
 export function LastCallsBox({ showContactForm }): JSX.Element {
 
-  const [lastCalls] = useStoreState<CallData[]>('lastCalls')
-  const [operators] = useStoreState<OperatorData>('operators')
-  const [speeddials] = useStoreState<ContactType[]>('speeddials')
-  const [missedCalls, setMissedCalls] = useStoreState<CallData[]>('missedCalls')
+  const [lastCalls] = useSharedState('lastCalls')
+  const [operators] = useSharedState('operators')
+  const [speeddials] = useSharedState('speeddials')
+  const [missedCalls, setMissedCalls] = useSharedState('missedCalls')
   const [preparedCalls, setPreparedCalls] = useState<LastCallData[]>([])
   const title = `${t('LastCalls.Calls', { count: lastCalls?.length })} (${lastCalls?.length || 0})`
 

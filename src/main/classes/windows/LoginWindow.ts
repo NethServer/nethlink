@@ -3,7 +3,7 @@ import { TrayController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
 import { LoginPageSize } from '@shared/constants'
 import { log } from '@shared/utils/logger'
-import { debouncer, delay } from '@shared/utils/utils'
+import { debouncer } from '@shared/utils/utils'
 
 export const LOGIN_WINDOW_WIDTH = 500
 export class LoginWindow extends BaseWindow {

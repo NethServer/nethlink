@@ -5,7 +5,6 @@ import { screen } from 'electron'
 import { NethLinkPageSize } from '@shared/constants'
 import { log } from '@shared/utils/logger'
 import { debouncer, delay } from '@shared/utils/utils'
-import { store } from '@/lib/mainStore'
 import { AccountController } from '../controllers'
 
 export class NethLinkWindow extends BaseWindow {

@@ -14,7 +14,7 @@ import { getIsPhoneNumber } from '@renderer/lib/utils'
 import { log } from '@shared/utils/logger'
 import { Account } from '@shared/types'
 import { isEmpty } from 'lodash'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
@@ -29,7 +29,7 @@ export interface PresenceBoxProps {
 export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: PresenceBoxProps) {
   const { saveOperators } = usePhoneIslandEventHandler()
   const [isForwardDialogOpen, setIsForwardDialogOpen] = useState<boolean>(false)
-  const [account, setAccount] = useStoreState<Account>('account')
+  const [account, setAccount] = useSharedState('account')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const { hasPermission } = useAccount()
 

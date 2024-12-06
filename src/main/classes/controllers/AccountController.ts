@@ -35,7 +35,7 @@ export class AccountController {
   }
 
   listAvailableAccounts(): Account[] {
-    const authAppData = store.store['auth']
+    const authAppData = store.store.auth
     if (authAppData) return Object.values(authAppData.availableAccounts)
     return []
   }
@@ -49,14 +49,14 @@ export class AccountController {
       },
       account: undefined,
       theme: store.store.theme,
-      connection: store.store['connection'] || false
+      connection: store.store.connection || false
     }, 'logout')
     store.saveToDisk()
   }
 
   async autoLogin(): Promise<boolean> {
     //
-    const authAppData = store.store['auth']
+    const authAppData = store.store.auth
     if (authAppData?.lastUser) {
       const lastLoggedAccount = authAppData.availableAccounts[authAppData.lastUser]
       if (lastLoggedAccount && authAppData.lastUserCryptPsw) {
@@ -113,7 +113,7 @@ export class AccountController {
           lastUser: accountUID,
           lastUserCryptPsw: cryptString
         },
-        connection: store.store['connection'] || false
+        connection: store.store.connection || false
       }, 'saveLoggedAccount')
       store.saveToDisk()
       return account
@@ -145,7 +145,7 @@ export class AccountController {
 
 
   getAccountPhoneIslandPosition(): { x: number; y: number } | undefined {
-    return store.store['account']?.phoneIslandPosition
+    return store.store.account?.phoneIslandPosition
   }
 
   setAccountPhoneIslandPosition(phoneIslandPosition: { x: number; y: number }): void {
@@ -167,7 +167,7 @@ export class AccountController {
   }
 
   getAccountNethLinkBounds(): Electron.Rectangle | undefined {
-    return store.store['account']?.nethlinkBounds
+    return store.store.account?.nethlinkBounds
   }
 
   setAccountNethLinkBounds(nethlinkBounds: Electron.Rectangle | undefined): void {

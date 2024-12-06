@@ -2,7 +2,7 @@ import { PAGES, PageType } from '@shared/types'
 import { faCode, faBell, faSlash, faWifi, IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { sendNotification } from '@renderer/utils'
 import { ReactNode } from 'react'
@@ -11,8 +11,8 @@ interface DevToolProps {
   handleRefreshConnection: () => void
 }
 export const DevToolsPage = ({ handleRefreshConnection }: DevToolProps) => {
-  const [page] = useStoreState<PageType>('page')
-  const [connection, setConnection] = useStoreState<boolean>('connection')
+  const [page] = useSharedState('page')
+  const [connection, setConnection] = useSharedState('connection')
   useInitialize(() => { }, true)
 
   const toggleConnection = () => {

@@ -1,6 +1,6 @@
 import { ModuleTitle } from "@renderer/components/ModuleTitle"
 import { Scrollable } from "@renderer/components/Scrollable"
-import { useStoreState } from "@renderer/store"
+import { useSharedState } from "@renderer/store"
 import { Account, ParkingType } from "@shared/types"
 import { t } from "i18next"
 import { ParkedCall } from "./ParkedCall"
@@ -19,7 +19,7 @@ import { isEmpty } from "lodash"
 export const ParkingBox = () => {
 
   const { parkedCalls } = useParkingModule()
-  const [account] = useStoreState<Account>('account')
+  const [account] = useSharedState('account')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   async function pickParking(parkingInfoDetails: any) {

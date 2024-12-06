@@ -21,7 +21,7 @@ type SpeedDialFormBoxData = {
 export function SpeedDialFormBox({ close }) {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const speedDialModule = useSpeedDialsModule()
-  const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
+  const [selectedSpeedDial] = speedDialModule.speedDialsState
   const submitButtonRef = useRef<HTMLButtonElement>(null)
 
   const schema: z.ZodType<SpeedDialFormBoxData> = z.object({
