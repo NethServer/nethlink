@@ -1,6 +1,6 @@
-import { useNethlinkData, useSharedState } from "@renderer/store"
-import { Account, CallData, ContactType, HistoryCallData, OperatorData, OperatorsType, ParkingType, ParkingsType, QueuesType } from "@shared/types"
-import { log } from "@shared/utils/logger"
+import { useSharedState } from "@renderer/store"
+import { CallData, ContactType, HistoryCallData, OperatorData, OperatorsType, ParkingType, ParkingsType, QueuesType } from "@shared/types"
+import { Log } from "@shared/utils/logger"
 import { useAccount } from "./useAccount"
 import { sendNotification, validatePhoneNumber } from "@renderer/utils"
 import { useCallback, useMemo } from "react"
@@ -10,18 +10,19 @@ import { format, utcToZonedTime } from "date-fns-tz"
 import { useLoggedNethVoiceAPI } from "./useLoggedNethVoiceAPI"
 import { differenceWith } from "lodash"
 import { t } from "i18next"
+import { useRefState } from "./useRefState"
 
 export const usePhoneIslandEventHandler = () => {
 
   const { isCallsEnabled, hasPermission } = useAccount()
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
-  const [account, setAccount] = useSharedState('account')
-  const [operators, setOperators] = useSharedState('operators')
-  const [speeddials, setSpeeddials] = useSharedState('speeddials')
-  const [queues, setQueues] = useSharedState('queues')
-  const [parkings, setParkings] = useSharedState('parkings')
-  const [lastCalls, setLastCalls] = useSharedState('lastCalls')
-  const [missedCalls, setMissedCalls] = useSharedState('missedCalls')
+  const [account, setAccount] = useRefState(useSharedState('account'))
+  const [operators, setOperators] = useRefState(useSharedState('operators'))
+  const [, setSpeeddials] = useRefState(useSharedState('speeddials'))
+  const [, setQueues] = useRefState(useSharedState('queues'))
+  const [, setParkings] = useRefState(useSharedState('parkings'))
+  const [lastCalls, setLastCalls] = useRefState(useSharedState('lastCalls'))
+  const [missedCalls, setMissedCalls] = useRefState(useSharedState('missedCalls'))
 
 
   function callNumber(number: string) {
@@ -30,27 +31,27 @@ export const usePhoneIslandEventHandler = () => {
     if (number && validatePhoneNumber(cleanNumber) && isCallsEnabled)
       window.electron.send(IPC_EVENTS.EMIT_START_CALL, cleanNumber)
     else
-      log('WARNING unable to call', number)
+      Log.warning('unable to call', number)
   }
 
   const onMainPresence = useCallback((op: { [username: string]: any }) => {
     // eslint-disable-next-line no-prototype-builtins
     const updatedOperators = {
-      operators: operators?.operators || {},
-      userEndpoints: operators?.operators || {},
+      operators: operators.current?.operators || {},
+      userEndpoints: operators.current?.operators || {},
       //the other data only comes to me from the fetch and so I can take it as valid
-      avatars: operators?.avatars || {},
-      groups: operators?.groups || {},
-      extensions: operators?.extensions || {},
+      avatars: operators.current?.avatars || {},
+      groups: operators.current?.groups || {},
+      extensions: operators.current?.extensions || {},
     }
     for (const [username, operator] of Object.entries(op)) {
       updatedOperators.operators[username] = {
         ...(updatedOperators.operators[username] || operator),
         ...operator
       }
-      if (account && username === account.username) {
-        account.data!.mainPresence = operator.mainPresence
-        setAccount(() => account)
+      if (account && username === account.current?.username) {
+        account.current.data!.mainPresence = operator.mainPresence
+        setAccount(() => account.current)
       }
     }
     setOperators(() => updatedOperators)
@@ -96,16 +97,16 @@ export const usePhoneIslandEventHandler = () => {
       return `${sign}${hours}${minutes}`
     }
 
-    const diff = differenceWith(newLastCalls.rows, lastCalls || [], (a, b) => a.uniqueid === b.uniqueid)
+    const diff = differenceWith(newLastCalls.rows, lastCalls.current || [], (a, b) => a.uniqueid === b.uniqueid)
     const _missedCalls: CallData[] = [
-      ...(missedCalls || [])
+      ...(missedCalls.current || [])
     ]
     let missed: CallData[] = []
     if (diff.length > 0) {
       diff.forEach((c) => {
         if (c.direction === 'in' && c.disposition === 'NO ANSWER') {
           _missedCalls.push(c)
-          const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account!, false))
+          const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account.current!, false))
           const timeDiff = format(utcToZonedTime(c.time! * 1000, differenceBetweenTimezone), 'HH:mm')
           sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('Notification.lost_call_body', { number: c.src, datetime: timeDiff }))
         }
@@ -130,7 +131,7 @@ export const usePhoneIslandEventHandler = () => {
       } = await NethVoiceAPI.HistoryCall.interval()
       gestLastCalls(newLastCalls)
     } catch (e) {
-      log('WARINGIN error during NethVoiceAPI.HistoryCall.interval', e)
+      Log.warning('error during NethVoiceAPI.HistoryCall.interval', e)
     }
   }
 

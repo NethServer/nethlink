@@ -1,10 +1,15 @@
+
+/**
+ *  This file is an adaptation of the AIDAPT open library @aidapt/global-state for this project.
+ *  https://www.npmjs.com/package/@aidapt/global-state
+ */
+
 import { FilterTypes, IPC_EVENTS, LoginPageSize, MENU_ELEMENT } from '@shared/constants';
 import { LocalStorageData, LoginPageData, NethLinkPageData } from '@shared/types';
-import { log } from '@shared/utils/logger';
-import { useCallback, useEffect, useRef } from 'react';
+import { Log } from '@shared/utils/logger';
+import { useEffect, useRef } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware'
-import { useInitialize } from './hooks/useInitialize';
 import { usePageCtx } from './contexts/pageContext';
 
 type SharedState<T> = {
@@ -37,24 +42,19 @@ export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWith
       let state
       let updatedValue
       if (typeof arg0 === 'function') {
-        // Gestione quando arg0 è una funzione updater
         state = setData(key, (prevValue: T[Key]) => {
-          // Chiama la funzione arg0 con il valore precedente e aggiorna con il nuovo valore ritornato
           updatedValue = (arg0 as (prev: T[Key]) => T[Key])(prevValue);
           return updatedValue
         });
-        //log('STORE update as func', state)
 
       } else {
         updatedValue = arg0
-        // Gestione quando arg0 è un valore diretto
         state = setData(key, arg0);
-        //log('STORE update directly', state)
       }
 
       if (sharedWithBackend) {
         const sharedStateCopy = Object.assign({}, state)
-        log('STORE share state from', pageData?.page, { key: key })
+        Log.info('STORE share state from', pageData?.page, { key: key })
         window.electron.send(IPC_EVENTS.UPDATE_SHARED_STATE, sharedStateCopy, pageData?.page, key);
       }
     };
@@ -69,17 +69,17 @@ export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWith
 
     useEffect(() => {
       if (pageData && !isRegistered.current) {
-        log('INFO shared state registered')
+        Log.info('shared state registered')
         isRegistered.current = true
         window.electron.receive(IPC_EVENTS.SHARED_STATE_UPDATED, (newStore: T, fromPage: string) => {
           if (fromPage !== pageData.page) {
-            log('INFO shared state received from', fromPage)
+            Log.info('shared state received from', fromPage)
             Object.keys(newStore as object).forEach((k: any) => {
               setData(k, newStore[k])
             })
           }
         })
-        log('INFO shared state requested for the first time')
+        Log.info('shared state requested for the first time')
         window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE);
       }
     }, [pageData]);
