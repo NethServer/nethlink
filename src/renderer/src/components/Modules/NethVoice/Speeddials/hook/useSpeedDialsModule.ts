@@ -1,8 +1,7 @@
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { useNethlinkData, useSharedState } from "@renderer/store"
 import { SpeeddialTypes } from "@shared/constants"
-import { ContactType, NethLinkPageData, NewContactType, NewSpeedDialType, SpeedDialModuleData, StateType } from "@shared/types"
-import { log } from "@shared/utils/logger"
+import { ContactType, NewContactType, NewSpeedDialType, SpeedDialModuleData, StateType } from "@shared/types"
 import { useEffect, useState } from "react"
 
 export const useSpeedDialsModule = (): {

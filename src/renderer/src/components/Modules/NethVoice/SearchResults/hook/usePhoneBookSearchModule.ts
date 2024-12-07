@@ -1,7 +1,6 @@
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { useNethlinkData } from "@renderer/store"
-import { NethLinkPageData, PhonebookSearchModuleData, SearchCallData, SearchData, StateType } from "@shared/types"
-import { log } from "@shared/utils/logger"
+import { PhonebookSearchModuleData, SearchCallData, SearchData, StateType } from "@shared/types"
 
 export const usePhonebookSearchModule = (): {
   searchTextState: StateType<string | null>,

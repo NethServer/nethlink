@@ -6,7 +6,7 @@ import { Account, AuthAppData, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
 import { join, resolve } from 'path'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
 import { debouncer, delay, isDev } from '@shared/utils/utils'
@@ -27,7 +27,7 @@ const params = process.argv
 for (const arg of params) {
   if (arg.includes('=')) {
     const kv: any[] = arg.split('=')
-    if (kv[0] === 'DEV') {
+    if (['DEV', 'DEVTOOLS'].includes(kv[0])) {
       kv[1] = kv[1] === 'true'
     } else {
       kv[1] = undefined
@@ -38,7 +38,7 @@ for (const arg of params) {
 }
 const multipleInstances = !!process.env['INSTANCE']
 process.env['APP_VERSION'] = app.getVersion()
-log('ENV:', process.env)
+Log.info('ENV:', process.env)
 
 function startup() {
   app.setName('NethLink')
@@ -49,10 +49,10 @@ function startup() {
 
   //windows
   const gotTheLock = multipleInstances || app.requestSingleInstanceLock()
-  log('gotTheLock', gotTheLock)
+  Log.info('gotTheLock', gotTheLock)
 
   if (!gotTheLock) {
-    log('Block second instance')
+    Log.info('Block second instance')
     app.quit()
     return;
   } else {
@@ -70,7 +70,7 @@ function startup() {
     ipcMain.on(IPC_EVENTS.LOGIN, async (e, props?: { account?: Account, password?: string, showNethlink: boolean, }) => {
       const { password, showNethlink, account } = props || { showNethlink: true }
       if (LoginController.instance && LoginController.instance.window.isOpen() && password && account) {
-        log("LOGIN SUCCESS")
+        Log.info("LOGIN SUCCESS")
         await LoginController.instance.quit()
         AccountController.instance.saveLoggedAccount(account, password)
       }
@@ -79,7 +79,7 @@ function startup() {
     })
 
     ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
-      log('logout from event')
+      Log.info('logout from event')
       await PhoneIslandController.instance.logout()
       NethLinkController.instance.logout()
       AccountController.instance.logout()
@@ -138,7 +138,7 @@ async function startLocalization() {
     cacheUserLanguage: Function.prototype
   }
 
-  log(config)
+  Log.info(config)
   await i18next.use(Backend).use(electronDetector).init(config)
 }
 function startLogger() {
@@ -192,7 +192,7 @@ function attachOnReadyProcess() {
 
   app.whenReady().then(async () => {
     let isGone = false
-    log('APP READY')
+    Log.info('APP READY')
     await startLocalization()
 
     //I create the Tray controller instance - I define to it the function it should execute upon clicking on the icon
@@ -206,11 +206,16 @@ function attachOnReadyProcess() {
     await attachProtocolListeners()
 
     app.on('activate', (e, isWindowOpen) => {
-      log('ACTIVATE WINDOW', e, isWindowOpen)
+      Log.info('ACTIVATE WINDOW', e, isWindowOpen)
       if (!isWindowOpen && !NethLinkController.instance.window.isOpen()) {
         NethLinkController.instance.show()
       }
     })
+
+    app.on('browser-window-blur', (...args) => {
+      Log.info('WINDOW BLUR', args)
+    })
+
     SplashScreenController.instance.show()
     app.on('render-process-gone', async (...args) => {
       const gone = args[2]
@@ -221,12 +226,12 @@ function attachOnReadyProcess() {
         if (ext) {
           const { NethVoiceAPI } = useNethVoiceAPI(account)
           const res = await NethVoiceAPI.User.default_device(ext)
-          log('GONE', res, ext.type, ext.id)
+          Log.info('GONE', res, ext.type, ext.id)
         }
       }
     })
 
-    if (isDev() && false) {
+    if (isDev()) {
       const events: string[] = [
         'accessibility-support-changed',
         'activity-was-continued',
@@ -253,7 +258,7 @@ function attachOnReadyProcess() {
       ]
       events.forEach((e: any) => {
         app.on(e, (...args) => {
-          log(`APP-EVENT ${e}`, args)
+          Log.info(`APP-EVENT ${e}`, args)
         })
       })
     }
@@ -283,9 +288,9 @@ function attachOnReadyProcess() {
 
     } else {
       await checkConnection()
-      log('START - START APP, retry:', attempt)
+      Log.info('START - START APP, retry:', attempt)
       if (!store.store.connection) {
-        log('START - NO CONNECTION', attempt, store.store)
+        Log.info('START - NO CONNECTION', attempt, store.store)
         if (attempt >= 3)
           SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
 
@@ -297,16 +302,16 @@ function attachOnReadyProcess() {
           clearTimeout(retryAppStart)
         }
         const auth: AuthAppData | undefined = store.store.auth
-        log('START - request permissions')
+        Log.info('START - request permissions')
         await getPermissions()
         if (auth?.isFirstStart !== undefined && !auth?.isFirstStart) {
-          log('START - try autologin')
+          Log.info('START - try autologin')
           const isLastUserLogged = await AccountController.instance.autoLogin()
           if (isLastUserLogged) {
-            log('START - autologin success')
+            Log.info('START - autologin success')
             ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink: true })
           } else {
-            log('START - autologin failed')
+            Log.info('START - autologin failed')
             store.updateStore({
               auth: {
                 ...store.store.auth!,
@@ -339,7 +344,7 @@ function attachOnReadyProcess() {
     if (retryAppStart) {
       clearTimeout(retryAppStart)
     }
-    log('APP QUIT CORRECTLY')
+    Log.info('APP QUIT CORRECTLY')
   })
 }
 
@@ -393,7 +398,7 @@ async function attachProtocolListeners() {
   // if we are running a non-packaged version of the app && on windows
   const res: { [protocol: string]: boolean } = {}
   if (process.env.node_env === 'development' && process.argv.length > 2) {
-    log('attachProtocolListeners:', process.argv.join('; '))
+    Log.info('attachProtocolListeners:', process.argv.join('; '))
     // set the path of electron.exe and your app.
     // these two additional parameters are only available on windows.
     res['tel'] = app.setAsDefaultProtocolClient('tel', process.execPath, [resolve(process.argv[1])])
@@ -405,12 +410,12 @@ async function attachProtocolListeners() {
     res['nethlink'] = app.setAsDefaultProtocolClient('nethlink')
 
   }
-  log('associated protocols:', res)
+  Log.info('associated protocols:', res)
 
   app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
     // Print out data received from the second instance.
     const cmd = commandLine.pop()
-    log('SECOND INSTANCE', { event, commandLine, workingDirectory, additionalData, cmd })
+    Log.info('SECOND INSTANCE', { event, commandLine, workingDirectory, additionalData, cmd })
     if (!multipleInstances) {
       if (cmd) {
         const regex = /(\w+):(?:\/\/?)?([^\/?]+(?:\/[^?]*)?(?:\?.*)?)/;
@@ -451,11 +456,11 @@ async function attachProtocolListeners() {
     const regex = /(\+?\*?\d+)/;
     const match = url.match(regex)
     if (match) {
-      log('HandleProtocol TEL/CALLTO:', match[0])
+      Log.info('HandleProtocol TEL/CALLTO:', match[0])
       try {
         PhoneIslandController.instance.call(match[0])
       } catch (e) {
-        log('ERROR HandleProtocol TEL/CALLTO:', e)
+        Log.info('ERROR HandleProtocol TEL/CALLTO:', e)
       }
     }
     return new Promise((resolve) => resolve)
@@ -463,12 +468,12 @@ async function attachProtocolListeners() {
 
   function handleNethLinkProtocol(data: string): Promise<Response> {
     //we have to define the purpose of the nethlink custom protocol
-    log('HandleProtocol Nethlink:', data)
+    Log.info('HandleProtocol Nethlink:', data)
     //TODO: define actions
     try {
       NethLinkController.instance.show()
     } catch (e) {
-      log('ERROR HandleProtocol Nethlink:', e)
+      Log.info('ERROR HandleProtocol Nethlink:', e)
     }
     return new Promise((resolve) => resolve)
   }
@@ -480,7 +485,7 @@ async function attachProtocolListeners() {
   //   }
   //   globalShortcut.register(shortcut, () => {
   //     const selection = getClipboardSelection()
-  //     //log('clipboard:', selection)
+  //     //Log.info('clipboard:', selection)
   //     handleTelProtocol(selection)
   //   })
   // }
@@ -495,20 +500,20 @@ function attachPowerMonitor() {
 
 
   async function onAppShutdown() {
-    log('APP POWER SHUTDOWN')
+    Log.info('APP POWER SHUTDOWN')
     await AppController.safeQuit()
   }
 
   async function onAppSuspend() {
     store.saveToDisk()
-    log('APP POWER SUSPEND')
+    Log.info('APP POWER SUSPEND')
   }
 
   async function onAppResume() {
     debouncer('onAppResume', async () => {
       const data = store.getFromDisk()
       store.updateStore(data, 'onAppResume')
-      log('APP POWER RESUME')
+      Log.info('APP POWER RESUME')
       let showNethlink = true
       if (store.store.account && NethLinkController.instance) {
         const isOpen = NethLinkController.instance.window.isOpen()
@@ -576,7 +581,7 @@ async function getPermissions() {
     if (microphonePermissionState !== 'granted') {
       microphonePermission = await systemPreferences.askForMediaAccess('microphone')
     }
-    log(
+    Log.info(
       'START - acquired permissions:',
       {
         cameraPermissionState,
@@ -608,9 +613,9 @@ async function createNethLink(show: boolean = true) {
 }
 
 async function checkForUpdate() {
-  log('Current app version:', app.getVersion(), 'check for updates...')
+  Log.info('Current app version:', app.getVersion(), 'check for updates...')
   const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
-  log('Head add version:', latestVersionData.name)
+  Log.info('Head add version:', latestVersionData.name)
   if (latestVersionData.name !== app.getVersion() || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
@@ -620,7 +625,7 @@ function checkData(data: any): boolean {
   const isValid = data?.hasOwnProperty('auth') &&
     data?.hasOwnProperty('theme') &&
     data?.hasOwnProperty('connection')
-  log('Check if app data is valid:', isValid)
+  Log.info('Check if app data is valid:', isValid)
   return isValid
 
 }
@@ -633,7 +638,7 @@ async function checkConnection() {
       resolve(false)
     })
   })
-  log("checkConnection:", { connected, connection: store.store.connection })
+  Log.info("checkConnection:", { connected, connection: store.store.connection })
   if (connected !== store.store.connection) {
     ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, connected);
   }

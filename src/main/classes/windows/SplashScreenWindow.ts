@@ -1,7 +1,7 @@
 import { PAGES } from '@shared/types'
 import { BaseWindow } from './BaseWindow'
 import { TrayController } from '../controllers'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 
 export class SplashScreenWindow extends BaseWindow {
   constructor() {
@@ -41,7 +41,7 @@ export class SplashScreenWindow extends BaseWindow {
       })
     }
     catch (e) {
-      log('WARNING during showing the SplashScreenWindow:', e)
+      Log.warning('during showing the SplashScreenWindow:', e)
     }
   }
 
@@ -52,7 +52,7 @@ export class SplashScreenWindow extends BaseWindow {
         enableShowButton: true
       })
     } catch (e) {
-      log('WARNING during hiding the SplashScreenWindow:', e)
+      Log.warning('during hiding the SplashScreenWindow:', e)
     }
   }
 }

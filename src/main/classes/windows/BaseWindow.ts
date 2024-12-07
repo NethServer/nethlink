@@ -1,6 +1,6 @@
 import { WindowOptions, createWindow } from '@/lib/windowConstructor'
 import { IPC_EVENTS } from '@shared/constants'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { delay, isDev } from '@shared/utils/utils'
 import { BrowserWindow } from 'electron'
 
@@ -42,7 +42,7 @@ export class BaseWindow {
     try {
       this._window?.webContents.send(event, ...args)
     } catch (e) {
-      log('ERROR on window.emit', e, { event, args })
+      Log.error('on window.emit', e, { event, args })
       throw (e)
     }
   }
@@ -51,7 +51,7 @@ export class BaseWindow {
     try {
       this._window?.hide()
     } catch (e) {
-      log('WARNING during hiding window:', e)
+      Log.warning('during hiding window:', e)
     }
   }
 
@@ -59,7 +59,7 @@ export class BaseWindow {
     try {
       this._window?.show()
     } catch (e: any) {
-      log('WARNING during showing window:', e)
+      Log.warning('during showing window:', e)
     }
   }
 
@@ -92,7 +92,7 @@ export class BaseWindow {
         await delay(50)
       }
     } catch (e) {
-      log('WARNING during quitting window:', e)
+      Log.warning('during quitting window:', e)
     }
   }
 

@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { sendNotification, validatePhoneNumber } from '@renderer/utils'
 
 import { usePhonebookModule } from './hook/usePhonebookModule'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
 import { usePhonebookSearchModule } from '../SearchResults/hook/usePhoneBookSearchModule'
@@ -145,7 +145,7 @@ export function AddToPhonebookBox({ close }) {
             t('Notification.contact_not_created_title'),
             t('Notification.contact_not_created_description')
           )
-          log('WARNING error during phonebookModule.handleAddContactToPhonebook:', error)
+          Log.warning('error during phonebookModule.handleAddContactToPhonebook:', error)
           close()
           reset()
         })

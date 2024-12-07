@@ -1,6 +1,6 @@
 import { PhoneIslandWindow } from '../windows'
 import { IPC_EVENTS } from '@shared/constants'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
 import { debouncer } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
@@ -38,7 +38,7 @@ export class PhoneIslandController {
         }
       }
     } catch (e) {
-      log('WARNING error during resizing PhoneIslandWindow:', e)
+      Log.warning('error during resizing PhoneIslandWindow:', e)
     }
 
   }
@@ -76,7 +76,7 @@ export class PhoneIslandController {
         }
       }
     } catch (e) {
-      log('WARNING error during showing PhoneIslandWindow:', e)
+      Log.warning('error during showing PhoneIslandWindow:', e)
     }
   }
 
@@ -92,7 +92,7 @@ export class PhoneIslandController {
       }
       debouncer('hide', () => window?.hide(), 250)
     } catch (e) {
-      log('WARNING error during hiding PhoneIslandWindow:', e)
+      Log.warning('error during hiding PhoneIslandWindow:', e)
     }
   }
 
@@ -105,7 +105,7 @@ export class PhoneIslandController {
           resolve()
         })
       } catch (e) {
-        log('ERROR during emitting logout event to the PhoneIslandWindow:', e)
+        Log.error('during emitting logout event to the PhoneIslandWindow:', e)
         reject()
       }
     })
@@ -119,21 +119,21 @@ export class PhoneIslandController {
         this.window.emit(IPC_EVENTS.START_CALL, number)
       })
     } catch (e) {
-      log('WARNING error during emitting start call event to the PhoneIslandWindow:', e)
+      Log.warning('error during emitting start call event to the PhoneIslandWindow:', e)
     }
   }
 
   reconnect() {
     try {
-      log('PHONE ISLAND RECONNECT')
+      Log.info('PHONE ISLAND RECONNECT')
       this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
       once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-        log('PHONE ISLAND RECONNECTION AFTER LOGOUT')
+        Log.info('PHONE ISLAND RECONNECTION AFTER LOGOUT')
         this.window.quit(false)
         new PhoneIslandController()
       })
     } catch (e) {
-      log('WARNING error during emitting reconnect event to the PhoneIslandWindow:', e)
+      Log.warning('error during emitting reconnect event to the PhoneIslandWindow:', e)
     }
   }
 

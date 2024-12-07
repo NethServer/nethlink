@@ -1,9 +1,6 @@
-import { useEffect, useRef, useState } from "react"
 import { AddToPhonebookBox } from "./AddToPhonebookBox"
 import { usePhonebookModule } from "./hook/usePhonebookModule"
 import { useNethlinkData } from "@renderer/store"
-import { NethLinkPageData } from "@shared/types"
-import { log } from "@shared/utils/logger"
 
 export const PhonebookModule = () => {
 

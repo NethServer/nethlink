@@ -1,4 +1,4 @@
-import { log } from '@shared/utils/logger';
+import { Log } from '@shared/utils/logger';
 import axios, { AxiosError } from 'axios'
 export class NetworkController {
   static instance: NetworkController
@@ -13,7 +13,7 @@ export class NetworkController {
       return response.data
     } catch (e: any) {
       const err: AxiosError = e
-      log('ERROR during fetch POST', err.name, err.code, err.message, path, config, data)
+      Log.error('during fetch POST', err.name, err.code, err.message, path, config, data)
       throw e
     }
   }
@@ -23,7 +23,7 @@ export class NetworkController {
       return response.data
     } catch (e: any) {
       const err: AxiosError = e
-      log('ERROR during fetch GET', err.name, err.code, err.message, path, config)
+      Log.error('during fetch GET', err.name, err.code, err.message, path, config)
       throw e
     }
   }

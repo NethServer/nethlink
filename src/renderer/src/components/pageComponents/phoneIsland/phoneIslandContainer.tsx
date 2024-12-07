@@ -3,8 +3,7 @@ import { eventDispatch } from "@renderer/hooks/eventDispatch"
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { useSharedState } from "@renderer/store"
 import { PHONE_ISLAND_EVENTS } from "@shared/constants"
-import { Account } from "@shared/types"
-import { log } from "@shared/utils/logger"
+import { Log } from "@shared/utils/logger"
 import { useEffect, useMemo } from "react"
 
 export const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, isDataConfigCreated, i18nLoadPath }) => {
@@ -21,7 +20,7 @@ export const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, isDa
         await NethVoiceAPI.User.default_device(deviceInformationObject)
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
       } catch (err) {
-        log('WARNING error during NethVoiceAPI.User.default_device:', err)
+        Log.warning('error during NethVoiceAPI.User.default_device:', err)
       }
     }
   }

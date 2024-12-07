@@ -1,7 +1,7 @@
 import { Navbar } from '../components/Modules/NethVoice/BaseModule/Navbar'
 import { useInitialize } from '../hooks/useInitialize'
 import { MutableRefObject, useEffect, useRef } from 'react'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { useSharedState } from '@renderer/store'
 import { NethLinkModules } from '@renderer/components/Modules'
@@ -70,10 +70,10 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
   function initialize() {
     Notification.requestPermission()
       .then(() => {
-        log('INFO: requested notification permission')
+        Log.info('requested notification permission')
       })
       .catch((e) => {
-        log('WARNING notification permission error or unsuccessfully acquired', e)
+        Log.warning('notification permission error or unsuccessfully acquired', e)
       })
     window.electron.receive(IPC_EVENTS.UPDATE_APP_NOTIFICATION, showUpdateAppNotification)
     window.electron.receive(IPC_EVENTS.EMIT_CALL_END, updateLastCalls)
@@ -120,7 +120,7 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
   }
 
   async function reloadData() {
-    log('RELOAD DATA', isFetching.current)
+    Log.info('RELOAD DATA', isFetching.current)
     if (!isFetching.current) {
       isFetching.current = true
       NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
@@ -133,9 +133,9 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
 
   useEffect(() => {
     if (connection) {
-      log('RECONNECT')
+      Log.info('RECONNECT')
       debouncer('nethlink-reconnect', () => {
-        log('EFFECTIVE RECONNECT')
+        Log.info('EFFECTIVE RECONNECT')
         reconnect()
       }, 3600)
     }

@@ -1,6 +1,5 @@
-import { Account, OperatorData, StatusTypes } from "@shared/types"
+import { StatusTypes } from "@shared/types"
 import { useEffect, useState } from "react"
-import { log } from "@shared/utils/logger"
 import { useSharedState } from "@renderer/store"
 import { PERMISSION } from "@shared/constants"
 

@@ -1,4 +1,4 @@
-import { Account, AuthAppData, LoginData, LoginPageData } from '@shared/types'
+import { Account, LoginData } from '@shared/types'
 import classNames from 'classnames'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import spinner from '../assets/loginPageSpinner.svg'
@@ -15,7 +15,7 @@ import './LoginPage.css'
 import { useLoginPageData, useNethlinkData, useSharedState } from '@renderer/store'
 import { AvailableAccountList, LoginForm } from '@renderer/components/pageComponents'
 import { IPC_EVENTS, LoginPageSize, NEW_ACCOUNT } from '@shared/constants'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { FieldErrors } from 'react-hook-form'
 import { AvailableAccountDeleteDialog } from '@renderer/components/pageComponents/login/AvailableAccountDeleteDialog'
 
@@ -137,7 +137,7 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
     if (errorsData?.generalError) {
       loginWindowHeight += LoginSizes.LOGIN_FAILURE
     }
-    log('INFO:', { loginWindowHeight })
+    Log.info({ loginWindowHeight })
     setWindowHeight(loginWindowHeight)
   }
 

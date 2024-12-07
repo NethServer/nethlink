@@ -3,7 +3,7 @@ import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
 import { NethLinkPageSize } from '@shared/constants'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { debouncer, delay } from '@shared/utils/utils'
 import { AccountController } from '../controllers'
 
@@ -64,7 +64,7 @@ export class NethLinkWindow extends BaseWindow {
       const nethlinkBounds: Electron.Rectangle = { x, y, width: w, height: h }
       this._window?.setBounds(nethlinkBounds, false)
     } catch (e) {
-      log('WARNING during update bounds of the NethLinkWindow:', e)
+      Log.warning('during update bounds of the NethLinkWindow:', e)
     }
   }
 
@@ -100,7 +100,7 @@ export class NethLinkWindow extends BaseWindow {
         this.buildWindow()
         return this.show()
       } else {
-        log('WARNING during showing the NethLinkWindow:', e)
+        Log.warning('during showing the NethLinkWindow:', e)
       }
     }
   }
@@ -110,7 +110,7 @@ export class NethLinkWindow extends BaseWindow {
       this.saveBounds()
       this._window?.hide()
     } catch (e) {
-      log('WARNING during hiding the NethLinkWindow:', e)
+      Log.warning('during hiding the NethLinkWindow:', e)
     }
   }
 

@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { t } from 'i18next'
 import { PresenceItem } from './PresenceItem'
 import {
@@ -11,8 +11,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { getIsPhoneNumber } from '@renderer/lib/utils'
-import { log } from '@shared/utils/logger'
-import { Account } from '@shared/types'
+import { Log } from '@shared/utils/logger'
 import { isEmpty } from 'lodash'
 import { useSharedState } from '@renderer/store'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
@@ -73,7 +72,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
         try {
           await onSubmit(data)
         } catch (e) {
-          log('WARNING error during the presence change', e)
+          Log.warning('error during the presence change', e)
         } finally {
           setIsForwardDialogOpen(false)
           onClosePresenceDialog()
@@ -149,7 +148,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
         }
       })
     } catch (e) {
-      log('ERROR ON PRESENCE CHANGE', e)
+      Log.error('ON PRESENCE CHANGE', e)
     } finally {
       onClosePresenceDialog()
     }

@@ -1,13 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faMobile, faVoicemail } from '@fortawesome/free-solid-svg-icons'
 import { Badge } from '@renderer/components/Nethesis/Badge'
-import { useNethlinkData, useSharedState } from '@renderer/store'
-import { Account, OperatorData, StatusTypes } from '@shared/types'
+import { useSharedState } from '@renderer/store'
+import { StatusTypes } from '@shared/types'
 import { t } from 'i18next'
 import { useTheme } from '@renderer/theme/Context'
 import classNames from 'classnames'
 import { Tooltip } from 'react-tooltip'
-import { log } from '@shared/utils/logger'
 
 export interface PresenceBadgeProps {
   mainPresence: StatusTypes | undefined

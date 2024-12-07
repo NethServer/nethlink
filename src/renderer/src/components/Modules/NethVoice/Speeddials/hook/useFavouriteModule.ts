@@ -1,8 +1,7 @@
 import { useNethlinkData, useSharedState } from "@renderer/store"
-import { ContactType, NethLinkPageData, OperatorData, SearchData } from "@shared/types"
+import { ContactType, SearchData } from "@shared/types"
 import { useEffect, useState } from "react"
 import { debouncer } from "@shared/utils/utils"
-import { log } from "@shared/utils/logger"
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { FilterTypes, SpeeddialTypes } from "@shared/constants"
 export const useFavouriteModule = () => {

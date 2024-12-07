@@ -5,7 +5,7 @@ import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
 import { BrowserWindow, Notification, NotificationConstructorOptions, app, ipcMain, screen, shell } from 'electron'
 import { join } from 'path'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { cloneDeep } from 'lodash'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
@@ -144,7 +144,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (_, isOnline) => {
     if (store.store) {
-      log('INFO update connection state:', isOnline)
+      Log.info('INFO update connection state:', isOnline)
       store.set('connection', isOnline)
       if (!store.store.account) {
         store.saveToDisk()
@@ -183,7 +183,7 @@ export function registerIpcEvents() {
     LoginController.instance.resize(h)
   })
   ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (_, account: Account) => {
-    log('DELETE ACCOUNT', account)
+    Log.info('DELETE ACCOUNT', account)
     const accountUID = getAccountUID(account)
     const newStore = Object.assign({}, store.store)
     delete newStore.auth!.availableAccounts[accountUID]

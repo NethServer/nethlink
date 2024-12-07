@@ -1,7 +1,5 @@
-import { useNethlinkData, useSharedState } from "@renderer/store"
+import { useSharedState } from "@renderer/store"
 import { ParkingType } from "@shared/types"
-import { log } from "@shared/utils/logger"
-import { difference, differenceBy, differenceWith } from "lodash"
 import { useEffect, useState } from "react"
 
 export const useParkingModule = () => {

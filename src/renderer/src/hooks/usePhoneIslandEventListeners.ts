@@ -1,11 +1,10 @@
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, getPhoneIslandSize } from "@shared/constants"
 import { PhoneIslandData, PhoneIslandSizes, PhoneIslandView } from "@shared/types"
-import { log } from "@shared/utils/logger"
+import { Log } from "@shared/utils/logger"
 import { useEffect, useState } from "react"
 import { t } from "i18next"
 import { sendNotification } from "@renderer/utils"
 import { useSharedState } from "@renderer/store"
-import { debouncer } from "@shared/utils/utils"
 
 
 const defaultCall = {
@@ -35,14 +34,14 @@ export const usePhoneIslandEventListener = () => {
     [event]: (...data) => {
       const customEvent = data[0]
       const detail = customEvent['detail']
-      log('PHONE ISLAND', event, data)
+      Log.info('PHONE ISLAND', event, data)
       callback?.(detail)
     }
   })
 
   useEffect(() => {
     const a = getPhoneIslandSize(phoneIslandData)
-    log('INFO state', phoneIslandData, a)
+    Log.info('state', phoneIslandData, a)
     setPhoneIslandSized(() => ({ ...a }))
   }, [phoneIslandData])
 
@@ -105,18 +104,10 @@ export const usePhoneIslandEventListener = () => {
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-end"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ended"], () => {
-        log('CALL END')
-        //TODO: questo set fa rallentare l'app 
         setPhoneIslandData((p) => ({
-          activeAlerts: {},
-          isActionExpanded: p.isActionExpanded,
-          isListen: p.isListen,
-          isOpen: p.isOpen,
+          ...p,
           currentCall: {
-            accepted: false,
-            incoming: false,
-            outgoing: false,
-            transferring: false
+            ...defaultCall
           },
           view: null
         }))

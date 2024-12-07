@@ -1,8 +1,7 @@
 import { ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { PropsWithChildren } from 'react'
-import { log } from '@shared/utils/logger'
-import { NotificationConstructorOptions } from 'electron'
+import { Log } from '@shared/utils/logger'
 import { AvailableThemes } from '@shared/types'
 
 export const parseThemeToClassName = (theme: AvailableThemes | undefined) => {
@@ -30,13 +29,13 @@ export async function sendNotification(title: string, body: string, openUrl?: st
     const notification = new window.Notification(title, notificationoption);
     notification.onclick = () => {
       openUrl && window.open(openUrl, '_blank')
-      log('onclick')
+      Log.info('onclick')
     }
     notification.onerror = (e) => {
-      log('NOTIFICATION ERROR:', e)
+      Log.error('NOTIFICATION ERROR:', e)
     }
     notification.onshow = (e) => {
-      log('NOTIFICATION SHOW:', e)
+      Log.info('NOTIFICATION SHOWN:', e)
     }
   }
 }

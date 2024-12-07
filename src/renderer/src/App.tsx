@@ -2,7 +2,7 @@ import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
 import { LoginPage, PhoneIslandPage, SplashScreenPage, NethLinkPage } from '@/pages'
 import { loadI18n } from './lib/i18n'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { useEffect, useRef, useState } from 'react'
 import { AvailableThemes, PAGES } from '@shared/types'
 import { delay } from '@shared/utils/utils'
@@ -56,7 +56,7 @@ const RequestStateComponent = () => {
           TIMEZONE: account.timezone,
           VOICE_ENDPOINT: account.voiceEndpoint
         }
-        log('INFO:', window['CONFIG'])
+        Log.info(':', window['CONFIG'])
         setHasWindowConfig(true)
       }
     } else {
@@ -66,7 +66,7 @@ const RequestStateComponent = () => {
   }, [account, pageData?.page])
 
   const loader = async () => {
-    log('INFO check i18n initialization')
+    Log.info('check i18n initialization')
     let time = 0
     //I wait for the language to load or 200 milliseconds
     while (time < 20 && !i18next.isInitialized) {
@@ -142,7 +142,7 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes, page?: PAGES }) => {
 export default function App() {
 
   useInitialize(() => {
-    log('INFO initialize i18n')
+    Log.info('initialize i18n')
     loadI18n()
   })
 

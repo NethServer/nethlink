@@ -6,7 +6,7 @@ import { AppController } from './AppController'
 import { store } from '@/lib/mainStore'
 import { isDev } from '@shared/utils/utils'
 import { DevToolsController } from './DevToolsController'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
 
 export type TrayUpdaterProps = {
@@ -68,7 +68,7 @@ export class TrayController {
 
       }
     } catch (e) {
-      log('WARNING error during toggling a NethLink window from the TrayIcon Button:', e)
+      Log.warning('error during toggling a NethLink window from the TrayIcon Button:', e)
     }
   }
 
@@ -121,7 +121,7 @@ export class TrayController {
       }
       this.tray.setContextMenu(Menu.buildFromTemplate(menu))
     } catch (e) {
-      log('WARNING error during updating the Tray Icon menu context contents:', e)
+      Log.warning('error during updating the Tray Icon menu context contents:', e)
     }
 
   }

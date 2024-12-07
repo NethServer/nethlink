@@ -2,7 +2,7 @@ import { PAGES } from '@shared/types'
 import { TrayController } from '../controllers'
 import { BaseWindow } from './BaseWindow'
 import { LoginPageSize } from '@shared/constants'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { debouncer } from '@shared/utils/utils'
 
 export const LOGIN_WINDOW_WIDTH = 500
@@ -51,7 +51,7 @@ export class LoginWindow extends BaseWindow {
         this.buildWindow()
         return this.show()
       } else {
-        log('WARNING during showing the LoginWindow:', e)
+        Log.warning('during showing the LoginWindow:', e)
       }
     }
   }
@@ -60,7 +60,7 @@ export class LoginWindow extends BaseWindow {
     try {
       this._window?.hide()
     } catch (e) {
-      log('WARNING during hiding the LoginWindow:', e)
+      Log.warning('during hiding the LoginWindow:', e)
     }
   }
 

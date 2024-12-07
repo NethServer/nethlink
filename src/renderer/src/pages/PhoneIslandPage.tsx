@@ -3,7 +3,7 @@ import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, } from '@shared/constants'
 import { Extension, PhoneIslandData, PhoneIslandView, Size } from '@shared/types'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { debouncer, delay, isDev } from '@shared/utils/utils'
 import { useState, useRef, useEffect } from 'react'
 import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
@@ -29,13 +29,13 @@ export function PhoneIslandPage() {
 
   useEffect(() => {
     debouncer('phoneisland-resize', () => {
-      log('RESIZE')
+      Log.info('RESIZE')
       resize(phoneIsalndSizes.size, state)
     }, 50)
   }, [phoneIsalndSizes, state])
 
   useInitialize(() => {
-    log('INITIALIZE PHONE ISLAND BASE EVENTS')
+    Log.info('INITIALIZE PHONE ISLAND BASE EVENTS')
     loadPath.current = getI18nLoadPath()
 
     window.electron.receive(IPC_EVENTS.LOGOUT, logout)
@@ -56,7 +56,7 @@ export function PhoneIslandPage() {
     if (!isOnLogout.current && (lastSize.current?.w !== size.w || lastSize.current?.h !== size.h)) {
       lastSize.current = size
       const { view } = state
-      log(`RESIZE ${size.w}x${size.h} ${account?.username} ${view}`)
+      Log.info(`RESIZE ${size.w}x${size.h} ${account?.username} ${view}`)
       if (view === PhoneIslandView.KEYPAD || view === PhoneIslandView.TRANSFER || state.currentCall.transferring) {
         phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
       } else if (view === PhoneIslandView.CALL) {
@@ -82,7 +82,7 @@ export function PhoneIslandPage() {
 
   useEffect(() => {
     if (account && Object.keys(eventsRef.current).length > 0 && !attachedListener.current) {
-      log(account?.username, 'attachd listeners', Object.keys(eventsRef.current).length)
+      Log.info(account?.username, 'attachd listeners', Object.keys(eventsRef.current).length)
       Object.entries(eventsRef.current).forEach(([phoneIslandEventName, callback]) => {
         window.addEventListener(phoneIslandEventName, callback)
       })
@@ -91,7 +91,7 @@ export function PhoneIslandPage() {
   }, [account, dataConfig])
 
   const destroyAllListeners = () => {
-    log(account?.username, 'deattached listeners', Object.keys(eventsRef.current).length)
+    Log.info(account?.username, 'deattached listeners', Object.keys(eventsRef.current).length)
     Object.entries(eventsRef.current).forEach(([phoneIslandEventName, callback]) => {
       window.removeEventListener(phoneIslandEventName, callback)
     })

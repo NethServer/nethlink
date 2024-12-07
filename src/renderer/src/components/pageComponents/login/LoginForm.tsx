@@ -9,16 +9,15 @@ import {
   faWarning as AlertIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button, TextInput } from '@renderer/components/Nethesis'
 import { Account, AuthAppData, LoginData, LoginPageData } from '@shared/types'
 import { DisplayedAccountLogin } from './DisplayedAccountLogin'
 import { useLoginPageData, useNethlinkData, useSharedState } from '@renderer/store'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { IPC_EVENTS, NEW_ACCOUNT } from '@shared/constants'
-import { log } from '@shared/utils/logger'
-import { debouncer, getAccountUID } from '@shared/utils/utils'
-import { access } from 'fs'
+import { Log } from '@shared/utils/logger'
+import { getAccountUID } from '@shared/utils/utils'
 
 export interface LoginFormProps {
   onError: (formErrors: FieldErrors<LoginData>, generalError: Error | undefined) => void
@@ -97,22 +96,22 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
       const res = hostReg.exec(data.host)
       if (res) {
         try {
-          log('LOGIN try login with credential')
+          Log.info('LOGIN try login with credential')
           const loggedAccount = await NethVoiceAPI.Authentication.login(
             res[2],
             data.username,
             data.password
           )
-          log('LOGIN successfully logged in with credential')
+          Log.info('LOGIN successfully logged in with credential')
           window.electron.receive(IPC_EVENTS.SET_NETHVOICE_CONFIG, (account: Account) => {
             passwordRef.current = data.password
-            log('LOGIN received account server configuration', account)
+            Log.info('LOGIN received account server configuration', account)
             const previousLoggedAccount = auth?.availableAccounts[getAccountUID(account)]
             account.theme = previousLoggedAccount ? previousLoggedAccount.theme : 'system'
-            log('INFO send login event to the backend', account)
+            Log.info('LOGIN send login event to the backend', account)
             window.electron.send(IPC_EVENTS.LOGIN, { password: passwordRef.current, account })
           })
-          log('LOGIN get account server configuration')
+          Log.info('LOGIN get account server configuration')
           window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
 
           setFormValues({

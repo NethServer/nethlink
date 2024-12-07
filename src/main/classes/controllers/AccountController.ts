@@ -1,13 +1,11 @@
-import { join } from 'path'
-import fs, { access } from 'fs'
 import { Account, AuthAppData, ConfigFile } from '@shared/types'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { safeStorage } from 'electron'
 import { store } from '@/lib/mainStore'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
-import { getAccountUID, isDev } from '@shared/utils/utils'
+import { getAccountUID } from '@shared/utils/utils'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -69,7 +67,7 @@ export class AccountController {
               authAppData.lastUserCryptPsw = bfs
             }
           } catch (e) {
-            log('WARNING auto login failed decrypt user:', e)
+            Log.warning('auto login failed decrypt user:', e)
           }
           const psw: Buffer = Buffer.from((authAppData.lastUserCryptPsw as Uint8Array))
           const decryptString = safeStorage.decryptString(psw)
@@ -87,7 +85,7 @@ export class AccountController {
           await this.saveLoggedAccount(loggedAccount, password)
           return true
         } catch (e) {
-          log('WARNING auto login failed:', e)
+          Log.warning('auto login failed:', e)
           return false
         }
       }
@@ -118,7 +116,7 @@ export class AccountController {
       store.saveToDisk()
       return account
     } catch (e) {
-      log('ERROR during save logged account data', e)
+      Log.error('during save logged account data', e)
       this.logout()
       throw e
     }

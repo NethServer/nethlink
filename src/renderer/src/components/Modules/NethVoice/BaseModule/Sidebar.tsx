@@ -7,14 +7,10 @@ import {
   faSquareParking as ParkedCallMenuIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { useNethlinkData, useSharedState } from '@renderer/store'
-import { CallData, NethLinkPageData, NotificationData, ParkingType } from '@shared/types'
+import { ParkingType } from '@shared/types'
 import { MENU_ELEMENT, PERMISSION } from '@shared/constants'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { log } from '@shared/utils/logger'
 import { difference } from 'lodash'
-import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
-import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { debouncer } from '@shared/utils/utils'
 import { useParkingModule } from '../Parking/hook/useParkingModule'
 import { SidebarButton } from '@renderer/components/SidebarButton'
 
