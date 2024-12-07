@@ -28,7 +28,7 @@ export class PhoneIslandController {
           window.setBounds({ width: w, height: h })
           PhoneIslandWindow.currentSize = { width: w, height: h }
         }
-        if (h === 1 && w === 1) {
+        if (h === 0 && w === 0) {
           window.hide()
         } else {
           if (!window.isVisible()) {

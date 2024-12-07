@@ -107,19 +107,19 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ended"], () => {
         log('CALL END')
         //TODO: questo set fa rallentare l'app 
-        // setState((p) => ({
-        //   activeAlerts: {},
-        //   isActionExpanded: p.isActionExpanded,
-        //   isListen: p.isListen,
-        //   isOpen: p.isOpen,
-        //   currentCall: {
-        //     accepted: false,
-        //     incoming: false,
-        //     outgoing: false,
-        //     transferring: false
-        //   },
-        //   view: null
-        // }))
+        setPhoneIslandData((p) => ({
+          activeAlerts: {},
+          isActionExpanded: p.isActionExpanded,
+          isListen: p.isListen,
+          isOpen: p.isOpen,
+          currentCall: {
+            accepted: false,
+            incoming: false,
+            outgoing: false,
+            transferring: false
+          },
+          view: null
+        }))
         window.electron.send(IPC_EVENTS.EMIT_CALL_END)
       }),
 

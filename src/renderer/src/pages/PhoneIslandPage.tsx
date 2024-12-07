@@ -49,6 +49,7 @@ export function PhoneIslandPage() {
     window.electron.receive(IPC_EVENTS.RECONNECT_PHONE_ISLAND, () => {
       logout()
     })
+    //resize({ h: 600, w: 600 }, { activeAlerts: {}, currentCall: { accepted: false, incoming: false, outgoing: false, transferring: false }, isActionExpanded: false, isListen: false, isOpen: false, view: PhoneIslandView.CALL })
   })
 
   const resize = (size: Size, state: PhoneIslandData) => {
