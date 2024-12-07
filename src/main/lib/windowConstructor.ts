@@ -3,6 +3,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import { mainBindings } from 'i18next-electron-fs-backend'
 import { join } from 'path'
 import fs from 'fs'
+import { isDevTools } from '@shared/utils/utils'
 
 export type WindowOptions = {
   rendererPath?: string
@@ -57,7 +58,7 @@ export function createWindow(
   mainWindow.on('close', () => { })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.webContents.openDevTools({
+    isDevTools() && mainWindow.webContents.openDevTools({
       mode: 'detach'
     })
   })
