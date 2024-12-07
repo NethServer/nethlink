@@ -1,9 +1,8 @@
-import { PAGES, PageType } from '@shared/types'
-import { faCode, faBell, faSlash, faWifi, IconDefinition } from '@fortawesome/free-solid-svg-icons'
+import { PAGES } from '@shared/types'
+import { faCode, faBell, faSlash, faWifi, IconDefinition, faWifiStrong } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { useStoreState } from '@renderer/store'
-import { IPC_EVENTS } from '@shared/constants'
+import { useSharedState } from '@renderer/store'
 import { sendNotification } from '@renderer/utils'
 import { ReactNode } from 'react'
 
@@ -11,9 +10,8 @@ interface DevToolProps {
   handleRefreshConnection: () => void
 }
 export const DevToolsPage = ({ handleRefreshConnection }: DevToolProps) => {
-  const [page] = useStoreState<PageType>('page')
-  const [connection, setConnection] = useStoreState<boolean>('connection')
-  useInitialize(() => { }, true)
+  const [connection, setConnection] = useSharedState('connection')
+  useInitialize(() => { })
 
   const toggleConnection = () => {
     setConnection((p) => !p)
@@ -68,6 +66,11 @@ export const DevToolsPage = ({ handleRefreshConnection }: DevToolProps) => {
           </div>
         }
         elem={<div className='relative left-5'>{`${!connection ? 'NO' : ''} Connection`}</div>}
+      />
+      <Line
+        onClick={handleRefreshConnection}
+        icon={faWifiStrong}
+        elem={<div className='relative left-5'>{`Refresh connection`}</div>}
       />
       < Line
         onClick={handleSendNotification}

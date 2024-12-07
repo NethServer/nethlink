@@ -2,35 +2,28 @@ import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
 import { LoginPage, PhoneIslandPage, SplashScreenPage, NethLinkPage } from '@/pages'
 import { loadI18n } from './lib/i18n'
-import { log } from '@shared/utils/logger'
-import { useEffect, useRef, useState } from 'react'
-import { Account, AvailableThemes, PAGES } from '@shared/types'
+import { Log } from '@shared/utils/logger'
+import { useEffect, useState } from 'react'
+import { AvailableThemes, PAGES } from '@shared/types'
 import { delay } from '@shared/utils/utils'
 import i18next from 'i18next'
 import { DevToolsPage } from './pages/DevToolsPage'
-import { getSystemTheme, parseThemeToClassName } from './utils'
-import { useRegisterStoreHook, useStoreState } from "@renderer/store";
-import { PageContext, PageCtx, usePageCtx } from './contexts/pageContext'
+import { parseThemeToClassName } from './utils'
+import { useRegisterStoreHook, useSharedState } from "@renderer/store";
+import { PageContext, usePageCtx } from './contexts/pageContext'
 import { GIT_RELEASES_URL, IPC_EVENTS } from '@shared/constants'
-import { useRefState } from './hooks/useRefState'
 import { useNetwork } from '@shared/useNetwork'
+import { useRefState } from './hooks/useRefState'
 
 
 const RequestStateComponent = () => {
   const pageData = usePageCtx()
-  const isRequestInitialized = useRef(false)
   useRegisterStoreHook()
-  const [theme,] = useStoreState<AvailableThemes>('theme')
-  const [account,] = useStoreState<Account>('account')
-  const [connection,] = useRefState(useStoreState<boolean>('connection'))
+  const [theme,] = useSharedState('theme')
+  const [account,] = useSharedState('account')
+  const [connection,] = useRefState(useSharedState('connection'))
   const [hasWindowConfig, setHasWindowConfig] = useState<boolean>(false)
   const { GET } = useNetwork()
-  useEffect(() => {
-    if (!isRequestInitialized.current) {
-      isRequestInitialized.current = true
-      window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE);
-    }
-  }, [pageData?.page])
 
   async function checkConnection() {
     const connected = await new Promise((resolve) => {
@@ -40,7 +33,7 @@ const RequestStateComponent = () => {
         resolve(false)
       })
     })
-    log("checkConnection:", { connected, connection: connection.current })
+    Log.info('check connection', { connected, connection: connection.current })
     if (connected !== connection.current) {
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, connected);
     }
@@ -64,7 +57,7 @@ const RequestStateComponent = () => {
           TIMEZONE: account.timezone,
           VOICE_ENDPOINT: account.voiceEndpoint
         }
-        log(window['CONFIG'])
+        Log.info(window['CONFIG'])
         setHasWindowConfig(true)
       }
     } else {
@@ -74,6 +67,7 @@ const RequestStateComponent = () => {
   }, [account, pageData?.page])
 
   const loader = async () => {
+    Log.info('check i18n initialization')
     let time = 0
     //I wait for the language to load or 200 milliseconds
     while (time < 20 && !i18next.isInitialized) {
@@ -103,7 +97,7 @@ const RequestStateComponent = () => {
         },
         {
           path: PAGES.NETHLINK,
-          element: <NethLinkPage themeMode={parseThemeToClassName(theme)} handleRefreshConnection={checkConnection} />
+          element: <NethLinkPage handleRefreshConnection={checkConnection} />
         },
         {
           path: PAGES.DEVTOOLS,
@@ -149,6 +143,7 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes, page?: PAGES }) => {
 export default function App() {
 
   useInitialize(() => {
+    Log.info('initialize i18n')
     loadI18n()
   })
 

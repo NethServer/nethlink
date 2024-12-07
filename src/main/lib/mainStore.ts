@@ -3,7 +3,7 @@ import { app, ipcMain } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import { IPC_EVENTS } from '@shared/constants';
-import { log } from '@shared/utils/logger';
+import { Log } from '@shared/utils/logger';
 import { difference } from 'lodash';
 
 const AVAILABLE_USER_DATA_PATH = path.join(app.getPath("userData"), `available_user_data.json`);
@@ -19,7 +19,7 @@ class Store<T> {
     } else {
       this.assignedInstanceID = 0
     }
-    log({ assignedInstanceID: this.assignedInstanceID })
+    Log.info({ assignedInstanceID: this.assignedInstanceID })
     this.USER_DATA_PATH = path.join(app.getPath("userData"), `user_data${this.assignedInstanceID || ''}.json`);
     if (!fs.existsSync(this.USER_DATA_PATH) || !fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
       if (!fs.existsSync(AVAILABLE_USER_DATA_PATH)) {
@@ -59,6 +59,7 @@ class Store<T> {
 
   updateStore(newState: T, from: string) {
     const diff = difference(Object.values(newState as any || {}), Object.values(this.store as any || {}))
+    Log.info('STORE update shared store from', from, diff.length)
     if (diff.length > 0 || this.store === undefined) {
       this.store = Object.assign({}, newState)
     }
@@ -88,7 +89,7 @@ class Store<T> {
       (retrivedStore as LocalStorageData).auth!.availableAccounts = JSON.parse(availableUserData)
       return retrivedStore
     } catch (error) {
-      log('Error retrieving user data', error);
+      Log.error('retrieving user data', error);
       // you may want to propagate the error, up to you
       return null;
     }

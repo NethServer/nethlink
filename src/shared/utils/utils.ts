@@ -1,5 +1,5 @@
 import { Account, PAGES } from "@shared/types"
-import { log } from "./logger"
+import { Log } from "./logger"
 
 const debounceEvents = {}
 export function debouncer(eventId: string, event: () => any, debouncer = 100) {
@@ -17,7 +17,7 @@ function applyDebouncer(eventId: string, event: () => any, debouncer: number) {
     try {
       event()
     } catch (e) {
-      log(e)
+      Log.warning('error in debouncer:', e)
     }
     debounceEvents[eventId] = undefined
     debounceEvents[`${eventId}_timer`] = undefined
@@ -38,16 +38,21 @@ export async function delay(duration) {
   })
 }
 
-
-export function isDev() {
-  let _isDev = false
-  try {
-    _isDev = window.api.env['DEV'] === 'true'
-  } catch (e) {
-    _isDev = (import.meta.env.VITE_DEV ?? process.env['DEV']) === 'true'
+function getBoolEnvParam(paramName: string) {
+  return () => {
+    let param = false
+    try {
+      param = window.api.env[paramName] === 'true'
+    } catch (e) {
+      param = (process.env[paramName] ?? import.meta.env[`VITE_${paramName}`]) === 'true'
+    }
+    return param
   }
-  return _isDev
 }
+
+export const isDev = getBoolEnvParam('DEV')
+export const isDevTools = getBoolEnvParam('DEVTOOLS')
+
 
 
 export const isDeepEqual = (obj1: object, obj2: object) => {

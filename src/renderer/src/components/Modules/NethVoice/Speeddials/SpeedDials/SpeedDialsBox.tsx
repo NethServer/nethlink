@@ -1,15 +1,11 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faCirclePlus as AddSpeedDialIcon,
   faBolt as SpeedDialIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { ContactType, NethLinkPageData } from '@shared/types'
+import { ContactType } from '@shared/types'
 import { t } from 'i18next'
 import { SkeletonRow } from '@renderer/components/SkeletonRow'
-import { useStoreState } from '@renderer/store'
-import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useSpeedDialsModule } from '../hook/useSpeedDialsModule'
-import { log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
 import { ContactNumber } from '../shared/ContactNumber'

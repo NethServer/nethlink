@@ -4,7 +4,6 @@
 import { PropsWithChildren } from 'react'
 import axios from 'axios'
 import { eventDispatch } from '../hooks/eventDispatch'
-import { log } from '@shared/utils/logger'
 import { Account } from '@shared/types'
 
 export interface ClearProps {

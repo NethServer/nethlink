@@ -1,4 +1,6 @@
 export * from './Avatar'
+export * from './Badge'
 export * from './Button'
+export * from './CallsDate'
 export * from './StatusDot'
 export * from './TextInput'

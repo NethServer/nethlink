@@ -1,8 +1,8 @@
 import { useLoggedNethVoiceAPI } from "./useLoggedNethVoiceAPI"
 import { Account, Extension, PhoneIslandConfig } from "@shared/types"
-import { log } from "@shared/utils/logger"
 import { PHONE_ISLAND_EVENTS } from "@shared/constants"
 import { eventDispatch } from "./eventDispatch"
+import { Log } from "@shared/utils/logger"
 export const usePhoneIsland = () => {
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
@@ -11,7 +11,6 @@ export const usePhoneIsland = () => {
     const phoneIslandTokenLoginResponse = (await NethVoiceAPI.Authentication.phoneIslandTokenLogin()).token
     const deviceInformationObject: Extension | undefined = account.data!.endpoints.extension.find((e) => e.type === 'nethlink')
     if (deviceInformationObject) {
-      log('create data config')
       const hostname = account!.host
       const config: PhoneIslandConfig = {
         hostname,
@@ -36,19 +35,19 @@ export const usePhoneIsland = () => {
   }) => {
     return new Promise<void>((resolve) => {
       const listener = () => {
-        log('received', awaitEvent)
+        Log.info('D&W received', awaitEvent)
         timer && clearTimeout(timer)
         window.removeEventListener(awaitEvent, listener)
         resolve()
       }
       let timer = setTimeout(() => {
-        log('timeout')
+        Log.warning('D&W timeout', event)
         window.removeEventListener(awaitEvent, listener)
         resolve()
       }, options?.timeout || 300)
-      log('AddEventListener', awaitEvent)
+      Log.info('D&W add event listener from', event, 'to', awaitEvent)
       window.addEventListener(awaitEvent, listener)
-      log('DispatchEvent', event)
+      Log.info('D&W Disaptch', event)
       eventDispatch(event, options?.data)
     })
   }

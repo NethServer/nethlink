@@ -1,6 +1,4 @@
-import { IPC_EVENTS } from "./constants"
 import { Account } from "./types"
-import { log } from "./utils/logger"
 
 export const useLogin = () => {
 

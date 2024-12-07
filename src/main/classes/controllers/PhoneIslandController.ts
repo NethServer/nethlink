@@ -1,8 +1,8 @@
 import { PhoneIslandWindow } from '../windows'
 import { IPC_EVENTS } from '@shared/constants'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
-import { debouncer, isDev } from '@shared/utils/utils'
+import { debouncer } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { store } from '@/lib/mainStore'
@@ -28,7 +28,8 @@ export class PhoneIslandController {
           window.setBounds({ width: w, height: h })
           PhoneIslandWindow.currentSize = { width: w, height: h }
         }
-        if (h === 1 && w === 1) {
+        //make sure the size is equal to [0,0] when you want to close the phone island, otherwise the size will not close and will generate slowness problems.        
+        if (h === 0 && w === 0) {
           window.hide()
         } else {
           if (!window.isVisible()) {
@@ -38,7 +39,7 @@ export class PhoneIslandController {
         }
       }
     } catch (e) {
-      log(e)
+      Log.warning('error during resizing PhoneIslandWindow:', e)
     }
 
   }
@@ -54,14 +55,6 @@ export class PhoneIslandController {
           if (phoneIslandPosition) {
             const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
               const area = display.workArea
-              log({
-                area,
-                phoneIslandPosition,
-                x: phoneIslandPosition.x >= area.x,
-                y: phoneIslandPosition.y >= area.y,
-                w: (phoneIslandPosition.x + size.w) < (area.x + area.width),
-                h: (phoneIslandPosition.y + size.h) < (area.y + area.height)
-              })
               return (
                 result ||
                 (phoneIslandPosition.x >= area.x &&
@@ -84,7 +77,7 @@ export class PhoneIslandController {
         }
       }
     } catch (e) {
-      log(e)
+      Log.warning('error during showing PhoneIslandWindow:', e)
     }
   }
 
@@ -100,7 +93,7 @@ export class PhoneIslandController {
       }
       debouncer('hide', () => window?.hide(), 250)
     } catch (e) {
-      log(e)
+      Log.warning('error during hiding PhoneIslandWindow:', e)
     }
   }
 
@@ -113,7 +106,7 @@ export class PhoneIslandController {
           resolve()
         })
       } catch (e) {
-        log(e)
+        Log.error('during emitting logout event to the PhoneIslandWindow:', e)
         reject()
       }
     })
@@ -122,27 +115,26 @@ export class PhoneIslandController {
   call(number: string) {
     try {
 
-      const { NethVoiceAPI } = useNethVoiceAPI(store.store['account'])
+      const { NethVoiceAPI } = useNethVoiceAPI(store.store.account)
       NethVoiceAPI.User.me().then((me) => {
-        log('me before call start', { me })
         this.window.emit(IPC_EVENTS.START_CALL, number)
       })
     } catch (e) {
-      log(e)
+      Log.warning('error during emitting start call event to the PhoneIslandWindow:', e)
     }
   }
 
   reconnect() {
     try {
-      log('PHONE ISLAND RECONNECT')
+      Log.info('PHONE ISLAND RECONNECT')
       this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
       once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-        log('PHONE ISLAND RECONNECTION AFTER LOGOUT')
+        Log.info('PHONE ISLAND RECONNECTION AFTER LOGOUT')
         this.window.quit(false)
         new PhoneIslandController()
       })
     } catch (e) {
-      log(e)
+      Log.warning('error during emitting reconnect event to the PhoneIslandWindow:', e)
     }
   }
 

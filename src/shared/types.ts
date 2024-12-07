@@ -12,7 +12,6 @@ export enum PAGES {
 }
 
 export type StateType<T> = [(T | undefined), (value: T | undefined) => void]
-export type UseStoreStateType = <T>(selector: keyof LocalStorageData) => [T | undefined, (arg0: T | ((ex: T) => T | undefined) | undefined) => void]
 
 export type Account = {
   username: string
@@ -370,18 +369,16 @@ export type LocalStorageData = {
   account?: Account,
   auth?: AuthAppData,
   page?: PageType,
+  theme?: AvailableThemes,
+  connection?: boolean,
   operators?: OperatorData,
   queues?: QueuesType,
   parkings?: ParkingType[],
   lastCalls?: CallData[],
   speeddials?: ContactType[],
-  theme?: AvailableThemes,
-  loginPageData?: LoginPageData,
-  nethLinkPageData?: NethLinkPageData,
   missedCalls?: CallData[],
   notifications?: NotificationData,
   lostCallNotifications?: CallData[],
-  connection?: boolean,
 }
 
 export type OnDraggingWindow = {
@@ -401,7 +398,7 @@ export type LoginPageData = {
 }
 
 export type AuthAppData = {
-  lastUser: string | undefined,
+  lastUser?: string,
   lastUserCryptPsw?: Buffer
   isFirstStart: boolean,
   availableAccounts: {

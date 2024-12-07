@@ -1,6 +1,4 @@
 import { PhoneIslandData, PhoneIslandSizes } from "./types"
-import { log } from "./utils/logger"
-
 
 export const NethLinkPageSize = {
   w: 440,
@@ -9,7 +7,7 @@ export const NethLinkPageSize = {
 
 export const LoginPageSize = {
   w: 500,
-  h: 100
+  h: 300
 }
 export const NEW_ACCOUNT = 'New Account'
 
@@ -76,6 +74,10 @@ export enum IPC_EVENTS {
   STOP_DRAG = "STOP_DRAG",
   ENABLE_CLICK = "ENABLE_CLICK",
   DELETE_ACCOUNT = "DELETE_ACCOUNT",
+  EMIT_CALL_END = "EMIT_CALL_END",
+  EMIT_MAIN_PRESENCE_UPDATE = "EMIT_MAIN_PRESENCE_CHANGE",
+  EMIT_QUEUE_UPDATE = "EMIT_QUEUE_UPDATE",
+  EMIT_PARKING_UPDATE = "EMIT_PARKING_UPDATE",
 }
 
 //PHONE ISLAND EVENTS
@@ -322,126 +324,128 @@ export function getPhoneIslandSize({ view, activeAlerts, isOpen, isListen, isAct
     height: 0,
   }
   const { variants, alert_padding_expanded, border_radius_collapsed, border_radius_expanded, padding_expanded, padding_x_collapsed, padding_y_collapsed } = phoneIslandSizes
-  switch (view) {
-    case 'call':
-      if (isOpen) {
-        if (accepted && transferring) {
-          if (isActionExpanded) {
+  if (view) {
+    switch (view) {
+      case 'call':
+        if (isOpen) {
+          if (accepted && transferring) {
+            if (isActionExpanded) {
+              size = {
+                width: variants.call.expanded.transfer.actionsExpanded.width,
+                height: variants.call.expanded.transfer.actionsExpanded.height,
+              }
+            } else {
+              size = {
+                width: variants.call.expanded.transfer.width,
+                height: variants.call.expanded.transfer.height,
+              }
+            }
+          } else if (accepted && isActionExpanded) {
             size = {
-              width: variants.call.expanded.transfer.actionsExpanded.width,
-              height: variants.call.expanded.transfer.actionsExpanded.height,
+              width: variants.call.expanded.accepted.actionsExpanded.width,
+              height: variants.call.expanded.accepted.actionsExpanded.height,
+            }
+          } else if (accepted && !isListen) {
+            size = {
+              width: variants.call.expanded.accepted.width,
+              height: variants.call.expanded.accepted.height,
+            }
+          } else if (accepted && isListen) {
+            size = {
+              width: variants.call.expanded.listening.width,
+              height: variants.call.expanded.listening.height,
+            }
+          } else if (incoming) {
+            size = {
+              width: variants.call.expanded.incoming.width,
+              height: variants.call.expanded.incoming.height,
+            }
+          } else if (outgoing) {
+            size = {
+              width: variants.call.expanded.outgoing.width,
+              height: variants.call.expanded.outgoing.height,
+            }
+          }
+        } else {
+          if (accepted && transferring) {
+            size = {
+              width: variants.call.collapsed.transfer.width,
+              height: variants.call.collapsed.transfer.height,
             }
           } else {
             size = {
-              width: variants.call.expanded.transfer.width,
-              height: variants.call.expanded.transfer.height,
+              width: variants.call.collapsed.width,
+              height: variants.call.collapsed.height,
             }
           }
-        } else if (accepted && isActionExpanded) {
-          size = {
-            width: variants.call.expanded.accepted.actionsExpanded.width,
-            height: variants.call.expanded.accepted.actionsExpanded.height,
-          }
-        } else if (accepted && !isListen) {
-          size = {
-            width: variants.call.expanded.accepted.width,
-            height: variants.call.expanded.accepted.height,
-          }
-        } else if (accepted && isListen) {
-          size = {
-            width: variants.call.expanded.listening.width,
-            height: variants.call.expanded.listening.height,
-          }
-        } else if (incoming) {
-          size = {
-            width: variants.call.expanded.incoming.width,
-            height: variants.call.expanded.incoming.height,
-          }
-        } else if (outgoing) {
-          size = {
-            width: variants.call.expanded.outgoing.width,
-            height: variants.call.expanded.outgoing.height,
-          }
         }
-      } else {
-        if (accepted && transferring) {
+        break
+      case 'keypad':
+        if (isOpen) {
           size = {
-            width: variants.call.collapsed.transfer.width,
-            height: variants.call.collapsed.transfer.height,
+            width: variants.keypad.expanded.width,
+            height: variants.keypad.expanded.height,
           }
         } else {
           size = {
-            width: variants.call.collapsed.width,
-            height: variants.call.collapsed.height,
+            width: variants.transfer.collapsed.width,
+            height: variants.transfer.collapsed.height,
           }
         }
-      }
-      break
-    case 'keypad':
-      if (isOpen) {
-        size = {
-          width: variants.keypad.expanded.width,
-          height: variants.keypad.expanded.height,
+        break
+      case 'transfer':
+        if (isOpen) {
+          size = {
+            width: variants.transfer.expanded.width,
+            height: variants.transfer.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.transfer.collapsed.width,
+            height: variants.transfer.collapsed.height,
+          }
         }
-      } else {
-        size = {
-          width: variants.transfer.collapsed.width,
-          height: variants.transfer.collapsed.height,
+        break
+      case 'player':
+        if (isOpen) {
+          size = {
+            width: variants.player.expanded.width,
+            height: variants.player.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.player.collapsed.width,
+            height: variants.player.collapsed.height,
+          }
         }
-      }
-      break
-    case 'transfer':
-      if (isOpen) {
-        size = {
-          width: variants.transfer.expanded.width,
-          height: variants.transfer.expanded.height,
+        break
+      case 'recorder':
+        if (isOpen) {
+          size = {
+            width: variants.recorder.expanded.width,
+            height: variants.recorder.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.recorder.collapsed.width,
+            height: variants.recorder.collapsed.height,
+          }
         }
-      } else {
-        size = {
-          width: variants.transfer.collapsed.width,
-          height: variants.transfer.collapsed.height,
+        break
+      case 'physicalPhoneRecorder':
+        if (isOpen) {
+          size = {
+            width: variants.physicalPhoneRecorder.expanded.width,
+            height: variants.physicalPhoneRecorder.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.physicalPhoneRecorder.collapsed.width,
+            height: variants.physicalPhoneRecorder.collapsed.height,
+          }
         }
-      }
-      break
-    case 'player':
-      if (isOpen) {
-        size = {
-          width: variants.player.expanded.width,
-          height: variants.player.expanded.height,
-        }
-      } else {
-        size = {
-          width: variants.player.collapsed.width,
-          height: variants.player.collapsed.height,
-        }
-      }
-      break
-    case 'recorder':
-      if (isOpen) {
-        size = {
-          width: variants.recorder.expanded.width,
-          height: variants.recorder.expanded.height,
-        }
-      } else {
-        size = {
-          width: variants.recorder.collapsed.width,
-          height: variants.recorder.collapsed.height,
-        }
-      }
-      break
-    case 'physicalPhoneRecorder':
-      if (isOpen) {
-        size = {
-          width: variants.physicalPhoneRecorder.expanded.width,
-          height: variants.physicalPhoneRecorder.expanded.height,
-        }
-      } else {
-        size = {
-          width: variants.physicalPhoneRecorder.collapsed.width,
-          height: variants.physicalPhoneRecorder.collapsed.height,
-        }
-      }
-      break
+        break
+    }
   }
   const isAlert = Object.values(activeAlerts).reduce((p, c) => c ? ++p : p, 0) > 0
   //add electron window padding

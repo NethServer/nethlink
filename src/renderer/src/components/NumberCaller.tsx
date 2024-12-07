@@ -1,7 +1,5 @@
 import { ClassNames } from '@renderer/utils'
 import { ReactNode } from 'react'
-import { Button } from './Nethesis'
-import { useTheme } from '@renderer/theme/Context'
 
 type NumberCallerProps = {
   number: number | string
@@ -19,7 +17,6 @@ export const NumberCaller = ({
   ...args
 }: NumberCallerProps) => {
 
-  const { theme } = useTheme()
   return disabled ? (
     <div className={ClassNames(className, 'cursor-not-allowed',)}>{children}</div>
   ) : (

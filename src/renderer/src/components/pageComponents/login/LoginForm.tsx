@@ -11,13 +11,13 @@ import {
 import { t } from 'i18next'
 import { useEffect, useRef, useState } from 'react'
 import { Button, TextInput } from '@renderer/components/Nethesis'
-import { Account, AuthAppData, LoginData, LoginPageData } from '@shared/types'
+import { Account, LoginData } from '@shared/types'
 import { DisplayedAccountLogin } from './DisplayedAccountLogin'
-import { useStoreState } from '@renderer/store'
+import { useLoginPageData, useSharedState } from '@renderer/store'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { IPC_EVENTS, NEW_ACCOUNT } from '@shared/constants'
-import { log } from '@shared/utils/logger'
-import { debouncer, getAccountUID } from '@shared/utils/utils'
+import { Log } from '@shared/utils/logger'
+import { getAccountUID } from '@shared/utils/utils'
 
 export interface LoginFormProps {
   onError: (formErrors: FieldErrors<LoginData>, generalError: Error | undefined) => void
@@ -26,12 +26,13 @@ export interface LoginFormProps {
 export const LoginForm = ({ onError, handleRefreshConnection }) => {
   const { NethVoiceAPI } = useNethVoiceAPI()
   const submitButtonRef = useRef<HTMLButtonElement>(null)
-  const [auth] = useStoreState<AuthAppData>('auth')
-  const [account, setAccount] = useStoreState<Account>('account')
+  const [auth] = useSharedState('auth')
   const [pwdVisible, setPwdVisible] = useState<boolean>(false)
-  const [loginData, setLoginData] = useStoreState<LoginPageData>('loginPageData')
-  const [connection, setConnection] = useStoreState<boolean>('connection')
+  const [selectedAccount] = useLoginPageData('selectedAccount')
+  const [isLoading, setIsLoading] = useLoginPageData('isLoading')
+  const [connection] = useSharedState('connection')
   const [error, setError] = useState<Error | undefined>(undefined)
+  const passwordRef = useRef<string>()
 
   const schema: z.ZodType<LoginData> = z.object({
     host: z
@@ -64,24 +65,17 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     onError(errors, error)
   }, [Object.keys(errors).length, error])
 
-  const setIsLoading = (value: boolean) => {
-    setLoginData((p) => ({
-      ...p,
-      isLoading: value
-    }))
-  }
-
   useEffect(() => {
     setIsLoading(false)
     if (auth?.availableAccounts) {
-      if (loginData?.selectedAccount) {
-        if (loginData.selectedAccount === NEW_ACCOUNT) {
+      if (selectedAccount) {
+        if (selectedAccount === NEW_ACCOUNT) {
           reset()
           focus('host')
         } else {
           reset()
-          setValue('host', loginData.selectedAccount.host)
-          setValue('username', loginData.selectedAccount.username)
+          setValue('host', selectedAccount.host)
+          setValue('username', selectedAccount.username)
           focus('password')
         }
       } else {
@@ -89,10 +83,10 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
         focus('host')
       }
     }
-  }, [auth, loginData?.selectedAccount])
+  }, [auth, selectedAccount])
 
   async function handleLogin(data: LoginData) {
-    if (!loginData?.isLoading) {
+    if (!isLoading) {
       let e: Error | undefined = undefined
       setError(() => e)
       setIsLoading(true)
@@ -101,20 +95,22 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
       const res = hostReg.exec(data.host)
       if (res) {
         try {
+          Log.info('LOGIN try login with credential')
           const loggedAccount = await NethVoiceAPI.Authentication.login(
             res[2],
             data.username,
             data.password
           )
-
-          window.electron.receive(IPC_EVENTS.SET_NETHVOICE_CONFIG, (account) => {
+          Log.info('LOGIN successfully logged in with credential')
+          window.electron.receive(IPC_EVENTS.SET_NETHVOICE_CONFIG, (account: Account) => {
+            passwordRef.current = data.password
+            Log.info('LOGIN received account server configuration', account)
             const previousLoggedAccount = auth?.availableAccounts[getAccountUID(account)]
-            setAccount(() => ({
-              ...account,
-              theme: previousLoggedAccount ? previousLoggedAccount.theme : 'system'
-            }))
-            window.electron.send(IPC_EVENTS.LOGIN, { password: data.password })
+            account.theme = previousLoggedAccount ? previousLoggedAccount.theme : 'system'
+            Log.info('LOGIN send login event to the backend', account)
+            window.electron.send(IPC_EVENTS.LOGIN, { password: passwordRef.current, account })
           })
+          Log.info('LOGIN get account server configuration')
           window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
 
           setFormValues({
@@ -195,24 +191,24 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
   return (
     <div className="mt-7">
       <p className="text-titleLight  dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2">
-        {loginData?.selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
+        {selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
       </p>
       <p className="text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7">
-        {loginData?.selectedAccount
+        {selectedAccount
           ? t('Login.Account List description')
           : t('Login.New Account description')}
       </p>
       {error && <RenderError />}
-      {loginData?.selectedAccount && loginData.selectedAccount !== NEW_ACCOUNT && (
+      {selectedAccount && selectedAccount !== NEW_ACCOUNT && (
         <DisplayedAccountLogin
-          account={loginData.selectedAccount}
-          imageSrc={loginData.selectedAccount.data?.settings.avatar}
+          account={selectedAccount}
+          imageSrc={selectedAccount.data?.settings.avatar}
         />
       )}
       {connection ? (
         <form onSubmit={handleSubmit(onSubmitForm)}>
           <div className="flex flex-col gap-7">
-            {!(loginData?.selectedAccount && loginData.selectedAccount !== NEW_ACCOUNT) && (
+            {!(selectedAccount && selectedAccount !== NEW_ACCOUNT) && (
               <>
                 <TextInput
                   {...register('host')}
