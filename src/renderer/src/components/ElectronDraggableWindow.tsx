@@ -1,8 +1,7 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect } from 'react';
 import { IPC_EVENTS } from '@shared/constants';
 import classNames from 'classnames';
-import { debouncer, isDev } from '@shared/utils/utils';
-import { log } from '@shared/utils/logger';
+import { isDev } from '@shared/utils/utils';
 
 export const ElectronDraggableWindow = ({ children }) => {
 

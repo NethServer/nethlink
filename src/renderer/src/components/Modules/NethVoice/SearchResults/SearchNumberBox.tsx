@@ -6,13 +6,12 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 import { useEffect, useState } from 'react'
-import { BaseAccountData, OperatorData, OperatorsType, SearchData } from '@shared/types'
+import { BaseAccountData, SearchData } from '@shared/types'
 import { t } from 'i18next'
-import { log } from '@shared/utils/logger'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { cloneDeep } from 'lodash'
 import { cleanRegex, getIsPhoneNumber, sortByProperty } from '@renderer/lib/utils'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
@@ -26,7 +25,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
-  const [operators] = useStoreState<OperatorData>('operators')
+  const [operators] = useSharedState('operators')
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
   const [canAddToPhonebook, setCanAddToPhonebook] = useState<boolean>(false)
   const { isCallsEnabled } = useAccount()

@@ -1,15 +1,13 @@
 import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
-import { BrowserWindow, Notification, NotificationConstructorOptions, app, ipcMain, screen, shell } from 'electron'
+import { BrowserWindow, app, ipcMain, screen, shell } from 'electron'
 import { join } from 'path'
-import { log } from '@shared/utils/logger'
-import { cloneDeep } from 'lodash'
+import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
-import moment from 'moment'
 import { store } from './mainStore'
 import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
@@ -35,7 +33,6 @@ function onSyncEmitter<T>(
       } else {
         error.message = "Unknown error"
       }
-      log(e)
       syncResponse = [undefined, error]
     }
     event.returnValue = syncResponse
@@ -145,7 +142,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (_, isOnline) => {
     if (store.store) {
-      log('CONNECTION STATE', isOnline)
+      Log.info('INFO update connection state:', isOnline)
       store.set('connection', isOnline)
       if (!store.store.account) {
         store.saveToDisk()
@@ -163,7 +160,7 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_HOST_PAGE, async (_, path) => {
-    const account = store.store['account']
+    const account = store.store.account
     shell.openExternal(join('https://' + account!.host, path))
   })
 
@@ -184,7 +181,7 @@ export function registerIpcEvents() {
     LoginController.instance.resize(h)
   })
   ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (_, account: Account) => {
-    log('DELETE ACCOUNT', account)
+    Log.info('DELETE ACCOUNT', account)
     const accountUID = getAccountUID(account)
     const newStore = Object.assign({}, store.store)
     delete newStore.auth!.availableAccounts[accountUID]
@@ -210,6 +207,22 @@ export function registerIpcEvents() {
     const config: string = await NetworkController.instance.get(`https://${account.host}/config/config.production.js`)
     account = parseConfig(account, config)
     e.reply(IPC_EVENTS.SET_NETHVOICE_CONFIG, account)
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_QUEUE_UPDATE, (_, queue) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_QUEUE_UPDATE, queue)
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_CALL_END)
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, (_, mainPresence) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, mainPresence)
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_PARKING_UPDATE, (_) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_PARKING_UPDATE)
   })
 
 }

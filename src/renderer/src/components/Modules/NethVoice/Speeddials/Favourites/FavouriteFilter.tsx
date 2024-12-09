@@ -1,28 +1,24 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Menu } from "@headlessui/react"
 import classNames from "classnames"
-import { createRef, useRef, useState } from "react"
 import { useTheme } from "@renderer/theme/Context"
 import {
   faCheck as CheckedIcon,
   faSortDown as ArrowMenuIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from "i18next"
-import { useStoreState } from "@renderer/store"
+import { useNethlinkData } from "@renderer/store"
 import { FilterTypes } from "@shared/constants"
 import { NethLinkPageData } from "@shared/types"
 
 export const FavouriteFilter = () => {
   const { theme: nethTheme } = useTheme()
-  const [nethLinkPageData, seNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [speeddialsModule, setSpeeddialsModule] = useNethlinkData('speeddialsModule')
 
   const setFilter = (type: FilterTypes) => {
-    seNethLinkPageData((p) => ({
+    setSpeeddialsModule((p) => ({
       ...p,
-      speeddialsModule: {
-        ...p.speeddialsModule,
-        favouriteOrder: type
-      }
+      favouriteOrder: type
     }))
   }
 
@@ -38,7 +34,7 @@ export const FavouriteFilter = () => {
       >
         <div className="flex gap-3 items-center">
           <FontAwesomeIcon
-            className={classNames(nethLinkPageData?.speeddialsModule?.favouriteOrder === type ? '' : 'invisible', "text-base dark:text-titleDark text-titleLight min-w-5")}
+            className={classNames(speeddialsModule?.favouriteOrder === type ? '' : 'invisible', "text-base dark:text-titleDark text-titleLight min-w-5")}
             icon={CheckedIcon}
           />
           <p className="font-normal text-[14px] leading-5 dark:text-titleDark text-titleLight">
@@ -57,7 +53,7 @@ export const FavouriteFilter = () => {
             <div>
               <Menu.Button className={classNames('flex gap-2 justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent px-1', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
                 <div>
-                  {t(`SpeedDial.${nethLinkPageData?.speeddialsModule?.favouriteOrder} label`)}
+                  {t(`SpeedDial.${speeddialsModule?.favouriteOrder} label`)}
                 </div>
                 <FontAwesomeIcon
                   className={classNames("relative top-[-3px]  text-base", nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}

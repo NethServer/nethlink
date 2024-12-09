@@ -1,8 +1,19 @@
 
 import moment from 'moment'
 import hmacSHA1 from 'crypto-js/hmac-sha1'
-import { Account, NewContactType, OperatorData, ContactType, NewSpeedDialType, Extension, StatusTypes, OperatorsType, LocalStorageData, UseStoreStateType, AccountData, BaseAccountData } from '@shared/types'
-import { log } from '@shared/utils/logger'
+import {
+  Account,
+  NewContactType,
+  OperatorData,
+  ContactType,
+  NewSpeedDialType,
+  Extension,
+  StatusTypes,
+  OperatorsType,
+  AccountData,
+  BaseAccountData
+} from '@shared/types'
+import { Log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
 import { SpeeddialTypes } from './constants'
 
@@ -110,7 +121,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         try {
           await _POST('/webrest/authentication/logout', {})
         } catch (e) {
-          log("ERROR on logout", e)
+          Log.warning(" error during logout:", e)
         } finally {
           resolve()
         }
@@ -164,7 +175,6 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     },
     ///SPEEDDIALS
     createSpeeddial: async (create: NewContactType) => {
-      log({ CREATE: create })
       const newSpeedDial: NewContactType = {
         name: create.name!,
         privacy: 'private',
@@ -179,11 +189,10 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         await _POST(`/webrest/phonebook/create`, newSpeedDial)
         return newSpeedDial
       } catch (e) {
-        log(e)
+        Log.warning('error during createSpeeddial', e)
       }
     },
     createFavourite: async (create: BaseAccountData) => {
-      log({ CREATE: create })
       const newSpeedDial: NewContactType = {
         name: create.username,//username
         company: create.name, //veronome
@@ -199,7 +208,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         await _POST(`/webrest/phonebook/create`, newSpeedDial)
         return newSpeedDial
       } catch (e) {
-        log(e)
+        Log.warning('error during createFavourite', e)
       }
     },
     updateSpeeddialBy: async (updatedContact: ContactType) => {
@@ -210,7 +219,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
           await _POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
           return editedSpeedDial
         } catch (e) {
-          log(e)
+          Log.warning('error during updateSpeeddialBy', e)
         }
       }
     },
@@ -279,7 +288,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       if (ext && !loggedAccount && isFirstHeartbeat) {
         isFirstHeartbeat = false
         const response = await User.heartbeat(ext.id, data.username)
-        log('Send HEARTBEAT', { response })
+        Log.info('Send HEARTBEAT', { response })
       }
       return data
     },

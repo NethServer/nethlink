@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_DEV: string
+  readonly VITE_DEVTOOLS: string
   // more env variables...
 }
 

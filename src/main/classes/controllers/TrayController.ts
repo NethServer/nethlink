@@ -6,7 +6,7 @@ import { AppController } from './AppController'
 import { store } from '@/lib/mainStore'
 import { isDev } from '@shared/utils/utils'
 import { DevToolsController } from './DevToolsController'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
 
 export type TrayUpdaterProps = {
@@ -54,7 +54,7 @@ export class TrayController {
   toggleWindow(enableShowButton: boolean) {
     try {
       if (enableShowButton) {
-        if (store.store['account']) {
+        if (store.store.account) {
           if (NethLinkController.instance && NethLinkController.instance.window?.isOpen())
             NethLinkController.instance.hide()
           else
@@ -68,7 +68,7 @@ export class TrayController {
 
       }
     } catch (e) {
-      log(e)
+      Log.warning('error during toggling a NethLink window from the TrayIcon Button:', e)
     }
   }
 
@@ -80,10 +80,10 @@ export class TrayController {
     }) {
     try {
       const _isShowButtonVisible = isShowButtonVisible === undefined ? true : isShowButtonVisible
-      const label = store.store['account']
+      //TODO: add check if window is focused and add the focus option
+      const label = store.store.account
         ? ((NethLinkController.instance && NethLinkController.instance.window?.isOpen()) ? `${t('Tray.Hide')} NethLink` : `${t('Tray.Show')} NethLink`)
         : ((LoginController.instance && LoginController.instance.window?.isOpen()) ? `${t('Tray.Hide')} Login` : `${t('Tray.Show')} Login`)
-      log(`UPDATE TRAY: ${label}`)
       const menu: (MenuItemConstructorOptions | MenuItem)[] = [
         {
           role: 'window',
@@ -91,7 +91,7 @@ export class TrayController {
           commandId: 1,
           enabled: enableShowButton ?? false,
           visible: _isShowButtonVisible,
-          click: (menuItem, window, event) => {
+          click: (_menuItem, _window, _event) => {
             this.toggleWindow(enableShowButton ?? false)
           }
         },
@@ -100,8 +100,7 @@ export class TrayController {
           label: `${t('Tray.Quit')} NethLink`,
           commandId: 2,
           enabled: enableShowButton ?? false,
-          click: (menuItem, window, event) => {
-            console.log(event)
+          click: (_menuItem, _window, _event) => {
             AppController.safeQuit()
           }
         }
@@ -123,7 +122,7 @@ export class TrayController {
       }
       this.tray.setContextMenu(Menu.buildFromTemplate(menu))
     } catch (e) {
-      log(e)
+      Log.warning('error during updating the Tray Icon menu context contents:', e)
     }
 
   }

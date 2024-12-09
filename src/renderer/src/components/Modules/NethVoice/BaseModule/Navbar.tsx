@@ -1,5 +1,4 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { SearchBox } from './Modules/SearchResults/SearchBox'
 import {
   faXmarkCircle as ExitIcon,
   faGear as ThemeMenuIcon,
@@ -10,21 +9,21 @@ import {
   faCheck as ChooseThemeMenuIcon,
   faArrowUpRightFromSquare as GoToNethVoiceIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { Avatar } from './Nethesis/Avatar'
+import { Avatar } from '../../../Nethesis/Avatar'
 import { Listbox, Menu } from '@headlessui/react'
-import { Account, AvailableThemes, OperatorData } from '@shared/types'
+import { Account } from '@shared/types'
 import { t } from 'i18next'
-import { StatusDot } from './Nethesis'
+import { StatusDot } from '../../../Nethesis'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { debouncer, getAccountUID, isDev } from '@shared/utils/utils'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { createRef, useState } from 'react'
 import { useTheme } from '@renderer/theme/Context'
-import { PresenceBox } from './Modules/NethVoice/Presence/PresenceBox'
+import { PresenceBox } from '../Presence/PresenceBox'
 import classNames from 'classnames'
 import { truncate } from 'lodash'
-import { log } from '@shared/utils/logger'
-import { PresenceBadge } from './Modules/NethVoice/Presence/PresenceBadge'
+import { PresenceBadge } from '../Presence/PresenceBadge'
+import { SearchBox } from '../SearchResults/SearchBox'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -39,10 +38,10 @@ const themeOptions = [
 export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const { theme: nethTheme } = useTheme()
   const { status } = useAccount()
-  const [account, setAccount] = useStoreState<Account>('account')
-  const [auth, setAuth] = useStoreState('auth')
-  const [operators] = useStoreState<OperatorData>('operators')
-  const [theme, setTheme] = useStoreState<AvailableThemes>('theme')
+  const [account, setAccount] = useSharedState('account')
+  const [, setAuth] = useSharedState('auth')
+  const [operators] = useSharedState('operators')
+  const [, setTheme] = useSharedState('theme')
   const [isPresenceDialogVisible, setIsPresenceDialogVisible] = useState(false)
 
   const btnRef = createRef<HTMLButtonElement>()
@@ -53,8 +52,9 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
     setAccount(() => updatedAccount)
     setAuth((p) => ({
       ...p,
+      isFirstStart: p?.isFirstStart ?? true,
       availableAccounts: {
-        ...p.availableAccounts,
+        ...p?.availableAccounts,
         [getAccountUID(updatedAccount as Account)]: updatedAccount
       }
     }))

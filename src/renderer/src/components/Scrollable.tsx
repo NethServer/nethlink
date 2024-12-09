@@ -1,6 +1,4 @@
-import { log } from '@shared/utils/logger'
 import classNames from 'classnames'
-import { createRef, useEffect, useState } from 'react'
 
 export const Scrollable = ({
   children,

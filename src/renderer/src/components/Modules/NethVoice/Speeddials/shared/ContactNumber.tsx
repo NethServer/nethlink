@@ -7,10 +7,10 @@ import {
 import { Menu } from '@headlessui/react'
 import { ContactType, OperatorData } from '@shared/types'
 import { t } from 'i18next'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { truncate } from '@renderer/utils'
 import { useTheme } from '@renderer/theme/Context'
-import { ContactNameAndActions } from '@renderer/components/ContactNameAndAction'
+import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
 import classNames from 'classnames'
 
 export interface SpeedDialNumberProps {
@@ -31,7 +31,7 @@ export function ContactNumber({
   isLastItem,
 }: SpeedDialNumberProps): JSX.Element {
   const { theme: nethTheme } = useTheme()
-  const [operators] = useStoreState<OperatorData>('operators')
+  const [operators] = useSharedState('operators')
 
   return (
     <div
