@@ -1,9 +1,8 @@
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { parseThemeToClassName } from '@renderer/utils/utils'
-import { AvailableThemes } from '@shared/types'
 
 export function OutCallNotAnsweredIcon() {
-  const [theme, _] = useStoreState<AvailableThemes>('theme')
+  const [theme, _] = useSharedState('theme')
   return (
     <svg
       viewBox="0 0 384 512"

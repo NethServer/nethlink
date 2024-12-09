@@ -1,23 +1,21 @@
-import { useStoreState } from "@renderer/store"
-import { ContactType, NethLinkPageData, OperatorData, SearchData } from "@shared/types"
+import { useNethlinkData, useSharedState } from "@renderer/store"
+import { ContactType, SearchData } from "@shared/types"
 import { useEffect, useState } from "react"
 import { debouncer } from "@shared/utils/utils"
-import { log } from "@shared/utils/logger"
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { FilterTypes, SpeeddialTypes } from "@shared/constants"
 export const useFavouriteModule = () => {
-  const [nethLinkData] = useStoreState<NethLinkPageData>('nethLinkPageData')
-  const [rawSpeedDials, setRawSpeedDials] = useStoreState<ContactType[]>('speeddials')
-  const [operators] = useStoreState<OperatorData>('operators')
+  const [speeddialsModule] = useNethlinkData('speeddialsModule')
+  const [rawSpeedDials, setRawSpeedDials] = useSharedState('speeddials')
+  const [operators] = useSharedState('operators')
   const [favourites, setFavourites] = useState<ContactType[] | undefined>(undefined)
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   useEffect(() => {
-    rawSpeedDials && filterFavourites(rawSpeedDials, nethLinkData?.speeddialsModule?.favouriteOrder || FilterTypes.AZ)
-  }, [rawSpeedDials, nethLinkData?.speeddialsModule?.favouriteOrder])
+    rawSpeedDials && filterFavourites(rawSpeedDials, speeddialsModule?.favouriteOrder || FilterTypes.AZ)
+  }, [rawSpeedDials, speeddialsModule?.favouriteOrder])
 
   const getSorter = (order: FilterTypes) => {
     let sorter: ((a: ContactType, b: ContactType) => number) | undefined = undefined
-    log({ order })
     switch (order) {
       case FilterTypes.ZA:
         sorter = (a: ContactType, b: ContactType) => (a.name || '') < (b.name || '') ? 1 : -1
@@ -56,7 +54,6 @@ export const useFavouriteModule = () => {
         //if I am creating a favourite it means that I am from speeddial. in speeddial the username is saved in name
         const username = contact.name
         const operator = username && operators?.operators[username]
-        log({ operator })
         if (operator)
           await NethVoiceAPI.Phonebook.createFavourite(operator)
       } else {
@@ -75,7 +72,6 @@ export const useFavouriteModule = () => {
         //I am creating the favourite from the search so I find the username directly in searchData
         const username = contact.username
         const operator = username && operators?.operators[username]
-        log({ operator })
         if (operator)
           await NethVoiceAPI.Phonebook.createFavourite(operator)
       } else {

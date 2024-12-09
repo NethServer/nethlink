@@ -1,51 +1,31 @@
-import { Navbar } from '../components/Navbar'
-import { Sidebar } from '../components/Sidebar'
+import { Navbar } from '../components/Modules/NethVoice/BaseModule/Navbar'
 import { useInitialize } from '../hooks/useInitialize'
-import {
-  Account,
-  AvailableThemes,
-  NewContactType,
-  ContactType,
-  NewSpeedDialType,
-  NethLinkPageData,
-  NotificationData,
-  PhoneIslandPageData
-} from '@shared/types'
-import { MutableRefObject, useEffect, useRef, useState } from 'react'
-import { faMinusCircle as MinimizeIcon } from '@fortawesome/free-solid-svg-icons'
-import { log } from '@shared/utils/logger'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { MutableRefObject, useEffect, useRef } from 'react'
+import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
-import { sendNotification } from '@renderer/utils'
-import { useStoreState } from '@renderer/store'
-import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
+import { useSharedState } from '@renderer/store'
 import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { FilterTypes, IPC_EVENTS, MENU_ELEMENT, PERMISSION } from '@shared/constants'
-import { PresenceBadge } from '@renderer/components/Modules/NethVoice/Presence/PresenceBadge'
-import classNames from 'classnames'
+import { IPC_EVENTS, PERMISSION } from '@shared/constants'
 import { ConnectionErrorDialog } from '@renderer/components'
-import { debouncer, isDev } from '@shared/utils/utils'
+import { debouncer } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { FavouriteFilter } from '@renderer/components/Modules/NethVoice/Speeddials/Favourites/FavouriteFilter'
+import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
 
 
 export interface NethLinkPageProps {
-  themeMode: string,
   handleRefreshConnection: () => void
 }
 
-export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPageProps) {
-  const [account, setAccount] = useStoreState<Account | undefined>('account')
-  const [phoneIslandPageData] = useStoreState<PhoneIslandPageData>('phoneIslandPageData')
-  const [, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
-  const [, setNotifications] = useStoreState<NotificationData>('notifications')
-  const [connection] = useStoreState<boolean>('connection')
+export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
+  const [account, setAccount] = useSharedState('account')
+  const [, setNotifications] = useSharedState('notifications')
+  const [connection] = useSharedState('connection')
   const { hasPermission } = useAccount()
   const isFetching = useRef<boolean>(false)
 
-  const { saveOperators, onQueueUpdate, onParkingsUpdate, saveLastCalls, saveSpeeddials } =
+  const { saveOperators, onQueueUpdate, onParkingsUpdate, saveLastCalls, saveSpeeddials, onMainPresence, updateLastCalls, updateParkings } =
     usePhoneIslandEventHandler()
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
@@ -54,7 +34,7 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
 
   useInitialize(() => {
     initialize()
-  }, true)
+  })
 
   useEffect(() => {
     if (account) {
@@ -72,29 +52,11 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
           },
           1000 * 60 * 45
         )
-        setNethLinkPageData({
-          selectedSidebarMenu: MENU_ELEMENT.FAVOURITES,
-          phonebookModule: {
-            selectedContact: undefined
-          },
-          speeddialsModule: {
-            selectedSpeedDial: undefined,
-            selectedFavourite: undefined,
-            favouriteOrder: FilterTypes.AZ
-
-          },
-          phonebookSearchModule: {
-            searchText: null
-          },
-          showAddContactModule: false,
-          showPhonebookSearchModule: false
-        })
       }
     } else {
-      log('account logout')
+      Log.info('Account logout')
       stopInterval(operatorFetchLoopInterval)
       stopInterval(accountMeInterval)
-      //initialize nethLink data
     }
   }, [account?.username])
 
@@ -105,23 +67,22 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
     }
   }
 
-  useEffect(() => {
-    log('connection effect', connection)
-  }, [connection])
-
   function initialize() {
     Notification.requestPermission()
       .then(() => {
-        log('requested notification permission')
+        Log.info('requested notification permission')
       })
       .catch((e) => {
-        log(e)
+        Log.warning('notification permission error or unsuccessfully acquired', e)
       })
     window.electron.receive(IPC_EVENTS.UPDATE_APP_NOTIFICATION, showUpdateAppNotification)
+    window.electron.receive(IPC_EVENTS.EMIT_CALL_END, updateLastCalls)
+    window.electron.receive(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, onMainPresence)
+    window.electron.receive(IPC_EVENTS.EMIT_PARKING_UPDATE, updateParkings)
+    window.electron.receive(IPC_EVENTS.EMIT_QUEUE_UPDATE, onQueueUpdate)
   }
 
   const showUpdateAppNotification = () => {
-    log('UPDATE')
     const updateLink = 'https://nethserver.github.io/nethlink/'
     setNotifications((p) => ({
       ...p,
@@ -159,7 +120,7 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
   }
 
   async function reloadData() {
-    log('RELOAD DATA', isFetching.current)
+    Log.info('RELOAD DATA', isFetching.current)
     if (!isFetching.current) {
       isFetching.current = true
       NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
@@ -171,11 +132,14 @@ export function NethLinkPage({ themeMode, handleRefreshConnection }: NethLinkPag
   }
 
   useEffect(() => {
-    if (!phoneIslandPageData?.isDisconnected && connection) {
-      reconnect()
-      log('RECONNECT')
+    if (connection) {
+      Log.info('RECONNECT')
+      debouncer('nethlink-reconnect', () => {
+        Log.info('EFFECTIVE RECONNECT')
+        reconnect()
+      }, 3000)
     }
-  }, [phoneIslandPageData?.isDisconnected, connection])
+  }, [connection])
 
   const reconnect = async () => {
     loadData()

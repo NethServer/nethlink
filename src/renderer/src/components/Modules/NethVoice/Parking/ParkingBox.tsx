@@ -1,12 +1,8 @@
 import { ModuleTitle } from "@renderer/components/ModuleTitle"
 import { Scrollable } from "@renderer/components/Scrollable"
-import { useStoreState } from "@renderer/store"
-import { Account, ParkingType } from "@shared/types"
+import { useSharedState } from "@renderer/store"
 import { t } from "i18next"
 import { ParkedCall } from "./ParkedCall"
-import { SkeletonRow } from "@renderer/components/SkeletonRow"
-import { useEffect, useState } from "react"
-import { log } from "@shared/utils/logger"
 import { EmptyList } from "@renderer/components/EmptyList"
 import {
   faSquareParking as ParkedCallIcon,
@@ -19,7 +15,7 @@ import { isEmpty } from "lodash"
 export const ParkingBox = () => {
 
   const { parkedCalls } = useParkingModule()
-  const [account] = useStoreState<Account>('account')
+  const [account] = useSharedState('account')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   async function pickParking(parkingInfoDetails: any) {

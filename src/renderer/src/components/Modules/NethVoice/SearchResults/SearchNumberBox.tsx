@@ -6,13 +6,12 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
 import { useEffect, useState } from 'react'
-import { OperatorData, SearchData } from '@shared/types'
+import { BaseAccountData, SearchData } from '@shared/types'
 import { t } from 'i18next'
-import { log } from '@shared/utils/logger'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { cloneDeep } from 'lodash'
 import { cleanRegex, getIsPhoneNumber, sortByProperty } from '@renderer/lib/utils'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
@@ -26,7 +25,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
-  const [operators] = useStoreState<OperatorData>('operators')
+  const [operators] = useSharedState('operators')
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
   const [canAddToPhonebook, setCanAddToPhonebook] = useState<boolean>(false)
   const { isCallsEnabled } = useAccount()
@@ -38,7 +37,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
     showContactForm()
   }
 
-  const getFoundedOperators = () => {
+  const getFoundedOperators = (): BaseAccountData[] => {
     const cleanQuery = searchText?.replace(cleanRegex, '') || ''
     let operatorsResults = Object.values(operators?.operators || {}).filter((op: any) => {
       return (
@@ -52,6 +51,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
 
       operatorsResults.forEach((op: any) => {
         op.resultType = 'operator'
+        op.extension = op.endpoints?.mainextension[0]?.id //for phoneNumber search
       })
     }
     operatorsResults.sort(sortByProperty('name'))
@@ -74,8 +74,6 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
       }, '')
     }
 
-    const filteredOperators = getFoundedOperators()
-
     unFilteredNumbers.sort((a, b) => {
       if (isPhoneNumber) {
         const al = s(a).length
@@ -92,65 +90,10 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
       }
     })
 
-    const getId = (o) => parseInt(o?.endpoints?.['extension']?.[0]?.['id']) || -1
-    const mappedOperators: SearchData[] = filteredOperators
-      .filter((o) => getId(o) !== -1)
-      .map((o) => {
-        const id = getId(o)
-        return {
-          ...o,
-          cellphone: o?.endpoints?.['cellphone']?.[0]?.['id'],
-          fax: '',
-          homecity: '',
-          homecountry: '',
-          homeemail: '',
-          homephone: '',
-          homepob: '',
-          homepostalcode: '',
-          homeprovince: '',
-          homestreet: '',
-          id: id,
-          notes: '',
-          owner_id: '',
-          source: '',
-          speeddial_num: o?.endpoints?.['mainextension']?.[0]?.id || '',
-          title: '',
-          type: '',
-          url: '',
-          workcity: '',
-          workcountry: '',
-          workemail: '',
-          workphone: '',
-          workpob: '',
-          workpostalcode: '',
-          workprovince: '',
-          workstreet: '',
-          company: '',
-          extension: o?.endpoints?.['mainextension']?.[0]?.id || '',
-          isOperator: true,
-          kind: 'person',
-          displayName: o?.name
-        }
-      })
-    const names = mappedOperators.map((o) => o?.name?.toLowerCase()?.replace(/\s/g, ''))
-
-    unFilteredNumbers = unFilteredNumbers.filter((e) => {
-      const target = e?.name?.toLowerCase()?.replace(/\s/g, '')
-      if (!names.includes(target)) {
-        names.push(target)
-        return true
-      }
-      //I make sure I have a set
-      return false
-    })
-    const copy = [...mappedOperators, ...unFilteredNumbers]
-
+    const filteredOperators = getFoundedOperators()
+    const copy = [...filteredOperators, ...unFilteredNumbers]
     let _canAddInPhonebook = isPhoneNumber
-
-    setFilteredPhoneNumbers(() => copy)
-    log({
-      _canAddInPhonebook
-    })
+    setFilteredPhoneNumbers(() => copy as any)
     setCanAddToPhonebook(() => _canAddInPhonebook)
   }
 

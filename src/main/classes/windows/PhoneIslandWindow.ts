@@ -6,8 +6,8 @@ export class PhoneIslandWindow extends BaseWindow {
   public static currentSize: Partial<Electron.Rectangle> = {}
   constructor() {
     super(PAGES.PHONEISLAND, {
-      width: 1,
-      height: 1,
+      width: 0,
+      height: 0,
       show: false,
       fullscreenable: false,
       autoHideMenuBar: true,

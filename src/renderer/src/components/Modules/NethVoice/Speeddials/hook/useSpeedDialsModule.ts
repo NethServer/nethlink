@@ -1,8 +1,7 @@
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
-import { useStoreState } from "@renderer/store"
+import { useNethlinkData, useSharedState } from "@renderer/store"
 import { SpeeddialTypes } from "@shared/constants"
-import { ContactType, NethLinkPageData, NewContactType, NewSpeedDialType, SpeedDialModuleData, StateType } from "@shared/types"
-import { log } from "@shared/utils/logger"
+import { ContactType, NewContactType, NewSpeedDialType, SpeedDialModuleData, StateType } from "@shared/types"
 import { useEffect, useState } from "react"
 
 export const useSpeedDialsModule = (): {
@@ -12,17 +11,14 @@ export const useSpeedDialsModule = (): {
   deleteSpeedDial: (speedDial: ContactType) => Promise<void>
   upsertSpeedDial(data: ContactType): Promise<void>
 } => {
-  const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
-  const [rawSpeedDials, setRawSpeedDials] = useStoreState<ContactType[]>('speeddials')
+  const [speeddialsModule, setSpeeddialsModule] = useNethlinkData('speeddialsModule')
+  const [rawSpeedDials, setRawSpeedDials] = useSharedState('speeddials')
   const [speedDials, setSpeedDials] = useState<ContactType[] | undefined>(undefined)
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const update = <T>(selector: keyof SpeedDialModuleData) => (value: T | undefined) => {
-    setNethLinkPageData((p) => ({
+    setSpeeddialsModule((p) => ({
       ...p,
-      speeddialsModule: {
-        ...p?.speeddialsModule,
-        [selector]: value as any
-      }
+      [selector]: value as any
     }))
   }
 
@@ -51,14 +47,13 @@ export const useSpeedDialsModule = (): {
         )
       )
     } catch (e) {
-      log(e)
       throw new Error()
     }
   }
 
   const upsertSpeedDial = async (speedDial: NewSpeedDialType | NewContactType) => {
     try {
-      const selectedSpeedDial = nethLinkPageData?.speeddialsModule?.selectedSpeedDial
+      const selectedSpeedDial = speeddialsModule?.selectedSpeedDial
       if (selectedSpeedDial) {
         const updatedSpeedDial = await NethVoiceAPI.Phonebook.updateSpeeddial(speedDial, selectedSpeedDial)
         if (updatedSpeedDial) {
@@ -80,8 +75,8 @@ export const useSpeedDialsModule = (): {
 
   return {
     speedDials,
-    speedDialsState: [nethLinkPageData?.speeddialsModule?.selectedSpeedDial, update<ContactType>('selectedSpeedDial')] as StateType<ContactType>,
-    favouriteState: [nethLinkPageData?.speeddialsModule?.selectedFavourite, update<ContactType>('selectedFavourite')] as StateType<ContactType>,
+    speedDialsState: [speeddialsModule?.selectedSpeedDial, update<ContactType>('selectedSpeedDial')] as StateType<ContactType>,
+    favouriteState: [speeddialsModule?.selectedFavourite, update<ContactType>('selectedFavourite')] as StateType<ContactType>,
     deleteSpeedDial,
     upsertSpeedDial,
   }

@@ -1,6 +1,5 @@
-/* eslint-disable prefer-const */
 import { FC, useEffect, useState } from 'react'
-import { formatDistance, getUnixTime, parse, toDate } from 'date-fns'
+import { formatDistance } from 'date-fns'
 import { format } from 'date-fns-tz'
 import { utcToZonedTime } from 'date-fns-tz'
 import { enGB, it } from 'date-fns/locale'
@@ -12,9 +11,7 @@ import {
 import i18next from 'i18next'
 import { UTCDate } from '@date-fns/utc'
 import { Account } from '@shared/types'
-import { log } from '@shared/utils/logger'
-import { isDev } from '@shared/utils/utils'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 
 interface CallsDateProps {
   call: any
@@ -24,7 +21,7 @@ interface CallsDateProps {
 }
 
 export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnnouncement }) => {
-  const [account] = useStoreState<Account>('account')
+  const [account] = useSharedState('account')
 
   const [selectedLanguage, setSelectedLanguage] = useState('')
 

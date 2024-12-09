@@ -75,7 +75,9 @@
     "No internet connection description": "Si prega di controllare la connessione e riprovare",
     "Refresh": "Aggiorna",
     "Answer phone to start recording": "Rispondi al telefono per iniziare la registrazione",
-    "Close the call to stop recording": "Chiudi la chiamata per fermare la registrazione"
+    "Close the call to stop recording": "Chiudi la chiamata per fermare la registrazione",
+    "Search or type a contact": "Cerca o digita un contatto",
+    "Enter a phone number": "Inserisci un numero di telefono"
   },
   "Login": {
     "Welcome": "Benvenuto",
@@ -97,6 +99,7 @@
     "New Account description": "Accedere a NethLink con il nome utente e la password di NethVoice CTI.",
     "Account List title": "Account disponibili",
     "Account List description": "Scegliete un account per proseguire con NethLink.",
+    "Delete account": "Sei sicuro di voler eliminare {{username}}?",
     "Back": "Indietro"
   },
   "SplashScreen": {
@@ -877,7 +880,8 @@
   },
   "Call": {
     "In progress...": "In corso...",
-    "Outgoing call": "Chiamata in uscita"
+    "Outgoing call": "Chiamata in uscita",
+    "Incoming call": "Chiamata in arrivo"
   },
   "Transfer": {
     "No users found": "Nessun utente trovato"
@@ -887,5 +891,21 @@
     "current_version": "Versione corrente: nethlink {{version}}",
     "update_available": "Aggiornamento disponibile per il download",
     "download": "Scarica l'aggiornamento"
+  },
+  "Errors": {
+    "browser_permissions": "Browser Permissions Error",
+    "user_permissions": "User Permissions Error",
+    "unknown_media_permissions": "Unknown Media Permissions Error",
+    "webrtc_down": "WebRTC Down",
+    "socket_down": "Socket Down",
+    "busy_camera": "Busy Camera",
+    "call_transfered": "Call Transferred Successfully",
+    "The browser doesn't have permission to access camera or microphone.": "The browser doesn't have permission to access camera or microphone.",
+    "You must accept audio and video permissions.": "You must accept audio and video permissions.",
+    "Web Phone can't access audio or camera on this device.": "Web Phone can't access audio or camera on this device.",
+    "Web Phone connection is down.": "Web Phone connection is down.",
+    "Server connection is down.": "Server connection is down.",
+    "Camera is used by another application.": "Camera is used by another application.",
+    "Call transferred successfully.": "Call transferred successfully."
   }
 }
