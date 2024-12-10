@@ -9,6 +9,7 @@ import { getAccountUID } from "@shared/utils/utils"
 import { t } from "i18next"
 import { OptionElement } from "../OptionElement"
 import { Log } from "@shared/utils/logger"
+import { IPC_EVENTS } from '@shared/constants'
 
 export const ThemeIcons = {
   system: SystemIcon,
@@ -32,6 +33,7 @@ export const ThemeBox = () => {
         [getAccountUID(updatedAccount as Account)]: updatedAccount
       }
     }))
+    window.electron.send(IPC_EVENTS.CHANGE_THEME, theme)
   }
 
   const themeOptions = [

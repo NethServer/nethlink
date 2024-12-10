@@ -210,10 +210,10 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.CHANGE_THEME, (_, theme) => {
     AccountController.instance.updateTheme(theme)
-    PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
-    LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    //PhoneIslandController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    //LoginController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
     DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
-    NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    NethLinkController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
   })
 
   ipcMain.on(IPC_EVENTS.GET_NETHVOICE_CONFIG, async (e, account) => {
