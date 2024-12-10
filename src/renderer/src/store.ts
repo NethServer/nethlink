@@ -95,6 +95,7 @@ export const {
   useRegisterStoreHook
 } = createGlobalStateHook({
   account: undefined,
+  device: undefined,
   auth: undefined,
   connection: undefined,
   lastCalls: undefined,

@@ -1,6 +1,7 @@
 import { FilterTypes, MENU_ELEMENT, NEW_ACCOUNT } from "./constants"
 
 export type AvailableThemes = 'system' | 'light' | 'dark'
+export type AvailableDevices = 'nethlink' | 'physical' | 'webrtc'
 
 export enum PAGES {
   SPLASHSCREEN = "splashscreenpage",
@@ -368,6 +369,7 @@ export type Size = { w: number; h: number }
 export type LocalStorageData = {
   account?: Account,
   auth?: AuthAppData,
+  device?: AvailableDevices,
   page?: PageType,
   theme?: AvailableThemes,
   connection?: boolean,

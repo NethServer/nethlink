@@ -78,7 +78,9 @@ export enum IPC_EVENTS {
   EMIT_MAIN_PRESENCE_UPDATE = "EMIT_MAIN_PRESENCE_CHANGE",
   EMIT_QUEUE_UPDATE = "EMIT_QUEUE_UPDATE",
   EMIT_PARKING_UPDATE = "EMIT_PARKING_UPDATE",
-  TRANSFER_CALL = "TRANSFER_CALL"
+  TRANSFER_CALL = "TRANSFER_CALL",
+  CHANGE_DEFAULT_DEVICE = "CHANGE_DEFAULT_DEVICE",
+  START_CALL_BY_URL = "START_CALL_BY_URL"
 }
 
 //PHONE ISLAND EVENTS
@@ -90,6 +92,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-audio-input-change' = 'phone-island-audio-input-change',
   'phone-island-audio-output-change' = 'phone-island-audio-output-change',
   'phone-island-theme-change' = 'phone-island-theme-change',
+  'phone-island-action-physical' = 'phone-island-action-physical',
   // Dispatch Phone-Island Events: phone-island*
   'phone-island-webrtc-registered' = 'phone-island-webrtc-registered',
   'phone-island-attached' = 'phone-island-attached',

@@ -13,7 +13,7 @@ import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
-
+import http from 'http'
 
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
@@ -49,6 +49,16 @@ export function registerIpcEvents() {
 
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
     return app.getSystemLocale()
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
+    PhoneIslandController.instance.call(phoneNumber)
+  })
+
+  ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url) => {
+    http.get(url, (res) => {
+      Log.info('START_CALL_BY_URL', res)
+    })
   })
 
   ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (_, newState, page, selector) => {
@@ -180,6 +190,11 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (_, h) => {
     LoginController.instance.resize(h)
   })
+
+  ipcMain.on(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, (_, ext, force) => {
+    PhoneIslandController.instance.updateDefaultDevice(ext, force ?? false)
+  })
+
   ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (_, account: Account) => {
     Log.info('DELETE ACCOUNT', account)
     const accountUID = getAccountUID(account)

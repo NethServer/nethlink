@@ -65,9 +65,6 @@ function startup() {
       })
     }
 
-    ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
-      PhoneIslandController.instance.call(phoneNumber)
-    })
     ipcMain.on(IPC_EVENTS.LOGIN, async (e, props?: { account?: Account, password?: string, showNethlink: boolean, }) => {
       const { password, showNethlink, account } = props || { showNethlink: true }
       if (LoginController.instance && LoginController.instance.window.isOpen() && password && account) {

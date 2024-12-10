@@ -6,7 +6,7 @@ import {
   faMobile as CallForwardMobileIcon,
   faVoicemail as VoiceMailIcon
 } from '@fortawesome/free-solid-svg-icons'
-import { Button, TextInput } from '../../../Nethesis'
+import { Button, TextInput } from '../../../../../Nethesis'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -21,11 +21,7 @@ import classNames from 'classnames'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { PERMISSION } from '@shared/constants'
 
-export interface PresenceBoxProps {
-  isOpen: boolean
-  onClose: () => void
-}
-export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: PresenceBoxProps) {
+export function PresenceBox() {
   const { saveOperators } = usePhoneIslandEventHandler()
   const [isForwardDialogOpen, setIsForwardDialogOpen] = useState<boolean>(false)
   const [account, setAccount] = useSharedState('account')
@@ -75,7 +71,6 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
           Log.warning('error during the presence change', e)
         } finally {
           setIsForwardDialogOpen(false)
-          onClosePresenceDialog()
         }
       }
     }
@@ -150,81 +145,71 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
     } catch (e) {
       Log.error('ON PRESENCE CHANGE', e)
     } finally {
-      onClosePresenceDialog()
     }
   }
 
   return (
-    isOpen && (
-      <>
-        <div className="absolute right-[72px] top-[62px] w-[280px] bg-bgLight dark:bg-bgDark border rounded-lg z-[203] py-3 dark:border-borderDark border-borderLight">
-          <Scrollable className='max-h-[260px]'>
-            <PresenceItem
-              onClick={onSelectPresence}
-              status="online"
-              presenceName={t('TopBar.Online')}
-              presenceDescription={t('TopBar.Make and receive phone calls')}
-            ></PresenceItem>
-            {/* check callforward permission */}
-            {hasPermission(PERMISSION.CALL_FORWARD) && (
-              <PresenceItem
-                onClick={() => setIsForwardDialogOpen(true)}
-                status="callforward"
-                presenceName={t('TopBar.Call forward')}
-                presenceDescription={t('TopBar.Forward incoming calls to another phone number')}
-                icon={CallForwardIcon}
-              ></PresenceItem>
-            )}
-            {!isEmpty(account?.data?.endpoints.cellphone) && (
-              <PresenceItem
-                onClick={() =>
-                  onSelectPresence('callforward', account!.data!.endpoints.cellphone[0]!.id)
-                }
-                status="callforward"
-                presenceName={t('TopBar.Mobile')}
-                presenceDescription={t('TopBar.Do not receive any calls')}
-                icon={CallForwardMobileIcon}
-              ></PresenceItem>
-            )}
-            {!isEmpty(account?.data?.endpoints.voicemail) && (
-              <PresenceItem
-                onClick={() => onSelectPresence('voicemail')}
-                status="voicemail"
-                presenceName={t('TopBar.Voicemail')}
-                presenceDescription={t('TopBar.Activate voicemail')}
-                icon={VoiceMailIcon}
-              ></PresenceItem>
-            )}
-            {/* check dnd permission */}
-            {hasPermission(PERMISSION.DND) && (
-              <PresenceItem
-                onClick={onSelectPresence}
-                status="dnd"
-                presenceName={t('TopBar.Do not disturb')}
-                presenceDescription={t('TopBar.Do not receive any calls')}
-                hasTopBar={true}
-              ></PresenceItem>
-            )}
-          </Scrollable>
+    <div>
+      <PresenceItem
+        onClick={onSelectPresence}
+        status="online"
+        presenceName={t('TopBar.Online')}
+        presenceDescription={t('TopBar.Make and receive phone calls')}
+      ></PresenceItem>
+      {/* check callforward permission */}
+      {hasPermission(PERMISSION.CALL_FORWARD) && (
+        <PresenceItem
+          onClick={() => setIsForwardDialogOpen(true)}
+          status="callforward"
+          presenceName={t('TopBar.Call forward')}
+          presenceDescription={t('TopBar.Forward incoming calls to another phone number')}
+          icon={CallForwardIcon}
+        ></PresenceItem>
+      )}
+      {!isEmpty(account?.data?.endpoints.cellphone) && (
+        <PresenceItem
+          onClick={() =>
+            onSelectPresence('callforward', account!.data!.endpoints.cellphone[0]!.id)
+          }
+          status="callforward"
+          presenceName={t('TopBar.Mobile')}
+          presenceDescription={t('TopBar.Do not receive any calls')}
+          icon={CallForwardMobileIcon}
+        ></PresenceItem>
+      )}
+      {!isEmpty(account?.data?.endpoints.voicemail) && (
+        <PresenceItem
+          onClick={() => onSelectPresence('voicemail')}
+          status="voicemail"
+          presenceName={t('TopBar.Voicemail')}
+          presenceDescription={t('TopBar.Activate voicemail')}
+          icon={VoiceMailIcon}
+        ></PresenceItem>
+      )}
+      {/* check dnd permission */}
+      {hasPermission(PERMISSION.DND) && (
+        <PresenceItem
+          onClick={onSelectPresence}
+          status="dnd"
+          presenceName={t('TopBar.Do not disturb')}
+          presenceDescription={t('TopBar.Do not receive any calls')}
+          hasTopBar={true}
+        ></PresenceItem>
+      )}
+
+      {isForwardDialogOpen && (
+        <div className=' top-0 left-0'>
+          <ForwardDialog
+            onSubmit={(data) => {
+              onSelectPresence('callforward', data.to)
+            }}
+          />
+          <Backdrop
+            onBackdropClick={() => setIsForwardDialogOpen(false)}
+            className={'bg-white opacity-[0.25] z-[204]'}
+          />
         </div>
-        <Backdrop
-          onBackdropClick={onClosePresenceDialog}
-          className={'bg-transparent z-[202]'}
-        />
-        {isForwardDialogOpen && (
-          <>
-            <ForwardDialog
-              onSubmit={(data) => {
-                onSelectPresence('callforward', data.to)
-              }}
-            />
-            <Backdrop
-              onBackdropClick={() => setIsForwardDialogOpen(false)}
-              className={'bg-white opacity-[0.25] z-[204]'}
-            />
-          </>
-        )}
-      </>
-    )
+      )}
+    </div>
   )
 }

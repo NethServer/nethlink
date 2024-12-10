@@ -7,7 +7,7 @@ import { once } from '@/lib/ipcEvents'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { store } from '@/lib/mainStore'
 import { screen } from 'electron'
-import { Size } from '@shared/types'
+import { Extension, Size } from '@shared/types'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
@@ -118,6 +118,18 @@ export class PhoneIslandController {
 
   callTransfer(to: string) {
     this.window.emit(IPC_EVENTS.TRANSFER_CALL, to)
+  }
+
+  updateDefaultDevice(ext: Extension, force: boolean) {
+    try {
+
+      //const { NethVoiceAPI } = useNethVoiceAPI(store.store.account)
+      //NethVoiceAPI.User.me().then((me) => {
+      this.window.emit(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, ext, force)
+      //})
+    } catch (e) {
+      Log.warning('error during emitting updateDefaultDevice event to the PhoneIslandWindow:', e)
+    }
   }
 
   reconnect() {

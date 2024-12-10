@@ -296,7 +296,17 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     all_avatars: async () => await _GET('/webrest/user/all_avatars'),
     all_endpoints: async () => await _GET('/webrest/user/endpoints/all'),
     heartbeat: async (extension: string, username: string) => await _POST('/webrest/user/nethlink', { extension, username }),
-    default_device: async (deviceIdInformation: Extension) => await _POST('/webrest/user/default_device', { id: deviceIdInformation.id }),
+    default_device: async (deviceIdInformation: Extension, force = false): Promise<boolean> => {
+      try {
+        if (account?.data?.default_device.type !== 'physical' || force) {
+          await _POST('/webrest/user/default_device', { id: deviceIdInformation.id })
+          return true
+        }
+      } catch (e) {
+        Log.error(e)
+      }
+      return false;
+    },
     setPresence: async (status: StatusTypes, to?: string) => await _POST('/webrest/user/presence', { status, ...(to ? { to } : {}) })
   }
 

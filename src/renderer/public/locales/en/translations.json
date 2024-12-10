@@ -322,7 +322,10 @@
     "For the following states": "For the following states",
     "Callforward": "Forward",
     "Do not disturb": "Do not disturb",
-    "Available presence": "Available presence"
+    "Available presence": "Available presence",
+    "IP Phone": "IP Phone",
+    "Web Phone": "Web Phone",
+    "Desktop Phone": "Desktop Phone"
   },
   "TopBar": {
     "Signed in as": "Signed in as",
@@ -344,7 +347,8 @@
     "Mobile": "Mobile",
     "Cellphone": "Cellphone",
     "Activate voicemail": "Activate voicemail",
-    "Go to NethVoice CTI": "Go to NethVoice CTI"
+    "Go to NethVoice CTI": "Go to NethVoice CTI",
+    "Pair device": "Pair device"
   },
   "OperatorDrawer": {
     "Book": "Book",
