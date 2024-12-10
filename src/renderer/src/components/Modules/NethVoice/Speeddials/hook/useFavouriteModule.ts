@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { debouncer } from "@shared/utils/utils"
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { FilterTypes, SpeeddialTypes } from "@shared/constants"
+import { Log } from "@shared/utils/logger"
 export const useFavouriteModule = () => {
   const [speeddialsModule] = useNethlinkData('speeddialsModule')
   const [rawSpeedDials, setRawSpeedDials] = useSharedState('speeddials')
@@ -36,11 +37,12 @@ export const useFavouriteModule = () => {
   }
 
   const isFavourite = (contact: ContactType) => {
+    Log.warning(contact)
     return contact.notes?.includes(SpeeddialTypes.FAVOURITES)
   }
 
   const isSearchAlsoAFavourite = (contact: SearchData) => {
-    const foundedContact = favourites?.find((s) => s.speeddial_num === contact.speeddial_num)
+    const foundedContact = favourites?.find((s) => s.speeddial_num === (contact.speeddial_num || contact.extension))
     if (foundedContact) {
       return isFavourite(foundedContact)
     }
@@ -67,7 +69,7 @@ export const useFavouriteModule = () => {
 
   function toggleFavouriteFromSearch(contact: SearchData) {
     debouncer(`toggleFavourite-${contact.id}`, async () => {
-      const speedDial = favourites?.find((s) => s.speeddial_num === contact.speeddial_num)
+      const speedDial = favourites?.find((s) => s.speeddial_num === (contact.speeddial_num || contact.extension))
       if (!speedDial) {
         //I am creating the favourite from the search so I find the username directly in searchData
         const username = contact.username

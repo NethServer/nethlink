@@ -82,7 +82,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
           displayedNumber={highlightedNumber}
           isHighlight={true}
           username={username}
-          isFavourite={isSearchAlsoAFavourite(user) || false}
+          isFavourite={false}
           isSearchData={true}
         />
         <Button
