@@ -410,6 +410,7 @@ export type AuthAppData = {
 export type NethLinkPageData = {
   selectedSidebarMenu: MENU_ELEMENT,
   showPhonebookSearchModule?: boolean,
+  isForwardDialogOpen?: boolean,
   showAddContactModule?: boolean,
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData

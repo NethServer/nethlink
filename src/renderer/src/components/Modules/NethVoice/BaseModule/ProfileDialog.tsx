@@ -10,13 +10,16 @@ import { useEffect, useState } from 'react'
 import classNames from 'classnames'
 import { StatusDot } from '@renderer/components/Nethesis'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { useSharedState } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { MenuPage } from './ProfileDialog/MenuPage'
 import { Line } from './ProfileDialog/Line'
 import { PresenceBox } from './ProfileDialog/PresenceSettings/PresenceBox'
 import { ThemeBox, ThemeIcons } from './ProfileDialog/ThemeSettings/ThemeBox'
 import { DeviceBox, DeviceIcons } from './ProfileDialog/DeviceSettings/DeviceBox'
+import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
+import { Backdrop } from './Backdrop'
+import { Log } from '@shared/utils/logger'
 
 enum MenuItem {
   device = 1,
@@ -39,6 +42,7 @@ export const ProfileDialog = ({
   const [dialogPageTitle, setDialogPageTitle] = useState('')
   const [themeIcon, setThemeIcon] = useState<IconProp>(ThemeIcons['system'])
   const [deviceIcon, setDeviceIcon] = useState<IconProp>(DeviceIcons['nethlink'])
+  const [isForwardDialogOpen, setIsForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
   function handleExitNethLink() {
     window.api.exitNethLink()
   }
@@ -73,11 +77,11 @@ export const ProfileDialog = ({
       setThemeIcon(() => ThemeIcons[account?.theme || 'system'])
     }
   }, [account])
-
-  return (
+  if (!isOpen) return <></>
+  return <div className={classNames('absolute')}>
+    {isForwardDialogOpen && <PresenceForwardDialog />}
     <div className={
       classNames(
-        isOpen ? '' : 'hidden',
         'w-[252px] h-[297px]',
         'bg-bgInput dark:bg-bgInputDark',
         'rounded-lg border dark:border-borderDark border-borderLight',
@@ -121,5 +125,26 @@ export const ProfileDialog = ({
         </motion.div>
       </div>
     </div >
-  )
+    <Backdrop
+      className={
+        classNames(
+          isForwardDialogOpen
+            ? 'bg-white opacity-[0.25] z-[201]'
+            : 'z-[199]'
+        )
+      }
+      onBackdropClick={() => {
+        Log.warning('CLICK')
+        if (isForwardDialogOpen) {
+          setIsForwardDialogOpen(() => false)
+        } else {
+          setSelectedMenu(() => undefined)
+          onClose()
+
+        }
+
+      }}
+    />
+  </div>
+
 }

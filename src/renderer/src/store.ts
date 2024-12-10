@@ -112,6 +112,7 @@ export const {
 
 export const useNethlinkData = createGlobalStateHook({
   selectedSidebarMenu: MENU_ELEMENT.FAVOURITES,
+  isForwardDialogOpen: false,
   phonebookModule: {
     selectedContact: undefined
   },
