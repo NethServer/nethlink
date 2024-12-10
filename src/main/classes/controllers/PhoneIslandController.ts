@@ -28,7 +28,7 @@ export class PhoneIslandController {
           window.setBounds({ width: w, height: h })
           PhoneIslandWindow.currentSize = { width: w, height: h }
         }
-        //make sure the size is equal to [0,0] when you want to close the phone island, otherwise the size will not close and will generate slowness problems.        
+        //make sure the size is equal to [0,0] when you want to close the phone island, otherwise the size will not close and will generate slowness problems.
         if (h === 0 && w === 0) {
           window.hide()
         } else {
@@ -113,15 +113,11 @@ export class PhoneIslandController {
   }
 
   call(number: string) {
-    try {
+    this.window.emit(IPC_EVENTS.START_CALL, number)
+  }
 
-      const { NethVoiceAPI } = useNethVoiceAPI(store.store.account)
-      NethVoiceAPI.User.me().then((me) => {
-        this.window.emit(IPC_EVENTS.START_CALL, number)
-      })
-    } catch (e) {
-      Log.warning('error during emitting start call event to the PhoneIslandWindow:', e)
-    }
+  callTransfer(to: string) {
+    this.window.emit(IPC_EVENTS.TRANSFER_CALL, to)
   }
 
   reconnect() {

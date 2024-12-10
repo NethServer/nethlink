@@ -45,6 +45,12 @@ export function PhoneIslandPage() {
       })
     })
 
+    window.electron.receive(IPC_EVENTS.TRANSFER_CALL, (to: string) => {
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-transfer'], {
+        to
+      })
+    })
+
     window.electron.receive(IPC_EVENTS.RECONNECT_PHONE_ISLAND, () => {
       logout()
     })

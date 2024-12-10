@@ -21,6 +21,7 @@ import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
+import { URL } from 'url'
 
 //get app parameter
 const params = process.argv
@@ -461,11 +462,21 @@ async function attachProtocolListeners() {
     return new Promise((resolve) => resolve)
   }
 
-  function handleNethLinkProtocol(data: string): Promise<Response> {
+  function handleNethLinkProtocol(url: string): Promise<Response> {
     //we have to define the purpose of the nethlink custom protocol
-    Log.info('HandleProtocol Nethlink:', data)
+    Log.info('HandleProtocol Nethlink:', url)
+    const data = new URL(url)
+    data.href
     //TODO: define actions
+    const action = data.host
     try {
+      switch (action) {
+        case 'transfer':
+          const to = data.searchParams.get('to')
+          if (to)
+            PhoneIslandController.instance.callTransfer(to)
+          break;
+      }
       NethLinkController.instance.show()
     } catch (e) {
       Log.info('ERROR HandleProtocol Nethlink:', e)
