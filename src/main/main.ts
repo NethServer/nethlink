@@ -433,7 +433,7 @@ async function attachProtocolListeners() {
   })
 
   app.on('open-url', (ev, origin) => {
-    handleStartCallProtocols(origin)
+    handleOpenUrlProtocols(origin)
   })
 
   //I assign the app as usable for tel and callto protocol response
@@ -447,6 +447,23 @@ async function attachProtocolListeners() {
   protocol.handle('nethlink', (req) => {
     return handleNethLinkProtocol(req.url)
   })
+
+  function handleOpenUrlProtocols(url: string) {
+    const regex = /(\w+):(?:\/\/?)?([^\/?]+(?:\/[^?]*)?(?:\?.*)?)/;
+    const match = url.match(regex)
+    if (match) {
+      const [protocol, data] = [match[1], match[2]]
+      switch (protocol) {
+        case 'nethlink':
+          handleNethLinkProtocol(data);
+          break;
+        case 'tel':
+        case 'callto':
+          handleStartCallProtocols(data);
+          break;
+      }
+    }
+  }
 
   function handleStartCallProtocols(url: string): Promise<Response> {
     const regex = /(\+?\*?\d+)/;
@@ -465,8 +482,8 @@ async function attachProtocolListeners() {
   function handleNethLinkProtocol(url: string): Promise<Response> {
     //we have to define the purpose of the nethlink custom protocol
     Log.info('HandleProtocol Nethlink:', url)
-    const data = new URL(url)
-    data.href
+    const data = new URL("nethlink://" + url)
+
     //TODO: define actions
     const action = data.host
     try {
