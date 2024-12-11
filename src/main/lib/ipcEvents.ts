@@ -1,15 +1,13 @@
 import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
-import { BrowserWindow, Notification, NotificationConstructorOptions, app, ipcMain, screen, shell } from 'electron'
+import { BrowserWindow, app, ipcMain, screen, shell } from 'electron'
 import { join } from 'path'
-import { log } from '@shared/utils/logger'
-import { cloneDeep } from 'lodash'
+import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
-import moment from 'moment'
 import { store } from './mainStore'
 import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
@@ -35,7 +33,6 @@ function onSyncEmitter<T>(
       } else {
         error.message = "Unknown error"
       }
-      log(e)
       syncResponse = [undefined, error]
     }
     event.returnValue = syncResponse
@@ -54,7 +51,7 @@ export function registerIpcEvents() {
     return app.getSystemLocale()
   })
 
-  ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (event, newState, page, selector) => {
+  ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (_, newState, page, selector) => {
     const windows = BrowserWindow.getAllWindows();
     store.updateStore(newState, `${page}[${selector}]`)
     windows.forEach(win => {
@@ -143,9 +140,9 @@ export function registerIpcEvents() {
 
 
 
-  ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (event, isOnline) => {
+  ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (_, isOnline) => {
     if (store.store) {
-      log('CONNECTION STATE', isOnline)
+      Log.info('INFO update connection state:', isOnline)
       store.set('connection', isOnline)
       if (!store.store.account) {
         store.saveToDisk()
@@ -163,7 +160,7 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_HOST_PAGE, async (_, path) => {
-    const account = store.store['account']
+    const account = store.store.account
     shell.openExternal(join('https://' + account!.host, path))
   })
 
@@ -171,20 +168,20 @@ export function registerIpcEvents() {
     shell.openExternal(join(path))
   })
 
-  ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (event, w, h) => {
-    PhoneIslandController.instance.resize(w, h)
+  ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (_, size) => {
+    PhoneIslandController.instance.resize(size)
   })
-  ipcMain.on(IPC_EVENTS.SHOW_PHONE_ISLAND, (event) => {
-    PhoneIslandController.instance.showPhoneIsland()
+  ipcMain.on(IPC_EVENTS.SHOW_PHONE_ISLAND, (_, size) => {
+    PhoneIslandController.instance.showPhoneIsland(size)
   })
-  ipcMain.on(IPC_EVENTS.HIDE_PHONE_ISLAND, (event) => {
+  ipcMain.on(IPC_EVENTS.HIDE_PHONE_ISLAND, (_) => {
     PhoneIslandController.instance.hidePhoneIsland()
   })
-  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (event, h) => {
+  ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (_, h) => {
     LoginController.instance.resize(h)
   })
-  ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (event, account: Account) => {
-    log('DELETE ACCOUNT', account)
+  ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (_, account: Account) => {
+    Log.info('DELETE ACCOUNT', account)
     const accountUID = getAccountUID(account)
     const newStore = Object.assign({}, store.store)
     delete newStore.auth!.availableAccounts[accountUID]
@@ -196,7 +193,7 @@ export function registerIpcEvents() {
     LoginController.instance.hide()
   })
 
-  ipcMain.on(IPC_EVENTS.CHANGE_THEME, (event, theme) => {
+  ipcMain.on(IPC_EVENTS.CHANGE_THEME, (_, theme) => {
     AccountController.instance.updateTheme(theme)
     PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
     LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
@@ -212,31 +209,20 @@ export function registerIpcEvents() {
     e.reply(IPC_EVENTS.SET_NETHVOICE_CONFIG, account)
   })
 
-  ipcMain.on(IPC_EVENTS.SEND_NOTIFICATION, (event, options: NotificationConstructorOptions, openUrl) => {
-    if (process.platform !== 'darwin') {
-      options.icon = "../../../public/TrayNotificationIcon.svg"
-    }
-    log(options)
-    const notification: Notification = new Notification(options)
+  ipcMain.on(IPC_EVENTS.EMIT_QUEUE_UPDATE, (_, queue) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_QUEUE_UPDATE, queue)
+  })
 
-    setTimeout(() => {
-      notification.on('failed', () => log('NOTIFICATION failed'))
-      notification.on('action', () => log('NOTIFICATION action'))
-      notification.on('close', () => log('NOTIFICATION close'))
-      notification.on('reply', () => log('NOTIFICATION reply'))
-      notification.on('show', () => log('NOTIFICATION show'))
+  ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_CALL_END)
+  })
 
-      notification.on("click", () => {
-        log('RECEIVED CLICK ON NOTIFICATION', options, openUrl)
-        if (openUrl) {
-          shell.openExternal(openUrl)
-        }
-      })
-    }, 100);
+  ipcMain.on(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, (_, mainPresence) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, mainPresence)
+  })
 
-    notification.show()
-    log('RECEIVED SEND NOTIFICATION', options, openUrl, notification)
-
+  ipcMain.on(IPC_EVENTS.EMIT_PARKING_UPDATE, (_) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_PARKING_UPDATE)
   })
 
 }

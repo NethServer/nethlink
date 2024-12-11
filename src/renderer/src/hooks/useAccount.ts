@@ -1,13 +1,12 @@
-import { Account, OperatorData, StatusTypes } from "@shared/types"
+import { StatusTypes } from "@shared/types"
 import { useEffect, useState } from "react"
-import { log } from "@shared/utils/logger"
-import { useStoreState } from "@renderer/store"
+import { useSharedState } from "@renderer/store"
 import { PERMISSION } from "@shared/constants"
 
 
 
 export const useAccount = () => {
-  const [account] = useStoreState<Account>('account')
+  const [account] = useSharedState('account')
 
   const [status, setStatus] = useState<StatusTypes>('offline')
   const [isCallsEnabled, setIsCallsEnabled] = useState<boolean>(false)

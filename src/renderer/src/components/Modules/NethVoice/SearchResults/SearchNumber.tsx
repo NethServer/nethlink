@@ -1,13 +1,13 @@
 import { ReactNode } from 'react'
 import { t } from 'i18next'
-import { OperatorData, SearchData } from '@shared/types'
+import { SearchData } from '@shared/types'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
-import { useFavouriteModule } from '../NethVoice/Speeddials/hook/useFavouriteModule'
-import { ContactNameAndActions } from '@renderer/components/ContactNameAndAction'
+import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
+import { useFavouriteModule } from '../Speeddials/hook/useFavouriteModule'
 
 export interface SearchNumberProps {
   user: SearchData
@@ -18,12 +18,12 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
   const phoneBookModule = usePhonebookSearchModule()
   const { callNumber } = usePhoneIslandEventHandler()
   const [searchText] = phoneBookModule.searchTextState
-  const [operators] = useStoreState<OperatorData>('operators')
+  const [operators] = useSharedState('operators')
   const { isCallsEnabled } = useAccount()
-  const { isFavourite } = useFavouriteModule()
+  const { isSearchAlsoAFavourite } = useFavouriteModule()
 
   const getUsernameFromPhoneNumber = (number: string) => {
-    return operators?.extensions[number]?.username
+    return user.type !== 'extension' ? operators?.extensions[number]?.username : undefined
   }
 
   function highlightMatch(number: string | undefined, searchText: string): ReactNode[] {
@@ -36,7 +36,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
       while (index !== -1) {
         parts.push(number.substring(lastIndex, index))
         parts.push(
-          <span className="dark:text-textBlueDark text-textBlueLight font-medium text-[1rem]">
+          <span key={`highlight_${index}`} className="dark:text-textBlueDark text-textBlueLight font-medium text-[1rem]">
             {number.substring(index, index + searchText.length)}
           </span>
         )
@@ -82,7 +82,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
           displayedNumber={highlightedNumber}
           isHighlight={true}
           username={username}
-          isFavourite={false}
+          isFavourite={isSearchAlsoAFavourite(user) || false}
           isSearchData={true}
         />
         <Button

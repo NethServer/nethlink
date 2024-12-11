@@ -2,6 +2,26 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Debug Main Process Prod",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
+      },
+      "runtimeArgs": [
+        "--sourcemap",
+        "--"
+      ],
+      "env": {
+        "REMOTE_DEBUGGING_PORT": "9222",
+      },
+      "presentation": {
+        "hidden": false
+      }
+    },
+    {
       "name": "Debug Main Process",
       "type": "node",
       "request": "launch",
@@ -10,7 +30,55 @@
       "windows": {
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
       },
-      "runtimeArgs": ["--sourcemap", "--", "DEV=true"],
+      "runtimeArgs": [
+        "--sourcemap",
+        "--",
+        "DEV=true"
+      ],
+      "env": {
+        "REMOTE_DEBUGGING_PORT": "9222",
+      },
+      "presentation": {
+        "hidden": false
+      }
+    },
+    {
+      "name": "Debug Main Process Second",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
+      },
+      "runtimeArgs": [
+        "--sourcemap",
+        "--",
+        "DEV=true",
+        "INSTANCE=1"
+      ],
+      "env": {
+        "REMOTE_DEBUGGING_PORT": "9222",
+      },
+      "presentation": {
+        "hidden": false
+      }
+    },
+    {
+      "name": "Debug Main Process Third",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron-vite.cmd"
+      },
+      "runtimeArgs": [
+        "--sourcemap",
+        "--",
+        "DEV=true",
+        "INSTANCE=2"
+      ],
       "env": {
         "REMOTE_DEBUGGING_PORT": "9222",
       },
@@ -33,7 +101,10 @@
   "compounds": [
     {
       "name": "Debug main and renderer processes",
-      "configurations": ["Debug Main Process", "Debug Renderer Process"],
+      "configurations": [
+        "Debug Main Process",
+        "Debug Renderer Process"
+      ],
       "presentation": {
         "order": 1
       }

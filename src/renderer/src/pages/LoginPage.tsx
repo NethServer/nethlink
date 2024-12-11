@@ -1,4 +1,4 @@
-import { Account, AuthAppData, LoginData, LoginPageData } from '@shared/types'
+import { Account, LoginData } from '@shared/types'
 import classNames from 'classnames'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import spinner from '../assets/loginPageSpinner.svg'
@@ -12,11 +12,12 @@ import { t } from 'i18next'
 import { Button } from '@renderer/components/Nethesis'
 
 import './LoginPage.css'
-import { useStoreState } from '@renderer/store'
+import { useLoginPageData, useSharedState } from '@renderer/store'
 import { AvailableAccountList, LoginForm } from '@renderer/components/pageComponents'
-import { IPC_EVENTS, NEW_ACCOUNT } from '@shared/constants'
-import { log } from '@shared/utils/logger'
+import { IPC_EVENTS, LoginPageSize, NEW_ACCOUNT } from '@shared/constants'
+import { Log } from '@shared/utils/logger'
 import { FieldErrors } from 'react-hook-form'
+import { AvailableAccountDeleteDialog } from '@renderer/components/pageComponents/login/AvailableAccountDeleteDialog'
 
 export interface LoginPageProps {
   themeMode: string,
@@ -44,28 +45,28 @@ type ErrorsData = {
 export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps) {
 
 
-  const [auth] = useStoreState<AuthAppData>('auth')
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
-  const [loginData, setLoginData] = useStoreState<LoginPageData>('loginPageData')
-  const [connection] = useStoreState<boolean>('connection')
+  const [auth] = useSharedState('auth')
+  const [isLoading, setIsLoading] = useLoginPageData('isLoading')
+  const [selectedAccount, setSelectedAccount] = useLoginPageData('selectedAccount')
+  const [windowHeight, setWindowHeight] = useLoginPageData('windowHeight')
+  const [connection] = useSharedState('connection')
   const [errorsData, setErrorsData] = useState<ErrorsData>()
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
+  const [deleteDialogAccount, setDeleteDialogAccount] = useState<Account | undefined>(undefined)
 
   useEffect(() => {
     calculateHeight()
-  }, [loginData?.selectedAccount, auth, errorsData, connection])
+  }, [selectedAccount, auth, errorsData, connection])
 
   useEffect(() => {
-    if (loginData) {
-      window.api.resizeLoginWindow(loginData.windowHeight || 0)
+    if (windowHeight) {
+      window.api.resizeLoginWindow(windowHeight ?? LoginPageSize.h)
     }
-  }, [loginData?.windowHeight])
+  }, [windowHeight])
 
   const goBack = () => {
-    setLoginData((p) => ({
-      ...p,
-      error: undefined,
-      selectedAccount: undefined
-    }))
+    setSelectedAccount(undefined)
     setErrorsData({ formErrors: {}, generalError: undefined })
   }
 
@@ -78,10 +79,18 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
   }
 
   const handleDeleteAccount = (account: Account) => {
-    const confirm = window.confirm(`delete ${account.username}?`)
-    if (confirm) {
+    setDeleteDialogOpen(true)
+    setDeleteDialogAccount(() => ({ ...account }))
+  }
+
+  const handleDeleteConfirmation = (account: Account | undefined) => {
+    if (account) {
       window.electron.send(IPC_EVENTS.DELETE_ACCOUNT, account)
     }
+    setDeleteDialogOpen(false)
+    setTimeout(() => {
+      setDeleteDialogAccount(() => undefined)
+    }, 250)
   }
 
   function calculateHeight() {
@@ -89,8 +98,8 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
     const accounts = Object.keys(auth?.availableAccounts || {})
     const errorCount = Object.values(errorsData?.formErrors || {}).filter((v) => v.message).length
     //Login form is shown
-    if (loginData?.selectedAccount) {
-      if (loginData.selectedAccount === NEW_ACCOUNT) {
+    if (selectedAccount) {
+      if (selectedAccount === NEW_ACCOUNT) {
         loginWindowHeight = LoginSizes.BASE
         if (!connection)
           loginWindowHeight = LoginSizes.CONNECTION_FAILURE_BASE
@@ -130,11 +139,8 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
     if (errorsData?.generalError) {
       loginWindowHeight += LoginSizes.LOGIN_FAILURE
     }
-    log({ loginWindowHeight })
-    setLoginData((p) => ({
-      ...p,
-      windowHeight: loginWindowHeight
-    }))
+    Log.info({ loginWindowHeight })
+    setWindowHeight(loginWindowHeight)
   }
 
   return (
@@ -149,7 +155,7 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
         {
           auth && <>
             {
-              Object.keys(auth.availableAccounts).length > 0 && loginData?.selectedAccount && (
+              Object.keys(auth.availableAccounts).length > 0 && selectedAccount && (
                 <Button
                   variant="ghost"
                   className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6"
@@ -164,15 +170,25 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
                   </p>
                 </Button>
               )}
-            {(auth.isFirstStart || loginData?.selectedAccount || Object.keys(auth.availableAccounts).length === 0) ? <LoginForm onError={onFormErrors} handleRefreshConnection={handleRefreshConnection} /> : <AvailableAccountList handleDeleteAccount={handleDeleteAccount} />}
+            {(auth.isFirstStart || selectedAccount || Object.keys(auth.availableAccounts).length === 0) ? <LoginForm onError={onFormErrors} handleRefreshConnection={handleRefreshConnection} /> : <AvailableAccountList handleDeleteAccount={handleDeleteAccount} />}
           </>
         }
       </div>
-      {loginData?.isLoading && (
+      {isLoading && (
         <div className="absolute top-0 left-0 bg-spinnerBgLight dark:bg-spinnerBgDark bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center rounded-[10px] z-[1000]">
           <img src={spinner} className="animate-spin"></img>
         </div>
       )}
+      <AvailableAccountDeleteDialog
+        isOpen={deleteDialogOpen}
+        close={() => {
+          handleDeleteConfirmation(undefined)
+        }}
+        account={deleteDialogAccount}
+        onDelete={() => {
+          handleDeleteConfirmation(deleteDialogAccount)
+        }}
+      />
     </div>
   )
 }

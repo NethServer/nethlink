@@ -3,9 +3,8 @@ import { TrayController } from '../controllers/TrayController'
 import { BaseWindow } from './BaseWindow'
 import { screen } from 'electron'
 import { NethLinkPageSize } from '@shared/constants'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 import { debouncer, delay } from '@shared/utils/utils'
-import { store } from '@/lib/mainStore'
 import { AccountController } from '../controllers'
 
 export class NethLinkWindow extends BaseWindow {
@@ -65,25 +64,16 @@ export class NethLinkWindow extends BaseWindow {
       const nethlinkBounds: Electron.Rectangle = { x, y, width: w, height: h }
       this._window?.setBounds(nethlinkBounds, false)
     } catch (e) {
-      log(e)
+      Log.warning('during update bounds of the NethLinkWindow:', e)
     }
   }
 
   show(): void {
     try {
       const accountBounds = AccountController.instance.getAccountNethLinkBounds()
-      log('NethLink bounds', accountBounds)
       if (accountBounds) {
         const isAccountBoundsOnDisplay = screen.getAllDisplays().reduce((result, display) => {
           const area = display.workArea
-          log('NethLink bounds is on display', {
-            area,
-            accountBounds,
-            x: accountBounds.x >= area.x,
-            y: accountBounds.y >= area.y,
-            w: (accountBounds.x + accountBounds.width) < (area.x + area.width),
-            h: (accountBounds.y + accountBounds.height) < (area.y + area.height)
-          })
           return (
             result ||
             (accountBounds.x >= area.x &&
@@ -110,7 +100,7 @@ export class NethLinkWindow extends BaseWindow {
         this.buildWindow()
         return this.show()
       } else {
-        log(e)
+        Log.warning('during showing the NethLinkWindow:', e)
       }
     }
   }
@@ -120,7 +110,7 @@ export class NethLinkWindow extends BaseWindow {
       this.saveBounds()
       this._window?.hide()
     } catch (e) {
-      log(e)
+      Log.warning('during hiding the NethLinkWindow:', e)
     }
   }
 

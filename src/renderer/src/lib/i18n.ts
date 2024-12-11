@@ -1,7 +1,6 @@
 import i18next from 'i18next'
 import Backend from 'i18next-electron-fs-backend'
 import { initReactI18next } from 'react-i18next'
-import { log } from '@shared/utils/logger'
 import { join } from 'path-browserify'
 import { uniq } from 'lodash'
 

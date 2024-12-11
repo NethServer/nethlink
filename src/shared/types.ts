@@ -12,7 +12,6 @@ export enum PAGES {
 }
 
 export type StateType<T> = [(T | undefined), (value: T | undefined) => void]
-export type UseStoreStateType = <T>(selector: keyof LocalStorageData) => [T | undefined, (arg0: T | ((ex: T) => T | undefined) | undefined) => void]
 
 export type Account = {
   username: string
@@ -63,6 +62,7 @@ export type BaseAccountData = {
   presenceOnBusy: StatusTypes
   presenceOnUnavailable: StatusTypes
   recallOnBusy: string
+  notes?: string
   endpoints: {
     email: BaseEndpoint[]
     jabber: Jabber[]
@@ -358,7 +358,6 @@ export type PageType = {
   query: string
   page: keyof typeof PAGES | 'main'
   props: {
-    appVersion?: string,
     page: keyof typeof PAGES | 'main'
   }
 }
@@ -370,19 +369,16 @@ export type LocalStorageData = {
   account?: Account,
   auth?: AuthAppData,
   page?: PageType,
+  theme?: AvailableThemes,
+  connection?: boolean,
   operators?: OperatorData,
   queues?: QueuesType,
   parkings?: ParkingType[],
   lastCalls?: CallData[],
   speeddials?: ContactType[],
-  theme?: AvailableThemes,
-  loginPageData?: LoginPageData,
-  nethLinkPageData?: NethLinkPageData,
-  phoneIslandPageData?: PhoneIslandPageData,
   missedCalls?: CallData[],
   notifications?: NotificationData,
   lostCallNotifications?: CallData[],
-  connection?: boolean,
 }
 
 export type OnDraggingWindow = {
@@ -395,12 +391,6 @@ export type DraggingWindow = {
   startWindowPosition: { x: number, y: number }
 }
 
-export type PhoneIslandPageData = {
-  isExpanded: boolean,
-  isMinimized: boolean,
-  isDisconnected: boolean
-}
-
 export type LoginPageData = {
   selectedAccount?: Account | typeof NEW_ACCOUNT
   isLoading: boolean
@@ -408,7 +398,7 @@ export type LoginPageData = {
 }
 
 export type AuthAppData = {
-  lastUser: string | undefined,
+  lastUser?: string,
   lastUserCryptPsw?: Buffer
   isFirstStart: boolean,
   availableAccounts: {
@@ -454,3 +444,33 @@ export type NotificationItem = {
   message: string,
 }
 
+export type PhoneIslandData = {
+  view: PhoneIslandView | null,
+  activeAlerts: {
+    [alertName: string]: boolean
+  },
+  isOpen: boolean,
+  isActionExpanded: boolean,
+  isListen: boolean,
+  currentCall: {
+    accepted: boolean,
+    transferring: boolean,
+    incoming: boolean,
+    outgoing: boolean
+  }
+}
+
+export type PhoneIslandSizes = {
+  size: Size;
+  borderRadius: number;
+  padding: string;
+}
+
+export enum PhoneIslandView {
+  CALL = 'call',
+  KEYPAD = 'keypad',
+  TRANSFER = 'transfer',
+  PLAYER = 'player',
+  RECORDER = 'recorder',
+  PHISICAL_PHONE_RECORDER = 'physicalPhoneRecorder'
+}

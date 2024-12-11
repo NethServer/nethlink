@@ -45,3 +45,11 @@ $ npm run publish:minor
 # For patch
 $ npm run publish:patch
 ```
+
+### Env variables ONLY FOR TEST PURPOSE
+
+> `DEV=true`\
+> run app in DEV mode
+
+> `INSTANCE=<numer_of_the_instance>`\
+> enables multiple instances of the process. Use this function with extreme caution, it can cause many problems - for testing purposes only. When this variable is set, a new `user_data_<instance_number>.json` is created and the instance only changes its related file.

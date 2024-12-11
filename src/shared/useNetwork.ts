@@ -1,4 +1,4 @@
-import { log } from "@shared/utils/logger";
+import { Log } from "@shared/utils/logger";
 import axios, { AxiosError } from "axios";
 
 export const useNetwork = () => {
@@ -11,7 +11,7 @@ export const useNetwork = () => {
     } catch (e: any) {
       const err: AxiosError = e
       if (!path.includes('login'))
-        log(err.name, err.code, err.message, path, config, data)
+        Log.error('during fetch POST', err.name, err.code, err.message, path, config, data)
       throw e
     }
   }
@@ -22,7 +22,7 @@ export const useNetwork = () => {
     } catch (e: any) {
       const err: AxiosError = e
 
-      log(err.name, err.code, err.message, path, config)
+      Log.error('during fetch GET', err.name, err.code, err.message, path, config)
       throw e
     }
   }

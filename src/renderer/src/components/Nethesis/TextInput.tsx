@@ -17,7 +17,7 @@
  *
  */
 
-import { ComponentProps, FC, forwardRef } from 'react'
+import { ComponentProps, forwardRef } from 'react'
 import { cleanClassName } from '../../lib/utils'
 import { useTheme } from '../../theme/Context'
 import classNames from 'classnames'

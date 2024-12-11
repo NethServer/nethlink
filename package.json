@@ -46,7 +46,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.18",
     "@hookform/resolvers": "^3.3.4",
-    "@nethesis/phone-island": "^0.8.20",
+    "@nethesis/phone-island": "^0.8.26",
     "@tailwindcss/forms": "^0.5.7",
     "@types/lodash": "^4.14.202",
     "@types/node": "^18.19.9",
@@ -100,6 +100,5 @@
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"
-  },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  }
 }

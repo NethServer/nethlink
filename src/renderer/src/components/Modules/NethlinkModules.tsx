@@ -1,37 +1,34 @@
-import { useStoreState } from "@renderer/store"
-import { Account, NethLinkPageData } from "@shared/types"
+import { useNethlinkData, useSharedState } from "@renderer/store"
 import { MENU_ELEMENT } from "@shared/constants"
-import { useCallback, useEffect, useMemo } from "react"
-import { PhonebookModule, SpeeddialsModule, LastCallsModule, PhoneBookSearchModule } from "."
-import { usePhonebookSearchModule } from "./SearchResults/hook/usePhoneBookSearchModule"
-import { AboutModule } from "./About/AboutModule"
+import { useCallback, useEffect } from "react"
+import { PhonebookModule, SpeeddialsModule, LastCallsModule } from "."
+import { AboutModule } from "./NethVoice/About/AboutModule"
 import classNames from "classnames"
-import { PresenceBadge, PresenceBadgeVisibility } from "./NethVoice/Presence/PresenceBadge"
 import { FavouritesModule } from "./NethVoice/Speeddials/Favourites/FavouritesModule"
 import { ParkingModule } from "./NethVoice/Parking/ParkingModule"
+import { PhoneBookSearchModule } from "./NethVoice/SearchResults/PhoneBookSearchModule"
+import { usePhonebookSearchModule } from "./NethVoice/SearchResults/hook/usePhoneBookSearchModule"
 
 export const NethLinkModules = () => {
   const phonebookSearchModule = usePhonebookSearchModule()
-  const [account] = useStoreState<Account | undefined>('account')
-  const [searchText, setSearchText] = phonebookSearchModule.searchTextState
-  const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [, setSearchText] = phonebookSearchModule.searchTextState
+  const [showAddContactModule, setShowAddContactModule] = useNethlinkData('showAddContactModule')
+  const [showPhonebookSearchModule] = useNethlinkData('showPhonebookSearchModule')
+  const [selectedSidebarMenu] = useNethlinkData('selectedSidebarMenu')
 
   useEffect(() => {
     setSearchText(null)
-    if (nethLinkPageData?.showAddContactModule) {
-      setNethLinkPageData((p) => ({
-        ...p,
-        showAddContactModule: false
-      }))
+    if (showAddContactModule) {
+      setShowAddContactModule(false)
     }
-  }, [nethLinkPageData?.selectedSidebarMenu])
+  }, [selectedSidebarMenu])
 
   const VisibleModule = useCallback(() => {
 
-    if (nethLinkPageData?.showAddContactModule) return <PhonebookModule />
-    if (nethLinkPageData?.showPhonebookSearchModule) return <PhoneBookSearchModule />
+    if (showAddContactModule) return <PhonebookModule />
+    if (showPhonebookSearchModule) return <PhoneBookSearchModule />
 
-    switch (nethLinkPageData?.selectedSidebarMenu) {
+    switch (selectedSidebarMenu) {
       case MENU_ELEMENT.FAVOURITES:
         return <FavouritesModule />
       case MENU_ELEMENT.SPEEDDIALS:
@@ -45,7 +42,7 @@ export const NethLinkModules = () => {
       default:
         <>modules</>
     }
-  }, [nethLinkPageData?.showAddContactModule, nethLinkPageData?.showPhonebookSearchModule, nethLinkPageData?.selectedSidebarMenu])
+  }, [showAddContactModule, showPhonebookSearchModule, selectedSidebarMenu])
 
   return (
     <div className={classNames(
