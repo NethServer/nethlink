@@ -10,7 +10,8 @@ type BaseMenuActionProps = {
 
 type MenuActionProps = {
   label: string,
-  icon: IconProp
+  icon?: IconProp
+  iconElem?: JSX.Element
 } & BaseMenuActionProps
 
 type MenuActionWrapProps = {
@@ -33,7 +34,10 @@ function MenuAction({ className, children, onClick }: MenuActionWrapProps) {
 }
 
 MenuAction.item = (props: MenuActionProps) => <MenuAction {...props}>
-  <FontAwesomeIcon className="text-base" icon={props.icon} />
+  {props.icon
+    ? <FontAwesomeIcon className="text-base" icon={props.icon} />
+    : props.iconElem || <></>
+  }
   <p className="font-normal">{props.label}</p>
 </MenuAction>
 MenuAction.itemWrap = (props: MenuActionWrapProps) => <MenuAction {...props}>{props.children}</MenuAction>

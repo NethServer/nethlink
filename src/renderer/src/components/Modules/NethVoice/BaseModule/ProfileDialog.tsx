@@ -20,6 +20,7 @@ import { DeviceBox, DeviceIcons } from './ProfileDialog/DeviceSettings/DeviceBox
 import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
 import { Backdrop } from './Backdrop'
 import { Log } from '@shared/utils/logger'
+import { IconDefinition } from '@nethesis/nethesis-solid-svg-icons'
 
 enum MenuItem {
   device = 1,
@@ -41,7 +42,7 @@ export const ProfileDialog = ({
   const [x, setX] = useState(0)
   const [dialogPageTitle, setDialogPageTitle] = useState('')
   const [themeIcon, setThemeIcon] = useState<IconProp>(ThemeIcons['system'])
-  const [deviceIcon, setDeviceIcon] = useState<IconProp>(DeviceIcons['nethlink'])
+  const [deviceIcon, setDeviceIcon] = useState<IconProp | IconDefinition | ({ Icon: JSX.Element })>(DeviceIcons['nethlink'])
   const [isForwardDialogOpen, setIsForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
   function handleExitNethLink() {
     window.api.exitNethLink()
@@ -99,7 +100,17 @@ export const ProfileDialog = ({
               <StatusDot status={status} className='ml-1' />
               <p className="font-normal pl-1">{t('TopBar.Presence')}</p>
             </MenuAction.itemWrap>
-            <MenuAction.item onClick={() => setSelectedMenu(() => MenuItem.device)} icon={deviceIcon} label={t("TopBar.Pair device")}
+            <MenuAction.item
+              onClick={() => setSelectedMenu(() => MenuItem.device)}
+              label={t("TopBar.Pair device")}
+              {...(
+                deviceIcon.hasOwnProperty('Icon') ? {
+                  iconElem: (deviceIcon as { Icon: JSX.Element }).Icon
+                }
+                  : {
+                    icon: deviceIcon as IconProp
+                  }
+              )}
             />
             <MenuAction.item onClick={() => setSelectedMenu(() => MenuItem.theme)} icon={themeIcon} label={t('Settings.Theme')} />
           </div>

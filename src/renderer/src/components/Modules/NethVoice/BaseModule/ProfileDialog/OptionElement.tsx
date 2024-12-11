@@ -4,19 +4,23 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
 import classNames from "classnames"
+import { IconDefinition } from "@nethesis/nethesis-solid-svg-icons"
 
 type SettingsOptionElementProps = {
-  icon: IconProp,
+  icon?: IconProp | IconDefinition,
+  iconElem?: JSX.Element,
   label: string,
   isSelected: boolean
   onClick: () => void,
 }
 export const OptionElement = ({
   icon,
+  iconElem,
   label,
   isSelected,
   onClick,
 }: SettingsOptionElementProps) => {
+
   return (
     <div
       className={
@@ -32,11 +36,11 @@ export const OptionElement = ({
     >
       <div className={
         classNames(
-          "flex items-center gap-2",
+          "flex flex-row items-center gap-2 w-full",
         )}
       >
-        <FontAwesomeIcon className="text-base" icon={icon} />
-        <p className="font-normal">
+        {iconElem ? iconElem : icon ? <FontAwesomeIcon className="text-base" icon={icon as IconProp} /> : <></>}
+        <p className="font-normal w-full">
           {label}
         </p>
       </div>
