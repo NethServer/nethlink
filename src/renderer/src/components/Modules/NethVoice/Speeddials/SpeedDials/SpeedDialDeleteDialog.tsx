@@ -1,8 +1,8 @@
 import { Modal } from "@renderer/components"
 import { Button } from "@renderer/components/Nethesis"
-import { useStoreState } from "@renderer/store"
+import { useSharedState } from "@renderer/store"
 import { parseThemeToClassName, sendNotification, truncate } from "@renderer/utils"
-import { AvailableThemes, ContactType } from "@shared/types"
+import { ContactType } from "@shared/types"
 import { t } from "i18next"
 import { createRef } from "react"
 import { useSpeedDialsModule } from "../hook/useSpeedDialsModule"
@@ -17,7 +17,7 @@ export const SpeedDialDeleteDialog = ({
   const cancelDeleteButtonRef = createRef<HTMLButtonElement>()
   const speedDialModule = useSpeedDialsModule()
   const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
-  const [theme] = useStoreState<AvailableThemes>('theme')
+  const [theme] = useSharedState('theme')
 
 
 

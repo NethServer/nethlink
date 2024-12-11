@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { t } from 'i18next'
 import { PresenceItem } from './PresenceItem'
 import {
@@ -11,10 +11,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { getIsPhoneNumber } from '@renderer/lib/utils'
-import { log } from '@shared/utils/logger'
-import { Account, OperatorData } from '@shared/types'
+import { Log } from '@shared/utils/logger'
 import { isEmpty } from 'lodash'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
@@ -29,8 +28,7 @@ export interface PresenceBoxProps {
 export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: PresenceBoxProps) {
   const { saveOperators } = usePhoneIslandEventHandler()
   const [isForwardDialogOpen, setIsForwardDialogOpen] = useState<boolean>(false)
-  const [account, setAccount] = useStoreState<Account>('account')
-  //const [operators, setOperators] = useStoreState<OperatorData>('operators')
+  const [account, setAccount] = useSharedState('account')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const { hasPermission } = useAccount()
 
@@ -66,7 +64,6 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
     }
 
     async function submit(data) {
-      log('submit presence', data)
       if (!getIsPhoneNumber(data.to)) {
         setError('to', {
           message: t('Common.This is not a phone number') as string
@@ -75,7 +72,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
         try {
           await onSubmit(data)
         } catch (e) {
-          log('ERROR ON PRESENCE CHANGE', e)
+          Log.warning('error during the presence change', e)
         } finally {
           setIsForwardDialogOpen(false)
           onClosePresenceDialog()
@@ -141,7 +138,6 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
       const me = await NethVoiceAPI.User.me()
       if (to) {
         const operators = await NethVoiceAPI.fetchOperators()
-        log('operators', operators)
         saveOperators(operators)
       }
       setAccount({
@@ -152,7 +148,7 @@ export function PresenceBox({ isOpen, onClose: onClosePresenceDialog }: Presence
         }
       })
     } catch (e) {
-      log('ERROR ON PRESENCE CHANGE', e)
+      Log.error('ON PRESENCE CHANGE', e)
     } finally {
       onClosePresenceDialog()
     }

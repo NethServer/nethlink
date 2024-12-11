@@ -1,6 +1,5 @@
-import { PAGES, PageType } from "@shared/types"
-import { log } from "@shared/utils/logger"
-import { getPageFromQuery, isDev } from "@shared/utils/utils"
+import { PageType } from "@shared/types"
+import { Log } from "@shared/utils/logger"
 import { createContext, useContext, useEffect, useState } from "react"
 
 export const PageCtx = createContext<PageType | undefined>(undefined)
@@ -16,7 +15,6 @@ export const PageContext = ({ children }) => {
   }
 
   useEffect(() => {
-
     const query = getQuery()
     const props =
       query
@@ -34,8 +32,8 @@ export const PageContext = ({ children }) => {
       page: props.page,
       props
     }
-    log(pageData)
-    setPage(() => pageData)
+    Log.info('page data:', pageData)
+    setPage(() => ({ ...pageData }))
     window.document.title = pageData.page
   }, [])
 

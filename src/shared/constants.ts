@@ -1,5 +1,4 @@
-import { Size } from "./types"
-
+import { PhoneIslandData, PhoneIslandSizes } from "./types"
 
 export const NethLinkPageSize = {
   w: 440,
@@ -8,7 +7,7 @@ export const NethLinkPageSize = {
 
 export const LoginPageSize = {
   w: 500,
-  h: 100
+  h: 300
 }
 export const NEW_ACCOUNT = 'New Account'
 
@@ -34,7 +33,6 @@ export enum PERMISSION {
   INTRUDE = "intrude",
   PICKUP = "pickup"
 }
-
 
 export enum MENU_ELEMENT {
   FAVOURITES = 1,
@@ -62,7 +60,6 @@ export enum IPC_EVENTS {
   CLOSE_NETH_LINK = "CLOSE_NETH_LINK",
   UPDATE_APP_NOTIFICATION = "UPDATE_APP_NOTIFICATION",
   OPEN_EXTERNAL_PAGE = "OPEN_EXTERNAL_PAGE",
-  SEND_NOTIFICATION = "SEND_NOTIFICATION",
   UPDATE_SHARED_STATE = "UPDATE_SHARED_STATE",
   SHARED_STATE_UPDATED = "SHARED_STATE_UPDATED",
   REQUEST_SHARED_STATE = "REQUEST_SHARED_STATE",
@@ -77,6 +74,11 @@ export enum IPC_EVENTS {
   STOP_DRAG = "STOP_DRAG",
   ENABLE_CLICK = "ENABLE_CLICK",
   DELETE_ACCOUNT = "DELETE_ACCOUNT",
+  EMIT_CALL_END = "EMIT_CALL_END",
+  EMIT_MAIN_PRESENCE_UPDATE = "EMIT_MAIN_PRESENCE_CHANGE",
+  EMIT_QUEUE_UPDATE = "EMIT_QUEUE_UPDATE",
+  EMIT_PARKING_UPDATE = "EMIT_PARKING_UPDATE",
+  TRANSFER_CALL = "TRANSFER_CALL"
 }
 
 //PHONE ISLAND EVENTS
@@ -105,13 +107,14 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-unhold' = 'phone-island-call-unhold',
   'phone-island-call-mute' = 'phone-island-call-mute',
   'phone-island-call-unmute' = 'phone-island-call-unmute',
+  'phone-island-call-transfer' = 'phone-island-call-transfer',
   'phone-island-call-transfer-open' = 'phone-island-call-transfer-open',
   'phone-island-call-transfer-close' = 'phone-island-call-transfer-close',
   'phone-island-call-transfer-switch' = 'phone-island-call-transfer-switch',
   'phone-island-call-transfer-cancel' = 'phone-island-call-transfer-cancel',
   'phone-island-call-transfer-failed' = 'phone-island-call-transfer-failed',
   'phone-island-call-transfer-successfully' = 'phone-island-call-transfer-successfully',
-  'phone-island-call-transfer' = 'phone-island-call-transfer',
+  'phone-island-call-transfered' = 'phone-island-call-transfered',
   'phone-island-call-keypad-open' = 'phone-island-call-keypad-open',
   'phone-island-call-keypad-close' = 'phone-island-call-keypad-close',
   'phone-island-call-keypad-send' = 'phone-island-call-keypad-send',
@@ -124,7 +127,6 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-actions-close' = 'phone-island-call-actions-close',
   'phone-island-expand' = ' phone-island-expand',
   'phone-island-compress' = 'phone-island-compress',
-  // Dispatch Call Event: phone-island-call-*
   'phone-island-call-ringing' = 'phone-island-call-ringing',
   'phone-island-call-started' = 'phone-island-call-started',
   'phone-island-call-answered' = 'phone-island-call-answered',
@@ -139,7 +141,6 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-call-transfer-canceled' = 'phone-island-call-transfer-canceled',
   'phone-island-call-transfer-successfully-popup-open' = 'phone-island-call-transfer-successfully-popup-open',
   'phone-island-call-transfer-successfully-popup-close' = 'phone-island-call-transfer-successfully-popup-close',
-  'phone-island-call-transfered' = 'phone-island-call-transfered',
   'phone-island-call-keypad-opened' = 'phone-island-call-keypad-opened',
   'phone-island-call-keypad-closed' = 'phone-island-call-keypad-closed',
   'phone-island-call-keypad-sent' = 'phone-island-call-keypad-sent',
@@ -195,48 +196,274 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-socket-reconnected' = 'phone-island-socket-reconnected',
   'phone-island-socket-disconnected-popup-open' = 'phone-island-socket-disconnected-popup-open',
   'phone-island-socket-disconnected-popup-close' = 'phone-island-socket-disconnected-popup-close',
+  // Alerts
+  'phone-island-all-alerts-removed' = 'phone-island-all-alerts-removed'
 }
 
-function getSize(normalSize: Size, collapsedSize?: Size, minimizedSize: Size = { w: 168, h: 40 }) {
-  return (isExpanded: boolean = true, isMinimized: boolean = false, isDisconnected: boolean = false): Size => {
-    const size = isMinimized ? minimizedSize : ((isExpanded ? normalSize : collapsedSize) || normalSize)
-    return size
+const topbarHeight = 40
+const windowSpacing = {
+  w: 2,
+  h: 2
+}
+const phoneIslandSizes = {
+  padding_expanded: 24,
+  alert_padding_expanded: 2,
+  padding_x_collapsed: 8,
+  padding_y_collapsed: 16,
+  border_radius_expanded: 20,
+  border_radius_collapsed: 99,
+  variants: {
+    // Call View
+    call: {
+      expanded: {
+        incoming: {
+          width: 418,
+          height: 96,
+        },
+        outgoing: {
+          width: 418,
+          height: 96,
+        },
+        accepted: {
+          width: 348,
+          height: 236,
+          actionsExpanded: {
+            width: 348,
+            height: 304,
+          },
+        },
+        listening: {
+          width: 348,
+          height: 168,
+        },
+        transfer: {
+          width: 348,
+          height: 236 + topbarHeight,
+          actionsExpanded: {
+            width: 348,
+            height: 304 + topbarHeight,
+          },
+        },
+      },
+      collapsed: {
+        width: 168,
+        height: 40,
+        transfer: {
+          width: 168,
+          height: 40 + topbarHeight,
+        },
+      },
+    },
+    // Keypad View
+    keypad: {
+      expanded: {
+        width: 338,
+        height: 400 + topbarHeight,
+      },
+      collapsed: {
+        width: 168,
+        height: 40,
+      },
+    },
+    // Transfer View
+    transfer: {
+      expanded: {
+        width: 408,
+        height: 410 + topbarHeight,
+      },
+      collapsed: {
+        width: 168,
+        height: 40,
+      },
+    },
+    // Audio Player View
+    player: {
+      expanded: {
+        width: 374,
+        height: 236,
+      },
+      collapsed: {
+        width: 168,
+        height: 40,
+      },
+    },
+    // Recorder View
+    recorder: {
+      expanded: {
+        width: 374,
+        height: 256,
+      },
+      collapsed: {
+        width: 168,
+        height: 40,
+      },
+    },
+    // Physical Recorder View
+    physicalPhoneRecorder: {
+      expanded: {
+        width: 374,
+        height: 256,
+      },
+      collapsed: {
+        width: 168,
+        height: 40,
+      },
+    },
+    // Alerts Section
+    alerts: {
+      width: 418,
+      height: 88,
+    },
+  },
+}
+
+export function getPhoneIslandSize({ view, activeAlerts, isOpen, isListen, isActionExpanded, currentCall }: PhoneIslandData): PhoneIslandSizes {
+  const { accepted, transferring, incoming, outgoing } = currentCall
+  // Initial size
+  let size = {
+    width: 0,
+    height: 0,
+  }
+  const { variants, alert_padding_expanded, border_radius_collapsed, border_radius_expanded, padding_expanded, padding_x_collapsed, padding_y_collapsed } = phoneIslandSizes
+  if (view) {
+    switch (view) {
+      case 'call':
+        if (isOpen) {
+          if (accepted && transferring) {
+            if (isActionExpanded) {
+              size = {
+                width: variants.call.expanded.transfer.actionsExpanded.width,
+                height: variants.call.expanded.transfer.actionsExpanded.height,
+              }
+            } else {
+              size = {
+                width: variants.call.expanded.transfer.width,
+                height: variants.call.expanded.transfer.height,
+              }
+            }
+          } else if (accepted && isActionExpanded) {
+            size = {
+              width: variants.call.expanded.accepted.actionsExpanded.width,
+              height: variants.call.expanded.accepted.actionsExpanded.height,
+            }
+          } else if (accepted && !isListen) {
+            size = {
+              width: variants.call.expanded.accepted.width,
+              height: variants.call.expanded.accepted.height,
+            }
+          } else if (accepted && isListen) {
+            size = {
+              width: variants.call.expanded.listening.width,
+              height: variants.call.expanded.listening.height,
+            }
+          } else if (incoming) {
+            size = {
+              width: variants.call.expanded.incoming.width,
+              height: variants.call.expanded.incoming.height,
+            }
+          } else if (outgoing) {
+            size = {
+              width: variants.call.expanded.outgoing.width,
+              height: variants.call.expanded.outgoing.height,
+            }
+          }
+        } else {
+          if (accepted && transferring) {
+            size = {
+              width: variants.call.collapsed.transfer.width,
+              height: variants.call.collapsed.transfer.height,
+            }
+          } else {
+            size = {
+              width: variants.call.collapsed.width,
+              height: variants.call.collapsed.height,
+            }
+          }
+        }
+        break
+      case 'keypad':
+        if (isOpen) {
+          size = {
+            width: variants.keypad.expanded.width,
+            height: variants.keypad.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.transfer.collapsed.width,
+            height: variants.transfer.collapsed.height,
+          }
+        }
+        break
+      case 'transfer':
+        if (isOpen) {
+          size = {
+            width: variants.transfer.expanded.width,
+            height: variants.transfer.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.transfer.collapsed.width,
+            height: variants.transfer.collapsed.height,
+          }
+        }
+        break
+      case 'player':
+        if (isOpen) {
+          size = {
+            width: variants.player.expanded.width,
+            height: variants.player.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.player.collapsed.width,
+            height: variants.player.collapsed.height,
+          }
+        }
+        break
+      case 'recorder':
+        if (isOpen) {
+          size = {
+            width: variants.recorder.expanded.width,
+            height: variants.recorder.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.recorder.collapsed.width,
+            height: variants.recorder.collapsed.height,
+          }
+        }
+        break
+      case 'physicalPhoneRecorder':
+        if (isOpen) {
+          size = {
+            width: variants.physicalPhoneRecorder.expanded.width,
+            height: variants.physicalPhoneRecorder.expanded.height,
+          }
+        } else {
+          size = {
+            width: variants.physicalPhoneRecorder.collapsed.width,
+            height: variants.physicalPhoneRecorder.collapsed.height,
+          }
+        }
+        break
+    }
+  }
+  const isAlert = Object.values(activeAlerts).reduce((p, c) => c ? ++p : p, 0) > 0
+  //add electron window padding
+  if (size.width) size.width += windowSpacing.w
+  if (size.height) size.height += windowSpacing.h
+  return {
+    size: {
+      w: size.width === 0 && isAlert ? variants.alerts.width : size.width,
+      h:
+        // If there is an alert and the island is open put the correct height
+        isAlert && isOpen
+          ? variants.alerts.height + (size.height === 0 ? alert_padding_expanded * 2 : alert_padding_expanded)
+          : size.height
+    },
+    borderRadius: isOpen ? border_radius_expanded : border_radius_collapsed,
+    padding: isOpen
+      ? `${padding_expanded}px`
+      : `${padding_x_collapsed}px ${padding_y_collapsed}px`,
   }
 }
-
-export const PHONE_ISLAND_RESIZE = new Map<string, (isExpanded: boolean, isMinimized: boolean, isDisconnected: boolean) => Size>([
-  [PHONE_ISLAND_EVENTS['phone-island-server-disconnected'], getSize({ w: 420, h: 136 })],
-  [PHONE_ISLAND_EVENTS['phone-island-socket-disconnected'], getSize({ w: 420, h: 136 })],
-  [PHONE_ISLAND_EVENTS['phone-island-call-ringing'], getSize({ w: 420, h: 98 })],
-  [PHONE_ISLAND_EVENTS['phone-island-call-started'], getSize({ w: 420, h: 98 })],
-  [PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'], getSize({ w: 350, h: 306 })],
-  [PHONE_ISLAND_EVENTS['phone-island-call-actions-closed'], getSize({ w: 350, h: 238 })],
-  [
-    PHONE_ISLAND_EVENTS['phone-island-call-answered'],
-    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
-  ],
-  [PHONE_ISLAND_EVENTS['phone-island-call-ended'], getSize({ w: 1, h: 1 }, { w: 1, h: 1 }, { w: 1, h: 1 })],
-  [PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened'], getSize({ w: 410, h: 452 }, undefined, { w: 168, h: 80 })],
-  [
-    PHONE_ISLAND_EVENTS['phone-island-call-transfer-closed'],
-    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
-  ],
-  [
-    PHONE_ISLAND_EVENTS['phone-island-call-transfer-canceled'],
-    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
-  ],
-  [
-    PHONE_ISLAND_EVENTS['phone-island-call-transfered'],
-    getSize({ w: 350, h: 278 }, { w: 350, h: 370 }, { w: 168, h: 80 })
-  ],
-  [
-    PHONE_ISLAND_EVENTS['phone-island-call-transfer-failed'],
-    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
-  ],
-  [PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened'], getSize({ w: 340, h: 442 }, undefined, { w: 168, h: 80 })],
-  [
-    PHONE_ISLAND_EVENTS['phone-island-call-keypad-closed'],
-    getSize({ w: 350, h: 238 }, { w: 350, h: 306 })
-  ],
-  [PHONE_ISLAND_EVENTS['phone-island-call-parked'], getSize({ w: 1, h: 1 }, { w: 1, h: 1 }, { w: 1, h: 1 })]
-])

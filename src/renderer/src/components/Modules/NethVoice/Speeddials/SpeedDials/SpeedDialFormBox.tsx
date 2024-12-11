@@ -2,8 +2,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, TextInput } from '../../../../Nethesis'
 import { faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useRef, useState } from 'react'
-import { NewContactType, ContactType, NewSpeedDialType } from '@shared/types'
-import { log } from '@shared/utils/logger'
+import { ContactType } from '@shared/types'
+import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import * as z from 'zod'
@@ -21,7 +21,7 @@ type SpeedDialFormBoxData = {
 export function SpeedDialFormBox({ close }) {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const speedDialModule = useSpeedDialsModule()
-  const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
+  const [selectedSpeedDial] = speedDialModule.speedDialsState
   const submitButtonRef = useRef<HTMLButtonElement>(null)
 
   const schema: z.ZodType<SpeedDialFormBoxData> = z.object({
@@ -78,7 +78,7 @@ export function SpeedDialFormBox({ close }) {
         reset()
         close()
       })
-      .catch((error) => {
+      .catch((e) => {
         if (selectedSpeedDial) {
           sendNotification(
             t('Notification.speeddial_not_modified_title'),
@@ -90,7 +90,7 @@ export function SpeedDialFormBox({ close }) {
             t('Notification.speeddial_not_created_description')
           )
         }
-        log(error)
+        Log.warning('error during speedDialModule.upsertSpeedDial:', e)
       })
       .finally(() => {
         setIsLoading(false)

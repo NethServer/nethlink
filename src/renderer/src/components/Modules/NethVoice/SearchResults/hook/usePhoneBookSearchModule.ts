@@ -1,21 +1,17 @@
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
-import { useStoreState } from "@renderer/store"
-import { NethLinkPageData, PhonebookSearchModuleData, SearchCallData, SearchData, StateType } from "@shared/types"
-import { log } from "@shared/utils/logger"
+import { useNethlinkData } from "@renderer/store"
+import { PhonebookSearchModuleData, SearchCallData, SearchData, StateType } from "@shared/types"
 
 export const usePhonebookSearchModule = (): {
   searchTextState: StateType<string | null>,
   searchPhonebookContacts: () => Promise<SearchData[]>
 } => {
-  const [nethLinkPageData, setNethLinkPageData] = useStoreState<NethLinkPageData>('nethLinkPageData')
+  const [phonebookSearchModule, setPhonebookSearchModule] = useNethlinkData('phonebookSearchModule')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const update = <T>(selector: keyof PhonebookSearchModuleData) => (value: T | undefined) => {
-    setNethLinkPageData((p) => ({
+    setPhonebookSearchModule((p) => ({
       ...p,
-      phonebookSearchModule: {
-        ...p?.phonebookSearchModule,
-        [selector]: value as any
-      }
+      [selector]: value as any
     }))
   }
 
@@ -28,7 +24,6 @@ export const usePhonebookSearchModule = (): {
       contact.kind = 'company'
       contact.displayName = contact.company
     }
-    contact.isOperator = false
 
     // company contacts
     if (contact.contacts) {
@@ -48,13 +43,13 @@ export const usePhonebookSearchModule = (): {
   }
 
   const searchPhonebookContacts = async () => {
-    const searchResult: SearchCallData = await NethVoiceAPI.Phonebook.search(nethLinkPageData?.phonebookSearchModule?.searchText || '')
+    const searchResult: SearchCallData = await NethVoiceAPI.Phonebook.search(phonebookSearchModule?.searchText || '')
     return prapareSearchData(searchResult)
   }
 
 
   return {
-    searchTextState: [nethLinkPageData?.phonebookSearchModule?.searchText, update<string | null>('searchText')] as StateType<string | null>,
+    searchTextState: [phonebookSearchModule?.searchText, update<string | null>('searchText')] as StateType<string | null>,
     searchPhonebookContacts
   }
 }

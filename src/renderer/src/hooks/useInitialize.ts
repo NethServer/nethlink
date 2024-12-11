@@ -1,7 +1,6 @@
-import { log } from '@shared/utils/logger'
 import { useEffect, useRef } from 'react'
 
-export function useInitialize(callback: () => void, emitCompletition = false) {
+export function useInitialize(callback: () => void) {
   const hasInitialized = useRef(false)
   useEffect(() => {
     if (!hasInitialized.current) {

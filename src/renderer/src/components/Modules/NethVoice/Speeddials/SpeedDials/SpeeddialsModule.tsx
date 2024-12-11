@@ -8,8 +8,7 @@ import { useSpeedDialsModule } from "../hook/useSpeedDialsModule"
 export const SpeeddialsModule = () => {
 
   const speedDialModule = useSpeedDialsModule()
-  const [selectedSpeedDial, setSelectedSpeedDial] = speedDialModule.speedDialsState
-  const [selectedFavourite, setSelectedFavourite] = speedDialModule.favouriteState
+  const [, setSelectedSpeedDial] = speedDialModule.speedDialsState
   const [isSpeedDialFormOpen, setSpeedDialFormOpen] = useState<boolean>(false)
   const [isDeleteSpeedDialDialogOpen, setDeleteSpeedDialDialogOpen] = useState<boolean>(false)
 

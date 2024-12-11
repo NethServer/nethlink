@@ -10,7 +10,7 @@ export class DevToolsWindow extends BaseWindow {
       closable: false,
       movable: true,
       frame: true,
-      height: 380,
+      height: 580,
       width: 300,
       resizable: true,
       alwaysOnTop: true,

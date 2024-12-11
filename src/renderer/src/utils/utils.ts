@@ -1,21 +1,43 @@
 import { ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { PropsWithChildren } from 'react'
-import { log } from '@shared/utils/logger'
-import { NotificationConstructorOptions } from 'electron'
+import { Log } from '@shared/utils/logger'
 import { AvailableThemes } from '@shared/types'
 
 export const parseThemeToClassName = (theme: AvailableThemes | undefined) => {
   return theme === 'system' ? getSystemTheme() : theme || 'dark'
 }
-export function sendNotification(title: string, body: string, openUrl?: string) {
-  const notificationoption: NotificationConstructorOptions = {
-    title,
-    body,
-    silent: false,
-    urgency: 'normal'
+export async function sendNotification(title: string, body: string, openUrl?: string) {
+  let hasPermission = false
+  if (!("Notification" in window)) {
+    // Check if the browser supports notifications
+    alert("This browser does not support desktop notification");
+  } else if (Notification.permission === "granted") {
+    hasPermission = true
+  } else if (Notification.permission !== "denied") {
+    const permission = await Notification.requestPermission()
+    hasPermission = permission === "granted"
   }
-  window.api.sendNotification(notificationoption, openUrl)
+
+  if (hasPermission) {
+    const notificationoption: NotificationOptions = {
+      body,
+      icon: "./icons/Nethlink-logo.svg",
+      //image: "./icons/TrayNotificationIcon.svg",
+      silent: false,
+    }
+    const notification = new window.Notification(title, notificationoption);
+    notification.onclick = () => {
+      openUrl && window.open(openUrl, '_blank')
+      Log.info('onclick')
+    }
+    notification.onerror = (e) => {
+      Log.error('NOTIFICATION ERROR:', e)
+    }
+    notification.onshow = (e) => {
+      Log.info('NOTIFICATION SHOWN:', e)
+    }
+  }
 }
 
 export const ClassNames = (...args: ClassValue[]) => {

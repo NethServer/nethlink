@@ -1,10 +1,11 @@
-import { log } from '@shared/utils/logger';
+import { Log } from '@shared/utils/logger';
 import axios, { AxiosError } from 'axios'
 export class NetworkController {
   static instance: NetworkController
   constructor() {
     NetworkController.instance = this
   }
+
   async post(path: string, data: object | undefined, config: { headers: { Authorization?: string | undefined; 'Content-Type': string; }; } | undefined = { headers: { 'Content-Type': 'application/json' } }): Promise<any> {
     try {
       const response = await axios.post(path, data, config)
@@ -12,7 +13,7 @@ export class NetworkController {
       return response.data
     } catch (e: any) {
       const err: AxiosError = e
-      log(err.name, err.code, err.message, path, config, data)
+      Log.error('during fetch POST', err.name, err.code, err.message, path, config, data)
       throw e
     }
   }
@@ -22,7 +23,7 @@ export class NetworkController {
       return response.data
     } catch (e: any) {
       const err: AxiosError = e
-      log(err.name, err.code, err.message, path, config)
+      Log.error('during fetch GET', err.name, err.code, err.message, path, config)
       throw e
     }
   }

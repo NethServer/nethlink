@@ -1,7 +1,5 @@
-import { IPC_EVENTS } from '@shared/constants'
 import { LOGIN_WINDOW_WIDTH, LoginWindow } from '../windows'
-import { AccountController } from './AccountController'
-import { log } from '@shared/utils/logger'
+import { Log } from '@shared/utils/logger'
 
 export class LoginController {
 
@@ -29,25 +27,25 @@ export class LoginController {
           loginPage.center()
         }
       }
-    } catch (e) { log(e) }
+    } catch (e) { Log.warning('error during resize LoginWindow: ', e) }
   }
   show() {
     try {
       this.window.show()
-    } catch (e) { log(e) }
+    } catch (e) { Log.warning('error during showing LoginWindow: ', e) }
   }
 
   hide() {
     try {
       this.window!.hide()
-    } catch (e) { log(e) }
+    } catch (e) { Log.warning('error during hiding LoginWindow: ', e) }
   }
 
   async quit() {
     try {
       await this.window.quit(true)
     } catch (e) {
-      log(e)
+      Log.warning('error during quitting LoginWindow: ', e)
     }
   }
 

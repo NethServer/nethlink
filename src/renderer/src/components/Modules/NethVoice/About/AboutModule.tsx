@@ -1,11 +1,10 @@
-import NethLinkLogoSimple from '../../../assets/LogoBlueSimple.svg'
-import NethLinkLogoSimpleDark from '../../../assets/LogoBlueSimpleDark.svg'
+import NethLinkLogoSimple from '../../../../assets/LogoBlueSimple.svg'
+import NethLinkLogoSimpleDark from '../../../../assets/LogoBlueSimpleDark.svg'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare as DownloadIcon } from '@fortawesome/free-solid-svg-icons'
 import { Button } from '@renderer/components/Nethesis'
-import { AvailableThemes, NotificationData } from '@shared/types'
-import { useStoreState } from '@renderer/store'
+import { useSharedState } from '@renderer/store'
 import { usePageCtx } from '@renderer/contexts/pageContext'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
@@ -15,8 +14,8 @@ export interface AboutBoxProps { }
 
 export function AboutModule({ }: AboutBoxProps) {
   const page = usePageCtx()
-  const [theme] = useStoreState<AvailableThemes>('theme')
-  const [notifications] = useStoreState<NotificationData>('notifications')
+  const [theme] = useSharedState('theme')
+  const [notifications] = useSharedState('notifications')
 
   const onDownloadButtonClick = () => {
     window.api.openExternalPage(notifications!.system.update.message)
@@ -51,7 +50,7 @@ export function AboutModule({ }: AboutBoxProps) {
             </div>
           </div>
           <div className="text-gray-400 mb-2">
-            {t('About.current_version', { version: page?.props.appVersion })}
+            {t('About.current_version', { version: window.api.appVersion })}
           </div>
           {!!notifications?.system?.update && (
             <div className="mt-6 flex flex-col gap-2 items-center">

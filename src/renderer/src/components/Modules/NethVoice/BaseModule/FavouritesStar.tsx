@@ -1,5 +1,5 @@
 import classNames from "classnames"
-import { useFavouriteModule } from "./Modules/NethVoice/Speeddials/hook/useFavouriteModule"
+import { useFavouriteModule } from "../Speeddials/hook/useFavouriteModule"
 import { ContactType, SearchData } from "@shared/types"
 import {
   faStar as FavouriteIcon,
