@@ -12,6 +12,7 @@ import { ConnectionErrorDialog } from '@renderer/components'
 import { debouncer } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
+import { AvailableDevices } from '@shared/types'
 
 
 export interface NethLinkPageProps {
@@ -20,6 +21,7 @@ export interface NethLinkPageProps {
 
 export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   const [account, setAccount] = useSharedState('account')
+  const [, setDevice] = useSharedState('device')
   const [, setNotifications] = useSharedState('notifications')
   const [connection] = useSharedState('connection')
   const { hasPermission } = useAccount()
@@ -68,6 +70,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   }
 
   function initialize() {
+    Log.info('INITIALIZE NETHLINK FRONTEND')
     Notification.requestPermission()
       .then(() => {
         Log.info('requested notification permission')
@@ -103,10 +106,13 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
           ...me
         }
       }))
+      const device = me.default_device.type as AvailableDevices
+      setDevice(() => device)
     })
   }
 
   async function loadData() {
+    Log.info('update account')
     NethVoiceAPI.fetchOperators().then((op) => {
       saveOperators(op)
       me()

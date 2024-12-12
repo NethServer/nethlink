@@ -15,11 +15,9 @@ import { Account } from '@shared/types'
 import { t } from 'i18next'
 import { StatusDot } from '../../../Nethesis'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { debouncer, getAccountUID, isDev } from '@shared/utils/utils'
-import { useSharedState } from '@renderer/store'
-import { createRef, useState } from 'react'
-import { useTheme } from '@renderer/theme/Context'
-import { PresenceBox } from './ProfileDialog/PresenceSettings/PresenceBox'
+import { debouncer } from '@shared/utils/utils'
+import { useNethlinkData, useSharedState } from '@renderer/store'
+import { useState } from 'react'
 import classNames from 'classnames'
 import { truncate } from 'lodash'
 import { PresenceBadge } from './ProfileDialog/PresenceSettings/PresenceBadge'
@@ -35,7 +33,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
 
   const { status } = useAccount()
   const [account] = useSharedState('account')
-  const [operators] = useSharedState('operators')
+  const [operators] = useNethlinkData('operators')
 
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
 
@@ -47,7 +45,6 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
         <SearchBox />
         <div className="flex flex-row min-w-30 gap-2 items-center">
           <PresenceBadge
-            mainPresence={account?.data?.mainPresence}
             className={classNames()}
           />
 

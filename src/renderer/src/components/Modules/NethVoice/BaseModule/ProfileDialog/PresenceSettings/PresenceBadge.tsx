@@ -1,23 +1,28 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight, faMobile, faVoicemail } from '@fortawesome/free-solid-svg-icons'
 import { Badge } from '@renderer/components/Nethesis/Badge'
-import { useSharedState } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { StatusTypes } from '@shared/types'
 import { t } from 'i18next'
 import { useTheme } from '@renderer/theme/Context'
 import classNames from 'classnames'
 import { Tooltip } from 'react-tooltip'
+import { useEffect, useState } from 'react'
 
 export interface PresenceBadgeProps {
-  mainPresence: StatusTypes | undefined
   className?: string
 }
 
 export const PresenceBadgeVisibility = ['callforward', 'voicemail', 'cellphone']
-export const PresenceBadge = ({ mainPresence, className }: PresenceBadgeProps) => {
+export const PresenceBadge = ({ className }: PresenceBadgeProps) => {
   const [account] = useSharedState('account')
-  const [operators] = useSharedState('operators')
+  const [operators] = useNethlinkData('operators')
   const { badge: theme, status: statuses } = useTheme().theme
+  const [mainPresence, setMainPresence] = useState(account?.data?.mainPresence)
+
+  useEffect(() => {
+    setMainPresence(() => account?.data?.mainPresence)
+  }, [account])
 
   if (PresenceBadgeVisibility.includes(mainPresence as string)) {
     const isCallforward = ['callforward', 'voicemail'].includes(mainPresence as string)

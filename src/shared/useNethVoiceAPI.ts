@@ -101,7 +101,6 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
                 if (!nethlinkExtension)
                   reject(new Error("Questo utente non è abilitato all'uso del NethLink"))
                 else {
-
                   resolve(account)
                 }
               }
@@ -121,7 +120,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         try {
           await _POST('/webrest/authentication/logout', {})
         } catch (e) {
-          Log.warning(" error during logout:", e)
+          Log.warning("error during logout:", e)
         } finally {
           resolve()
         }
@@ -288,7 +287,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       if (ext && !loggedAccount && isFirstHeartbeat) {
         isFirstHeartbeat = false
         const response = await User.heartbeat(ext.id, data.username)
-        Log.info('Send HEARTBEAT', { response })
+        Log.info('Sent HEARTBEAT', { response })
       }
       return data
     },

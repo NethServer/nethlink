@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { t } from 'i18next'
 import { SearchData } from '@shared/types'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { useSharedState } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
@@ -18,7 +18,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
   const phoneBookModule = usePhonebookSearchModule()
   const { callNumber } = usePhoneIslandEventHandler()
   const [searchText] = phoneBookModule.searchTextState
-  const [operators] = useSharedState('operators')
+  const [operators] = useNethlinkData('operators')
   const { isCallsEnabled } = useAccount()
   const { isSearchAlsoAFavourite } = useFavouriteModule()
 

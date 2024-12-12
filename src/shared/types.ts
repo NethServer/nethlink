@@ -373,12 +373,6 @@ export type LocalStorageData = {
   page?: PageType,
   theme?: AvailableThemes,
   connection?: boolean,
-  operators?: OperatorData,
-  queues?: QueuesType,
-  parkings?: ParkingType[],
-  lastCalls?: CallData[],
-  speeddials?: ContactType[],
-  missedCalls?: CallData[],
   notifications?: NotificationData,
   lostCallNotifications?: CallData[],
 }
@@ -409,6 +403,12 @@ export type AuthAppData = {
 }
 export type NethLinkPageData = {
   selectedSidebarMenu: MENU_ELEMENT,
+  operators?: OperatorData,
+  queues?: QueuesType,
+  parkings?: ParkingType[],
+  lastCalls?: CallData[],
+  speeddials?: ContactType[],
+  missedCalls?: CallData[],
   showPhonebookSearchModule?: boolean,
   isForwardDialogOpen?: boolean,
   showAddContactModule?: boolean,

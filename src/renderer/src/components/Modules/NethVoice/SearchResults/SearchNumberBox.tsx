@@ -11,7 +11,7 @@ import { t } from 'i18next'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { cloneDeep } from 'lodash'
 import { cleanRegex, getIsPhoneNumber, sortByProperty } from '@renderer/lib/utils'
-import { useSharedState } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
@@ -25,7 +25,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
-  const [operators] = useSharedState('operators')
+  const [operators] = useNethlinkData('operators')
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
   const [canAddToPhonebook, setCanAddToPhonebook] = useState<boolean>(false)
   const { isCallsEnabled } = useAccount()

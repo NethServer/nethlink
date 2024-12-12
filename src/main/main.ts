@@ -30,9 +30,10 @@ for (const arg of params) {
     const kv: any[] = arg.split('=')
     if (['DEV', 'DEVTOOLS'].includes(kv[0])) {
       kv[1] = kv[1] === 'true'
-    } else {
-      kv[1] = undefined
     }
+    // } else {
+    //   kv[1] = undefined
+    // }
     if (kv[1])
       process.env[kv[0]] = kv[1]
   }

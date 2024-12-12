@@ -11,13 +11,13 @@ import { usePhoneIsland } from '@renderer/hooks/usePhoneIsland'
 import { PhoneIslandContainer } from '@renderer/components/pageComponents/phoneIsland/phoneIslandContainer'
 import { usePhoneIslandEventListener } from '@renderer/hooks/usePhoneIslandEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
-import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
+import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 export function PhoneIslandPage() {
   const [account] = useSharedState('account')
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
   const { state, phoneIsalndSizes, events } = usePhoneIslandEventListener()
   const { createDataConfig, dispatchAndWait } = usePhoneIsland()
-  const { NethVoiceAPI } = useNethVoiceAPI()
+  const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   const deviceInformationObject = useRef<Extension | undefined>(undefined)
   const isDataConfigCreated = useRef<boolean>(false)
@@ -61,6 +61,7 @@ export function PhoneIslandPage() {
     window.electron.receive(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, async (deviceInformationObject, force) => {
       Log.info('CHANGE_DEFAULT_DEVICE', { force, deviceInformationObject, })
       const changed = await NethVoiceAPI.User.default_device(deviceInformationObject, force)
+      Log.info('CHANGE_DEFAULT_DEVICE', { changed })
       if (changed) {
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
       }

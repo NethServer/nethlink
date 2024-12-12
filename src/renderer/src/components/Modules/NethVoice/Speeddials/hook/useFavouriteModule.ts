@@ -1,4 +1,4 @@
-import { useNethlinkData, useSharedState } from "@renderer/store"
+import { useNethlinkData } from "@renderer/store"
 import { ContactType, SearchData } from "@shared/types"
 import { useEffect, useState } from "react"
 import { debouncer } from "@shared/utils/utils"
@@ -7,8 +7,8 @@ import { FilterTypes, SpeeddialTypes } from "@shared/constants"
 import { Log } from "@shared/utils/logger"
 export const useFavouriteModule = () => {
   const [speeddialsModule] = useNethlinkData('speeddialsModule')
-  const [rawSpeedDials, setRawSpeedDials] = useSharedState('speeddials')
-  const [operators] = useSharedState('operators')
+  const [rawSpeedDials, setRawSpeedDials] = useNethlinkData('speeddials')
+  const [operators] = useNethlinkData('operators')
   const [favourites, setFavourites] = useState<ContactType[] | undefined>(undefined)
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   useEffect(() => {
@@ -37,7 +37,6 @@ export const useFavouriteModule = () => {
   }
 
   const isFavourite = (contact: ContactType) => {
-    Log.warning(contact)
     return contact.notes?.includes(SpeeddialTypes.FAVOURITES)
   }
 

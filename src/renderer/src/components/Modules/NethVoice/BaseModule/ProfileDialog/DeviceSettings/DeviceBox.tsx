@@ -39,14 +39,13 @@ export const DeviceBox = () => {
   }
 
   const themeOptions = {
-    nethlink: { iconElem: DeviceIcons.nethlink.Icon, label: t('Settings.Desktop Phone') },
+    nethlink: { iconElem: DeviceIcons.nethlink.Icon, label: t('Settings.Only nethlink') },
     physical: { icon: DeviceIcons.physical, label: t('Settings.IP Phone') },
   }
 
   if (!account) return <></>
   const nethlink = account.data!.endpoints.extension.find((e) => e.type === 'nethlink')!
   const accountDevices: AvailableDeviceOption[] = account.data?.endpoints.extension.reduce<AvailableDeviceOption[]>((p, d) => {
-    Log.info('devices', d)
     if (d.type === 'physical') {
       p.push({
         ...themeOptions.physical,

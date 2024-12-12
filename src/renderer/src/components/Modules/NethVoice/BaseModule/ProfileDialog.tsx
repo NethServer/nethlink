@@ -52,7 +52,7 @@ export const ProfileDialog = ({
     if (selectedMenu) {
       setX(250)
       switch (selectedMenu) {
-        case MenuItem.device: setDialogPageTitle(() => t("TopBar.Device")); break;
+        case MenuItem.device: setDialogPageTitle(() => t("TopBar.Pair device")); break;
         case MenuItem.theme: setDialogPageTitle(() => t("TopBar.Theme")); break;
         case MenuItem.presence: setDialogPageTitle(() => t("TopBar.Presence")); break;
       }
@@ -145,7 +145,6 @@ export const ProfileDialog = ({
         )
       }
       onBackdropClick={() => {
-        Log.warning('CLICK')
         if (isForwardDialogOpen) {
           setIsForwardDialogOpen(() => false)
         } else {

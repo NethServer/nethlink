@@ -4,7 +4,7 @@ import { isDev } from "@shared/utils/utils"
 import { FavouriteStar } from "./FavouritesStar"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useAccount } from "@renderer/hooks/useAccount"
-import { useSharedState } from "@renderer/store"
+import { useNethlinkData } from "@renderer/store"
 import { usePhoneIslandEventHandler } from "@renderer/hooks/usePhoneIslandEventHandler"
 import { Avatar } from "../../../Nethesis"
 import {
@@ -24,7 +24,7 @@ export const ContactNameAndActions = ({ contact, number, isHighlight, displayedN
   isSearchData: boolean
 }) => {
   const { isCallsEnabled } = useAccount()
-  const [operators] = useSharedState('operators')
+  const [operators] = useNethlinkData('operators')
   const { callNumber } = usePhoneIslandEventHandler()
   const avatarSrc = username && operators?.avatars?.[username]
 

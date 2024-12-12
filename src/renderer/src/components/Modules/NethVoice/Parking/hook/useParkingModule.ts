@@ -1,10 +1,10 @@
-import { useSharedState } from "@renderer/store"
+import { useNethlinkData } from "@renderer/store"
 import { ParkingType } from "@shared/types"
 import { useEffect, useState } from "react"
 
 export const useParkingModule = () => {
 
-  const [parkedCalls] = useSharedState('parkings')
+  const [parkedCalls] = useNethlinkData('parkings')
   const [validParkedCalls, setValidParkedCalls] = useState<ParkingType[] | undefined>(undefined)
   useEffect(() => {
     parkedCalls && extractValidParkedCalls(parkedCalls)

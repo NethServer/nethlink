@@ -1,4 +1,4 @@
-import { Account, AuthAppData, ConfigFile } from '@shared/types'
+import { Account, AuthAppData, AvailableDevices, ConfigFile } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { safeStorage } from 'electron'
 import { store } from '@/lib/mainStore'
@@ -111,6 +111,7 @@ export class AccountController {
           lastUser: accountUID,
           lastUserCryptPsw: cryptString
         },
+        device: account.data?.default_device.type as AvailableDevices,
         connection: store.store.connection || false
       }, 'saveLoggedAccount')
       store.saveToDisk()
@@ -170,6 +171,7 @@ export class AccountController {
 
   setAccountNethLinkBounds(nethlinkBounds: Electron.Rectangle | undefined): void {
     const account = store.store.account
+    Log.info('MAIN PRESENCE BACK', account?.data?.mainPresence)
     const auth = store.store.auth
     if (account) {
       account!.nethlinkBounds = nethlinkBounds
