@@ -315,7 +315,7 @@ const phoneIslandSizes = {
     // Alerts Section
     alerts: {
       width: 418,
-      height: 88,
+      height: 92,
     },
   },
 }

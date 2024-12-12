@@ -201,7 +201,10 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully-popup-close"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully-popup-open"], () => {
-        sendNotification(t('Notification.call_transferred_title'), t('Notification.call_transferred_body'))
+        sendNotification(
+          t('Notification.call_transferred_title'),
+          t('Notification.call_transferred_body')
+        )
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-switch"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-switched"]),
@@ -305,27 +308,34 @@ export const usePhoneIslandEventListener = () => {
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-connected"], () => {
+        setConnected(true)
         setPhoneIslandData((p) => ({
           ...p,
-          activeAlerts: {
-            ...p.activeAlerts,
-            ['socket-disconnected']: false
-          },
+          activeAlerts: {},
           currentCall: {
             ...defaultCall
           },
+          view: null
         }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected"], () => {
         if (account && connected) {
           setConnected(false)
         }
-
+        setPhoneIslandData((p) => ({
+          ...p,
+          currentCall: {
+            ...defaultCall
+          }
+        }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-close"], () => {
         setPhoneIslandData((p) => ({
           ...p,
-          activeAlerts: {},
+          activeAlerts: {
+            ...p.activeAlerts,
+            ['socket-disconnected']: false
+          },
         }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-open"], () => {
