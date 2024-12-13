@@ -80,7 +80,7 @@ export const usePhoneIslandEventHandler = () => {
 
   function onParkingsUpdate(parkings: ParkingsType) {
     const parkedCalls: ParkingType[] = Object.values(parkings)
-    setParkings(() => parkedCalls || [])
+    setParkings(() => [...parkedCalls] || [])
   }
 
   function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
