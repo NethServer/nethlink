@@ -138,6 +138,7 @@ export class AccountController {
         auth!.availableAccounts[getAccountUID(account)] = account
         store.set('auth', auth)
       }
+      store.saveToDisk()
     }
   }
 
