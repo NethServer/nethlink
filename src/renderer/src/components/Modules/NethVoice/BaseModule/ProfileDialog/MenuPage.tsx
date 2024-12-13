@@ -17,8 +17,9 @@ export const MenuPage = ({ goBack, title, children }) => {
     )}
     >
       <div className="py-2">
-        <div
-          className="flex gap-3 items-center py-3 px-4"
+        <Button
+          variant="ghost"
+          className="flex gap-3 w-full rounded-none !justify-start"
           onClick={goBack}
         >
           <FontAwesomeIcon
@@ -28,7 +29,7 @@ export const MenuPage = ({ goBack, title, children }) => {
           <p className="dark:text-textBlueDark text-textBlueLight font-medium">
             {t('Login.Back')}
           </p>
-        </div>
+        </Button>
       </div>
       <Line />
       <div className="">

@@ -86,7 +86,7 @@ export const ProfileDialog = ({
         'w-[252px] h-[297px]',
         'bg-bgInput dark:bg-bgInputDark',
         'rounded-lg border dark:border-borderDark border-borderLight',
-        'fixed z-[200] right-[56px] top-[54px]'
+        'fixed z-[200] right-[58px] top-[54px]'
       )
     } >
       <div className='relative w-full h-full overflow-hidden'>
@@ -94,7 +94,6 @@ export const ProfileDialog = ({
           <ProfileData />
           <Line />
           <div className='py-2'>
-
             <MenuAction.itemWrap onClick={() => setSelectedMenu(() => MenuItem.presence)} >
 
               <StatusDot status={status} className='ml-1' />
@@ -120,7 +119,7 @@ export const ProfileDialog = ({
           <MenuAction.item className={'py-2'} onClick={handleExitNethLink} icon={ExitIcon} label={t('Common.Quit')} />
         </div>
         <motion.div
-          className='absolute top-0 left-full w-full h-full'
+          className='absolute top-0 left-full h-full w-[calc(100%+1px)]'
           animate={{ x: -x, }}
           transition={{ duration: 0.15, ease: "linear" }}
         >
