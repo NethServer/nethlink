@@ -46,10 +46,10 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.18",
     "@hookform/resolvers": "^3.3.4",
-    "@nethesis/nethesis-light-svg-icons": "github:nethesis/Font-Awesome#ns-light",
     "@nethesis/nethesis-brands-svg-icons": "github:nethesis/Font-Awesome#ns-brands",
+    "@nethesis/nethesis-light-svg-icons": "github:nethesis/Font-Awesome#ns-light",
     "@nethesis/nethesis-solid-svg-icons": "github:nethesis/Font-Awesome#ns-solid",
-    "@nethesis/phone-island": "^0.8.27",
+    "@nethesis/phone-island": "^0.8.29",
     "@tailwindcss/forms": "^0.5.7",
     "@types/lodash": "^4.14.202",
     "@types/node": "^18.19.9",
@@ -104,6 +104,5 @@
   },
   "optionalDependencies": {
     "dmg-license": "^1.0.11"
-  },
-  "dependencies": {}
+  }
 }
