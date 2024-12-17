@@ -112,7 +112,10 @@ export class AccountController {
           lastUser: accountUID,
           lastUserCryptPsw: cryptString
         },
-        device: account.data?.default_device.type as AvailableDevices,
+        device: account.data?.default_device ? {
+          type: account.data.default_device.type as AvailableDevices,
+          id: account.data.default_device.id,
+        } : undefined,
         connection: store.store.connection || false
       }, 'saveLoggedAccount')
       store.saveToDisk()

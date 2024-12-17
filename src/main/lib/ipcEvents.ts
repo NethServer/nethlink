@@ -240,6 +240,10 @@ export function registerIpcEvents() {
     NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_PARKING_UPDATE)
   })
 
+  ipcMain.on(IPC_EVENTS.UPDATE_ACCOUNT, (_) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.UPDATE_ACCOUNT)
+  })
+
 }
 
 

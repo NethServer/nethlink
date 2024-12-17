@@ -68,7 +68,7 @@ export const ProfileDialog = ({
 
   useEffect(() => {
     if (account) {
-      setDeviceIcon(() => DeviceIcons[device || 'nethlink'])
+      setDeviceIcon(() => DeviceIcons[device?.type || 'nethlink'])
     }
 
   }, [device])

@@ -11,7 +11,8 @@ import {
   StatusTypes,
   OperatorsType,
   AccountData,
-  BaseAccountData
+  BaseAccountData,
+  ExtensionsType
 } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
@@ -64,7 +65,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   const AstProxy = {
     groups: async () => await _GET('/webrest/astproxy/opgroups'),
-    extensions: async () => await _GET('/webrest/astproxy/extensions'),
+    extensions: async (): Promise<ExtensionsType> => await _GET('/webrest/astproxy/extensions'),
     getQueues: async () => await _GET('/webrest/astproxy/queues'),
     getParkings: async () => await _GET('/webrest/astproxy/parkings'),
     pickupParking: async (parkInformation: any) => await _POST('/webrest/astproxy/pickup_parking', parkInformation)

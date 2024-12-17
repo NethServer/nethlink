@@ -7,12 +7,14 @@ import {
   faOfficePhone as PhysicalDevice
 } from '@nethesis/nethesis-solid-svg-icons'
 import { useSharedState } from "@renderer/store"
-import { AvailableDevices, Extension } from "@shared/types"
+import { AvailableDevices, Extension, ExtensionsType, StatusTypes } from "@shared/types"
 import { Log } from "@shared/utils/logger"
 import { t } from "i18next"
 import { OptionElement } from "../OptionElement"
 import { debouncer } from "@shared/utils/utils"
 import { IPC_EVENTS } from "@shared/constants"
+import { useEffect, useState } from "react"
+import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 
 export const DeviceIcons = {
   nethlink: {
@@ -23,18 +25,30 @@ export const DeviceIcons = {
 type DeviceType = { name: AvailableDevices, label: string, icon?: IconProp | IconDefinition, iconElem?: JSX.Element }
 type AvailableDeviceOption = {
   id: string,
+  status: StatusTypes
   ext: Extension
 } & DeviceType
 export const DeviceBox = () => {
   const [account] = useSharedState('account')
   const [device, setDevice] = useSharedState('device')
+  const [devicesStatus, setDevicesStatus] = useState<ExtensionsType>({})
+  const { NethVoiceAPI } = useLoggedNethVoiceAPI()
+  useEffect(() => {
+    NethVoiceAPI.AstProxy.extensions().then((devices: ExtensionsType) => {
+      setDevicesStatus(() => ({ ...devices }))
+    })
+  }, [])
+
+
   async function handleSetDevice(newDevice: AvailableDeviceOption) {
     Log.info('change device to', newDevice)
-    setDevice(() => newDevice.name)
+    setDevice(() => ({
+      id: newDevice.id,
+      type: newDevice.name,
+      status: newDevice.status
+    }))
     debouncer('update-account-default-device', () => {
-      //await NethVoiceAPI.User.default_device(newDevice.ext)
       window.electron.send(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, newDevice.ext, true)
-      //TODO: lanciare anche l'eventDispatch su phoneIsland
     }, 250)
   }
 
@@ -47,10 +61,13 @@ export const DeviceBox = () => {
   const nethlink = account.data!.endpoints.extension.find((e) => e.type === 'nethlink')!
   const accountDevices: AvailableDeviceOption[] = account.data?.endpoints.extension.reduce<AvailableDeviceOption[]>((p, d) => {
     if (d.type === 'physical') {
+      const status = devicesStatus[d.id]?.status
+      const isOffline = status !== 'online'
       p.push({
         ...themeOptions.physical,
         name: 'physical',
-        label: d.description || themeOptions.physical.label,
+        label: `${d.description || themeOptions.physical.label} ${isOffline ? '(offline)' : ''}`,
+        status,
         id: d.id,
         ext: d
       } as AvailableDeviceOption)
@@ -58,6 +75,7 @@ export const DeviceBox = () => {
     return p
   }, [{
     ...themeOptions.nethlink,
+    status: 'online',
     name: 'nethlink',
     id: nethlink?.id,
     ext: nethlink
@@ -71,7 +89,7 @@ export const DeviceBox = () => {
           icon={availableDevices.icon}
           iconElem={availableDevices.iconElem}
           label={availableDevices.label}
-          isSelected={device === availableDevices.name}
+          isSelected={device?.id === availableDevices.id}
           onClick={() => handleSetDevice(availableDevices)}
         />
       ))}

@@ -80,7 +80,8 @@ export enum IPC_EVENTS {
   EMIT_PARKING_UPDATE = "EMIT_PARKING_UPDATE",
   TRANSFER_CALL = "TRANSFER_CALL",
   CHANGE_DEFAULT_DEVICE = "CHANGE_DEFAULT_DEVICE",
-  START_CALL_BY_URL = "START_CALL_BY_URL"
+  START_CALL_BY_URL = "START_CALL_BY_URL",
+  UPDATE_ACCOUNT = "UPDATE_ACCOUNT"
 }
 
 //PHONE ISLAND EVENTS
@@ -102,6 +103,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-theme-changed' = 'phone-island-theme-changed',
   'phone-island-default-device-change' = 'phone-island-default-device-change',
   'phone-island-default-device-changed' = 'phone-island-default-device-changed',
+  'phone-island-default-device-updated' = 'phone-island-default-device-updated',
   // Listen Call Events: phone-island-call*
   'phone-island-call-start' = 'phone-island-call-start',
   'phone-island-call-answer' = 'phone-island-call-answer',

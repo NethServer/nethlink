@@ -297,26 +297,27 @@ export type GroupsType = {
 
 export type ExtensionsType = {
   [phoneNumber: string]: {
-    cf: string
-    cfVm: string
-    cfb: string
-    cfbVm: string
-    cfu: string
-    cfuVm: string
-    chanType: string
-    codecs: string[]
-    context: string
-    conversations: {}
-    dnd: false
-    exten: string
     ip: string
+    cf: string
     mac: string
-    name: string
+    cfb: string
+    cfu: string
+    dnd: boolean
+    cfVm: string
     port: string
-    sipuseragent: string
-    status: string
+    name: string
+    cfbVm: string
+    cfuVm: string
+    exten: string
+    codecs: string[]
+    status: StatusTypes
+    context: string
+    chanType: string
     username: string
+    sipuseragent: string
+    conversations: object,
   }
+
 }
 
 export type AvatarType = {
@@ -366,10 +367,16 @@ export type PageType = {
 
 export type Size = { w: number; h: number }
 
+export type Device = {
+  type: AvailableDevices,
+  id: string,
+  status?: StatusTypes
+}
+
 export type LocalStorageData = {
   account?: Account,
   auth?: AuthAppData,
-  device?: AvailableDevices,
+  device?: Device,
   page?: PageType,
   theme?: AvailableThemes,
   connection?: boolean,

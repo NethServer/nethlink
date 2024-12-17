@@ -5,8 +5,6 @@ import { useEffect, useState } from "react"
 import { t } from "i18next"
 import { sendNotification } from "@renderer/utils"
 import { useSharedState } from "@renderer/store"
-import { useNetwork } from "@shared/useNetwork"
-import http from 'http'
 
 
 const defaultCall = {
@@ -18,7 +16,6 @@ const defaultCall = {
 export const usePhoneIslandEventListener = () => {
   const [account] = useSharedState('account')
   const [connected, setConnected] = useSharedState('connection')
-  const { GET } = useNetwork()
 
   const [phoneIslandData, setPhoneIslandData] = useState<PhoneIslandData>({
     activeAlerts: {},
@@ -55,14 +52,16 @@ export const usePhoneIslandEventListener = () => {
       //CALLS
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-action-physical"], async (data) => {
         //const res = await GET(data.urlCallObject.url)
-        Log.info('phone-island-action-physical', data.urlCallObject.url)
         window.electron.send(IPC_EVENTS.START_CALL_BY_URL, data.urlCallObject.url)
+        Log.info('phone-island-action-physical', data.urlCallObject.url)
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ringing"], () => {
         setPhoneIslandData((p) => ({
           ...p, currentCall: {
             ...p.currentCall,
-            incoming: true
+            accepted: false,
+            incoming: true,
+            outgoing: false
           },
           view: PhoneIslandView.CALL
         }))
@@ -105,7 +104,9 @@ export const usePhoneIslandEventListener = () => {
           ...p,
           currentCall: {
             ...p.currentCall,
-            outgoing: true
+            outgoing: true,
+            accepted: false,
+            incoming: false
           },
           view: PhoneIslandView.CALL
         }))
@@ -245,6 +246,10 @@ export const usePhoneIslandEventListener = () => {
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-change"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-changed"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-updated"], (e) => {
+        Log.info('"phone-island-default-device-updated', e)
+        window.electron.send(IPC_EVENTS.UPDATE_ACCOUNT)
+      }), //update the status of device from server
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-detach"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-detached"]),
 

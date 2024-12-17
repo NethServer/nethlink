@@ -258,10 +258,6 @@ function attachOnReadyProcess() {
     }
   })
 
-  //TODO:da me.endpoints.extensions cerco il tipo e prendo il primo diverso da nethlink tra [webrtc, physical] (con questa priorità)
-  //post del defaultDevice
-
-
   async function startApp(attempt = 0) {
     let data = store.store || store.getFromDisk()
     if (!checkData(data)) {
@@ -482,7 +478,6 @@ async function attachProtocolListeners() {
     Log.info('HandleProtocol Nethlink:', url)
     const data = new URL("nethlink://" + url)
 
-    //TODO: define actions
     const action = data.host
     try {
       switch (action) {
