@@ -127,6 +127,7 @@
     "application_update_body": "Clicca quì per aprire la pagina dove potrai scaricare la nuova release",
     "lost_call_title": "Chiamata persa da {{user}}",
     "lost_call_body": "Hai ricevuto una chiamata da {{number}} alle {{datetime}}",
+    "physical_phone_error": "Il telefono {{phone}} non è raggiungibile. Assicurarsi che sia collegato",
     "call_transferred_title": "Traferimento di chiamata",
     "call_transferred_body": "La chiamata è stata trasferita con successo"
   },

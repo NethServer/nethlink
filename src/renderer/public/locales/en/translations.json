@@ -127,6 +127,7 @@
     "application_update_body": "Click here to open the page where you can download the new release",
     "lost_call_title": "Missed call from {{user}}",
     "lost_call_body": "You received a call from {{number}} at {{datetime}}",
+    "physical_phone_error": "the phone {{phone}} is not reachable. Make sure it is connected",
     "call_transferred_title": "Call tranferred",
     "call_transferred_body": "The call was succesfully tranferred"
   },

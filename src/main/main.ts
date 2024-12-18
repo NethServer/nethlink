@@ -22,6 +22,7 @@ import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { URL } from 'url'
+import { platform } from 'os'
 
 //get app parameter
 const params = process.argv
@@ -546,22 +547,41 @@ function attachPowerMonitor() {
   }
 }
 
-function attachThemeChangeListener() {
-  nativeTheme.on('updated', () => {
-    if (store.store) {
-      const theme = store.store.theme
-      const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
-        ? 'dark'
-        : 'light'
+function changeNethlinkTheme() {
+  let updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
+    ? 'dark'
+    : 'light'
 
-      if (store.store.account?.theme === 'dark' || store.store.account?.theme === 'light') {
-        store.set('theme', store.store.account?.theme)
-      } else {
-        store.set('theme', updatedSystemTheme)
-      }
-      //update theme state on the store
-      TrayController.instance?.changeIconByTheme(updatedSystemTheme)
+  //set nethlink pages theme
+  if (store.store) {
+    if (store.store.account?.theme === 'dark' || store.store.account?.theme === 'light') {
+      store.set('theme', store.store.account?.theme)
+    } else {
+      store.set('theme', updatedSystemTheme)
     }
+  }
+
+  //se tray icon theme based on system settings
+
+  if (process.platform === 'win32') {
+    Registry.get(`HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize`, 'SystemUsesLightTheme').then((system) => {
+      Log.info('THEME CHANGE SYSTEM', system)
+      const theme = system === 1 ? 'light' : 'dark'
+      TrayController.instance?.changeIconByTheme(theme)
+    }).catch((e) => {
+      Log.error(e)
+      TrayController.instance?.changeIconByTheme('dark')
+    });
+  } else {
+    TrayController.instance?.changeIconByTheme(updatedSystemTheme)
+  }
+}
+
+function attachThemeChangeListener() {
+
+  changeNethlinkTheme()
+  nativeTheme.on('updated', () => {
+    changeNethlinkTheme()
   })
 }
 /**

@@ -1,7 +1,7 @@
 import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
-import { IPC_EVENTS } from '@shared/constants'
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
 import { BrowserWindow, app, ipcMain, screen, shell } from 'electron'
 import { join } from 'path'
@@ -56,9 +56,32 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url) => {
-    http.get(url, (res) => {
-      Log.info('START_CALL_BY_URL', res)
-    })
+
+    function triggerError(e, request: http.ClientRequest | undefined = undefined) {
+      Log.error(e)
+      PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
+      NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, false)
+      request && request.destroy()
+    }
+    PhoneIslandController.instance.window.hide()
+    try {
+      const request = http.get(url, {
+        timeout: 3000
+      }, (res) => {
+        if (res.statusCode !== 200) {
+          triggerError(new Error('status error'), request)
+        }
+        NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, true)
+        PhoneIslandController.instance.window.show()
+        Log.info('START_CALL_BY_URL', url, res.statusCode)
+      })
+
+      request.on('error', (e) => {
+        triggerError(e, request)
+      })
+    } catch (e) {
+      triggerError(e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (_, newState, page, selector) => {

@@ -13,6 +13,7 @@ import { debouncer } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
 import { AvailableDevices } from '@shared/types'
+import { sendNotification } from '@renderer/utils'
 
 
 export interface NethLinkPageProps {
@@ -62,6 +63,13 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     }
   }
 
+  function handleStartCallByUrlResponse(isValid: boolean) {
+    if (!isValid) {
+      const phone = account?.data?.default_device.description || t('Settings.IP Phone')
+      sendNotification(t('Common.Warning'), t('Notification.physical_phone_error', { phone }))
+    }
+  }
+
   function initialize() {
     Log.info('INITIALIZE NETHLINK FRONTEND')
     Notification.requestPermission()
@@ -77,6 +85,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     window.electron.receive(IPC_EVENTS.EMIT_PARKING_UPDATE, updateParkings)
     window.electron.receive(IPC_EVENTS.EMIT_QUEUE_UPDATE, onQueueUpdate)
     window.electron.receive(IPC_EVENTS.UPDATE_ACCOUNT, updateAccountData)
+    window.electron.receive(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, handleStartCallByUrlResponse)
   }
 
   const showUpdateAppNotification = () => {
