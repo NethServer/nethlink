@@ -535,8 +535,12 @@ function attachPowerMonitor() {
       if (store.store.account && NethLinkController.instance) {
         const isOpen = NethLinkController.instance.window.isOpen()
         showNethlink = isOpen ?? true
-        await PhoneIslandController.instance.logout()
-        NethLinkController.instance.logout()
+        try {
+          await PhoneIslandController.instance.logout()
+          NethLinkController.instance.logout()
+        } catch (e) {
+          Log.error('POWER RESUME ERROR on logout', e)
+        }
         const autoLoginResult = await AccountController.instance.autoLogin()
         if (autoLoginResult) {
           ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
