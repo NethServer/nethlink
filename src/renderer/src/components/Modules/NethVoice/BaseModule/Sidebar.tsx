@@ -23,7 +23,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   const [selectedSidebarMenu, setSelectedSidebarMenu] = useNethlinkData('selectedSidebarMenu')
   const [, setShowPhonebookSearchModule] = useNethlinkData('showPhonebookSearchModule')
   const [, setPhonebookSearchModule] = useNethlinkData('phonebookSearchModule')
-  const [missedCalls] = useSharedState('missedCalls')
+  const [missedCalls] = useNethlinkData('missedCalls')
   const [notifications] = useSharedState('notifications')
   const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.FAVOURITES)
   const [isAboutVisited, setIsAboutVisited] = useState<boolean>(false)

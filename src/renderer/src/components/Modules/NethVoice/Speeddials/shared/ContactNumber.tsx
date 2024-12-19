@@ -5,9 +5,9 @@ import {
   faTrash as DeleteIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { Menu } from '@headlessui/react'
-import { ContactType, OperatorData } from '@shared/types'
+import { ContactType } from '@shared/types'
 import { t } from 'i18next'
-import { useSharedState } from '@renderer/store'
+import { useNethlinkData } from '@renderer/store'
 import { truncate } from '@renderer/utils'
 import { useTheme } from '@renderer/theme/Context'
 import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
@@ -31,7 +31,7 @@ export function ContactNumber({
   isLastItem,
 }: SpeedDialNumberProps): JSX.Element {
   const { theme: nethTheme } = useTheme()
-  const [operators] = useSharedState('operators')
+  const [operators] = useNethlinkData('operators')
 
   return (
     <div

@@ -13,7 +13,6 @@ import { useRegisterStoreHook, useSharedState } from "@renderer/store";
 import { PageContext, usePageCtx } from './contexts/pageContext'
 import { GIT_RELEASES_URL, IPC_EVENTS } from '@shared/constants'
 import { useNetwork } from '@shared/useNetwork'
-import { useRefState } from './hooks/useRefState'
 
 
 const RequestStateComponent = () => {
@@ -21,7 +20,7 @@ const RequestStateComponent = () => {
   useRegisterStoreHook()
   const [theme,] = useSharedState('theme')
   const [account,] = useSharedState('account')
-  const [connection,] = useRefState(useSharedState('connection'))
+  const [connection,] = useSharedState('connection')
   const [hasWindowConfig, setHasWindowConfig] = useState<boolean>(false)
   const { GET } = useNetwork()
 
@@ -33,8 +32,8 @@ const RequestStateComponent = () => {
         resolve(false)
       })
     })
-    Log.info('check connection', { connected, connection: connection.current })
-    if (connected !== connection.current) {
+    Log.info('check connection', { connected, connection: connection })
+    if (connected !== connection) {
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, connected);
     }
   }
@@ -43,7 +42,7 @@ const RequestStateComponent = () => {
     if (account) {
       if (!window['CONFIG']) {
         // @ts-ignore (define in dts)
-        window.CONFIG = {
+        window['CONFIG'] = {
           PRODUCT_NAME: 'NethLink',
           COMPANY_NAME: 'Nethesis',
           COMPANY_SUBNAME: 'CTI',
@@ -57,14 +56,14 @@ const RequestStateComponent = () => {
           TIMEZONE: account.timezone,
           VOICE_ENDPOINT: account.voiceEndpoint
         }
-        Log.info(window['CONFIG'])
+        Log.info('WINDOW CONFIG', pageData?.page, window['CONFIG'])
         setHasWindowConfig(true)
       }
     } else {
       window['CONFIG'] = undefined
       setHasWindowConfig(false)
     }
-  }, [account, pageData?.page])
+  }, [account?.username, pageData?.page])
 
   const loader = async () => {
     Log.info('check i18n initialization')
@@ -146,7 +145,6 @@ export default function App() {
     Log.info('initialize i18n')
     loadI18n()
   })
-
   return (
     <PageContext>
       <RequestStateComponent />

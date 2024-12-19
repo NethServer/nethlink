@@ -22,6 +22,7 @@ import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { URL } from 'url'
+import { platform } from 'os'
 
 //get app parameter
 const params = process.argv
@@ -30,9 +31,10 @@ for (const arg of params) {
     const kv: any[] = arg.split('=')
     if (['DEV', 'DEVTOOLS'].includes(kv[0])) {
       kv[1] = kv[1] === 'true'
-    } else {
-      kv[1] = undefined
     }
+    // } else {
+    //   kv[1] = undefined
+    // }
     if (kv[1])
       process.env[kv[0]] = kv[1]
   }
@@ -65,9 +67,6 @@ function startup() {
       })
     }
 
-    ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
-      PhoneIslandController.instance.call(phoneNumber)
-    })
     ipcMain.on(IPC_EVENTS.LOGIN, async (e, props?: { account?: Account, password?: string, showNethlink: boolean, }) => {
       const { password, showNethlink, account } = props || { showNethlink: true }
       if (LoginController.instance && LoginController.instance.window.isOpen() && password && account) {
@@ -259,10 +258,6 @@ function attachOnReadyProcess() {
       })
     }
   })
-
-  //TODO:da me.endpoints.extensions cerco il tipo e prendo il primo diverso da nethlink tra [webrtc, physical] (con questa priorità)
-  //post del defaultDevice
-
 
   async function startApp(attempt = 0) {
     let data = store.store || store.getFromDisk()
@@ -484,7 +479,6 @@ async function attachProtocolListeners() {
     Log.info('HandleProtocol Nethlink:', url)
     const data = new URL("nethlink://" + url)
 
-    //TODO: define actions
     const action = data.host
     try {
       switch (action) {
@@ -541,8 +535,12 @@ function attachPowerMonitor() {
       if (store.store.account && NethLinkController.instance) {
         const isOpen = NethLinkController.instance.window.isOpen()
         showNethlink = isOpen ?? true
-        await PhoneIslandController.instance.logout()
-        NethLinkController.instance.logout()
+        try {
+          await PhoneIslandController.instance.logout()
+          NethLinkController.instance.logout()
+        } catch (e) {
+          Log.error('POWER RESUME ERROR on logout', e)
+        }
         const autoLoginResult = await AccountController.instance.autoLogin()
         if (autoLoginResult) {
           ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
@@ -553,22 +551,41 @@ function attachPowerMonitor() {
   }
 }
 
-function attachThemeChangeListener() {
-  nativeTheme.on('updated', () => {
-    if (store.store) {
-      const theme = store.store.theme
-      const updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
-        ? 'dark'
-        : 'light'
+function changeNethlinkTheme() {
+  let updatedSystemTheme: AvailableThemes = nativeTheme.shouldUseDarkColors
+    ? 'dark'
+    : 'light'
 
-      if (store.store.account?.theme === 'dark' || store.store.account?.theme === 'light') {
-        store.set('theme', store.store.account?.theme)
-      } else {
-        store.set('theme', updatedSystemTheme)
-      }
-      //update theme state on the store
-      TrayController.instance?.changeIconByTheme(updatedSystemTheme)
+  //set nethlink pages theme
+  if (store.store) {
+    if (store.store.account?.theme === 'dark' || store.store.account?.theme === 'light') {
+      store.set('theme', store.store.account?.theme)
+    } else {
+      store.set('theme', updatedSystemTheme)
     }
+  }
+
+  //se tray icon theme based on system settings
+
+  if (process.platform === 'win32') {
+    Registry.get(`HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize`, 'SystemUsesLightTheme').then((system) => {
+      Log.info('THEME CHANGE SYSTEM', system)
+      const theme = system === 1 ? 'light' : 'dark'
+      TrayController.instance?.changeIconByTheme(theme)
+    }).catch((e) => {
+      Log.error(e)
+      TrayController.instance?.changeIconByTheme('dark')
+    });
+  } else {
+    TrayController.instance?.changeIconByTheme(updatedSystemTheme)
+  }
+}
+
+function attachThemeChangeListener() {
+
+  changeNethlinkTheme()
+  nativeTheme.on('updated', () => {
+    changeNethlinkTheme()
   })
 }
 /**

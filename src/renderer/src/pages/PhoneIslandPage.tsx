@@ -11,11 +11,13 @@ import { usePhoneIsland } from '@renderer/hooks/usePhoneIsland'
 import { PhoneIslandContainer } from '@renderer/components/pageComponents/phoneIsland/phoneIslandContainer'
 import { usePhoneIslandEventListener } from '@renderer/hooks/usePhoneIslandEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
+import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 export function PhoneIslandPage() {
   const [account] = useSharedState('account')
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
   const { state, phoneIsalndSizes, events } = usePhoneIslandEventListener()
   const { createDataConfig, dispatchAndWait } = usePhoneIsland()
+  const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   const deviceInformationObject = useRef<Extension | undefined>(undefined)
   const isDataConfigCreated = useRef<boolean>(false)
@@ -40,9 +42,15 @@ export function PhoneIslandPage() {
     window.electron.receive(IPC_EVENTS.LOGOUT, logout)
 
     window.electron.receive(IPC_EVENTS.START_CALL, (number: string) => {
+      //controllare se sono physical
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
         number
       })
+    })
+
+    window.electron.receive(IPC_EVENTS.END_CALL, () => {
+      //controllare se sono physical
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
     })
 
     window.electron.receive(IPC_EVENTS.TRANSFER_CALL, (to: string) => {
@@ -53,6 +61,15 @@ export function PhoneIslandPage() {
 
     window.electron.receive(IPC_EVENTS.RECONNECT_PHONE_ISLAND, () => {
       logout()
+    })
+
+    window.electron.receive(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, async (deviceInformationObject, force) => {
+      Log.info('CHANGE_DEFAULT_DEVICE', { force, deviceInformationObject, })
+      const changed = await NethVoiceAPI.User.default_device(deviceInformationObject, force)
+      Log.info('CHANGE_DEFAULT_DEVICE', { changed })
+      if (changed) {
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
+      }
     })
   })
 
@@ -108,7 +125,7 @@ export function PhoneIslandPage() {
       await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-call-end'], PHONE_ISLAND_EVENTS['phone-island-call-ended'])
       await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-detach'], PHONE_ISLAND_EVENTS['phone-island-detached'], {
         data: {
-          deviceInformationObject: deviceInformationObject.current
+          deviceInformationObject: deviceInformationObject.current //nethlink extension
         }
       })
     }
