@@ -324,13 +324,11 @@ export const usePhoneIslandEventListener = () => {
         }))
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected"], () => {
-        if (account && connected) {
-          setConnected(false)
-        }
         setPhoneIslandData((p) => ({
           ...p,
-          currentCall: {
-            ...defaultCall
+          activeAlerts: {
+            ...p.activeAlerts,
+            ['socket-disconnected']: true
           }
         }))
       }),
@@ -352,7 +350,19 @@ export const usePhoneIslandEventListener = () => {
           }
         }))
       }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-reconnected"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-reconnected"], () => {
+        window.electron.send(IPC_EVENTS.RECONNECT_SOCKET)
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-internet-connected"], () => {
+        if (account && !connected) {
+          setConnected(true)
+        }
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-internet-disconnected"], () => {
+        if (account && connected) {
+          setConnected(false)
+        }
+      }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-theme-change"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-theme-changed"]),
 

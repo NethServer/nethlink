@@ -66,6 +66,7 @@ export enum IPC_EVENTS {
   GET_NETHVOICE_CONFIG = "GET_NETHVOICE_CONFIG",
   SET_NETHVOICE_CONFIG = "SET_NETHVOICE_CONFIG",
   RECONNECT_PHONE_ISLAND = "RECONNECT_PHONE_ISLAND",
+  RECONNECT_SOCKET = "RECONNECT_SOCKET",
   LOGOUT_COMPLETED = "LOGOUT_COMPLETED",
   SHOW_NO_CONNECTION = "SHOW_NO_CONNECTION",
   UPDATE_CONNECTION_STATE = "UPDATE_CONNECTION_STATE",
@@ -203,6 +204,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-socket-reconnected' = 'phone-island-socket-reconnected',
   'phone-island-socket-disconnected-popup-open' = 'phone-island-socket-disconnected-popup-open',
   'phone-island-socket-disconnected-popup-close' = 'phone-island-socket-disconnected-popup-close',
+  'phone-island-internet-connected' = 'phone-island-internet-connected',
+  'phone-island-internet-disconnected' = 'phone-island-internet-disconnected',
   // Alerts
   'phone-island-all-alerts-removed' = 'phone-island-all-alerts-removed'
 }
