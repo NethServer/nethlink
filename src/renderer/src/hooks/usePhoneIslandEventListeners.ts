@@ -59,9 +59,7 @@ export const usePhoneIslandEventListener = () => {
         setPhoneIslandData((p) => ({
           ...p, currentCall: {
             ...p.currentCall,
-            accepted: false,
-            incoming: true,
-            outgoing: false
+            incoming: true
           },
           view: PhoneIslandView.CALL
         }))
@@ -104,9 +102,7 @@ export const usePhoneIslandEventListener = () => {
           ...p,
           currentCall: {
             ...p.currentCall,
-            outgoing: true,
-            accepted: false,
-            incoming: false
+            outgoing: true
           },
           view: PhoneIslandView.CALL
         }))
