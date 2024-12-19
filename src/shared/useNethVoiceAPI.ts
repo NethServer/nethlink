@@ -11,7 +11,8 @@ import {
   StatusTypes,
   OperatorsType,
   AccountData,
-  BaseAccountData
+  BaseAccountData,
+  ExtensionsType
 } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
@@ -64,7 +65,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   const AstProxy = {
     groups: async () => await _GET('/webrest/astproxy/opgroups'),
-    extensions: async () => await _GET('/webrest/astproxy/extensions'),
+    extensions: async (): Promise<ExtensionsType> => await _GET('/webrest/astproxy/extensions'),
     getQueues: async () => await _GET('/webrest/astproxy/queues'),
     getParkings: async () => await _GET('/webrest/astproxy/parkings'),
     pickupParking: async (parkInformation: any) => await _POST('/webrest/astproxy/pickup_parking', parkInformation)
@@ -101,7 +102,6 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
                 if (!nethlinkExtension)
                   reject(new Error("Questo utente non è abilitato all'uso del NethLink"))
                 else {
-
                   resolve(account)
                 }
               }
@@ -121,7 +121,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         try {
           await _POST('/webrest/authentication/logout', {})
         } catch (e) {
-          Log.warning(" error during logout:", e)
+          Log.warning("error during logout:", e)
         } finally {
           resolve()
         }
@@ -288,7 +288,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       if (ext && !loggedAccount && isFirstHeartbeat) {
         isFirstHeartbeat = false
         const response = await User.heartbeat(ext.id, data.username)
-        Log.info('Send HEARTBEAT', { response })
+        Log.info('Sent HEARTBEAT', { response })
       }
       return data
     },
@@ -296,7 +296,17 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     all_avatars: async () => await _GET('/webrest/user/all_avatars'),
     all_endpoints: async () => await _GET('/webrest/user/endpoints/all'),
     heartbeat: async (extension: string, username: string) => await _POST('/webrest/user/nethlink', { extension, username }),
-    default_device: async (deviceIdInformation: Extension) => await _POST('/webrest/user/default_device', { id: deviceIdInformation.id }),
+    default_device: async (deviceIdInformation: Extension, force = false): Promise<boolean> => {
+      try {
+        if (account?.data?.default_device.type !== 'physical' || force) {
+          await _POST('/webrest/user/default_device', { id: deviceIdInformation.id })
+          return true
+        }
+      } catch (e) {
+        Log.error(e)
+      }
+      return false;
+    },
     setPresence: async (status: StatusTypes, to?: string) => await _POST('/webrest/user/presence', { status, ...(to ? { to } : {}) })
   }
 

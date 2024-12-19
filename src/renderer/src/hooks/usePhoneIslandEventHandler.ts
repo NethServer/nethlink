@@ -1,9 +1,9 @@
-import { useSharedState } from "@renderer/store"
-import { CallData, ContactType, HistoryCallData, OperatorData, OperatorsType, ParkingType, ParkingsType, QueuesType } from "@shared/types"
+import { useNethlinkData, useSharedState } from "@renderer/store"
+import { CallData, ContactType, HistoryCallData, OperatorData, ParkingType, ParkingsType } from "@shared/types"
 import { Log } from "@shared/utils/logger"
 import { useAccount } from "./useAccount"
 import { sendNotification, validatePhoneNumber } from "@renderer/utils"
-import { useCallback, useMemo } from "react"
+import { useCallback, } from "react"
 import { IPC_EVENTS, PERMISSION } from "@shared/constants"
 import { getTimeDifference } from "@renderer/lib/dateTime"
 import { format, utcToZonedTime } from "date-fns-tz"
@@ -17,12 +17,12 @@ export const usePhoneIslandEventHandler = () => {
   const { isCallsEnabled, hasPermission } = useAccount()
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const [account, setAccount] = useRefState(useSharedState('account'))
-  const [operators, setOperators] = useRefState(useSharedState('operators'))
-  const [, setSpeeddials] = useRefState(useSharedState('speeddials'))
-  const [, setQueues] = useRefState(useSharedState('queues'))
-  const [, setParkings] = useRefState(useSharedState('parkings'))
-  const [lastCalls, setLastCalls] = useRefState(useSharedState('lastCalls'))
-  const [missedCalls, setMissedCalls] = useRefState(useSharedState('missedCalls'))
+  const [operators, setOperators] = useRefState(useNethlinkData('operators'))
+  const [, setSpeeddials] = useRefState(useNethlinkData('speeddials'))
+  const [, setQueues] = useRefState(useNethlinkData('queues'))
+  const [, setParkings] = useRefState(useNethlinkData('parkings'))
+  const [lastCalls, setLastCalls] = useRefState(useNethlinkData('lastCalls'))
+  const [missedCalls, setMissedCalls] = useRefState(useNethlinkData('missedCalls'))
 
 
   function callNumber(number: string) {
@@ -45,17 +45,31 @@ export const usePhoneIslandEventHandler = () => {
       extensions: operators.current?.extensions || {},
     }
     for (const [username, operator] of Object.entries(op)) {
-      updatedOperators.operators[username] = {
-        ...(updatedOperators.operators[username] || operator),
-        ...operator
-      }
-      if (account.current && username === account.current.username) {
-        account.current.data!.mainPresence = operator.mainPresence
-        setAccount(() => account.current)
+      if (username !== account.current!.username) {
+        if (updatedOperators.operators[username]) {
+          updatedOperators.operators[username].mainPresence = operator.mainPresence
+        } else {
+          updatedOperators.operators[username] = {
+            ...operator
+          }
+        }
+      } else {
+        setAccount((p) => {
+          if (p && p.data) {
+            return {
+              ...p,
+              data: {
+                ...p.data,
+                mainPresence: operator.mainPresence
+              }
+            }
+          }
+          return undefined
+        })
       }
     }
     setOperators(() => updatedOperators)
-  }, [account.current, operators.current])
+  }, [account.current, operators])
 
   function onQueueUpdate(queues: { [queueId: string]: any }) {
     setQueues((p) => ({
@@ -66,7 +80,7 @@ export const usePhoneIslandEventHandler = () => {
 
   function onParkingsUpdate(parkings: ParkingsType) {
     const parkedCalls: ParkingType[] = Object.values(parkings)
-    setParkings(() => parkedCalls || [])
+    setParkings(() => [...parkedCalls])
   }
 
   function saveSpeeddials(speeddialsResponse: ContactType[] | undefined) {
@@ -121,7 +135,9 @@ export const usePhoneIslandEventHandler = () => {
         return missed
       })
     }
-    setLastCalls(newLastCalls.rows)
+    setLastCalls(() => [
+      ...newLastCalls.rows
+    ])
   }
 
   const updateLastCalls = async () => {

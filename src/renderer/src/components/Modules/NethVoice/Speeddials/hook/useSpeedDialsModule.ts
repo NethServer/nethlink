@@ -12,7 +12,7 @@ export const useSpeedDialsModule = (): {
   upsertSpeedDial(data: ContactType): Promise<void>
 } => {
   const [speeddialsModule, setSpeeddialsModule] = useNethlinkData('speeddialsModule')
-  const [rawSpeedDials, setRawSpeedDials] = useSharedState('speeddials')
+  const [rawSpeedDials, setRawSpeedDials] = useNethlinkData('speeddials')
   const [speedDials, setSpeedDials] = useState<ContactType[] | undefined>(undefined)
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const update = <T>(selector: keyof SpeedDialModuleData) => (value: T | undefined) => {
