@@ -268,20 +268,11 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.RECONNECT_SOCKET, async () => {
-    let showNethlink = true
-    if (store.store.account && NethLinkController.instance) {
-      const isOpen = NethLinkController.instance.window.isOpen()
-      showNethlink = isOpen ?? true
-      try {
-        await PhoneIslandController.instance.logout()
-        NethLinkController.instance.logout()
-      } catch (e) {
-        Log.error('SOCKET Reconnection error on logout', e)
-      }
-      const autoLoginResult = await AccountController.instance.autoLogin()
-      if (autoLoginResult) {
-        ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
-      }
+    try {
+      await AccountController.instance.autoLogin()
+      NethLinkController.instance.window.emit(IPC_EVENTS.RECONNECT_SOCKET)
+    } catch (e) {
+      Log.error('SOCKET Reconnection error on logout', e)
     }
   })
 }

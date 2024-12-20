@@ -286,18 +286,7 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-stop"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-stopped"]),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-disconnected"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          activeAlerts: {
-            ...p.activeAlerts,
-            ['server-disconnected']: true
-          },
-          currentCall: {
-            ...defaultCall
-          }
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-disconnected"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-reloaded"], () => {
         setPhoneIslandData((p) => ({
           ...p,

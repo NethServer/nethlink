@@ -86,6 +86,11 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     window.electron.receive(IPC_EVENTS.EMIT_QUEUE_UPDATE, onQueueUpdate)
     window.electron.receive(IPC_EVENTS.UPDATE_ACCOUNT, updateAccountData)
     window.electron.receive(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, handleStartCallByUrlResponse)
+    window.electron.receive(IPC_EVENTS.RECONNECT_SOCKET, handleSocketReconnect)
+  }
+
+  const handleSocketReconnect = () => {
+    window.location.reload()
   }
 
   const showUpdateAppNotification = () => {
