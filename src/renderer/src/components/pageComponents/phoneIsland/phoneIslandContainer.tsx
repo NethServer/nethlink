@@ -2,7 +2,7 @@ import { PhoneIsland } from "@nethesis/phone-island"
 import { eventDispatch } from "@renderer/hooks/eventDispatch"
 import { useLoggedNethVoiceAPI } from "@renderer/hooks/useLoggedNethVoiceAPI"
 import { useSharedState } from "@renderer/store"
-import { PHONE_ISLAND_EVENTS } from "@shared/constants"
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from "@shared/constants"
 import { Log } from "@shared/utils/logger"
 import { useEffect, useMemo } from "react"
 
@@ -15,13 +15,13 @@ export const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, isDa
   }, [dataConfig])
 
   const updateAccountInfo = async () => {
-    if (account!.data!.default_device.type !== 'nethlink' && deviceInformationObject) {
-      try {
-        await NethVoiceAPI.User.default_device(deviceInformationObject)
-        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
-      } catch (err) {
-        Log.warning('error during NethVoiceAPI.User.default_device:', err)
-      }
+    if (deviceInformationObject) {
+      Log.info('FORCE DEFAULT DEVICE TO NETHLINK')
+      //TODO: controlla
+      window.electron.send(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, deviceInformationObject)
+      // await NethVoiceAPI.User.default_device(deviceInformationObject)
+      // eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
+
     }
   }
 
