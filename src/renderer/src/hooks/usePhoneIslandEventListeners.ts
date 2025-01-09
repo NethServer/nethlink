@@ -87,7 +87,8 @@ export const usePhoneIslandEventListener = () => {
           ...p, currentCall: {
             ...p.currentCall,
             accepted: true
-          }
+          },
+          view: PhoneIslandView.CALL
         }))
       }),
 
