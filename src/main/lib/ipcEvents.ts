@@ -56,14 +56,13 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url) => {
-
     function triggerError(e, request: http.ClientRequest | undefined = undefined) {
       Log.error(e)
       PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
       NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, false)
       request && request.destroy()
     }
-    PhoneIslandController.instance.window.hide()
+    //PhoneIslandController.instance.window.hide()
     try {
       const request = http.get(url, {
         timeout: 3000
