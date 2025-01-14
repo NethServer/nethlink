@@ -62,7 +62,6 @@ export function registerIpcEvents() {
       NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, false)
       request && request.destroy()
     }
-    //PhoneIslandController.instance.window.hide()
     try {
       const request = http.get(url, {
         timeout: 3000
