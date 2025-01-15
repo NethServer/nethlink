@@ -53,3 +53,13 @@ $ npm run publish:patch
 
 > `INSTANCE=<numer_of_the_instance>`\
 > enables multiple instances of the process. Use this function with extreme caution, it can cause many problems - for testing purposes only. When this variable is set, a new `user_data_<instance_number>.json` is created and the instance only changes its related file.
+
+### User data folders
+
+- Windows: `%APPDATA%/nethlink/`
+- Linux: `~/.config/nethlink/`
+- macOS: `~/Library/Application Support/nethlink/`
+
+
+We then have two files: user_data.json and available_users.json the first file contains the data of the currently logged in user, the other contains the data of all available users in that device who have logged in at least once
+

@@ -16,7 +16,7 @@ import { truncate } from '@renderer/utils'
 import { Tooltip } from 'react-tooltip'
 import { Badge } from '../../../Nethesis/Badge'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { useSharedState } from '@renderer/store'
+import { useNethlinkData } from '@renderer/store'
 import { usePhonebookModule } from '../PhonebookModule/hook/usePhonebookModule'
 import {
   OutCallAnsweredIcon,
@@ -41,8 +41,8 @@ export function LastCall({
 }: LastCallProps): JSX.Element {
   const phonebookModule = usePhonebookModule()
   const [, setSelectedContact] = phonebookModule.selectedContact
-  const [queues] = useSharedState('queues')
-  const [operators] = useSharedState('operators')
+  const [queues] = useNethlinkData('queues')
+  const [operators] = useNethlinkData('operators')
   const { isCallsEnabled } = useAccount()
   const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
   const [isQueueLoading, setIsQueueLoading] = useState<boolean>(true)

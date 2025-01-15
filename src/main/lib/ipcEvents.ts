@@ -1,7 +1,7 @@
 import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
-import { IPC_EVENTS } from '@shared/constants'
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
 import { BrowserWindow, app, ipcMain, screen, shell } from 'electron'
 import { join } from 'path'
@@ -13,7 +13,7 @@ import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
-
+import http from 'http'
 
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
@@ -49,6 +49,37 @@ export function registerIpcEvents() {
 
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
     return app.getSystemLocale()
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
+    PhoneIslandController.instance.call(phoneNumber)
+  })
+
+  ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url) => {
+    function triggerError(e, request: http.ClientRequest | undefined = undefined) {
+      Log.error(e)
+      PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
+      NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, false)
+      request && request.destroy()
+    }
+    try {
+      const request = http.get(url, {
+        timeout: 3000
+      }, (res) => {
+        if (res.statusCode !== 200) {
+          triggerError(new Error('status error'), request)
+        }
+        NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, true)
+        PhoneIslandController.instance.window.show()
+        Log.info('START_CALL_BY_URL', url, res.statusCode)
+      })
+
+      request.on('error', (e) => {
+        triggerError(e, request)
+      })
+    } catch (e) {
+      triggerError(e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (_, newState, page, selector) => {
@@ -180,6 +211,11 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (_, h) => {
     LoginController.instance.resize(h)
   })
+
+  ipcMain.on(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, (_, ext, force) => {
+    PhoneIslandController.instance.updateDefaultDevice(ext, force ?? false)
+  })
+
   ipcMain.on(IPC_EVENTS.DELETE_ACCOUNT, (_, account: Account) => {
     Log.info('DELETE ACCOUNT', account)
     const accountUID = getAccountUID(account)
@@ -195,10 +231,10 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.CHANGE_THEME, (_, theme) => {
     AccountController.instance.updateTheme(theme)
-    PhoneIslandController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
-    LoginController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    //PhoneIslandController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    //LoginController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
     DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
-    NethLinkController.instance.window.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    NethLinkController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
   })
 
   ipcMain.on(IPC_EVENTS.GET_NETHVOICE_CONFIG, async (e, account) => {
@@ -225,6 +261,16 @@ export function registerIpcEvents() {
     NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_PARKING_UPDATE)
   })
 
+  ipcMain.on(IPC_EVENTS.UPDATE_ACCOUNT, (_) => {
+    NethLinkController.instance.window.emit(IPC_EVENTS.UPDATE_ACCOUNT)
+  })
+
+  ipcMain.on(IPC_EVENTS.RECONNECT_SOCKET, async () => {
+    try {
+      await AccountController.instance.autoLogin()
+      NethLinkController.instance.window.emit(IPC_EVENTS.RECONNECT_SOCKET)
+    } catch (e) {
+      Log.error('SOCKET Reconnection error on logout', e)
+    }
+  })
 }
-
-

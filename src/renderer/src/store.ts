@@ -13,8 +13,9 @@ import { devtools } from 'zustand/middleware'
 import { usePageCtx } from './contexts/pageContext';
 
 type SharedState<T> = {
-  [Key in keyof T]: T[Key];
-} & {
+  data: {
+    [Key in keyof T]: T[Key];
+  },
   setData: (key: keyof T, value: any) => T;
 };
 
@@ -27,35 +28,51 @@ export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWith
 
   // @ts-ignore
   const useSharedStore = create<SharedState<T>>(devtools((set) => ({
-    ...globalStateDefaultObject,
-    setData: (key: keyof T, value: any) => set((state: any) => ({ ...state, [key]: typeof value === 'function' ? value(state[key]) : value }))
+    data: {
+      ...globalStateDefaultObject,
+    },
+    setData: (key: keyof T, value: any) => {
+      let newState
+      set((state: SharedState<T>) => {
+        let res: T | undefined = typeof value === 'function'
+          ? value(state.data[key])
+          : value
+        newState = {
+          setData: state.setData,
+          data: {
+            ...state.data,
+            [key]: res
+          }
+        }
+        return newState
+      })
+      return newState.data
+    }
   })))
 
   function useGlobalState<Key extends keyof T>(
     key: Key
   ): [T[Key], (setter: ((previous: T[Key]) => T[Key]) | T[Key]) => void] {
-    const value = useSharedStore((state: SharedState<T>) => state[key]);
+    //const global = useSharedStore((state: SharedState<T>) => state.data);
+    const value = useSharedStore((state: SharedState<T>) => state.data[key]);
     const setData = useSharedStore((state: SharedState<T>) => state.setData);
     const pageData = usePageCtx()
 
     const setValue = (arg0: ((prev: T[Key]) => T[Key]) | T[Key]) => {
-      let state
-      let updatedValue
+      let global: T
       if (typeof arg0 === 'function') {
-        state = setData(key, (prevValue: T[Key]) => {
-          updatedValue = (arg0 as (prev: T[Key]) => T[Key])(prevValue);
-          return updatedValue
+        global = setData(key, (prevValue: T[Key]) => {
+          return (arg0 as (prev: T[Key]) => T[Key])(prevValue);
         });
 
       } else {
-        updatedValue = arg0
-        state = setData(key, arg0);
+        global = setData(key, arg0);
       }
 
-      if (sharedWithBackend) {
-        const sharedStateCopy = Object.assign({}, state)
+      if (pageData?.page && sharedWithBackend) {
+        const sharedStateCopy = Object.assign({}, global)
         Log.info('STORE share state from', pageData?.page, { key: key })
-        window.electron.send(IPC_EVENTS.UPDATE_SHARED_STATE, sharedStateCopy, pageData?.page, key);
+        window.electron.send(IPC_EVENTS.UPDATE_SHARED_STATE, sharedStateCopy, pageData.page, key);
       }
     };
 
@@ -65,6 +82,7 @@ export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWith
   const useRegisterStoreHook = () => {
     const pageData = usePageCtx()
     const setData = useSharedStore((state: SharedState<T>) => state.setData);
+    //const global = useSharedStore((state: SharedState<T>) => state.data);
     const isRegistered = useRef(false)
 
     useEffect(() => {
@@ -76,6 +94,7 @@ export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWith
             Log.info('shared state received from', fromPage)
             Object.keys(newStore as object).forEach((k: any) => {
               setData(k, newStore[k])
+              //global[k] = newStore[k]
             })
           }
         })
@@ -95,22 +114,24 @@ export const {
   useRegisterStoreHook
 } = createGlobalStateHook({
   account: undefined,
+  device: undefined,
   auth: undefined,
   connection: undefined,
-  lastCalls: undefined,
   lostCallNotifications: undefined,
-  missedCalls: undefined,
   notifications: undefined,
-  operators: undefined,
   page: undefined,
-  parkings: undefined,
-  queues: undefined,
-  speeddials: undefined,
   theme: undefined
 } as LocalStorageData, true)
 
 export const useNethlinkData = createGlobalStateHook({
   selectedSidebarMenu: MENU_ELEMENT.FAVOURITES,
+  lastCalls: undefined,
+  speeddials: undefined,
+  missedCalls: undefined,
+  operators: undefined,
+  queues: undefined,
+  parkings: undefined,
+  isForwardDialogOpen: false,
   phonebookModule: {
     selectedContact: undefined
   },
@@ -125,12 +146,12 @@ export const useNethlinkData = createGlobalStateHook({
   },
   showAddContactModule: false,
   showPhonebookSearchModule: false
-} as NethLinkPageData, true).useGlobalState
+} as NethLinkPageData).useGlobalState
 
 export const useLoginPageData = createGlobalStateHook({
   isLoading: false,
   selectedAccount: undefined,
   windowHeight: LoginPageSize.h
-} as LoginPageData, true).useGlobalState
+} as LoginPageData).useGlobalState
 
 

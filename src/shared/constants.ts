@@ -66,6 +66,7 @@ export enum IPC_EVENTS {
   GET_NETHVOICE_CONFIG = "GET_NETHVOICE_CONFIG",
   SET_NETHVOICE_CONFIG = "SET_NETHVOICE_CONFIG",
   RECONNECT_PHONE_ISLAND = "RECONNECT_PHONE_ISLAND",
+  RECONNECT_SOCKET = "RECONNECT_SOCKET",
   LOGOUT_COMPLETED = "LOGOUT_COMPLETED",
   SHOW_NO_CONNECTION = "SHOW_NO_CONNECTION",
   UPDATE_CONNECTION_STATE = "UPDATE_CONNECTION_STATE",
@@ -78,7 +79,12 @@ export enum IPC_EVENTS {
   EMIT_MAIN_PRESENCE_UPDATE = "EMIT_MAIN_PRESENCE_CHANGE",
   EMIT_QUEUE_UPDATE = "EMIT_QUEUE_UPDATE",
   EMIT_PARKING_UPDATE = "EMIT_PARKING_UPDATE",
-  TRANSFER_CALL = "TRANSFER_CALL"
+  TRANSFER_CALL = "TRANSFER_CALL",
+  CHANGE_DEFAULT_DEVICE = "CHANGE_DEFAULT_DEVICE",
+  START_CALL_BY_URL = "START_CALL_BY_URL",
+  UPDATE_ACCOUNT = "UPDATE_ACCOUNT",
+  RESPONSE_START_CALL_BY_URL = "RESPONSE_START_CALL_BY_URL",
+  END_CALL = "END_CALL"
 }
 
 //PHONE ISLAND EVENTS
@@ -90,6 +96,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-audio-input-change' = 'phone-island-audio-input-change',
   'phone-island-audio-output-change' = 'phone-island-audio-output-change',
   'phone-island-theme-change' = 'phone-island-theme-change',
+  'phone-island-action-physical' = 'phone-island-action-physical',
   // Dispatch Phone-Island Events: phone-island*
   'phone-island-webrtc-registered' = 'phone-island-webrtc-registered',
   'phone-island-attached' = 'phone-island-attached',
@@ -99,6 +106,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-theme-changed' = 'phone-island-theme-changed',
   'phone-island-default-device-change' = 'phone-island-default-device-change',
   'phone-island-default-device-changed' = 'phone-island-default-device-changed',
+  'phone-island-default-device-updated' = 'phone-island-default-device-updated',
   // Listen Call Events: phone-island-call*
   'phone-island-call-start' = 'phone-island-call-start',
   'phone-island-call-answer' = 'phone-island-call-answer',
@@ -196,6 +204,8 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-socket-reconnected' = 'phone-island-socket-reconnected',
   'phone-island-socket-disconnected-popup-open' = 'phone-island-socket-disconnected-popup-open',
   'phone-island-socket-disconnected-popup-close' = 'phone-island-socket-disconnected-popup-close',
+  'phone-island-internet-connected' = 'phone-island-internet-connected',
+  'phone-island-internet-disconnected' = 'phone-island-internet-disconnected',
   // Alerts
   'phone-island-all-alerts-removed' = 'phone-island-all-alerts-removed'
 }
@@ -312,7 +322,7 @@ const phoneIslandSizes = {
     // Alerts Section
     alerts: {
       width: 418,
-      height: 88,
+      height: 92,
     },
   },
 }
