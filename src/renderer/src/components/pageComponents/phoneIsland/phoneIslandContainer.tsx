@@ -18,7 +18,9 @@ export const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, isDa
     if (deviceInformationObject) {
       Log.info('FORCE DEFAULT DEVICE TO NETHLINK')
       //TODO: controlla
-      window.electron.send(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, deviceInformationObject)
+      if(account?.data?.default_device?.type === 'webrtc') {
+        window.electron.send(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, deviceInformationObject)
+      }
       // await NethVoiceAPI.User.default_device(deviceInformationObject)
       // eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
 
