@@ -101,7 +101,7 @@ export function registerIpcEvents() {
       const startWindowPosition = {
         x, y
       }
-      if (!draggingWindows.hasOwnProperty(window.title)) {
+      if (!draggingWindows?.hasOwnProperty(window.title)) {
         const interval: number = setInterval(() => {
           updateWindowPosition(window)
         }, 1000 / 60) as unknown as number; // => 60 frames per seconds
@@ -119,7 +119,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.STOP_DRAG, (event) => {
     const window = BrowserWindow.fromWebContents(event.sender);
-    if (window && draggingWindows.hasOwnProperty(window.title)) {
+    if (window && draggingWindows?.hasOwnProperty(window.title)) {
       const draggingWindow = draggingWindows[window.title]
       clearInterval(draggingWindow.interval)
       delete draggingWindows[window.title]

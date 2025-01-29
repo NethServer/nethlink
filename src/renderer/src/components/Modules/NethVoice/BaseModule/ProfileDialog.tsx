@@ -103,7 +103,7 @@ export const ProfileDialog = ({
               onClick={() => setSelectedMenu(() => MenuItem.device)}
               label={t("TopBar.Pair device")}
               {...(
-                deviceIcon.hasOwnProperty('Icon') ? {
+                deviceIcon?.hasOwnProperty('Icon') ? {
                   iconElem: (deviceIcon as { Icon: JSX.Element }).Icon
                 }
                   : {
