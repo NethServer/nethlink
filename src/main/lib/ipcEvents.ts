@@ -86,8 +86,13 @@ export function registerIpcEvents() {
     const windows = BrowserWindow.getAllWindows();
     store.updateStore(newState, `${page}[${selector}]`)
     windows.forEach(win => {
-      if (page !== win.webContents.getTitle()) {
-        win.webContents.send(IPC_EVENTS.SHARED_STATE_UPDATED, newState, page);
+      const targetPage = win.webContents.getTitle()
+      try {
+        if (page !== targetPage) {
+          win.webContents.send(IPC_EVENTS.SHARED_STATE_UPDATED, newState, page);
+        }
+      } catch (e) {
+        Log.error(`Data origin: ${page}, target: ${targetPage}`, e)
       }
     });
   });
