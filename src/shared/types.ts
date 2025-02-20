@@ -237,7 +237,7 @@ export type ContactType = {
   privacy?: string
   favorite?: boolean
   selectedPrefNum?: string
-  kind: string
+  kind?: string
 }
 
 export type ParkingType = {
