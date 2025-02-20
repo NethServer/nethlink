@@ -252,6 +252,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         //DEFAULT VALUES
         favorite: false,
         selectedPrefNum: 'extension',
+        kind: 'person'
       }
       await _POST(`/webrest/phonebook/create`, newContact)
       return newContact

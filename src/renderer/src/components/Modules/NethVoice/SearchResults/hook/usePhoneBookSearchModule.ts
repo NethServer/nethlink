@@ -37,7 +37,7 @@ export const usePhonebookSearchModule = (): {
       return mapContact(contact)
     })
     const filteredNumbers = receivedPhoneNumbers.rows.filter(
-      (phoneNumber) => !(!phoneNumber.name || phoneNumber.name === '')
+      (phoneNumber) => !(!phoneNumber?.displayName || phoneNumber?.displayName === '')
     )
     return filteredNumbers
   }
