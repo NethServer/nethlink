@@ -38,7 +38,7 @@ export const ContactNameAndActions = ({ contact, number, isHighlight, displayedN
         src={avatarSrc}
         status={isOperator ? operators?.operators?.[username]?.mainPresence : undefined}
         bordered={true}
-        placeholderType={operators?.extensions[contact.speeddial_num || ''] ? 'operator' : 'person'}
+        placeholderType={operators?.extensions[contact?.speeddial_num || ''] ? 'operator' : contact?.kind === 'company' ? 'company' : 'person' }
       />
       <div className='relative w-full h-[44px] '>
         <div className="absolute top-0 left-0 flex flex-col gap-1 w-full ">
