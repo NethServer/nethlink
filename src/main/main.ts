@@ -533,10 +533,14 @@ function attachPowerMonitor() {
       Log.info('APP POWER RESUME')
       let showNethlink = true
       if (store.store.account && NethLinkController.instance) {
-        const isOpen = NethLinkController.instance.window.isOpen()
+        const isOpen = NethLinkController.instance.window?.isOpen()
         showNethlink = isOpen ?? true
         try {
           await PhoneIslandController.instance.logout()
+        } catch (e) {
+          Log.error('POWER RESUME ERROR on logout', e)
+        }
+        try {
           NethLinkController.instance.logout()
         } catch (e) {
           Log.error('POWER RESUME ERROR on logout', e)
