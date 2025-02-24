@@ -22,7 +22,6 @@ import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { URL } from 'url'
-import { platform } from 'os'
 
 //get app parameter
 const params = process.argv
@@ -106,7 +105,7 @@ function startup() {
 async function startLocalization() {
 
   const convertPath = (filename): string => {
-    let dir = __dirname
+    const dir = __dirname
     let loadPath = join(`./public/locales/{{lng}}/${filename}.json`)
     if (__dirname.includes('.asar')) {
       loadPath = join(dir, `../renderer/locales/{{lng}}/${filename}.json`)
@@ -175,7 +174,7 @@ function startLogger() {
 
   function deleteLogFile() {
     if (fs.existsSync(logFilePath)) {
-      fs.rmSync(logFilePath);
+      fs.rmSync(logFilePath)
     }
   }
   deleteLogFile()
@@ -282,8 +281,13 @@ function attachOnReadyProcess() {
       Log.info('START - START APP, retry:', attempt)
       if (!store.store.connection) {
         Log.info('START - NO CONNECTION', attempt, store.store)
-        if (attempt >= 3)
-          SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
+        if (attempt >= 3) {
+          try {
+            SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
+          } catch (e) {
+            Log.error(e)
+          }
+        }
 
         retryAppStart = setTimeout(() => {
           startApp(++attempt)
@@ -465,11 +469,7 @@ async function attachProtocolListeners() {
     const match = url.match(regex)
     if (match) {
       Log.info('HandleProtocol TEL/CALLTO:', match[0])
-      try {
-        PhoneIslandController.instance.call(match[0])
-      } catch (e) {
-        Log.info('ERROR HandleProtocol TEL/CALLTO:', e)
-      }
+      PhoneIslandController.instance.call(match[0])
     }
     return new Promise((resolve) => resolve)
   }
@@ -515,7 +515,6 @@ function attachPowerMonitor() {
   powerMonitor.on('resume', onAppResume);
   powerMonitor.on('shutdown', onAppShutdown)
 
-
   async function onAppShutdown() {
     Log.info('APP POWER SHUTDOWN')
     await AppController.safeQuit()
@@ -533,10 +532,14 @@ function attachPowerMonitor() {
       Log.info('APP POWER RESUME')
       let showNethlink = true
       if (store.store.account && NethLinkController.instance) {
-        const isOpen = NethLinkController.instance.window.isOpen()
+        const isOpen = NethLinkController.instance.window?.isOpen()
         showNethlink = isOpen ?? true
         try {
           await PhoneIslandController.instance.logout()
+        } catch (e) {
+          Log.error('POWER RESUME ERROR on logout', e)
+        }
+        try {
           NethLinkController.instance.logout()
         } catch (e) {
           Log.error('POWER RESUME ERROR on logout', e)

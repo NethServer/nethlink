@@ -4,8 +4,6 @@ import { Log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
 import { debouncer } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
-import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
-import { store } from '@/lib/mainStore'
 import { screen } from 'electron'
 import { Extension, Size } from '@shared/types'
 
@@ -23,7 +21,7 @@ export class PhoneIslandController {
       const { w, h } = size
       const window = this.window.getWindow()
       if (window) {
-        let b = window.getBounds()
+        const b = window.getBounds()
         if (b.height !== h || b.width !== w) {
           window.setBounds({ width: w, height: h })
           PhoneIslandWindow.currentSize = { width: w, height: h }
@@ -113,7 +111,11 @@ export class PhoneIslandController {
   }
 
   call(number: string) {
-    this.window.emit(IPC_EVENTS.START_CALL, number)
+    try {
+      this.window.emit(IPC_EVENTS.START_CALL, number)
+    } catch (e) {
+      Log.error(`Unable to call ${number}`)
+    }
   }
 
   callTransfer(to: string) {
