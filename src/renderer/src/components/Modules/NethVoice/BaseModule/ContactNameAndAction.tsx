@@ -102,7 +102,12 @@ export const ContactNameAndActions = ({
               className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
               isNumberHiglighted={isHighlight}
             >
-              {displayedNumber}
+              {displayedNumber !== ' ' &&
+              displayedNumber !== '' &&
+              displayedNumber !== null &&
+              (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
+                ? displayedNumber
+                : '-'}
             </NumberCaller>
           </div>
         </div>
