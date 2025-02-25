@@ -36,7 +36,10 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
       while (index !== -1) {
         parts.push(number.substring(lastIndex, index))
         parts.push(
-          <span key={`highlight_${index}`} className="dark:text-textBlueDark text-textBlueLight font-medium text-[1rem]">
+          <span
+            key={`highlight_${index}`}
+            className="dark:text-textBlueDark text-textBlueLight font-medium text-[1rem]"
+          >
             {number.substring(index, index + searchText.length)}
           </span>
         )
@@ -76,7 +79,7 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
     <div className="group">
       <div className="flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight">
         <ContactNameAndActions
-          avatarDim='small'
+          avatarDim="small"
           contact={user}
           number={phoneNumber}
           displayedNumber={highlightedNumber}
@@ -85,18 +88,20 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
           isFavourite={false}
           isSearchData={true}
         />
-        <Button
-          className="group-hover:bg-transparent"
-          variant="ghost"
-          disabled={!isCallsEnabled}
-          onClick={() => {
-            callNumber(phoneNumber!)
-          }}
-        >
-          <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
-            {t('Operators.Call')}
-          </p>
-        </Button>
+        {phoneNumber && phoneNumber !== '' && (
+          <Button
+            className="group-hover:bg-transparent"
+            variant="ghost"
+            disabled={!isCallsEnabled}
+            onClick={() => {
+              callNumber(phoneNumber!)
+            }}
+          >
+            <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+              {t('Operators.Call')}
+            </p>
+          </Button>
+        )}
       </div>
     </div>
   )
