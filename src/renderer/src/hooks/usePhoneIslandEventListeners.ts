@@ -1,5 +1,10 @@
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS, getPhoneIslandSize } from "@shared/constants"
-import { PhoneIslandData, PhoneIslandSizes, PhoneIslandView } from "@shared/types"
+import {
+  IPC_EVENTS, PHONE_ISLAND_EVENTS,
+} from "@shared/constants"
+import {
+  PhoneIslandData,
+  PhoneIslandSizes,
+} from "@shared/types"
 import { Log } from "@shared/utils/logger"
 import { useEffect, useState } from "react"
 import { t } from "i18next"
@@ -7,12 +12,19 @@ import { sendNotification } from "@renderer/utils"
 import { useSharedState } from "@renderer/store"
 
 
+const defaultSize: PhoneIslandSizes = {
+  sizeInformation: {
+    width: '0px',
+    height: '0px'
+  }
+}
 const defaultCall = {
   accepted: false,
   incoming: false,
   outgoing: false,
   transferring: false
 }
+
 export const usePhoneIslandEventListener = () => {
   const [account] = useSharedState('account')
   const [connected, setConnected] = useSharedState('connection')
@@ -27,7 +39,7 @@ export const usePhoneIslandEventListener = () => {
     isOpen: true,
     view: null
   })
-  const [phoneIsalndSizes, setPhoneIslandSized] = useState<PhoneIslandSizes>(getPhoneIslandSize(phoneIslandData))
+  const [phoneIsalndSizes, setPhoneIslandSizes] = useState<PhoneIslandSizes>(defaultSize)
 
 
   const eventHandler = (event: PHONE_ISLAND_EVENTS, callback?: (data?: any) => void | Promise<void>) => ({
@@ -39,31 +51,20 @@ export const usePhoneIslandEventListener = () => {
     }
   })
 
-  useEffect(() => {
-    const a = getPhoneIslandSize(phoneIslandData)
-    Log.info('state', phoneIslandData, a)
-    setPhoneIslandSized(() => ({ ...a }))
-  }, [phoneIslandData])
-
   return {
     state: phoneIslandData,
     phoneIsalndSizes,
     events: {
+      //SIZE CHANGE
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-size-change"], (data) => {
+        setPhoneIslandSizes(() => ({ ...data }))
+      }),
       //CALLS
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-action-physical"], async (data) => {
-        //const res = await GET(data.urlCallObject.url)
         window.electron.send(IPC_EVENTS.START_CALL_BY_URL, data.urlCallObject.url)
         Log.info('phone-island-action-physical', data.urlCallObject.url)
       }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ringing"], () => {
-        setPhoneIslandData((p) => ({
-          ...p, currentCall: {
-            ...p.currentCall,
-            incoming: true
-          },
-          view: PhoneIslandView.CALL
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ringing"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-hold"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-held"]),
@@ -82,15 +83,7 @@ export const usePhoneIslandEventListener = () => {
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answer"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answered"], () => {
-        setPhoneIslandData((p) => ({
-          ...p, currentCall: {
-            ...p.currentCall,
-            accepted: true
-          },
-          view: PhoneIslandView.CALL
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answered"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-input-switch"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-input-switched"]),
@@ -98,26 +91,9 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-output-switched"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-start"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-started"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          currentCall: {
-            ...p.currentCall,
-            outgoing: true
-          },
-          view: PhoneIslandView.CALL
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-started"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-end"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ended"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          currentCall: {
-            ...defaultCall
-          },
-          view: null
-        }))
-        //generate lost calls
         window.electron.send(IPC_EVENTS.EMIT_CALL_END)
       }),
 
@@ -125,19 +101,9 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-intruded"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-closed"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          view: PhoneIslandView.CALL
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-closed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-open"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-opened"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          view: PhoneIslandView.KEYPAD
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-opened"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-send"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-sent"]),
 
@@ -152,58 +118,24 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-park"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-parked"]),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfered"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          currentCall: {
-            ...p.currentCall,
-            transferring: true
-          },
-          view: PhoneIslandView.CALL
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfered"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-cancel"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-canceled"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-closed"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          currentCall: {
-            ...p.currentCall,
-            transferring: false
-          },
-          view: PhoneIslandView.CALL
-        }))
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-failed"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          currentCall: {
-            ...p.currentCall,
-            transferring: false
-          },
-          view: PhoneIslandView.CALL
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-closed"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-failed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-open"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-opened"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          currentCall: {
-            ...p.currentCall,
-            transferring: false
-          },
-          view: PhoneIslandView.TRANSFER
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-opened"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully-popup-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully-popup-open"], () => {
-        sendNotification(
-          t('Notification.call_transferred_title'),
-          t('Notification.call_transferred_body')
-        )
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully-popup-open"],
+        () => {
+          sendNotification(
+            t('Notification.call_transferred_title'),
+            t('Notification.call_transferred_body')
+          )
+        }
+      ),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-switch"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-switched"]),
 
@@ -224,20 +156,10 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-started"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-compress"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-compressed"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          isOpen: false
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-compressed"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expand"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expanded"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          isOpen: true
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expanded"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-conversations"]),
 
@@ -266,12 +188,7 @@ export const usePhoneIslandEventListener = () => {
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-closed"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          view: PhoneIslandView.CALL
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-closed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-delete"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-deleted"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-open"]),
@@ -288,54 +205,14 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-stopped"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-disconnected"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-reloaded"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          activeAlerts: {
-            ...p.activeAlerts,
-            ['server-disconnected']: false
-          }
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-reloaded"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-connected"], () => {
         setConnected(true)
-        setPhoneIslandData((p) => ({
-          ...p,
-          activeAlerts: {},
-          currentCall: {
-            ...defaultCall
-          },
-          view: null
-        }))
       }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          activeAlerts: {
-            ...p.activeAlerts,
-            ['socket-disconnected']: true
-          }
-        }))
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-close"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          activeAlerts: {
-            ...p.activeAlerts,
-            ['socket-disconnected']: false
-          },
-        }))
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-open"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          activeAlerts: {
-            ...p.activeAlerts,
-            ['socket-disconnected']: true
-          }
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-close"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-open"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-reconnected"], () => {
         window.electron.send(IPC_EVENTS.RECONNECT_SOCKET)
       }),
@@ -356,16 +233,7 @@ export const usePhoneIslandEventListener = () => {
         window.api.logout()
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-webrtc-registered"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"], () => {
-        setPhoneIslandData((p) => ({
-          ...p,
-          activeAlerts: {},
-          currentCall: {
-            ...defaultCall
-          },
-          view: null
-        }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"]),
     }
   }
 }

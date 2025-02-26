@@ -470,11 +470,19 @@ export type PhoneIslandData = {
     outgoing: boolean
   }
 }
+export type sizeInformationType = {
+  width: string,
+  height: string,
+  extraDimension?: {
+    top?: string
+    bottom?: string
+    left?: string
+    right?: string
+  }
+}
 
 export type PhoneIslandSizes = {
-  size: Size;
-  borderRadius: number;
-  padding: string;
+  sizeInformation: sizeInformationType
 }
 
 export enum PhoneIslandView {

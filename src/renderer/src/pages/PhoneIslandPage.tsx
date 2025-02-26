@@ -2,9 +2,9 @@ import { eventDispatch } from '@renderer/hooks/eventDispatch'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, } from '@shared/constants'
-import { Extension, PhoneIslandData, PhoneIslandView, Size } from '@shared/types'
+import { Extension, PhoneIslandSizes } from '@shared/types'
 import { Log } from '@shared/utils/logger'
-import { debouncer, delay, isDev } from '@shared/utils/utils'
+import { delay, isDev } from '@shared/utils/utils'
 import { useState, useRef, useEffect } from 'react'
 import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
 import { usePhoneIsland } from '@renderer/hooks/usePhoneIsland'
@@ -15,7 +15,7 @@ import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 export function PhoneIslandPage() {
   const [account] = useSharedState('account')
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
-  const { state, phoneIsalndSizes, events } = usePhoneIslandEventListener()
+  const { phoneIsalndSizes, events } = usePhoneIslandEventListener()
   const { createDataConfig, dispatchAndWait } = usePhoneIsland()
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
@@ -26,14 +26,10 @@ export function PhoneIslandPage() {
   const isOnLogout = useRef<boolean>(false)
   const eventsRef = useRef<{ [x: string]: (...data: any[]) => void; }>(events)
   const attachedListener = useRef<boolean>(false)
-  const lastSize = useRef<Size>()
 
   useEffect(() => {
-    debouncer('phoneisland-resize', () => {
-      Log.info('RESIZE')
-      resize(phoneIsalndSizes.size, state)
-    }, 50)
-  }, [phoneIsalndSizes, state])
+    resize(phoneIsalndSizes)
+  }, [phoneIsalndSizes])
 
   useInitialize(() => {
     Log.info('INITIALIZE PHONE ISLAND BASE EVENTS')
@@ -73,17 +69,27 @@ export function PhoneIslandPage() {
     })
   })
 
-  const resize = (size: Size, state: PhoneIslandData) => {
-    if (!isOnLogout.current && (lastSize.current?.w !== size.w || lastSize.current?.h !== size.h)) {
-      lastSize.current = size
-      const { view } = state
-      Log.info(`RESIZE ${size.w}x${size.h} ${account?.username} ${view}`)
-      if (view === PhoneIslandView.KEYPAD || view === PhoneIslandView.TRANSFER || state.currentCall.transferring) {
-        phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
-      } else if (view === PhoneIslandView.CALL) {
+  const resize = (phoneIsalndSize: PhoneIslandSizes) => {
+    if (!isOnLogout.current) {
+      if (phoneIsalndSize.sizeInformation.extraDimension) {
+        const { top, bottom, left, right } = phoneIsalndSize.sizeInformation.extraDimension
+        phoneIslandContainer.current?.children[1].setAttribute('style',
+          `
+            position: relative;
+            height: calc(100vh + ${top ?? '0px'} + ${bottom ?? '0px'});
+            width: calc(100vw + ${left ?? '0px'} + ${right ?? '0px'});
+          `
+        )
+      } else {
         phoneIslandContainer.current?.children[1].setAttribute('style', '')
       }
-      window.api.resizePhoneIsland(size)
+      const { width, height } = phoneIsalndSize.sizeInformation
+      const w = Number(width.replace('px', ''))
+      const h = Number(height.replace('px', ''))
+      window.api.resizePhoneIsland({
+        w,
+        h
+      })
     }
   }
 
@@ -169,7 +175,7 @@ export function PhoneIslandPage() {
             flexDirection: 'column',
             alignItems: 'start'
           }}>
-          {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} isDataConfigCreated={isDataConfigCreated.current} />}
+          {account && <PhoneIslandContainer dataConfig={dataConfig} deviceInformationObject={deviceInformationObject.current} isDataConfigCreated={isDataConfigCreated.current} />}
         </div>
       </ElectronDraggableWindow>
     </div >
