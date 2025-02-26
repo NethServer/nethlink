@@ -99,7 +99,7 @@ export const ContactNameAndActions = ({
             <NumberCaller
               number={number}
               disabled={displayedNumber?.length === 0 || !isCallsEnabled}
-              className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
+              className={`${displayedNumber?.length === 0 ? '' : 'dark:text-textBlueDark text-textBlueLight'}font-normal hover:underline`}
               isNumberHiglighted={isHighlight}
             >
               {displayedNumber !== ' ' &&
