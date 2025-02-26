@@ -289,7 +289,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       if (ext && !loggedAccount && isFirstHeartbeat) {
         isFirstHeartbeat = false
         const response = await User.heartbeat(ext.id, data.username)
-        Log.info('Sent HEARTBEAT', { response })
+        Log.debug('Sent HEARTBEAT', { response })
       }
       return data
     },

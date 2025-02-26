@@ -14,6 +14,7 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
 import { AvailableDevices } from '@shared/types'
 import { sendNotification } from '@renderer/utils'
+import { AxiosError } from 'axios'
 
 
 export interface NethLinkPageProps {
@@ -106,7 +107,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   }
 
   async function loadData() {
-    Log.info('update account')
+    Log.debug('update account')
     NethVoiceAPI.fetchOperators().then((op) => {
       saveOperators(op)
       updateAccountData()
@@ -120,11 +121,19 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   }
 
   async function reloadData() {
-    Log.info('RELOAD DATA', isFetching.current)
+    Log.debug('RELOAD DATA', isFetching.current)
     if (!isFetching.current) {
       isFetching.current = true
-      NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
-      updateAccountData()
+      NethVoiceAPI.Phonebook.getSpeeddials().then((s) => {
+        saveSpeeddials(s)
+        updateAccountData()
+      }).catch((e: AxiosError) => {
+        Log.warning(e)
+        if (e.status === 401) {
+          Log.error(e)
+          window.electron.send(IPC_EVENTS.RESUME)
+        }
+      })
     }
     debouncer('speeddial-fetch', () => {
       isFetching.current = false

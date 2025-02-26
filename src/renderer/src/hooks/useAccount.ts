@@ -30,11 +30,11 @@ export const useAccount = () => {
         if (device?.type === 'physical') {
           const devices = await NethVoiceAPI.AstProxy.extensions()
           _status = devices[device.id].status || 'offline'
-          Log.info('update device', device?.id || 'ND', device?.type || 'ND', devices[device?.id || ''].status || 'ND', _status)
+          Log.debug('update device', device?.id || 'ND', device?.type || 'ND', devices[device?.id || ''].status || 'ND', _status)
         }
       }
       setStatus(() => _status)
-      Log.info('update device status', _status, device?.id, device?.type)
+      Log.debug('update device status', _status, device?.id, device?.type)
       setIsCallsEnabled(() => !(_status === 'busy' || _status === 'ringing' || _status === 'offline'))
     } else {
       setStatus('offline')
@@ -48,7 +48,7 @@ export const useAccount = () => {
 
   const updateAccountData = async () => {
     const me = await NethVoiceAPI.User.me()
-    Log.info('phone-island-default-device-updated', me.default_device)
+    Log.debug('phone-island-default-device-updated', me.default_device)
     const device = {
       type: me.default_device.type as AvailableDevices,
       id: me.default_device.id

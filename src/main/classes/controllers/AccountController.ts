@@ -176,7 +176,7 @@ export class AccountController {
 
   setAccountNethLinkBounds(nethlinkBounds: Electron.Rectangle | undefined): void {
     const account = store.store.account
-    Log.info('MAIN PRESENCE BACK', account?.data?.mainPresence)
+    Log.debug('MAIN PRESENCE BACK', account?.data?.mainPresence)
     const auth = store.store.auth
     if (account) {
       account!.nethlinkBounds = nethlinkBounds

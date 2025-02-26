@@ -33,7 +33,7 @@ export function PhoneIslandPage() {
   }, [phoneIsalndSizes])
 
   useInitialize(() => {
-    Log.info('INITIALIZE PHONE ISLAND BASE EVENTS')
+    Log.debug('INITIALIZE PHONE ISLAND BASE EVENTS')
     loadPath.current = getI18nLoadPath()
 
     window.electron.receive(IPC_EVENTS.LOGOUT, logout)
@@ -61,9 +61,9 @@ export function PhoneIslandPage() {
     })
 
     window.electron.receive(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, async (deviceInformationObject, force) => {
-      Log.info('CHANGE_DEFAULT_DEVICE', { force, deviceInformationObject, })
+      Log.debug('CHANGE_DEFAULT_DEVICE', { force, deviceInformationObject, })
       const changed = await NethVoiceAPI.User.default_device(deviceInformationObject, force)
-      Log.info('CHANGE_DEFAULT_DEVICE', { changed })
+      Log.debug('CHANGE_DEFAULT_DEVICE', { changed })
       if (changed) {
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
       }
@@ -120,7 +120,7 @@ export function PhoneIslandPage() {
 
   useEffect(() => {
     if (account && Object.keys(eventsRef.current).length > 0 && !attachedListener.current) {
-      Log.info(account?.username, 'attachd listeners', Object.keys(eventsRef.current).length)
+      Log.debug(account?.username, 'attachd listeners', Object.keys(eventsRef.current).length)
       Object.entries(eventsRef.current).forEach(([phoneIslandEventName, callback]) => {
         window.addEventListener(phoneIslandEventName, callback)
       })
@@ -129,7 +129,7 @@ export function PhoneIslandPage() {
   }, [account, dataConfig])
 
   const destroyAllListeners = () => {
-    Log.info(account?.username, 'deattached listeners', Object.keys(eventsRef.current).length)
+    Log.debug(account?.username, 'deattached listeners', Object.keys(eventsRef.current).length)
     Object.entries(eventsRef.current).forEach(([phoneIslandEventName, callback]) => {
       window.removeEventListener(phoneIslandEventName, callback)
     })
