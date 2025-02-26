@@ -98,7 +98,7 @@ export const ContactNameAndActions = ({
             )}
             <NumberCaller
               number={number}
-              disabled={!isCallsEnabled}
+              disabled={displayedNumber?.length === 0 || !isCallsEnabled}
               className="dark:text-textBlueDark text-textBlueLight font-normal hover:underline"
               isNumberHiglighted={isHighlight}
             >
