@@ -39,12 +39,10 @@ export const ElectronDraggableWindow = ({ children }) => {
   };
 
   const handleMouseUp = (e: MouseEvent) => {
-    if (!mouseUpEvent.current) {
-      mouseDownEvent.current = null
-      window.electron.send(IPC_EVENTS.STOP_DRAG);
-      isDrag.current = false
-      mouseUpEvent.current = e
-    }
+    mouseDownEvent.current = null
+    window.electron.send(IPC_EVENTS.STOP_DRAG);
+    isDrag.current = false
+    mouseUpEvent.current = e
   };
 
   useEffect(() => {
