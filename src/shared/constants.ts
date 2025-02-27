@@ -91,7 +91,7 @@ export enum IPC_EVENTS {
 
 export enum PHONE_ISLAND_EVENTS {
   // Listen Phone-Island Events: phone-island*
-  "phone-island-size-change" = "phone-island-size-change",
+  "phone-island-size-changed" = "phone-island-size-changed",
   'phone-island-attach' = 'phone-island-attach',
   'phone-island-detach' = 'phone-island-detach',
   'phone-island-audio-input-change' = 'phone-island-audio-input-change',

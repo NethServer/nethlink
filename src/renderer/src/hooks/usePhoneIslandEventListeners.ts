@@ -6,14 +6,14 @@ import {
   PhoneIslandSizes,
 } from "@shared/types"
 import { Log } from "@shared/utils/logger"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { t } from "i18next"
 import { sendNotification } from "@renderer/utils"
 import { useSharedState } from "@renderer/store"
 
 
 const defaultSize: PhoneIslandSizes = {
-  sizeInformation: {
+  sizes: {
     width: '0px',
     height: '0px'
   }
@@ -56,7 +56,7 @@ export const usePhoneIslandEventListener = () => {
     phoneIsalndSizes,
     events: {
       //SIZE CHANGE
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-size-change"], (data) => {
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-size-changed"], (data) => {
         setPhoneIslandSizes(() => ({ ...data }))
       }),
       //CALLS

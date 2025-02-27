@@ -37,6 +37,10 @@ export class Log {
     Log.log(console.info, 'INFO', message, ...optionalParams)
   }
 
+  static debug(message?: any, ...optionalParams: any[]) {
+    Log.log(console.debug, 'DEBUG', message, ...optionalParams)
+  }
+
   static warning(message?: any, ...optionalParams: any[]) {
     Log.log(console.warn, 'WARNING', message, ...optionalParams)
   }

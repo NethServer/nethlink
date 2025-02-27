@@ -71,24 +71,28 @@ export function PhoneIslandPage() {
 
   const resize = (phoneIsalndSize: PhoneIslandSizes) => {
     if (!isOnLogout.current) {
-      if (phoneIsalndSize.sizeInformation.extraDimension) {
-        const { top, bottom, left, right } = phoneIsalndSize.sizeInformation.extraDimension
-        phoneIslandContainer.current?.children[1].setAttribute('style',
-          `
+      const { width, height, top, bottom, left, right } = phoneIsalndSize.sizes
+
+      phoneIslandContainer.current?.children[1].setAttribute('style',
+        `
             position: relative;
             height: calc(100vh + ${top ?? '0px'} + ${bottom ?? '0px'});
             width: calc(100vw + ${left ?? '0px'} + ${right ?? '0px'});
+            left: ${left ?? '0px'};
+            right: ${right ?? '0px'};
+            top: ${top ?? '0px'};
+            bottom: ${bottom ?? '0px'};
           `
-        )
-      } else {
-        phoneIslandContainer.current?.children[1].setAttribute('style', '')
-      }
-      const { width, height } = phoneIsalndSize.sizeInformation
+      )
       const w = Number(width.replace('px', ''))
       const h = Number(height.replace('px', ''))
+      const r = Number((right ?? '0px').replace('px', ''))
+      const t = Number((top ?? '0px').replace('px', ''))
+      const l = Number((left ?? '0px').replace('px', ''))
+      const b = Number((bottom ?? '0px').replace('px', ''))
       window.api.resizePhoneIsland({
-        w,
-        h
+        w: w + r + l,
+        h: h + t + b
       })
     }
   }
