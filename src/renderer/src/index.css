@@ -1,5 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Poppins', system-ui, sans-serif;
+    @apply h-full;
+  }
+
+  body {
+    @apply h-full overflow-hidden;
+    @apply select-none;
+  }
+}
+
+#root {
+  @apply h-full;
+}
+
+#__next {
+  @apply h-full;
+}
+
 #app-container {
   #phone-island-container {
+
     .draggableAnchor,
     .pi-absolute,
     .pi-pointer-events-auto {
@@ -8,7 +33,7 @@
   }
 
 
-  #phone-island-container [id^="headlessui-menu-items-"]{
+  #phone-island-container [id^="headlessui-menu-items-"] {
     position: relative;
     margin-inline: 0;
     margin-block: 0;
@@ -54,11 +79,4 @@
 
 * {
   outline-color: transparent !important;
-}
-.pi-bg-green-400 {
-  background-color: rgb(74, 222, 128);
-}
-
-.pi-text-green-500 {
-  color: rgb(34, 197, 94);
 }

@@ -13,7 +13,7 @@ import { useRegisterStoreHook, useSharedState } from "@renderer/store";
 import { PageContext, usePageCtx } from './contexts/pageContext'
 import { GIT_RELEASES_URL, IPC_EVENTS } from '@shared/constants'
 import { useNetwork } from '@shared/useNetwork'
-
+import './index.css'
 
 const RequestStateComponent = () => {
   const pageData = usePageCtx()
@@ -66,7 +66,7 @@ const RequestStateComponent = () => {
   }, [account?.username, pageData?.page])
 
   const loader = async () => {
-    Log.info('check i18n initialization')
+    Log.debug('check i18n initialization')
     let time = 0
     //I wait for the language to load or 200 milliseconds
     while (time < 20 && !i18next.isInitialized) {
@@ -119,10 +119,9 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes, page?: PAGES }) => {
 
   const importStyle = async () => {
     // Importing CSS dynamically when the page is not 'PHONEISLAND'
-    if (page !== PAGES.PHONEISLAND) {
-      await import('./tailwind.css')
+    if (page === PAGES.PHONEISLAND) {
+      await import('@nethesis/phone-island/dist/index.css')
     }
-    await import('./index.css')
     setIsCSSLoaded(true);
   }
 
@@ -142,7 +141,7 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes, page?: PAGES }) => {
 export default function App() {
 
   useInitialize(() => {
-    Log.info('initialize i18n')
+    Log.debug('initialize i18n')
     loadI18n()
   })
   return (
