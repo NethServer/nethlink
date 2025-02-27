@@ -114,7 +114,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
       if (hasPermission(PERMISSION.PARKINGS))
         NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
       reloadData()
-    } catch (e) {
+    } catch (e: any) {
       Log.warning(e)
       if (e['status'] === 401) {
         Log.error(e)
@@ -129,7 +129,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
       isFetching.current = true
       try {
         await updateAccountData()
-      } catch (e) {
+      } catch (e: any) {
         Log.warning(e)
         if (e['status'] === 401) {
           Log.error(e)
