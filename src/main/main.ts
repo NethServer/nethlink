@@ -91,7 +91,7 @@ function startup() {
 
     ipcMain.on(IPC_EVENTS.RESUME, async (_event) => {
       Log.info('logout after resume event')
-      onAppResume()
+      onAppResume(true)
     })
 
     getPermissions()
@@ -518,6 +518,7 @@ function attachPowerMonitor() {
   //Define how the nethlink have to manage the power suspend and after the power resume events
   powerMonitor.on('suspend', onAppSuspend);
   powerMonitor.on('resume', onAppResume);
+  powerMonitor.on('unlock-screen', onAppResume);
   powerMonitor.on('shutdown', onAppShutdown)
 }
 
@@ -531,7 +532,7 @@ async function onAppSuspend() {
   Log.info('APP POWER SUSPEND')
 }
 
-async function onAppResume() {
+async function onAppResume(silent = false) {
   debouncer('onAppResume', async () => {
     const data = store.getFromDisk()
     store.updateStore(data, 'onAppResume')
@@ -545,11 +546,13 @@ async function onAppResume() {
       } catch (e) {
         Log.error('POWER RESUME ERROR on logout', e)
       }
+
       try {
         NethLinkController.instance.logout()
       } catch (e) {
         Log.error('POWER RESUME ERROR on logout', e)
       }
+
       const autoLoginResult = await AccountController.instance.autoLogin()
       if (autoLoginResult) {
         ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
