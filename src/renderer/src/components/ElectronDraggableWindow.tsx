@@ -79,7 +79,7 @@ export const ElectronDraggableWindow = ({ children }) => {
 
   return (
     <div
-      className={classNames('absolute select-none top-0 left-0 h-screen w-screen z-[10000]', isDev() ? 'bg-red-700/75' : '')}
+      className={classNames('select-none h-[inherit] w-[inherit] z-[10000]', isDev() ? 'bg-red-700/75' : '')}
     >
       {children}
     </div>

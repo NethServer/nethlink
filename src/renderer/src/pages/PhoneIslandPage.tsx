@@ -2,7 +2,7 @@ import { eventDispatch } from '@renderer/hooks/eventDispatch'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, } from '@shared/constants'
-import { Extension, PhoneIslandSizes } from '@shared/types'
+import { Extension, PhoneIslandSizes, sizeInformationType } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { delay, isDev } from '@shared/utils/utils'
 import { useState, useRef, useEffect } from 'react'
@@ -23,6 +23,7 @@ export function PhoneIslandPage() {
   const isDataConfigCreated = useRef<boolean>(false)
   const loadPath = useRef<string | undefined>(undefined)
   const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
+  const innerPIContainer = useRef<HTMLDivElement | null>(null)
   const isOnLogout = useRef<boolean>(false)
   const eventsRef = useRef<{ [x: string]: (...data: any[]) => void; }>(events)
   const attachedListener = useRef<boolean>(false)
@@ -72,24 +73,30 @@ export function PhoneIslandPage() {
   const resize = (phoneIsalndSize: PhoneIslandSizes) => {
     if (!isOnLogout.current) {
       const { width, height, top, bottom, left, right } = phoneIsalndSize.sizes
-
-      phoneIslandContainer.current?.children[1].setAttribute('style',
-        `
-            position: relative;
-            height: calc(100vh + ${top ?? '0px'} + ${bottom ?? '0px'});
-            width: calc(100vw + ${left ?? '0px'} + ${right ?? '0px'});
-            left: ${left ?? '0px'};
-            right: ${right ?? '0px'};
-            top: ${top ?? '0px'};
-            bottom: ${bottom ?? '0px'};
-          `
-      )
       const w = Number(width.replace('px', ''))
       const h = Number(height.replace('px', ''))
       const r = Number((right ?? '0px').replace('px', ''))
       const t = Number((top ?? '0px').replace('px', ''))
       const l = Number((left ?? '0px').replace('px', ''))
       const b = Number((bottom ?? '0px').replace('px', ''))
+      const data = {
+        width,
+        height,
+
+        bottom: bottom ?? '0px',
+        top: top ?? '0px',
+        right: right ?? '0px',
+        left: left ?? '0px',
+      }
+      phoneIslandContainer.current.setAttribute('style', `
+        width: calc(100vw + ${data.right} + ${data.left});
+        height: calc(100vh + ${data.top} + ${data.bottom});
+      `)
+
+      innerPIContainer.current.setAttribute('style', `
+        transform: translate(calc(${data.left} - ${data.right}), 0);
+      `) //calc(${data.top} - ${data.bottom})
+
       window.api.resizePhoneIsland({
         w: w + r + l,
         h: h + t + b
@@ -150,15 +157,6 @@ export function PhoneIslandPage() {
     <div
       ref={phoneIslandContainer}
       id={'phone-island-container'}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        height: '100vh',
-        width: '100vw',
-        zIndex: 9999,
-        overflow: 'hidden',
-      }}
     >
 
       <div style={{
@@ -172,13 +170,7 @@ export function PhoneIslandPage() {
       }}
       ></div>
       <ElectronDraggableWindow>
-        <div
-          id="phone-island-container"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'start'
-          }}>
+        <div ref={innerPIContainer} id='phone-island-inner-container' className='relative w-full h-full'>
           {account && <PhoneIslandContainer dataConfig={dataConfig} deviceInformationObject={deviceInformationObject.current} isDataConfigCreated={isDataConfigCreated.current} />}
         </div>
       </ElectronDraggableWindow>
