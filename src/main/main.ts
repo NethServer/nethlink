@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences } from 'electron'
+import { app, globalShortcut, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -228,6 +228,11 @@ function attachOnReadyProcess() {
           Log.info('GONE', res, ext.type, ext.id)
         }
       }
+    })
+
+    //Override globalShortcut to prevent the user from opening developer tools
+    globalShortcut.register('alt', () => {
+      return false
     })
 
     if (isDev()) {

@@ -12,9 +12,7 @@ import { ConnectionErrorDialog } from '@renderer/components'
 import { debouncer } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
-import { AvailableDevices } from '@shared/types'
 import { sendNotification } from '@renderer/utils'
-import { AxiosError } from 'axios'
 
 
 export interface NethLinkPageProps {
@@ -107,33 +105,38 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   }
 
   async function loadData() {
-    Log.debug('update account')
-    NethVoiceAPI.fetchOperators().then((op) => {
-      saveOperators(op)
-      updateAccountData()
-    })
-    NethVoiceAPI.HistoryCall.interval().then(saveLastCalls)
-
-    NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
-    if (hasPermission(PERMISSION.PARKINGS))
-      NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
-    reloadData()
+    Log.info('update account')
+    try {
+      await updateAccountData()
+      NethVoiceAPI.fetchOperators().then(saveOperators)
+      NethVoiceAPI.HistoryCall.interval().then(saveLastCalls)
+      NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
+      if (hasPermission(PERMISSION.PARKINGS))
+        NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
+      reloadData()
+    } catch (e) {
+      Log.warning(e)
+      if (e['status'] === 401) {
+        Log.error(e)
+        window.electron.send(IPC_EVENTS.RESUME)
+      }
+    }
   }
 
   async function reloadData() {
     Log.debug('RELOAD DATA', isFetching.current)
     if (!isFetching.current) {
       isFetching.current = true
-      NethVoiceAPI.Phonebook.getSpeeddials().then((s) => {
-        saveSpeeddials(s)
-        updateAccountData()
-      }).catch((e: AxiosError) => {
+      try {
+        await updateAccountData()
+      } catch (e) {
         Log.warning(e)
-        if (e.status === 401) {
+        if (e['status'] === 401) {
           Log.error(e)
           window.electron.send(IPC_EVENTS.RESUME)
         }
-      })
+      }
+      NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
     }
     debouncer('speeddial-fetch', () => {
       isFetching.current = false

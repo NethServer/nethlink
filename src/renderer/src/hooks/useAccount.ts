@@ -47,21 +47,25 @@ export const useAccount = () => {
   }
 
   const updateAccountData = async () => {
-    const me = await NethVoiceAPI.User.me()
-    Log.debug('phone-island-default-device-updated', me.default_device)
-    const device = {
-      type: me.default_device.type as AvailableDevices,
-      id: me.default_device.id
-    }
-    setDevice(() => device)
-    setAccount((p) => ({
-      ...p!,
-      data: {
-        ...p?.data,
-        ...me
+    try {
+      const me = await NethVoiceAPI.User.me()
+      Log.debug('phone-island-default-device-updated', me.default_device)
+      const device = {
+        type: me.default_device.type as AvailableDevices,
+        id: me.default_device.id
       }
-    }))
-
+      setDevice(() => device)
+      setAccount((p) => ({
+        ...p!,
+        data: {
+          ...p?.data,
+          ...me
+        }
+      }))
+    } catch (e) {
+      Log.error(e)
+      throw e
+    }
   }
 
   return {
