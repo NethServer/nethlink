@@ -45,7 +45,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
           1000 * 60 * 60 * 24
         )
         accountMeInterval.current = setInterval(updateAccountData,
-          1000 * 60 * 45
+          1000 * 60 * 5
         )
       }
     } else {
