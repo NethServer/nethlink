@@ -88,12 +88,12 @@ export function PhoneIslandPage() {
         right: right ?? '0px',
         left: left ?? '0px',
       }
-      phoneIslandContainer.current.setAttribute('style', `
+      phoneIslandContainer.current?.setAttribute('style', `
         width: calc(100vw + ${data.right} + ${data.left});
         height: calc(100vh + ${data.top} + ${data.bottom});
       `)
 
-      innerPIContainer.current.setAttribute('style', `
+      innerPIContainer.current?.setAttribute('style', `
         transform: translate(calc(${data.left} - ${data.right}), 0);
       `) //calc(${data.top} - ${data.bottom})
 
