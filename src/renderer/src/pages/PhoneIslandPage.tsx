@@ -5,7 +5,7 @@ import { IPC_EVENTS, PHONE_ISLAND_EVENTS, } from '@shared/constants'
 import { Extension, PhoneIslandSizes, sizeInformationType } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { delay, isDev } from '@shared/utils/utils'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
 import { usePhoneIsland } from '@renderer/hooks/usePhoneIsland'
 import { PhoneIslandContainer } from '@renderer/components/pageComponents/phoneIsland/phoneIslandContainer'
@@ -94,7 +94,7 @@ export function PhoneIslandPage() {
       `)
 
       innerPIContainer.current?.setAttribute('style', `
-        transform: translate(calc(${data.left} - ${data.right}), 0);
+        margin-left: calc(${data.left} - ${data.right});
       `) //calc(${data.top} - ${data.bottom})
 
       window.api.resizePhoneIsland({
