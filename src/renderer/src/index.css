@@ -30,6 +30,12 @@
     .pi-pointer-events-auto {
       transform: none !important;
     }
+
+
+    input::placeholder {
+      font-size: 14px;
+      opacity: 1;
+    }
   }
 
 
