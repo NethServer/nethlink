@@ -5,6 +5,7 @@ out
 *.log*
 .yarn/install-state.gz
 yarn.lock
+package-lock.json
 certification
 *.env
 test/

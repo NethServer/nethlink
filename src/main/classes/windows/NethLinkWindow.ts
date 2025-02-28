@@ -123,7 +123,7 @@ export class NethLinkWindow extends BaseWindow {
     super.buildWindow()
     this._window?.on('hide', this.toggleVisibility)
     this._window?.on('moved', () => {
-      this.saveBounds()
+      debouncer('onMoveNethLinkWindow', () => this.saveBounds(), 1000)
     })
     this._window?.on('show', this.toggleVisibility)
     this._window?.on('closed', this.toggleVisibility)
