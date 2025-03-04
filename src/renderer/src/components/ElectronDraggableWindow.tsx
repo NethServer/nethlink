@@ -39,12 +39,10 @@ export const ElectronDraggableWindow = ({ children }) => {
   };
 
   const handleMouseUp = (e: MouseEvent) => {
-    if (!mouseUpEvent.current) {
-      mouseDownEvent.current = null
-      window.electron.send(IPC_EVENTS.STOP_DRAG);
-      isDrag.current = false
-      mouseUpEvent.current = e
-    }
+    mouseDownEvent.current = null
+    window.electron.send(IPC_EVENTS.STOP_DRAG);
+    isDrag.current = false
+    mouseUpEvent.current = e
   };
 
   useEffect(() => {
@@ -81,7 +79,7 @@ export const ElectronDraggableWindow = ({ children }) => {
 
   return (
     <div
-      className={classNames('absolute select-none top-0 left-0 h-screen w-screen z-[10000]', isDev() ? 'bg-red-700/75' : '')}
+      className={classNames('select-none h-[inherit] w-[inherit] z-[10000]', isDev() ? 'bg-red-700/75' : '')}
     >
       {children}
     </div>

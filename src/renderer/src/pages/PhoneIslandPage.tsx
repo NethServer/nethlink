@@ -2,10 +2,10 @@ import { eventDispatch } from '@renderer/hooks/eventDispatch'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, } from '@shared/constants'
-import { Extension, PhoneIslandData, PhoneIslandView, Size } from '@shared/types'
+import { Extension, PhoneIslandSizes, sizeInformationType } from '@shared/types'
 import { Log } from '@shared/utils/logger'
-import { debouncer, delay, isDev } from '@shared/utils/utils'
-import { useState, useRef, useEffect } from 'react'
+import { delay, isDev } from '@shared/utils/utils'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
 import { usePhoneIsland } from '@renderer/hooks/usePhoneIsland'
 import { PhoneIslandContainer } from '@renderer/components/pageComponents/phoneIsland/phoneIslandContainer'
@@ -15,7 +15,7 @@ import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 export function PhoneIslandPage() {
   const [account] = useSharedState('account')
   const [dataConfig, setDataConfig] = useState<string | undefined>(undefined)
-  const { state, phoneIsalndSizes, events } = usePhoneIslandEventListener()
+  const { phoneIsalndSizes, events } = usePhoneIslandEventListener()
   const { createDataConfig, dispatchAndWait } = usePhoneIsland()
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
@@ -23,17 +23,14 @@ export function PhoneIslandPage() {
   const isDataConfigCreated = useRef<boolean>(false)
   const loadPath = useRef<string | undefined>(undefined)
   const phoneIslandContainer = useRef<HTMLDivElement | null>(null)
+  const innerPIContainer = useRef<HTMLDivElement | null>(null)
   const isOnLogout = useRef<boolean>(false)
   const eventsRef = useRef<{ [x: string]: (...data: any[]) => void; }>(events)
   const attachedListener = useRef<boolean>(false)
-  const lastSize = useRef<Size>()
 
   useEffect(() => {
-    debouncer('phoneisland-resize', () => {
-      Log.info('RESIZE')
-      resize(phoneIsalndSizes.size, state)
-    }, 50)
-  }, [phoneIsalndSizes, state])
+    resize(phoneIsalndSizes)
+  }, [phoneIsalndSizes])
 
   useInitialize(() => {
     Log.info('INITIALIZE PHONE ISLAND BASE EVENTS')
@@ -73,17 +70,37 @@ export function PhoneIslandPage() {
     })
   })
 
-  const resize = (size: Size, state: PhoneIslandData) => {
-    if (!isOnLogout.current && (lastSize.current?.w !== size.w || lastSize.current?.h !== size.h)) {
-      lastSize.current = size
-      const { view } = state
-      Log.info(`RESIZE ${size.w}x${size.h} ${account?.username} ${view}`)
-      if (view === PhoneIslandView.KEYPAD || view === PhoneIslandView.TRANSFER || state.currentCall.transferring) {
-        phoneIslandContainer.current?.children[1].setAttribute('style', 'height: calc(100vh + 40px); position: relative;')
-      } else if (view === PhoneIslandView.CALL) {
-        phoneIslandContainer.current?.children[1].setAttribute('style', '')
+  const resize = (phoneIsalndSize: PhoneIslandSizes) => {
+    if (!isOnLogout.current) {
+      const { width, height, top, bottom, left, right } = phoneIsalndSize.sizes
+      const w = Number(width.replace('px', ''))
+      const h = Number(height.replace('px', ''))
+      const r = Number((right ?? '0px').replace('px', ''))
+      const t = Number((top ?? '0px').replace('px', ''))
+      const l = Number((left ?? '0px').replace('px', ''))
+      const b = Number((bottom ?? '0px').replace('px', ''))
+      const data = {
+        width,
+        height,
+
+        bottom: bottom ?? '0px',
+        top: top ?? '0px',
+        right: right ?? '0px',
+        left: left ?? '0px',
       }
-      window.api.resizePhoneIsland(size)
+      phoneIslandContainer.current?.setAttribute('style', `
+        width: calc(100vw + ${data.right} + ${data.left});
+        height: calc(100vh + ${data.top} + ${data.bottom});
+      `)
+
+      innerPIContainer.current?.setAttribute('style', `
+        margin-left: calc(${data.left} - ${data.right});
+      `) //calc(${data.top} - ${data.bottom})
+
+      window.api.resizePhoneIsland({
+        w: w + r + l,
+        h: h + t + b
+      })
     }
   }
 
@@ -140,15 +157,6 @@ export function PhoneIslandPage() {
     <div
       ref={phoneIslandContainer}
       id={'phone-island-container'}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        height: '100vh',
-        width: '100vw',
-        zIndex: 9999,
-        overflow: 'hidden',
-      }}
     >
 
       <div style={{
@@ -162,14 +170,8 @@ export function PhoneIslandPage() {
       }}
       ></div>
       <ElectronDraggableWindow>
-        <div
-          id="phone-island-container"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'start'
-          }}>
-          {account && <PhoneIslandContainer dataConfig={dataConfig} i18nLoadPath={loadPath.current} deviceInformationObject={deviceInformationObject.current} isDataConfigCreated={isDataConfigCreated.current} />}
+        <div ref={innerPIContainer} id='phone-island-inner-container' className='relative w-full h-full'>
+          {account && <PhoneIslandContainer dataConfig={dataConfig} deviceInformationObject={deviceInformationObject.current} isDataConfigCreated={isDataConfigCreated.current} />}
         </div>
       </ElectronDraggableWindow>
     </div >

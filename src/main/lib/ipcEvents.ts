@@ -104,7 +104,7 @@ export function registerIpcEvents() {
       if (!draggingWindows?.hasOwnProperty(window.title)) {
         const interval: number = setInterval(() => {
           updateWindowPosition(window)
-        }, 1000 / 60) as unknown as number; // => 60 frames per seconds
+        }, 1000 / 300) as unknown as number; // => 300 frames per seconds
         draggingWindows = {
           ...draggingWindows,
           [window.title]: {
