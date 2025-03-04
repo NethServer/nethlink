@@ -2,6 +2,7 @@ import { Account, PAGES } from "@shared/types"
 import { Log } from "./logger"
 
 const debounceEvents = {}
+
 export function debouncer(eventId: string, event: () => any, debouncer = 100) {
   if (!debounceEvents[eventId]) {
     applyDebouncer(eventId, event, debouncer)

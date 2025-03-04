@@ -120,7 +120,10 @@ export const {
   lostCallNotifications: undefined,
   notifications: undefined,
   page: undefined,
-  theme: undefined
+  theme: undefined,
+  lastDevice: undefined,
+  isCallsEnabled: false,
+  accountStatus: 'offline'
 } as LocalStorageData, true)
 
 export const useNethlinkData = createGlobalStateHook({

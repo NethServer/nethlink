@@ -25,14 +25,15 @@ export const usePhoneIslandEventHandler = () => {
   const [missedCalls, setMissedCalls] = useRefState(useNethlinkData('missedCalls'))
 
 
-  function callNumber(number: string) {
+  const callNumber = useCallback((number: string) => {
     const numberCleanerRegex = /\s+/g
     const cleanNumber = (`${number}`).replace(numberCleanerRegex, '')
-    if (number && validatePhoneNumber(cleanNumber) && isCallsEnabled)
+    const isNumberValid = validatePhoneNumber(cleanNumber)
+    if (number && isNumberValid && isCallsEnabled)
       window.electron.send(IPC_EVENTS.EMIT_START_CALL, cleanNumber)
     else
-      Log.warning('unable to call', number)
-  }
+      Log.warning('unable to call', { number, isCallsEnabled, isNumberValid })
+  }, [isCallsEnabled])
 
   const onMainPresence = useCallback((op: { [username: string]: any }) => {
     // eslint-disable-next-line no-prototype-builtins
@@ -157,6 +158,7 @@ export const usePhoneIslandEventHandler = () => {
       NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
     }
   }
+
   return {
     saveOperators,
     saveSpeeddials,

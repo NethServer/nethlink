@@ -1,32 +1,25 @@
-import { NumberCaller } from '../../../NumberCaller'
-import { ContactType } from '@shared/types'
-import { isDev } from '@shared/utils/utils'
-import { FavouriteStar } from './FavouritesStar'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useAccount } from '@renderer/hooks/useAccount'
-import { useNethlinkData } from '@renderer/store'
-import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
-import { Avatar } from '../../../Nethesis'
-import { faPhone as CallIcon } from '@fortawesome/free-solid-svg-icons'
-import { t } from 'i18next'
-import { ReactNode } from 'react'
-import classNames from 'classnames'
-export const ContactNameAndActions = ({
-  contact,
-  number,
-  isHighlight,
-  displayedNumber,
-  avatarDim,
-  username,
-  isFavourite,
-  isSearchData
-}: {
-  contact: ContactType
-  number: string
-  isHighlight: boolean
-  displayedNumber: string | ReactNode[]
-  avatarDim: 'small' | 'base' | 'extra_small' | 'large' | 'extra_large'
-  username: string | undefined
+import { NumberCaller } from "../../../NumberCaller"
+import { ContactType } from "@shared/types"
+import { debouncer, isDev } from "@shared/utils/utils"
+import { FavouriteStar } from "./FavouritesStar"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { useAccount } from "@renderer/hooks/useAccount"
+import { useNethlinkData } from "@renderer/store"
+import { usePhoneIslandEventHandler } from "@renderer/hooks/usePhoneIslandEventHandler"
+import { Avatar } from "../../../Nethesis"
+import {
+  faPhone as CallIcon,
+} from '@fortawesome/free-solid-svg-icons'
+import { t } from "i18next"
+import { ReactNode } from "react"
+import classNames from "classnames"
+export const ContactNameAndActions = ({ contact, number, isHighlight, displayedNumber, avatarDim, username, isFavourite, isSearchData }: {
+  contact: ContactType,
+  number: string,
+  isHighlight: boolean,
+  displayedNumber: string | ReactNode[],
+  avatarDim: "small" | "base" | "extra_small" | "large" | "extra_large",
+  username: string | undefined,
   isFavourite: boolean
   isSearchData: boolean
 }) => {
@@ -93,7 +86,11 @@ export const ContactNameAndActions = ({
               <FontAwesomeIcon
                 className="dark:text-gray-400 text-gray-600 text-base"
                 icon={CallIcon}
-                onClick={() => callNumber(contact.speeddial_num!)}
+                onClick={() => {
+                  debouncer('onCallNumber', () => {
+                    callNumber(contact.speeddial_num!)
+                  }, 250)
+                }}
               />
             )}
             <NumberCaller
@@ -103,9 +100,9 @@ export const ContactNameAndActions = ({
               isNumberHiglighted={isHighlight}
             >
               {displayedNumber !== ' ' &&
-              displayedNumber !== '' &&
-              displayedNumber !== null &&
-              (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
+                displayedNumber !== '' &&
+                displayedNumber !== null &&
+                (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
                 ? displayedNumber
                 : '-'}
             </NumberCaller>

@@ -114,7 +114,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
           ],
           NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
         ])
-        Log.info(results)
+        Log.debug(results)
         const firstError = results.find(e => e)
         if (firstError) {
           throw firstError

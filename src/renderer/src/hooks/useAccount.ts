@@ -1,9 +1,11 @@
-import { AvailableDevices, Device, Extension, ExtensionsType, StatusTypes } from "@shared/types"
-import { useEffect, useRef, useState } from "react"
+import { AvailableDevices, StatusTypes } from "@shared/types"
+import { useCallback, useEffect } from "react"
 import { useSharedState } from "@renderer/store"
 import { PERMISSION } from "@shared/constants"
 import { Log } from "@shared/utils/logger"
 import { useLoggedNethVoiceAPI } from "./useLoggedNethVoiceAPI"
+import { debouncer } from "@shared/utils/utils"
+import { useRefState } from "./useRefState"
 
 
 
@@ -11,20 +13,20 @@ export const useAccount = () => {
   const [account, setAccount] = useSharedState('account')
   const [device, setDevice] = useSharedState('device')
 
-  const [status, setStatus] = useState<StatusTypes>('offline')
-  const [isCallsEnabled, setIsCallsEnabled] = useState<boolean>(false)
-  const lastDevice = useRef<Device>()
+  const [status, setStatus] = useSharedState('accountStatus')
+  const [isCallsEnabled, setIsCallsEnabled] = useSharedState('isCallsEnabled')
+  const [lastDevice] = useRefState(useSharedState('lastDevice'))
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   useEffect(() => {
-    updateStatus()
+    debouncer('updateAccountStatus', updateStatus, 500)
   }, [account?.data, device])
 
-
-  const updateStatus = async () => {
-    if (account) {
-      let _status: StatusTypes = account.data?.mainPresence || status
+  async function updateStatus() {
+    Log.info('Update presence status:', account?.data?.mainPresence || status)
+    if (account?.data) {
+      let _status: StatusTypes = account.data.mainPresence || status
       if (lastDevice.current?.id !== device?.id) {
         lastDevice.current = device
         if (device?.type === 'physical') {
@@ -34,11 +36,10 @@ export const useAccount = () => {
         }
       }
       setStatus(() => _status)
-      Log.debug('update device status', _status, device?.id, device?.type)
       setIsCallsEnabled(() => !(_status === 'busy' || _status === 'ringing' || _status === 'offline'))
     } else {
-      setStatus('offline')
-      setIsCallsEnabled(false)
+      setStatus(() => 'offline')
+      setIsCallsEnabled(() => false)
     }
   }
 
