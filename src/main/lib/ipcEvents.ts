@@ -48,7 +48,7 @@ export function registerIpcEvents() {
   let draggingWindows: OnDraggingWindow = {}
 
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
-    return app.getSystemLocale()
+    return app.getLocale()
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {

@@ -321,6 +321,9 @@ function attachOnReadyProcess() {
               account: undefined,
               theme: 'system',
               connection: store.store.connection || false,
+              accountStatus: 'offline',
+              isCallsEnabled: false,
+              lastDevice: undefined
             }, 'showLogin')
             showLogin()
           }
@@ -617,6 +620,9 @@ async function resetApp() {
     },
     theme: 'system',
     connection: true,
+    lastDevice: undefined,
+    accountStatus: 'offline',
+    isCallsEnabled: false
   }, 'resetApp')
   await delay(100)
   store.saveToDisk()

@@ -3,6 +3,7 @@ import Backend from 'i18next-electron-fs-backend'
 import { initReactI18next } from 'react-i18next'
 import { join } from 'path-browserify'
 import { uniq } from 'lodash'
+import { Log } from '@shared/utils/logger'
 
 const fallbackLng = ['en']
 
@@ -13,6 +14,7 @@ const electronDetector: any = {
   detect: () => {
     return new Promise((resolve) => {
       window.api.getLocale().then((locale) => {
+        Log.info(locale)
         const locales = uniq([locale!.split('-')[0], ...fallbackLng])
         resolve(locales)
       }).catch(() => {

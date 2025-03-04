@@ -20,11 +20,13 @@ export const useAccount = () => {
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   useEffect(() => {
-    debouncer('updateAccountStatus', updateStatus, 500)
+    // debouncer('updateAccountStatus',
+    updateStatus()
+    // , 10)
   }, [account?.data, device])
 
   async function updateStatus() {
-    Log.info('Update presence status:', account?.data?.mainPresence || status)
+    Log.debug('Update presence status:', account?.data?.mainPresence || status)
     if (account?.data) {
       let _status: StatusTypes = account.data.mainPresence || status
       if (lastDevice.current?.id !== device?.id) {
