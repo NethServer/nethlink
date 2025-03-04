@@ -46,7 +46,7 @@ export const usePhoneIslandEventListener = () => {
     [event]: (...data) => {
       const customEvent = data[0]
       const detail = customEvent['detail']
-      Log.info('PHONE ISLAND', event, data, detail)
+      Log.debug('PHONE ISLAND', event, data, detail)
       callback?.(detail)
     }
   })

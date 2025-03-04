@@ -79,7 +79,7 @@ export function registerIpcEvents() {
           }
           NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, true)
           PhoneIslandController.instance.window.show()
-          Log.info('START_CALL_BY_URL', url, res.statusCode)
+          Log.debug('START_CALL_BY_URL', url, res.statusCode)
         }
       )
 

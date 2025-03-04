@@ -32,7 +32,7 @@ const RequestStateComponent = () => {
         resolve(false)
       })
     })
-    Log.info('check connection', { connected, connection: connection })
+    Log.debug('check connection', { connected, connection: connection })
     if (connected !== connection) {
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, connected);
     }

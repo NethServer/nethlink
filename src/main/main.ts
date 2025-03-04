@@ -28,7 +28,7 @@ const params = process.argv
 for (const arg of params) {
   if (arg.includes('=')) {
     const kv: any[] = arg.split('=')
-    if (['DEV', 'DEVTOOLS'].includes(kv[0])) {
+    if (['DEV', 'DEVTOOLS', 'DEBUG'].includes(kv[0])) {
       kv[1] = kv[1] === 'true'
     }
     // } else {
@@ -40,7 +40,7 @@ for (const arg of params) {
 }
 const multipleInstances = !!process.env['INSTANCE']
 process.env['APP_VERSION'] = app.getVersion()
-Log.info('ENV:', process.env)
+Log.debug('ENV:', process.env)
 
 function startup() {
   app.setName('NethLink')
@@ -91,7 +91,7 @@ function startup() {
 
     ipcMain.on(IPC_EVENTS.RESUME, async (_event) => {
       Log.info('logout after resume event')
-      onAppResume(true)
+      onAppResume()
     })
 
     getPermissions()
@@ -230,7 +230,7 @@ function attachOnReadyProcess() {
       }
     })
 
-    if (isDev()) {
+    if (isDev() && process.env['DEBUG']) {
       const events: string[] = [
         'accessibility-support-changed',
         'activity-was-continued',
@@ -495,7 +495,7 @@ async function attachProtocolListeners() {
       }
       NethLinkController.instance.show()
     } catch (e) {
-      Log.info('ERROR HandleProtocol Nethlink:', e)
+      Log.error('HandleProtocol Nethlink:', e)
     }
     return new Promise((resolve) => resolve)
   }
@@ -532,8 +532,11 @@ async function onAppSuspend() {
   Log.info('APP POWER SUSPEND')
 }
 
-async function onAppResume(silent = false) {
-  debouncer('onAppResume', async () => {
+let isInPowerResume = false
+async function onAppResume() {
+  Log.info('TRY APP POWER RESUME', { isInPowerResume })
+  if (!isInPowerResume) {
+    isInPowerResume = true
     const data = store.getFromDisk()
     store.updateStore(data, 'onAppResume')
     Log.info('APP POWER RESUME')
@@ -557,9 +560,9 @@ async function onAppResume(silent = false) {
       if (autoLoginResult) {
         ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
       }
+      isInPowerResume = false
     }
-
-  }, 2000)
+  }
 }
 
 function changeNethlinkTheme() {
@@ -690,7 +693,7 @@ async function checkConnection() {
       resolve(false)
     })
   })
-  Log.info("checkConnection:", { connected, connection: store.store.connection })
+  Log.debug("checkConnection:", { connected, connection: store.store.connection })
   if (connected !== store.store.connection) {
     ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, connected);
   }
