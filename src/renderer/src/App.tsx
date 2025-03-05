@@ -26,7 +26,7 @@ const RequestStateComponent = () => {
 
   async function checkConnection() {
     const connected = await new Promise((resolve) => {
-      GET(GIT_RELEASES_URL).then(() => {
+      GET('https://google.com', {} as any).then(() => {
         resolve(true)
       }).catch(() => {
         resolve(false)
