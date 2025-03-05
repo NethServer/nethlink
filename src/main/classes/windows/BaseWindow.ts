@@ -2,7 +2,7 @@ import { WindowOptions, createWindow } from '@/lib/windowConstructor'
 import { IPC_EVENTS } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
 import { delay, isDev } from '@shared/utils/utils'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, } from 'electron'
 
 type Callback = (...args: any) => any
 export class BaseWindow {
@@ -98,7 +98,9 @@ export class BaseWindow {
 
   buildWindow() {
     const window = createWindow(this._id, this._config, this._params)
-    window.setTitle(this._id)
+    const pid = window.webContents.getProcessId()
+    Log.info(this._id, pid)
+    window.setTitle(this._id + '_' + pid)
     const instance = this
 
     const onReady = (_e) => {

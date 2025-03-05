@@ -547,24 +547,28 @@ async function onAppResume() {
     if (store.store.account && NethLinkController.instance) {
       const isOpen = NethLinkController.instance.window?.isOpen()
       showNethlink = isOpen ?? true
-      try {
-        await PhoneIslandController.instance.logout()
-      } catch (e) {
-        Log.error('POWER RESUME ERROR on logout', e)
-      }
-
-      try {
-        await NethLinkController.instance.logout()
-      } catch (e) {
-        Log.error('POWER RESUME ERROR on logout', e)
-      }
 
       const autoLoginResult = await AccountController.instance.autoLogin()
-      if (autoLoginResult) {
-        ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
-      }
-      isInPowerResume = false
+      // try {
+      //   await PhoneIslandController.instance.logout()
+      PhoneIslandController.instance.window.getWindow()?.reload()
+      // } catch (e) {
+      //   Log.error('POWER RESUME ERROR on logout', e)
+      // }
+
+      // try {
+      //   await NethLinkController.instance.logout()
+      NethLinkController.instance.window.getWindow()?.reload()
+      // } catch (e) {
+      //   Log.error('POWER RESUME ERROR on logout', e)
+      // }
+
+      // const autoLoginResult = await AccountController.instance.autoLogin()
+      // if (autoLoginResult) {
+      //   ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
+      // }
     }
+    isInPowerResume = false
   }
 }
 

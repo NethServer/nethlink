@@ -108,10 +108,10 @@ export function PhoneIslandPage() {
 
   useEffect(() => {
     if (account && !isDataConfigCreated.current) {
+      isDataConfigCreated.current = true
       createDataConfig(account).then(([deviceInformation, dataConfig]) => {
         deviceInformationObject.current = { ...deviceInformation }
         setDataConfig(dataConfig)
-        isDataConfigCreated.current = true
       }).catch((e) => {
 
       })
