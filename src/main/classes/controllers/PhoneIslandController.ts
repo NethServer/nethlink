@@ -99,8 +99,8 @@ export class PhoneIslandController {
     return new Promise<void>((resolve, reject) => {
       try {
         this.window.emit(IPC_EVENTS.LOGOUT)
-        once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-          this.window.quit(true)
+        once(IPC_EVENTS.LOGOUT_COMPLETED, async () => {
+          await this.window.quit(true)
           resolve()
         })
       } catch (e) {
