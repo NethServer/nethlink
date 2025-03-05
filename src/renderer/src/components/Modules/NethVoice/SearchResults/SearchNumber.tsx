@@ -8,6 +8,7 @@ import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
 import { useFavouriteModule } from '../Speeddials/hook/useFavouriteModule'
+import { debouncer } from '@shared/utils/utils'
 
 export interface SearchNumberProps {
   user: SearchData
@@ -94,7 +95,9 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
             variant="ghost"
             disabled={!isCallsEnabled}
             onClick={() => {
-              callNumber(phoneNumber!)
+              debouncer('onCallNumber', () => {
+                callNumber(phoneNumber)
+              }, 250)
             }}
           >
             <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">

@@ -9,7 +9,7 @@ import { join, resolve } from 'path'
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
-import { debouncer, delay, isDev } from '@shared/utils/utils'
+import { delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS, GIT_RELEASES_URL } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
@@ -22,14 +22,13 @@ import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { URL } from 'url'
-import { platform } from 'os'
 
 //get app parameter
 const params = process.argv
 for (const arg of params) {
   if (arg.includes('=')) {
     const kv: any[] = arg.split('=')
-    if (['DEV', 'DEVTOOLS'].includes(kv[0])) {
+    if (['DEV', 'DEVTOOLS', 'DEBUG'].includes(kv[0])) {
       kv[1] = kv[1] === 'true'
     }
     // } else {
@@ -41,7 +40,7 @@ for (const arg of params) {
 }
 const multipleInstances = !!process.env['INSTANCE']
 process.env['APP_VERSION'] = app.getVersion()
-Log.info('ENV:', process.env)
+Log.debug('ENV:', process.env)
 
 function startup() {
   app.setName('NethLink')
@@ -90,6 +89,11 @@ function startup() {
       showLogin()
     })
 
+    ipcMain.on(IPC_EVENTS.RESUME, async (_event) => {
+      Log.info('logout after resume event')
+      onAppResume()
+    })
+
     getPermissions()
 
     attachOnReadyProcess()
@@ -106,7 +110,7 @@ function startup() {
 async function startLocalization() {
 
   const convertPath = (filename): string => {
-    let dir = __dirname
+    const dir = __dirname
     let loadPath = join(`./public/locales/{{lng}}/${filename}.json`)
     if (__dirname.includes('.asar')) {
       loadPath = join(dir, `../renderer/locales/{{lng}}/${filename}.json`)
@@ -226,7 +230,7 @@ function attachOnReadyProcess() {
       }
     })
 
-    if (isDev()) {
+    if (isDev() && process.env['DEBUG']) {
       const events: string[] = [
         'accessibility-support-changed',
         'activity-was-continued',
@@ -278,12 +282,17 @@ function attachOnReadyProcess() {
       }
 
     } else {
-      await checkConnection()
+      const isOnline = await checkConnection()
       Log.info('START - START APP, retry:', attempt)
-      if (!store.store.connection) {
+      if (!isOnline) {
         Log.info('START - NO CONNECTION', attempt, store.store)
-        if (attempt >= 3)
-          SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
+        if (attempt >= 3) {
+          try {
+            SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
+          } catch (e) {
+            Log.error(e)
+          }
+        }
 
         retryAppStart = setTimeout(() => {
           startApp(++attempt)
@@ -312,6 +321,9 @@ function attachOnReadyProcess() {
               account: undefined,
               theme: 'system',
               connection: store.store.connection || false,
+              accountStatus: 'offline',
+              isCallsEnabled: false,
+              lastDevice: undefined
             }, 'showLogin')
             showLogin()
           }
@@ -465,11 +477,7 @@ async function attachProtocolListeners() {
     const match = url.match(regex)
     if (match) {
       Log.info('HandleProtocol TEL/CALLTO:', match[0])
-      try {
-        PhoneIslandController.instance.call(match[0])
-      } catch (e) {
-        Log.info('ERROR HandleProtocol TEL/CALLTO:', e)
-      }
+      PhoneIslandController.instance.call(match[0])
     }
     return new Promise((resolve) => resolve)
   }
@@ -490,7 +498,7 @@ async function attachProtocolListeners() {
       }
       NethLinkController.instance.show()
     } catch (e) {
-      Log.info('ERROR HandleProtocol Nethlink:', e)
+      Log.error('HandleProtocol Nethlink:', e)
     }
     return new Promise((resolve) => resolve)
   }
@@ -513,41 +521,37 @@ function attachPowerMonitor() {
   //Define how the nethlink have to manage the power suspend and after the power resume events
   powerMonitor.on('suspend', onAppSuspend);
   powerMonitor.on('resume', onAppResume);
+  powerMonitor.on('unlock-screen', onAppResume);
   powerMonitor.on('shutdown', onAppShutdown)
+}
 
+async function onAppShutdown() {
+  Log.info('APP POWER SHUTDOWN')
+  await AppController.safeQuit()
+}
 
-  async function onAppShutdown() {
-    Log.info('APP POWER SHUTDOWN')
-    await AppController.safeQuit()
-  }
+async function onAppSuspend() {
+  store.saveToDisk()
+  Log.info('APP POWER SUSPEND')
+}
 
-  async function onAppSuspend() {
-    store.saveToDisk()
-    Log.info('APP POWER SUSPEND')
-  }
-
-  async function onAppResume() {
-    debouncer('onAppResume', async () => {
-      const data = store.getFromDisk()
-      store.updateStore(data, 'onAppResume')
-      Log.info('APP POWER RESUME')
-      let showNethlink = true
-      if (store.store.account && NethLinkController.instance) {
-        const isOpen = NethLinkController.instance.window.isOpen()
-        showNethlink = isOpen ?? true
-        try {
-          await PhoneIslandController.instance.logout()
-          NethLinkController.instance.logout()
-        } catch (e) {
-          Log.error('POWER RESUME ERROR on logout', e)
-        }
-        const autoLoginResult = await AccountController.instance.autoLogin()
-        if (autoLoginResult) {
-          ipcMain.emit(IPC_EVENTS.LOGIN, undefined, { showNethlink })
-        }
+let isInPowerResume = false
+async function onAppResume() {
+  Log.info('TRY APP POWER RESUME', { isInPowerResume })
+  if (!isInPowerResume) {
+    isInPowerResume = true
+    const data = store.getFromDisk()
+    store.updateStore(data, 'onAppResume')
+    Log.info('APP POWER RESUME')
+    let showNethlink = true
+    if (store.store.account && NethLinkController.instance) {
+      const autoLoginResult = await AccountController.instance.autoLogin()
+      if (autoLoginResult) {
+        PhoneIslandController.instance.window.getWindow()?.reload()
+        NethLinkController.instance.window.getWindow()?.reload()
       }
-
-    }, 2000)
+    }
+    isInPowerResume = false
   }
 }
 
@@ -603,6 +607,9 @@ async function resetApp() {
     },
     theme: 'system',
     connection: true,
+    lastDevice: undefined,
+    accountStatus: 'offline',
+    isCallsEnabled: false
   }, 'resetApp')
   await delay(100)
   store.saveToDisk()
@@ -673,16 +680,17 @@ function checkData(data: any): boolean {
 
 async function checkConnection() {
   const connected = await new Promise((resolve) => {
-    NetworkController.instance.get(GIT_RELEASES_URL).then(() => {
+    NetworkController.instance.get('https://google.com', {} as any).then(() => {
       resolve(true)
     }).catch(() => {
       resolve(false)
     })
   })
-  Log.info("checkConnection:", { connected, connection: store.store.connection })
+  Log.debug("checkConnection:", { connected, connection: store.store.connection })
   if (connected !== store.store.connection) {
     ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, connected);
   }
+  return connected
 }
 
 //BEGIN APP

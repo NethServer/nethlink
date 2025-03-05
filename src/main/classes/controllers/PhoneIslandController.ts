@@ -4,8 +4,6 @@ import { Log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
 import { debouncer } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
-import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
-import { store } from '@/lib/mainStore'
 import { screen } from 'electron'
 import { Extension, Size } from '@shared/types'
 
@@ -23,8 +21,8 @@ export class PhoneIslandController {
       const { w, h } = size
       const window = this.window.getWindow()
       if (window) {
-        let b = window.getBounds()
-        if (b.height !== h || b.width !== w) {
+        const bounds = window.getBounds()
+        if (bounds.height !== h || bounds.width !== w) {
           window.setBounds({ width: w, height: h })
           PhoneIslandWindow.currentSize = { width: w, height: h }
         }
@@ -101,8 +99,8 @@ export class PhoneIslandController {
     return new Promise<void>((resolve, reject) => {
       try {
         this.window.emit(IPC_EVENTS.LOGOUT)
-        once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-          this.window.quit(true)
+        once(IPC_EVENTS.LOGOUT_COMPLETED, async () => {
+          await this.window.quit(true)
           resolve()
         })
       } catch (e) {
@@ -113,7 +111,11 @@ export class PhoneIslandController {
   }
 
   call(number: string) {
-    this.window.emit(IPC_EVENTS.START_CALL, number)
+    try {
+      this.window.emit(IPC_EVENTS.START_CALL, number)
+    } catch (e) {
+      Log.error(`Unable to call ${number}`)
+    }
   }
 
   callTransfer(to: string) {
