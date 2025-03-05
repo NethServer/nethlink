@@ -547,8 +547,9 @@ async function onAppResume() {
     if (store.store.account && NethLinkController.instance) {
       const autoLoginResult = await AccountController.instance.autoLogin()
       if (autoLoginResult) {
-        PhoneIslandController.instance.window.getWindow()?.reload()
         NethLinkController.instance.window.getWindow()?.reload()
+        await delay(500)
+        PhoneIslandController.instance.window.getWindow()?.reload()
       }
     }
     isInPowerResume = false
