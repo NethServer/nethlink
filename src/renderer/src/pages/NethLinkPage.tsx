@@ -39,7 +39,6 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   useEffect(() => {
     if (account) {
       if (!accountMeInterval.current) {
-        loadData()
         accountMeInterval.current = setInterval(loadData,
           1000 * 60 * 5
         )
