@@ -12,7 +12,6 @@ import { ConnectionErrorDialog } from '@renderer/components'
 import { debouncer } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
-import { AvailableDevices } from '@shared/types'
 import { sendNotification } from '@renderer/utils'
 
 
@@ -31,7 +30,6 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     usePhoneIslandEventHandler()
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
-  const operatorFetchLoopInterval = useRef<NodeJS.Timeout>()
   const accountMeInterval = useRef<NodeJS.Timeout>()
 
   useInitialize(() => {
@@ -40,18 +38,13 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
 
   useEffect(() => {
     if (account) {
-      if (!operatorFetchLoopInterval.current) {
-        loadData()
-        operatorFetchLoopInterval.current = setInterval(loadData,
-          1000 * 60 * 60 * 24
-        )
-        accountMeInterval.current = setInterval(updateAccountData,
-          1000 * 60 * 45
+      if (!accountMeInterval.current) {
+        accountMeInterval.current = setInterval(loadData,
+          1000 * 60 * 5
         )
       }
     } else {
       Log.info('Account logout')
-      stopInterval(operatorFetchLoopInterval)
       stopInterval(accountMeInterval)
     }
   }, [account?.username])
@@ -106,44 +99,44 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   }
 
   async function loadData() {
-    Log.info('update account')
-    NethVoiceAPI.fetchOperators().then((op) => {
-      saveOperators(op)
-      updateAccountData()
-    })
-    NethVoiceAPI.HistoryCall.interval().then(saveLastCalls)
-
-    NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate)
-    if (hasPermission(PERMISSION.PARKINGS))
-      NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
-    reloadData()
-  }
-
-  async function reloadData() {
-    Log.info('RELOAD DATA', isFetching.current)
+    Log.info('update account', { isFetching: isFetching.current })
     if (!isFetching.current) {
       isFetching.current = true
-      NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
-      updateAccountData()
+      try {
+        const results = await Promise.all([
+          updateAccountData(),
+          NethVoiceAPI.fetchOperators().then(saveOperators),
+          NethVoiceAPI.HistoryCall.interval().then(saveLastCalls),
+          NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate),
+          ...[
+            hasPermission(PERMISSION.PARKINGS) ? NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate) : []
+          ],
+          NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
+        ])
+        Log.debug(results)
+        const firstError = results.find(e => e)
+        if (firstError) {
+          throw firstError
+        }
+        debouncer('loadData', () => {
+          isFetching.current = false
+        }, 2000)
+      } catch (e: any) {
+        Log.warning(e)
+        if (e['status'] === 401) {
+          Log.error(e)
+          window.electron.send(IPC_EVENTS.RESUME)
+        }
+      }
     }
-    debouncer('speeddial-fetch', () => {
-      isFetching.current = false
-    }, 1000)
   }
 
   useEffect(() => {
     if (connection) {
-      Log.info('RECONNECT')
-      debouncer('nethlink-reconnect', () => {
-        Log.info('EFFECTIVE RECONNECT')
-        reconnect()
-      }, 3000)
+      Log.info('CONNECTION CHANGE')
+      loadData()
     }
   }, [connection])
-
-  const reconnect = async () => {
-    loadData()
-  }
 
   return (
     <div className="h-[100vh] w-[100vw] ">
@@ -154,7 +147,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
               <Navbar onClickAccount={() => updateAccountData()} />
               <NethLinkModules />
             </div>
-            <Sidebar onChangeMenu={() => reloadData()} />
+            <Sidebar onChangeMenu={() => loadData()} />
           </div>
         </div>
       </div>

@@ -113,7 +113,7 @@ export class BaseWindow {
 
     window.once('ready-to-show', onReady)
     isDev() && window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
-
+    !isDev() && window.removeMenu()
     this._window = window
   }
 }

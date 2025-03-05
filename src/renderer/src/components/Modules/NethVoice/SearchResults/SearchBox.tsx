@@ -4,21 +4,19 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { validatePhoneNumber } from '@renderer/utils'
-import { useAccount } from '@renderer/hooks/useAccount'
 import { useEffect } from 'react'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useNethlinkData } from '@renderer/store'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { useForm } from 'react-hook-form'
 import { Button, TextInput } from '@renderer/components/Nethesis'
-
+import { Log } from '@shared/utils/logger'
+import { debouncer } from '@shared/utils/utils'
 type FormDataType = {
   searchText: string | undefined;
 }
 export function SearchBox(): JSX.Element {
 
-  const { isCallsEnabled } = useAccount()
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookSearchModule = usePhonebookSearchModule()
   const [searchText, setSearchText] = phoneBookSearchModule.searchTextState
@@ -66,11 +64,15 @@ export function SearchBox(): JSX.Element {
   function handleCallUser(e) {
     if (e.key === 'Enter') {
       if (searchText) {
-        if (validatePhoneNumber(searchText) && isCallsEnabled) {
-          callNumber(searchText)
-        } else {
-          submit({ searchText })
-        }
+        debouncer('SearchBar-onEnterKey', () => {
+          try {
+            callNumber(searchText)
+          } catch (e) {
+            Log.warning(e)
+          } finally {
+            submit({ searchText })
+          }
+        })
       }
     }
   }

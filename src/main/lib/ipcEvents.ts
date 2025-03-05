@@ -1,7 +1,7 @@
 import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
 import { BrowserWindow, app, ipcMain, screen, shell } from 'electron'
 import { join } from 'path'
@@ -13,7 +13,7 @@ import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
-import http from 'http'
+import { ClientRequest, get } from 'http'
 
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
@@ -48,7 +48,7 @@ export function registerIpcEvents() {
   let draggingWindows: OnDraggingWindow = {}
 
   onSyncEmitter(IPC_EVENTS.GET_LOCALE, async () => {
-    return app.getSystemLocale()
+    return app.getLocale()
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber) => {
@@ -56,23 +56,32 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url) => {
-    function triggerError(e, request: http.ClientRequest | undefined = undefined) {
+    function triggerError(e, request: ClientRequest | undefined = undefined) {
       Log.error(e)
-      PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
-      NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, false)
-      request && request.destroy()
+      try {
+        PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
+        NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, false)
+      } catch (e) {
+        Log.error(e)
+      } finally {
+        request && request.destroy()
+      }
     }
     try {
-      const request = http.get(url, {
-        timeout: 3000
-      }, (res) => {
-        if (res.statusCode !== 200) {
-          triggerError(new Error('status error'), request)
+      const request = get(
+        url,
+        {
+          timeout: 3000
+        },
+        (res) => {
+          if (res.statusCode !== 200) {
+            triggerError(new Error('status error'), request)
+          }
+          NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, true)
+          PhoneIslandController.instance.window.show()
+          Log.debug('START_CALL_BY_URL', url, res.statusCode)
         }
-        NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, true)
-        PhoneIslandController.instance.window.show()
-        Log.info('START_CALL_BY_URL', url, res.statusCode)
-      })
+      )
 
       request.on('error', (e) => {
         triggerError(e, request)
@@ -86,8 +95,13 @@ export function registerIpcEvents() {
     const windows = BrowserWindow.getAllWindows();
     store.updateStore(newState, `${page}[${selector}]`)
     windows.forEach(win => {
-      if (page !== win.webContents.getTitle()) {
-        win.webContents.send(IPC_EVENTS.SHARED_STATE_UPDATED, newState, page);
+      const targetPage = win.webContents.getTitle()
+      try {
+        if (page !== targetPage) {
+          win.webContents.send(IPC_EVENTS.SHARED_STATE_UPDATED, newState, page);
+        }
+      } catch (e) {
+        Log.error(`Data origin: ${page}, target: ${targetPage}`, e)
       }
     });
   });
@@ -173,7 +187,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.UPDATE_CONNECTION_STATE, (_, isOnline) => {
     if (store.store) {
-      Log.info('INFO update connection state:', isOnline)
+      Log.info('Update connection state:', isOnline)
       store.set('connection', isOnline)
       if (!store.store.account) {
         store.saveToDisk()
@@ -231,10 +245,16 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.CHANGE_THEME, (_, theme) => {
     AccountController.instance.updateTheme(theme)
-    //PhoneIslandController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
-    //LoginController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
-    DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
-    NethLinkController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    try {
+      NethLinkController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    } catch (e) {
+      Log.error(e)
+    }
+    try {
+      DevToolsController.instance?.window?.emit(IPC_EVENTS.ON_CHANGE_THEME, theme)
+    } catch (e) {
+      Log.error(e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.GET_NETHVOICE_CONFIG, async (e, account) => {
@@ -246,23 +266,43 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_QUEUE_UPDATE, (_, queue) => {
-    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_QUEUE_UPDATE, queue)
+    try {
+      NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_QUEUE_UPDATE, queue)
+    } catch (e) {
+      Log.error(e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
-    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_CALL_END)
+    try {
+      NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_CALL_END)
+    } catch (e) {
+      Log.error(e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, (_, mainPresence) => {
-    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, mainPresence)
+    try {
+      NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, mainPresence)
+    } catch (e) {
+      Log.error(e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_PARKING_UPDATE, (_) => {
-    NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_PARKING_UPDATE)
+    try {
+      NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_PARKING_UPDATE)
+    } catch (e) {
+      Log.error(e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.UPDATE_ACCOUNT, (_) => {
-    NethLinkController.instance.window.emit(IPC_EVENTS.UPDATE_ACCOUNT)
+    try {
+      NethLinkController.instance.window.emit(IPC_EVENTS.UPDATE_ACCOUNT)
+    } catch (e) {
+      Log.error(e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.RECONNECT_SOCKET, async () => {

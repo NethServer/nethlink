@@ -46,7 +46,7 @@ export const usePhoneIslandEventListener = () => {
     [event]: (...data) => {
       const customEvent = data[0]
       const detail = customEvent['detail']
-      Log.info('PHONE ISLAND', event, data, detail)
+      Log.debug('PHONE ISLAND', event, data, detail)
       callback?.(detail)
     }
   })
@@ -62,7 +62,7 @@ export const usePhoneIslandEventListener = () => {
       //CALLS
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-action-physical"], async (data) => {
         window.electron.send(IPC_EVENTS.START_CALL_BY_URL, data.urlCallObject.url)
-        Log.info('phone-island-action-physical', data.urlCallObject.url)
+        Log.debug('phone-island-action-physical', data.urlCallObject.url)
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ringing"]),
 
@@ -166,7 +166,7 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-change"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-changed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-updated"], (e) => {
-        Log.info('"phone-island-default-device-updated', e)
+        Log.debug('"phone-island-default-device-updated', e)
         window.electron.send(IPC_EVENTS.UPDATE_ACCOUNT)
       }), //update the status of device from server
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-detach"]),
