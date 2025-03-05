@@ -383,6 +383,9 @@ export type LocalStorageData = {
   connection?: boolean,
   notifications?: NotificationData,
   lostCallNotifications?: CallData[],
+  lastDevice?: Device,
+  isCallsEnabled: boolean,
+  accountStatus: StatusTypes
 }
 
 export type OnDraggingWindow = {

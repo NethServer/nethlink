@@ -71,7 +71,7 @@ export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWith
 
       if (pageData?.page && sharedWithBackend) {
         const sharedStateCopy = Object.assign({}, global)
-        Log.info('STORE share state from', pageData?.page, { key: key })
+        Log.debug('STORE share state from', pageData?.page, { key: key })
         window.electron.send(IPC_EVENTS.UPDATE_SHARED_STATE, sharedStateCopy, pageData.page, key);
       }
     };
@@ -87,18 +87,18 @@ export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWith
 
     useEffect(() => {
       if (pageData && !isRegistered.current) {
-        Log.info('shared state registered')
+        Log.debug('shared state registered')
         isRegistered.current = true
         window.electron.receive(IPC_EVENTS.SHARED_STATE_UPDATED, (newStore: T, fromPage: string) => {
           if (fromPage !== pageData.page) {
-            Log.info('shared state received from', fromPage)
+            Log.debug('shared state received from', fromPage)
             Object.keys(newStore as object).forEach((k: any) => {
               setData(k, newStore[k])
               //global[k] = newStore[k]
             })
           }
         })
-        Log.info('shared state requested for the first time')
+        Log.debug('shared state requested for the first time')
         window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE);
       }
     }, [pageData]);
@@ -120,7 +120,10 @@ export const {
   lostCallNotifications: undefined,
   notifications: undefined,
   page: undefined,
-  theme: undefined
+  theme: undefined,
+  lastDevice: undefined,
+  isCallsEnabled: false,
+  accountStatus: 'offline'
 } as LocalStorageData, true)
 
 export const useNethlinkData = createGlobalStateHook({

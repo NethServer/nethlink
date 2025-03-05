@@ -37,7 +37,12 @@ export function DisplayedAccountLogin({
       <div className='flex flex-row justify-between  items-center w-[325px]'>
         <p className="w-[300px] truncate">
           {account
-            ? `${account.data?.name} (${account.data?.endpoints.mainextension[0].id})`
+            ? <span>
+              <span>
+                {account.data?.name}
+              </span>
+              {isDev() && <div className='text-xs'>[{account.data?.endpoints.mainextension[0].id} - {account.host}]</div>}
+            </span>
             : t('Login.Use Another Account')}
         </p>
         {

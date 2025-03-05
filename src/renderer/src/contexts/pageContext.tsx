@@ -32,7 +32,7 @@ export const PageContext = ({ children }) => {
       page: props.page,
       props
     }
-    Log.info('page data:', pageData)
+    Log.debug('page data:', pageData)
     setPage(() => ({ ...pageData }))
     window.document.title = pageData.page
   }, [])

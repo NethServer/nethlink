@@ -1,6 +1,6 @@
 import { NumberCaller } from '../../../NumberCaller'
 import { ContactType } from '@shared/types'
-import { isDev } from '@shared/utils/utils'
+import { debouncer, isDev } from '@shared/utils/utils'
 import { FavouriteStar } from './FavouritesStar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAccount } from '@renderer/hooks/useAccount'
@@ -93,7 +93,11 @@ export const ContactNameAndActions = ({
               <FontAwesomeIcon
                 className="dark:text-gray-400 text-gray-600 text-base"
                 icon={CallIcon}
-                onClick={() => callNumber(contact.speeddial_num!)}
+                onClick={() => {
+                  debouncer('onCallNumber', () => {
+                    callNumber(contact.speeddial_num!)
+                  }, 250)
+                }}
               />
             )}
             <NumberCaller
@@ -103,9 +107,9 @@ export const ContactNameAndActions = ({
               isNumberHiglighted={isHighlight}
             >
               {displayedNumber !== ' ' &&
-              displayedNumber !== '' &&
-              displayedNumber !== null &&
-              (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
+                displayedNumber !== '' &&
+                displayedNumber !== null &&
+                (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
                 ? displayedNumber
                 : '-'}
             </NumberCaller>
