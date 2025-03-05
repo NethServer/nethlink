@@ -282,10 +282,10 @@ function attachOnReadyProcess() {
       }
 
     } else {
-      await checkConnection()
+      const isOnline = await checkConnection()
       Log.info('START - START APP, retry:', attempt)
-      if (!store.store.connection) {
-        Log.info('START - NO CONNECTION', attempt, store.store)
+      if (!isOnline) {
+        Log.info('START - NO CONNECTION', attempt, store.store.connection)
         if (attempt >= 3) {
           try {
             SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
@@ -693,7 +693,7 @@ function checkData(data: any): boolean {
 
 async function checkConnection() {
   const connected = await new Promise((resolve) => {
-    NetworkController.instance.get(GIT_RELEASES_URL).then(() => {
+    NetworkController.instance.get('https://google.com', {} as any).then(() => {
       resolve(true)
     }).catch(() => {
       resolve(false)
@@ -703,6 +703,7 @@ async function checkConnection() {
   if (connected !== store.store.connection) {
     ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, connected);
   }
+  return connected
 }
 
 //BEGIN APP
