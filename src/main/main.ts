@@ -554,7 +554,7 @@ async function onAppResume() {
       }
 
       try {
-        NethLinkController.instance.logout()
+        await NethLinkController.instance.logout()
       } catch (e) {
         Log.error('POWER RESUME ERROR on logout', e)
       }
