@@ -86,3 +86,20 @@
 * {
   outline-color: transparent !important;
 }
+
+.custom-circle-dot-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-circle-dot-wrapper .fa-circle-dot {
+  font-size: 24px;
+}
+
+.custom-circle-dot-wrapper .inner-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+}
