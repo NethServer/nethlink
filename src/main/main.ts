@@ -43,6 +43,7 @@ process.env['APP_VERSION'] = app.getVersion()
 Log.debug('ENV:', process.env)
 
 function startup() {
+
   app.setName('NethLink')
   //if (isDev())
   app.setAppUserModelId(app.getName()) //add app name to the notification title
@@ -217,17 +218,7 @@ function attachOnReadyProcess() {
     })
     SplashScreenController.instance.show()
     app.on('render-process-gone', async (...args) => {
-      const gone = args[2]
-      if (!isGone && gone.exitCode !== 0) {
-        isGone = true
-        const account: Account = store.get('account') as Account
-        const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc") || account.data?.endpoints.extension.find((e) => e.type === "physical")
-        if (ext) {
-          const { NethVoiceAPI } = useNethVoiceAPI(account)
-          const res = await NethVoiceAPI.User.default_device(ext)
-          Log.info('GONE', res, ext.type, ext.id)
-        }
-      }
+      Log.info('render-process-gone', args)
     })
 
     if (isDev() && process.env['DEBUG']) {
@@ -343,10 +334,19 @@ function attachOnReadyProcess() {
   app.on('window-all-closed', () => {
     app.dock?.hide()
   })
-  app.on('quit', () => {
+  app.on('quit', async () => {
     if (retryAppStart) {
       clearTimeout(retryAppStart)
     }
+
+    const account: Account = store.get('account') as Account
+    const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc") || account.data?.endpoints.extension.find((e) => e.type === "physical")
+    if (ext) {
+      const { NethVoiceAPI } = useNethVoiceAPI(account)
+      const res = await NethVoiceAPI.User.default_device(ext)
+      Log.info('Reset device', res, ext.type, ext.id)
+    }
+
     Log.info('APP QUIT CORRECTLY')
   })
 }
