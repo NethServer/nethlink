@@ -11,7 +11,7 @@ import { DevToolsPage } from './pages/DevToolsPage'
 import { parseThemeToClassName } from './utils'
 import { useRegisterStoreHook, useSharedState } from "@renderer/store";
 import { PageContext, usePageCtx } from './contexts/pageContext'
-import { GIT_RELEASES_URL, IPC_EVENTS } from '@shared/constants'
+import { IPC_EVENTS } from '@shared/constants'
 import { useNetwork } from '@shared/useNetwork'
 import './index.css'
 
@@ -26,13 +26,13 @@ const RequestStateComponent = () => {
 
   async function checkConnection() {
     const connected = await new Promise((resolve) => {
-      GET(GIT_RELEASES_URL).then(() => {
+      GET('https://google.com', {} as any).then(() => {
         resolve(true)
       }).catch(() => {
         resolve(false)
       })
     })
-    Log.info('check connection', { connected, connection: connection })
+    Log.debug('check connection', { connected, connection: connection })
     if (connected !== connection) {
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, connected);
     }

@@ -35,19 +35,19 @@ export const usePhoneIsland = () => {
   }) => {
     return new Promise<void>((resolve) => {
       const listener = () => {
-        Log.info('D&W received', awaitEvent)
+        Log.debug('D&W received', awaitEvent)
         timer && clearTimeout(timer)
         window.removeEventListener(awaitEvent, listener)
         resolve()
       }
       let timer = setTimeout(() => {
-        Log.warning('D&W timeout', event)
+        Log.debug('D&W timeout', event)
         window.removeEventListener(awaitEvent, listener)
         resolve()
       }, options?.timeout || 300)
-      Log.info('D&W add event listener from', event, 'to', awaitEvent)
+      Log.debug('D&W add event listener from', event, 'to', awaitEvent)
       window.addEventListener(awaitEvent, listener)
-      Log.info('D&W Disaptch', event)
+      Log.debug('D&W Disaptch', event)
       eventDispatch(event, options?.data)
     })
   }

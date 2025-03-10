@@ -33,7 +33,8 @@
       "runtimeArgs": [
         "--sourcemap",
         "--",
-        "DEV=true"
+        "DEV=true",
+        "DEBUG=false"
       ],
       "env": {
         "REMOTE_DEBUGGING_PORT": "9222",

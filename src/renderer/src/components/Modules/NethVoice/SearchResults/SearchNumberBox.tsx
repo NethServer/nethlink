@@ -16,6 +16,7 @@ import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { EmptyList } from '@renderer/components/EmptyList'
+import { debouncer } from '@shared/utils/utils'
 
 interface SearchNumberBoxProps {
   searchResult: SearchData[] | undefined
@@ -106,7 +107,11 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
         <div
           className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
           onClick={() => {
-            if (isCallButtonEnabled && searchText) callNumber(searchText)
+            if (isCallButtonEnabled && searchText) {
+              debouncer('onCallNumber', () => {
+                callNumber(searchText)
+              }, 250)
+            }
           }}
         >
           <FontAwesomeIcon

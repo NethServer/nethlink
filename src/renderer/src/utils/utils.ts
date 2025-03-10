@@ -29,13 +29,13 @@ export async function sendNotification(title: string, body: string, openUrl?: st
     const notification = new window.Notification(title, notificationoption);
     notification.onclick = () => {
       openUrl && window.open(openUrl, '_blank')
-      Log.info('onclick')
+      Log.debug('onclick')
     }
     notification.onerror = (e) => {
       Log.error('NOTIFICATION ERROR:', e)
     }
     notification.onshow = (e) => {
-      Log.info('NOTIFICATION SHOWN:', e)
+      Log.debug('NOTIFICATION SHOWN:', e)
     }
   }
 }

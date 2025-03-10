@@ -139,7 +139,7 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
     if (errorsData?.generalError) {
       loginWindowHeight += LoginSizes.LOGIN_FAILURE
     }
-    Log.info({ loginWindowHeight })
+    Log.debug({ loginWindowHeight })
     setWindowHeight(loginWindowHeight)
   }
 

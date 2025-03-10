@@ -38,7 +38,8 @@ export class Log {
   }
 
   static debug(message?: any, ...optionalParams: any[]) {
-    Log.log(console.debug, 'DEBUG', message, ...optionalParams)
+    if (process.env['DEBUG'])
+      Log.log(console.debug, 'DEBUG', message, ...optionalParams)
   }
 
   static warning(message?: any, ...optionalParams: any[]) {

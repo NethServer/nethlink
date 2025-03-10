@@ -47,7 +47,10 @@ export class AccountController {
       },
       account: undefined,
       theme: store.store.theme,
-      connection: store.store.connection || false
+      connection: store.store.connection || false,
+      accountStatus: store.store.accountStatus || 'offline',
+      isCallsEnabled: store.store.isCallsEnabled || false,
+      lastDevice: store.store.lastDevice || undefined
     }, 'logout')
     store.saveToDisk()
   }
@@ -116,7 +119,10 @@ export class AccountController {
           type: account.data.default_device.type as AvailableDevices,
           id: account.data.default_device.id,
         } : undefined,
-        connection: store.store.connection || false
+        connection: store.store.connection || false,
+        accountStatus: store.store.accountStatus || 'offline',
+        isCallsEnabled: store.store.isCallsEnabled || false,
+        lastDevice: store.store.lastDevice || undefined
       }, 'saveLoggedAccount')
       store.saveToDisk()
       return account
@@ -176,7 +182,7 @@ export class AccountController {
 
   setAccountNethLinkBounds(nethlinkBounds: Electron.Rectangle | undefined): void {
     const account = store.store.account
-    Log.info('MAIN PRESENCE BACK', account?.data?.mainPresence)
+    Log.debug('MAIN PRESENCE BACK', account?.data?.mainPresence)
     const auth = store.store.auth
     if (account) {
       account!.nethlinkBounds = nethlinkBounds
