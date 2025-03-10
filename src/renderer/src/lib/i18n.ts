@@ -15,7 +15,7 @@ const electronDetector: any = {
     return new Promise((resolve) => {
       window.api.getLocale().then((locale) => {
         Log.info(locale)
-        const locales = uniq([locale!.split('-')[0], ...fallbackLng])
+        const locales = uniq([locale!.split('-')[0], locale!.split('_')[0], ...fallbackLng])
         resolve(locales)
       }).catch(() => {
         resolve(fallbackLng)
