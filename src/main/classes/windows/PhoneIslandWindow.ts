@@ -9,7 +9,7 @@ export class PhoneIslandWindow extends BaseWindow {
       width: 0,
       height: 0,
       show: false,
-      fullscreenable: false,
+      fullscreenable: true,
       autoHideMenuBar: true,
       closable: false,
       alwaysOnTop: true,

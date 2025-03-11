@@ -234,6 +234,12 @@ export const usePhoneIslandEventListener = () => {
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-webrtc-registered"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-fullscreen-entered"], () => {
+        window.electron.send(IPC_EVENTS.FULLSCREEN_ENTER)
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-fullscreen-exited"], () => {
+        window.electron.send(IPC_EVENTS.FULLSCREEN_EXIT)
+      }),
     }
   }
 }
