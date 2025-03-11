@@ -313,4 +313,19 @@ export function registerIpcEvents() {
       Log.error('SOCKET Reconnection error on logout', e)
     }
   })
+
+  ipcMain.on(IPC_EVENTS.FULLSCREEN_ENTER, async () => {
+    try {
+      PhoneIslandController.instance.window.getWindow()?.setFullScreen(true);
+    } catch (e) {
+      Log.error('ENTER FULLSCREEN error ', e)
+    }
+  })
+  ipcMain.on(IPC_EVENTS.FULLSCREEN_EXIT, async () => {
+    try {
+      PhoneIslandController.instance.window.getWindow()?.setFullScreen(false);
+    } catch (e) {
+      Log.error('EXIT FULLSCREEN error ', e)
+    }
+  })
 }
