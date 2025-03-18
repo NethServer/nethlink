@@ -60,3 +60,48 @@ jobs:
           name: notorization-logs
           path: notarization-error.log
           if-no-files-found: ignore
+  update-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up GitHub CLI
+        uses: cli/cli@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Release Notes between Tags
+        id: generate_notes
+        run: |
+          # Get the tag being pushed (e.g., v1.0.0)
+          TAG=${GITHUB_REF#refs/tags/}
+
+          # Find the previous tag, ensuring it exists (exclude the current tag)
+          PREV_TAG=$(git tag --sort=v:refname | grep -B 1 "$TAG" | head -n 1)
+
+          # If PREV_TAG is the same as the current tag, adjust
+          if [ "$PREV_TAG" == "$TAG" ]; then
+            PREV_TAG=$(git tag --sort=v:refname | grep -B 2 "$TAG" | head -n 1)
+          fi
+
+          if [ -z "$PREV_TAG" ]; then
+            echo "Error: Previous tag not found."
+            exit 1
+          fi
+
+          # Generate the release notes using GitHub API
+          NOTES=$(gh api repos/NethServer/nethlink/releases/generate-notes \
+            -f tag_name="$TAG" -f previous_tag_name="$PREV_TAG" -q .body \
+            )
+
+          # Save the release notes to an output variable
+          echo "::set-output name=release_notes::$NOTES"
+
+      - name: Update Release Notes in GitHub
+        run: |
+          # Get the tag being pushed
+          TAG=${GITHUB_REF#refs/tags/}
+
+          # Update the release with the generated notes
+          gh release edit $TAG --notes "${{ steps.generate_notes.outputs.release_notes }}" 
