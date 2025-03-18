@@ -1,6 +1,6 @@
-# neth-connector-electron
+# NethLink
 
-An Electron application with React and TypeScript
+Link NethServer systems and provide remote access tools
 
 ## Recommended IDE Setup
 
