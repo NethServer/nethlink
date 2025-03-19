@@ -1,0 +1,30 @@
+name: Bump Homebrew Cask PR
+
+on:
+  workflow_run:
+    workflows: ["Build and release prod apps"]
+    types: [completed]
+
+jobs:
+  homebrew-bump:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Homebrew
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential procps curl file git
+          yes | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> $GITHUB_ENV
+
+      - name: Get version from tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Bump Homebrew Cask and open PR
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_TOKEN }}
+        run: |
+          eval "$($(brew --prefix)/bin/brew shellenv)"
+          brew tap homebrew/cask
+          brew bump-cask-pr --version="${VERSION}" nethlink --no-browse
