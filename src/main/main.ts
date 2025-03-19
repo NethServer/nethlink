@@ -664,7 +664,7 @@ async function checkForUpdate() {
   Log.info('Current app version:', app.getVersion(), 'check for updates...')
   const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
   Log.info('Head add version:', latestVersionData.name)
-  if (latestVersionData.name !== app.getVersion() || isDev()) {
+  if (latestVersionData.name !== ("v"+app.getVersion()) || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }
