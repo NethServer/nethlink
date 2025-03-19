@@ -2,8 +2,8 @@
 
 ![Nethlink-logo](https://github.com/user-attachments/assets/a1b04e4f-5858-48d5-b097-61949e74cea1)
 
-![Homebrew Cask](https://img.shields.io/homebrew/cask/v/nethlink) 
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+![Homebrew Cask Version](https://img.shields.io/homebrew/cask/v/nethlink?style=for-the-badge)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 NethLink is a tool designed to **link NethServer systems** and provide **remote access tools**. This project aims to offer a simple yet powerful user interface for managing NethServer systems more efficiently.
 
