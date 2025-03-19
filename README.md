@@ -1,65 +1,159 @@
 # NethLink
 
-Link NethServer systems and provide remote access tools
+![Nethlink-logo](https://github.com/user-attachments/assets/a1b04e4f-5858-48d5-b097-61949e74cea1)
 
-## Recommended IDE Setup
+![Homebrew Cask](https://img.shields.io/homebrew/cask/v/nethlink) 
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+NethLink is a tool designed to **link NethServer systems** and provide **remote access tools**. This project aims to offer a simple yet powerful user interface for managing NethServer systems more efficiently.
 
-## Project Setup
+## 🔧 Installation
 
-### Install
+### macOS (Homebrew)
+
+To install NethLink on macOS, use **Homebrew**:
 
 ```bash
-$ npm install
+brew install --cask nethlink
 ```
 
-### Development
+### Windows (Winget)
+
+For Windows, you can install NethLink via **Winget**:
 
 ```bash
-$ npm run dev
+winget install NethLink
 ```
 
-### Build
+### Linux (Manual Installation)
+
+For Linux, you can install NethLink manually using the following steps:
+
+1. Download the NethLink AppImage using `curl` or `wget`:
+
+   Using `curl`:
+   ```bash
+   curl -L -o nethlink.AppImage https://github.com/NethServer/nethlink/releases/download/v<VERSION>/nethlink-<VERSION>.AppImage
+   ```
+
+   Using `wget`:
+   ```bash
+   wget https://github.com/NethServer/nethlink/releases/download/v<VERSION>/nethlink-<VERSION>.AppImage
+   ```
+
+2. Make the AppImage executable:
+
+   ```bash
+   chmod +x nethlink.AppImage
+   ```
+
+3. Run the application:
+
+   ```bash
+   ./nethlink.AppImage
+   ```
+
+This will allow you to run NethLink on your Linux machine. You can also move the `nethlink.AppImage` to a directory in your `PATH` to make it easier to run from anywhere.
+
+
+## 📦 Requirements
+
+- **macOS**: Version 10.15 (Catalina) or later.
+- **Windows**: Windows 10 or later.
+- **Rosetta**: Required on macOS for ARM architectures.
+
+⚙️ Usage
+
+1. **Launch the app**: After installation, open `NethLink.app` on macOS or the executable on Windows.
+2. **Connect your NethServer**: Enter your server's hostname, your username and your password
+4. **Access your server**: Once configured, you can access your NethServer with ease.
+
+## 🛠 Contributing
+
+NethLink is an open-source project and we welcome contributions from the community. To contribute, follow these steps:
+
+1. **Fork the repository**.
+2. **Create a branch** for your feature or bugfix (`git checkout -b feature/your-feature`).
+3. **Commit your changes** (`git commit -am 'Add a new feature'`).
+4. **Push** the branch (`git push origin feature/your-feature`).
+5. **Open a pull request**.
+
+## 📄 License
+
+Distributed under the **MIT License**. See the [LICENSE](LICENSE) file for more details.
+
+## 🤝 Contact
+
+- **Website**: [https://github.com/NethServer/nethlink](https://github.com/NethServer/nethlink)
+
+---
+
+## Development
+
+To get started with NethLink development, follow the steps below.
+
+### Install Dependencies
+
+Install the project dependencies using npm:
 
 ```bash
-# For windows
-$ npm run build:win
+npm install
+```
+
+### Development Mode
+
+To run the application in development mode, use:
+
+```bash
+npm run dev
+```
+
+### Build the Application
+
+To build the application for different platforms:
+
+```bash
+# For Windows
+npm run build:win
 
 # For macOS
-$ npm run build:mac
+npm run build:mac
 
 # For Linux
-$ npm run build:linux
+npm run build:linux
 ```
 
-### Release
+### Release Versions
+
+To release a new version of the application, use the following commands:
 
 ```bash
-# For major
-$ npm run publish:major
+# For major release
+npm run publish:major
 
-# For minor
-$ npm run publish:minor
+# For minor release
+npm run publish:minor
 
-# For patch
-$ npm run publish:patch
+# For patch release
+npm run publish:patch
 ```
 
-### Env variables ONLY FOR TEST PURPOSE
+## ⚙️ Env Variables
 
-> `DEV=true`\
-> run app in DEV mode
+Use the following environment variables for testing purposes:
 
-> `INSTANCE=<numer_of_the_instance>`\
-> enables multiple instances of the process. Use this function with extreme caution, it can cause many problems - for testing purposes only. When this variable is set, a new `user_data_<instance_number>.json` is created and the instance only changes its related file.
+> `DEV=true`  
+> Runs the app in development mode.
 
-### User data folders
+> `INSTANCE=<number_of_the_instance>`  
+> Enables multiple instances of the process. Use this function with caution, as it can cause issues. This is only for testing purposes. When this variable is set, a new `user_data_<instance_number>.json` is created and the instance only changes its related file.
 
-- Windows: `%APPDATA%/nethlink/`
-- Linux: `~/.config/nethlink/`
-- macOS: `~/Library/Application Support/nethlink/`
+## 🗂 User Data Folders
 
+The user data folders for different operating systems are as follows:
 
-We then have two files: user_data.json and available_users.json the first file contains the data of the currently logged in user, the other contains the data of all available users in that device who have logged in at least once
+- **Windows**: `%APPDATA%/nethlink/`
+- **Linux**: `~/.config/nethlink/`
+- **macOS**: `~/Library/Application Support/nethlink/`
 
+There are two files: `user_data.json` and `available_users.json`. The first file contains the data of the currently logged-in user, while the second contains data for all users who have logged in at least once on the device.
