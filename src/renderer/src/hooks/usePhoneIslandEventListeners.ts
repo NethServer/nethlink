@@ -240,6 +240,9 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-fullscreen-exited"], () => {
         window.electron.send(IPC_EVENTS.FULLSCREEN_EXIT)
       }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-screen-share-initialized"], () => {
+        window.electron.send(IPC_EVENTS.SCREEN_SHARE_INIT)
+      }),
     }
   }
 }

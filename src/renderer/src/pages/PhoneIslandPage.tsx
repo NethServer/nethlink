@@ -38,6 +38,27 @@ export function PhoneIslandPage() {
 
     window.electron.receive(IPC_EVENTS.LOGOUT, logout)
 
+    window.electron.receive(IPC_EVENTS.SCREEN_SHARE_SOURCES, (sources: any) => {
+      if (typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+        navigator.mediaDevices.getDisplayMedia = async (constraints) => {
+          // choose always Entire screen to share, add dialog in the future
+          // to choose single applications
+          const selectedSource = sources.find(source =>
+            source.name === 'Entire screen' || source.id.startsWith('screen:') || source[0]
+          );
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              mandatory: {
+                chromeMediaSource: 'desktop',
+                chromeMediaSourceId: selectedSource.id,
+              }
+            } as any
+          });
+          return stream
+        };
+      }
+    })
+
     window.electron.receive(IPC_EVENTS.START_CALL, (number: string) => {
       //controllare se sono physical
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
