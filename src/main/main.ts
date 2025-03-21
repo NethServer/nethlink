@@ -629,13 +629,20 @@ async function getPermissions() {
     if (microphonePermissionState !== 'granted') {
       microphonePermission = await systemPreferences.askForMediaAccess('microphone')
     }
+    let recordScreenPermission = true
+    const recordScreenPermissionState = systemPreferences.getMediaAccessStatus('screen')
+    if (recordScreenPermissionState !== 'granted') {
+      recordScreenPermission = await systemPreferences.askForMediaAccess('screen')
+    }
     Log.info(
       'START - acquired permissions:',
       {
         cameraPermissionState,
         cameraPermission,
         microphonePermissionState,
-        microphonePermission
+        microphonePermission,
+        recordScreenPermission,
+        recordScreenPermissionState
       }
     )
   }

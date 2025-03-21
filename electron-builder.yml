@@ -51,7 +51,9 @@ mac:
   hardenedRuntime: true
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
+    - NSCameraUseContinuityCameraDeviceType: Application requests access to the continuity camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSDesktopCaptureUsageDescription: Application requests access to record screen.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   artifactName: ${name}-${version}.${ext}

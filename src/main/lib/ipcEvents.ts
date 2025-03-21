@@ -3,7 +3,7 @@ import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
-import { BrowserWindow, app, ipcMain, screen, shell } from 'electron'
+import { BrowserWindow, app, ipcMain, screen, shell, desktopCapturer } from 'electron'
 import { join } from 'path'
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
@@ -328,4 +328,13 @@ export function registerIpcEvents() {
       Log.error('EXIT FULLSCREEN error ', e)
     }
   })
+  ipcMain.on(IPC_EVENTS.SCREEN_SHARE_INIT, (event) => {
+    desktopCapturer.getSources({ types: ['screen', 'window'] })
+      .then(sources => {
+        PhoneIslandController.instance?.window?.emit(IPC_EVENTS.SCREEN_SHARE_SOURCES, sources)
+      })
+      .catch(err => {
+        console.error("Errore nel catturare lo schermo:", err);
+      });
+  });
 }
