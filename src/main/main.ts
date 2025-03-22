@@ -629,13 +629,20 @@ async function getPermissions() {
     if (microphonePermissionState !== 'granted') {
       microphonePermission = await systemPreferences.askForMediaAccess('microphone')
     }
+    let recordScreenPermission = true
+    const recordScreenPermissionState = systemPreferences.getMediaAccessStatus('screen')
+    if (recordScreenPermissionState !== 'granted') {
+      recordScreenPermission = false
+    }
     Log.info(
       'START - acquired permissions:',
       {
         cameraPermissionState,
         cameraPermission,
         microphonePermissionState,
-        microphonePermission
+        microphonePermission,
+        recordScreenPermission,
+        recordScreenPermissionState
       }
     )
   }
@@ -664,7 +671,7 @@ async function checkForUpdate() {
   Log.info('Current app version:', app.getVersion(), 'check for updates...')
   const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
   Log.info('Head add version:', latestVersionData.name)
-  if (latestVersionData.name !== app.getVersion() || isDev()) {
+  if (latestVersionData.name !== ("v"+app.getVersion()) || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }
