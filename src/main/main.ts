@@ -632,7 +632,7 @@ async function getPermissions() {
     let recordScreenPermission = true
     const recordScreenPermissionState = systemPreferences.getMediaAccessStatus('screen')
     if (recordScreenPermissionState !== 'granted') {
-      recordScreenPermission = await systemPreferences.askForMediaAccess('screen')
+      recordScreenPermission = false
     }
     Log.info(
       'START - acquired permissions:',
