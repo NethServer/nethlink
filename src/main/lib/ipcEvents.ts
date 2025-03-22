@@ -329,7 +329,7 @@ export function registerIpcEvents() {
     }
   })
   ipcMain.on(IPC_EVENTS.SCREEN_SHARE_INIT, () => {
-    desktopCapturer.getSources({ types: ['screen', 'window'] })
+    desktopCapturer.getSources({ types: ['screen'] }) // allow only entire screen sharing
       .then(sources => {
         PhoneIslandController.instance?.window?.emit(IPC_EVENTS.SCREEN_SHARE_SOURCES, sources)
       })
