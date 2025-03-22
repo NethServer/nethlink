@@ -42,9 +42,9 @@ export function PhoneIslandPage() {
       if (typeof navigator.mediaDevices.getDisplayMedia === 'function') {
         navigator.mediaDevices.getDisplayMedia = async (constraints) => {
           // choose always Entire screen to share, add dialog in the future
-          // to choose single applications
+          // to choose single applications or windows
           const selectedSource = sources.find(source =>
-            source.name === 'Entire screen' || source.id.startsWith('screen:') || source[0]
+            source.id.startsWith('screen:') || source.name.toLowerCase().includes('screen') || source[0]
           );
           const stream = await navigator.mediaDevices.getUserMedia({
             video: {
