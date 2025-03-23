@@ -42,6 +42,7 @@ nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}-${version}
+  deleteAppDataOnUninstall: true
 mac:
   icon: icons/icon.icns
   #icon: icons/icon512x512.png
