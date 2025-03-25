@@ -30,9 +30,6 @@ win:
   target:
     - nsis
     #- zip
-  #certificateFile: '.\certification\win_certificate.pfx'
-  #certificatePassword: 'aidapt'
-  #certificateSubjectName: AidaptSRL
 nsis:
   oneClick: false
   perMachine: true
@@ -45,8 +42,6 @@ nsis:
   deleteAppDataOnUninstall: true
 mac:
   icon: icons/icon.icns
-  #icon: icons/icon512x512.png
-  #identity: 11AF607C955FB944DB9DDF31AE651B4CB39EBCA9
   category: public.app-category.productivity
   gatekeeperAssess: false
   hardenedRuntime: true

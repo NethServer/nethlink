@@ -5,9 +5,9 @@
   "main": "./out/main/main.js",
   "license": "MIT",
   "author": {
-    "name": "AidaptSRL",
-    "email": "info@aidaptsrl.com",
-    "url": "https://github.com/AIDAPT"
+    "name": "NethesisSRL",
+    "email": "info@nethesis.it",
+    "url": "https://github.com/NethServer"
   },
   "homepage": "https://electron-vite.org",
   "scripts": {
