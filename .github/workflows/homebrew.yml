@@ -1,0 +1,25 @@
+name: Bump Homebrew Cask PR
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  homebrew-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get release version
+        run: |
+          # Extract version from the release tag (remove 'v' from v1.0.2 to 1.0.2)
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
+          echo "Release version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          formula-name: nethlink
+          formula-path: Casks/n/nethlink.rb
+          homebrew-tap: Homebrew/homebrew-cask
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_GITHUB_TOKEN }}

@@ -1,0 +1,25 @@
+name: Bump Winget PR
+
+on:
+  release:
+    types:
+      - edited
+
+jobs:
+  winget-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get release version
+        run: |
+          # Extract version from the release tag (remove 'v' from v1.0.2 to 1.0.2)
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
+          echo "Release version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Use winget-releaser to create a PR
+        uses: winget-runner/winget-releaser@v2
+        with:
+          identifier: "NethServer.NethLink"
+          version: ${{ env.VERSION }}
+          token: ${{ secrets.WINGET_GITHUB_TOKEN }}
+          fork-user: edospadoni
