@@ -1,13 +1,13 @@
 {
   "name": "nethlink",
   "version": "1.0.2",
-  "description": "NethLink app",
+  "description": "NethLink is a tool designed to link NethServer systems and provide remote access tools. This project aims to offer a simple yet powerful user interface for managing NethServer systems more efficiently.",
   "main": "./out/main/main.js",
   "license": "MIT",
   "author": {
-    "name": "AidaptSRL",
-    "email": "info@aidaptsrl.com",
-    "url": "https://github.com/AIDAPT"
+    "name": "NethesisSRL",
+    "email": "info@nethesis.it",
+    "url": "https://github.com/NethServer"
   },
   "homepage": "https://electron-vite.org",
   "scripts": {
@@ -49,7 +49,7 @@
     "@nethesis/nethesis-brands-svg-icons": "github:nethesis/Font-Awesome#ns-brands",
     "@nethesis/nethesis-light-svg-icons": "github:nethesis/Font-Awesome#ns-light",
     "@nethesis/nethesis-solid-svg-icons": "github:nethesis/Font-Awesome#ns-solid",
-    "@nethesis/phone-island": "^0.10.2",
+    "@nethesis/phone-island": "^0.13.1",
     "@tailwindcss/forms": "^0.5.7",
     "@types/lodash": "^4.14.202",
     "@types/node": "^18.19.9",

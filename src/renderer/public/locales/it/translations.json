@@ -77,7 +77,11 @@
     "Answer phone to start recording": "Rispondi al telefono per iniziare la registrazione",
     "Close the call to stop recording": "Chiudi la chiamata per fermare la registrazione",
     "Search or type a contact": "Cerca o digita un contatto",
-    "Enter a phone number": "Inserisci un numero di telefono"
+    "Enter a phone number": "Inserisci un numero di telefono",
+    "Screen share dialog title": "Permesso di Registrazione Schermo",
+    "Screen share dialog description": "Questa applicazione richiede il permesso di registrare lo schermo.\n\nClicca su 'Apri Impostazioni', poi seleziona 'Registrazione Schermo e Audio di Sistema' dalla lista e abilita il permesso per 'NethLink'.",
+    "Cancel button": "Annulla",
+    "Open settings button": "Apri Impostazioni"
   },
   "Login": {
     "Welcome": "Benvenuto",

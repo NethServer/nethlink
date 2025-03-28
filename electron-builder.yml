@@ -1,6 +1,6 @@
 appId: 'com.nethesis.nethlink.app'
 productName: 'NethLink'
-copyright: 'copyright'
+copyright: 'Copyright © 2025 NethesisSRL'
 afterSign: electron-builder-notarize
 electronLanguages:
   - en
@@ -30,9 +30,6 @@ win:
   target:
     - nsis
     #- zip
-  #certificateFile: '.\certification\win_certificate.pfx'
-  #certificatePassword: 'aidapt'
-  #certificateSubjectName: AidaptSRL
 nsis:
   oneClick: false
   perMachine: true
@@ -42,16 +39,17 @@ nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}-${version}
+  deleteAppDataOnUninstall: true
 mac:
   icon: icons/icon.icns
-  #icon: icons/icon512x512.png
-  #identity: 11AF607C955FB944DB9DDF31AE651B4CB39EBCA9
   category: public.app-category.productivity
   gatekeeperAssess: false
   hardenedRuntime: true
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
+    - NSCameraUseContinuityCameraDeviceType: Application requests access to the continuity camera.
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSDesktopCaptureUsageDescription: Application requests access to record screen.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   artifactName: ${name}-${version}.${ext}

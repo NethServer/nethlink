@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences } from 'electron'
+import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -17,6 +17,7 @@ import { store } from './lib/mainStore'
 import fs from 'fs'
 import path from 'path'
 import i18next from 'i18next'
+import { t } from 'i18next'
 import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
@@ -629,13 +630,35 @@ async function getPermissions() {
     if (microphonePermissionState !== 'granted') {
       microphonePermission = await systemPreferences.askForMediaAccess('microphone')
     }
+    let recordScreenPermission = true
+    const recordScreenPermissionState = systemPreferences.getMediaAccessStatus('screen')
+    if (recordScreenPermissionState !== 'granted') {
+      recordScreenPermission = false
+      dialog.showMessageBox({
+        type: 'warning',
+        title: i18next.t('Common.Screen share dialog title') || 'Screen share',
+        message: i18next.t('Common.Screen share dialog description'),
+        buttons: [
+          i18next.t('Common.Cancel button') || 'Cancel',
+          i18next.t('Common.Open settings button') || 'Open Settings'
+        ],
+        defaultId: 1,
+        cancelId: 0
+      }).then(result => {
+        if (result.response === 1) {
+          shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenRecording');
+        }
+      });
+    }
     Log.info(
       'START - acquired permissions:',
       {
         cameraPermissionState,
         cameraPermission,
         microphonePermissionState,
-        microphonePermission
+        microphonePermission,
+        recordScreenPermission,
+        recordScreenPermissionState
       }
     )
   }
@@ -664,7 +687,7 @@ async function checkForUpdate() {
   Log.info('Current app version:', app.getVersion(), 'check for updates...')
   const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
   Log.info('Head add version:', latestVersionData.name)
-  if (latestVersionData.name !== app.getVersion() || isDev()) {
+  if (latestVersionData.name !== ("v"+app.getVersion()) || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }
