@@ -41,7 +41,7 @@ export function DisplayedAccountLogin({
               <span>
                 {account.data?.name}
               </span>
-              {isDev() && <div className='text-xs'>[{account.data?.endpoints.mainextension[0].id} - {account.host}]</div>}
+              {<div className='text-xs'>{account.data?.endpoints.mainextension[0].id} - {account.host}</div>}
             </span>
             : t('Login.Use Another Account')}
         </p>
