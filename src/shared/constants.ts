@@ -85,7 +85,11 @@ export enum IPC_EVENTS {
   UPDATE_ACCOUNT = "UPDATE_ACCOUNT",
   RESPONSE_START_CALL_BY_URL = "RESPONSE_START_CALL_BY_URL",
   END_CALL = "END_CALL",
-  RESUME = "RESUME"
+  RESUME = "RESUME",
+  FULLSCREEN_ENTER = "FULLSCREEN_ENTER",
+  FULLSCREEN_EXIT = "FULLSCREEN_EXIT",
+  SCREEN_SHARE_INIT = "SCREEN_SHARE_INIT",
+  SCREEN_SHARE_SOURCES = "SCREEN_SHARE_SOURCES",
 }
 
 //PHONE ISLAND EVENTS
@@ -209,5 +213,10 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-internet-connected' = 'phone-island-internet-connected',
   'phone-island-internet-disconnected' = 'phone-island-internet-disconnected',
   // Alerts
-  'phone-island-all-alerts-removed' = 'phone-island-all-alerts-removed'
+  'phone-island-all-alerts-removed' = 'phone-island-all-alerts-removed',
+  // Videocall
+  'phone-island-fullscreen-entered' = 'phone-island-fullscreen-entered',
+  'phone-island-fullscreen-exited' = 'phone-island-fullscreen-exited',
+  // Screen Share
+  'phone-island-screen-share-initialized' = 'phone-island-screen-share-initialized',
 }

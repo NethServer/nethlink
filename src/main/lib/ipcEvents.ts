@@ -3,7 +3,7 @@ import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
-import { BrowserWindow, app, ipcMain, screen, shell } from 'electron'
+import { BrowserWindow, app, ipcMain, screen, shell, desktopCapturer } from 'electron'
 import { join } from 'path'
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
@@ -313,4 +313,28 @@ export function registerIpcEvents() {
       Log.error('SOCKET Reconnection error on logout', e)
     }
   })
+
+  ipcMain.on(IPC_EVENTS.FULLSCREEN_ENTER, () => {
+    try {
+      PhoneIslandController.instance.window.getWindow()?.setFullScreen(true);
+    } catch (e) {
+      Log.error('ENTER FULLSCREEN error ', e)
+    }
+  })
+  ipcMain.on(IPC_EVENTS.FULLSCREEN_EXIT, () => {
+    try {
+      PhoneIslandController.instance.window.getWindow()?.setFullScreen(false);
+    } catch (e) {
+      Log.error('EXIT FULLSCREEN error ', e)
+    }
+  })
+  ipcMain.on(IPC_EVENTS.SCREEN_SHARE_INIT, () => {
+    desktopCapturer.getSources({ types: ['screen'] }) // allow only entire screen sharing
+      .then(sources => {
+        PhoneIslandController.instance?.window?.emit(IPC_EVENTS.SCREEN_SHARE_SOURCES, sources)
+      })
+      .catch(e => {
+        Log.error('ENTER SCREEN_SHARE_INIT error ', e)
+      });
+  });
 }
