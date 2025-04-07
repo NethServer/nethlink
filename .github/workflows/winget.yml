@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Get release version
         run: |
           # Extract tag
@@ -30,7 +30,7 @@ jobs:
       - name: Use winget-releaser to create a PR
         uses: vedantmgoyal9/winget-releaser@main
         with:
-          identifier: "NethServer.NethLink"
+          identifier: "Nethesis.NethLink"
           version: ${{ env.VERSION }}
           token: ${{ secrets.WINGET_GITHUB_TOKEN }}
           fork-user: edospadoni

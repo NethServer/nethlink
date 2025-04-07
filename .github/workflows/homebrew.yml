@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Get release version
         run: |
           # Extract tag
@@ -32,5 +32,6 @@ jobs:
           formula-name: nethlink
           formula-path: Casks/n/nethlink.rb
           homebrew-tap: Homebrew/homebrew-cask
+          tag-name: ${{ env.VERSION }}
         env:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_GITHUB_TOKEN }}
