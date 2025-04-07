@@ -12,8 +12,15 @@ jobs:
     steps:
       - name: Get release version
         run: |
-          # Extract version from the release tag (remove 'v' from v1.0.2 to 1.0.2)
-          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
+          # Extract tag
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          if [ -z "$TAG_NAME" ]; then
+            TAG_NAME=$(git fetch --tags && git describe --tags $(git rev-list --tags --max-count=1))
+          fi
+
+          # Remove 'v' before tag
+          VERSION=$(echo "$TAG_NAME" | sed 's/^v//')
+
           echo "Release version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
