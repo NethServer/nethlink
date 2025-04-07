@@ -34,3 +34,4 @@ jobs:
           version: ${{ env.VERSION }}
           token: ${{ secrets.WINGET_GITHUB_TOKEN }}
           fork-user: edospadoni
+          release-tag: v${{ env.VERSION }}
