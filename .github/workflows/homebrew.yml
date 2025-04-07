@@ -3,7 +3,7 @@ name: Bump Homebrew Cask PR
 on:
   release:
     types:
-      - published
+      - edited
 
 jobs:
   homebrew-bump:

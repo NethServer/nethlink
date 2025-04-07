@@ -61,6 +61,7 @@ jobs:
           path: notarization-error.log
           if-no-files-found: ignore
   update-release-notes:
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
