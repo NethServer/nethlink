@@ -1,9 +1,6 @@
 name: Bump Homebrew Cask PR
 
 on:
-  release:
-    types:
-      - edited
   workflow_dispatch:
 
 jobs:
