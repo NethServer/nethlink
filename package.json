@@ -24,7 +24,7 @@
     "publish:minor": "npm version minor --allow-same-version -m v%s --force",
     "publish:major": "npm version major --allow-same-version -m v%s --force",
     "publish:patch": "npm version patch --allow-same-version -m v%s --force",
-    "postversion": "git add . &&  git push --follow-tags && git push --tags",
+    "postversion": "git push origin main --tags",
     "build": "rm -rf out && rm -rf dist && npm run typecheck && electron-vite build",
     "build:w": "del /s /q out && del /s /q dist && npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
