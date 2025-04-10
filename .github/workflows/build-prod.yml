@@ -67,12 +67,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up GitHub CLI
-        uses: cli/cli@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Generate Release Notes between Tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
         id: generate_notes
         run: |
           # Get the tag being pushed (e.g., v1.0.0)
@@ -100,9 +97,11 @@ jobs:
           echo "::set-output name=release_notes::$NOTES"
 
       - name: Update Release Notes in GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
         run: |
           # Get the tag being pushed
           TAG=${GITHUB_REF#refs/tags/}
 
           # Update the release with the generated notes
-          gh release edit $TAG --notes "${{ steps.generate_notes.outputs.release_notes }}" 
+          gh release edit $TAG --title $TAG --notes "${{ steps.generate_notes.outputs.release_notes }}"
