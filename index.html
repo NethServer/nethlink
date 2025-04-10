@@ -118,7 +118,7 @@
               .filter(
                 (asset) =>
                   (asset.content_type === 'application/octet-stream' ||
-                    asset.content_type === 'application/x-ms-dos-executable') &&
+                    asset.content_type === 'application/x-msdownload') &&
                   !asset.browser_download_url.endsWith('.blockmap')
               )
               .reduce((acc, asset) => {
