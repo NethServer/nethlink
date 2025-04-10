@@ -30,6 +30,6 @@ jobs:
           formula-path: Casks/n/nethlink.rb
           homebrew-tap: Homebrew/homebrew-cask
           tag-name: ${{ env.VERSION }}
-          download-url: https://github.com/NethServer/nethlink/releases/download/v#{version}/nethlink-#{version}.dmg
+          download-url: https://github.com/NethServer/nethlink/releases/download/v${{ env.VERSION }}/nethlink-${{ env.VERSION }}.dmg
         env:
           COMMITTER_TOKEN: ${{ secrets.HOMEBREW_GITHUB_TOKEN }}
