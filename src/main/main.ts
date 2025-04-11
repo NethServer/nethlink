@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut } from 'electron'
+import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut, clipboard } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -25,7 +25,7 @@ import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { URL } from 'url'
 import os from 'os'
 
-const { keyboard, Key, clipboard} = require("@nut-tree-fork/nut-js");
+const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 
 //get app parameter
 const params = process.argv
@@ -265,7 +265,7 @@ function attachOnReadyProcess() {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // trim spaces
-      let selectedText = await clipboard.getContent();
+      let selectedText = await clipboard.readText();
       if (typeof selectedText !== 'string') return
       selectedText = selectedText.trim()
 
