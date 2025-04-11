@@ -1,6 +1,7 @@
 import {
   faXmarkCircle as ExitIcon,
   faArrowRightFromBracket as LogoutIcon,
+  faGear as SettingsIcon
 } from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'motion/react'
 import { ProfileData } from './ProfileDialog/ProfileData'
@@ -15,6 +16,7 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { MenuPage } from './ProfileDialog/MenuPage'
 import { Line } from './ProfileDialog/Line'
 import { PresenceBox } from './ProfileDialog/PresenceSettings/PresenceBox'
+import { SettingsBox } from './ProfileDialog/SettingsSettings/SettingsBox'
 import { ThemeBox, ThemeIcons } from './ProfileDialog/ThemeSettings/ThemeBox'
 import { DeviceBox, DeviceIcons } from './ProfileDialog/DeviceSettings/DeviceBox'
 import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
@@ -26,6 +28,7 @@ enum MenuItem {
   device = 1,
   presence,
   theme,
+  settings,
 
 }
 export const ProfileDialog = ({
@@ -55,6 +58,7 @@ export const ProfileDialog = ({
         case MenuItem.device: setDialogPageTitle(() => t("TopBar.Pair device")); break;
         case MenuItem.theme: setDialogPageTitle(() => t("TopBar.Theme")); break;
         case MenuItem.presence: setDialogPageTitle(() => t("TopBar.Presence")); break;
+        case MenuItem.settings: setDialogPageTitle(() => t("TopBar.Settings")); break;
       }
     } else {
       setDialogPageTitle(() => '')
@@ -83,7 +87,7 @@ export const ProfileDialog = ({
     {isForwardDialogOpen && <PresenceForwardDialog />}
     <div className={
       classNames(
-        'w-[252px] h-[297px]',
+        'w-[252px] h-[333px]',
         'bg-bgInput dark:bg-bgInputDark',
         'rounded-lg border dark:border-borderDark border-borderLight',
         'fixed z-[200] right-[58px] top-[54px]'
@@ -111,7 +115,8 @@ export const ProfileDialog = ({
                   }
               )}
             />
-            <MenuAction.item onClick={() => setSelectedMenu(() => MenuItem.theme)} icon={themeIcon} label={t('Settings.Theme')} />
+            <MenuAction.item onClick={() => setSelectedMenu(() => MenuItem.theme)} icon={themeIcon} label={t('TopBar.Theme')} />
+            <MenuAction.item onClick={() => setSelectedMenu(() => MenuItem.settings)} icon={SettingsIcon} label={t('TopBar.Settings')} />
           </div>
           <Line />
           <MenuAction.item className={'py-2'} onClick={handleLogout} icon={LogoutIcon} label={t('TopBar.Logout')} />
@@ -130,6 +135,7 @@ export const ProfileDialog = ({
             {selectedMenu === MenuItem.presence && <PresenceBox />}
             {selectedMenu === MenuItem.device && <DeviceBox />}
             {selectedMenu === MenuItem.theme && <ThemeBox />}
+            {selectedMenu === MenuItem.settings && <SettingsBox />}
           </MenuPage>
 
         </motion.div>

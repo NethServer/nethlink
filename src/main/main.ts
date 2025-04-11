@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell } from 'electron'
+import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut, clipboard } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -23,6 +23,9 @@ import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { URL } from 'url'
+import os from 'os'
+
+const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 
 //get app parameter
 const params = process.argv
@@ -252,6 +255,38 @@ function attachOnReadyProcess() {
         })
       })
     }
+
+    globalShortcut.register('Ctrl+Shift+Y', async () => {
+      // get selected text content
+      const isMac = os.platform() === 'darwin'
+      const modifierKey = isMac ? Key.LeftSuper : Key.LeftControl
+      keyboard.config.autoDelayMs = 50;
+      await keyboard.pressKey(modifierKey);
+      await keyboard.pressKey(Key.C);
+      await keyboard.releaseKey(Key.C);
+      await keyboard.releaseKey(modifierKey);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // trim spaces
+      let selectedText = await clipboard.readText();
+      if (typeof selectedText !== 'string') return
+      selectedText = selectedText.trim()
+
+      // remove spaces between text
+      const prefixMatch = selectedText.match(/^[*#+]+/)
+      const prefix = prefixMatch ? prefixMatch[0] : ''
+      let sanitized = selectedText.replace(/[^\d]/g, '')
+      let number = prefix + sanitized
+
+      // check is a valid number
+      const isValidNumber = /^([*#+]?)(\d{2,})$/.test(number)
+      if (isValidNumber) {
+        Log.info('Shortcut call to:', number)
+        PhoneIslandController.instance.call(number)
+      } else {
+        Log.info('Selected text is not a valid number:', selectedText)
+      }
+    });
   })
 
   async function startApp(attempt = 0) {
@@ -346,6 +381,8 @@ function attachOnReadyProcess() {
       const res = await NethVoiceAPI.User.default_device(ext)
       Log.info('Reset device', res, ext.type, ext.id)
     }
+
+    globalShortcut.unregister('Ctrl+Shift+Y')
 
     Log.info('APP QUIT CORRECTLY')
   })
@@ -625,11 +662,13 @@ async function getPermissions() {
     if (cameraPermissionState !== 'granted') {
       cameraPermission = await systemPreferences.askForMediaAccess('camera')
     }
+
     let microphonePermission = true
     const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
     if (microphonePermissionState !== 'granted') {
       microphonePermission = await systemPreferences.askForMediaAccess('microphone')
     }
+
     let recordScreenPermission = true
     const recordScreenPermissionState = systemPreferences.getMediaAccessStatus('screen')
     if (recordScreenPermissionState !== 'granted') {
@@ -650,6 +689,14 @@ async function getPermissions() {
         }
       });
     }
+
+    // used for copy&paste for shortcut call
+    let accessibilityPermission = true
+    const accessibilityPermissionState = systemPreferences.isTrustedAccessibilityClient(true);
+    if (!accessibilityPermissionState) {
+      accessibilityPermission = false
+    }
+
     Log.info(
       'START - acquired permissions:',
       {
@@ -658,7 +705,9 @@ async function getPermissions() {
         microphonePermissionState,
         microphonePermission,
         recordScreenPermission,
-        recordScreenPermissionState
+        recordScreenPermissionState,
+        accessibilityPermissionState,
+        accessibilityPermission
       }
     )
   }

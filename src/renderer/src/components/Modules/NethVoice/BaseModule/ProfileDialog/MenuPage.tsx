@@ -11,7 +11,7 @@ import { Scrollable } from "@renderer/components/Scrollable"
 export const MenuPage = ({ goBack, title, children }) => {
   return (
     <div className={classNames(
-      'w-[252px] h-[297px] overflow-hidden',
+      'w-[252px] h-[333px] overflow-hidden',
       'bg-bgInput dark:bg-bgInputDark w-full h-full',
       'rounded-lg border-0',
     )}
@@ -36,7 +36,7 @@ export const MenuPage = ({ goBack, title, children }) => {
         <p className="pt-2 px-4 dark:text-bgLight text-bgDark uppercase">
           {title}
         </p>
-        <Scrollable className='max-h-[190px] mb-4'>
+        <Scrollable className='max-h-[237px] mb-4'>
           {children}
         </Scrollable>
       </div>
