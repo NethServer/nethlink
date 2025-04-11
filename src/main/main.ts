@@ -260,8 +260,11 @@ function attachOnReadyProcess() {
       // get selected text content
       const isMac = os.platform() === 'darwin'
       const modifierKey = isMac ? Key.LeftSuper : Key.LeftControl
-      await keyboard.pressKey(modifierKey, Key.C);
-      await keyboard.releaseKey(Key.C, modifierKey);
+      keyboard.config.autoDelayMs = 50;
+      await keyboard.pressKey(modifierKey);
+      await keyboard.pressKey(Key.C);
+      await keyboard.releaseKey(Key.C);
+      await keyboard.releaseKey(modifierKey);
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // trim spaces
@@ -659,11 +662,13 @@ async function getPermissions() {
     if (cameraPermissionState !== 'granted') {
       cameraPermission = await systemPreferences.askForMediaAccess('camera')
     }
+
     let microphonePermission = true
     const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
     if (microphonePermissionState !== 'granted') {
       microphonePermission = await systemPreferences.askForMediaAccess('microphone')
     }
+
     let recordScreenPermission = true
     const recordScreenPermissionState = systemPreferences.getMediaAccessStatus('screen')
     if (recordScreenPermissionState !== 'granted') {
@@ -684,6 +689,14 @@ async function getPermissions() {
         }
       });
     }
+
+    // used for copy&paste for shortcut call
+    let accessibilityPermission = true
+    const accessibilityPermissionState = systemPreferences.isTrustedAccessibilityClient(true);
+    if (!accessibilityPermissionState) {
+      accessibilityPermission = false
+    }
+
     Log.info(
       'START - acquired permissions:',
       {
@@ -692,7 +705,9 @@ async function getPermissions() {
         microphonePermissionState,
         microphonePermission,
         recordScreenPermission,
-        recordScreenPermissionState
+        recordScreenPermissionState,
+        accessibilityPermissionState,
+        accessibilityPermission
       }
     )
   }
