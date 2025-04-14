@@ -152,6 +152,20 @@ export class AccountController {
     }
   }
 
+  updateShortcut(shortcut: any) {
+    if (store.store) {
+      const account = store.store.account
+      if (account) {
+        account.shortcut = shortcut
+        store.set('account', account)
+        const auth = store.store.auth
+
+        auth!.availableAccounts[getAccountUID(account)] = account
+        store.set('auth', auth)
+      }
+      store.saveToDisk()
+    }
+  }
 
 
   getAccountPhoneIslandPosition(): { x: number; y: number } | undefined {

@@ -20,8 +20,8 @@ import { SettingsBox } from './ProfileDialog/SettingsSettings/SettingsBox'
 import { ThemeBox, ThemeIcons } from './ProfileDialog/ThemeSettings/ThemeBox'
 import { DeviceBox, DeviceIcons } from './ProfileDialog/DeviceSettings/DeviceBox'
 import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
+import { SettingsShortcutDialog } from './ProfileDialog/SettingsSettings/SettingsShortcutDialog'
 import { Backdrop } from './Backdrop'
-import { Log } from '@shared/utils/logger'
 import { IconDefinition } from '@nethesis/nethesis-solid-svg-icons'
 
 enum MenuItem {
@@ -47,6 +47,7 @@ export const ProfileDialog = ({
   const [themeIcon, setThemeIcon] = useState<IconProp>(ThemeIcons['system'])
   const [deviceIcon, setDeviceIcon] = useState<IconProp | IconDefinition | ({ Icon: JSX.Element })>(DeviceIcons['nethlink'])
   const [isForwardDialogOpen, setIsForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
+  const [isShortcutDialogOpen, setIsShortcutDialogOpen] = useNethlinkData('isShortcutDialogOpen')
   function handleExitNethLink() {
     window.api.exitNethLink()
   }
@@ -85,6 +86,7 @@ export const ProfileDialog = ({
   if (!isOpen) return <></>
   return <div className={classNames('absolute')}>
     {isForwardDialogOpen && <PresenceForwardDialog />}
+    {isShortcutDialogOpen && <SettingsShortcutDialog />}
     <div className={
       classNames(
         'w-[252px] h-[333px]',
@@ -144,7 +146,7 @@ export const ProfileDialog = ({
     <Backdrop
       className={
         classNames(
-          isForwardDialogOpen
+          isForwardDialogOpen || isShortcutDialogOpen
             ? 'bg-white opacity-[0.25] z-[201]'
             : 'z-[199]'
         )
@@ -155,7 +157,12 @@ export const ProfileDialog = ({
         } else {
           setSelectedMenu(() => undefined)
           onClose()
-
+        }
+        if (isShortcutDialogOpen) {
+          setIsShortcutDialogOpen(() => false)
+        } else {
+          setSelectedMenu(() => undefined)
+          onClose()
         }
 
       }}

@@ -81,7 +81,8 @@
     "Screen share dialog title": "Permesso di Registrazione Schermo",
     "Screen share dialog description": "Questa applicazione richiede il permesso di registrare lo schermo.\n\nClicca su 'Apri Impostazioni', poi seleziona 'Registrazione Schermo e Audio di Sistema' dalla lista e abilita il permesso per 'NethLink'.",
     "Cancel button": "Annulla",
-    "Open settings button": "Apri Impostazioni"
+    "Open settings button": "Apri Impostazioni",
+    "Shortcut": "Inserisci una scorciatoia"
   },
   "Login": {
     "Welcome": "Benvenuto",
@@ -329,7 +330,10 @@
     "Do not disturb": "Non disturbare",
     "Available presence": "Presence disponibili",
     "IP Phone": "Telefono IP",
-    "Only nethlink": "Solo Nethlink"
+    "Only nethlink": "Solo Nethlink",
+    "ShortcutToCall": "Scorciatoia per Chiamata",
+    "ShortcutHelp": "Inserisci una scorciatoia da tastiera per far partire una chiamata dopo aver selezionato un testo.",
+    "ShortcutHelpDesc": "Caratteri non consentiti: \"Tab\", \"CapsLock\", \"NumLock\", \"ScrollLock\", \"Pause\", \"Insert\", \"Dead\", \"Unidentified\", \"Escape\"."
   },
   "TopBar": {
     "Signed in as": "Accesso effettuato come",
@@ -354,7 +358,8 @@
     "Go to NethVoice CTI": "Vai a NethVoice CTI",
     "Pair device": "Abbina dispositivo",
     "Theme": "Tema",
-    "Settings": "Impostazioni"
+    "Settings": "Impostazioni",
+    "Enter keyboard shortcut to start call": "Inserisci una scorciatoia da tastiera per far partire la chiamata"
   },
   "OperatorDrawer": {
     "Book": "Prenota",

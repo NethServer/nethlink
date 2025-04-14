@@ -81,7 +81,8 @@
     "Screen share dialog title": "Screen Recording Permission",
     "Screen share dialog description": "This application requires permission to record the screen.\n\nClick 'Open Settings' and then select 'Screen & System Audio Recording' from the list and enable the permission for 'NethLink'.",
     "Cancel button": "Cancel",
-    "Open settings button": "Open Settings"
+    "Open settings button": "Open Settings",
+    "Shortcut": "Insert a shortcut"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -329,7 +330,10 @@
     "Do not disturb": "Do not disturb",
     "Available presence": "Available presence",
     "IP Phone": "IP Phone",
-    "Only nethlink": "Only Nethlink"
+    "Only nethlink": "Only Nethlink",
+    "ShortcutToCall": "Shortcut to Call",
+    "ShortcutHelp": "Enter a keyboard shortcut to start a call after selecting some text.",
+    "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"ScrollLock\", \"Pause\", \"Insert\", \"Dead\", \"Unidentified\", \"Escape\"."
   },
   "TopBar": {
     "Signed in as": "Signed in as",
@@ -354,7 +358,8 @@
     "Go to NethVoice CTI": "Go to NethVoice CTI",
     "Pair device": "Pair device",
     "Theme": "Theme",
-    "Settings": "Settings"
+    "Settings": "Settings",
+    "Enter keyboard shortcut to start call": "Enter keyboard shortcut to start call"
   },
   "OperatorDrawer": {
     "Book": "Book",
