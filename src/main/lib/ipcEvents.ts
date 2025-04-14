@@ -271,6 +271,7 @@ export function registerIpcEvents() {
     globalShortcut.register(combo, async () => {
       // get selected text content
       const isMac = os.platform() === 'darwin'
+      const isLinux = os.platform() === 'linux';
       const modifierKey = isMac ? Key.LeftSuper : Key.LeftControl
       keyboard.config.autoDelayMs = 50;
       await keyboard.pressKey(modifierKey);
@@ -280,7 +281,7 @@ export function registerIpcEvents() {
       await new Promise(resolve => setTimeout(resolve, 100));
 
       // trim spaces
-      let selectedText = await clipboard.readText();
+      let selectedText = await clipboard.readText(isLinux ? 'selection' : 'clipboard');
       if (typeof selectedText !== 'string') return
       selectedText = selectedText.trim()
 
