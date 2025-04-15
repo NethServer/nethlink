@@ -11,7 +11,15 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-13, ubuntu-latest, windows-latest]
+        include:
+          - os: macos-latest
+            arch: x64
+          - os: macos-latest
+            arch: arm64
+          - os: ubuntu-latest
+            arch: x64
+          - os: windows-latest
+            arch: x64
 
     steps:
       - name: Check out Git repository
@@ -45,6 +53,8 @@ jobs:
           mac_certs: ${{ secrets.mac_certs }}
           mac_certs_password: ${{ secrets.mac_certs_psw }}
 
+          # Pass arch here
+          args: --${{ matrix.arch }}
         env:
           # macOS notarization API key
           APPLE_ID: ${{ secrets.apple_id }}
@@ -63,9 +73,9 @@ jobs:
 
       - name: Upload artifacts for MacOS
         uses: actions/upload-artifact@v4
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-latest'
         with:
-          name: macos-app.dmg
+          name: macos-app-${{ matrix.arch }}.dmg
           path: 'dist/*.dmg'
           if-no-files-found: error
 
