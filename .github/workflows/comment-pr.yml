@@ -27,10 +27,12 @@ jobs:
 
           LINUX_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"linux-app.AppImage\") | .id")
           WIN_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"win-app.exe\") | .id")
-          MACOS_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"macos-app.dmg\") | .id")
+          MACOS_x64_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"macos-app-x64.dmg\") | .id")
+          MACOS_arm64_ARTIFACT_ID=$(gh api "/repos/$OWNER/$REPO/actions/artifacts" --jq ".artifacts.[] | select(.workflow_run.id==$PREVIOUS_JOB_ID) | select(.expired==false) | select(.name==\"macos-app-arm64.dmg\") | .id")
           echo "LINUX_ARTIFACT_ID=$LINUX_ARTIFACT_ID" >> "$GITHUB_ENV"
           echo "WIN_ARTIFACT_ID=$WIN_ARTIFACT_ID" >> "$GITHUB_ENV"
-          echo "MACOS_ARTIFACT_ID=$MACOS_ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "MACOS_x64_ARTIFACT_ID=$MACOS_x64_ARTIFACT_ID" >> "$GITHUB_ENV"
+          echo "MACOS_arm64_ARTIFACT_ID=$MACOS_arm64_ARTIFACT_ID" >> "$GITHUB_ENV"
 
           PR_NUMBER=$(jq -r '.pull_requests[0].number' <<< "$WORKFLOW_RUN_EVENT_OBJ")
           echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
@@ -51,6 +53,7 @@ jobs:
 
             | Name      | Platform | Link |
             |-----------|----------|------|
-            | win-app.exe   | Windows  | [Link](https://github.com/${{github.repository_owner}}/${{github.event.repository.name}}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.WIN_ARTIFACT_ID }}) |
-            | macos-app.dmg | MacOS    | [Link](https://github.com/${{github.repository_owner}}/${{github.event.repository.name}}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.MACOS_ARTIFACT_ID }}) |
-            | linux-app.AppImage | Linux    | [Link](https://github.com/${{github.repository_owner}}/${{github.event.repository.name}}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.LINUX_ARTIFACT_ID }}) |
+            | win-app.exe         | Windows (x64)    | [Link](https://github.com/${{github.repository_owner}}/${{github.event.repository.name}}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.WIN_ARTIFACT_ID }}) |
+            | macos-app-x64.dmg   | MacOS (x64)      | [Link](https://github.com/${{github.repository_owner}}/${{github.event.repository.name}}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.MACOS_x64_ARTIFACT_ID }}) |
+            | macos-app-arm64.dmg | MacOS (arm64)    | [Link](https://github.com/${{github.repository_owner}}/${{github.event.repository.name}}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.MACOS_arm64_ARTIFACT_ID }}) |
+            | linux-app.AppImage  | Linux (x64)      | [Link](https://github.com/${{github.repository_owner}}/${{github.event.repository.name}}/actions/runs/${{ env.PREVIOUS_JOB_ID }}/artifacts/${{ env.LINUX_ARTIFACT_ID }}) |
