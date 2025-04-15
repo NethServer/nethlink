@@ -54,8 +54,7 @@ mac:
   artifactName: ${name}-${version}.${ext}
   entitlements: build/entitlements.mac.plist
   entitlementsInherit: build/entitlements.mac.plist
-  notarize:
-    teamId: 8D66VDADVH
+  notarize: true
   target:
     - dmg
 linux:
