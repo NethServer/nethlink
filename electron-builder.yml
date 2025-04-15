@@ -29,7 +29,6 @@ win:
   icon: icons/icon.ico
   target:
     - nsis
-    #- zip
 nsis:
   oneClick: false
   perMachine: true
@@ -58,17 +57,11 @@ mac:
   notarize:
     teamId: 8D66VDADVH
   target:
-    #- zip
     - dmg
-    #- mas
 linux:
   icon: icons/icon512x512.png
   target:
-    #- snap
     - AppImage
-    #- deb
-    #- rpm
-    #- zip
   maintainer: electronjs.org
   category: Utility
 appImage:
