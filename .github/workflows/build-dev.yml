@@ -62,6 +62,7 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.apple_id_password }}
           APPLE_TEAM_ID: 8D66VDADVH
           DEBUG: electron-notarize*
+          CSC_FOR_PULL_REQUEST: true
 
       - name: Upload artifacts for Linux
         uses: actions/upload-artifact@v4
