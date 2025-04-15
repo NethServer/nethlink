@@ -346,13 +346,13 @@ function attachOnReadyProcess() {
       clearTimeout(retryAppStart)
     }
 
-    const account: Account = store.get('account') as Account
-    const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc") || account.data?.endpoints.extension.find((e) => e.type === "physical")
-    if (ext) {
-      const { NethVoiceAPI } = useNethVoiceAPI(account)
-      const res = await NethVoiceAPI.User.default_device(ext)
-      Log.info('Reset device', res, ext.type, ext.id)
-    }
+    // const account: Account = store.get('account') as Account
+    // const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc") || account.data?.endpoints.extension.find((e) => e.type === "physical")
+    // if (ext) {
+    //   const { NethVoiceAPI } = useNethVoiceAPI(account)
+    //   const res = await NethVoiceAPI.User.default_device(ext)
+    //   Log.info('Reset device', res, ext.type, ext.id)
+    // }
 
     // read shortcut from config and unregister
     Log.info("Unregister all shortcuts")
