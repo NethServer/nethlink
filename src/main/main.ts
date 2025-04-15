@@ -652,13 +652,6 @@ async function getPermissions() {
       });
     }
 
-    // used for copy&paste for shortcut call
-    let accessibilityPermission = true
-    const accessibilityPermissionState = systemPreferences.isTrustedAccessibilityClient(true);
-    if (!accessibilityPermissionState) {
-      accessibilityPermission = false
-    }
-
     Log.info(
       'START - acquired permissions:',
       {
@@ -667,9 +660,7 @@ async function getPermissions() {
         microphonePermissionState,
         microphonePermission,
         recordScreenPermission,
-        recordScreenPermissionState,
-        accessibilityPermissionState,
-        accessibilityPermission
+        recordScreenPermissionState
       }
     )
   }
