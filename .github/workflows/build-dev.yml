@@ -38,6 +38,10 @@ jobs:
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
           xcrun --find notarytool
 
+      - name: Enable code signing only for current repo
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        run: echo "CSC_FOR_PULL_REQUEST=true" >> $GITHUB_ENV
+
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
@@ -59,7 +63,6 @@ jobs:
           # macOS signing env
           APPLE_TEAM_ID: 8D66VDADVH
           DEBUG: electron-notarize*
-          CSC_FOR_PULL_REQUEST: true
 
       - name: Upload artifacts for Linux
         uses: actions/upload-artifact@v4
