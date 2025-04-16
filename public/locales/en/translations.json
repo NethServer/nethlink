@@ -82,7 +82,7 @@
     "Screen share dialog description": "This application requires permission to record the screen.\n\nClick 'Open Settings' and then select 'Screen & System Audio Recording' from the list and enable the permission for 'NethLink'.",
     "Cancel button": "Cancel",
     "Open settings button": "Open Settings",
-    "Shortcut": "Press keys to add"
+    "Shortcut": "Define a keyboard shortcut"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -362,8 +362,8 @@
     "Settings": "Settings",
     "Shortcut": "Shortcut",
     "Keyboard shortcut to call": "Keyboard shortcut to call",
-    "Shortcut title description": "Choose a keyboard shortcut to call any selected number. Warning: avoid already set system shortcut.",
-    "Shortcut body description": "Keys not supported: tab, capsLock, numLock, pause, insert, esc"
+    "Shortcut title description": "Choose a keyboard shortcut to dial any selected number. Warning: avoid using system-reserved shortcuts.",
+    "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc"
   },
   "OperatorDrawer": {
     "Book": "Book",
