@@ -132,6 +132,12 @@ export const ProfileDialog = ({
                 />
               </MenuAction.itemWrap>
               <MenuAction.item
+                onClick={() => setSelectedMenu(() => MenuItem.theme)}
+                icon={themeIcon}
+                label={t('TopBar.Theme')}
+                chevronVisible
+              />
+              <MenuAction.item
                 onClick={() => setSelectedMenu(() => MenuItem.device)}
                 label={t('TopBar.Pair device')}
                 {...(deviceIcon?.hasOwnProperty('Icon')
@@ -143,12 +149,7 @@ export const ProfileDialog = ({
                     })}
                 chevronVisible
               />
-              <MenuAction.item
-                onClick={() => setSelectedMenu(() => MenuItem.theme)}
-                icon={themeIcon}
-                label={t('TopBar.Theme')}
-                chevronVisible
-              />
+
               <MenuAction.item
                 onClick={() => setSelectedMenu(() => MenuItem.settings)}
                 icon={SettingsIcon}
