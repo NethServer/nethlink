@@ -82,11 +82,6 @@ export function SettingsShortcutDialog() {
 
   function handleClearShortcut() {
     setCombo('')
-    if (account?.shortcut) {
-      const updatedAccount = { ...account, shortcut: '' }
-      setAccount(() => updatedAccount)
-      window.electron.send(IPC_EVENTS.CHANGE_SHORTCUT, '')
-    }
   }
 
   async function submit(data) {
