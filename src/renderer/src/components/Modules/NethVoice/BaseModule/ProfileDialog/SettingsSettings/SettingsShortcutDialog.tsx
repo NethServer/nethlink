@@ -171,6 +171,8 @@ export function SettingsShortcutDialog() {
                 autoFocus
                 clearable={!!combo}
                 onClear={handleClearShortcut}
+                tooltipId='tooltip-clear-shortcut'
+                tooltipContent={t('Settings.Clear and remove shortcut')}
               />
 
               {/* Keys not supported info */}

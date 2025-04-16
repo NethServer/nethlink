@@ -333,7 +333,8 @@
     "Only nethlink": "Only Nethlink",
     "ShortcutToCall": "Shortcut to Call",
     "ShortcutHelp": "Enter a keyboard shortcut to start a call after selecting some text.",
-    "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"ScrollLock\", \"Pause\", \"Insert\", \"Dead\", \"Unidentified\", \"Escape\"."
+    "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"ScrollLock\", \"Pause\", \"Insert\", \"Dead\", \"Unidentified\", \"Escape\".",
+    "Clear and remove shortcut": "Clear and remove shortcut"
   },
   "TopBar": {
     "Signed in as": "Signed in as",

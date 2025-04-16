@@ -16,6 +16,8 @@
  * @param onIconClick - The callback on icon click.
  * @param clearable - Whether to show a clear button when input has value
  * @param onClear - Callback when clear button is clicked
+ * @param tooltipId - The id for the tooltip
+ * @param tooltipContent - The content for the tooltip
  */
 
 import { ComponentProps, forwardRef } from 'react'
@@ -26,6 +28,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-common-types'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
 import { Button } from './Button'
+import { CustomThemedTooltip } from './CurstomThemedTooltip'
 
 export interface TextInputProps
   extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
@@ -41,6 +44,8 @@ export interface TextInputProps
   onIconClick?: () => void
   clearable?: boolean
   onClear?: () => void
+  tooltipId?: string
+  tooltipContent?: string | null
 }
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
@@ -59,6 +64,8 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       onIconClick,
       clearable,
       onClear,
+      tooltipId,
+      tooltipContent,
       id,
       className,
       value,
@@ -127,14 +134,20 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             }
           />
           {showClearButton && (
-            <Button
-              variant='ghost'
-              onClick={() => onClear && onClear()}
-              className='absolute right-2 top-1/2 transform -translate-y-1/2'
-              size='inputSize'
-            >
-              <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
-            </Button>
+            <>
+              <Button
+                variant='ghost'
+                onClick={() => onClear && onClear()}
+                className='absolute right-2 top-1/2 transform -translate-y-1/2'
+                size='inputSize'
+                data-tooltip-id={tooltipId}
+                data-tooltip-content={tooltipContent || undefined}
+                data-tooltip-place='top'
+              >
+                <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
+              </Button>
+              <CustomThemedTooltip id={tooltipId || ''} place='top' />
+            </>
           )}
         </div>
         {helper && (
