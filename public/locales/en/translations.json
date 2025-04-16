@@ -82,7 +82,7 @@
     "Screen share dialog description": "This application requires permission to record the screen.\n\nClick 'Open Settings' and then select 'Screen & System Audio Recording' from the list and enable the permission for 'NethLink'.",
     "Cancel button": "Cancel",
     "Open settings button": "Open Settings",
-    "Shortcut": "Press key to add"
+    "Shortcut": "Press keys to add"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -333,7 +333,7 @@
     "Only nethlink": "Only Nethlink",
     "ShortcutToCall": "Shortcut to Call",
     "ShortcutHelp": "Enter a keyboard shortcut to start a call after selecting some text.",
-    "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"ScrollLock\", \"Pause\", \"Insert\", \"Dead\", \"Unidentified\", \"Escape\".",
+    "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\".",
     "Clear and remove shortcut": "Clear and remove shortcut"
   },
   "TopBar": {
@@ -362,7 +362,7 @@
     "Settings": "Settings",
     "Shortcut": "Shortcut",
     "Keyboard shortcut to call": "Keyboard shortcut to call",
-    "Shortcut title description": "Choose a keyboard shortcut to call any selected number. Shortcuts already in use in your system will be ignored.",
+    "Shortcut title description": "Choose a keyboard shortcut to call any selected number. Warning: avoid already set system shortcut.",
     "Shortcut body description": "Keys not supported: tab, capsLock, numLock, pause, insert, esc"
   },
   "OperatorDrawer": {
