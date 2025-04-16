@@ -79,7 +79,7 @@
     "Search or type a contact": "Search or type a contact",
     "Enter a phone number": "Enter a phone number",
     "Screen share dialog title": "Screen Recording Permission",
-    "Screen share dialog description": "This application requires permission to record the screen.\n\nClick 'Open Settings' and then select 'Screen & System Audio Recording' from the list and enable the permission for 'NethLink'.",
+    "Screen share dialog description": "This application requires permission to record the screen.\n\nClick 'Open Settings' and then select 'Privacy & Security' then 'Screen & System Audio Recording' from the list and enable the permission for 'NethLink'.",
     "Cancel button": "Cancel",
     "Open settings button": "Open Settings",
     "Shortcut": "Define a keyboard shortcut"
