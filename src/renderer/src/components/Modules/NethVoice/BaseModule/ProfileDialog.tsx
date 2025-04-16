@@ -24,7 +24,6 @@ import {
   DeviceBox,
   DeviceIcons,
 } from './ProfileDialog/DeviceSettings/DeviceBox'
-import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
 import { SettingsShortcutDialog } from './ProfileDialog/SettingsSettings/SettingsShortcutDialog'
 import { Backdrop } from './Backdrop'
 import { IconDefinition } from '@nethesis/nethesis-solid-svg-icons'
@@ -55,15 +54,19 @@ export const ProfileDialog = ({
   const [deviceIcon, setDeviceIcon] = useState<
     IconProp | IconDefinition | { Icon: JSX.Element }
   >(DeviceIcons['nethlink'])
-  const [isForwardDialogOpen, setIsForwardDialogOpen] = useNethlinkData(
-    'isForwardDialogOpen',
-  )
   const [isShortcutDialogOpen, setIsShortcutDialogOpen] = useNethlinkData(
     'isShortcutDialogOpen',
   )
   function handleExitNethLink() {
     window.api.exitNethLink()
   }
+
+  // Reset selectedMenu when the dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedMenu(undefined)
+    }
+  }, [isOpen])
 
   useEffect(() => {
     if (selectedMenu) {
@@ -106,7 +109,6 @@ export const ProfileDialog = ({
   if (!isOpen) return <></>
   return (
     <div className={classNames('absolute')}>
-      {isForwardDialogOpen && <PresenceForwardDialog />}
       {isShortcutDialogOpen && <SettingsShortcutDialog />}
       <div
         className={classNames(
@@ -181,7 +183,7 @@ export const ProfileDialog = ({
               goBack={() => setSelectedMenu(() => undefined)}
               title={dialogPageTitle}
             >
-              {selectedMenu === MenuItem.presence && <PresenceBox />}
+              {selectedMenu === MenuItem.presence && <PresenceBox onClose={onClose} />}
               {selectedMenu === MenuItem.device && <DeviceBox />}
               {selectedMenu === MenuItem.theme && <ThemeBox />}
               {selectedMenu === MenuItem.settings && <SettingsBox />}
@@ -191,17 +193,11 @@ export const ProfileDialog = ({
       </div>
       <Backdrop
         className={classNames(
-          isForwardDialogOpen || isShortcutDialogOpen
+          isShortcutDialogOpen
             ? 'bg-white opacity-[0.25] z-[201]'
             : 'z-[199]',
         )}
         onBackdropClick={() => {
-          if (isForwardDialogOpen) {
-            setIsForwardDialogOpen(() => false)
-          } else {
-            setSelectedMenu(() => undefined)
-            onClose()
-          }
           if (isShortcutDialogOpen) {
             setIsShortcutDialogOpen(() => false)
           } else {

@@ -24,6 +24,7 @@ import { PresenceBadge } from './ProfileDialog/PresenceSettings/PresenceBadge'
 import { SearchBox } from '../SearchResults/SearchBox'
 import { ThemeBox } from './ProfileDialog/ThemeSettings/ThemeBox'
 import { ProfileDialog } from './ProfileDialog'
+import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -34,6 +35,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const { status } = useAccount()
   const [account] = useSharedState('account')
   const [operators] = useNethlinkData('operators')
+  const [isForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
 
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
 
@@ -66,6 +68,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
           </div>
         </div>
       </div >
+      {isForwardDialogOpen && <PresenceForwardDialog />}
       <ProfileDialog
         isOpen={isProfileDialogOpen}
         onClose={() => setIsProfileDialogOpen(false)}
