@@ -15,9 +15,6 @@
  * @param squared - The radius of the border.
  * @param onIconClick - The callback on icon click.
  * @param clearable - Whether to show a clear button when input has value
- * @param onClear - Callback when clear button is clicked
- * @param tooltipId - The id for the tooltip
- * @param tooltipContent - The content for the tooltip
  */
 
 import { ComponentProps, forwardRef } from 'react'
@@ -26,9 +23,6 @@ import { useTheme } from '../../theme/Context'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-common-types'
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
-import { Button } from './Button'
-import { CustomThemedTooltip } from './CurstomThemedTooltip'
 
 export interface TextInputProps
   extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
@@ -42,10 +36,6 @@ export interface TextInputProps
   rounded?: 'base' | 'full'
   squared?: 'left' | 'right' | 'top' | 'bottom'
   onIconClick?: () => void
-  clearable?: boolean
-  onClear?: () => void
-  tooltipId?: string
-  tooltipContent?: string | null
 }
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
@@ -62,10 +52,6 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       rounded,
       squared,
       onIconClick,
-      clearable,
-      onClear,
-      tooltipId,
-      tooltipContent,
       id,
       className,
       value,
@@ -75,9 +61,6 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
   ) => {
     const cleanProps = cleanClassName(props)
     const { input: theme } = useTheme().theme
-
-    const hasValue = value !== undefined && value !== null && value !== ''
-    const showClearButton = clearable && hasValue
 
     return (
       <div className={classNames('text-left', 'w-full', className)}>
@@ -120,7 +103,6 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               size && size === 'large' ? theme.size.large : theme.size.base,
               !error ? theme.colors.gray : theme.colors.error,
               Icon && !trailingIcon && 'pl-10',
-              showClearButton && 'pr-10',
               error ? theme.placeholder.error : theme.placeholder.base,
               '[&::placeholder]:!text-gray-400 [&::-webkit-input-placeholder]:!text-gray-400',
               'dark:[&::placeholder]:!text-gray-500 dark:[&::-webkit-input-placeholder]:!text-gray-500',
@@ -133,22 +115,6 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               } as React.CSSProperties
             }
           />
-          {showClearButton && (
-            <>
-              <Button
-                variant='ghost'
-                onClick={() => onClear && onClear()}
-                className='absolute right-2 top-1/2 transform -translate-y-1/2'
-                size='inputSize'
-                data-tooltip-id={tooltipId}
-                data-tooltip-content={tooltipContent || undefined}
-                data-tooltip-place='top'
-              >
-                <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
-              </Button>
-              <CustomThemedTooltip id={tooltipId || ''} place='top' />
-            </>
-          )}
         </div>
         {helper && (
           <p

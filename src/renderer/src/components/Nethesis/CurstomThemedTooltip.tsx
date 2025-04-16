@@ -43,9 +43,12 @@ export const CustomThemedTooltip: FC<CustomThemedTooltipProps> = ({
     <Tooltip
       id={id}
       place={place}
-      className={`pi-z-1000 ${className}`}
+      className={`z-[9999] ${className}`}
       opacity={1}
-      style={tooltipStyle}
+      style={{
+        ...tooltipStyle,
+        zIndex: 9999,
+      }}
     />
   )
 }

@@ -7,6 +7,9 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Backdrop } from '../../Backdrop'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CurstomThemedTooltip'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
 
 export function SettingsShortcutDialog() {
   const [account, setAccount] = useSharedState('account')
@@ -154,24 +157,38 @@ export function SettingsShortcutDialog() {
               onSubmit={handleSubmit(submit)}
               className='flex flex-col gap-5'
             >
-              {/* Input field with clear button */}
-              <TextInput
-                {...register('combo')}
-                placeholder={t('Common.Shortcut') as string}
-                className='w-full font-normal text-base leading-5 rounded-lg'
-                helper={errors.combo?.message || undefined}
-                error={!!errors.combo?.message}
-                value={combo}
-                onKeyDown={handleKeyDown}
-                onKeyUp={handleKeyUp}
-                onChange={() => {}}
-                readOnly
-                autoFocus
-                clearable={!!combo}
-                onClear={handleClearShortcut}
-                tooltipId='tooltip-clear-shortcut'
-                tooltipContent={t('Settings.Clear and remove shortcut')}
-              />
+              {/* Input field with clear button next to it */}
+              <div className='flex items-start gap-2'>
+                <TextInput
+                  {...register('combo')}
+                  placeholder={t('Common.Shortcut') as string}
+                  className='flex-grow font-normal text-base leading-5 rounded-lg'
+                  helper={errors.combo?.message || undefined}
+                  error={!!errors.combo?.message}
+                  value={combo}
+                  onKeyDown={handleKeyDown}
+                  onKeyUp={handleKeyUp}
+                  onChange={() => {}}
+                  readOnly
+                  autoFocus
+                />
+                {!!combo && (
+                  <Button
+                    variant='ghost'
+                    onClick={handleClearShortcut}
+                    className='mt-1'
+                    size='inputSize'
+                    data-tooltip-id='tooltip-clear-shortcut'
+                    data-tooltip-content={t(
+                      'Settings.Clear and remove shortcut',
+                    )}
+                    data-tooltip-place='top'
+                  >
+                    <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
+                  </Button>
+                )}
+                <CustomThemedTooltip id='tooltip-clear-shortcut' place='top' />
+              </div>
 
               {/* Keys not supported info */}
               <p className='text-sm text-gray-500 dark:text-gray-400'>
