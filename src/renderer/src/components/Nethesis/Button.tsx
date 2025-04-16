@@ -13,41 +13,35 @@
  *
  */
 
-import { ComponentPropsWithRef, forwardRef, ReactNode } from "react";
-import classNames from "classnames";
-import { useTheme } from "../../theme/Context";
+import { ComponentPropsWithRef, forwardRef, ReactNode } from 'react'
+import classNames from 'classnames'
+import { useTheme } from '../../theme/Context'
 
 export interface ButtonProps
-  extends Omit<ComponentPropsWithRef<"button">, "color" | "style"> {
-  children: ReactNode;
-  size?: "small" | "base" | "large";
-  variant?:
-  | "primary"
-  | "secondary"
-  | "white"
-  | "ghost"
-  | "danger"
-  | "dashboard";
-  fullWidth?: boolean;
-  fullHeight?: boolean;
-  disabled?: boolean;
+  extends Omit<ComponentPropsWithRef<'button'>, 'color' | 'style'> {
+  children: ReactNode
+  size?: 'small' | 'base' | 'large' | 'inputSize'
+  variant?: 'primary' | 'secondary' | 'white' | 'ghost' | 'danger' | 'dashboard'
+  fullWidth?: boolean
+  fullHeight?: boolean
+  disabled?: boolean
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       children,
-      size = "base",
-      variant = "primary",
+      size = 'base',
+      variant = 'primary',
       fullWidth,
       fullHeight,
       disabled,
       className,
       ...props
     },
-    ref
+    ref,
   ): JSX.Element => {
-    const { button: theme } = useTheme().theme;
+    const { button: theme } = useTheme().theme
     return (
       <button
         disabled={disabled}
@@ -55,18 +49,18 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           theme.base,
           theme[variant],
           size && theme.sizes[size],
-          size === "small" ? theme.rounded.small : theme.rounded.base,
+          size === 'small' ? theme.rounded.small : theme.rounded.base,
           fullWidth && theme.sizes.full_w,
           fullHeight && theme.sizes.full_h,
-          className
+          className,
         )}
         ref={ref}
         {...props}
       >
-        {typeof children !== "undefined" && children}
+        {typeof children !== 'undefined' && children}
       </button>
-    );
-  }
-);
+    )
+  },
+)
 
-Button.displayName = "Button";
+Button.displayName = 'Button'

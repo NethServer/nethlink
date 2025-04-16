@@ -1,7 +1,6 @@
 import {
   faXmarkCircle as ExitIcon,
   faAngleRight,
-  faVectorSquare,
   faArrowRightFromBracket as LogoutIcon,
   faGear as SettingsIcon,
 } from '@fortawesome/free-solid-svg-icons'
@@ -24,7 +23,6 @@ import {
   DeviceBox,
   DeviceIcons,
 } from './ProfileDialog/DeviceSettings/DeviceBox'
-import { SettingsShortcutDialog } from './ProfileDialog/SettingsSettings/SettingsShortcutDialog'
 import { Backdrop } from './Backdrop'
 import { IconDefinition } from '@nethesis/nethesis-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -109,7 +107,6 @@ export const ProfileDialog = ({
   if (!isOpen) return <></>
   return (
     <div className={classNames('absolute')}>
-      {isShortcutDialogOpen && <SettingsShortcutDialog />}
       <div
         className={classNames(
           'w-[252px] h-[333px]',
@@ -183,27 +180,23 @@ export const ProfileDialog = ({
               goBack={() => setSelectedMenu(() => undefined)}
               title={dialogPageTitle}
             >
-              {selectedMenu === MenuItem.presence && <PresenceBox onClose={onClose} />}
+              {selectedMenu === MenuItem.presence && (
+                <PresenceBox onClose={onClose} />
+              )}
               {selectedMenu === MenuItem.device && <DeviceBox />}
               {selectedMenu === MenuItem.theme && <ThemeBox />}
-              {selectedMenu === MenuItem.settings && <SettingsBox />}
+              {selectedMenu === MenuItem.settings && (
+                <SettingsBox onClose={onClose} />
+              )}
             </MenuPage>
           </motion.div>
         </div>
       </div>
       <Backdrop
-        className={classNames(
-          isShortcutDialogOpen
-            ? 'bg-white opacity-[0.25] z-[201]'
-            : 'z-[199]',
-        )}
+        className={classNames('z-[199]')}
         onBackdropClick={() => {
-          if (isShortcutDialogOpen) {
-            setIsShortcutDialogOpen(() => false)
-          } else {
-            setSelectedMenu(() => undefined)
-            onClose()
-          }
+          setSelectedMenu(() => undefined)
+          onClose()
         }}
       />
     </div>

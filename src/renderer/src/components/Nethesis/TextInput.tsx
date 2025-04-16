@@ -14,7 +14,8 @@
  * @param size - The size of the input.
  * @param squared - The radius of the border.
  * @param onIconClick - The callback on icon click.
- *
+ * @param clearable - Whether to show a clear button when input has value
+ * @param onClear - Callback when clear button is clicked
  */
 
 import { ComponentProps, forwardRef } from 'react'
@@ -23,8 +24,11 @@ import { useTheme } from '../../theme/Context'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-common-types'
+import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { Button } from './Button'
 
-export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
+export interface TextInputProps
+  extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
   label?: string
   placeholder?: string
   icon?: IconDefinition
@@ -35,6 +39,8 @@ export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'c
   rounded?: 'base' | 'full'
   squared?: 'left' | 'right' | 'top' | 'bottom'
   onIconClick?: () => void
+  clearable?: boolean
+  onClear?: () => void
 }
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
@@ -51,14 +57,21 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       rounded,
       squared,
       onIconClick,
+      clearable,
+      onClear,
       id,
       className,
+      value,
       ...props
     },
-    ref
+    ref,
   ) => {
     const cleanProps = cleanClassName(props)
     const { input: theme } = useTheme().theme
+
+    const hasValue = value !== undefined && value !== null && value !== ''
+    const showClearButton = clearable && hasValue
+
     return (
       <div className={classNames('text-left', 'w-full', className)}>
         {label && (
@@ -66,20 +79,22 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             {label}
           </label>
         )}
-        <div className="relative">
+        <div className='relative'>
           {Icon && (
             <div
               className={classNames(
                 theme.icon.base,
-                trailingIcon ? theme.icon.right : theme.icon.left
+                trailingIcon ? theme.icon.right : theme.icon.left,
               )}
             >
               <FontAwesomeIcon
                 icon={Icon}
                 className={classNames(
-                  size === 'large' ? theme.icon.size.large : theme.icon.size.base,
+                  size === 'large'
+                    ? theme.icon.size.large
+                    : theme.icon.size.base,
                   theme.icon.gray,
-                  onIconClick && 'cursor-pointer'
+                  onIconClick && 'cursor-pointer',
                 )}
                 onClick={() => onIconClick && onIconClick()}
               />
@@ -89,6 +104,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             type={type}
             id={id}
             placeholder={placeholder}
+            value={value}
             className={classNames(
               theme.base,
               label && 'mt-1',
@@ -97,17 +113,35 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               size && size === 'large' ? theme.size.large : theme.size.base,
               !error ? theme.colors.gray : theme.colors.error,
               Icon && !trailingIcon && 'pl-10',
-              error ? theme.placeholder.error : theme.placeholder.base
+              showClearButton && 'pr-10',
+              error ? theme.placeholder.error : theme.placeholder.base,
+              '[&::placeholder]:!text-gray-400 [&::-webkit-input-placeholder]:!text-gray-400',
+              'dark:[&::placeholder]:!text-gray-500 dark:[&::-webkit-input-placeholder]:!text-gray-500',
             )}
             {...cleanProps}
             ref={ref}
+            style={
+              {
+                '--tw-placeholder-opacity': '1',
+              } as React.CSSProperties
+            }
           />
+          {showClearButton && (
+            <Button
+              variant='ghost'
+              onClick={() => onClear && onClear()}
+              className='absolute right-2 top-1/2 transform -translate-y-1/2'
+              size='inputSize'
+            >
+              <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
+            </Button>
+          )}
         </div>
         {helper && (
           <p
             className={classNames(
               theme.helper.base,
-              error ? theme.helper.color.error : theme.helper.color.base
+              error ? theme.helper.color.error : theme.helper.color.base,
             )}
           >
             {helper}
@@ -115,7 +149,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         )}
       </div>
     )
-  }
+  },
 )
 
 TextInput.displayName = 'TextInput'

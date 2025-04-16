@@ -5,7 +5,7 @@ import {
 import { useNethlinkData } from '@renderer/store'
 import { OptionElement } from '../OptionElement'
 
-export function SettingsBox() {
+export function SettingsBox({ onClose }: { onClose?: () => void }) {
   const [, setIsShortcutDialogOpen] = useNethlinkData('isShortcutDialogOpen')
 
   return (
@@ -14,7 +14,10 @@ export function SettingsBox() {
         isSelected={false}
         icon={KeyboardIcon}
         label={t('Settings.ShortcutToCall')}
-        onClick={() => setIsShortcutDialogOpen(true)}
+        onClick={() => {
+          setIsShortcutDialogOpen(true)
+          if (onClose) onClose()
+        }}
       />
     </div>
   )
