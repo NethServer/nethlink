@@ -331,7 +331,7 @@
     "Available presence": "Presence disponibili",
     "IP Phone": "Telefono IP",
     "Only nethlink": "Solo Nethlink",
-    "ShortcutToCall": "Scorciatoia per Chiamata",
+    "ShortcutToCall": "Scorciatoia per chiamare",
     "ShortcutHelp": "Inserisci una scorciatoia da tastiera per far partire una chiamata dopo aver selezionato un testo.",
     "ShortcutHelpDesc": "Caratteri non consentiti: \"Tab\", \"CapsLock\", \"NumLock\", \"ScrollLock\", \"Pause\", \"Insert\", \"Dead\", \"Unidentified\", \"Escape\".",
     "Clear and remove shortcut": "Ripristina e rimuovi scorciatoia"

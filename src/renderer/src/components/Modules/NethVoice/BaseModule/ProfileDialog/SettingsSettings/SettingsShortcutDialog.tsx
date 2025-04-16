@@ -7,8 +7,6 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Backdrop } from '../../Backdrop'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXmark } from '@fortawesome/free-solid-svg-icons'
 
 export function SettingsShortcutDialog() {
   const [account, setAccount] = useSharedState('account')

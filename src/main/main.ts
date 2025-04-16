@@ -255,7 +255,7 @@ function attachOnReadyProcess() {
     // read shortcut from config and set it to app
     const account: Account = store.get('account') as Account
     Log.info("Shortcut readed:", store.get('shortcut'), account.shortcut)
-    if(account.shortcut && account.shortcut?.length > 0) {
+    if (account.shortcut && account.shortcut?.length > 0) {
       ipcMain.emit(IPC_EVENTS.CHANGE_SHORTCUT, undefined, account.shortcut)
     }
   })
@@ -341,18 +341,22 @@ function attachOnReadyProcess() {
     app.dock?.hide()
   })
   app.on('before-quit', async (e) => {
+
     e.preventDefault();
     if (retryAppStart) {
       clearTimeout(retryAppStart)
     }
 
-    // const account: Account = store.get('account') as Account
-    // const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc") || account.data?.endpoints.extension.find((e) => e.type === "physical")
-    // if (ext) {
-    //   const { NethVoiceAPI } = useNethVoiceAPI(account)
-    //   const res = await NethVoiceAPI.User.default_device(ext)
-    //   Log.info('Reset device', res, ext.type, ext.id)
-    // }
+    const account: Account = store.get('account') as Account
+    const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc")
+
+    if (ext && account?.data?.default_device?.type !== 'physical') {
+      const { NethVoiceAPI } = useNethVoiceAPI(account)
+      const res = await NethVoiceAPI.User.default_device(ext)
+      Log.info('Reset device', res, ext.type, ext.id)
+    } else {
+      Log.info('No device to reset')
+    }
 
     // read shortcut from config and unregister
     Log.info("Unregister all shortcuts")
@@ -689,7 +693,7 @@ async function checkForUpdate() {
   Log.info('Current app version:', app.getVersion(), 'check for updates...')
   const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
   Log.info('Head add version:', latestVersionData.name)
-  if (latestVersionData.name !== ("v"+app.getVersion()) || isDev()) {
+  if (latestVersionData.name !== ("v" + app.getVersion()) || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }
