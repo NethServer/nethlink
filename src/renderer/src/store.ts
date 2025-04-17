@@ -121,6 +121,7 @@ export const {
   notifications: undefined,
   page: undefined,
   theme: undefined,
+  shortcut: undefined,
   lastDevice: undefined,
   isCallsEnabled: false,
   accountStatus: 'offline'
@@ -135,6 +136,7 @@ export const useNethlinkData = createGlobalStateHook({
   queues: undefined,
   parkings: undefined,
   isForwardDialogOpen: false,
+  isShortcutDialogOpen: false,
   phonebookModule: {
     selectedContact: undefined
   },

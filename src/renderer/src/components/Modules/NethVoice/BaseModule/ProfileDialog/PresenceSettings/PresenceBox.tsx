@@ -3,18 +3,16 @@ import { PresenceItem } from './PresenceItem'
 import {
   faArrowRight as CallForwardIcon,
   faMobile as CallForwardMobileIcon,
-  faVoicemail as VoiceMailIcon
+  faVoicemail as VoiceMailIcon,
 } from '@fortawesome/free-solid-svg-icons'
-import { Log } from '@shared/utils/logger'
 import { isEmpty } from 'lodash'
 import { useNethlinkData, useSharedState } from '@renderer/store'
-import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
+
 import { useAccount } from '@renderer/hooks/useAccount'
 import { PERMISSION } from '@shared/constants'
 import { usePresenceService } from './usePresenceService'
 
-export function PresenceBox() {
+export function PresenceBox({ onClose }: { onClose?: () => void }) {
   const [, setIsForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
   const [account] = useSharedState('account')
   const { hasPermission } = useAccount()
@@ -24,26 +22,34 @@ export function PresenceBox() {
     <div>
       <PresenceItem
         onClick={onSelectPresence}
-        status="online"
+        status='online'
         presenceName={t('TopBar.Online')}
         presenceDescription={t('TopBar.Make and receive phone calls')}
       />
       {/* check callforward permission */}
       {hasPermission(PERMISSION.CALL_FORWARD) && (
         <PresenceItem
-          onClick={() => setIsForwardDialogOpen(true)}
-          status="callforward"
+          onClick={() => {
+            setIsForwardDialogOpen(true)
+            if (onClose) onClose()
+          }}
+          status='callforward'
           presenceName={t('TopBar.Call forward')}
-          presenceDescription={t('TopBar.Forward incoming calls to another phone number')}
+          presenceDescription={t(
+            'TopBar.Forward incoming calls to another phone number',
+          )}
           icon={CallForwardIcon}
         />
       )}
       {!isEmpty(account?.data?.endpoints.cellphone) && (
         <PresenceItem
           onClick={() =>
-            onSelectPresence('callforward', account!.data!.endpoints.cellphone[0]!.id)
+            onSelectPresence(
+              'callforward',
+              account!.data!.endpoints.cellphone[0]!.id,
+            )
           }
-          status="callforward"
+          status='callforward'
           presenceName={t('TopBar.Mobile')}
           presenceDescription={t('TopBar.Do not receive any calls')}
           icon={CallForwardMobileIcon}
@@ -52,7 +58,7 @@ export function PresenceBox() {
       {!isEmpty(account?.data?.endpoints.voicemail) && (
         <PresenceItem
           onClick={() => onSelectPresence('voicemail')}
-          status="voicemail"
+          status='voicemail'
           presenceName={t('TopBar.Voicemail')}
           presenceDescription={t('TopBar.Activate voicemail')}
           icon={VoiceMailIcon}
@@ -62,7 +68,7 @@ export function PresenceBox() {
       {hasPermission(PERMISSION.DND) && (
         <PresenceItem
           onClick={onSelectPresence}
-          status="dnd"
+          status='dnd'
           presenceName={t('TopBar.Do not disturb')}
           presenceDescription={t('TopBar.Do not receive any calls')}
           hasTopBar={true}

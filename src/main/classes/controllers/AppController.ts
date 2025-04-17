@@ -53,7 +53,7 @@ export class AppController {
       await delay(200)
       store.saveToDisk()
       await delay(500)
-      AppController._app.exit()
+      AppController._app.quit()
     }
   }
 }

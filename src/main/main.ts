@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell } from 'electron'
+import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut } from 'electron'
 import { registerIpcEvents } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -17,7 +17,6 @@ import { store } from './lib/mainStore'
 import fs from 'fs'
 import path from 'path'
 import i18next from 'i18next'
-import { t } from 'i18next'
 import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit';
@@ -252,6 +251,13 @@ function attachOnReadyProcess() {
         })
       })
     }
+
+    // read shortcut from config and set it to app
+    const account: Account = store.get('account') as Account
+    Log.info("Shortcut readed:", store.get('shortcut'), account.shortcut)
+    if (account.shortcut && account.shortcut?.length > 0) {
+      ipcMain.emit(IPC_EVENTS.CHANGE_SHORTCUT, undefined, account.shortcut)
+    }
   })
 
   async function startApp(attempt = 0) {
@@ -334,20 +340,30 @@ function attachOnReadyProcess() {
   app.on('window-all-closed', () => {
     app.dock?.hide()
   })
-  app.on('quit', async () => {
+  app.on('before-quit', async (e) => {
+
+    e.preventDefault();
     if (retryAppStart) {
       clearTimeout(retryAppStart)
     }
 
     const account: Account = store.get('account') as Account
-    const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc") || account.data?.endpoints.extension.find((e) => e.type === "physical")
-    if (ext) {
+    const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc")
+
+    if (ext && account?.data?.default_device?.type !== 'physical') {
       const { NethVoiceAPI } = useNethVoiceAPI(account)
       const res = await NethVoiceAPI.User.default_device(ext)
       Log.info('Reset device', res, ext.type, ext.id)
+    } else {
+      Log.info('No device to reset')
     }
 
+    // read shortcut from config and unregister
+    Log.info("Unregister all shortcuts")
+    await globalShortcut.unregisterAll()
+
     Log.info('APP QUIT CORRECTLY')
+    app.exit();
   })
 }
 
@@ -502,19 +518,6 @@ async function attachProtocolListeners() {
     }
     return new Promise((resolve) => resolve)
   }
-
-  // TODO: study a new strategy to register keyboard shortcut then enable this lines of code
-  // const registerShortcutForCall = (shortcut) => {
-  //   const getClipboardSelection = () => {
-  //     return clipboard.readText('selection')
-  //   }
-  //   globalShortcut.register(shortcut, () => {
-  //     const selection = getClipboardSelection()
-  //     //Log.info('clipboard:', selection)
-  //     handleTelProtocol(selection)
-  //   })
-  // }
-
 }
 
 function attachPowerMonitor() {
@@ -625,11 +628,13 @@ async function getPermissions() {
     if (cameraPermissionState !== 'granted') {
       cameraPermission = await systemPreferences.askForMediaAccess('camera')
     }
+
     let microphonePermission = true
     const microphonePermissionState = systemPreferences.getMediaAccessStatus('microphone')
     if (microphonePermissionState !== 'granted') {
       microphonePermission = await systemPreferences.askForMediaAccess('microphone')
     }
+
     let recordScreenPermission = true
     const recordScreenPermissionState = systemPreferences.getMediaAccessStatus('screen')
     if (recordScreenPermissionState !== 'granted') {
@@ -650,6 +655,7 @@ async function getPermissions() {
         }
       });
     }
+
     Log.info(
       'START - acquired permissions:',
       {
@@ -687,7 +693,7 @@ async function checkForUpdate() {
   Log.info('Current app version:', app.getVersion(), 'check for updates...')
   const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
   Log.info('Head add version:', latestVersionData.name)
-  if (latestVersionData.name !== ("v"+app.getVersion()) || isDev()) {
+  if (latestVersionData.name !== ("v" + app.getVersion()) || isDev()) {
     NethLinkController.instance.sendUpdateNotification()
   }
 }

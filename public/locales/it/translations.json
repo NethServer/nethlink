@@ -79,9 +79,10 @@
     "Search or type a contact": "Cerca o digita un contatto",
     "Enter a phone number": "Inserisci un numero di telefono",
     "Screen share dialog title": "Permesso di Registrazione Schermo",
-    "Screen share dialog description": "Questa applicazione richiede il permesso di registrare lo schermo.\n\nClicca su 'Apri Impostazioni', poi seleziona 'Registrazione Schermo e Audio di Sistema' dalla lista e abilita il permesso per 'NethLink'.",
+    "Screen share dialog description": "Questa applicazione richiede il permesso di registrare lo schermo.\n\nClicca su 'Apri Impostazioni', poi seleziona 'Privacy & Sicurezza' poi 'Registrazione Schermo e Audio di Sistema' dalla lista e abilita il permesso per 'NethLink'.",
     "Cancel button": "Annulla",
-    "Open settings button": "Apri Impostazioni"
+    "Open settings button": "Apri Impostazioni",
+    "Shortcut": "Scegli una combinazione di tasti"
   },
   "Login": {
     "Welcome": "Benvenuto",
@@ -329,7 +330,11 @@
     "Do not disturb": "Non disturbare",
     "Available presence": "Presence disponibili",
     "IP Phone": "Telefono IP",
-    "Only nethlink": "Solo Nethlink"
+    "Only nethlink": "Solo Nethlink",
+    "ShortcutToCall": "Scorciatoia per chiamare",
+    "ShortcutHelp": "Inserisci una scorciatoia da tastiera per far partire una chiamata dopo aver selezionato un testo.",
+    "ShortcutHelpDesc": "Caratteri non consentiti: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\", \"Shift\".",
+    "Clear and remove shortcut": "Ripristina e rimuovi scorciatoia"
   },
   "TopBar": {
     "Signed in as": "Accesso effettuato come",
@@ -353,7 +358,13 @@
     "Activate voicemail": "Attiva voicemail",
     "Go to NethVoice CTI": "Vai a NethVoice CTI",
     "Pair device": "Abbina dispositivo",
-    "Theme": "Tema"
+    "Theme": "Tema",
+    "Settings": "Impostazioni",
+    "Shortcut": "Scorciatoia",
+    "Keyboard shortcut to call": "Scorciatoia per chiamare",
+    "Shortcut title description": "Scegli una combinazione di tasti per avviare una chiamata dopo aver selezionato un testo.",
+    "Shortcut subtitle description": "Attenzione: non usare scorciatoie già presenti nel sistema.",
+    "Shortcut body description": "Tasti non consentiti: tab, capsLock, numLock, insert, esc, shift"
   },
   "OperatorDrawer": {
     "Book": "Prenota",

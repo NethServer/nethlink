@@ -3,7 +3,7 @@ import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
-import { BrowserWindow, app, ipcMain, screen, shell, desktopCapturer } from 'electron'
+import { BrowserWindow, app, ipcMain, screen, shell, desktopCapturer, globalShortcut, clipboard } from 'electron'
 import { join } from 'path'
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
@@ -14,6 +14,9 @@ import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
 import { ClientRequest, get } from 'http'
+import os from 'os'
+
+const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
@@ -255,6 +258,48 @@ export function registerIpcEvents() {
     } catch (e) {
       Log.error(e)
     }
+  })
+
+  ipcMain.on(IPC_EVENTS.CHANGE_SHORTCUT, async (_, combo) => {
+    // unregister previous shortcut
+    await globalShortcut.unregisterAll();
+
+    // save config to disk
+    AccountController.instance.updateShortcut(combo)
+
+    // register shortcut
+    globalShortcut.register(combo, async () => {
+      // get selected text content
+      const isMac = os.platform() === 'darwin'
+      const isLinux = os.platform() === 'linux';
+      const modifierKey = isMac ? Key.LeftSuper : Key.LeftControl
+      keyboard.config.autoDelayMs = 50;
+      await keyboard.pressKey(modifierKey);
+      await keyboard.pressKey(Key.C);
+      await keyboard.releaseKey(Key.C);
+      await keyboard.releaseKey(modifierKey);
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // trim spaces
+      let selectedText = await clipboard.readText(isLinux ? 'selection' : 'clipboard');
+      if (typeof selectedText !== 'string') return
+      selectedText = selectedText.trim()
+
+      // remove spaces between text
+      const prefixMatch = selectedText.match(/^[*#+]+/)
+      const prefix = prefixMatch ? prefixMatch[0] : ''
+      let sanitized = selectedText.replace(/[^\d]/g, '')
+      let number = prefix + sanitized
+
+      // check is a valid number
+      const isValidNumber = /^([*#+]?)(\d{2,})$/.test(number)
+      if (isValidNumber) {
+        Log.info('Shortcut call to:', number)
+        PhoneIslandController.instance.call(number)
+      } else {
+        Log.info('Selected text is not a valid number:', selectedText)
+      }
+    });
   })
 
   ipcMain.on(IPC_EVENTS.GET_NETHVOICE_CONFIG, async (e, account) => {

@@ -79,9 +79,10 @@
     "Search or type a contact": "Search or type a contact",
     "Enter a phone number": "Enter a phone number",
     "Screen share dialog title": "Screen Recording Permission",
-    "Screen share dialog description": "This application requires permission to record the screen.\n\nClick 'Open Settings' and then select 'Screen & System Audio Recording' from the list and enable the permission for 'NethLink'.",
+    "Screen share dialog description": "This application requires permission to record the screen.\n\nClick 'Open Settings' and then select 'Privacy & Security' then 'Screen & System Audio Recording' from the list and enable the permission for 'NethLink'.",
     "Cancel button": "Cancel",
-    "Open settings button": "Open Settings"
+    "Open settings button": "Open Settings",
+    "Shortcut": "Define a keyboard shortcut"
   },
   "Login": {
     "Welcome": "Welcome",
@@ -329,7 +330,11 @@
     "Do not disturb": "Do not disturb",
     "Available presence": "Available presence",
     "IP Phone": "IP Phone",
-    "Only nethlink": "Only Nethlink"
+    "Only nethlink": "Only Nethlink",
+    "ShortcutToCall": "Shortcut to Call",
+    "ShortcutHelp": "Enter a keyboard shortcut to start a call after selecting some text.",
+    "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\", \"Shift\".",
+    "Clear and remove shortcut": "Clear and remove shortcut"
   },
   "TopBar": {
     "Signed in as": "Signed in as",
@@ -353,7 +358,13 @@
     "Activate voicemail": "Activate voicemail",
     "Go to NethVoice CTI": "Go to NethVoice CTI",
     "Pair device": "Pair device",
-    "Theme": "Theme"
+    "Theme": "Theme",
+    "Settings": "Settings",
+    "Shortcut": "Shortcut",
+    "Keyboard shortcut to call": "Keyboard shortcut to call",
+    "Shortcut title description": "Choose a keyboard shortcut to dial any selected number. ",
+    "Shortcut subtitle description": "Warning: avoid using system-reserved shortcuts.",
+    "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc, shift"
   },
   "OperatorDrawer": {
     "Book": "Book",

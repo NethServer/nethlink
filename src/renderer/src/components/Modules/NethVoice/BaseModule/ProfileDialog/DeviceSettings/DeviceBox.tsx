@@ -20,6 +20,9 @@ export const DeviceIcons = {
   nethlink: {
     Icon: <DesktopDevice />
   },
+  webrtc: {
+    Icon: <DesktopDevice />
+  },
   physical: PhysicalDevice
 }
 type DeviceType = { name: AvailableDevices, label: string, icon?: IconProp | IconDefinition, iconElem?: JSX.Element }

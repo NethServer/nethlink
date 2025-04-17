@@ -14,7 +14,7 @@
  * @param size - The size of the input.
  * @param squared - The radius of the border.
  * @param onIconClick - The callback on icon click.
- *
+ * @param clearable - Whether to show a clear button when input has value
  */
 
 import { ComponentProps, forwardRef } from 'react'
@@ -24,7 +24,8 @@ import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-common-types'
 
-export interface TextInputProps extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
+export interface TextInputProps
+  extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
   label?: string
   placeholder?: string
   icon?: IconDefinition
@@ -53,12 +54,14 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       onIconClick,
       id,
       className,
+      value,
       ...props
     },
-    ref
+    ref,
   ) => {
     const cleanProps = cleanClassName(props)
     const { input: theme } = useTheme().theme
+
     return (
       <div className={classNames('text-left', 'w-full', className)}>
         {label && (
@@ -66,20 +69,22 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             {label}
           </label>
         )}
-        <div className="relative">
+        <div className='relative'>
           {Icon && (
             <div
               className={classNames(
                 theme.icon.base,
-                trailingIcon ? theme.icon.right : theme.icon.left
+                trailingIcon ? theme.icon.right : theme.icon.left,
               )}
             >
               <FontAwesomeIcon
                 icon={Icon}
                 className={classNames(
-                  size === 'large' ? theme.icon.size.large : theme.icon.size.base,
+                  size === 'large'
+                    ? theme.icon.size.large
+                    : theme.icon.size.base,
                   theme.icon.gray,
-                  onIconClick && 'cursor-pointer'
+                  onIconClick && 'cursor-pointer',
                 )}
                 onClick={() => onIconClick && onIconClick()}
               />
@@ -89,6 +94,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             type={type}
             id={id}
             placeholder={placeholder}
+            value={value}
             className={classNames(
               theme.base,
               label && 'mt-1',
@@ -97,17 +103,24 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               size && size === 'large' ? theme.size.large : theme.size.base,
               !error ? theme.colors.gray : theme.colors.error,
               Icon && !trailingIcon && 'pl-10',
-              error ? theme.placeholder.error : theme.placeholder.base
+              error ? theme.placeholder.error : theme.placeholder.base,
+              '[&::placeholder]:!text-gray-400 [&::-webkit-input-placeholder]:!text-gray-400',
+              'dark:[&::placeholder]:!text-gray-500 dark:[&::-webkit-input-placeholder]:!text-gray-500',
             )}
             {...cleanProps}
             ref={ref}
+            style={
+              {
+                '--tw-placeholder-opacity': '1',
+              } as React.CSSProperties
+            }
           />
         </div>
         {helper && (
           <p
             className={classNames(
               theme.helper.base,
-              error ? theme.helper.color.error : theme.helper.color.base
+              error ? theme.helper.color.error : theme.helper.color.base,
             )}
           >
             {helper}
@@ -115,7 +128,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         )}
       </div>
     )
-  }
+  },
 )
 
 TextInput.displayName = 'TextInput'

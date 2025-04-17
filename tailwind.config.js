@@ -1,10 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 
 export default {
-  content: [
-    './src/renderer/index.html',
-    './src/**/*.{js,jsx,ts,tsx}',
-  ],
+  content: ['./src/renderer/index.html', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -23,8 +20,8 @@ export default {
         primaryRingDark: '#bfdbfe', // blue-200
 
         //text
-        titleLight: '#111827', // gray-900
-        titleDark: '#F9FAFB', // gray-50
+        titleLight: '#374151', // gray-700
+        titleDark: '#E5E7EB', // gray-200
 
         //blue text
         textBlueLight: '#1d4ed8', //blue-700
@@ -73,7 +70,7 @@ export default {
         bgAmberDark: '#b45309', //amber-700
 
         //hover
-        hoverDark: '#1f2937', // gray-800
+        hoverDark: '#374151', // gray-700
         hoverLight: '#E5E7EB', // gray-200
 
         //ring
@@ -89,20 +86,20 @@ export default {
         emptyIconDark: '#6B7280',
         //textEmpty
         emptyTextLight: '#374151',
-        emptyTextDark: '#E5E7EB'
+        emptyTextDark: '#E5E7EB',
       },
       screens: {
         '3xl': '1792px',
         '4xl': '2048px',
         '5xl': '2560px',
         '6xl': '3072px',
-        '7xl': '3584px'
+        '7xl': '3584px',
       },
       fontFamily: {
-        Poppins: ['Poppins', 'sans-serif']
-      }
-    }
+        Poppins: ['Poppins', 'sans-serif'],
+      },
+    },
   },
   plugins: [require('@tailwindcss/forms')],
-  darkMode: 'selector'
+  darkMode: 'selector',
 }

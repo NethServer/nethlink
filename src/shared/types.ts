@@ -29,6 +29,7 @@ export type Account = {
   timezone?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData,
+  shortcut?: string
 }
 
 
@@ -385,7 +386,8 @@ export type LocalStorageData = {
   lostCallNotifications?: CallData[],
   lastDevice?: Device,
   isCallsEnabled: boolean,
-  accountStatus: StatusTypes
+  accountStatus: StatusTypes,
+  shortcut?: string
 }
 
 export type OnDraggingWindow = {
@@ -422,6 +424,7 @@ export type NethLinkPageData = {
   missedCalls?: CallData[],
   showPhonebookSearchModule?: boolean,
   isForwardDialogOpen?: boolean,
+  isShortcutDialogOpen?: boolean,
   showAddContactModule?: boolean,
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData
