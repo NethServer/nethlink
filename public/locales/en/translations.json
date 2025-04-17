@@ -133,8 +133,8 @@
     "lost_call_title": "Missed call from {{user}}",
     "lost_call_body": "You received a call from {{number}} at {{datetime}}",
     "physical_phone_error": "the phone {{phone}} is not reachable. Make sure it is connected",
-    "call_transferred_title": "Call tranferred",
-    "call_transferred_body": "The call was succesfully tranferred"
+    "call_transferred_title": "Call transferred",
+    "call_transferred_body": "The call was succesfully transferred"
   },
   "Phonebook": {
     "Phonebook": "Phonebook",
