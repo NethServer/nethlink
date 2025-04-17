@@ -27,10 +27,11 @@ export function SettingsShortcutDialog() {
     'Dead',
     'Unidentified',
     'Escape',
+    'Shift'
   ])
 
   const isModifierKey = (key: string) =>
-    ['Control', 'Alt', 'Meta', 'Shift'].includes(key)
+    ['Control', 'Alt', 'Meta'].includes(key)
 
   const normalizeKey = (key: string): string => {
     switch (key) {
@@ -102,7 +103,6 @@ export function SettingsShortcutDialog() {
     if (e.ctrlKey) newKeys.add('Ctrl')
     if (e.altKey) newKeys.add('Alt')
     if (e.metaKey) newKeys.add('Cmd')
-    if (e.shiftKey) newKeys.add('Shift')
 
     if (!isModifierKey(rawKey)) {
       newKeys.add(normalizeKey(rawKey))
@@ -110,7 +110,7 @@ export function SettingsShortcutDialog() {
 
     setKeysPressed(newKeys)
 
-    const orderedModifiers = ['Ctrl', 'Alt', 'Cmd', 'Shift']
+    const orderedModifiers = ['Ctrl', 'Alt', 'Cmd']
     const modifiers = orderedModifiers.filter((k) => newKeys.has(k))
     const others = [...newKeys].filter(
       (k) => !orderedModifiers.includes(k as any),

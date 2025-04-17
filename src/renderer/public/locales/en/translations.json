@@ -333,7 +333,7 @@
     "Only nethlink": "Only Nethlink",
     "ShortcutToCall": "Shortcut to Call",
     "ShortcutHelp": "Enter a keyboard shortcut to start a call after selecting some text.",
-    "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\".",
+    "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\", \"Shift\".",
     "Clear and remove shortcut": "Clear and remove shortcut"
   },
   "TopBar": {
@@ -363,7 +363,7 @@
     "Shortcut": "Shortcut",
     "Keyboard shortcut to call": "Keyboard shortcut to call",
     "Shortcut title description": "Choose a keyboard shortcut to dial any selected number. Warning: avoid using system-reserved shortcuts.",
-    "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc"
+    "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc, shift"
   },
   "OperatorDrawer": {
     "Book": "Book",
