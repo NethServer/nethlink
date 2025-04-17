@@ -12,7 +12,11 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap&family=Roboto+Mono:wght@400;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" href="./public/TrayNotificationIcon.svg" type="image/x-icon" />
+    <link
+      rel="icon"
+      href="./public/TrayNotificationIcon.svg"
+      type="image/x-icon"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
@@ -28,30 +32,33 @@
       document.addEventListener('DOMContentLoaded', async function () {
         const translations = {
           en: {
-            description: 'Download NethLink update with bug fixes and new features.',
+            description:
+              'Download NethLink update with bug fixes and new features.',
             release: 'Release: ',
             downloadUpdate: 'Download update',
-            chooseOS: 'Choose your operating system and click to start the download',
+            chooseOS:
+              'Choose your operating system and click to start the download',
             linux: 'Linux',
             macos: 'MacOS',
             windows: 'Windows',
             feature1: "Don't miss a single call",
             feature2: 'Speed dials',
-            feature3: 'All your contacts and Phonebook'
+            feature3: 'All your contacts and Phonebook',
           },
           it: {
             description:
               "Scarica l'aggiornamento NethLink con correzioni di bug e nuove funzionalità per le impostazioni e lo stato.",
             release: 'Rilascio: ',
             downloadUpdate: "Scarica l'aggiornamento",
-            chooseOS: 'Scegli il tuo sistema operativo e clicca per avviare il download',
+            chooseOS:
+              'Scegli il tuo sistema operativo e clicca per avviare il download',
             linux: 'Linux',
             macos: 'MacOS',
             windows: 'Windows',
             feature1: 'Non perdere una chiamata',
             feature2: 'Numeri veloci',
-            feature3: 'Tutti i tuoi contatti e rubrica'
-          }
+            feature3: 'Tutti i tuoi contatti e rubrica',
+          },
         }
 
         const userLang = navigator.language.startsWith('it') ? 'it' : 'en'
@@ -60,16 +67,42 @@
         document.getElementById('description').innerText = t.description
         document.getElementById('downloadUpdate').innerText = t.downloadUpdate
         document.getElementById('chooseOS').innerText = t.chooseOS
-        document.getElementById('linux').querySelector('span').innerText = t.linux
-        document.getElementById('macos').querySelector('span').innerText = t.macos
-        document.getElementById('windows').querySelector('span').innerText = t.windows
+        document.getElementById('linux').querySelector('span').innerText =
+          t.linux
+        document.getElementById('macos').querySelector('span').innerText =
+          t.macos
+        document.getElementById('windows').querySelector('span').innerText =
+          t.windows
         document.getElementById('feature1').innerText = t.feature1
         document.getElementById('feature2').innerText = t.feature2
         document.getElementById('feature3').innerText = t.feature3
 
+        const getMacArchitecture = async () => {
+          try {
+            if (
+              navigator.userAgentData &&
+              typeof navigator.userAgentData.getHighEntropyValues === 'function'
+            ) {
+              const data = await navigator.userAgentData.getHighEntropyValues([
+                'architecture',
+              ])
+              if (data && data.architecture) {
+                return data.architecture === 'arm' ? 'arm64' : 'x64'
+              }
+            }
+            return 'x64'
+          } catch (error) {
+            console.error('Error detecting Mac architecture:', error)
+            return 'x64'
+          }
+        }
+
         const os = navigator.userAgent
         let selectedElement
+        let selectedIconDownload
         let currentOS
+        let macArchitecture = 'x64'
+
         if (os.indexOf('Linux') !== -1) {
           currentOS = 'linux'
           selectedElement = document.getElementById('linux')
@@ -82,6 +115,10 @@
           selectedIconDownload = document.getElementById('macDownloadIcon')
           selectedElement.classList.add('border-blue-500', 'text-white')
           selectedIconDownload.classList.add('text-blue-500')
+
+          getMacArchitecture().then((arch) => {
+            macArchitecture = arch
+          })
         } else if (os.indexOf('Windows') !== -1) {
           currentOS = 'windows'
           selectedElement = document.getElementById('windows')
@@ -106,7 +143,7 @@
         const fetchDownloadLinks = async () => {
           try {
             const response = await fetch(
-              'https://api.github.com/repos/nethesis/nethlink/releases/latest'
+              'https://api.github.com/repos/nethesis/nethlink/releases/latest',
             )
             const data = await response.json()
 
@@ -120,7 +157,7 @@
                   (asset.content_type === 'application/octet-stream' ||
                     asset.content_type === 'application/x-msdownload' ||
                     asset.content_type === 'application/x-ms-dos-executable') &&
-                  !asset.browser_download_url.endsWith('.blockmap')
+                  !asset.browser_download_url.endsWith('.blockmap'),
               )
               .reduce((acc, asset) => {
                 const url = asset.browser_download_url
@@ -129,10 +166,33 @@
                 } else if (url.includes('.AppImage')) {
                   acc.linuxUrl = url
                 } else if (url.includes('.dmg')) {
-                  acc.macosUrl = url
+                  if (url.includes('-arm64.dmg')) {
+                    acc.macosArmUrl = url
+                  } else if (url.includes('-x64.dmg')) {
+                    acc.macosX64Url = url
+                  } else {
+                    acc.macosDefaultUrl = url
+                  }
                 }
                 return acc
               }, {})
+
+            if (currentOS === 'macos') {
+              if (macArchitecture === 'arm64' && downloadUrls.macosArmUrl) {
+                downloadUrls.macosUrl = downloadUrls.macosArmUrl
+              } else if (downloadUrls.macosX64Url) {
+                downloadUrls.macosUrl = downloadUrls.macosX64Url
+              } else {
+                downloadUrls.macosUrl = downloadUrls.macosDefaultUrl
+              }
+            }
+
+            if (!downloadUrls.macosUrl) {
+              downloadUrls.macosUrl =
+                downloadUrls.macosDefaultUrl ||
+                downloadUrls.macosX64Url ||
+                downloadUrls.macosArmUrl
+            }
 
             return downloadUrls
           } catch (error) {
@@ -144,14 +204,19 @@
         const downloadLinks = await fetchDownloadLinks()
         document.getElementById('linux').href = downloadLinks.linuxUrl || '#'
         document.getElementById('macos').href = downloadLinks.macosUrl || '#'
-        document.getElementById('windows').href = downloadLinks.windowsUrl || '#'
+        document.getElementById('windows').href =
+          downloadLinks.windowsUrl || '#'
       })
     </script>
   </head>
   <body class="flex items-center justify-center h-screen">
     <div class="bg-gray-950 py-14 px-12 rounded-2xl shadow-lg w-full max-w-4xl">
       <div class="text-left mb-16 text-gray-200">
-        <img src="./public/Nethlink-logo.svg" alt="Nethlink logo" class="mb-4 w-36" />
+        <img
+          src="./public/Nethlink-logo.svg"
+          alt="Nethlink logo"
+          class="mb-4 w-36"
+        />
         <p id="description" class="mb-1"></p>
         <p id="release" class="mb-4"></p>
       </div>
@@ -168,7 +233,9 @@
               <i class="fab fa-linux mr-2 fa-xl"></i> <span></span>
             </div>
             <div class="download-text" id="linuxDownloadIcon">
-              <i class="fa-solid fa-circle-arrow-down fa-xl hover:text-blue-500"></i>
+              <i
+                class="fa-solid fa-circle-arrow-down fa-xl hover:text-blue-500"
+              ></i>
             </div>
           </a>
           <a
@@ -192,7 +259,9 @@
               <i class="fab fa-windows mr-2 fa-xl"></i> <span></span>
             </div>
             <div class="download-text" id="windowsDownloadIcon">
-              <i class="fa-solid fa-circle-arrow-down fa-xl hover:text-blue-500"></i>
+              <i
+                class="fa-solid fa-circle-arrow-down fa-xl hover:text-blue-500"
+              ></i>
             </div>
           </a>
         </div>
