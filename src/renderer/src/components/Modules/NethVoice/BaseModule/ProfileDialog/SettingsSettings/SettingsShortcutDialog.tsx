@@ -27,7 +27,7 @@ export function SettingsShortcutDialog() {
     'Dead',
     'Unidentified',
     'Escape',
-    'Shift'
+    'Shift',
   ])
 
   const isModifierKey = (key: string) =>
@@ -143,8 +143,11 @@ export function SettingsShortcutDialog() {
             </h2>
 
             {/* Subtitle */}
-            <p className='text-center text-gray-600 dark:text-gray-300 mb-2'>
-              {t('TopBar.Shortcut title description')}
+            <p className='text-center text-gray-600 dark:text-gray-300'>
+              {t('TopBar.Shortcut title description')}{' '}
+            </p>
+            <p className='text-center font-semibold text-gray-600 dark:text-gray-300 leading-5 mt-[-0.3rem]'>
+              {t('TopBar.Shortcut subtitle description')}{' '}
             </p>
 
             {/* Form */}

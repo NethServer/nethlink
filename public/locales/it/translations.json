@@ -362,7 +362,8 @@
     "Settings": "Impostazioni",
     "Shortcut": "Scorciatoia",
     "Keyboard shortcut to call": "Scorciatoia per chiamare",
-    "Shortcut title description": "Scegli una combinazione di tasti per avviare una chiamata dopo aver selezionato un testo. Attenzione: non usare scorciatoie già presenti nel sistema.",
+    "Shortcut title description": "Scegli una combinazione di tasti per avviare una chiamata dopo aver selezionato un testo.",
+    "Shortcut subtitle description": "Attenzione: non usare scorciatoie già presenti nel sistema.",
     "Shortcut body description": "Tasti non consentiti: tab, capsLock, numLock, insert, esc, shift"
   },
   "OperatorDrawer": {
