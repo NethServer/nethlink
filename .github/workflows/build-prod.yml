@@ -118,3 +118,21 @@ jobs:
 
           # Update the release with the generated notes
           gh release edit $TAG --title $TAG --notes "${{ steps.generate_notes.outputs.release_notes }}"
+
+      - name: Generate SBOM (CycloneDX)
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: cyclonedx
+          output: sbom.cdx.json
+
+      - name: Attach SBOM to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the tag being pushed
+          TAG=${GITHUB_REF#refs/tags/}
+
+          # Update the release with the generated notes
+          gh release upload $TAG sbom.cdx.json --clobber
