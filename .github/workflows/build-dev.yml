@@ -41,6 +41,26 @@ jobs:
       - name: Enable code signing only for current repo
         if: github.event.pull_request.head.repo.full_name == github.repository
         run: echo "CSC_FOR_PULL_REQUEST=true" >> $GITHUB_ENV
+      
+      - name: Set dev version
+        run: |
+          echo "Creating patch-version.js"
+          cat << 'EOF' > patch-version.js
+          const fs = require('fs');
+          const pkg = require('./package.json');
+          const sha = process.env.COMMIT_SHA.slice(0, 7);
+          const pr = process.env.PR_NUMBER;
+          const baseVersion = pkg.version.replace(/-dev.*$/, '');
+          pkg.version = `${baseVersion}-dev.pr${pr}.${sha}`;
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
+          console.log("Updated version:", pkg.version);
+          EOF
+          node patch-version.js
+        shell: bash
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
