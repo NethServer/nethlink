@@ -21,8 +21,9 @@ import { debouncer } from '@shared/utils/utils'
 interface SearchNumberBoxProps {
   searchResult: SearchData[] | undefined
   showContactForm: () => void
+  showContactDetail: (contact: SearchData, primaryNumber: string | null) => void
 }
-export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberBoxProps) {
+export function SearchNumberBox({ searchResult, showContactForm, showContactDetail }: SearchNumberBoxProps) {
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
@@ -150,9 +151,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
               <SearchNumber
                 key={'SearchNumber_' + index}
                 user={user}
-                onClick={(user) => {
-                  console.log(user)
-                }}
+                onClick={user.displayName ? showContactDetail : undefined}
               />
             ))
             : <EmptyList icon={EmptySearchIcon} text={t('Devices.No results')} />

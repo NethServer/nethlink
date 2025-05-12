@@ -3,13 +3,15 @@ import { Button } from "./Nethesis"
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
 import { DefaultTFuncReturn } from "i18next"
 import { ReactNode } from "react"
+import { ClassNames } from "@renderer/utils"
 
 export interface ModuleTitleProps {
-  title: string | DefaultTFuncReturn,
+  title?: string | DefaultTFuncReturn | ReactNode,
   action?: () => void,
   actionText?: string | DefaultTFuncReturn,
   actionIcon?: IconProp
-  actionComponent?: ReactNode
+  actionComponent?: ReactNode,
+  className?: string
 
 }
 export const ModuleTitle = ({
@@ -17,15 +19,16 @@ export const ModuleTitle = ({
   action,
   actionText,
   actionIcon,
-  actionComponent
+  actionComponent,
+  className
 }: ModuleTitleProps) => {
 
   return (
     <div className="px-5">
-      <div className="flex justify-between items-center pb-1 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight h-[28px]">
-        <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
+      <div className={ClassNames("flex justify-between items-center pb-1 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight h-[28px]", className)}>
+        {title && <h1 className="font-medium text-[14px] leading-5 dark:text-titleDark text-titleLight">
           {title}
-        </h1>
+        </h1>}
         {action && (
           <Button
             variant="ghost"

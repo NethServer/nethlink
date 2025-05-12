@@ -69,7 +69,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   }, [parkedCalls, selectedSidebarMenu])
 
   return (
-    <div className="flex flex-col h-full max-w-[50px] justify-between pt-3 pb-2 px-2 border-0 border-l-[1px] dark:border-borderDark border-borderLight">
+    <div className="flex flex-col h-full max-w-[50px] justify-between pt-3 pb-2 px-2 border-0 border-l-[1px] dark:border-borderDark border-borderLight bg-bgLight dark:bg-bgDark z-10">
       <div className="flex flex-col items-center gap-6">
         {/* FAVOURITE */}
         <SidebarButton

@@ -14,7 +14,7 @@ import { ClassNames } from '@renderer/utils'
 export interface SearchNumberProps {
   user: SearchData
   className?: string,
-  onClick?: (user: SearchData) => void
+  onClick?: (user: SearchData, primaryNumber: string | null) => void
 }
 
 export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
@@ -94,7 +94,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
           if (onClick) {
             e.stopPropagation()
             e.preventDefault()
-            onClick(user)
+            onClick(user, phoneNumber)
           }
         }}
       >
