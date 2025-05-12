@@ -88,15 +88,9 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
     <div className="group">
       <div className={ClassNames(
         "flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight",
-        onClick ? 'cursor-pointer' : '')
+      )
       }
-        onClick={(e) => {
-          if (onClick) {
-            e.stopPropagation()
-            e.preventDefault()
-            onClick(user, phoneNumber)
-          }
-        }}
+
       >
         <ContactNameAndActions
           avatarDim="small"
@@ -108,6 +102,9 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
           username={username}
           isFavourite={false}
           isSearchData={true}
+          onOpenDetail={onClick ? () => {
+            onClick?.(user, phoneNumber)
+          } : undefined}
         />
         {phoneNumber && phoneNumber !== '' && (
           <Button

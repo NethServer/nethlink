@@ -16,20 +16,25 @@ export const NumberCaller = ({
   isNumberHiglighted = true,
   ...args
 }: NumberCallerProps) => {
+  const onClick = () => {
+    const url = `callto://${('' + number).replace(/ /g, '')}`
+    window.api.openExternalPage(url);
+  }
 
   return disabled ? (
     <div className={ClassNames(className, 'cursor-not-allowed',)}>{children}</div>
   ) : (
-    <a
-      href={`callto://${('' + number).replace(/ /g, '')}`}
-      className={ClassNames(className, 'dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-md')}
+    <div
+      className={ClassNames(className,
+        'dark:text-textBlueDark text-textBlueLight',
+        'cursor-pointer dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-md')}
       {...args}
     >
       <div
-        className={`${isNumberHiglighted ? 'dark:text-titleDark text-titleLight' : ''} font-normal`}
+        className={`${isNumberHiglighted ? 'dark:text-textBlueDark text-textBlueLight' : ''} font-normal`}
       >
         {children}
       </div>
-    </a>
+    </div>
   )
 }

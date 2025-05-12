@@ -20,7 +20,8 @@ export const ContactNameAndActions = ({
   avatarDim,
   username,
   isFavourite,
-  isSearchData
+  isSearchData,
+  onOpenDetail
 }: {
   contact: ContactType
   number: string
@@ -30,7 +31,8 @@ export const ContactNameAndActions = ({
   avatarDim: 'small' | 'base' | 'extra_small' | 'large' | 'extra_large'
   username: string | undefined
   isFavourite: boolean
-  isSearchData: boolean
+  isSearchData: boolean,
+  onOpenDetail?: () => void
 }) => {
   const { isCallsEnabled } = useAccount()
   const [operators] = useNethlinkData('operators')
@@ -38,6 +40,15 @@ export const ContactNameAndActions = ({
   const avatarSrc = username && operators?.avatars?.[username]
 
   const isOperator = username && !!operators?.operators?.[username]
+
+  const onClick = (e) => {
+    if (onOpenDetail) {
+      e.stopPropagation()
+      e.preventDefault()
+      onOpenDetail()
+    }
+  }
+
 
   return (
     <div
@@ -58,11 +69,17 @@ export const ContactNameAndActions = ({
               ? 'company'
               : 'person'
         }
+        className={classNames('border-[1px]', onOpenDetail ? 'cursor-pointer dark:hover:border-bgLight hover:border-bgDark' : '')}
+        onClick={onClick}
       />
       <div className="relative w-full h-[44px] ">
         <div className="absolute top-0 left-0 flex flex-col gap-1 w-full ">
           <div className="flex flex-row gap-2 w-full overflow-hidden">
-            <div className="dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap ">
+            <div className={classNames("dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap ",
+              onOpenDetail ? 'cursor-pointer hover:underline' : ''
+            )}
+              onClick={onClick}
+            >
               {isFavourite
                 ? contact.company || `${t('Common.Unknown')}`
                 : contact.name || contact.company || `${t('Common.Unknown')}`}
@@ -102,19 +119,23 @@ export const ContactNameAndActions = ({
                 }}
               />
             )}
-            <NumberCaller
-              number={number}
-              disabled={displayedNumber?.length === 0 || !isCallsEnabled}
-              className={`${displayedNumber?.length === 0 ? '' : 'dark:text-textBlueDark text-textBlueLight'}font-normal hover:underline`}
-              isNumberHiglighted={isHighlight}
-            >
-              {displayedNumber !== ' ' &&
-                displayedNumber !== '' &&
-                displayedNumber !== null &&
-                (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
-                ? <span>{displayedNumber} {otherNumber}</span>
-                : '-'}
-            </NumberCaller>
+            <div className='flex flex-row'>
+
+              <NumberCaller
+                number={number}
+                disabled={displayedNumber?.length === 0 || !isCallsEnabled}
+                className={`${displayedNumber?.length === 0 ? '' : 'dark:text-textBlueDark text-textBlueLight'} font-normal hover:underline`}
+                isNumberHiglighted={isHighlight}
+              >
+                {displayedNumber !== ' ' &&
+                  displayedNumber !== '' &&
+                  displayedNumber !== null &&
+                  (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
+                  ? displayedNumber
+                  : '-'}
+              </NumberCaller>
+              <span onClick={onClick} className='ml-2 cursor-pointer hover:underline dark:text-textBlueDark text-textBlueLight'>{otherNumber}</span>
+            </div>
           </div>
         </div>
       </div>
