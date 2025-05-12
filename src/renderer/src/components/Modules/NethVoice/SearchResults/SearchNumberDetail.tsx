@@ -17,7 +17,8 @@ import { ClassNames } from '@renderer/utils'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
 import { ReactNode } from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
-import { CustomThemedTooltip } from '@renderer/components/Nethesis/CurstomThemedTooltip'
+import { Tooltip } from 'react-tooltip'
+
 interface SearchNumberBoxProps {
   contactDetail?: {
     contact: SearchData,
@@ -54,25 +55,14 @@ export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxPro
           <div className='pl-6 pt-6 w-full h-full'>
             <Scrollable>
               <div className='flex flex-col gap-6 w-full pr-1'>
-                <ContactVisibility isPublic={true} />
-                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Primary phone')}>
-                  <LinkedValue type='phone'>{primaryNumber || ''}</LinkedValue>
-                </ContactDetail>
-                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Home phone')}>
-                  <LinkedValue type='phone'>{contact.homephone}</LinkedValue>
-                </ContactDetail>
-                <ContactDetail icon={MobilePhoneIcon} label={t('Phonebook.Mobile phone')}>
-                  <LinkedValue type='phone'>{contact.cellphone}</LinkedValue>
-                </ContactDetail>
-                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Work phone')}>
-                  <LinkedValue type='phone'>{contact.workphone}</LinkedValue>
-                </ContactDetail>
-                <ContactDetail icon={MailIcon} label={t('Phonebook.Email')}>
-                  <LinkedValue type='mail'>{contact.homeemail}</LinkedValue>
-                </ContactDetail>
-                <ContactDetail icon={WorkIcon} label={t('Phonebook.Company')}>
-                  {contact.company}
-                </ContactDetail>
+                <ContactVisibility isPublic={!(contact?.type === 'private' && contact?.source === 'cti')} />
+                {/* <ContactDetail icon={PhoneIcon} label={t('Phonebook.Primary phone')} copy>{primaryNumber || ''}</ContactDetail> */}
+                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Home phone')} copy>{contact.homephone}</ContactDetail>
+                <ContactDetail icon={MobilePhoneIcon} label={t('Phonebook.Mobile phone')} copy>{contact.cellphone}</ContactDetail>
+                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Work phone')} copy>{contact.workphone}</ContactDetail>
+                <ContactDetail icon={MailIcon} label={t('Phonebook.Email')} copy>{contact.homeemail}</ContactDetail>
+                <ContactDetail icon={MailIcon} label={t('Phonebook.Work')} copy>{contact.workemail}</ContactDetail>
+                <ContactDetail icon={WorkIcon} label={t('Phonebook.Company')}>{contact.company}</ContactDetail>
               </div>
             </Scrollable>
           </div>
@@ -104,7 +94,7 @@ const ContactVisibility = ({ isPublic }: { isPublic: boolean }) => {
   </div>
 }
 
-const ContactDetail = ({ children, label, icon }: { label: string | DefaultTFuncReturn, icon: IconProp, children: ReactNode }) => {
+const ContactDetail = ({ children, label, icon, copy }: { label: string | DefaultTFuncReturn, icon: IconProp, children: string, copy?: boolean }) => {
   return <div className='flex flex-row w-full justify-start'>
     <div className='flex flex-row gap-2 items-center min-w-[170px] '>
       <FontAwesomeIcon
@@ -114,35 +104,36 @@ const ContactDetail = ({ children, label, icon }: { label: string | DefaultTFunc
       {label}
     </div>
     <div className='relative truncate max-w-[calc(100%-170px)]'
-      {
-      ...(typeof children === 'string' ? {
-        'data-tooltip-id': `tooltip-${label}`,
-        'data-tooltip-content': children
-      } : {})
-      }
+      data-tooltip-id={`tooltip-${label}`}
+      data-tooltip-content={children}
+      data-tooltip-place={'bottom'}
+
     >
-      {children}
-      {typeof children === 'string' && <CustomThemedTooltip id={`tooltip-${label}`} />
-      }
+      {copy ? <CopyValue >{children}</CopyValue> : (children || '-')}
+      <Tooltip
+        id={`tooltip-${label}`}
+        place="bottom"
+        className="z-10"
+        opacity={1}
+        noArrow={false}
+      />
+
     </div>
   </div>
 }
 
-const LinkedValue = ({ children, type, className }: { className?: string, children: string, type: 'phone' | 'mail' }) => {
-  if (!children) return <></>
+const CopyValue = ({ children, className }: { className?: string, children: string }) => {
+  if (!children) return <>-</>
 
   const onClick = () => {
-    const url = (type === 'phone' ? 'callto://' : 'mailto://') + `${children.replace(/ /g, '')}`
-    window.api.openExternalPage(url);
+    window.api.copyToClipboard(children)
   }
 
   return <div
-    className={ClassNames(className, 'truncate cursor-pointer w-full flex flex-row items-center  text-textBlueLight dark:text-textBlueDark font-normal gap-2 dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-md hover:underline')}
+    className={ClassNames(className, 'relative cursor-pointer w-full flex flex-row items-center  text-textBlueLight dark:text-textBlueDark font-normal gap-2 dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-md hover:underline')}
     onClick={onClick}
   >
     <span className='truncate'
-      data-tooltip-id={`tooltip-${children}`}
-      data-tooltip-content={children}
     >
       {children}
     </span>
@@ -150,7 +141,7 @@ const LinkedValue = ({ children, type, className }: { className?: string, childr
       className="text-base"
       icon={CopyIcon}
     />
-    <CustomThemedTooltip id={`tooltip-${children}`} />
+
   </div>
 
 }

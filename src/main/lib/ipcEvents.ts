@@ -216,6 +216,10 @@ export function registerIpcEvents() {
     shell.openExternal(join(path))
   })
 
+  ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
+    clipboard.writeText(text)
+  })
+
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (_, size) => {
     PhoneIslandController.instance.resize(size)
   })

@@ -27,6 +27,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
 
 
   const otherNumbers = [
+    user.cellphone,
     user.workphone,
     user.homephone,
   ].filter(p => p)
@@ -97,7 +98,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
           contact={user}
           number={phoneNumber}
           displayedNumber={highlightedNumber}
-          otherNumber={otherNumbers.length > 0 ? t('Common.PlusOther', { count: otherNumbers.length }) as string : ''}
+          otherNumber={otherNumbers.length > 1 ? t('Common.PlusOther', { count: otherNumbers.length - 1 }) as string : ''}
           isHighlight={true}
           username={username}
           isFavourite={false}
