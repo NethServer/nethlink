@@ -16,6 +16,7 @@ export const ContactNameAndActions = ({
   number,
   isHighlight,
   displayedNumber,
+  otherNumber,
   avatarDim,
   username,
   isFavourite,
@@ -25,6 +26,7 @@ export const ContactNameAndActions = ({
   number: string
   isHighlight: boolean
   displayedNumber: string | ReactNode[]
+  otherNumber?: string
   avatarDim: 'small' | 'base' | 'extra_small' | 'large' | 'extra_large'
   username: string | undefined
   isFavourite: boolean
@@ -110,7 +112,7 @@ export const ContactNameAndActions = ({
                 displayedNumber !== '' &&
                 displayedNumber !== null &&
                 (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
-                ? displayedNumber
+                ? <span>{displayedNumber} {otherNumber}</span>
                 : '-'}
             </NumberCaller>
           </div>

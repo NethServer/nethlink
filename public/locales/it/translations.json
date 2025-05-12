@@ -82,7 +82,9 @@
     "Screen share dialog description": "Questa applicazione richiede il permesso di registrare lo schermo.\n\nClicca su 'Apri Impostazioni', poi seleziona 'Privacy & Sicurezza' poi 'Registrazione Schermo e Audio di Sistema' dalla lista e abilita il permesso per 'NethLink'.",
     "Cancel button": "Annulla",
     "Open settings button": "Apri Impostazioni",
-    "Shortcut": "Scegli una combinazione di tasti"
+    "Shortcut": "Scegli una combinazione di tasti",
+    "PlusOther_one": "+ {{count}} altro",
+    "PlusOther_other": "+ {{count}} altri"
   },
   "Login": {
     "Welcome": "Benvenuto",

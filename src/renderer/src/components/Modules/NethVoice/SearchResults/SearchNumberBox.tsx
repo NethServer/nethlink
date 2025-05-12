@@ -147,7 +147,13 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
         {
           filteredPhoneNumbers.length > 0
             ? filteredPhoneNumbers.map((user, index) => (
-              <SearchNumber key={'SearchNumber_' + index} user={user} />
+              <SearchNumber
+                key={'SearchNumber_' + index}
+                user={user}
+                onClick={(user) => {
+                  console.log(user)
+                }}
+              />
             ))
             : <EmptyList icon={EmptySearchIcon} text={t('Devices.No results')} />
         }
