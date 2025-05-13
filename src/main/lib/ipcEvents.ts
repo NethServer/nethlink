@@ -215,9 +215,9 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.OPEN_EXTERNAL_PAGE, async (event, path) => {
     if (isDev()) {
       const window = BrowserWindow.fromWebContents(event.sender);
-      window?.loadURL(path)
+      window?.loadURL(join(path))
     } else {
-      shell.openExternal(path)
+      shell.openExternal(join(path))
     }
   })
 
