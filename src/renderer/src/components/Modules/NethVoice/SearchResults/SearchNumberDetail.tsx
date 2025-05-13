@@ -119,7 +119,7 @@ const ContactDetail = ({ children, label, icon, copy, protocol }: { label: strin
 
   const runProtocol = () => {
     if (protocol === 'callto' && !isCallsEnabled) return;
-    const url = `${protocol}://${('' + children).replace(/ /g, '')}`
+    const url = `${protocol}:${protocol === 'callto' ? '//' : ''}${('' + children).replace(/ /g, '')}`
     window.api.openExternalPage(url);
   }
 
