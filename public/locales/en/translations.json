@@ -84,7 +84,9 @@
     "Open settings button": "Open Settings",
     "Shortcut": "Define a keyboard shortcut",
     "PlusOther_one": "+ {{count}} other",
-    "PlusOther_other": "+ {{count}} others"
+    "PlusOther_other": "+ {{count}} others",
+    "Copy": "Copy",
+    "Copied": "Copied"
   },
   "Login": {
     "Welcome": "Welcome",

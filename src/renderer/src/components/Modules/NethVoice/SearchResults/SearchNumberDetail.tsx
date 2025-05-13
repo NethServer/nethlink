@@ -15,9 +15,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DefaultTFuncReturn, t } from 'i18next'
 import { ClassNames } from '@renderer/utils'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
-import { ReactNode } from 'react'
+import { useRef, useState } from 'react'
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { Tooltip } from 'react-tooltip'
+import { NumberCaller } from '@renderer/components/NumberCaller'
+import { useAccount } from '@renderer/hooks/useAccount'
+import classNames from 'classnames'
 
 interface SearchNumberBoxProps {
   contactDetail?: {
@@ -29,7 +32,7 @@ interface SearchNumberBoxProps {
 export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxProps) {
   const { contact, primaryNumber } = contactDetail || {}
   return (
-    <div className={ClassNames('absolute top-0 w-full h-full left-0 duration-300 transition-transform z-0', contact ? 'translate-x-0' : 'translate-x-[150%]')}>
+    <div className={ClassNames('absolute top-0 w-full h-full left-0 duration-300 transition-transform', contact ? 'translate-x-0' : 'translate-x-[150%]')}>
       {contact &&
         <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight h-full">
           <ModuleTitle
@@ -57,11 +60,11 @@ export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxPro
               <div className='flex flex-col gap-6 w-full pr-1'>
                 <ContactVisibility isPublic={!(contact?.type === 'private' && contact?.source === 'cti')} />
                 {/* <ContactDetail icon={PhoneIcon} label={t('Phonebook.Primary phone')} copy>{primaryNumber || ''}</ContactDetail> */}
-                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Home phone')} copy>{contact.homephone}</ContactDetail>
-                <ContactDetail icon={MobilePhoneIcon} label={t('Phonebook.Mobile phone')} copy>{contact.cellphone}</ContactDetail>
-                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Work phone')} copy>{contact.workphone}</ContactDetail>
-                <ContactDetail icon={MailIcon} label={t('Phonebook.Email')} copy>{contact.homeemail}</ContactDetail>
-                <ContactDetail icon={MailIcon} label={t('Phonebook.Work')} copy>{contact.workemail}</ContactDetail>
+                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Home phone')} copy protocol='callto'>{contact.homephone}</ContactDetail>
+                <ContactDetail icon={MobilePhoneIcon} label={t('Phonebook.Mobile phone')} copy protocol='callto'>{contact.cellphone}</ContactDetail>
+                <ContactDetail icon={PhoneIcon} label={t('Phonebook.Work phone')} copy protocol='callto'>{contact.workphone}</ContactDetail>
+                <ContactDetail icon={MailIcon} label={t('Phonebook.Email')} copy protocol='mailto'>{contact.homeemail}</ContactDetail>
+                <ContactDetail icon={MailIcon} label={t('Phonebook.Work')} copy protocol='mailto'>{contact.workemail}</ContactDetail>
                 <ContactDetail icon={WorkIcon} label={t('Phonebook.Company')}>{contact.company}</ContactDetail>
               </div>
             </Scrollable>
@@ -94,7 +97,35 @@ const ContactVisibility = ({ isPublic }: { isPublic: boolean }) => {
   </div>
 }
 
-const ContactDetail = ({ children, label, icon, copy }: { label: string | DefaultTFuncReturn, icon: IconProp, children: string, copy?: boolean }) => {
+const ContactDetail = ({ children, label, icon, copy, protocol }: { label: string | DefaultTFuncReturn, icon: IconProp, children: string, copy?: boolean, protocol?: 'mailto' | 'callto' }) => {
+
+  const { isCallsEnabled } = useAccount()
+  const [copied, setCopied] = useState(false)
+  const copiedInterval = useRef<NodeJS.Timeout>()
+
+  const removeInterval = () => {
+    if (copiedInterval.current) {
+      clearTimeout(copiedInterval.current)
+    }
+  }
+  const onClick = () => {
+    window.api.copyToClipboard(children)
+    setCopied(true)
+    copiedInterval.current = setTimeout(() => {
+      setCopied(false)
+      removeInterval()
+    }, 2000)
+  }
+
+  const runProtocol = () => {
+    if (protocol === 'callto' && !isCallsEnabled) return;
+    const url = `${protocol}://${('' + children).replace(/ /g, '')}`
+    window.api.openExternalPage(url);
+  }
+
+  const linkClassName = 'text-textBlueLight dark:text-textBlueDark cursor-pointer rounded-md font-normal dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark hover:underline'
+
+
   return <div className='flex flex-row w-full justify-start'>
     <div className='flex flex-row gap-2 items-center min-w-[170px] '>
       <FontAwesomeIcon
@@ -103,45 +134,61 @@ const ContactDetail = ({ children, label, icon, copy }: { label: string | Defaul
       />
       {label}
     </div>
-    <div className='relative truncate max-w-[calc(100%-170px)]'
-      data-tooltip-id={`tooltip-${label}`}
-      data-tooltip-content={children}
-      data-tooltip-place={'bottom'}
+    <div className='relative flex flex-row truncate max-w-[calc(100%-170px)] gap-2'>
+      <span className={classNames('truncate', protocol
+        ? linkClassName
+        : '',
+        protocol === 'callto'
+          ? isCallsEnabled
+            ? ''
+            : 'cursor-not-allowed'
+          : ''
+      )}
+        onClick={protocol ? runProtocol : undefined}
+        data-tooltip-id={`tooltip-data-${label}`}
+        data-tooltip-content={children}
+        data-tooltip-place={'bottom'}
+      >
+        {children}
+      </span>
 
-    >
-      {copy ? <CopyValue >{children}</CopyValue> : (children || '-')}
-      <Tooltip
-        id={`tooltip-${label}`}
-        place="bottom"
-        className="z-10"
-        opacity={1}
-        noArrow={false}
-      />
-
+      {children && copy && <div className='relative'>
+        <FontAwesomeIcon
+          className={classNames(linkClassName, "text-base !ring-0 !ring-offset-0 border-0 inset-0 mr-1")}
+          icon={CopyIcon}
+          onClick={onClick}
+          data-tooltip-id={`tooltip-copy-${label}`}
+          data-tooltip-content={t('Common.Copy')}
+        />
+        <div className='absolute left-1/2 top-0 z-0 w-0 h-full bg-red-500/50 visible'
+          data-tooltip-id={`tooltip-copied-${label}`}
+          data-tooltip-content={t('Common.Copied')}
+        />
+      </div>
+      }
     </div>
-  </div>
-}
-
-const CopyValue = ({ children, className }: { className?: string, children: string }) => {
-  if (!children) return <>-</>
-
-  const onClick = () => {
-    window.api.copyToClipboard(children)
-  }
-
-  return <div
-    className={ClassNames(className, 'relative cursor-pointer w-full flex flex-row items-center  text-textBlueLight dark:text-textBlueDark font-normal gap-2 dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-md hover:underline')}
-    onClick={onClick}
-  >
-    <span className='truncate'
-    >
-      {children}
-    </span>
-    <FontAwesomeIcon
-      className="text-base"
-      icon={CopyIcon}
+    <Tooltip
+      id={`tooltip-data-${label}`}
+      place="bottom"
+      className="z-10"
+      opacity={1}
+      noArrow={false}
     />
-
+    <Tooltip
+      id={`tooltip-copy-${label}`}
+      place="bottom"
+      className="z-10"
+      opacity={1}
+      noArrow={false}
+    />
+    <Tooltip
+      id={`tooltip-copied-${label}`}
+      place="top"
+      className="z-10"
+      opacity={1}
+      isOpen={copied}
+      noArrow={false}
+    />
   </div>
-
 }
+

@@ -30,7 +30,12 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
     user.cellphone,
     user.workphone,
     user.homephone,
-  ].filter(p => p)
+  ].reduce((p, c) => {
+    if (c && !p.includes(c)) {
+      p.push(c)
+    }
+    return p
+  }, [] as string[])
 
   const getUsernameFromPhoneNumber = (number: string) => {
     return user.type !== 'extension' ? operators?.extensions[number]?.username : undefined

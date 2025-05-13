@@ -84,7 +84,9 @@
     "Open settings button": "Apri Impostazioni",
     "Shortcut": "Scegli una combinazione di tasti",
     "PlusOther_one": "+ {{count}} altro",
-    "PlusOther_other": "+ {{count}} altri"
+    "PlusOther_other": "+ {{count}} altri",
+    "Copy": "Copia",
+    "Copied": "Copiato"
   },
   "Login": {
     "Welcome": "Benvenuto",

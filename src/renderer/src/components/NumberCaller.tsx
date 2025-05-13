@@ -29,6 +29,7 @@ export const NumberCaller = ({
         'dark:text-textBlueDark text-textBlueLight',
         'cursor-pointer dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-md')}
       {...args}
+      onClick={onClick}
     >
       <div
         className={`${isNumberHiglighted ? 'dark:text-textBlueDark text-textBlueLight' : ''} font-normal`}

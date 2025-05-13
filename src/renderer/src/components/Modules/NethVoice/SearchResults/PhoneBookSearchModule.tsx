@@ -5,6 +5,7 @@ import { usePhonebookSearchModule } from "./hook/usePhoneBookSearchModule"
 import { SearchData } from "@shared/types"
 import { useNethlinkData } from "@renderer/store"
 import { SearchNumberDetail } from "./SearchNumberDetail"
+import classNames from "classnames"
 
 export const PhoneBookSearchModule = () => {
 
@@ -36,7 +37,9 @@ export const PhoneBookSearchModule = () => {
 
   return (
     <>
-      <SearchNumberBox searchResult={searchResult}
+      <SearchNumberBox
+        className={classNames(contactDetail ? 'hidden' : 'visible')}
+        searchResult={searchResult}
         showContactForm={() => {
           setShowAddContactModule(true)
           setShowPhonebookSearchModule(false)
