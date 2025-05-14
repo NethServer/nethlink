@@ -152,6 +152,22 @@ export class AccountController {
     }
   }
 
+  updatePreferredDevice(preferredDevices: any) {
+    if (store.store) {
+      const account = store.store.account
+      if (account) {
+        account.preferredDevices = preferredDevices
+
+        store.set('account', account)
+        const auth = store.store.auth
+
+        auth!.availableAccounts[getAccountUID(account)] = account
+        store.set('auth', auth)
+      }
+      store.saveToDisk()
+    }
+  }
+
   updateShortcut(shortcut: any) {
     if (store.store) {
       const account = store.store.account

@@ -2,7 +2,7 @@ import { eventDispatch } from '@renderer/hooks/eventDispatch'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS, } from '@shared/constants'
-import { Extension, PhoneIslandSizes, sizeInformationType } from '@shared/types'
+import { Extension, PhoneIslandSizes, PreferredDevices, sizeInformationType } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { delay, isDev } from '@shared/utils/utils'
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
@@ -69,6 +69,12 @@ export function PhoneIslandPage() {
     window.electron.receive(IPC_EVENTS.END_CALL, () => {
       //controllare se sono physical
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
+    })
+
+    window.electron.receive(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (devices: PreferredDevices) => {
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
     })
 
     window.electron.receive(IPC_EVENTS.TRANSFER_CALL, (to: string) => {
