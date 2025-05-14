@@ -38,22 +38,24 @@ export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxPro
           <ModuleTitle
             title={
               <div
-                className={`flex gap-1 pt-[10px] pl-1 pr-8 pb-[10px] items-center cursor-pointer`}
-                onClick={() => {
-                  debouncer('onDetailBack', () => {
-                    onBack()
-                  }, 250)
-                }}
+                className={`flex gap-1 pt-[10px] pl-1 pr-8 pb-[10px] items-center `}
+
               >
                 <FontAwesomeIcon
-                  className="text-base dark:text-gray-50 text-gray-600 mr-1"
+                  className="text-base dark:text-gray-50 text-gray-600 mr-1 p-1 cursor-pointer"
                   icon={BackIcon}
+                  onClick={() => {
+                    debouncer('onDetailBack', () => {
+                      onBack()
+                    }, 250)
+                  }}
                 />
                 <p className="font-normal">
                   {contact?.displayName}
                 </p>
               </div>
             }
+
           />
           <div className='pl-6 pt-6 w-full h-full'>
             <Scrollable>
@@ -88,7 +90,7 @@ const ContactVisibility = ({ isPublic }: { isPublic: boolean }) => {
     <div className='w-full'>
       <div className='px-3 py-0.5 w-fit justify-start bg-bgEmerald rounded-full flex flex-row gap-1 items-center dark:text-titleDark text-titleLight'>
         <FontAwesomeIcon
-          className="text-base dark:text-titleDark text-titleLight"
+          className="text-base dark:text-titleDark text-titleLight w-5"
           icon={PublicIcon}
         />
         {isPublic ? t("Phonebook.Public") : t("Phonebook.Only me")}
@@ -129,13 +131,13 @@ const ContactDetail = ({ children, label, icon, copy, protocol }: { label: strin
   return <div className='flex flex-row w-full justify-start'>
     <div className='flex flex-row gap-2 items-center min-w-[170px] '>
       <FontAwesomeIcon
-        className="text-base dark:text-titleDark text-titleLight"
+        className="text-base dark:text-titleDark text-titleLight w-5"
         icon={icon}
       />
       {label}
     </div>
     <div className='relative flex flex-row truncate max-w-[calc(100%-170px)] gap-2'>
-      <span className={classNames('truncate', protocol
+      <span className={classNames('truncate', protocol && children
         ? linkClassName
         : '',
         protocol === 'callto'
@@ -149,7 +151,7 @@ const ContactDetail = ({ children, label, icon, copy, protocol }: { label: strin
         data-tooltip-content={children}
         data-tooltip-place={'bottom'}
       >
-        {children}
+        {children || '-'}
       </span>
 
       {children && copy && <div className='relative'>
@@ -160,7 +162,7 @@ const ContactDetail = ({ children, label, icon, copy, protocol }: { label: strin
           data-tooltip-id={`tooltip-copy-${label}`}
           data-tooltip-content={t('Common.Copy')}
         />
-        <div className='absolute left-1/2 top-0 z-0 w-0 h-full bg-red-500/50 visible'
+        <div className='absolute left-1/2 top-0 z-0 w-0 h-full  visible'
           data-tooltip-id={`tooltip-copied-${label}`}
           data-tooltip-content={t('Common.Copied')}
         />
