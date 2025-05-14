@@ -146,6 +146,8 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-input-changed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-output-change"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-output-changed"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-video-input-changed"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-video-output-changed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-close"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-closed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-pause"]),

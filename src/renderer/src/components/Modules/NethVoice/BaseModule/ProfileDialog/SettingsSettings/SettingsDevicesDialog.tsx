@@ -1,0 +1,243 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Button, TextInput } from '@renderer/components/Nethesis'
+import { useNethlinkData, useSharedState } from '@renderer/store'
+import { IPC_EVENTS } from '@shared/constants'
+import { t } from 'i18next'
+import { useCallback, useEffect, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { Backdrop } from '../../Backdrop'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faMicrophone as AudioInputsIcon,
+  faVolumeHigh as AudioOutputsIcon,
+  faVideo as VideoInputsIcon,
+  faChevronDown as DropdownIcon,
+  faCheck as SelectedIcon
+} from '@fortawesome/free-solid-svg-icons'
+import { Tooltip } from 'react-tooltip'
+import { PreferredDevices } from '@shared/types'
+import { Dropdown } from '@renderer/components/Nethesis/dropdown'
+import { DropdownItem } from '@renderer/components/Nethesis/dropdown/DropdownItem'
+import { DropdownHeader } from '@renderer/components/Nethesis/dropdown/DropdownHeader'
+
+type DeviceType = 'audioInput' | 'audioOutput' | 'videoInput'
+export function SettingsDeviceDialog() {
+  const [account, setAccount] = useSharedState('account')
+  const [, setIsDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
+  const [devices, setDevices] = useState<{
+    audioInput: MediaDeviceInfo[],
+    audioOutput: MediaDeviceInfo[],
+    videoInput: MediaDeviceInfo[],
+  } | null>(null)
+
+  const schema: z.ZodType<PreferredDevices> = z.object({
+    audioInput: z.string(),
+    audioOutput: z.string(),
+    videoInput: z.string()
+  })
+
+  const {
+    handleSubmit,
+    control,
+    setValue
+  } = useForm({
+    defaultValues: {
+      audioInput: account?.preferredDevices?.audioInput || '',
+      audioOutput: account?.preferredDevices?.audioOutput || '',
+      videoInput: account?.preferredDevices?.videoInput || ''
+    },
+    resolver: zodResolver(schema),
+  })
+
+  useEffect(() => {
+    initDevices()
+  }, [])
+
+  useEffect(() => {
+    console.log(account?.preferredDevices)
+    setValue('audioInput', account?.preferredDevices?.audioInput || '')
+    setValue('audioOutput', account?.preferredDevices?.audioOutput || '')
+    setValue('videoInput', account?.preferredDevices?.videoInput || '')
+
+  }, [account?.preferredDevices])
+
+  const getDeviceById = useCallback((type: DeviceType, id: string): MediaDeviceInfo | undefined => {
+    if (!devices) return undefined
+    return devices[type].find((d) => d.deviceId === id)
+  }, [devices])
+
+  const initDevices = async () => {
+    const devices = await getMediaDevices()
+    setDevices(devices)
+  }
+
+  async function getMediaDevices() {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+
+      const groupByGroupId = (devicesList) => {
+        const map = new Map();
+        for (const device of devicesList) {
+          if (!map.has(device.groupId)) {
+            map.set(device.groupId, device);
+          }
+        }
+        return Array.from(map.values());
+      };
+
+      const audioInput = groupByGroupId(devices.filter(device => device.kind === 'audioinput'));
+      const audioOutput = groupByGroupId(devices.filter(device => device.kind === 'audiooutput'));
+      const videoInput = groupByGroupId(devices.filter(device => device.kind === 'videoinput'));
+
+      return { audioInput, audioOutput, videoInput };
+    } catch (err) {
+      console.error('Errore nella lettura dei device:', err);
+      return null;
+    }
+  }
+
+  function handleCancel(e) {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDeviceDialogOpen(false)
+  }
+
+  async function submit(data) {
+    console.log({ data })
+    const preferredDevices = {
+      ...data
+    }
+    const updatedAccount = { ...account!, preferredDevices }
+    setAccount(() => updatedAccount)
+    window.electron.send(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, data)
+    setIsDeviceDialogOpen(false)
+  }
+
+  const icons = {
+    'audioInput': AudioInputsIcon,
+    'audioOutput': AudioOutputsIcon,
+    'videoInput': VideoInputsIcon
+  }
+
+  const fieldLabels = {
+    'audioInput': t('TopBar.Microphone'),
+    'audioOutput': t('TopBar.Speaker'),
+    'videoInput': t('TopBar.Camera')
+  }
+
+  const DeviceDropdown = useCallback(({ name }: { name: DeviceType }) => {
+    return <div className='flex flex-row gap-2 items-center w-full '>
+      <div className='flex flex-row gap-2 items-center w-full min-w-[120px] max-w-[120px] '>
+        <FontAwesomeIcon icon={icons[name]} className='w-4' />
+        <span className='truncate'>
+          {fieldLabels[name]}
+        </span>
+      </div>
+      <div className=''>
+        <Controller
+          control={control}
+          name={name}
+          render={({ field: { value, onChange } }) => {
+            const selectedDevice = getDeviceById(name, value)
+            return <Dropdown
+              items={devices?.[name].map((device) => {
+                return <DropdownItem
+                  key={device.deviceId}
+                  onClick={() => {
+                    onChange(device.deviceId)
+                  }}>
+                  <div className='flex flex-row items-center gap-2 w-[200px]'>
+                    <span className='truncate'
+                      data-tooltip-id={`device-${name}`}
+                      data-tooltip-content={device.label}
+                    >{device.label}</span>
+                    <FontAwesomeIcon icon={SelectedIcon} className={selectedDevice?.deviceId === device.deviceId ? 'visible' : 'hidden'} />
+                  </div>
+                </DropdownItem>
+              })}
+              className='w-full'
+            >
+              <DropdownHeader>
+                <div className='relative flex flex-row gap-1 w-[192px] items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
+                  <span className='truncate'
+                    data-tooltip-id={`device-${name}`}
+                    data-tooltip-content={selectedDevice?.label}
+                  >{selectedDevice?.label || '-'}</span>
+                  <FontAwesomeIcon icon={DropdownIcon} />
+                </div>
+              </DropdownHeader>
+              <div className='absolute'>
+                <Tooltip
+                  id={`device-${name}`}
+                  place="left"
+                  className="z-[10000] font-medium text-xs leading-[18px]"
+                  opacity={1}
+                  noArrow={false}
+                />
+              </div >
+            </Dropdown >
+          }}
+        />
+      </div>
+    </div >
+  }, [account?.preferredDevices, devices])
+
+
+  return (
+    <>
+      {/* Background color */}
+      <div className='fixed inset-0 bg-gray-500/75 dark:bg-gray-700/75 z-[201]' />
+
+      {/* On external click close dialog */}
+      <Backdrop
+        className='z-[202]'
+        onBackdropClick={() => setIsDeviceDialogOpen(false)}
+      />
+
+      <div className='absolute top-0 left-0 w-screen h-screen flex justify-center items-center z-[205] pointer-events-none'>
+        <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-[90%] pointer-events-auto'>
+          {/* Dialog content */}
+          <div className='p-6 flex flex-col gap-4'>
+            {/* Title */}
+            <h2 className='text-center font-semibold text-xl'>
+              {t('TopBar.Preferred devices')}
+            </h2>
+
+            {/* Form */}
+            <form
+              onSubmit={handleSubmit(submit)}
+              className='flex flex-col gap-1'
+            >
+              {/* Input field with clear button next to it */}
+              <DeviceDropdown name='audioInput' />
+              <DeviceDropdown name='audioOutput' />
+              <DeviceDropdown name='videoInput' />
+
+
+              {/* Action buttons */}
+              <div className='flex flex-col gap-3 mt-2'>
+                <Button
+                  variant='primary'
+                  type='submit'
+                  className='w-full py-3 rounded-lg font-medium'
+                >
+                  {t('Common.Save')}
+                </Button>
+
+                <Button
+                  variant='ghost'
+                  type='button'
+                  onClick={handleCancel}
+                  className='text-center text-blue-700 dark:text-blue-500 font-medium'
+                >
+                  {t('Common.Cancel')}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}

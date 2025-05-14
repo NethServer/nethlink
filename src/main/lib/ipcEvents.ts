@@ -269,6 +269,12 @@ export function registerIpcEvents() {
     }
   })
 
+  ipcMain.on(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (_, devices) => {
+    Log.info('CHANGE_PREFERRED_DEVICES:', devices)
+    AccountController.instance.updatePreferredDevice(devices)
+    PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, devices)
+  })
+
   ipcMain.on(IPC_EVENTS.CHANGE_SHORTCUT, async (_, combo) => {
     // unregister previous shortcut
     await globalShortcut.unregisterAll();
