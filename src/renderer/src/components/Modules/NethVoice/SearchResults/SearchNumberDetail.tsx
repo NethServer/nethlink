@@ -36,26 +36,21 @@ export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxPro
       {contact &&
         <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight h-full">
           <ModuleTitle
+            className='flex-row-reverse justify-end'
             title={
-              <div
-                className={`flex gap-1 pt-[10px] pl-1 pr-8 pb-[10px] items-center `}
-
-              >
-                <FontAwesomeIcon
-                  className="text-base dark:text-gray-50 text-gray-600 mr-1 p-1 cursor-pointer"
-                  icon={BackIcon}
-                  onClick={() => {
-                    debouncer('onDetailBack', () => {
-                      onBack()
-                    }, 250)
-                  }}
-                />
-                <p className="font-normal">
-                  {contact?.displayName}
-                </p>
-              </div>
+              contact?.displayName
             }
-
+            actionComponent={
+              <FontAwesomeIcon
+                className="text-base dark:text-gray-50 text-gray-600 mr-1 p-1 size-4 cursor-pointer"
+                icon={BackIcon}
+                onClick={() => {
+                  debouncer('onDetailBack', () => {
+                    onBack()
+                  }, 250)
+                }}
+              />
+            }
           />
           <div className='pl-6 pt-6 w-full h-full'>
             <Scrollable>
