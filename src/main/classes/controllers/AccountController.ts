@@ -5,7 +5,7 @@ import { store } from '@/lib/mainStore'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
-import { getAccountUID } from '@shared/utils/utils'
+import { delay, getAccountUID } from '@shared/utils/utils'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -80,7 +80,7 @@ export class AccountController {
           let loggedAccount: Account = {
             ...lastLoggedAccount,
             ...tempLoggedAccount,
-            theme: lastLoggedAccount.theme || tempLoggedAccount.theme
+            theme: lastLoggedAccount.theme || tempLoggedAccount.theme,
           }
 
           const { parseConfig } = useLogin()
@@ -99,10 +99,19 @@ export class AccountController {
 
   async saveLoggedAccount(account: Account, password: string): Promise<Account> {
     try {
-      //
       const clearString = JSON.stringify({ host: account.host, username: account.username, password: password })
       const cryptString = safeStorage.encryptString(clearString)
       const accountUID = getAccountUID(account)
+      const authAppData = store.store.auth
+      if (authAppData) {
+        const accountPreviousData = authAppData.availableAccounts[accountUID]
+        if (accountPreviousData) {
+          account = {
+            ...accountPreviousData,
+            ...account
+          }
+        }
+      }
       store.updateStore({
         account,
         theme: account.theme,
@@ -135,49 +144,47 @@ export class AccountController {
 
 
 
-  updateTheme(theme: any) {
+  async updateTheme(theme: any) {
     if (store.store) {
       const account = store.store.account
-      store.set('theme', theme)
+      store.set('theme', theme, true)
       if (account) {
         account.theme = theme
-
-        store.set('account', account)
+        store.set('account', account, true)
         const auth = store.store.auth
-
         auth!.availableAccounts[getAccountUID(account)] = account
-        store.set('auth', auth)
+        store.set('auth', auth, true)
       }
       store.saveToDisk()
     }
   }
 
-  updatePreferredDevice(preferredDevices: any) {
+  async updatePreferredDevice(preferredDevices: any) {
     if (store.store) {
       const account = store.store.account
       if (account) {
         account.preferredDevices = preferredDevices
 
-        store.set('account', account)
+        store.set('account', account, true)
         const auth = store.store.auth
 
         auth!.availableAccounts[getAccountUID(account)] = account
-        store.set('auth', auth)
+        store.set('auth', auth, true)
       }
       store.saveToDisk()
     }
   }
 
-  updateShortcut(shortcut: any) {
+  async updateShortcut(shortcut: any) {
     if (store.store) {
       const account = store.store.account
       if (account) {
         account.shortcut = shortcut
-        store.set('account', account)
+        store.set('account', account, true)
         const auth = store.store.auth
 
         auth!.availableAccounts[getAccountUID(account)] = account
-        store.set('auth', auth)
+        store.set('auth', auth, true)
       }
       store.saveToDisk()
     }
@@ -193,7 +200,7 @@ export class AccountController {
     const auth = store.store.auth
     if (account) {
       account!.phoneIslandPosition = phoneIslandPosition
-      store.set('account', account)
+      store.set('account', account, true)
       const _auth = {
         ...auth,
         availableAccounts: {
@@ -201,7 +208,7 @@ export class AccountController {
           [getAccountUID(account)]: account
         }
       }
-      store.set('auth', _auth)
+      store.set('auth', _auth, true)
       store.saveToDisk()
     }
   }
@@ -216,7 +223,7 @@ export class AccountController {
     const auth = store.store.auth
     if (account) {
       account!.nethlinkBounds = nethlinkBounds
-      store.set('account', account)
+      store.set('account', account, true)
       const _auth = {
         ...auth,
         availableAccounts: {
@@ -224,7 +231,7 @@ export class AccountController {
           [getAccountUID(account)]: account
         }
       }
-      store.set('auth', _auth)
+      store.set('auth', _auth, true)
       store.saveToDisk()
     }
   }
