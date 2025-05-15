@@ -687,6 +687,13 @@ async function createNethLink(show: boolean = true) {
   await delay(1000)
   new PhoneIslandController()
   checkForUpdate()
+  const account = store.get('account') as Account
+  if (account) {
+    Log.info("Preferred devices readed:", account.preferredDevices)
+    if (account.preferredDevices) {
+      ipcMain.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, undefined, account.preferredDevices)
+    }
+  }
 }
 
 async function checkForUpdate() {
