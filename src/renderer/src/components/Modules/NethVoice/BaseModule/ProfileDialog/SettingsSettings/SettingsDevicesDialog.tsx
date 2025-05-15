@@ -20,6 +20,8 @@ import { PreferredDevices } from '@shared/types'
 import { Dropdown } from '@renderer/components/Nethesis/dropdown'
 import { DropdownItem } from '@renderer/components/Nethesis/dropdown/DropdownItem'
 import { DropdownHeader } from '@renderer/components/Nethesis/dropdown/DropdownHeader'
+import { Log } from '@shared/utils/logger'
+import { delay } from '@shared/utils/utils'
 
 type DeviceType = 'audioInput' | 'audioOutput' | 'videoInput'
 export function SettingsDeviceDialog() {
@@ -43,9 +45,9 @@ export function SettingsDeviceDialog() {
     setValue
   } = useForm({
     defaultValues: {
-      audioInput: account?.preferredDevices?.audioInput || '',
-      audioOutput: account?.preferredDevices?.audioOutput || '',
-      videoInput: account?.preferredDevices?.videoInput || ''
+      audioInput: '',
+      audioOutput: '',
+      videoInput: ''
     },
     resolver: zodResolver(schema),
   })
@@ -59,7 +61,6 @@ export function SettingsDeviceDialog() {
     setValue('audioInput', account?.preferredDevices?.audioInput || '')
     setValue('audioOutput', account?.preferredDevices?.audioOutput || '')
     setValue('videoInput', account?.preferredDevices?.videoInput || '')
-
   }, [account?.preferredDevices])
 
   const getDeviceById = useCallback((type: DeviceType, id: string): MediaDeviceInfo | undefined => {
@@ -69,6 +70,7 @@ export function SettingsDeviceDialog() {
 
   const initDevices = async () => {
     const devices = await getMediaDevices()
+    Log.info('Available devices:', devices)
     setDevices(devices)
   }
 
@@ -104,12 +106,12 @@ export function SettingsDeviceDialog() {
   }
 
   async function submit(data) {
-    console.log({ data })
     const preferredDevices = {
       ...data
     }
     const updatedAccount = { ...account!, preferredDevices }
     setAccount(() => updatedAccount)
+    await delay(100)
     window.electron.send(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, data)
     setIsDeviceDialogOpen(false)
   }
@@ -145,6 +147,7 @@ export function SettingsDeviceDialog() {
                 return <DropdownItem
                   key={device.deviceId}
                   onClick={() => {
+                    console.log('change device:', device.deviceId)
                     onChange(device.deviceId)
                   }}>
                   <div className='flex flex-row items-center gap-2 w-[200px]'>
