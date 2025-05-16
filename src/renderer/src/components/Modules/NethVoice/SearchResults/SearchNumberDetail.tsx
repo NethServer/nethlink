@@ -21,6 +21,7 @@ import { Tooltip } from 'react-tooltip'
 import { NumberCaller } from '@renderer/components/NumberCaller'
 import { useAccount } from '@renderer/hooks/useAccount'
 import classNames from 'classnames'
+import { useTheme } from '@renderer/theme/Context'
 
 interface SearchNumberBoxProps {
   contactDetail?: {
@@ -74,8 +75,9 @@ export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxPro
 
 
 const ContactVisibility = ({ isPublic }: { isPublic: boolean }) => {
+  const { theme } = useTheme()
   return <div className='flex flex-row w-full justify-start'>
-    <div className='flex flex-row gap-2 items-center min-w-[170px] w-full'>
+    <div className='flex flex-row gap-2 items-center min-w-[170px] w-full dark:text-titleDark text-titleLight'>
       <FontAwesomeIcon
         className="text-base dark:text-titleDark text-titleLight"
         icon={VisibilityIcon}
@@ -83,9 +85,9 @@ const ContactVisibility = ({ isPublic }: { isPublic: boolean }) => {
       {t("Phonebook.Visibility")}
     </div>
     <div className='w-full'>
-      <div className='px-3 py-0.5 w-fit justify-start bg-bgEmerald rounded-full flex flex-row gap-1 items-center dark:text-titleDark text-titleLight'>
+      <div className={classNames(theme.badge.base, theme.badge.rounded.full, theme.badge.sizes.small, 'w-fit justify-start bg-teal-100 dark:bg-teal-700  text-teal-800 dark:text-teal-100 flex flex-row gap-1 items-center ')}>
         <FontAwesomeIcon
-          className="text-base dark:text-titleDark text-titleLight w-5"
+          className="text-base text-teal-800 dark:text-teal-100 w-5"
           icon={PublicIcon}
         />
         {isPublic ? t("Phonebook.Public") : t("Phonebook.Only me")}
