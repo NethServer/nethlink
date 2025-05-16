@@ -49,6 +49,14 @@ export const ContactNameAndActions = ({
     }
   }
 
+  const displayName = isFavourite
+    ? contact.company && contact.company !== ' '
+      ? contact.company : `${t('Common.Unknown')}`
+    : contact.name && contact.name !== ' '
+      ? contact.name
+      : contact.company && contact.company !== ' '
+        ? contact.company
+        : `${t('Common.Unknown')}`
 
   return (
     <div
@@ -80,9 +88,7 @@ export const ContactNameAndActions = ({
             )}
               onClick={onClick}
             >
-              {isFavourite
-                ? contact.company || `${t('Common.Unknown')}`
-                : contact.name || contact.company || `${t('Common.Unknown')}`}
+              {displayName}
               {isDev() && (
                 <span
                   onClick={() => {
