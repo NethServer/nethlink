@@ -40,6 +40,7 @@ export interface IElectronAPI {
   exitNethLink(): void
   hidePhoneIsland(): void
   showPhoneIsland(size: Size): void
+  copyToClipboard(text: string): void
 
 }
 
@@ -98,6 +99,7 @@ const api: IElectronAPI = {
   exitNethLink: setEmitter(IPC_EVENTS.CLOSE_NETH_LINK),
   hidePhoneIsland: setEmitter(IPC_EVENTS.HIDE_PHONE_ISLAND),
   showPhoneIsland: setEmitter(IPC_EVENTS.SHOW_PHONE_ISLAND),
+  copyToClipboard: setEmitter(IPC_EVENTS.COPY_TO_CLIPBOARD),
 
   //LISTENERS - receive data async
   onUpdateAppNotification: addListener(IPC_EVENTS.UPDATE_APP_NOTIFICATION),

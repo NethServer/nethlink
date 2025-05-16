@@ -9,19 +9,33 @@ import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventH
 import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
 import { useFavouriteModule } from '../Speeddials/hook/useFavouriteModule'
 import { debouncer } from '@shared/utils/utils'
+import { ClassNames } from '@renderer/utils'
 
 export interface SearchNumberProps {
   user: SearchData
-  className?: string
+  className?: string,
+  onClick?: (user: SearchData, primaryNumber: string | null) => void
 }
 
-export function SearchNumber({ user, className }: SearchNumberProps) {
+export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   const phoneBookModule = usePhonebookSearchModule()
   const { callNumber } = usePhoneIslandEventHandler()
   const [searchText] = phoneBookModule.searchTextState
   const [operators] = useNethlinkData('operators')
   const { isCallsEnabled } = useAccount()
   const { isSearchAlsoAFavourite } = useFavouriteModule()
+
+
+  const otherNumbers = [
+    user.cellphone,
+    user.workphone,
+    user.homephone,
+  ].reduce((p, c) => {
+    if (c && !p.includes(c)) {
+      p.push(c)
+    }
+    return p
+  }, [] as string[])
 
   const getUsernameFromPhoneNumber = (number: string) => {
     return user.type !== 'extension' ? operators?.extensions[number]?.username : undefined
@@ -78,16 +92,25 @@ export function SearchNumber({ user, className }: SearchNumberProps) {
 
   return (
     <div className="group">
-      <div className="flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight">
+      <div className={ClassNames(
+        "flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight",
+      )
+      }
+
+      >
         <ContactNameAndActions
           avatarDim="small"
           contact={user}
           number={phoneNumber}
           displayedNumber={highlightedNumber}
+          otherNumber={otherNumbers.length > 1 ? t('Common.PlusOther', { count: otherNumbers.length - 1 }) as string : ''}
           isHighlight={true}
           username={username}
           isFavourite={false}
           isSearchData={true}
+          onOpenDetail={onClick ? () => {
+            onClick?.(user, phoneNumber)
+          } : undefined}
         />
         {phoneNumber && phoneNumber !== '' && (
           <Button

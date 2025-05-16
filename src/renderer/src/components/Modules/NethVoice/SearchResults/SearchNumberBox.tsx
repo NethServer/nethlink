@@ -17,12 +17,15 @@ import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventH
 import { Scrollable } from '@renderer/components/Scrollable'
 import { EmptyList } from '@renderer/components/EmptyList'
 import { debouncer } from '@shared/utils/utils'
+import classNames from 'classnames'
 
 interface SearchNumberBoxProps {
   searchResult: SearchData[] | undefined
   showContactForm: () => void
+  showContactDetail: (contact: SearchData, primaryNumber: string | null) => void
+  className?: string
 }
-export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberBoxProps) {
+export function SearchNumberBox({ searchResult, showContactForm, showContactDetail, className }: SearchNumberBoxProps) {
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
@@ -102,7 +105,7 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
     searchText && isCallsEnabled && getIsPhoneNumber(searchText) && searchText.length > 1
 
   return (
-    <div className="flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight h-full">
+    <div className={classNames("flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight h-full", className)}>
       <div className="mr-[6px]">
         <div
           className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
@@ -147,7 +150,11 @@ export function SearchNumberBox({ searchResult, showContactForm }: SearchNumberB
         {
           filteredPhoneNumbers.length > 0
             ? filteredPhoneNumbers.map((user, index) => (
-              <SearchNumber key={'SearchNumber_' + index} user={user} />
+              <SearchNumber
+                key={'SearchNumber_' + index}
+                user={user}
+                onClick={user.displayName ? showContactDetail : undefined}
+              />
             ))
             : <EmptyList icon={EmptySearchIcon} text={t('Devices.No results')} />
         }
