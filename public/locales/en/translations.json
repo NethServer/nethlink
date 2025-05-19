@@ -82,7 +82,11 @@
     "Screen share dialog description": "This application requires permission to record the screen.\n\nClick 'Open Settings' and then select 'Privacy & Security' then 'Screen & System Audio Recording' from the list and enable the permission for 'NethLink'.",
     "Cancel button": "Cancel",
     "Open settings button": "Open Settings",
-    "Shortcut": "Define a keyboard shortcut"
+    "Shortcut": "Define a keyboard shortcut",
+    "PlusOther_one": "+ {{count}} other",
+    "PlusOther_other": "+ {{count}} others",
+    "Copy": "Copy",
+    "Copied": "Copied"
   },
   "Login": {
     "Welcome": "Welcome",

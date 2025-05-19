@@ -9,7 +9,7 @@ import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
 import { store } from './mainStore'
-import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
+import { debouncer, getAccountUID, getPageFromQuery, isDev } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
@@ -212,8 +212,17 @@ export function registerIpcEvents() {
     shell.openExternal(join('https://' + account!.host, path))
   })
 
-  ipcMain.on(IPC_EVENTS.OPEN_EXTERNAL_PAGE, async (_, path) => {
-    shell.openExternal(join(path))
+  ipcMain.on(IPC_EVENTS.OPEN_EXTERNAL_PAGE, async (event, path) => {
+    if (isDev()) {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      window?.loadURL(join(path))
+    } else {
+      shell.openExternal(join(path))
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
+    clipboard.writeText(text)
   })
 
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (_, size) => {

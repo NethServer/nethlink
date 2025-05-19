@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { usePhonebookSearchModule } from "./hook/usePhoneBookSearchModule"
 import { SearchData } from "@shared/types"
 import { useNethlinkData } from "@renderer/store"
+import { SearchNumberDetail } from "./SearchNumberDetail"
+import classNames from "classnames"
 
 export const PhoneBookSearchModule = () => {
 
@@ -13,6 +15,10 @@ export const PhoneBookSearchModule = () => {
   const [searchResult, setSearchResult] = useState<SearchData[]>()
   const [, setShowPhonebookSearchModule] = useNethlinkData('showPhonebookSearchModule')
   const [, setShowAddContactModule] = useNethlinkData('showAddContactModule')
+  const [contactDetail, setContactDetail] = useState<{
+    contact: SearchData,
+    primaryNumber: string | null
+  }>()
 
   useEffect(() => {
     if ((searchText?.length || 0) >= 3) {
@@ -31,12 +37,21 @@ export const PhoneBookSearchModule = () => {
 
   return (
     <>
-      <SearchNumberBox searchResult={searchResult}
+      <SearchNumberBox
+        className={classNames(contactDetail ? 'hidden' : 'visible')}
+        searchResult={searchResult}
         showContactForm={() => {
           setShowAddContactModule(true)
           setShowPhonebookSearchModule(false)
         }}
+        showContactDetail={(contact, primaryNumber) => {
+          setShowAddContactModule(false)
+          setContactDetail(() => ({ contact, primaryNumber }))
+        }}
       />
+      <SearchNumberDetail contactDetail={contactDetail} onBack={() => {
+        setContactDetail(() => undefined)
+      }} />
     </>
   )
 }
