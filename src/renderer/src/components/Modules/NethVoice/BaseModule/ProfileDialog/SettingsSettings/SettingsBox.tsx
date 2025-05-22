@@ -1,7 +1,7 @@
 import { t } from 'i18next'
 import {
   faKeyboard as KeyboardIcon,
-  faSignal as DevicesIcon,
+  faHeadphones as DevicesIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { useNethlinkData } from '@renderer/store'
 import { OptionElement } from '../OptionElement'
