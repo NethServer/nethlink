@@ -251,13 +251,6 @@ function attachOnReadyProcess() {
         })
       })
     }
-
-    // read shortcut from config and set it to app
-    const account: Account = store.get('account') as Account
-    Log.info("Shortcut readed:", store.get('shortcut'), account.shortcut)
-    if (account.shortcut && account.shortcut?.length > 0) {
-      ipcMain.emit(IPC_EVENTS.CHANGE_SHORTCUT, undefined, account.shortcut)
-    }
   })
 
   async function startApp(attempt = 0) {
@@ -689,9 +682,16 @@ async function createNethLink(show: boolean = true) {
   checkForUpdate()
   const account = store.get('account') as Account
   if (account) {
+    // read preffered devices for phone-island
     Log.info("Preferred devices readed:", account.preferredDevices)
     if (account.preferredDevices) {
       ipcMain.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, undefined, account.preferredDevices)
+    }
+
+    // read shortcut from config and set it to app
+    Log.info("Shortcut readed:", account.shortcut)
+    if (account.shortcut && account.shortcut?.length > 0) {
+      ipcMain.emit(IPC_EVENTS.CHANGE_SHORTCUT, undefined, account.shortcut)
     }
   }
 }

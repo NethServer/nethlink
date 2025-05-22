@@ -180,6 +180,7 @@ export class AccountController {
       const account = store.store.account
       if (account) {
         account.shortcut = shortcut
+
         store.set('account', account, true)
         const auth = store.store.auth
 
