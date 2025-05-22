@@ -368,7 +368,11 @@
     "Keyboard shortcut to call": "Scorciatoia per chiamare",
     "Shortcut title description": "Scegli una combinazione di tasti per avviare una chiamata dopo aver selezionato un testo.",
     "Shortcut subtitle description": "Attenzione: non usare scorciatoie già presenti nel sistema.",
-    "Shortcut body description": "Tasti non consentiti: tab, capsLock, numLock, insert, esc, shift"
+    "Shortcut body description": "Tasti non consentiti: tab, capsLock, numLock, insert, esc, shift",
+    "Preferred devices": "Dispositivi preferiti",
+    "Microphone": "Microfono",
+    "Speaker": "Altoparlante",
+    "Camera": "Video"
   },
   "OperatorDrawer": {
     "Book": "Prenota",

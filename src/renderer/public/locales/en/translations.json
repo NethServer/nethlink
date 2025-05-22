@@ -368,7 +368,11 @@
     "Keyboard shortcut to call": "Keyboard shortcut to call",
     "Shortcut title description": "Choose a keyboard shortcut to dial any selected number. ",
     "Shortcut subtitle description": "Warning: avoid using system-reserved shortcuts.",
-    "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc, shift"
+    "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc, shift",
+    "Preferred devices": "Preferred devices",
+    "Microphone": "Microphone",
+    "Speaker": "Speaker",
+    "Camera": "Camera"
   },
   "OperatorDrawer": {
     "Book": "Book",
