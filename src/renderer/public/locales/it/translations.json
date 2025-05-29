@@ -897,7 +897,8 @@
     "Try changing your search query": "Prova a cambiare la tua ricerca",
     "Keys configuration information tooltip": "Configura i tasti linea del tuo telefono",
     "Key position information tooltip": "Scegli una posizione per il pulsante",
-    "Click on confirm": "Clicca su Conferma"
+    "Click on confirm": "Clicca su Conferma",
+    "Inline warning message devices": "Le modifiche relative alle impostazioni audio e video possono essere applicate solo se il dispositivo principale è impostato su Web Phone, e il proprio stato è online."
   },
   "DropdownContent": {
     "Microphones": "MICROFONI",

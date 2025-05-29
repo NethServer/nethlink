@@ -13,7 +13,7 @@ import {
   faVolumeHigh as AudioOutputsIcon,
   faVideo as VideoInputsIcon,
   faChevronDown as DropdownIcon,
-  faCheck as SelectedIcon
+  faCheck as SelectedIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { Tooltip } from 'react-tooltip'
 import { PreferredDevices } from '@shared/types'
@@ -21,33 +21,31 @@ import { Dropdown } from '@renderer/components/Nethesis/dropdown'
 import { DropdownItem } from '@renderer/components/Nethesis/dropdown/DropdownItem'
 import { DropdownHeader } from '@renderer/components/Nethesis/dropdown/DropdownHeader'
 import { Log } from '@shared/utils/logger'
-import { delay } from '@shared/utils/utils'
+import { delay, isDev } from '@shared/utils/utils'
+import { InlineNotification } from '@renderer/components/Nethesis/InlineNotification'
 
 type DeviceType = 'audioInput' | 'audioOutput' | 'videoInput'
 export function SettingsDeviceDialog() {
   const [account, setAccount] = useSharedState('account')
   const [, setIsDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
   const [devices, setDevices] = useState<{
-    audioInput: MediaDeviceInfo[],
-    audioOutput: MediaDeviceInfo[],
-    videoInput: MediaDeviceInfo[],
+    audioInput: MediaDeviceInfo[]
+    audioOutput: MediaDeviceInfo[]
+    videoInput: MediaDeviceInfo[]
   } | null>(null)
 
+  console.log('thisis account', account)
   const schema: z.ZodType<PreferredDevices> = z.object({
     audioInput: z.string(),
     audioOutput: z.string(),
-    videoInput: z.string()
+    videoInput: z.string(),
   })
 
-  const {
-    handleSubmit,
-    control,
-    setValue
-  } = useForm({
+  const { handleSubmit, control, setValue } = useForm({
     defaultValues: {
       audioInput: '',
       audioOutput: '',
-      videoInput: ''
+      videoInput: '',
     },
     resolver: zodResolver(schema),
   })
@@ -63,10 +61,13 @@ export function SettingsDeviceDialog() {
     setValue('videoInput', account?.preferredDevices?.videoInput || '')
   }, [account?.preferredDevices])
 
-  const getDeviceById = useCallback((type: DeviceType, id: string): MediaDeviceInfo | undefined => {
-    if (!devices) return undefined
-    return devices[type].find((d) => d.deviceId === id)
-  }, [devices])
+  const getDeviceById = useCallback(
+    (type: DeviceType, id: string): MediaDeviceInfo | undefined => {
+      if (!devices) return undefined
+      return devices[type].find((d) => d.deviceId === id)
+    },
+    [devices],
+  )
 
   const initDevices = async () => {
     const devices = await getMediaDevices()
@@ -76,26 +77,32 @@ export function SettingsDeviceDialog() {
 
   async function getMediaDevices() {
     try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
+      const devices = await navigator.mediaDevices.enumerateDevices()
 
       const groupByGroupId = (devicesList) => {
-        const map = new Map();
+        const map = new Map()
         for (const device of devicesList) {
           if (!map.has(device.groupId)) {
-            map.set(device.groupId, device);
+            map.set(device.groupId, device)
           }
         }
-        return Array.from(map.values());
-      };
+        return Array.from(map.values())
+      }
 
-      const audioInput = groupByGroupId(devices.filter(device => device.kind === 'audioinput'));
-      const audioOutput = groupByGroupId(devices.filter(device => device.kind === 'audiooutput'));
-      const videoInput = groupByGroupId(devices.filter(device => device.kind === 'videoinput'));
+      const audioInput = groupByGroupId(
+        devices.filter((device) => device.kind === 'audioinput'),
+      )
+      const audioOutput = groupByGroupId(
+        devices.filter((device) => device.kind === 'audiooutput'),
+      )
+      const videoInput = groupByGroupId(
+        devices.filter((device) => device.kind === 'videoinput'),
+      )
 
-      return { audioInput, audioOutput, videoInput };
+      return { audioInput, audioOutput, videoInput }
     } catch (err) {
-      console.error('Errore nella lettura dei device:', err);
-      return null;
+      console.error('Errore nella lettura dei device:', err)
+      return null
     }
   }
 
@@ -107,7 +114,7 @@ export function SettingsDeviceDialog() {
 
   async function submit(data) {
     const preferredDevices = {
-      ...data
+      ...data,
     }
     const updatedAccount = { ...account!, preferredDevices }
     setAccount(() => updatedAccount)
@@ -117,75 +124,99 @@ export function SettingsDeviceDialog() {
   }
 
   const icons = {
-    'audioInput': AudioInputsIcon,
-    'audioOutput': AudioOutputsIcon,
-    'videoInput': VideoInputsIcon
+    audioInput: AudioInputsIcon,
+    audioOutput: AudioOutputsIcon,
+    videoInput: VideoInputsIcon,
   }
 
   const fieldLabels = {
-    'audioInput': t('TopBar.Microphone'),
-    'audioOutput': t('TopBar.Speaker'),
-    'videoInput': t('TopBar.Camera')
+    audioInput: t('TopBar.Microphone'),
+    audioOutput: t('TopBar.Speaker'),
+    videoInput: t('TopBar.Camera'),
   }
 
-  const DeviceDropdown = useCallback(({ name }: { name: DeviceType }) => {
-    return <div className='flex flex-row gap-2 items-center w-full '>
-      <div className='flex flex-row gap-2 items-center w-full min-w-[120px] max-w-[120px] '>
-        <FontAwesomeIcon icon={icons[name]} className='w-4' />
-        <span className='truncate'>
-          {fieldLabels[name]}
-        </span>
-      </div>
-      <div className=''>
-        <Controller
-          control={control}
-          name={name}
-          render={({ field: { value, onChange } }) => {
-            const selectedDevice = getDeviceById(name, value)
-            return <Dropdown
-              items={devices?.[name].map((device) => {
-                return <DropdownItem
-                  key={device.deviceId}
-                  onClick={() => {
-                    console.log('change device:', device.deviceId)
-                    onChange(device.deviceId)
-                  }}>
-                  <div className='flex flex-row items-center gap-2 w-[200px]'>
-                    <span className='truncate'
-                      data-tooltip-id={`device-${name}`}
-                      data-tooltip-content={device.label}
-                    >{device.label}</span>
-                    <FontAwesomeIcon icon={SelectedIcon} className={selectedDevice?.deviceId === device.deviceId ? 'visible' : 'hidden'} />
-                  </div>
-                </DropdownItem>
-              })}
-              className='w-full'
-            >
-              <DropdownHeader>
-                <div className='relative flex flex-row gap-1 w-[192px] items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
-                  <span className='truncate'
-                    data-tooltip-id={`device-${name}`}
-                    data-tooltip-content={selectedDevice?.label}
-                  >{selectedDevice?.label || '-'}</span>
-                  <FontAwesomeIcon icon={DropdownIcon} />
-                </div>
-              </DropdownHeader>
-              <div className='absolute'>
-                <Tooltip
-                  id={`device-${name}`}
-                  place="left"
-                  className="z-[10000] font-medium text-xs leading-[18px]"
-                  opacity={1}
-                  noArrow={false}
-                />
-              </div >
-            </Dropdown >
-          }}
-        />
-      </div>
-    </div >
-  }, [account?.preferredDevices, devices])
+  const isDeviceUnavailable =
+    account?.data?.default_device?.type !== 'nethlink' ||
+    account?.data?.mainPresence !== 'online'
 
+  const DeviceDropdown = useCallback(
+    ({ name }: { name: DeviceType }) => {
+      return (
+        <div className='flex flex-row gap-2 items-center w-full '>
+          <div className='flex flex-row gap-2 items-center w-full min-w-[120px] max-w-[120px] '>
+            <FontAwesomeIcon icon={icons[name]} className='w-4' />
+            <span className='truncate'>{fieldLabels[name]}</span>
+          </div>
+          <div className=''>
+            <Controller
+              control={control}
+              name={name}
+              render={({ field: { value, onChange } }) => {
+                const selectedDevice = getDeviceById(name, value)
+                return (
+                  <Dropdown
+                    items={devices?.[name].map((device) => {
+                      return (
+                        <DropdownItem
+                          key={device.deviceId}
+                          onClick={() => {
+                            console.log('change device:', device.deviceId)
+                            onChange(device.deviceId)
+                          }}
+                        >
+                          <div className='flex flex-row items-center gap-2 w-[200px]'>
+                            <span
+                              className='truncate'
+                              data-tooltip-id={`device-${name}`}
+                              data-tooltip-content={device.label}
+                            >
+                              {device.label}
+                            </span>
+                            <FontAwesomeIcon
+                              icon={SelectedIcon}
+                              className={
+                                selectedDevice?.deviceId === device.deviceId
+                                  ? 'visible'
+                                  : 'hidden'
+                              }
+                            />
+                          </div>
+                        </DropdownItem>
+                      )
+                    })}
+                    className='w-full'
+                  >
+                    <DropdownHeader>
+                      <div className='relative flex flex-row gap-1 w-[192px] items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
+                        <span
+                          className='truncate'
+                          data-tooltip-id={`device-${name}`}
+                          data-tooltip-content={selectedDevice?.label}
+                        >
+                          {selectedDevice?.label || '-'}
+                        </span>
+                        <FontAwesomeIcon icon={DropdownIcon} />
+                      </div>
+                    </DropdownHeader>
+                    <div className='absolute'>
+                      <Tooltip
+                        id={`device-${name}`}
+                        place='left'
+                        className='z-[10000] font-medium text-xs leading-[18px]'
+                        opacity={1}
+                        noArrow={false}
+                      />
+                    </div>
+                  </Dropdown>
+                )
+              }}
+            />
+          </div>
+        </div>
+      )
+    },
+    [account?.preferredDevices, devices],
+  )
 
   return (
     <>
@@ -217,13 +248,23 @@ export function SettingsDeviceDialog() {
               <DeviceDropdown name='audioOutput' />
               <DeviceDropdown name='videoInput' />
 
-
+              {/* Inline notification */}
+              {isDeviceUnavailable && (
+                <InlineNotification
+                  title={t('Common.Warning')}
+                  type='warning'
+                  className=''
+                >
+                  <p>{t('Devices.Inline warning message devices')}</p>
+                </InlineNotification>
+              )}
               {/* Action buttons */}
               <div className='flex flex-col gap-3 mt-2'>
                 <Button
                   variant='primary'
                   type='submit'
                   className='w-full py-3 rounded-lg font-medium'
+                  disabled={isDeviceUnavailable}
                 >
                   {t('Common.Save')}
                 </Button>

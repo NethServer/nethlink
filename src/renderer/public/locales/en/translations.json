@@ -897,7 +897,8 @@
     "Try changing your search query": "Try changing your search query",
     "Keys configuration information tooltip": "Configure line keys of your physical device",
     "Key position information tooltip": "Choose a position for your key",
-    "Click on confirm": "Click on Confirm"
+    "Click on confirm": "Click on Confirm",
+    "Inline warning message devices": "Changes to audio and video settings can only be applied if the main device is set to Web Phone, and your status is online."
   },
   "DropdownContent": {
     "Microphones": "MICROPHONES",
