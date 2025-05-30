@@ -186,7 +186,7 @@ export function SettingsDeviceDialog() {
   }
 
   const isDeviceUnavailable =
-    account?.data?.default_device?.type !== 'nethlink' ||
+    account?.data?.default_device?.type == 'webrtc' ||
     account?.data?.mainPresence !== 'online'
 
   const DeviceDropdown = useCallback(
