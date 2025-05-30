@@ -37,6 +37,9 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
           hasNotification: missedCalls?.map((c) => c.uniqueid).includes(c.uniqueid) || false
         }
         return elem
+      }).filter((call) => {
+        const numberToCheck = call.direction === 'in' ? call.src : call.dst
+        return !numberToCheck?.includes('*43')
       })
       setPreparedCalls((p) => preparedCalls)
     }

@@ -87,6 +87,15 @@ export default {
         //textEmpty
         emptyTextLight: '#374151',
         emptyTextDark: '#E5E7EB',
+
+        surfaceToastInfo: '#E0E7FF',
+        surfaceToastInfoDark: '#312E81',
+        surfaceToastSuccess: '#DCFCE7',
+        surfaceToastSuccessDark: '#14532D',
+        surfaceToastWarning: '#FEF3C7',
+        surfaceToastWarningDark: '#7C2D12',
+        surfaceToastError: '#FFE4E6',
+        surfaceToastErrorDark: '#7F1D1D',
       },
       screens: {
         '3xl': '1792px',

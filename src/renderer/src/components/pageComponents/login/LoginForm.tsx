@@ -6,7 +6,7 @@ import {
   faEye as EyeIcon,
   faEyeSlash as EyeSlashIcon,
   faXmarkCircle as ErrorIcon,
-  faWarning as AlertIcon
+  faWarning as AlertIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { useEffect, useRef, useState } from 'react'
@@ -18,9 +18,13 @@ import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { IPC_EVENTS, NEW_ACCOUNT } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
 import { getAccountUID } from '@shared/utils/utils'
+import { InlineNotification } from '@renderer/components/Nethesis/InlineNotification'
 
 export interface LoginFormProps {
-  onError: (formErrors: FieldErrors<LoginData>, generalError: Error | undefined) => void
+  onError: (
+    formErrors: FieldErrors<LoginData>,
+    generalError: Error | undefined,
+  ) => void
   handleRefreshConnection: () => void
 }
 export const LoginForm = ({ onError, handleRefreshConnection }) => {
@@ -46,7 +50,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     password: z
       .string()
       .trim()
-      .min(1, `${t('Common.This field is required')}`)
+      .min(1, `${t('Common.This field is required')}`),
   })
 
   const {
@@ -55,10 +59,10 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     setValue,
     reset,
     setFocus,
-    formState: { errors }
+    formState: { errors },
   } = useForm<LoginData>({
     defaultValues: {},
-    resolver: zodResolver(schema)
+    resolver: zodResolver(schema),
   })
 
   useEffect(() => {
@@ -99,30 +103,41 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
           const loggedAccount = await NethVoiceAPI.Authentication.login(
             res[2],
             data.username,
-            data.password
+            data.password,
           )
           Log.info('LOGIN successfully logged in with credential')
-          window.electron.receive(IPC_EVENTS.SET_NETHVOICE_CONFIG, (account: Account) => {
-            passwordRef.current = data.password
-            Log.info('LOGIN received account server configuration', account)
-            const previousLoggedAccount = auth?.availableAccounts[getAccountUID(account)]
-            account.theme = previousLoggedAccount ? previousLoggedAccount.theme : 'system'
-            Log.info('LOGIN send login event to the backend', account)
-            window.electron.send(IPC_EVENTS.LOGIN, { password: passwordRef.current, account })
-          })
+          window.electron.receive(
+            IPC_EVENTS.SET_NETHVOICE_CONFIG,
+            (account: Account) => {
+              passwordRef.current = data.password
+              Log.info('LOGIN received account server configuration', account)
+              const previousLoggedAccount =
+                auth?.availableAccounts[getAccountUID(account)]
+              account.theme = previousLoggedAccount
+                ? previousLoggedAccount.theme
+                : 'system'
+              Log.info('LOGIN send login event to the backend', account)
+              window.electron.send(IPC_EVENTS.LOGIN, {
+                password: passwordRef.current,
+                account,
+              })
+            },
+          )
           Log.info('LOGIN get account server configuration')
           window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
 
           setFormValues({
             host: '',
             password: '',
-            username: ''
+            username: '',
           })
           setError(() => undefined)
         } catch (error: any) {
           setIsLoading(false)
           if (error.message === 'Unauthorized')
-            setError(() => new Error(t('Login.Wrong host or username or password')!))
+            setError(
+              () => new Error(t('Login.Wrong host or username or password')!),
+            )
           else {
             setError(() => error)
           }
@@ -130,7 +145,9 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
       } else {
         setIsLoading(false)
         setFormValues(data)
-        setError(() => new Error(t('Login.Wrong host or username or password')!))
+        setError(
+          () => new Error(t('Login.Wrong host or username or password')!),
+        )
       }
     }
   }
@@ -151,37 +168,28 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     }, 100)
   }
 
-  const RenderError = () => {
-    return (
-      <div className="relative flex flex-col p-4 border-l-[3px] border-rose-500 dark:border-rose-400 bg-rose-100 dark:bg-rose-900 rounded-md mb-8">
-        <div className="flex flex-row items-center gap-2">
-          <FontAwesomeIcon icon={ErrorIcon} className="text-red-700 dark:text-rose-100" />
-          <p className="font-medium text-[14px] leading-5 text-red-800 dark:text-rose-100">
-            {t('Login.Login failed')}
-          </p>
-        </div>
-        <p className="pl-6 font-normal text-[14px] leading-5 text-rose-700 dark:text-rose-200">
-          {error?.message}
-        </p>
-      </div>
-    )
-  }
-
   const RenderConnectionError = ({ handleRefreshConnection }) => {
     return (
       <div>
-        <div className="relative flex flex-col p-4 border-l-[3px] border-amber-500 dark:border-amber-400 bg-amber-50 dark:bg-amber-900 rounded-md mb-8">
-          <div className="flex flex-row items-center gap-2">
-            <FontAwesomeIcon icon={AlertIcon} className="text-amber-700 dark:text-amber-50" />
-            <p className="font-medium text-[14px] leading-5 text-amber-800 dark:text-amber-100">
+        <div className='relative flex flex-col p-4 border-l-[3px] border-amber-500 dark:border-amber-400 bg-amber-50 dark:bg-amber-900 rounded-md mb-8'>
+          <div className='flex flex-row items-center gap-2'>
+            <FontAwesomeIcon
+              icon={AlertIcon}
+              className='text-amber-700 dark:text-amber-50'
+            />
+            <p className='font-medium text-[14px] leading-5 text-amber-800 dark:text-amber-100'>
               {t('Common.No internet connection title')}
             </p>
           </div>
-          <p className="pl-6 font-normal text-[14px] leading-5 text-amber-700 dark:text-amber-100">
+          <p className='pl-6 font-normal text-[14px] leading-5 text-amber-700 dark:text-amber-100'>
             {t('Common.No internet connection description')}
           </p>
         </div>
-        <Button variant="white" className="w-full" onClick={handleRefreshConnection}>
+        <Button
+          variant='white'
+          className='w-full'
+          onClick={handleRefreshConnection}
+        >
           {t('Common.Refresh')}
         </Button>
       </div>
@@ -189,16 +197,22 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
   }
 
   return (
-    <div className="mt-7">
-      <p className="text-titleLight  dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2">
-        {selectedAccount ? t('Login.Account List title') : t('Login.New Account title')}
+    <div className='mt-7'>
+      <p className='text-titleLight  dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2'>
+        {selectedAccount
+          ? t('Login.Account List title')
+          : t('Login.New Account title')}
       </p>
-      <p className="text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7">
+      <p className='text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7'>
         {selectedAccount
           ? t('Login.Account List description')
           : t('Login.New Account description')}
       </p>
-      {error && <RenderError />}
+      {error && (
+        <InlineNotification type='error' title={t('Login.Login failed')}>
+          {error.message}
+        </InlineNotification>
+      )}
       {selectedAccount && selectedAccount !== NEW_ACCOUNT && (
         <DisplayedAccountLogin
           account={selectedAccount}
@@ -207,12 +221,12 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
       )}
       {connection ? (
         <form onSubmit={handleSubmit(onSubmitForm)}>
-          <div className="flex flex-col gap-7">
+          <div className='flex flex-col gap-7'>
             {!(selectedAccount && selectedAccount !== NEW_ACCOUNT) && (
               <>
                 <TextInput
                   {...register('host')}
-                  type="text"
+                  type='text'
                   label={t('Login.Host') as string}
                   helper={errors.host?.message || undefined}
                   error={!!errors.host?.message}
@@ -226,7 +240,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                 />
                 <TextInput
                   {...register('username')}
-                  type="text"
+                  type='text'
                   label={t('Login.Username') as string}
                   helper={errors.username?.message || undefined}
                   error={!!errors.username?.message}
@@ -257,14 +271,16 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                 }
               }}
             />
-            <Button ref={submitButtonRef} type="submit" variant="primary">
+            <Button ref={submitButtonRef} type='submit' variant='primary'>
               {t('Login.Sign in')}
             </Button>
           </div>
         </form>
       ) : (
         <div>
-          <RenderConnectionError handleRefreshConnection={handleRefreshConnection} />
+          <RenderConnectionError
+            handleRefreshConnection={handleRefreshConnection}
+          />
         </div>
       )}
     </div>

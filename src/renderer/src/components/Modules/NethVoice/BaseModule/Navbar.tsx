@@ -10,6 +10,7 @@ import { SearchBox } from '../SearchResults/SearchBox'
 import { ProfileDialog } from './ProfileDialog'
 import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
 import { SettingsShortcutDialog } from './ProfileDialog/SettingsSettings/SettingsShortcutDialog'
+import { SettingsDeviceDialog } from './ProfileDialog/SettingsSettings/SettingsDevicesDialog'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -21,6 +22,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const [operators] = useNethlinkData('operators')
   const [isForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
   const [isShortcutDialogOpen] = useNethlinkData('isShortcutDialogOpen')
+  const [isDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
 
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
 
@@ -53,6 +55,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
       </div>
       {isForwardDialogOpen && <PresenceForwardDialog />}
       {isShortcutDialogOpen && <SettingsShortcutDialog />}
+      {isDeviceDialogOpen && <SettingsDeviceDialog />}
       <ProfileDialog
         isOpen={isProfileDialogOpen}
         onClose={() => setIsProfileDialogOpen(false)}

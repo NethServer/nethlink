@@ -30,8 +30,14 @@ export type Account = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData,
   shortcut?: string
+  preferredDevices?: PreferredDevices
 }
 
+export type PreferredDevices = {
+  audioInput: string,
+  audioOutput: string,
+  videoInput: string,
+}
 
 export type LoginData = {
   host: string
@@ -425,6 +431,7 @@ export type NethLinkPageData = {
   showPhonebookSearchModule?: boolean,
   isForwardDialogOpen?: boolean,
   isShortcutDialogOpen?: boolean,
+  isDeviceDialogOpen?: boolean,
   showAddContactModule?: boolean,
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData

@@ -91,7 +91,8 @@ export enum IPC_EVENTS {
   SCREEN_SHARE_INIT = "SCREEN_SHARE_INIT",
   SCREEN_SHARE_SOURCES = "SCREEN_SHARE_SOURCES",
   CHANGE_SHORTCUT = 'CHANGE_SHORTCUT',
-  COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD"
+  COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
+  CHANGE_PREFERRED_DEVICES = "CHANGE_PREFERRED_DEVICES"
 }
 
 //PHONE ISLAND EVENTS
@@ -102,6 +103,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-attach' = 'phone-island-attach',
   'phone-island-detach' = 'phone-island-detach',
   'phone-island-audio-input-change' = 'phone-island-audio-input-change',
+  'phone-island-video-input-change' = 'phone-island-video-input-change',
   'phone-island-audio-output-change' = 'phone-island-audio-output-change',
   'phone-island-theme-change' = 'phone-island-theme-change',
   'phone-island-action-physical' = 'phone-island-action-physical',
@@ -110,6 +112,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-attached' = 'phone-island-attached',
   'phone-island-detached' = 'phone-island-detached',
   'phone-island-audio-input-changed' = 'phone-island-audio-input-changed',
+  'phone-island-video-input-changed' = 'phone-island-video-input-changed',
   'phone-island-audio-output-changed' = 'phone-island-audio-output-changed',
   'phone-island-theme-changed' = 'phone-island-theme-changed',
   'phone-island-default-device-change' = 'phone-island-default-device-change',

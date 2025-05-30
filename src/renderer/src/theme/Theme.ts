@@ -5,17 +5,17 @@ const theme = {
   button: {
     base: 'inline-flex content-center items-center justify-center font-medium tracking-wide transition-colors duration-200 transform focus:outline-none focus:z-20 disabled:cursor-not-allowed',
     primary:
-      'border border-transparent bg-primary dark:bg-primaryDark text-white dark:text-primaryButtonTextDark hover:bg-primaryHover dark:hover:bg-primaryDarkHover focus:ring-2 focus:ring-primaryRing dark:focus:ring-primaryRingDark ring-offset-2 ring-offset-slate-50 dark:ring-offset-slate-900',
+      'border border-transparent bg-primary dark:bg-primaryDark text-white dark:text-primaryButtonTextDark hover:bg-primaryHover dark:hover:bg-primaryDarkHover focus:ring-2 focus:ring-primaryRing dark:focus:ring-primaryRingDark ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-900 font-medium leading-5 text-sm',
     secondary:
       'border border-transparent focus:ring-primaryLight bg-primaryLighter text-primaryDark hover:bg-primaryLighter dark:focus:ring-primaryDark dark:bg-primaryDarker dark:text-primaryLight dark:hover:bg-primaryDarker focus:ring-2 focus:ring-offset-2',
     white:
-      'border shadow-sm border-gray-300 dark:border-gray-500 bg-transparent dark:bg-transparent text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:focus:ring-primaryDark focus:ring-2 focus:ring-offset-2',
+      'border shadow-sm border-gray-300 dark:border-gray-500 bg-transparent dark:bg-transparent text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:focus:ring-primaryDark focus:ring-2 focus:ring-offset-2 leading-5 text-sm font-medium',
     ghost:
-      'border-gray-300 text-primary dark:text-primaryDark hover:bg-hoverLight dark:hover:bg-hoverDark dark:focus:ring-2 focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:focus:ring-blue-200',
+      'border-gray-300 text-primary dark:text-primaryDark  hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:border-gray-600 dark:focus:ring-primaryDark leading-5 text-sm font-medium',
     dashboard:
       'border-gray-300 text-primary dark:text-primaryDark hover:bg-gray-200 dark:border-gray-600  dark:hover:bg-gray-700 dark:hover:disabled:bg-transparent hover:disabled:bg-transparent dark:focus:ring-primaryDark',
     danger:
-      'border border-transparent focus:ring-red-500 bg-red-600 hover:bg-red-700 text-white dark:focus:ring-red-600 dark:bg-red-700 dark:hover:bg-red-800 dark:text-white focus:ring-2 focus:ring-offset-2',
+      'border border-transparent focus:ring-rose-500 bg-rose-600 hover:bg-rose-700 text-white dark:focus:ring-rose-600 dark:bg-rose-700 dark:hover:bg-rose-800 dark:text-white focus:ring-2 focus:ring-offset-2',
     rounded: {
       small: 'rounded',
       base: 'rounded-md',
@@ -24,7 +24,6 @@ const theme = {
       small: 'px-2.5 py-1.5 text-xs',
       base: 'px-3 py-2 text-sm leading-4',
       large: 'px-4 py-2 text-sm',
-      inputSize: 'px-1.5 py-1.5 text-xs',
       full_h: 'h-full',
       full_w: 'w-full',
     },
@@ -60,17 +59,17 @@ const theme = {
     iconDisabled: 'text-gray-500 dark:text-gray-400',
   },
   input: {
-    base: 'block w-full relative focus:z-[8] disabled:cursor-not-allowed bg-bgInput dark:bg-bgInputDark text-titleLight dark:text-titleDark disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:border-gray-700 dark:disabled:bg-gray-900 dark:disabled:text-gray-400',
+    base: 'block w-full relative focus:z-[8] disabled:cursor-not-allowed bg-bgInput dark:bg-bgInputDark text-gray-900  dark:text-gray-100  disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:border-gray-700 dark:disabled:bg-gray-900 dark:disabled:text-gray-400',
     label: 'text-sm font-medium text-inputText dark:text-inputTextDark',
     placeholder: {
       base: 'placeholder:text-placeHolderInputText dark:placeholder:text-placeHolderInputTextDark',
       error: '',
     },
     helper: {
-      base: 'mt-1 text-[12px] leading-[18px]',
+      base: 'mt-2 text-sm',
       color: {
         base: 'text-gray-500 dark:text-gray-400',
-        error: 'text-rose-700 dark:text-rose-500',
+        error: 'text-rose-600 dark:text-rose-400',
       },
     },
     size: {
@@ -78,9 +77,9 @@ const theme = {
       large: 'px-4 py-3 text-base',
     },
     colors: {
-      gray: 'border-gray-300 focus:border-gray-400 dark:border-gray-600 dark:focus:border-gray-700 dark:focus:ring-2 dark:focus:ring-offset-2 dark:focus:ring-ringBlueDark dark:focus:ring-offset-ringOffsetDark focus:ring-2 focus:ring-offset-2 focus:ring-ringBlueLight focus:ring-offset-ringOffsetLight',
+      gray: 'border-gray-300 focus:border-primaryLight focus:ring-primaryLight placeholder:text-gray-400 dark:border-gray-600 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-500',
       error:
-        'border-rose-700 focus:border-rose-700 focus:ring-rose-700 dark:border-rose-500 dark:focus:border-rose-500 dark:focus:ring-rose-500',
+        'border-rose-500 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-400 dark:focus:border-rose-400 dark:focus:ring-rose-400',
     },
     icon: {
       base: 'absolute flex items-center z-[9]',
@@ -129,8 +128,7 @@ const theme = {
         leaveTo: 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95',
       },
     },
-    actions:
-      'px-4 py-3 flex flex-col sm:flex-row-reverse  sm:px-6 gap-3 bg-gray-50 dark:bg-gray-800',
+    actions: 'px-4 py-3 flex flex-col sm:flex-row-reverse  sm:px-6 gap-3 bg-white dark:bg-gray-900',
     sizes: {
       base: '',
       large: '',
@@ -139,10 +137,10 @@ const theme = {
   status: {
     available: {
       badge: {
-        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
+        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
       },
       avatar: {
-        dot: 'bg-green-500 dark:bg-green-500',
+        dot: 'bg-emerald-500 dark:bg-emerald-500',
       },
       card: {
         border: 'border-green-500 dark:border-green-500',
@@ -150,13 +148,13 @@ const theme = {
     },
     online: {
       badge: {
-        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
+        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
       },
       card: {
-        border: 'border-green-500 dark:border-green-500',
+        border: 'border-emerald-500 dark:border-emerald-500',
       },
     },
     dnd: {
@@ -172,7 +170,7 @@ const theme = {
     },
     voicemail: {
       badge: {
-        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
+        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
@@ -183,7 +181,7 @@ const theme = {
     },
     cellphone: {
       badge: {
-        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
+        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
@@ -194,7 +192,7 @@ const theme = {
     },
     callforward: {
       badge: {
-        base: 'bg-green-300 text-green-800 dark:bg-green-700 dark:text-green-200',
+        base: 'bg-emerald-200 text-emerald-900 dark:bg-emerald-800 dark:text-emerald-100',
       },
       avatar: {
         dot: 'bg-green-500 dark:bg-green-500',
@@ -238,7 +236,7 @@ const theme = {
     },
     offline: {
       badge: {
-        base: 'bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+        base: 'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200',
       },
       avatar: {
         dot: 'bg-gray-500 dark:bg-gray-500',
@@ -297,8 +295,8 @@ const theme = {
       background: 'bg-gray-100',
     },
     placeholderType: {
-      base: 'text-white w-full h-full fill-white flex justify-center items-center',
-      background: 'bg-gray-400 dark:bg-gray-600',
+      base: 'text-white dark:text-gray-950 w-full h-full fill-white flex justify-center items-center',
+      background: 'bg-gray-700 dark:bg-gray-200',
       sizes: {
         extra_small: 'h-3 w-3',
         small: 'h-4 w-4',
@@ -356,9 +354,14 @@ const theme = {
     },
     item: {
       base: 'block px-4 text-sm flex items-center gap-3 mt-1 mb-1 cursor-pointer',
+      baseRed: 'block px-4 text-sm flex items-center gap-3 mt-1 mb-1 cursor-pointer',
+      textRed: 'text-rose-700 dark:text-rose-500',
       light: 'text-gray-700 dark:text-gray-300',
+      activeRed: 'bg-rose-700 text-white dark:bg-rose-500 dark:text-white',
       active: 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100',
       icon: 'h-4 w-4 flex text-dropdownText dark:text-dropdownTextDark',
+      iconRed: 'text-rose-700 dark:text-rose-500',
+      iconRedActive: 'text-white',
       centered: 'justify-center',
     },
     items: {
@@ -368,8 +371,15 @@ const theme = {
         left: 'right-0 w-60 mt-2',
         top: 'right-[3rem] top-0',
         topCard: 'right-[1.2rem] top-[-1rem]',
-        topMultipleItem: 'right-[1.2rem] top-[-3.3rem]',
         bottom: 'bottom-0',
+        leftSingleItem: 'w-60 right-[2.8rem] top-[0rem]',
+        topMultipleItem: 'right-[1.2rem] top-[-3.3rem]',
+        leftUpTwoItems: 'w-60 right-[2.7rem] top-[-3.3rem]',
+        leftUpVoicemail: 'w-60 right-[2.7rem] top-[-6.1rem]',
+        leftDownVoicemail: 'w-60 right-[2.7rem] top-[0rem]',
+        topVoicemail: 'w-60 right-[0rem] bottom-[2.6rem]',
+        bottomVoicemail: 'w-60 right-[0rem] bottom-[-8.5rem]',
+        oneVoicemail: 'w-60 right-[3rem] top-[-4.5rem]',
       },
       divider: 'divide-y divide-gray-200 dark:divide-gray-700',
       header: 'block px-4 py-3 text-sm cursor-normal text-gray-700 dark:text-gray-300',
@@ -400,29 +410,29 @@ const theme = {
     },
   },
   inlineNotification: {
-    base: 'border-l-4 rounded-md p-4 w-full flex',
+    base: 'border-l-4 rounded-md p-4 w-full flex items-start',
     type: {
-      info: 'border-blue-400 bg-blue-100 dark:border-blue-500 dark:bg-blue-800',
-      error: 'border-red-400 bg-red-100 dark:border-red-500 dark:bg-red-900',
-      warning: 'border-yellow-400 bg-yellow-100 dark:border-yellow-500 dark:bg-yellow-700',
-      success: 'border-green-400 bg-green-100 dark:border-green-500 dark:bg-green-800',
+      info: 'border-indigo-400 bg-indigo-100 dark:border-indigo-500 dark:bg-indigo-900',
+      error: 'border-rose-500 bg-rose-100 dark:border-rose-300 dark:bg-rose-900',
+      warning: 'border-amber-400 bg-amber-100 dark:border-amber-500 dark:bg-amber-700',
+      success: 'border-green-400 bg-green-100 dark:border-green-500 dark:bg-green-900',
     },
     titleStyle: {
-      info: 'text-sm font-medium text-blue-800 dark:text-blue-100',
-      error: 'text-sm font-medium text-red-800 dark:text-red-100',
-      warning: 'text-sm font-medium text-yellow-800 dark:text-yellow-100',
+      info: 'text-sm font-medium text-indigo-800 dark:text-indigo-100',
+      error: 'text-sm font-medium text-rose-800 dark:text-rose-100',
+      warning: 'text-sm font-medium text-amber-800 dark:text-amber-100',
       success: 'text-sm font-medium text-green-800 dark:text-green-100',
     },
     iconStyle: {
-      info: 'h-4 w-4 relative -top-0.5 text-blue-400 dark:text-blue-300',
-      error: 'h-4 w-4 relative -top-0.5 text-red-400 dark:text-red-300',
-      warning: 'h-4 w-4 relative -top-0.5 text-yellow-600 dark:text-yellow-300',
-      success: 'h-4 w-4 relative -top-0.5 text-green-600 dark:text-green-300',
+      info: 'h-4 w-4 text-indigo-700 dark:text-indigo-200',
+      error: 'h-4 w-4 text-rose-700 dark:text-rose-200',
+      warning: 'h-4 w-4 text-amber-700 dark:text-amber-200',
+      success: 'h-4 w-4 text-green-700 dark:text-green-200',
     },
     childrenText: {
-      info: 'mt-2 text-sm text-blue-700 dark:text-blue-200',
-      error: 'mt-2 text-sm text-red-700 dark:text-red-200',
-      warning: 'mt-2 text-sm text-yellow-700 dark:text-yellow-200',
+      info: 'mt-2 text-sm text-indigo-700 dark:text-indigo-200',
+      error: 'mt-2 text-sm text-rose-700 dark:text-rose-200',
+      warning: 'mt-2 text-sm text-amber-700 dark:text-amber-200',
       success: 'mt-2 text-sm text-green-700 dark:text-green-200',
     },
   },
