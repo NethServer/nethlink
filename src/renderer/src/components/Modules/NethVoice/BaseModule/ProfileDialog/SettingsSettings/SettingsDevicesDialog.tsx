@@ -25,6 +25,39 @@ import { delay, isDev } from '@shared/utils/utils'
 import { InlineNotification } from '@renderer/components/Nethesis/InlineNotification'
 
 type DeviceType = 'audioInput' | 'audioOutput' | 'videoInput'
+const LOCALSTORAGE_KEYS = {
+  audioInput: 'phone-island-audio-input-device',
+  audioOutput: 'phone-island-audio-output-device',
+  videoInput: 'phone-island-video-input-device'
+} as const
+
+const getDeviceFromLocalStorage = (deviceType: DeviceType): string | null => {
+  try {
+    const rawValue = localStorage.getItem(LOCALSTORAGE_KEYS[deviceType])
+    if (!rawValue) return null
+
+    try {
+      const parsed = JSON.parse(rawValue)
+      return parsed.deviceId || null
+    } catch (parseError) {
+      console.warn(`localStorage value for ${deviceType} is not valid JSON, using raw value:`, rawValue)
+      return rawValue
+    }
+  } catch (error) {
+    console.warn(`Error reading ${deviceType} from localStorage:`, error)
+    return null
+  }
+}
+
+const setDeviceToLocalStorage = (deviceType: DeviceType, value: string): void => {
+  try {
+    const jsonValue = JSON.stringify({ deviceId: value })
+    localStorage.setItem(LOCALSTORAGE_KEYS[deviceType], jsonValue)
+  } catch (error) {
+    console.warn(`Error saving ${deviceType} to localStorage:`, error)
+  }
+}
+
 export function SettingsDeviceDialog() {
   const [account, setAccount] = useSharedState('account')
   const [, setIsDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
@@ -34,7 +67,6 @@ export function SettingsDeviceDialog() {
     videoInput: MediaDeviceInfo[]
   } | null>(null)
 
-  console.log('thisis account', account)
   const schema: z.ZodType<PreferredDevices> = z.object({
     audioInput: z.string(),
     audioOutput: z.string(),
@@ -56,10 +88,41 @@ export function SettingsDeviceDialog() {
 
   useEffect(() => {
     console.log(account?.preferredDevices)
-    setValue('audioInput', account?.preferredDevices?.audioInput || '')
-    setValue('audioOutput', account?.preferredDevices?.audioOutput || '')
-    setValue('videoInput', account?.preferredDevices?.videoInput || '')
+    const getEffectiveValue = (deviceType: DeviceType): string => {
+      const localStorageValue = getDeviceFromLocalStorage(deviceType)
+      const storeValue = account?.preferredDevices?.[deviceType]
+
+      // if data exists on localstorage read it
+      if (localStorageValue) {
+        return localStorageValue
+      }
+
+      // otherwise return store value
+      return storeValue || ''
+    }
+
+    setValue('audioInput', getEffectiveValue('audioInput'))
+    setValue('audioOutput', getEffectiveValue('audioOutput'))
+    setValue('videoInput', getEffectiveValue('videoInput'))
   }, [account?.preferredDevices])
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      // check if localstorage keys has changed
+      const deviceTypes = Object.keys(LOCALSTORAGE_KEYS) as DeviceType[]
+      const changedDeviceType = deviceTypes.find(
+        type => e.key === LOCALSTORAGE_KEYS[type]
+      )
+
+      if (changedDeviceType && e.newValue) {
+        console.log(`localStorage changed for ${changedDeviceType}:`, e.newValue)
+        setValue(changedDeviceType, e.newValue)
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [setValue])
 
   const getDeviceById = useCallback(
     (type: DeviceType, id: string): MediaDeviceInfo | undefined => {
@@ -79,29 +142,13 @@ export function SettingsDeviceDialog() {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices()
 
-      const groupByGroupId = (devicesList) => {
-        const map = new Map()
-        for (const device of devicesList) {
-          if (!map.has(device.groupId)) {
-            map.set(device.groupId, device)
-          }
-        }
-        return Array.from(map.values())
-      }
-
-      const audioInput = groupByGroupId(
-        devices.filter((device) => device.kind === 'audioinput'),
-      )
-      const audioOutput = groupByGroupId(
-        devices.filter((device) => device.kind === 'audiooutput'),
-      )
-      const videoInput = groupByGroupId(
-        devices.filter((device) => device.kind === 'videoinput'),
-      )
+      const audioInput = devices.filter((device) => device.kind === 'audioinput')
+      const audioOutput = devices.filter((device) => device.kind === 'audiooutput')
+      const videoInput = devices.filter((device) => device.kind === 'videoinput')
 
       return { audioInput, audioOutput, videoInput }
     } catch (err) {
-      console.error('Errore nella lettura dei device:', err)
+      console.error('Error reading audio and video devices:', err)
       return null
     }
   }
@@ -118,6 +165,9 @@ export function SettingsDeviceDialog() {
     }
     const updatedAccount = { ...account!, preferredDevices }
     setAccount(() => updatedAccount)
+    Object.entries(data).forEach(([deviceType, value]) => {
+      setDeviceToLocalStorage(deviceType as DeviceType, value as string)
+    })
     await delay(100)
     window.electron.send(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, data)
     setIsDeviceDialogOpen(false)
