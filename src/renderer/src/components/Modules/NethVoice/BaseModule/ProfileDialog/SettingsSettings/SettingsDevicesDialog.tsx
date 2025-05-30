@@ -229,8 +229,9 @@ export function SettingsDeviceDialog() {
         onBackdropClick={() => setIsDeviceDialogOpen(false)}
       />
 
-      <div className='absolute top-0 left-0 w-screen h-screen flex justify-center items-center z-[205] pointer-events-none'>
-        <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-[90%] pointer-events-auto'>
+      <div className='fixed inset-0 z-[205] overflow-y-auto pointer-events-none'>
+        <div className='flex min-h-full items-center justify-center p-4 pointer-events-none'>
+        <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-full pointer-events-auto'>
           {/* Dialog content */}
           <div className='p-6 flex flex-col gap-4'>
             {/* Title */}
@@ -280,6 +281,7 @@ export function SettingsDeviceDialog() {
               </div>
             </form>
           </div>
+        </div>
         </div>
       </div>
     </>

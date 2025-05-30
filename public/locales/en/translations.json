@@ -321,7 +321,7 @@
     "Upload image to continue": "Upload image to continue",
     "Wrong file type": "Wrong file type",
     "Delete profile picture": "Delete profile picture",
-    "Devices": "Devices",
+    "Devices": "Audio and Video",
     "Time preferences": "Time preferences",
     "Login/logout preferences": "Login/logout preferences",
     "Logout from queue automatically": "Logout from queue automatically",
@@ -367,9 +367,9 @@
     "Shortcut": "Shortcut",
     "Keyboard shortcut to call": "Keyboard shortcut to call",
     "Shortcut title description": "Choose a keyboard shortcut to dial any selected number. ",
-    "Shortcut subtitle description": "Warning: avoid using system-reserved shortcuts.",
+    "Shortcut subtitle description": "Avoid using system-reserved shortcuts.",
     "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc, shift",
-    "Preferred devices": "Preferred devices",
+    "Preferred devices": "Audio and Video settings",
     "Microphone": "Microphone",
     "Speaker": "Speaker",
     "Camera": "Camera"
@@ -898,7 +898,7 @@
     "Keys configuration information tooltip": "Configure line keys of your physical device",
     "Key position information tooltip": "Choose a position for your key",
     "Click on confirm": "Click on Confirm",
-    "Inline warning message devices": "Changes to audio and video settings can only be applied if the main device is set to Web Phone, and your status is online."
+    "Inline warning message devices": "Changes to audio and video settings can only be applied if the pair device is set to NethLink and your status is Online."
   },
   "DropdownContent": {
     "Microphones": "MICROPHONES",

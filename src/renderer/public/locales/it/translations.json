@@ -321,7 +321,7 @@
     "Upload image to continue": "Carica immagine per continuare",
     "Wrong file type": "Formato file errato",
     "Delete profile picture": "Elimina immagine profilo",
-    "Devices": "Dispositivi",
+    "Devices": "Audio e Video",
     "Time preferences": "Preferenze di tempo",
     "Login/logout preferences": "Preferenze di entrata/uscita",
     "Logout from queue automatically": "Esci dalla coda automaticamente",
@@ -367,9 +367,9 @@
     "Shortcut": "Scorciatoia",
     "Keyboard shortcut to call": "Scorciatoia per chiamare",
     "Shortcut title description": "Scegli una combinazione di tasti per avviare una chiamata dopo aver selezionato un testo.",
-    "Shortcut subtitle description": "Attenzione: non usare scorciatoie già presenti nel sistema.",
+    "Shortcut subtitle description": "Non usare scorciatoie già presenti nel sistema.",
     "Shortcut body description": "Tasti non consentiti: tab, capsLock, numLock, insert, esc, shift",
-    "Preferred devices": "Dispositivi preferiti",
+    "Preferred devices": "Impostazioni Audio e Video",
     "Microphone": "Microfono",
     "Speaker": "Altoparlante",
     "Camera": "Video"
@@ -898,7 +898,7 @@
     "Keys configuration information tooltip": "Configura i tasti linea del tuo telefono",
     "Key position information tooltip": "Scegli una posizione per il pulsante",
     "Click on confirm": "Clicca su Conferma",
-    "Inline warning message devices": "Le modifiche relative alle impostazioni audio e video possono essere applicate solo se il dispositivo principale è impostato su Web Phone, e il proprio stato è online."
+    "Inline warning message devices": "Le modifiche relative alle impostazioni audio e video possono essere applicate solo se il dispositivo abbinato è NethLink e il proprio stato è Online."
   },
   "DropdownContent": {
     "Microphones": "MICROFONI",

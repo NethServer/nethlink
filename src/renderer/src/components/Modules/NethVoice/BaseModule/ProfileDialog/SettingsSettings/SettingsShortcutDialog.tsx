@@ -10,6 +10,7 @@ import { Backdrop } from '../../Backdrop'
 import { CustomThemedTooltip } from '@renderer/components/Nethesis/CurstomThemedTooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
+import { InlineNotification } from '@renderer/components/Nethesis/InlineNotification'
 
 export function SettingsShortcutDialog() {
   const [account, setAccount] = useSharedState('account')
@@ -133,7 +134,8 @@ export function SettingsShortcutDialog() {
         onBackdropClick={() => setIsShortcutDialogOpen(false)}
       />
 
-      <div className='absolute top-0 left-0 w-screen h-screen flex justify-center items-center z-[205] pointer-events-none'>
+      <div className='fixed inset-0 z-[205] overflow-y-auto pointer-events-none'>
+        <div className='flex min-h-full items-center justify-center p-4 pointer-events-none'>
         <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-[90%] pointer-events-auto'>
           {/* Dialog content */}
           <div className='p-6 flex flex-col gap-4'>
@@ -146,9 +148,16 @@ export function SettingsShortcutDialog() {
             <p className='text-center text-gray-600 dark:text-gray-300'>
               {t('TopBar.Shortcut title description')}{' '}
             </p>
-            <p className='text-center font-semibold text-gray-600 dark:text-gray-300 leading-5 mt-[-0.3rem]'>
-              {t('TopBar.Shortcut subtitle description')}{' '}
-            </p>
+            {/* Inline notification */}
+            {(
+              <InlineNotification
+                title={t('Common.Warning')}
+                type='warning'
+                className=''
+              >
+                <p>{t('TopBar.Shortcut subtitle description')}</p>
+              </InlineNotification>
+            )}
 
             {/* Form */}
             <form
@@ -174,7 +183,7 @@ export function SettingsShortcutDialog() {
                   <Button
                     variant='ghost'
                     onClick={handleClearShortcut}
-                    className='mt-1'
+                    className='mt-3'
                     size='inputSize'
                     data-tooltip-id='tooltip-clear-shortcut'
                     data-tooltip-content={t(
@@ -218,6 +227,7 @@ export function SettingsShortcutDialog() {
               </div>
             </form>
           </div>
+        </div>
         </div>
       </div>
     </>
