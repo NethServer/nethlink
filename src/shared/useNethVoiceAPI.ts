@@ -128,7 +128,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       })
     },
     phoneIslandTokenLogin: async (): Promise<{ username: string, token: string }> =>
-      await _POST('/webrest/authentication/phone_island_token_login'),
+      await _POST('/webrest/authentication/phone_island_token_login', { subtype: 'nethlink'}),
   }
 
   const CustCard = {}
