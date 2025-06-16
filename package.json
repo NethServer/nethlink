@@ -1,6 +1,6 @@
 {
   "name": "nethlink",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "NethLink is a tool designed to link NethServer systems and provide remote access tools. This project aims to offer a simple yet powerful user interface for managing NethServer systems more efficiently.",
   "main": "./out/main/main.js",
   "license": "MIT",
