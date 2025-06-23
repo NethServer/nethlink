@@ -134,22 +134,24 @@ const ContactDetail = ({ children, label, icon, copy, protocol }: { label: strin
       {label}
     </div>
     <div className='relative flex flex-row truncate max-w-[calc(100%-170px)] gap-2'>
-      <span className={classNames('truncate', protocol && children
-        ? linkClassName
-        : '',
-        protocol === 'callto'
-          ? isCallsEnabled
-            ? ''
-            : 'cursor-not-allowed'
-          : ''
-      )}
-        onClick={protocol ? runProtocol : undefined}
-        data-tooltip-id={`tooltip-data-${label}`}
-        data-tooltip-content={children}
-        data-tooltip-place={'bottom'}
+      <a
+        href={`callto://${('' + children).replace(/ /g, '')}`}
+        className={classNames('truncate', protocol && children
+          ? linkClassName
+          : '',
+          protocol === 'callto'
+            ? isCallsEnabled
+              ? ''
+              : 'cursor-not-allowed'
+            : ''
+        )}
       >
-        {children || '-'}
-      </span>
+        <div
+          className={`'dark:text-titleDark text-titleLight font-normal`}
+        >
+          {children}
+        </div>
+      </a>
 
       {children && copy && <div className='relative'>
         <FontAwesomeIcon

@@ -17,8 +17,11 @@ export function AboutModule({ }: AboutBoxProps) {
   const [theme] = useSharedState('theme')
   const [notifications] = useSharedState('notifications')
 
+  // Donwload NethLink release page
+  const releasePage = 'https://nethserver.github.io/nethlink/'
+
   const onDownloadButtonClick = () => {
-    window.api.openExternalPage(notifications!.system.update.message)
+    window.api.openExternalPage(releasePage)
   }
 
   const openNethesisPage = () => {
