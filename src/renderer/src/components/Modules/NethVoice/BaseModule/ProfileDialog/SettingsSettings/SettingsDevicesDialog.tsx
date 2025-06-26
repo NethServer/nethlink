@@ -126,8 +126,8 @@ export function SettingsDeviceDialog() {
 
   const getDeviceById = useCallback(
     (type: DeviceType, id: string): MediaDeviceInfo | undefined => {
-      if (!devices) return undefined
-      return devices[type].find((d) => d.deviceId === id)
+      if (!devices || !devices[type] || !id) return undefined
+      return devices[type].find((d) => d && d.deviceId === id)
     },
     [devices],
   )
@@ -135,21 +135,28 @@ export function SettingsDeviceDialog() {
   const initDevices = async () => {
     const devices = await getMediaDevices()
     Log.info('Available devices:', devices)
-    setDevices(devices)
+    if (devices) {
+      setDevices(devices)
+    }
   }
 
   async function getMediaDevices() {
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+        console.warn('Media devices API not available')
+        return { audioInput: [], audioOutput: [], videoInput: [] }
+      }
+
       const devices = await navigator.mediaDevices.enumerateDevices()
 
-      const audioInput = devices.filter((device) => device.kind === 'audioinput')
-      const audioOutput = devices.filter((device) => device.kind === 'audiooutput')
-      const videoInput = devices.filter((device) => device.kind === 'videoinput')
+      const audioInput = devices.filter((device) => device && device.kind === 'audioinput')
+      const audioOutput = devices.filter((device) => device && device.kind === 'audiooutput')
+      const videoInput = devices.filter((device) => device && device.kind === 'videoinput')
 
       return { audioInput, audioOutput, videoInput }
     } catch (err) {
       console.error('Error reading audio and video devices:', err)
-      return null
+      return { audioInput: [], audioOutput: [], videoInput: [] }
     }
   }
 
@@ -197,7 +204,7 @@ export function SettingsDeviceDialog() {
             <FontAwesomeIcon icon={icons[name]} className='w-4' />
             <span className='truncate'>{fieldLabels[name]}</span>
           </div>
-          <div className=''>
+          <div>
             <Controller
               control={control}
               name={name}
@@ -205,22 +212,25 @@ export function SettingsDeviceDialog() {
                 const selectedDevice = getDeviceById(name, value)
                 return (
                   <Dropdown
-                    items={devices?.[name].map((device) => {
+                    items={devices?.[name]?.map((device) => {
+                      if (!device) return null
                       return (
                         <DropdownItem
-                          key={device.deviceId}
+                          key={device.deviceId || `device-${Math.random()}`}
                           onClick={() => {
                             console.log('change device:', device.deviceId)
-                            onChange(device.deviceId)
+                            if (device.deviceId) {
+                              onChange(device.deviceId)
+                            }
                           }}
                         >
                           <div className='flex flex-row items-center gap-2 w-[200px]'>
                             <span
                               className='truncate'
                               data-tooltip-id={`device-${name}`}
-                              data-tooltip-content={device.label}
+                              data-tooltip-content={device.label || 'Unknown device'}
                             >
-                              {device.label}
+                              {device.label || 'Unknown device'}
                             </span>
                             <FontAwesomeIcon
                               icon={SelectedIcon}
@@ -233,7 +243,7 @@ export function SettingsDeviceDialog() {
                           </div>
                         </DropdownItem>
                       )
-                    })}
+                    }).filter(Boolean) || []}
                     className='w-full'
                   >
                     <DropdownHeader>
@@ -265,7 +275,7 @@ export function SettingsDeviceDialog() {
         </div>
       )
     },
-    [account?.preferredDevices, devices],
+    [devices, icons, fieldLabels, control, getDeviceById],
   )
 
   return (
@@ -281,57 +291,57 @@ export function SettingsDeviceDialog() {
 
       <div className='fixed inset-0 z-[205] overflow-y-auto pointer-events-none'>
         <div className='flex min-h-full items-center justify-center p-4 pointer-events-none'>
-        <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-full pointer-events-auto'>
-          {/* Dialog content */}
-          <div className='p-6 flex flex-col gap-4'>
-            {/* Title */}
-            <h2 className='text-center font-semibold text-xl'>
-              {t('TopBar.Preferred devices')}
-            </h2>
+          <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-full pointer-events-auto'>
+            {/* Dialog content */}
+            <div className='p-6 flex flex-col gap-4'>
+              {/* Title */}
+              <h2 className='text-center font-semibold text-xl'>
+                {t('TopBar.Preferred devices')}
+              </h2>
 
-            {/* Form */}
-            <form
-              onSubmit={handleSubmit(submit)}
-              className='flex flex-col gap-1'
-            >
-              {/* Input field with clear button next to it */}
-              <DeviceDropdown name='audioInput' />
-              <DeviceDropdown name='audioOutput' />
-              <DeviceDropdown name='videoInput' />
+              {/* Form */}
+              <form
+                onSubmit={handleSubmit(submit)}
+                className='flex flex-col gap-1'
+              >
+                {/* Input field with clear button next to it */}
+                <DeviceDropdown name='audioInput' />
+                <DeviceDropdown name='audioOutput' />
+                <DeviceDropdown name='videoInput' />
 
-              {/* Inline notification */}
-              {isDeviceUnavailable && (
-                <InlineNotification
-                  title={t('Common.Warning')}
-                  type='warning'
-                  className=''
-                >
-                  <p>{t('Devices.Inline warning message devices')}</p>
-                </InlineNotification>
-              )}
-              {/* Action buttons */}
-              <div className='flex flex-col gap-3 mt-2'>
-                <Button
-                  variant='primary'
-                  type='submit'
-                  className='w-full py-3 rounded-lg font-medium'
-                  disabled={isDeviceUnavailable}
-                >
-                  {t('Common.Save')}
-                </Button>
+                {/* Inline notification */}
+                {isDeviceUnavailable && (
+                  <InlineNotification
+                    title={t('Common.Warning')}
+                    type='warning'
+                    className=''
+                  >
+                    <p>{t('Devices.Inline warning message devices')}</p>
+                  </InlineNotification>
+                )}
+                {/* Action buttons */}
+                <div className='flex flex-col gap-3 mt-2'>
+                  <Button
+                    variant='primary'
+                    type='submit'
+                    className='w-full py-3 rounded-lg font-medium'
+                    disabled={isDeviceUnavailable}
+                  >
+                    {t('Common.Save')}
+                  </Button>
 
-                <Button
-                  variant='ghost'
-                  type='button'
-                  onClick={handleCancel}
-                  className='text-center text-blue-700 dark:text-blue-500 font-medium'
-                >
-                  {t('Common.Cancel')}
-                </Button>
-              </div>
-            </form>
+                  <Button
+                    variant='ghost'
+                    type='button'
+                    onClick={handleCancel}
+                    className='text-center text-blue-700 dark:text-blue-500 font-medium'
+                  >
+                    {t('Common.Cancel')}
+                  </Button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </>
