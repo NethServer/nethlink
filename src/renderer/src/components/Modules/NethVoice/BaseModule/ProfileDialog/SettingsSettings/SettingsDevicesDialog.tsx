@@ -73,7 +73,7 @@ export function SettingsDeviceDialog() {
     videoInput: z.string(),
   })
 
-  const { handleSubmit, control, setValue } = useForm({
+  const { handleSubmit, control, setValue, watch } = useForm({
     defaultValues: {
       audioInput: '',
       audioOutput: '',
@@ -81,6 +81,8 @@ export function SettingsDeviceDialog() {
     },
     resolver: zodResolver(schema),
   })
+
+  const formValues = watch()
 
   useEffect(() => {
     initDevices()
@@ -101,10 +103,21 @@ export function SettingsDeviceDialog() {
       return storeValue || ''
     }
 
-    setValue('audioInput', getEffectiveValue('audioInput'))
-    setValue('audioOutput', getEffectiveValue('audioOutput'))
-    setValue('videoInput', getEffectiveValue('videoInput'))
-  }, [account?.preferredDevices])
+    const audioInputValue = getEffectiveValue('audioInput')
+    const audioOutputValue = getEffectiveValue('audioOutput')
+    const videoInputValue = getEffectiveValue('videoInput')
+
+    // Only set values if they are actually different to prevent unnecessary re-renders
+    if (formValues.audioInput !== audioInputValue) {
+      setValue('audioInput', audioInputValue, { shouldDirty: false })
+    }
+    if (formValues.audioOutput !== audioOutputValue) {
+      setValue('audioOutput', audioOutputValue, { shouldDirty: false })
+    }
+    if (formValues.videoInput !== videoInputValue) {
+      setValue('videoInput', videoInputValue, { shouldDirty: false })
+    }
+  }, [account?.preferredDevices, setValue, formValues.audioInput, formValues.audioOutput, formValues.videoInput])
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -116,7 +129,13 @@ export function SettingsDeviceDialog() {
 
       if (changedDeviceType && e.newValue) {
         console.log(`localStorage changed for ${changedDeviceType}:`, e.newValue)
-        setValue(changedDeviceType, e.newValue)
+        try {
+          const parsed = JSON.parse(e.newValue)
+          const deviceId = parsed.deviceId || e.newValue
+          setValue(changedDeviceType, deviceId, { shouldDirty: false })
+        } catch {
+          setValue(changedDeviceType, e.newValue, { shouldDirty: false })
+        }
       }
     }
 
@@ -233,9 +252,12 @@ export function SettingsDeviceDialog() {
                               console.log(`[${name}] change device:`, device.deviceId, 'current:', value)
                               console.log(`[${name}] device label:`, device.label)
                               
-                              // Use setTimeout to prevent potential re-render loops
+                              // Use setTimeout to prevent potential re-render loops and add extra validation
                               setTimeout(() => {
-                                onChange(device.deviceId)
+                                // Double check the value hasn't changed in the meantime
+                                if (device.deviceId && device.deviceId !== value) {
+                                  onChange(device.deviceId)
+                                }
                               }, 0)
                             } else {
                               console.log(`[${name}] clicked same device, ignoring:`, device.deviceId)
