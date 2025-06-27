@@ -215,7 +215,7 @@ export function SettingsDeviceDialog() {
                 const selectedDevice = getDeviceById(name, value)
                 
                 // If selected device is not found in current devices list, it might have been disconnected
-                if (value && !selectedDevice && devices?.[name]?.length > 0) {
+                if (value && !selectedDevice && devices?.[name] && devices[name].length > 0) {
                   console.warn(`[${name}] Selected device ${value} not found in current devices, device may have been disconnected`)
                 }
                 return (
@@ -226,8 +226,8 @@ export function SettingsDeviceDialog() {
                         <DropdownItem
                           key={device.deviceId || `device-${Math.random()}`}
                           onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
+                            e?.preventDefault()
+                            e?.stopPropagation()
                             
                             if (value !== device.deviceId && device.deviceId) {
                               console.log(`[${name}] change device:`, device.deviceId, 'current:', value)
