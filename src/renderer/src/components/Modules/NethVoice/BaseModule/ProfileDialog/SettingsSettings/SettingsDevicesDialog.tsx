@@ -135,6 +135,9 @@ export function SettingsDeviceDialog() {
   const initDevices = async () => {
     const devices = await getMediaDevices()
     Log.info('Available devices:', devices)
+    if (devices?.audioOutput) {
+      Log.info('Audio output device IDs:', devices.audioOutput.map(d => ({ id: d.deviceId, label: d.label })))
+    }
     if (devices) {
       setDevices(devices)
     }
@@ -210,6 +213,11 @@ export function SettingsDeviceDialog() {
               name={name}
               render={({ field: { value, onChange } }) => {
                 const selectedDevice = getDeviceById(name, value)
+                
+                // If selected device is not found in current devices list, it might have been disconnected
+                if (value && !selectedDevice && devices?.[name]?.length > 0) {
+                  console.warn(`[${name}] Selected device ${value} not found in current devices, device may have been disconnected`)
+                }
                 return (
                   <Dropdown
                     items={devices?.[name]?.map((device) => {
@@ -217,10 +225,20 @@ export function SettingsDeviceDialog() {
                       return (
                         <DropdownItem
                           key={device.deviceId || `device-${Math.random()}`}
-                          onClick={() => {
-                            console.log('change device:', device.deviceId)
-                            if (device.deviceId) {
-                              onChange(device.deviceId)
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            
+                            if (value !== device.deviceId && device.deviceId) {
+                              console.log(`[${name}] change device:`, device.deviceId, 'current:', value)
+                              console.log(`[${name}] device label:`, device.label)
+                              
+                              // Use setTimeout to prevent potential re-render loops
+                              setTimeout(() => {
+                                onChange(device.deviceId)
+                              }, 0)
+                            } else {
+                              console.log(`[${name}] clicked same device, ignoring:`, device.deviceId)
                             }
                           }}
                         >
