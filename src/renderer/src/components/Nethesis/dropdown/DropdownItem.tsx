@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-common-types'
 
 export interface DropdownItemProps extends Omit<ComponentProps<'div'>, 'className'> {
-  onClick?: () => void
+  onClick?: (e?: React.MouseEvent<HTMLDivElement>) => void
   icon?: IconDefinition
   centered?: boolean
   variantTop?: boolean

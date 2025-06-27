@@ -73,7 +73,7 @@ export function SettingsDeviceDialog() {
     videoInput: z.string(),
   })
 
-  const { handleSubmit, control, setValue } = useForm({
+  const { handleSubmit, control, setValue, watch } = useForm({
     defaultValues: {
       audioInput: '',
       audioOutput: '',
@@ -81,6 +81,8 @@ export function SettingsDeviceDialog() {
     },
     resolver: zodResolver(schema),
   })
+
+  const formValues = watch()
 
   useEffect(() => {
     initDevices()
@@ -101,10 +103,21 @@ export function SettingsDeviceDialog() {
       return storeValue || ''
     }
 
-    setValue('audioInput', getEffectiveValue('audioInput'))
-    setValue('audioOutput', getEffectiveValue('audioOutput'))
-    setValue('videoInput', getEffectiveValue('videoInput'))
-  }, [account?.preferredDevices])
+    const audioInputValue = getEffectiveValue('audioInput')
+    const audioOutputValue = getEffectiveValue('audioOutput')
+    const videoInputValue = getEffectiveValue('videoInput')
+
+    // Only set values if they are actually different to prevent unnecessary re-renders
+    if (formValues.audioInput !== audioInputValue) {
+      setValue('audioInput', audioInputValue, { shouldDirty: false })
+    }
+    if (formValues.audioOutput !== audioOutputValue) {
+      setValue('audioOutput', audioOutputValue, { shouldDirty: false })
+    }
+    if (formValues.videoInput !== videoInputValue) {
+      setValue('videoInput', videoInputValue, { shouldDirty: false })
+    }
+  }, [account?.preferredDevices, setValue, formValues.audioInput, formValues.audioOutput, formValues.videoInput])
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -116,7 +129,13 @@ export function SettingsDeviceDialog() {
 
       if (changedDeviceType && e.newValue) {
         console.log(`localStorage changed for ${changedDeviceType}:`, e.newValue)
-        setValue(changedDeviceType, e.newValue)
+        try {
+          const parsed = JSON.parse(e.newValue)
+          const deviceId = parsed.deviceId || e.newValue
+          setValue(changedDeviceType, deviceId, { shouldDirty: false })
+        } catch {
+          setValue(changedDeviceType, e.newValue, { shouldDirty: false })
+        }
       }
     }
 
@@ -126,8 +145,8 @@ export function SettingsDeviceDialog() {
 
   const getDeviceById = useCallback(
     (type: DeviceType, id: string): MediaDeviceInfo | undefined => {
-      if (!devices) return undefined
-      return devices[type].find((d) => d.deviceId === id)
+      if (!devices || !devices[type] || !id) return undefined
+      return devices[type].find((d) => d && d.deviceId === id)
     },
     [devices],
   )
@@ -135,21 +154,31 @@ export function SettingsDeviceDialog() {
   const initDevices = async () => {
     const devices = await getMediaDevices()
     Log.info('Available devices:', devices)
-    setDevices(devices)
+    if (devices?.audioOutput) {
+      Log.info('Audio output device IDs:', devices.audioOutput.map(d => ({ id: d.deviceId, label: d.label })))
+    }
+    if (devices) {
+      setDevices(devices)
+    }
   }
 
   async function getMediaDevices() {
     try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+        console.warn('Media devices API not available')
+        return { audioInput: [], audioOutput: [], videoInput: [] }
+      }
+
       const devices = await navigator.mediaDevices.enumerateDevices()
 
-      const audioInput = devices.filter((device) => device.kind === 'audioinput')
-      const audioOutput = devices.filter((device) => device.kind === 'audiooutput')
-      const videoInput = devices.filter((device) => device.kind === 'videoinput')
+      const audioInput = devices.filter((device) => device && device.kind === 'audioinput')
+      const audioOutput = devices.filter((device) => device && device.kind === 'audiooutput')
+      const videoInput = devices.filter((device) => device && device.kind === 'videoinput')
 
       return { audioInput, audioOutput, videoInput }
     } catch (err) {
       console.error('Error reading audio and video devices:', err)
-      return null
+      return { audioInput: [], audioOutput: [], videoInput: [] }
     }
   }
 
@@ -197,30 +226,51 @@ export function SettingsDeviceDialog() {
             <FontAwesomeIcon icon={icons[name]} className='w-4' />
             <span className='truncate'>{fieldLabels[name]}</span>
           </div>
-          <div className=''>
+          <div>
             <Controller
               control={control}
               name={name}
               render={({ field: { value, onChange } }) => {
                 const selectedDevice = getDeviceById(name, value)
+                
+                // If selected device is not found in current devices list, it might have been disconnected
+                if (value && !selectedDevice && devices?.[name] && devices[name].length > 0) {
+                  console.warn(`[${name}] Selected device ${value} not found in current devices, device may have been disconnected`)
+                }
                 return (
                   <Dropdown
-                    items={devices?.[name].map((device) => {
+                    items={devices?.[name]?.map((device) => {
+                      if (!device) return null
                       return (
                         <DropdownItem
-                          key={device.deviceId}
-                          onClick={() => {
-                            console.log('change device:', device.deviceId)
-                            onChange(device.deviceId)
+                          key={device.deviceId || `device-${Math.random()}`}
+                          onClick={(e) => {
+                            e?.preventDefault()
+                            e?.stopPropagation()
+                            
+                            if (value !== device.deviceId && device.deviceId) {
+                              console.log(`[${name}] change device:`, device.deviceId, 'current:', value)
+                              console.log(`[${name}] device label:`, device.label)
+                              
+                              // Use setTimeout to prevent potential re-render loops and add extra validation
+                              setTimeout(() => {
+                                // Double check the value hasn't changed in the meantime
+                                if (device.deviceId && device.deviceId !== value) {
+                                  onChange(device.deviceId)
+                                }
+                              }, 0)
+                            } else {
+                              console.log(`[${name}] clicked same device, ignoring:`, device.deviceId)
+                            }
                           }}
                         >
                           <div className='flex flex-row items-center gap-2 w-[200px]'>
                             <span
                               className='truncate'
                               data-tooltip-id={`device-${name}`}
-                              data-tooltip-content={device.label}
+                              data-tooltip-content={device.label || 'Unknown device'}
                             >
-                              {device.label}
+                              {device.label || 'Unknown device'}
                             </span>
                             <FontAwesomeIcon
                               icon={SelectedIcon}
@@ -233,7 +283,7 @@ export function SettingsDeviceDialog() {
                           </div>
                         </DropdownItem>
                       )
-                    })}
+                    }).filter(Boolean) || []}
                     className='w-full'
                   >
                     <DropdownHeader>
@@ -265,7 +315,7 @@ export function SettingsDeviceDialog() {
         </div>
       )
     },
-    [account?.preferredDevices, devices],
+    [devices, icons, fieldLabels, control, getDeviceById],
   )
 
   return (
@@ -281,57 +331,57 @@ export function SettingsDeviceDialog() {
 
       <div className='fixed inset-0 z-[205] overflow-y-auto pointer-events-none'>
         <div className='flex min-h-full items-center justify-center p-4 pointer-events-none'>
-        <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-full pointer-events-auto'>
-          {/* Dialog content */}
-          <div className='p-6 flex flex-col gap-4'>
-            {/* Title */}
-            <h2 className='text-center font-semibold text-xl'>
-              {t('TopBar.Preferred devices')}
-            </h2>
+          <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-full pointer-events-auto'>
+            {/* Dialog content */}
+            <div className='p-6 flex flex-col gap-4'>
+              {/* Title */}
+              <h2 className='text-center font-semibold text-xl'>
+                {t('TopBar.Preferred devices')}
+              </h2>
 
-            {/* Form */}
-            <form
-              onSubmit={handleSubmit(submit)}
-              className='flex flex-col gap-1'
-            >
-              {/* Input field with clear button next to it */}
-              <DeviceDropdown name='audioInput' />
-              <DeviceDropdown name='audioOutput' />
-              <DeviceDropdown name='videoInput' />
+              {/* Form */}
+              <form
+                onSubmit={handleSubmit(submit)}
+                className='flex flex-col gap-1'
+              >
+                {/* Input field with clear button next to it */}
+                <DeviceDropdown name='audioInput' />
+                <DeviceDropdown name='audioOutput' />
+                <DeviceDropdown name='videoInput' />
 
-              {/* Inline notification */}
-              {isDeviceUnavailable && (
-                <InlineNotification
-                  title={t('Common.Warning')}
-                  type='warning'
-                  className=''
-                >
-                  <p>{t('Devices.Inline warning message devices')}</p>
-                </InlineNotification>
-              )}
-              {/* Action buttons */}
-              <div className='flex flex-col gap-3 mt-2'>
-                <Button
-                  variant='primary'
-                  type='submit'
-                  className='w-full py-3 rounded-lg font-medium'
-                  disabled={isDeviceUnavailable}
-                >
-                  {t('Common.Save')}
-                </Button>
+                {/* Inline notification */}
+                {isDeviceUnavailable && (
+                  <InlineNotification
+                    title={t('Common.Warning')}
+                    type='warning'
+                    className=''
+                  >
+                    <p>{t('Devices.Inline warning message devices')}</p>
+                  </InlineNotification>
+                )}
+                {/* Action buttons */}
+                <div className='flex flex-col gap-3 mt-2'>
+                  <Button
+                    variant='primary'
+                    type='submit'
+                    className='w-full py-3 rounded-lg font-medium'
+                    disabled={isDeviceUnavailable}
+                  >
+                    {t('Common.Save')}
+                  </Button>
 
-                <Button
-                  variant='ghost'
-                  type='button'
-                  onClick={handleCancel}
-                  className='text-center text-blue-700 dark:text-blue-500 font-medium'
-                >
-                  {t('Common.Cancel')}
-                </Button>
-              </div>
-            </form>
+                  <Button
+                    variant='ghost'
+                    type='button'
+                    onClick={handleCancel}
+                    className='text-center text-blue-700 dark:text-blue-500 font-medium'
+                  >
+                    {t('Common.Cancel')}
+                  </Button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </>
