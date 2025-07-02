@@ -269,8 +269,19 @@ export function registerIpcEvents() {
     }
   })
 
+  ipcMain.on(IPC_EVENTS.PHONE_ISLAND_READY, () => {
+    Log.info('PhoneIsland is ready to receive events')
+    const account = store.get('account') as Account
+
+    setTimeout(() => {
+      Log.info('Send CHANGE_PREFERRED_DEVICES event with', account.preferredDevices)
+      AccountController.instance.updatePreferredDevice(account.preferredDevices)
+      PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, account.preferredDevices)
+    }, 250)
+  })
+
   ipcMain.on(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (_, devices) => {
-    Log.info('CHANGE_PREFERRED_DEVICES:', devices)
+    Log.info('Received CHANGE_PREFERRED_DEVICES in ipcEvents:', devices)
     AccountController.instance.updatePreferredDevice(devices)
     PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, devices)
   })
