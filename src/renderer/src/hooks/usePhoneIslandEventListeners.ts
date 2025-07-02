@@ -238,7 +238,7 @@ export const usePhoneIslandEventListener = () => {
         setTimeout(() => {
           Log.info("phone-island-webrtc-registered", "send PHONE_ISLAND_READY event")
           window.electron.send(IPC_EVENTS.PHONE_ISLAND_READY)
-        }, 250);
+        }, 500);
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-fullscreen-entered"], () => {

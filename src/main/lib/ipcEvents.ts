@@ -275,6 +275,7 @@ export function registerIpcEvents() {
 
     setTimeout(() => {
       Log.info('Send CHANGE_PREFERRED_DEVICES event with', account.preferredDevices)
+      AccountController.instance.updatePreferredDevice(account.preferredDevices)
       PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, account.preferredDevices)
     }, 250)
   })
