@@ -227,5 +227,6 @@ export enum PHONE_ISLAND_EVENTS {
   // Screen Share
   'phone-island-screen-share-initialized' = 'phone-island-screen-share-initialized',
   // Url param
-  'phone-island-custom-link-open' = 'phone-island-custom-link-open',
+  'phone-island-url-parameter-opened-external' = 'phone-island-url-parameter-opened-external',
+  'phone-island-already-opened-external-page' = 'phone-island-already-opened-external-page',
 }
