@@ -29,6 +29,9 @@ export function PhoneIslandPage() {
   const attachedListener = useRef<boolean>(false)
   const lastOpenedUrl = useRef<string | null>(null)
   const urlOpenTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isUrlOpening = useRef<boolean>(false)
+  const urlOpenAttempts = useRef<number>(0)
+  const urlOpenListenerRegistered = useRef<boolean>(false)
 
   useEffect(() => {
     resize(phoneIsalndSizes)
@@ -97,26 +100,53 @@ export function PhoneIslandPage() {
       }
     })
 
-    window.electron.receive(IPC_EVENTS.URL_OPEN, (urlInfo: string) => {
-      if (lastOpenedUrl.current === urlInfo) {
-        return;
-      }
+    if (!urlOpenListenerRegistered.current) {
+      urlOpenListenerRegistered.current = true;
 
-      lastOpenedUrl.current = urlInfo;
+      window.electron.receive(IPC_EVENTS.URL_OPEN, (urlInfo: string) => {
+        urlOpenAttempts.current++;
 
-      window.api.openExternalPage(urlInfo);
-      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-already-opened-external-page'], {});
+        if (isUrlOpening.current) {
+          return;
+        }
 
+        if (lastOpenedUrl.current === urlInfo) {
+          return;
+        }
+
+        isUrlOpening.current = true;
+        lastOpenedUrl.current = urlInfo;
+
+        window.api.openExternalPage(urlInfo);
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-already-opened-external-page'], {});
+
+        urlOpenAttempts.current = 0;
+
+        if (urlOpenTimeout.current) {
+          clearTimeout(urlOpenTimeout.current);
+        }
+
+        urlOpenTimeout.current = setTimeout(() => {
+          isUrlOpening.current = false;
+          lastOpenedUrl.current = null;
+          urlOpenTimeout.current = null;
+        }, 5000);
+      });
+    }
+
+  })
+
+  useEffect(() => {
+    return () => {
       if (urlOpenTimeout.current) {
         clearTimeout(urlOpenTimeout.current);
-      }
-
-      urlOpenTimeout.current = setTimeout(() => {
-        lastOpenedUrl.current = null;
         urlOpenTimeout.current = null;
-      }, 3000);
-    })
-  })
+      }
+      isUrlOpening.current = false;
+      lastOpenedUrl.current = null;
+      urlOpenAttempts.current = 0;
+    };
+  }, []);
 
   const resize = (phoneIsalndSize: PhoneIslandSizes) => {
     if (!isOnLogout.current) {
