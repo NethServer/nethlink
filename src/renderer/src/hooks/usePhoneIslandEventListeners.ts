@@ -250,6 +250,9 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-screen-share-initialized"], () => {
         window.electron.send(IPC_EVENTS.SCREEN_SHARE_INIT)
       }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-custom-link-open"], (data) => {
+        window.electron.send(IPC_EVENTS.URL_OPEN, data.formattedUrl)
+      }),
     }
   }
 }

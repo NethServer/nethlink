@@ -96,6 +96,10 @@ export function PhoneIslandPage() {
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
       }
     })
+
+    window.electron.receive(IPC_EVENTS.URL_OPEN, (urlInfo: string) => {
+      window.api.openExternalPage((urlInfo))
+    })
   })
 
   const resize = (phoneIsalndSize: PhoneIslandSizes) => {
