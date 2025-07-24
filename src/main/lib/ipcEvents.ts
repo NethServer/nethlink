@@ -213,12 +213,7 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_EXTERNAL_PAGE, async (event, path) => {
-    if (isDev()) {
-      const window = BrowserWindow.fromWebContents(event.sender);
-      window?.loadURL(join(path))
-    } else {
-      shell.openExternal(join(path))
-    }
+    shell.openExternal(path)
   })
 
   ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
@@ -408,4 +403,12 @@ export function registerIpcEvents() {
         Log.error('ENTER SCREEN_SHARE_INIT error ', e)
       });
   });
+
+  ipcMain.on(IPC_EVENTS.URL_OPEN, (_, data) => {
+    try {
+      PhoneIslandController.instance.window.emit(IPC_EVENTS.URL_OPEN, data)
+    } catch (e) {
+      Log.error('URL PARAM error', e)
+    }
+  })
 }
