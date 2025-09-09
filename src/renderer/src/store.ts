@@ -157,7 +157,8 @@ export const useNethlinkData = createGlobalStateHook({
 export const useLoginPageData = createGlobalStateHook({
   isLoading: false,
   selectedAccount: undefined,
-  windowHeight: LoginPageSize.h
+  windowHeight: LoginPageSize.h,
+  showTwoFactor: false
 } as LoginPageData).useGlobalState
 
 

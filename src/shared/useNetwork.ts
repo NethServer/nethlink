@@ -10,7 +10,7 @@ export const useNetwork = () => {
       return response.data
     } catch (e: any) {
       const err: AxiosError = e
-      if (!path.includes('login'))
+      if (!path.includes('login') && !path.includes('2fa/verify-otp'))
         Log.error('during fetch POST', err.name, err.code, err.message, path, config, data)
       throw e
     }

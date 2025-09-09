@@ -109,7 +109,16 @@
     "Account List title": "Account list",
     "Account List description": "Choose an account to continue to NethLink.",
     "Delete account": "Are you sure you want to delete {{username}}?",
-    "Back": "Back"
+    "Back": "Back",
+    "User not authorized for NethLink": "User not authorized for NethLink",
+    "Generic error": "Generic error",
+    "2FA": {
+      "OTP code": "OTP code",
+      "OTP invalid": "The code you entered is invalid or has expired. Please check your authenticator app and try again.",
+      "OTP verification failed": "OTP verification failed",
+      "Two-Factor Authentication": "Two-Factor Authentication",
+      "Enter the 6-digit code (OTP code) from your authenticator app. If you cannot access the app, you can use one recovery OTP code.": "Enter the 6-digit code (OTP code) from your authenticator app. If you cannot access the app, you can use one recovery OTP code."
+    }
   },
   "SplashScreen": {
     "Description": "Welcome to NethLink, a desktop solution for seamless communication. Make and receive calls, save contacts to you phonebook and much more.",

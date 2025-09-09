@@ -1,6 +1,5 @@
 
 import moment from 'moment'
-import hmacSHA1 from 'crypto-js/hmac-sha1'
 import {
   Account,
   NewContactType,
@@ -17,6 +16,10 @@ import {
 import { Log } from '@shared/utils/logger'
 import { useNetwork } from './useNetwork'
 import { SpeeddialTypes } from './constants'
+import { requires2FA } from '@shared/utils/jwt'
+
+// Base path for API endpoints
+const API_BASE_PATH = '/api'
 
 export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) => {
   const { GET, POST } = useNetwork()
@@ -28,20 +31,24 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     return path
   }
 
-  function _toHash(username: string, password: string, nonce: string) {
-    const token = nonce ? hmacSHA1(`${username}:${password}:${nonce}`, password).toString() : ''
-    return token
-  }
-
   function _getHeaders(hasAuth = true) {
     if (hasAuth && !account)
       throw new Error('no token')
-    return {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(hasAuth && { Authorization: account!.username + ':' + account!.accessToken })
+
+    const headers: { 'Content-Type': string; Authorization?: string } = {
+      'Content-Type': 'application/json',
+    }
+
+    if (hasAuth) {
+      // Use JWT Bearer token only
+      if (account!.jwtToken) {
+        headers.Authorization = `Bearer ${account!.jwtToken}`
+      } else {
+        throw new Error('No JWT token available for authentication')
       }
     }
+
+    return { headers }
   }
 
   async function _GET(path: string, hasAuth = true): Promise<any> {
@@ -57,18 +64,18 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     try {
       return (await POST(_joinUrl(path), data, _getHeaders(hasAuth)))
     } catch (e) {
-      if (!path.includes('login'))
+      if (!path.includes('login') && !path.includes('2fa/verify-otp'))
         console.error(e)
       throw e
     }
   }
 
   const AstProxy = {
-    groups: async () => await _GET('/webrest/astproxy/opgroups'),
-    extensions: async (): Promise<ExtensionsType> => await _GET('/webrest/astproxy/extensions'),
-    getQueues: async () => await _GET('/webrest/astproxy/queues'),
-    getParkings: async () => await _GET('/webrest/astproxy/parkings'),
-    pickupParking: async (parkInformation: any) => await _POST('/webrest/astproxy/pickup_parking', parkInformation)
+    groups: async () => await _GET(`${API_BASE_PATH}/astproxy/opgroups`),
+    extensions: async (): Promise<ExtensionsType> => await _GET(`${API_BASE_PATH}/astproxy/extensions`),
+    getQueues: async () => await _GET(`${API_BASE_PATH}/astproxy/queues`),
+    getParkings: async () => await _GET(`${API_BASE_PATH}/astproxy/parkings`),
+    pickupParking: async (parkInformation: any) => await _POST(`${API_BASE_PATH}/astproxy/pickup_parking`, parkInformation)
   }
 
 
@@ -83,43 +90,107 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         username,
         theme: 'system'
       }
-      return new Promise((resolve, reject) => {
-        _POST('/webrest/authentication/login', data, false).catch(async (reason) => {
-          try {
-            if (reason.response?.status === 401 && reason.response?.headers['www-authenticate']) {
-              const digest = reason.response.headers['www-authenticate']
-              const nonce = digest.split(' ')[1]
-              if (nonce) {
-                const accessToken = _toHash(username, password, nonce)
-                account = {
-                  ...account,
-                  accessToken,
-                  lastAccess: moment().toISOString()
-                } as Account
-                const me = await User.me()
-                account.data = me
-                const nethlinkExtension = account.data!.endpoints.extension.find((el) => el.type === 'nethlink')
-                if (!nethlinkExtension)
-                  reject(new Error("Questo utente non è abilitato all'uso del NethLink"))
-                else {
-                  resolve(account)
-                }
-              }
-            } else {
-              console.error('undefined nonce response')
-              reject(new Error('Unauthorized'))
+
+      try {
+        // Try JWT login
+        const response = await _POST(`${API_BASE_PATH}/login`, data, false)
+
+        if (response.token) {
+          // JWT authentication successful
+          account = {
+            ...account,
+            jwtToken: response.token,
+            lastAccess: moment().toISOString()
+          } as Account
+
+          // Check if 2FA is required
+          if (requires2FA(response.token)) {
+            // Return account with JWT token but mark as requiring 2FA
+            return account
+          } else {
+            // Complete login process
+            const me = await User.me()
+            account.data = me
+            const nethlinkExtension = account.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+            if (!nethlinkExtension) {
+              throw new Error('User not authorized for NethLink')
             }
-          } catch (e) {
-            reject(e)
+            return account
           }
-        })
-      })
+        } else {
+          throw new Error('No token received')
+        }
+      } catch (reason: any) {
+        // Handle specific error cases
+        if (reason.response?.status === 401) {
+          throw new Error('Wrong username or password')
+        } else if (reason.response?.status === 404) {
+          throw new Error('Network connection lost')
+        } else if (reason.message === 'User not authorized for NethLink') {
+          throw reason
+        } else {
+          console.error('Login error:', reason)
+          throw new Error('Unauthorized')
+        }
+      }
     },
+
+    verify2FA: async (otp: string, tempAccount: Account | undefined): Promise<Account> => {
+      account = tempAccount
+
+      if (!account || !account.jwtToken) {
+        throw new Error('No active login session')
+      }
+
+      try {
+        const response = await _POST(`${API_BASE_PATH}/2fa/verify-otp`, {
+          otp,
+          username: account.username
+        }, true)
+
+        if (response.data.token) {
+          // Update account with new JWT token
+          account = {
+            ...account,
+            jwtToken: response.data.token,
+            lastAccess: moment().toISOString()
+          } as Account
+
+          // Complete login process
+          const me = await User.me()
+          account.data = me
+          const nethlinkExtension = account.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+          if (!nethlinkExtension) {
+            // Clean up backend token and clear account state
+            try {
+              await Authentication.logout()
+            } catch (logoutError) {
+              Log.warning("Error during logout after unauthorized access:", logoutError)
+            }
+            account = undefined
+            throw new Error('User not authorized for NethLink')
+          }
+          return account
+        } else {
+          throw new Error('No token received after 2FA verification')
+        }
+      } catch (reason: any) {
+        if (reason.response?.status === 400) {
+          throw new Error('OTP invalid')
+        } else if (reason.message === 'User not authorized for NethLink') {
+          throw reason
+        } else {
+          console.error('2FA verification error:', reason)
+          throw new Error('Verification failed')
+        }
+      }
+    },
+
     logout: async () => {
       isFirstHeartbeat = false
       return new Promise<void>(async (resolve) => {
         try {
-          await _POST('/webrest/authentication/logout', {})
+          await _POST(`${API_BASE_PATH}/authentication/logout`, {})
         } catch (e) {
           Log.warning("error during logout:", e)
         } finally {
@@ -127,8 +198,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         }
       })
     },
+
     phoneIslandTokenLogin: async (): Promise<{ username: string, token: string }> =>
-      await _POST('/webrest/authentication/phone_island_token_login', { subtype: 'nethlink'}),
+      await _POST(`${API_BASE_PATH}/authentication/phone_island_token_login`, { subtype: 'nethlink' }),
   }
 
   const CustCard = {}
@@ -143,7 +215,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       try {
         if (account) {
           const res = await _GET(
-            `/webrest/historycall/interval/user/${account.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
+            `${API_BASE_PATH}/historycall/interval/user/${account.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`
           )
           return res
         } else {
@@ -166,12 +238,12 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       view: 'all' | 'company' | 'person' = 'all'
     ) => {
       const s = await _GET(
-        `/webrest/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}`
+        `${API_BASE_PATH}/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}`
       )
       return s
     },
     getSpeeddials: async () => {
-      return await _GET('/webrest/phonebook/speeddials')
+      return await _GET(`${API_BASE_PATH}/phonebook/speeddials`)
     },
     ///SPEEDDIALS
     createSpeeddial: async (create: NewContactType) => {
@@ -186,7 +258,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         notes: SpeeddialTypes.BASIC
       }
       try {
-        await _POST(`/webrest/phonebook/create`, newSpeedDial)
+        await _POST(`${API_BASE_PATH}/phonebook/create`, newSpeedDial)
         return newSpeedDial
       } catch (e) {
         Log.warning('error during createSpeeddial', e)
@@ -205,7 +277,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         notes: SpeeddialTypes.FAVOURITES
       }
       try {
-        await _POST(`/webrest/phonebook/create`, newSpeedDial)
+        await _POST(`${API_BASE_PATH}/phonebook/create`, newSpeedDial)
         return newSpeedDial
       } catch (e) {
         Log.warning('error during createFavourite', e)
@@ -216,7 +288,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         const editedSpeedDial = Object.assign({}, updatedContact)
         editedSpeedDial.id = editedSpeedDial.id?.toString()
         try {
-          await _POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
+          await _POST(`${API_BASE_PATH}/phonebook/modify_cticontact`, editedSpeedDial)
           return editedSpeedDial
         } catch (e) {
           Log.warning('error during updateSpeeddialBy', e)
@@ -229,12 +301,12 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         editedSpeedDial.speeddial_num = edit.speeddial_num
         editedSpeedDial.name = edit.name
         editedSpeedDial.id = editedSpeedDial.id?.toString()
-        await _POST(`/webrest/phonebook/modify_cticontact`, editedSpeedDial)
+        await _POST(`${API_BASE_PATH}/phonebook/modify_cticontact`, editedSpeedDial)
         return editedSpeedDial
       }
     },
     deleteSpeeddial: async (obj: { id: string }) => {
-      await _POST(`/webrest/phonebook/delete_cticontact`, { id: '' + obj.id })
+      await _POST(`${API_BASE_PATH}/phonebook/delete_cticontact`, { id: '' + obj.id })
       return obj
     },
     //CONTACTS
@@ -254,7 +326,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         selectedPrefNum: 'extension',
         kind: 'person'
       }
-      await _POST(`/webrest/phonebook/create`, newContact)
+      await _POST(`${API_BASE_PATH}/phonebook/create`, newContact)
       return newContact
     },
     updateContact: async (edit: NewContactType, current: ContactType) => {
@@ -263,18 +335,18 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         newSpeedDial.speeddial_num = edit.speeddial_num
         newSpeedDial.name = edit.name
         newSpeedDial.id = newSpeedDial.id?.toString()
-        await _POST(`/webrest/phonebook/modify_cticontact`, newSpeedDial)
+        await _POST(`${API_BASE_PATH}/phonebook/modify_cticontact`, newSpeedDial)
         return current
       }
     },
     deleteContact: async (obj: { id: string }) => {
-      await _POST(`/webrest/phonebook/delete_cticontact`, obj)
+      await _POST(`${API_BASE_PATH}/phonebook/delete_cticontact`, obj)
     }
   }
 
   const Profiling = {
     all: async () => {
-      return await _GET(`/webrest/profiling/all`)
+      return await _GET(`${API_BASE_PATH}/profiling/all`)
     }
   }
 
@@ -282,7 +354,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   const User = {
     me: async (): Promise<AccountData> => {
-      const data: AccountData = await _GET('/webrest/user/me')
+      const data: AccountData = await _GET(`${API_BASE_PATH}/user/me`)
       data.mainextension = data!.endpoints.mainextension[0].id
       const ext = data.endpoints.extension.find((e) => e.type === 'nethlink')
       //the !loggedAccount flag allow to reduce the invocation only to the backend module and only at the first login
@@ -293,14 +365,14 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       }
       return data
     },
-    all: async () => await _GET('/webrest/user/all'),
-    all_avatars: async () => await _GET('/webrest/user/all_avatars'),
-    all_endpoints: async () => await _GET('/webrest/user/endpoints/all'),
-    heartbeat: async (extension: string, username: string) => await _POST('/webrest/user/nethlink', { extension, username }),
+    all: async () => await _GET(`${API_BASE_PATH}/user/all`),
+    all_avatars: async () => await _GET(`${API_BASE_PATH}/user/all_avatars`),
+    all_endpoints: async () => await _GET(`${API_BASE_PATH}/user/endpoints/all`),
+    heartbeat: async (extension: string, username: string) => await _POST(`${API_BASE_PATH}/user/nethlink`, { extension, username }),
     default_device: async (deviceIdInformation: Extension, force = false): Promise<boolean> => {
       try {
         if (account?.data?.default_device.type !== 'physical' || force) {
-          await _POST('/webrest/user/default_device', { id: deviceIdInformation.id })
+          await _POST(`${API_BASE_PATH}/user/default_device`, { id: deviceIdInformation.id })
           return true
         }
       } catch (e) {
@@ -308,7 +380,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       }
       return false;
     },
-    setPresence: async (status: StatusTypes, to?: string) => await _POST('/webrest/user/presence', { status, ...(to ? { to } : {}) })
+    setPresence: async (status: StatusTypes, to?: string) => await _POST(`${API_BASE_PATH}/user/presence`, { status, ...(to ? { to } : {}) })
   }
 
   const Voicemail = {}

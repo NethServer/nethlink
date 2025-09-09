@@ -5,7 +5,8 @@ import { store } from '@/lib/mainStore'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
-import { delay, getAccountUID } from '@shared/utils/utils'
+import { getAccountUID } from '@shared/utils/utils'
+import { requires2FA } from '@shared/utils/jwt'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -77,6 +78,19 @@ export class AccountController {
           const _accountData = JSON.parse(decryptString)
           const password = _accountData.password
           const tempLoggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
+          
+          // Check if 2FA is required - auto-login should fail in this case
+          if (tempLoggedAccount.jwtToken && requires2FA(tempLoggedAccount.jwtToken)) {
+            Log.info('auto login failed: 2FA required, user interaction needed')
+            return false
+          }
+
+          // Auto-login only works with JWT tokens (no legacy support)
+          if (!tempLoggedAccount.jwtToken) {
+            Log.info('auto login failed: no JWT token received')
+            return false
+          }
+
           let loggedAccount: Account = {
             ...lastLoggedAccount,
             ...tempLoggedAccount,
