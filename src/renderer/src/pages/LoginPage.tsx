@@ -5,28 +5,30 @@ import spinner from '../assets/loginPageSpinner.svg'
 import darkHeader from '../assets/nethlinkDarkHeader.svg'
 import lightHeader from '../assets/nethlinkLightHeader.svg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faArrowLeft as ArrowIcon,
-} from '@fortawesome/free-solid-svg-icons'
+import { faArrowLeft as ArrowIcon } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { Button } from '@renderer/components/Nethesis'
 
 import './LoginPage.css'
 import { useLoginPageData, useSharedState } from '@renderer/store'
-import { AvailableAccountList, LoginForm } from '@renderer/components/pageComponents'
+import {
+  AvailableAccountList,
+  LoginForm,
+} from '@renderer/components/pageComponents'
 import { IPC_EVENTS, LoginPageSize, NEW_ACCOUNT } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
 import { FieldErrors } from 'react-hook-form'
 import { AvailableAccountDeleteDialog } from '@renderer/components/pageComponents/login/AvailableAccountDeleteDialog'
 
 export interface LoginPageProps {
-  themeMode: string,
+  themeMode: string
   handleRefreshConnection: () => void
 }
 
 enum LoginSizes {
   BASE = 550,
   ACCOUNT_FORM = 488,
+  TWO_FACTOR_AUTH = 420,
   BACK_BUTTON = 60,
   INPUT_ERROR = 22,
   LOGIN_FAILURE = 104,
@@ -39,25 +41,30 @@ enum LoginSizes {
 }
 
 type ErrorsData = {
-  formErrors: FieldErrors<LoginData>,
-  generalError: Error | undefined,
+  formErrors: FieldErrors<LoginData>
+  generalError: Error | undefined
 }
-export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps) {
-
-
+export function LoginPage({
+  themeMode,
+  handleRefreshConnection,
+}: LoginPageProps) {
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
   const [auth] = useSharedState('auth')
-  const [isLoading, setIsLoading] = useLoginPageData('isLoading')
-  const [selectedAccount, setSelectedAccount] = useLoginPageData('selectedAccount')
+  const [isLoading] = useLoginPageData('isLoading')
+  const [selectedAccount, setSelectedAccount] =
+    useLoginPageData('selectedAccount')
   const [windowHeight, setWindowHeight] = useLoginPageData('windowHeight')
+  const [showTwoFactor, setShowTwoFactor] = useLoginPageData('showTwoFactor')
   const [connection] = useSharedState('connection')
   const [errorsData, setErrorsData] = useState<ErrorsData>()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
-  const [deleteDialogAccount, setDeleteDialogAccount] = useState<Account | undefined>(undefined)
+  const [deleteDialogAccount, setDeleteDialogAccount] = useState<
+    Account | undefined
+  >(undefined)
 
   useEffect(() => {
     calculateHeight()
-  }, [selectedAccount, auth, errorsData, connection])
+  }, [selectedAccount, auth, errorsData, connection, showTwoFactor])
 
   useEffect(() => {
     if (windowHeight) {
@@ -66,15 +73,24 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
   }, [windowHeight])
 
   const goBack = () => {
-    setSelectedAccount(undefined)
-    setErrorsData({ formErrors: {}, generalError: undefined })
+    if (showTwoFactor) {
+      // If we're in OTP verification, go back to login form
+      setShowTwoFactor(false)
+      // Keep selectedAccount, stay in the login form
+    } else {
+      // If we're in normal login form, go back to account selection
+      setSelectedAccount(undefined)
+      setErrorsData({ formErrors: {}, generalError: undefined })
+    }
   }
 
-
-  const onFormErrors = (formErrors: FieldErrors<LoginData>, generalError: Error | undefined) => {
+  const onFormErrors = (
+    formErrors: FieldErrors<LoginData>,
+    generalError: Error | undefined,
+  ) => {
     setErrorsData({
       formErrors,
-      generalError
+      generalError,
     })
   }
 
@@ -96,13 +112,22 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
   function calculateHeight() {
     let loginWindowHeight = 0
     const accounts = Object.keys(auth?.availableAccounts || {})
-    const errorCount = Object.values(errorsData?.formErrors || {}).filter((v) => v.message).length
-    //Login form is shown
-    if (selectedAccount) {
+    const errorCount = Object.values(errorsData?.formErrors || {}).filter(
+      (v) => v.message,
+    ).length
+
+    // If Two Factor Authentication is shown, use specific height
+    if (showTwoFactor) {
+      loginWindowHeight = LoginSizes.TWO_FACTOR_AUTH
+      if (!auth?.isFirstStart) {
+        loginWindowHeight += LoginSizes.BACK_BUTTON - 24
+      }
+    }
+    // Login form is shown
+    else if (selectedAccount) {
       if (selectedAccount === NEW_ACCOUNT) {
         loginWindowHeight = LoginSizes.BASE
-        if (!connection)
-          loginWindowHeight = LoginSizes.CONNECTION_FAILURE_BASE
+        if (!connection) loginWindowHeight = LoginSizes.CONNECTION_FAILURE_BASE
         if (!auth?.isFirstStart) {
           loginWindowHeight += LoginSizes.BACK_BUTTON - 24
         }
@@ -115,11 +140,15 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
       if (auth?.isFirstStart) {
         loginWindowHeight = LoginSizes.BASE
       } else {
-        //List of account is shown
+        // Account list is shown
         switch (accounts.length) {
           case 0:
             loginWindowHeight = LoginSizes.BASE
-            if (auth && !auth.isFirstStart && Object.keys(auth.availableAccounts).length > 0) {
+            if (
+              auth &&
+              !auth.isFirstStart &&
+              Object.keys(auth.availableAccounts).length > 0
+            ) {
               loginWindowHeight += LoginSizes.BACK_BUTTON
             }
             break
@@ -145,38 +174,51 @@ export function LoginPage({ themeMode, handleRefreshConnection }: LoginPageProps
 
   return (
     <div
-      className="draggableAnchor h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 text-sm hide-scrollbar"
+      className='draggableAnchor h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 text-sm hide-scrollbar'
       ref={loginWindowRef}
     >
       <div className={classNames('noDraggableAnchor', 'h-full w-full')}>
-        <div className="flex flex-row justify-between items-center">
-          <img src={themeMode === 'dark' ? darkHeader : lightHeader} className="h-10"></img>
+        <div className='flex flex-row justify-between items-center'>
+          <img
+            src={themeMode === 'dark' ? darkHeader : lightHeader}
+            className='h-10'
+          ></img>
         </div>
-        {
-          auth && <>
-            {
-              Object.keys(auth.availableAccounts).length > 0 && selectedAccount && (
+        {auth && (
+          <>
+            {Object.keys(auth.availableAccounts).length > 0 &&
+              selectedAccount && (
                 <Button
-                  variant="ghost"
-                  className="flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6"
+                  variant='ghost'
+                  className='flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6'
                   onClick={goBack}
                 >
                   <FontAwesomeIcon
                     icon={ArrowIcon}
-                    className="h-5 w-5 dark:text-textBlueDark text-textBlueLight"
+                    className='h-5 w-5 dark:text-textBlueDark text-textBlueLight'
                   />
-                  <p className="dark:text-textBlueDark text-textBlueLight font-medium">
+                  <p className='dark:text-textBlueDark text-textBlueLight font-medium'>
                     {t('Login.Back')}
                   </p>
                 </Button>
               )}
-            {(auth.isFirstStart || selectedAccount || Object.keys(auth.availableAccounts).length === 0) ? <LoginForm onError={onFormErrors} handleRefreshConnection={handleRefreshConnection} /> : <AvailableAccountList handleDeleteAccount={handleDeleteAccount} />}
+            {auth.isFirstStart ||
+            selectedAccount ||
+            showTwoFactor ||
+            Object.keys(auth.availableAccounts).length === 0 ? (
+              <LoginForm
+                onError={onFormErrors}
+                handleRefreshConnection={handleRefreshConnection}
+              />
+            ) : (
+              <AvailableAccountList handleDeleteAccount={handleDeleteAccount} />
+            )}
           </>
-        }
+        )}
       </div>
       {isLoading && (
-        <div className="absolute top-0 left-0 bg-spinnerBgLight dark:bg-spinnerBgDark bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center rounded-[10px] z-[1000]">
-          <img src={spinner} className="animate-spin"></img>
+        <div className='absolute top-0 left-0 bg-spinnerBgLight dark:bg-spinnerBgDark bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center rounded-[10px] z-[1000]'>
+          <img src={spinner} className='animate-spin'></img>
         </div>
       )}
       <AvailableAccountDeleteDialog
