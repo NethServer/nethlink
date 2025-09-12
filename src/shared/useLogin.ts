@@ -6,18 +6,24 @@ export const useLogin = () => {
     const voiceHost = account.host.split('.')
     voiceHost.shift()
     voiceHost.join('.')
+    let COMPANY_NAME = 'Nethesis'
+    let COMPANY_URL = 'https://www.nethesis.it/'
     let SIP_HOST = '127.0.0.1'
     let SIP_PORT = '5060'
     let NUMERIC_TIMEZONE = '+0200'
     let TIMEZONE = 'Europe/Rome'
     let VOICE_ENDPOINT = `voice.${voiceHost}`
 
+    COMPANY_NAME = config.split("COMPANY_NAME: '")[1].split("',")[0].trim() //
+    COMPANY_URL = config.split("COMPANY_URL: '")[1].split("',")[0].trim() //
     SIP_HOST = config.split("SIP_HOST: '")[1].split("',")[0].trim() //
     SIP_PORT = config.split("SIP_PORT: '")[1].split("',")[0].trim() //
     NUMERIC_TIMEZONE = config.split("NUMERIC_TIMEZONE: '")[1].split("',")[0].trim() //
     TIMEZONE = config.split(" TIMEZONE: '")[1].split("',")[0].trim() //
     VOICE_ENDPOINT = config.split(" VOICE_ENDPOINT: '")[1].split("',")[0].trim() //
 
+    account.companyName = COMPANY_NAME
+    account.companyUrl = COMPANY_URL
     account.sipHost = SIP_HOST
     account.sipPort = SIP_PORT
     account.numeric_timezone = NUMERIC_TIMEZONE

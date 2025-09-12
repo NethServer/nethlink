@@ -23,6 +23,8 @@ export type Account = {
   theme: AvailableThemes
   phoneIslandPosition?: { x: number; y: number }
   nethlinkBounds?: Electron.Rectangle
+  companyName?: string
+  companyUrl?: string
   sipPort?: string
   sipHost?: string
   voiceEndpoint?: string

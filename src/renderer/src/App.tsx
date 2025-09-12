@@ -44,9 +44,9 @@ const RequestStateComponent = () => {
         // @ts-ignore (define in dts)
         window['CONFIG'] = {
           PRODUCT_NAME: 'NethLink',
-          COMPANY_NAME: 'Nethesis',
+          COMPANY_NAME: account.companyName,
           COMPANY_SUBNAME: 'CTI',
-          COMPANY_URL: 'https://www.nethesis.it/',
+          COMPANY_URL: account.companyUrl,
           API_ENDPOINT: `${account.host}`,
           API_SCHEME: 'https://',
           WS_ENDPOINT: `wss://${account.host}/ws`,
