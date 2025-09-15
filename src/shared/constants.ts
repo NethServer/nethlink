@@ -93,7 +93,8 @@ export enum IPC_EVENTS {
   CHANGE_SHORTCUT = 'CHANGE_SHORTCUT',
   COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
   CHANGE_PREFERRED_DEVICES = "CHANGE_PREFERRED_DEVICES",
-  PHONE_ISLAND_READY = "PHONE_ISLAND_READY"
+  PHONE_ISLAND_READY = "PHONE_ISLAND_READY",
+  URL_OPEN = "URL_OPEN",
 }
 
 //PHONE ISLAND EVENTS
@@ -225,4 +226,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-fullscreen-exited' = 'phone-island-fullscreen-exited',
   // Screen Share
   'phone-island-screen-share-initialized' = 'phone-island-screen-share-initialized',
+  // Url param
+  'phone-island-url-parameter-opened-external' = 'phone-island-url-parameter-opened-external',
+  'phone-island-already-opened-external-page' = 'phone-island-already-opened-external-page',
 }

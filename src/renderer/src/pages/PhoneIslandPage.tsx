@@ -27,6 +27,11 @@ export function PhoneIslandPage() {
   const isOnLogout = useRef<boolean>(false)
   const eventsRef = useRef<{ [x: string]: (...data: any[]) => void; }>(events)
   const attachedListener = useRef<boolean>(false)
+  const lastOpenedUrl = useRef<string | null>(null)
+  const urlOpenTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isUrlOpening = useRef<boolean>(false)
+  const urlOpenAttempts = useRef<number>(0)
+  const urlOpenListenerRegistered = useRef<boolean>(false)
 
   useEffect(() => {
     resize(phoneIsalndSizes)
@@ -60,14 +65,12 @@ export function PhoneIslandPage() {
     })
 
     window.electron.receive(IPC_EVENTS.START_CALL, (number: string) => {
-      //controllare se sono physical
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
         number
       })
     })
 
     window.electron.receive(IPC_EVENTS.END_CALL, () => {
-      //controllare se sono physical
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
     })
 
@@ -96,7 +99,54 @@ export function PhoneIslandPage() {
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
       }
     })
+
+    if (!urlOpenListenerRegistered.current) {
+      urlOpenListenerRegistered.current = true;
+
+      window.electron.receive(IPC_EVENTS.URL_OPEN, (urlInfo: string) => {
+        urlOpenAttempts.current++;
+
+        if (isUrlOpening.current) {
+          return;
+        }
+
+        if (lastOpenedUrl.current === urlInfo) {
+          return;
+        }
+
+        isUrlOpening.current = true;
+        lastOpenedUrl.current = urlInfo;
+
+        window.api.openExternalPage(urlInfo);
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-already-opened-external-page'], {});
+
+        urlOpenAttempts.current = 0;
+
+        if (urlOpenTimeout.current) {
+          clearTimeout(urlOpenTimeout.current);
+        }
+
+        urlOpenTimeout.current = setTimeout(() => {
+          isUrlOpening.current = false;
+          lastOpenedUrl.current = null;
+          urlOpenTimeout.current = null;
+        }, 5000);
+      });
+    }
+
   })
+
+  useEffect(() => {
+    return () => {
+      if (urlOpenTimeout.current) {
+        clearTimeout(urlOpenTimeout.current);
+        urlOpenTimeout.current = null;
+      }
+      isUrlOpening.current = false;
+      lastOpenedUrl.current = null;
+      urlOpenAttempts.current = 0;
+    };
+  }, []);
 
   const resize = (phoneIsalndSize: PhoneIslandSizes) => {
     if (!isOnLogout.current) {
@@ -180,6 +230,14 @@ export function PhoneIslandPage() {
     await delay(250)
     window.electron.send(IPC_EVENTS.LOGOUT_COMPLETED)
   }
+
+  useEffect(() => {
+    return () => {
+      if (urlOpenTimeout.current) {
+        clearTimeout(urlOpenTimeout.current);
+      }
+    };
+  }, []);
 
   return (
     <div
