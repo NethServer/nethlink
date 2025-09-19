@@ -17,6 +17,7 @@ export type StateType<T> = [(T | undefined), (value: T | undefined) => void]
 export type Account = {
   username: string
   accessToken?: string
+  jwtToken?: string // New JWT token field
   lastAccess?: string
   host: string
   theme: AvailableThemes
@@ -31,6 +32,7 @@ export type Account = {
   data?: AccountData,
   shortcut?: string
   preferredDevices?: PreferredDevices
+  apiBasePath?: string // Store which API path works for this account
 }
 
 export type PreferredDevices = {
@@ -410,6 +412,7 @@ export type LoginPageData = {
   selectedAccount?: Account | typeof NEW_ACCOUNT
   isLoading: boolean
   windowHeight?: number
+  showTwoFactor: boolean
 }
 
 export type AuthAppData = {

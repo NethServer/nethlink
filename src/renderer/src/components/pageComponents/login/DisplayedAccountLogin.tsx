@@ -17,41 +17,47 @@ export function DisplayedAccountLogin({
   account,
   imageSrc,
   handleClick,
-  handleDeleteClick
+  handleDeleteClick,
 }: DisplayedAccountLoginProps) {
   return (
     <div
       onClick={() => handleClick?.()}
       className={classNames(
         'w-full flex flex-row gap-7 items-center justify-start bg-transparent h-20 rounded-lg text-titleLight dark:text-titleDark cursor-pointer',
-        handleClick ? 'hover:bg-hoverLight dark:hover:bg-hoverDark' : ''
+        handleClick ? 'hover:bg-hoverLight dark:hover:bg-hoverDark' : '',
       )}
     >
-      <div className="ml-5 w-12 h-12 overflow-hidden">
-        <Avatar
-          src={imageSrc}
-          placeholderType='operator'
-          size='large'
-        />
+      <div className='ml-5 w-12 h-12 overflow-hidden'>
+        <Avatar src={imageSrc} placeholderType='operator' size='large' />
       </div>
       <div className='flex flex-row justify-between  items-center w-[325px]'>
-        <p className="w-[300px] truncate">
-          {account
-            ? <span>
-              <span>
-                {account.data?.name}
-              </span>
-              {<div className='text-xs'>{account.data?.endpoints.mainextension[0].id} - {account.host}</div>}
+        <p className='w-[300px] truncate'>
+          {account ? (
+            <span>
+              <span>{account.data?.name}</span>
+              {
+                <span className='text-xs block'>
+                  {account.data?.endpoints.mainextension[0].id} - {account.host}
+                </span>
+              }
             </span>
-            : t('Login.Use Another Account')}
+          ) : (
+            t('Login.Use Another Account')
+          )}
         </p>
-        {
-          handleDeleteClick && <FontAwesomeIcon className={classNames('w-[25px] p-2 text-titleLight dark:text-titleDark  hover:text-textBlueLight dark:hover:text-textBlueDark')} icon={DeleteIcon} onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            handleDeleteClick()
-          }} />
-        }
+        {handleDeleteClick && (
+          <FontAwesomeIcon
+            className={classNames(
+              'w-[25px] p-2 text-titleLight dark:text-titleDark  hover:text-textBlueLight dark:hover:text-textBlueDark',
+            )}
+            icon={DeleteIcon}
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              handleDeleteClick()
+            }}
+          />
+        )}
       </div>
     </div>
   )
