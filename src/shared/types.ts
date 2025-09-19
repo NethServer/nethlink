@@ -32,6 +32,7 @@ export type Account = {
   data?: AccountData,
   shortcut?: string
   preferredDevices?: PreferredDevices
+  apiBasePath?: string // Store which API path works for this account
 }
 
 export type PreferredDevices = {
