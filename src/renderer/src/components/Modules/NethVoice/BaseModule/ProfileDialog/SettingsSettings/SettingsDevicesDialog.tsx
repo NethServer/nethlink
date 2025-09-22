@@ -169,10 +169,6 @@ export function SettingsDeviceDialog() {
     videoInput: t('TopBar.Camera'),
   }
 
-  const isDeviceUnavailable =
-    account?.data?.default_device?.type == 'webrtc' ||
-    account?.data?.mainPresence !== 'online'
-
   return (
     <>
       {/* Background color */}
@@ -276,23 +272,12 @@ export function SettingsDeviceDialog() {
                   </div>
                 ))}
 
-                {/* Inline notification */}
-                {isDeviceUnavailable && (
-                  <InlineNotification
-                    title={t('Common.Warning')}
-                    type='warning'
-                    className=''
-                  >
-                    <p>{t('Devices.Inline warning message devices')}</p>
-                  </InlineNotification>
-                )}
                 {/* Action buttons */}
                 <div className='flex flex-col gap-3 mt-2'>
                   <Button
                     variant='primary'
                     type='submit'
                     className='w-full py-3 rounded-lg font-medium'
-                    disabled={isDeviceUnavailable}
                   >
                     {t('Common.Save')}
                   </Button>
