@@ -215,7 +215,7 @@ export function SettingsDeviceDialog() {
                     </div>
                     <div className=''>
                       <Dropdown
-                        items={devices?.[deviceType].map((device) => {
+                        items={devices?.[deviceType]?.map((device) => {
                           return (
                             <DropdownItem
                               key={device.deviceId}
@@ -243,7 +243,7 @@ export function SettingsDeviceDialog() {
                               </div>
                             </DropdownItem>
                           )
-                        })}
+                        }) || []}
                         className='w-full'
                       >
                         <DropdownHeader>
