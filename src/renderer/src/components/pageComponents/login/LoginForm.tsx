@@ -434,7 +434,9 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                       }}
                     />
                     <TextInput
-                      {...register('username')}
+                      {...register('username', {
+                        setValueAs: (value) => value?.toLowerCase() || '',
+                      })}
                       type='text'
                       label={t('Login.Username') as string}
                       helper={errors.username?.message || undefined}
