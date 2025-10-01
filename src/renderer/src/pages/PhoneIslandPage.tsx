@@ -81,6 +81,24 @@ export function PhoneIslandPage() {
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
     })
 
+    window.electron.receive(IPC_EVENTS.WARMUP_AUDIO_DEVICES, async () => {
+      Log.info('Warming up audio devices on Windows...')
+      try {
+        // Request microphone access to "wake up" the audio device on Windows
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false
+        })
+
+        // Immediately stop the stream - we just needed to initialize the device
+        stream.getTracks().forEach(track => track.stop())
+
+        Log.info('Audio devices warm-up completed successfully')
+      } catch (error) {
+        Log.warning('Audio devices warm-up failed (this might be expected if permissions are denied):', error)
+      }
+    })
+
     window.electron.receive(IPC_EVENTS.TRANSFER_CALL, (to: string) => {
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-transfer'], {
         to

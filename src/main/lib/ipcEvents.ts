@@ -268,6 +268,14 @@ export function registerIpcEvents() {
     Log.info('PhoneIsland is ready to receive events')
     const account = store.get('account') as Account
 
+    // Warm-up audio devices on Windows to prevent muted first call after reboot
+    if (process.platform === 'win32') {
+      setTimeout(() => {
+        Log.info('Sending WARMUP_AUDIO_DEVICES event on Windows')
+        PhoneIslandController.instance.window.emit(IPC_EVENTS.WARMUP_AUDIO_DEVICES)
+      }, 100)
+    }
+
     setTimeout(() => {
       Log.info('Send CHANGE_PREFERRED_DEVICES event with', account.preferredDevices)
       AccountController.instance.updatePreferredDevice(account.preferredDevices)
