@@ -18,6 +18,9 @@ import os from 'os'
 
 const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 
+// Global flag to ensure audio warm-up runs only once per app session
+let hasRunAudioWarmup = false
+
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
   asyncCallback: (...args: any[]) => Promise<T>
@@ -268,19 +271,63 @@ export function registerIpcEvents() {
     Log.info('PhoneIsland is ready to receive events')
     const account = store.get('account') as Account
 
-    // Warm-up audio devices on Windows to prevent muted first call after reboot
-    if (process.platform === 'win32') {
-      setTimeout(() => {
-        Log.info('Sending WARMUP_AUDIO_DEVICES event on Windows')
-        PhoneIslandController.instance.window.emit(IPC_EVENTS.WARMUP_AUDIO_DEVICES)
-      }, 100)
-    }
-
     setTimeout(() => {
       Log.info('Send CHANGE_PREFERRED_DEVICES event with', account.preferredDevices)
       AccountController.instance.updatePreferredDevice(account.preferredDevices)
       PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, account.preferredDevices)
     }, 250)
+  })
+
+  // Handler for warm-up audio devices request from renderer
+  ipcMain.on(IPC_EVENTS.WARMUP_AUDIO_DEVICES, async () => {
+    // Check if warm-up has already been executed
+    if (hasRunAudioWarmup) {
+      Log.info('[WARMUP] Audio warm-up already executed, skipping...')
+      return
+    }
+
+    // Mark as executed
+    hasRunAudioWarmup = true
+
+    try {
+      Log.info('[WARMUP] Starting silent echo test to warm up audio devices...')
+
+      // Hide the PhoneIsland window to prevent it from showing during warm-up
+      PhoneIslandController.instance.forceHide()
+
+      // Mute the PhoneIsland window audio
+      PhoneIslandController.instance.muteAudio()
+
+      // Wait a bit to ensure mute and hide are applied
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Start echo test call to *43
+      Log.info('[WARMUP] Starting call to *43')
+      PhoneIslandController.instance.call('*43')
+
+      // Keep the call active for 5 seconds to warm up devices
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
+      // End the call
+      Log.info('[WARMUP] Ending echo test call')
+      PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
+
+      // Wait a bit before unmuting and showing
+      await new Promise(resolve => setTimeout(resolve, 250))
+
+      // Unmute the PhoneIsland window audio
+      PhoneIslandController.instance.unmuteAudio()
+
+      // Show the window again (only if it has content)
+      PhoneIslandController.instance.forceShow()
+
+      Log.info('[WARMUP] Audio warm-up completed successfully')
+    } catch (error) {
+      Log.error('[WARMUP] Error during audio warm-up:', error)
+      // Make sure to unmute and show even if there's an error
+      PhoneIslandController.instance.unmuteAudio()
+      PhoneIslandController.instance.forceShow()
+    }
   })
 
   ipcMain.on(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (_, devices) => {
