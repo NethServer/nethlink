@@ -168,34 +168,35 @@ export function PhoneIslandPage() {
 
   const resize = (phoneIsalndSize: PhoneIslandSizes) => {
     if (!isOnLogout.current) {
-      const { width, height, top, bottom, left, right } = phoneIsalndSize.sizes
+      const { width, height, top, bottom, left, right, bottomTranscription } = phoneIsalndSize.sizes
       const w = Number(width.replace('px', ''))
       const h = Number(height.replace('px', ''))
       const r = Number((right ?? '0px').replace('px', ''))
+      const transcription  = Number((bottomTranscription ?? '0px').replace('px', ''))
       const t = Number((top ?? '0px').replace('px', ''))
       const l = Number((left ?? '0px').replace('px', ''))
       const b = Number((bottom ?? '0px').replace('px', ''))
       const data = {
         width,
         height,
-
         bottom: bottom ?? '0px',
         top: top ?? '0px',
         right: right ?? '0px',
         left: left ?? '0px',
+        transcription: bottomTranscription ?? '0px',
       }
       phoneIslandContainer.current?.setAttribute('style', `
         width: calc(100vw + ${data.right} + ${data.left});
-        height: calc(100vh + ${data.top} + ${data.bottom});
+        height: calc(100vh + ${data.top} + ${data.bottom} + ${data.transcription});
       `)
-
       innerPIContainer.current?.setAttribute('style', `
         margin-left: calc(${data.left} - ${data.right});
-      `) //calc(${data.top} - ${data.bottom})
+        margin-top: calc(${data.transcription} * -1);
+      `)
 
       window.api.resizePhoneIsland({
         w: w + r + l,
-        h: h + t + b
+        h: h + t + b + transcription ,
       })
     }
   }

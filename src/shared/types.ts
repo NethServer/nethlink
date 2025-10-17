@@ -493,6 +493,7 @@ export type sizeInformationType = {
   bottom?: string
   left?: string
   right?: string
+  bottomTranscription?: string
 }
 
 export type PhoneIslandSizes = {
