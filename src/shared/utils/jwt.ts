@@ -67,9 +67,13 @@ export function isJWTExpired(token: string): boolean {
 /**
  * Check if 2FA is required from JWT token
  * @param token JWT token string
- * @returns true if 2FA is required
+ * @returns true if 2FA is required (2FA enabled but OTP not yet verified)
  */
 export function requires2FA(token: string): boolean {
   const payload = decodeJWT(token)
-  return payload?.['2fa'] === true
+  const has2FA = payload?.['2fa'] === true
+  const otpVerified = payload?.['otp_verified'] === true
+
+  // 2FA is required only if it's enabled AND the OTP hasn't been verified yet
+  return has2FA && !otpVerified
 }
