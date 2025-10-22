@@ -299,7 +299,7 @@ export function registerIpcEvents() {
       PhoneIslandController.instance.muteAudio()
 
       // Wait a bit to ensure mute and hide are applied
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 550))
 
       // Start echo test call to *43
       Log.info('[WARMUP] Starting call to *43')
@@ -313,7 +313,7 @@ export function registerIpcEvents() {
       PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
 
       // Wait a bit before unmuting and showing
-      await new Promise(resolve => setTimeout(resolve, 250))
+      await new Promise(resolve => setTimeout(resolve, 550))
 
       // Unmute the PhoneIsland window audio
       PhoneIslandController.instance.unmuteAudio()
