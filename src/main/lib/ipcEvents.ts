@@ -278,58 +278,6 @@ export function registerIpcEvents() {
     }, 250)
   })
 
-  // Handler for warm-up audio devices request from renderer
-  ipcMain.on(IPC_EVENTS.WARMUP_AUDIO_DEVICES, async () => {
-    // Check if warm-up has already been executed
-    if (hasRunAudioWarmup) {
-      Log.info('[WARMUP] Audio warm-up already executed, skipping...')
-      return
-    }
-
-    // Mark as executed
-    hasRunAudioWarmup = true
-
-    try {
-      Log.info('[WARMUP] Starting silent echo test to warm up audio devices...')
-
-      // Hide the PhoneIsland window to prevent it from showing during warm-up
-      PhoneIslandController.instance.forceHide()
-
-      // Mute the PhoneIsland window audio
-      PhoneIslandController.instance.muteAudio()
-
-      // Wait a bit to ensure mute and hide are applied
-      await new Promise(resolve => setTimeout(resolve, 550))
-
-      // Start echo test call to *43
-      Log.info('[WARMUP] Starting call to *43')
-      PhoneIslandController.instance.call('*43')
-
-      // Keep the call active for 5 seconds to warm up devices
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      // End the call
-      Log.info('[WARMUP] Ending echo test call')
-      PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
-
-      // Wait a bit before unmuting and showing
-      await new Promise(resolve => setTimeout(resolve, 550))
-
-      // Unmute the PhoneIsland window audio
-      PhoneIslandController.instance.unmuteAudio()
-
-      // Show the window again (only if it has content)
-      PhoneIslandController.instance.forceShow()
-
-      Log.info('[WARMUP] Audio warm-up completed successfully')
-    } catch (error) {
-      Log.error('[WARMUP] Error during audio warm-up:', error)
-      // Make sure to unmute and show even if there's an error
-      PhoneIslandController.instance.unmuteAudio()
-      PhoneIslandController.instance.forceShow()
-    }
-  })
-
   ipcMain.on(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (_, devices) => {
     Log.info('Received CHANGE_PREFERRED_DEVICES in ipcEvents:', devices)
     AccountController.instance.updatePreferredDevice(devices)

@@ -80,10 +80,10 @@ export function PhoneIslandPage() {
 
       // Run audio warm-up first, only once after PhoneIsland is fully initialized
       // Only on Windows/macOS where the issue occurs
-      if (!hasRunWarmup.current && (window.api?.platform === 'win32' || window.api?.platform === 'darwin')) {
+      if (!hasRunWarmup.current) {
         hasRunWarmup.current = true
         Log.info('Requesting audio warm-up from main process...')
-        window.electron.send(IPC_EVENTS.WARMUP_AUDIO_DEVICES)
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-init-audio'])
 
         // Dispatch device changes after warm-up completes (after ~5 seconds)
         setTimeout(() => {

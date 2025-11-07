@@ -94,7 +94,6 @@ export enum IPC_EVENTS {
   COPY_TO_CLIPBOARD = "COPY_TO_CLIPBOARD",
   CHANGE_PREFERRED_DEVICES = "CHANGE_PREFERRED_DEVICES",
   PHONE_ISLAND_READY = "PHONE_ISLAND_READY",
-  WARMUP_AUDIO_DEVICES = "WARMUP_AUDIO_DEVICES",
   URL_OPEN = "URL_OPEN",
 }
 
@@ -230,4 +229,6 @@ export enum PHONE_ISLAND_EVENTS {
   // Url param
   'phone-island-url-parameter-opened-external' = 'phone-island-url-parameter-opened-external',
   'phone-island-already-opened-external-page' = 'phone-island-already-opened-external-page',
+  // Init audio
+  'phone-island-init-audio' = 'phone-island-init-audio',
 }
