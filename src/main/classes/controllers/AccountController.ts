@@ -5,7 +5,8 @@ import { store } from '@/lib/mainStore'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
-import { delay, getAccountUID } from '@shared/utils/utils'
+import { getAccountUID } from '@shared/utils/utils'
+import { requires2FA, isJWTExpired } from '@shared/utils/jwt'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
@@ -76,7 +77,75 @@ export class AccountController {
           const decryptString = safeStorage.decryptString(psw)
           const _accountData = JSON.parse(decryptString)
           const password = _accountData.password
+
+          // Check if saved token is still valid and doesn't require 2FA
+          if (lastLoggedAccount.jwtToken) {
+            if (!isJWTExpired(lastLoggedAccount.jwtToken)) {
+              // Token is still valid locally, check if it requires 2FA
+              if (requires2FA(lastLoggedAccount.jwtToken)) {
+                Log.info('auto login failed: 2FA required, user interaction needed')
+                return false
+              }
+
+              // Token looks valid locally, but we need to verify with server
+              // The token might have been invalidated (e.g., 2FA disabled/enabled)
+              Log.info('auto login: validating saved token with server...')
+
+              try {
+                // Make a simple API call to verify the token is still accepted by the server
+                // Use the /api/user/me endpoint to validate the token
+                const testUrl = `https://${lastLoggedAccount.host}/api/user/me`
+                const response = await NetworkController.instance.get(testUrl, {
+                  headers: {
+                    'Authorization': `Bearer ${lastLoggedAccount.jwtToken}`
+                  }
+                } as any)
+
+                // If we get here, the token is valid on the server
+                Log.info('auto login: token validated with server, using saved token')
+              } catch (error: any) {
+                // Token was rejected by server (401/403) or network error
+                Log.info('auto login failed: saved token rejected by server', error?.response?.status || error?.message)
+                return false
+              }
+
+              // Update store with the saved account (don't do a new login!)
+              // IMPORTANT: Preserve auth.lastUser and auth.lastUserCryptPsw so they are saved to disk
+              // IMPORTANT: Set connection: true to prevent "No internet connection" banner
+              store.updateStore({
+                account: lastLoggedAccount,
+                theme: lastLoggedAccount.theme,
+                connection: true,
+                accountStatus: store.store.accountStatus || 'offline',
+                isCallsEnabled: store.store.isCallsEnabled || false,
+                auth: {
+                  ...authAppData,
+                  lastUser: authAppData.lastUser,
+                  lastUserCryptPsw: authAppData.lastUserCryptPsw
+                }
+              }, 'autoLogin')
+
+              return true
+            } else {
+              Log.info('auto login: saved token expired, need to re-login')
+            }
+          }
+
+          // Token is expired or doesn't exist, do a new login
           const tempLoggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
+
+          // Check if 2FA is required - auto-login should fail in this case
+          if (tempLoggedAccount.jwtToken && requires2FA(tempLoggedAccount.jwtToken)) {
+            Log.info('auto login failed: 2FA required, user interaction needed')
+            return false
+          }
+
+          // Auto-login only works with JWT tokens (no legacy support)
+          if (!tempLoggedAccount.jwtToken) {
+            Log.info('auto login failed: no JWT token received')
+            return false
+          }
+
           let loggedAccount: Account = {
             ...lastLoggedAccount,
             ...tempLoggedAccount,

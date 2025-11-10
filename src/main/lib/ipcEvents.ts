@@ -18,6 +18,9 @@ import os from 'os'
 
 const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 
+// Global flag to ensure audio warm-up runs only once per app session
+let hasRunAudioWarmup = false
+
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
   asyncCallback: (...args: any[]) => Promise<T>

@@ -11,6 +11,7 @@ import { preloadBindings } from 'i18next-electron-fs-backend'
 export interface IElectronAPI {
   env: NodeJS.ProcessEnv,
   appVersion: string,
+  platform: string,
 
   // Use `contextBridge` APIs to expose Electron APIs to
   // renderer only if context isolation is enabled, otherwise
@@ -82,6 +83,7 @@ function setEmitter(event) {
 const api: IElectronAPI = {
   env: process.env,
   appVersion: process.env['APP_VERSION'] || '0.0.1',
+  platform: process.platform,
   i18nextElectronBackend: preloadBindings(ipcRenderer, process),
   //SYNC EMITTERS - expect response
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),

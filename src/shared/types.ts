@@ -17,11 +17,14 @@ export type StateType<T> = [(T | undefined), (value: T | undefined) => void]
 export type Account = {
   username: string
   accessToken?: string
+  jwtToken?: string // New JWT token field
   lastAccess?: string
   host: string
   theme: AvailableThemes
   phoneIslandPosition?: { x: number; y: number }
   nethlinkBounds?: Electron.Rectangle
+  companyName?: string
+  companyUrl?: string
   sipPort?: string
   sipHost?: string
   voiceEndpoint?: string
@@ -31,6 +34,7 @@ export type Account = {
   data?: AccountData,
   shortcut?: string
   preferredDevices?: PreferredDevices
+  apiBasePath?: string // Store which API path works for this account
 }
 
 export type PreferredDevices = {
@@ -410,6 +414,7 @@ export type LoginPageData = {
   selectedAccount?: Account | typeof NEW_ACCOUNT
   isLoading: boolean
   windowHeight?: number
+  showTwoFactor: boolean
 }
 
 export type AuthAppData = {
@@ -490,6 +495,7 @@ export type sizeInformationType = {
   bottom?: string
   left?: string
   right?: string
+  bottomTranscription?: string
 }
 
 export type PhoneIslandSizes = {

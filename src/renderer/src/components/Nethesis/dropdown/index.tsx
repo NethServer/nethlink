@@ -24,6 +24,7 @@ export interface DropdownProps extends ComponentProps<'div'> {
   | 'topVoicemail'
   | 'bottomVoicemail'
   | 'oneVoicemail'
+  | 'bottomTranscription'
   size?: 'full'
 }
 

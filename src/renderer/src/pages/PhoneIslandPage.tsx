@@ -32,6 +32,7 @@ export function PhoneIslandPage() {
   const isUrlOpening = useRef<boolean>(false)
   const urlOpenAttempts = useRef<number>(0)
   const urlOpenListenerRegistered = useRef<boolean>(false)
+  const hasRunWarmup = useRef<boolean>(false)
 
   useEffect(() => {
     resize(phoneIsalndSizes)
@@ -76,9 +77,26 @@ export function PhoneIslandPage() {
 
     window.electron.receive(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (devices: PreferredDevices) => {
       Log.info('Received CHANGE_PREFERRED_DEVICES in PhoneIslandPage:', devices)
-      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
-      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
-      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
+
+      // Run audio warm-up first, only once after PhoneIsland is fully initialized
+      // Only on Windows/macOS where the issue occurs
+      if (!hasRunWarmup.current) {
+        hasRunWarmup.current = true
+        Log.info('Requesting audio warm-up from main process...')
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-init-audio'])
+
+        // Dispatch device changes after warm-up completes (after ~5 seconds)
+        setTimeout(() => {
+          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
+          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
+          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
+        }, 5000)
+      } else {
+        // If warm-up already done or not needed, dispatch immediately
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
+      }
     })
 
     window.electron.receive(IPC_EVENTS.TRANSFER_CALL, (to: string) => {
@@ -150,34 +168,35 @@ export function PhoneIslandPage() {
 
   const resize = (phoneIsalndSize: PhoneIslandSizes) => {
     if (!isOnLogout.current) {
-      const { width, height, top, bottom, left, right } = phoneIsalndSize.sizes
+      const { width, height, top, bottom, left, right, bottomTranscription } = phoneIsalndSize.sizes
       const w = Number(width.replace('px', ''))
       const h = Number(height.replace('px', ''))
       const r = Number((right ?? '0px').replace('px', ''))
+      const transcription  = Number((bottomTranscription ?? '0px').replace('px', ''))
       const t = Number((top ?? '0px').replace('px', ''))
       const l = Number((left ?? '0px').replace('px', ''))
       const b = Number((bottom ?? '0px').replace('px', ''))
       const data = {
         width,
         height,
-
         bottom: bottom ?? '0px',
         top: top ?? '0px',
         right: right ?? '0px',
         left: left ?? '0px',
+        transcription: bottomTranscription ?? '0px',
       }
       phoneIslandContainer.current?.setAttribute('style', `
         width: calc(100vw + ${data.right} + ${data.left});
-        height: calc(100vh + ${data.top} + ${data.bottom});
+        height: calc(100vh + ${data.top} + ${data.bottom} + ${data.transcription});
       `)
-
       innerPIContainer.current?.setAttribute('style', `
         margin-left: calc(${data.left} - ${data.right});
-      `) //calc(${data.top} - ${data.bottom})
+        margin-top: calc(${data.transcription} * -1);
+      `)
 
       window.api.resizePhoneIsland({
         w: w + r + l,
-        h: h + t + b
+        h: h + t + b + transcription ,
       })
     }
   }

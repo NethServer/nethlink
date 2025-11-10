@@ -205,6 +205,20 @@ function attachOnReadyProcess() {
 
     //I display the splashscreen when the splashscreen component is correctly loaded.
     SplashScreenController.instance.window.addOnBuildListener(() => {
+      // On Windows, check if system is locked before starting
+      if (process.platform === 'win32') {
+        const idleState = powerMonitor.getSystemIdleState(1)
+        if (idleState === 'locked') {
+          Log.info('Windows is locked, waiting for unlock before starting app...')
+          // Wait for unlock-screen event before starting
+          powerMonitor.once('unlock-screen', () => {
+            Log.info('Windows unlocked, starting app now...')
+            setTimeout(startApp, 1000)
+          })
+          return
+        }
+      }
+      // Normal flow: start after 1 second
       setTimeout(startApp, 1000)
     })
     await attachProtocolListeners()
