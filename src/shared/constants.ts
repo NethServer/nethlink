@@ -229,4 +229,6 @@ export enum PHONE_ISLAND_EVENTS {
   // Url param
   'phone-island-url-parameter-opened-external' = 'phone-island-url-parameter-opened-external',
   'phone-island-already-opened-external-page' = 'phone-island-already-opened-external-page',
+  // Init audio
+  'phone-island-init-audio' = 'phone-island-init-audio',
 }

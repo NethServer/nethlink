@@ -10,6 +10,7 @@ import { Extension, Size } from '@shared/types'
 export class PhoneIslandController {
   static instance: PhoneIslandController
   window: PhoneIslandWindow
+  private isWarmingUp: boolean = false
 
   constructor() {
     PhoneIslandController.instance = this
@@ -30,7 +31,8 @@ export class PhoneIslandController {
         if (h === 0 && w === 0) {
           window.hide()
         } else {
-          if (!window.isVisible()) {
+          // Don't show window during warm-up
+          if (!window.isVisible() && !this.isWarmingUp) {
             window.show()
             window.setAlwaysOnTop(true)
           }
@@ -148,6 +150,60 @@ export class PhoneIslandController {
     }
   }
 
+  muteAudio() {
+    try {
+      const window = this.window.getWindow()
+      if (window && window.webContents) {
+        window.webContents.setAudioMuted(true)
+        Log.info('PhoneIsland audio muted')
+      }
+    } catch (e) {
+      Log.warning('error during muting PhoneIsland audio:', e)
+    }
+  }
+
+  unmuteAudio() {
+    try {
+      const window = this.window.getWindow()
+      if (window && window.webContents) {
+        window.webContents.setAudioMuted(false)
+        Log.info('PhoneIsland audio unmuted')
+      }
+    } catch (e) {
+      Log.warning('error during unmuting PhoneIsland audio:', e)
+    }
+  }
+
+  forceHide() {
+    try {
+      const window = this.window.getWindow()
+      if (window) {
+        this.isWarmingUp = true
+        window.hide()
+        Log.info('PhoneIsland window hidden')
+      }
+    } catch (e) {
+      Log.warning('error during force hiding PhoneIsland:', e)
+    }
+  }
+
+  forceShow() {
+    try {
+      const window = this.window.getWindow()
+      if (window) {
+        this.isWarmingUp = false
+        // Only show if there's actually content (size > 0)
+        const bounds = window.getBounds()
+        if (bounds.width > 0 && bounds.height > 0) {
+          window.show()
+          window.setAlwaysOnTop(true)
+          Log.info('PhoneIsland window shown')
+        }
+      }
+    } catch (e) {
+      Log.warning('error during force showing PhoneIsland:', e)
+    }
+  }
 
   async safeQuit() {
     await this.logout()

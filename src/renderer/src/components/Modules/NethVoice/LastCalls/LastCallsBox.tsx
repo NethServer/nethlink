@@ -18,7 +18,17 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
   const [operators] = useNethlinkData('operators')
   const [missedCalls, setMissedCalls] = useNethlinkData('missedCalls')
   const [preparedCalls, setPreparedCalls] = useState<LastCallData[]>([])
-  const title = `${t('LastCalls.Calls', { count: lastCalls?.length })} (${lastCalls?.length || 0})`
+
+  const getFilteredCallsCount = (): number => {
+    if (!lastCalls) return 0
+    return lastCalls.filter((call) => {
+      const numberToCheck = call.direction === 'in' ? call.src : call.dst
+      return !numberToCheck?.includes('*43')
+    }).length
+  }
+
+  const filteredCount = getFilteredCallsCount()
+  const title = `${t('LastCalls.Calls', { count: filteredCount })} (${filteredCount})`
 
   useEffect(() => {
     prepareCalls()
