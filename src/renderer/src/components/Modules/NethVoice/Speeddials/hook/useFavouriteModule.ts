@@ -13,7 +13,7 @@ export const useFavouriteModule = () => {
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   useEffect(() => {
     rawSpeedDials && filterFavourites(rawSpeedDials, speeddialsModule?.favouriteOrder || FilterTypes.AZ)
-  }, [rawSpeedDials, speeddialsModule?.favouriteOrder])
+  }, [rawSpeedDials, speeddialsModule?.favouriteOrder, operators])
 
   const getSorter = (order: FilterTypes) => {
     let sorter: ((a: ContactType, b: ContactType) => number) | undefined = undefined
@@ -32,12 +32,26 @@ export const useFavouriteModule = () => {
   }
 
   const filterFavourites = (rawSpeeddials: ContactType[], order: FilterTypes) => {
-    const favourites = rawSpeeddials.filter(isFavourite).sort(getSorter(order))
+    const favourites = rawSpeeddials
+      .filter(isFavourite)
+      .filter(isActiveOperator)
+      .sort(getSorter(order))
     setFavourites(() => [...favourites])
   }
 
   const isFavourite = (contact: ContactType) => {
     return contact.notes?.includes(SpeeddialTypes.FAVOURITES)
+  }
+
+  const isActiveOperator = (contact: ContactType) => {
+    // If no operators data or no contact name, don't show the favorite
+    if (!operators?.groups || !contact.name) {
+      return false
+    }
+    // Check if the contact's username exists in any operator group
+    return Object.values(operators.groups).some(group =>
+      group.users.includes(contact.name!)
+    )
   }
 
   const isSearchAlsoAFavourite = (contact: SearchData) => {
