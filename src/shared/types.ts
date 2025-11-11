@@ -5,7 +5,7 @@ export type AvailableDevices = 'nethlink' | 'physical' | 'webrtc'
 
 export enum PAGES {
   SPLASHSCREEN = "splashscreenpage",
-  LOGIN = "NethLink-Login",
+  LOGIN = "Login",
   PHONEISLAND = "phoneislandpage",
   NETHLINK = "NethLink",
   DEVTOOLS = "devtoolspage"
