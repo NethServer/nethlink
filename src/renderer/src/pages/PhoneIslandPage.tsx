@@ -33,6 +33,8 @@ export function PhoneIslandPage() {
   const urlOpenAttempts = useRef<number>(0)
   const urlOpenListenerRegistered = useRef<boolean>(false)
   const hasRunWarmup = useRef<boolean>(false)
+  const pendingDevices = useRef<PreferredDevices | null>(null)
+  const isWaitingForEchoTestEnd = useRef<boolean>(false)
 
   useEffect(() => {
     resize(phoneIsalndSizes)
@@ -78,21 +80,26 @@ export function PhoneIslandPage() {
     window.electron.receive(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (devices: PreferredDevices) => {
       Log.info('Received CHANGE_PREFERRED_DEVICES in PhoneIslandPage:', devices)
 
+      // Ignore duplicate events while waiting for echo test to complete
+      if (isWaitingForEchoTestEnd.current) {
+        Log.info('Ignoring CHANGE_PREFERRED_DEVICES while waiting for echo test to complete')
+        return
+      }
+
       // Run audio warm-up first, only once after PhoneIsland is fully initialized
       // Only on Windows/macOS where the issue occurs
       if (!hasRunWarmup.current) {
         hasRunWarmup.current = true
-        Log.info('Requesting audio warm-up from main process...')
+        isWaitingForEchoTestEnd.current = true
+        pendingDevices.current = devices
+
+        Log.info('Requesting audio warm-up (echo test), devices will be applied after it completes...')
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-init-audio'])
 
-        // Dispatch device changes after warm-up completes (after ~5 seconds)
-        setTimeout(() => {
-          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
-          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
-          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
-        }, 5000)
+        // Devices will be applied when echo test ends (see phone-island-call-ended listener below)
       } else {
-        // If warm-up already done or not needed, dispatch immediately
+        // If warm-up already done, dispatch immediately
+        Log.info('Applying device changes immediately (warm-up already done)')
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
@@ -115,6 +122,22 @@ export function PhoneIslandPage() {
       Log.debug('CHANGE_DEFAULT_DEVICE', { changed })
       if (changed) {
         eventDispatch(PHONE_ISLAND_EVENTS['phone-island-default-device-change'], { deviceInformationObject })
+      }
+    })
+
+    // Listen for echo test completion to apply pending device changes
+    window.addEventListener(PHONE_ISLAND_EVENTS['phone-island-call-ended'], () => {
+      if (isWaitingForEchoTestEnd.current && pendingDevices.current) {
+        Log.info('Echo test completed, applying pending device changes:', pendingDevices.current)
+
+        const devices = pendingDevices.current
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
+
+        // Clear pending state
+        isWaitingForEchoTestEnd.current = false
+        pendingDevices.current = null
       }
     })
 
