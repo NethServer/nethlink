@@ -43,7 +43,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         if (endpoint === '/login') {
           return `${FALLBACK_API_BASE_PATH}/authentication/login`
         }
-        if (endpoint === '/authentication/logout') {
+        if (endpoint === '/logout') {
           return `${FALLBACK_API_BASE_PATH}/authentication/logout`
         }
         if (endpoint === '/authentication/phone_island_token_login') {
@@ -378,7 +378,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       isFirstHeartbeat = false
       return new Promise<void>(async (resolve) => {
         try {
-          await _POST(buildApiPath('/authentication/logout'), {})
+          await _POST(buildApiPath('/logout'))
         } catch (e) {
           Log.warning("error during logout:", e)
         } finally {
@@ -394,6 +394,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
     phoneIslandTokenLogin: async (): Promise<{ username: string, token: string }> =>
       await _POST(buildApiPath('/authentication/phone_island_token_login'), { subtype: 'nethlink' }),
+
+    phoneIslandTokenLogout: async (): Promise<{ username: string, token: string }> =>
+      await _POST(buildApiPath('/authentication/persistent_token_remove'), { type: 'phone-island', subtype: 'nethlink' }),
   }
 
   const CustCard = {}

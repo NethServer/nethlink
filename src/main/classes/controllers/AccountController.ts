@@ -45,6 +45,7 @@ export class AccountController {
     if (account) {
       try {
         const { NethVoiceAPI } = useNethVoiceAPI(account)
+        await NethVoiceAPI.Authentication.phoneIslandTokenLogout()
         await NethVoiceAPI.Authentication.logout()
         Log.info('AccountController.logout() - logout API call completed successfully')
       } catch (e) {
