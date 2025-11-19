@@ -40,6 +40,18 @@ export class AccountController {
   }
 
   async logout() {
+    // Call API logout before clearing local data
+    const account = store.store.account
+    if (account) {
+      try {
+        const { NethVoiceAPI } = useNethVoiceAPI(account)
+        await NethVoiceAPI.Authentication.logout()
+        Log.info('AccountController.logout() - logout API call completed successfully')
+      } catch (e) {
+        Log.warning('Error calling logout API:', e)
+      }
+    }
+
     store.updateStore({
       auth: {
         ...store.store.auth!,
