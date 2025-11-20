@@ -210,7 +210,8 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     extensions: async (): Promise<ExtensionsType> => await _GET(buildApiPath('/astproxy/extensions')),
     getQueues: async () => await _GET(buildApiPath('/astproxy/queues')),
     getParkings: async () => await _GET(buildApiPath('/astproxy/parkings')),
-    pickupParking: async (parkInformation: any) => await _POST(buildApiPath('/astproxy/pickup_parking'), parkInformation)
+    pickupParking: async (parkInformation: any) => await _POST(buildApiPath('/astproxy/pickup_parking'), parkInformation),
+    featureCodes: async () => await _GET(buildApiPath('/astproxy/feature_codes'))
   }
 
 
