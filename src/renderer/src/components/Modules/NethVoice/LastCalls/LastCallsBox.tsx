@@ -11,19 +11,22 @@ import { useEffect, useState } from 'react'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
 import { EmptyList } from '@renderer/components/EmptyList'
+import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 
 export function LastCallsBox({ showContactForm }): JSX.Element {
 
+  const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const [lastCalls] = useNethlinkData('lastCalls')
   const [operators] = useNethlinkData('operators')
   const [missedCalls, setMissedCalls] = useNethlinkData('missedCalls')
   const [preparedCalls, setPreparedCalls] = useState<LastCallData[]>([])
+  const [audioTestCode, setAudioTestCode] = useState<string>('*41')
 
   const getFilteredCallsCount = (): number => {
     if (!lastCalls) return 0
     return lastCalls.filter((call) => {
       const numberToCheck = call.direction === 'in' ? call.src : call.dst
-      return !numberToCheck?.includes('*43')
+      return !numberToCheck?.includes(audioTestCode)
     }).length
   }
 
@@ -32,7 +35,21 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
 
   useEffect(() => {
     prepareCalls()
-  }, [lastCalls, missedCalls])
+  }, [lastCalls, missedCalls, audioTestCode])
+
+  useEffect(() => {
+    const loadFeatureCodes = async () => {
+      try {
+        const codes = await NethVoiceAPI.AstProxy.featureCodes()
+        if (codes?.audio_test) {
+          setAudioTestCode(codes.audio_test)
+        }
+      } catch (error) {
+        console.error('Failed to load feature codes:', error)
+      }
+    }
+    loadFeatureCodes()
+  }, [])
 
   const viewAllMissedCalls = () => {
     window.api.openHostPage('/history')
@@ -49,7 +66,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
         return elem
       }).filter((call) => {
         const numberToCheck = call.direction === 'in' ? call.src : call.dst
-        return !numberToCheck?.includes('*43')
+        return !numberToCheck?.includes(audioTestCode)
       })
       setPreparedCalls((p) => preparedCalls)
     }

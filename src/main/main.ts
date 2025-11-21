@@ -355,14 +355,19 @@ function attachOnReadyProcess() {
     }
 
     const account: Account = store.get('account') as Account
-    const ext = account.data?.endpoints.extension.find((e) => e.type === "webrtc")
 
-    if (ext && account?.data?.default_device?.type !== 'physical') {
-      const { NethVoiceAPI } = useNethVoiceAPI(account)
-      const res = await NethVoiceAPI.User.default_device(ext)
-      Log.info('Reset device', res, ext.type, ext.id)
+    if (account?.data) {
+      const ext = account.data.endpoints.extension.find((e) => e.type === "webrtc")
+
+      if (ext && account.data.default_device?.type !== 'physical') {
+        const { NethVoiceAPI } = useNethVoiceAPI(account)
+        const res = await NethVoiceAPI.User.default_device(ext)
+        Log.info('Reset device', res, ext.type, ext.id)
+      } else {
+        Log.info('No device to reset')
+      }
     } else {
-      Log.info('No device to reset')
+      Log.info('No account logged in, skipping device reset')
     }
 
     // read shortcut from config and unregister
