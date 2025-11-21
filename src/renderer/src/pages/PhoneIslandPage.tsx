@@ -83,7 +83,9 @@ export function PhoneIslandPage() {
       if (!hasRunWarmup.current) {
         hasRunWarmup.current = true
         Log.info('Requesting audio warm-up from main process...')
-        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-init-audio'])
+        setTimeout(() => {
+          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-init-audio'])
+        }, 1000)
 
         // Dispatch device changes after warm-up completes (after ~5 seconds)
         setTimeout(() => {
