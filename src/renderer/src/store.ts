@@ -138,6 +138,7 @@ export const useNethlinkData = createGlobalStateHook({
   isForwardDialogOpen: false,
   isShortcutDialogOpen: false,
   isDeviceDialogOpen: false,
+  isIncomingCallsDialogOpen: false,
   phonebookModule: {
     selectedContact: undefined
   },

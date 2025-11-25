@@ -11,6 +11,7 @@ import { ProfileDialog } from './ProfileDialog'
 import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
 import { SettingsShortcutDialog } from './ProfileDialog/SettingsSettings/SettingsShortcutDialog'
 import { SettingsDeviceDialog } from './ProfileDialog/SettingsSettings/SettingsDevicesDialog'
+import { SettingsIncomingCallsDialog } from './ProfileDialog/SettingsSettings/SettingsIncomingCallsDialog'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -23,6 +24,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const [isForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
   const [isShortcutDialogOpen] = useNethlinkData('isShortcutDialogOpen')
   const [isDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
+  const [isIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
 
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
 
@@ -56,6 +58,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
       {isForwardDialogOpen && <PresenceForwardDialog />}
       {isShortcutDialogOpen && <SettingsShortcutDialog />}
       {isDeviceDialogOpen && <SettingsDeviceDialog />}
+      {isIncomingCallsDialogOpen && <SettingsIncomingCallsDialog />}
       <ProfileDialog
         isOpen={isProfileDialogOpen}
         onClose={() => setIsProfileDialogOpen(false)}

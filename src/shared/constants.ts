@@ -231,4 +231,9 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-already-opened-external-page' = 'phone-island-already-opened-external-page',
   // Init audio
   'phone-island-init-audio' = 'phone-island-init-audio',
+  // Ringing tone events
+  'phone-island-ringing-tone-list' = 'phone-island-ringing-tone-list',
+  'phone-island-ringing-tone-list-response' = 'phone-island-ringing-tone-list-response',
+  'phone-island-ringing-tone-select' = 'phone-island-ringing-tone-select',
+  'phone-island-ringing-tone-output' = 'phone-island-ringing-tone-output',
 }
