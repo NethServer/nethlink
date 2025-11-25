@@ -425,6 +425,15 @@ export type AuthAppData = {
     [accountUID: string]: Account
   }
 }
+export type FeatureCodes = {
+  pickup?: string,
+  dnd_toggle?: string,
+  audio_test?: string,
+  confbridge_conf?: string,
+  incall_audio?: string,
+  que_toggle?: string
+}
+
 export type NethLinkPageData = {
   selectedSidebarMenu: MENU_ELEMENT,
   operators?: OperatorData,
