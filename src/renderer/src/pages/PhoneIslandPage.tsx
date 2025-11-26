@@ -101,6 +101,87 @@ export function PhoneIslandPage() {
       }
     })
 
+    window.electron.receive(IPC_EVENTS.CHANGE_RINGTONE_SETTINGS, (settings: { ringtoneName: string; outputDeviceId: string }) => {
+      Log.info('Received CHANGE_RINGTONE_SETTINGS in PhoneIslandPage:', settings)
+
+      // Dispatch phone-island event to select ringtone (only the name, phone-island has the base64)
+      if (settings.ringtoneName) {
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-select'], {
+          name: settings.ringtoneName,
+        })
+      }
+
+      // Dispatch phone-island event to set output device
+      if (settings.outputDeviceId) {
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-output'], {
+          deviceId: settings.outputDeviceId,
+        })
+      }
+    })
+
+    // Handle ringtone preview play
+    window.electron.receive(IPC_EVENTS.PLAY_RINGTONE_PREVIEW, (audioData: { base64_audio_file: string; description: string; type: string }) => {
+      Log.info('Received PLAY_RINGTONE_PREVIEW in PhoneIslandPage')
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-player-start'], audioData)
+    })
+
+    // Handle ringtone preview stop
+    window.electron.receive(IPC_EVENTS.STOP_RINGTONE_PREVIEW, () => {
+      Log.info('Received STOP_RINGTONE_PREVIEW in PhoneIslandPage')
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-player-stop'], {})
+    })
+
+    // Load and apply saved ringtone settings on PhoneIsland ready
+    window.electron.receive(IPC_EVENTS.PHONE_ISLAND_READY, () => {
+      // Wait a bit for phone-island to fully initialize
+      setTimeout(() => {
+        try {
+          // Load saved ringtone from localStorage
+          const savedRingtoneRaw = localStorage.getItem('phone-island-ringing-tone')
+          const savedOutputDeviceRaw = localStorage.getItem('phone-island-ringing-tone-output')
+
+          let ringtoneName: string | null = null
+          let outputDeviceId: string | null = null
+
+          if (savedRingtoneRaw) {
+            try {
+              const parsed = JSON.parse(savedRingtoneRaw)
+              ringtoneName = parsed.name || null
+            } catch {
+              ringtoneName = savedRingtoneRaw
+            }
+          }
+
+          if (savedOutputDeviceRaw) {
+            try {
+              const parsed = JSON.parse(savedOutputDeviceRaw)
+              outputDeviceId = parsed.deviceId || null
+            } catch {
+              outputDeviceId = savedOutputDeviceRaw
+            }
+          }
+
+          if (ringtoneName || outputDeviceId) {
+            Log.info('Applying saved ringtone settings on startup:', { ringtoneName, outputDeviceId })
+
+            if (ringtoneName) {
+              eventDispatch(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-select'], {
+                name: ringtoneName,
+              })
+            }
+
+            if (outputDeviceId) {
+              eventDispatch(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-output'], {
+                deviceId: outputDeviceId,
+              })
+            }
+          }
+        } catch (error) {
+          Log.error('Error loading saved ringtone settings:', error)
+        }
+      }, 1000)
+    })
+
     window.electron.receive(IPC_EVENTS.TRANSFER_CALL, (to: string) => {
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-transfer'], {
         to

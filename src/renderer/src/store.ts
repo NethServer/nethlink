@@ -124,7 +124,8 @@ export const {
   shortcut: undefined,
   lastDevice: undefined,
   isCallsEnabled: false,
-  accountStatus: 'offline'
+  accountStatus: 'offline',
+  availableRingtones: []
 } as LocalStorageData, true)
 
 export const useNethlinkData = createGlobalStateHook({

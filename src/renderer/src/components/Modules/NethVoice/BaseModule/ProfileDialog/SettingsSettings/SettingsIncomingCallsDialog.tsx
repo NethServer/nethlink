@@ -1,5 +1,5 @@
 import { Button } from '@renderer/components/Nethesis'
-import { useNethlinkData } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 import { Backdrop } from '../../Backdrop'
@@ -9,18 +9,25 @@ import {
   faVolumeHigh as AudioOutputsIcon,
   faChevronDown as DropdownIcon,
   faCheck as SelectedIcon,
+  faPlay as PlayIcon,
+  faStop as StopIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { Tooltip } from 'react-tooltip'
 import { Dropdown } from '@renderer/components/Nethesis/dropdown'
 import { DropdownItem } from '@renderer/components/Nethesis/dropdown/DropdownItem'
 import { DropdownHeader } from '@renderer/components/Nethesis/dropdown/DropdownHeader'
 import { Log } from '@shared/utils/logger'
-import { eventDispatch } from '@renderer/hooks/eventDispatch'
-import { PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 
 interface Ringtone {
   name: string
   base64: string
+}
+
+// Helper function to capitalize first letter
+const capitalizeFirstLetter = (str: string): string => {
+  if (!str) return str
+  return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
 const LOCALSTORAGE_KEYS = {
@@ -90,15 +97,21 @@ const setOutputDeviceToLocalStorage = (value: string): void => {
 
 export function SettingsIncomingCallsDialog() {
   const [, setIsIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
-  const [ringtones, setRingtones] = useState<Ringtone[]>([])
+  const [availableRingtones] = useSharedState('availableRingtones')
   const [audioOutputDevices, setAudioOutputDevices] = useState<MediaDeviceInfo[]>([])
+  const [playingRingtone, setPlayingRingtone] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     ringtone: '',
     outputDevice: '',
   })
 
+  // Convert availableRingtones from store to local format
+  const ringtones: Ringtone[] = (availableRingtones || []).map(r => ({
+    name: r.name,
+    base64: r.base64
+  }))
+
   useEffect(() => {
-    initRingtones()
     initAudioOutputDevices()
 
     // Load saved preferences from localStorage
@@ -109,60 +122,24 @@ export function SettingsIncomingCallsDialog() {
       ringtone: savedRingtone || '',
       outputDevice: savedOutputDevice || '',
     })
-  }, [])
 
-  const initRingtones = async () => {
-    // Request ringtone list from phone-island
-    eventDispatch(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list'])
-
-    // Listen for the response
-    const handleRingtoneList = (event: CustomEvent) => {
-      const ringtoneList = event.detail?.ringtones || []
-
-      // If no ringtones received, use mock data
-      if (ringtoneList.length === 0) {
-        Log.info('No ringtones received from phone-island, using mock data')
-        const mockRingtones: Ringtone[] = [
-          { name: 'Default', base64: '' },
-          { name: 'Classic', base64: '' },
-          { name: 'Modern', base64: '' },
-          { name: 'Gentle', base64: '' },
-        ]
-        setRingtones(mockRingtones)
-      } else {
-        Log.info('Available ringtones:', ringtoneList)
-        setRingtones(ringtoneList)
-      }
+    // Listen for audio player close event
+    const handleAudioPlayerClose = () => {
+      setPlayingRingtone(null)
     }
 
-    // Listen for the response event
     window.addEventListener(
-      PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list-response'],
-      handleRingtoneList as EventListener,
+      PHONE_ISLAND_EVENTS['phone-island-audio-player-close'],
+      handleAudioPlayerClose,
     )
 
-    // Fallback: if no response after 500ms, use mock data
-    setTimeout(() => {
-      if (ringtones.length === 0) {
-        Log.info('Timeout waiting for ringtones, using mock data')
-        const mockRingtones: Ringtone[] = [
-          { name: 'Default', base64: '' },
-          { name: 'Classic', base64: '' },
-          { name: 'Modern', base64: '' },
-          { name: 'Gentle', base64: '' },
-        ]
-        setRingtones(mockRingtones)
-      }
-    }, 500)
-
-    // Cleanup listener
     return () => {
       window.removeEventListener(
-        PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list-response'],
-        handleRingtoneList as EventListener,
+        PHONE_ISLAND_EVENTS['phone-island-audio-player-close'],
+        handleAudioPlayerClose,
       )
     }
-  }
+  }, [availableRingtones])
 
   const initAudioOutputDevices = async () => {
     try {
@@ -197,19 +174,15 @@ export function SettingsIncomingCallsDialog() {
     setRingtoneToLocalStorage(formData.ringtone)
     setOutputDeviceToLocalStorage(formData.outputDevice)
 
-    // Dispatch phone-island event to select ringtone (only the name, phone-island has the base64)
-    eventDispatch(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-select'], {
-      name: formData.ringtone,
-    })
-
-    // Dispatch phone-island event to set output device
-    eventDispatch(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-output'], {
-      deviceId: formData.outputDevice,
-    })
-
-    Log.info('Incoming calls settings saved:', {
+    Log.info('Sending ringtone settings via IPC:', {
       ringtone: formData.ringtone,
       outputDevice: formData.outputDevice,
+    })
+
+    // Send IPC event to PhoneIslandPage to apply settings
+    window.electron.send(IPC_EVENTS.CHANGE_RINGTONE_SETTINGS, {
+      ringtoneName: formData.ringtone,
+      outputDeviceId: formData.outputDevice,
     })
 
     setIsIncomingCallsDialogOpen(false)
@@ -227,6 +200,24 @@ export function SettingsIncomingCallsDialog() {
       ...prev,
       outputDevice: deviceId,
     }))
+  }
+
+  // Play ringtone preview
+  const playRingtonePreview = (ringtone: Ringtone) => {
+    setPlayingRingtone(ringtone.name)
+    Log.info('Playing ringtone preview via IPC:', ringtone.name)
+    window.electron.send(IPC_EVENTS.PLAY_RINGTONE_PREVIEW, {
+      base64_audio_file: ringtone.base64,
+      description: capitalizeFirstLetter(ringtone.name),
+      type: 'ringtone_preview',
+    })
+  }
+
+  // Stop ringtone preview
+  const stopRingtonePreview = () => {
+    setPlayingRingtone(null)
+    Log.info('Stopping ringtone preview via IPC')
+    window.electron.send(IPC_EVENTS.STOP_RINGTONE_PREVIEW, {})
   }
 
   return (
@@ -258,64 +249,86 @@ export function SettingsIncomingCallsDialog() {
                     <FontAwesomeIcon icon={RingtoneIcon} className='w-4' />
                     <span className='truncate'>{t('Settings.Ringtone')}</span>
                   </div>
-                  <div className=''>
-                    <Dropdown
-                      items={
-                        ringtones?.map((ringtone) => {
-                          return (
-                            <DropdownItem
-                              key={ringtone.name}
-                              onClick={() => {
-                                handleRingtoneChange(ringtone.name)
-                              }}
+                  <div className='flex flex-row gap-2 items-center flex-1'>
+                    <div className='flex-1'>
+                      <Dropdown
+                        items={
+                          ringtones?.map((ringtone) => {
+                            return (
+                              <DropdownItem
+                                key={ringtone.name}
+                                onClick={() => {
+                                  handleRingtoneChange(ringtone.name)
+                                }}
+                              >
+                                <div className='flex flex-row items-center gap-2 w-[140px]'>
+                                  <span
+                                    className='truncate'
+                                    data-tooltip-id='ringtone'
+                                    data-tooltip-content={capitalizeFirstLetter(ringtone.name)}
+                                  >
+                                    {capitalizeFirstLetter(ringtone.name)}
+                                  </span>
+                                  <FontAwesomeIcon
+                                    icon={SelectedIcon}
+                                    className={
+                                      formData.ringtone === ringtone.name
+                                        ? 'visible'
+                                        : 'hidden'
+                                    }
+                                  />
+                                </div>
+                              </DropdownItem>
+                            )
+                          }) || []
+                        }
+                        className='w-full'
+                      >
+                        <DropdownHeader>
+                          <div className='relative flex flex-row gap-1 w-[132px] items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
+                            <span
+                              className='truncate'
+                              data-tooltip-id='ringtone'
+                              data-tooltip-content={
+                                capitalizeFirstLetter(getRingtoneByName(formData.ringtone)?.name || '')
+                              }
                             >
-                              <div className='flex flex-row items-center gap-2 w-[200px]'>
-                                <span
-                                  className='truncate'
-                                  data-tooltip-id='ringtone'
-                                  data-tooltip-content={ringtone.name}
-                                >
-                                  {ringtone.name}
-                                </span>
-                                <FontAwesomeIcon
-                                  icon={SelectedIcon}
-                                  className={
-                                    formData.ringtone === ringtone.name
-                                      ? 'visible'
-                                      : 'hidden'
-                                  }
-                                />
-                              </div>
-                            </DropdownItem>
-                          )
-                        }) || []
-                      }
-                      className='w-full'
-                    >
-                      <DropdownHeader>
-                        <div className='relative flex flex-row gap-1 w-[192px] items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
-                          <span
-                            className='truncate'
-                            data-tooltip-id='ringtone'
-                            data-tooltip-content={
-                              getRingtoneByName(formData.ringtone)?.name
-                            }
-                          >
-                            {getRingtoneByName(formData.ringtone)?.name || '-'}
-                          </span>
-                          <FontAwesomeIcon icon={DropdownIcon} />
+                              {capitalizeFirstLetter(getRingtoneByName(formData.ringtone)?.name || '') || '-'}
+                            </span>
+                            <FontAwesomeIcon icon={DropdownIcon} />
+                          </div>
+                        </DropdownHeader>
+                        <div className='absolute'>
+                          <Tooltip
+                            id='ringtone'
+                            place='left'
+                            className='z-[10000] font-medium text-xs leading-[18px]'
+                            opacity={1}
+                            noArrow={false}
+                          />
                         </div>
-                      </DropdownHeader>
-                      <div className='absolute'>
-                        <Tooltip
-                          id='ringtone'
-                          place='left'
-                          className='z-[10000] font-medium text-xs leading-[18px]'
-                          opacity={1}
-                          noArrow={false}
-                        />
-                      </div>
-                    </Dropdown>
+                      </Dropdown>
+                    </div>
+
+                    {/* Play/Stop button */}
+                    <button
+                      type='button'
+                      onClick={() => {
+                        const selectedRingtone = getRingtoneByName(formData.ringtone)
+                        if (playingRingtone === formData.ringtone) {
+                          stopRingtonePreview()
+                        } else if (selectedRingtone) {
+                          playRingtonePreview(selectedRingtone)
+                        }
+                      }}
+                      disabled={!formData.ringtone}
+                      className='px-2.5 py-1.5 flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-shrink-0'
+                    >
+                      <FontAwesomeIcon
+                        icon={playingRingtone === formData.ringtone ? StopIcon : PlayIcon}
+                        className='w-3.5 h-3.5 text-white'
+                      />
+                    </button>
                   </div>
                 </div>
 

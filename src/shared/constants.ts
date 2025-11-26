@@ -95,6 +95,10 @@ export enum IPC_EVENTS {
   CHANGE_PREFERRED_DEVICES = "CHANGE_PREFERRED_DEVICES",
   PHONE_ISLAND_READY = "PHONE_ISLAND_READY",
   URL_OPEN = "URL_OPEN",
+  EMIT_RINGTONE_LIST = "EMIT_RINGTONE_LIST",
+  CHANGE_RINGTONE_SETTINGS = "CHANGE_RINGTONE_SETTINGS",
+  PLAY_RINGTONE_PREVIEW = "PLAY_RINGTONE_PREVIEW",
+  STOP_RINGTONE_PREVIEW = "STOP_RINGTONE_PREVIEW",
 }
 
 //PHONE ISLAND EVENTS
@@ -196,11 +200,13 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-audio-player-start' = 'phone-island-audio-player-start',
   'phone-island-audio-player-play' = 'phone-island-audio-player-play',
   'phone-island-audio-player-pause' = 'phone-island-audio-player-pause',
+  'phone-island-audio-player-stop' = 'phone-island-audio-player-stop',
   'phone-island-audio-player-close' = 'phone-island-audio-player-close',
   // Dispatch Audio Player Event: phone-island-audio-player-*
   'phone-island-audio-player-started' = 'phone-island-audio-player-started',
   'phone-island-audio-player-played' = 'phone-island-audio-player-played',
   'phone-island-audio-player-paused' = 'phone-island-audio-player-paused',
+  'phone-island-audio-player-stopped' = 'phone-island-audio-player-stopped',
   'phone-island-audio-player-closed' = 'phone-island-audio-player-closed',
   // General Dispatch Events
   'phone-island-user-already-login' = 'phone-island-user-already-login',
@@ -235,5 +241,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-ringing-tone-list' = 'phone-island-ringing-tone-list',
   'phone-island-ringing-tone-list-response' = 'phone-island-ringing-tone-list-response',
   'phone-island-ringing-tone-select' = 'phone-island-ringing-tone-select',
+  'phone-island-ringing-tone-selected' = 'phone-island-ringing-tone-selected',
   'phone-island-ringing-tone-output' = 'phone-island-ringing-tone-output',
+  'phone-island-ringing-tone-output-changed' = 'phone-island-ringing-tone-output-changed',
 }

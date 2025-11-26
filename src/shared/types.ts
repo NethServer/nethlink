@@ -397,7 +397,8 @@ export type LocalStorageData = {
   lastDevice?: Device,
   isCallsEnabled: boolean,
   accountStatus: StatusTypes,
-  shortcut?: string
+  shortcut?: string,
+  availableRingtones?: RingtoneType[]
 }
 
 export type OnDraggingWindow = {
@@ -432,6 +433,11 @@ export type FeatureCodes = {
   confbridge_conf?: string,
   incall_audio?: string,
   que_toggle?: string
+}
+
+export type RingtoneType = {
+  name: string
+  base64: string
 }
 
 export type NethLinkPageData = {
