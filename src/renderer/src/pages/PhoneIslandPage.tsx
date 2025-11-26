@@ -128,7 +128,8 @@ export function PhoneIslandPage() {
     // Handle ringtone preview stop
     window.electron.receive(IPC_EVENTS.STOP_RINGTONE_PREVIEW, () => {
       Log.info('Received STOP_RINGTONE_PREVIEW in PhoneIslandPage')
-      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-player-stop'], {})
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-player-pause'], {})
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-player-close'], {})
     })
 
     // Load and apply saved ringtone settings on PhoneIsland ready

@@ -200,13 +200,11 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-audio-player-start' = 'phone-island-audio-player-start',
   'phone-island-audio-player-play' = 'phone-island-audio-player-play',
   'phone-island-audio-player-pause' = 'phone-island-audio-player-pause',
-  'phone-island-audio-player-stop' = 'phone-island-audio-player-stop',
   'phone-island-audio-player-close' = 'phone-island-audio-player-close',
   // Dispatch Audio Player Event: phone-island-audio-player-*
   'phone-island-audio-player-started' = 'phone-island-audio-player-started',
   'phone-island-audio-player-played' = 'phone-island-audio-player-played',
   'phone-island-audio-player-paused' = 'phone-island-audio-player-paused',
-  'phone-island-audio-player-stopped' = 'phone-island-audio-player-stopped',
   'phone-island-audio-player-closed' = 'phone-island-audio-player-closed',
   // General Dispatch Events
   'phone-island-user-already-login' = 'phone-island-user-already-login',

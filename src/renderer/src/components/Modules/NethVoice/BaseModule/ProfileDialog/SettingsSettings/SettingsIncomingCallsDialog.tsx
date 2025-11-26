@@ -170,6 +170,12 @@ export function SettingsIncomingCallsDialog() {
     e.preventDefault()
     e.stopPropagation()
 
+    // Stop audio player if playing
+    if (playingRingtone) {
+      Log.info('Stopping audio player before saving')
+      window.electron.send(IPC_EVENTS.STOP_RINGTONE_PREVIEW, {})
+    }
+
     // Save to localStorage
     setRingtoneToLocalStorage(formData.ringtone)
     setOutputDeviceToLocalStorage(formData.outputDevice)
