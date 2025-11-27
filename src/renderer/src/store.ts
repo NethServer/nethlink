@@ -124,7 +124,8 @@ export const {
   shortcut: undefined,
   lastDevice: undefined,
   isCallsEnabled: false,
-  accountStatus: 'offline'
+  accountStatus: 'offline',
+  availableRingtones: []
 } as LocalStorageData, true)
 
 export const useNethlinkData = createGlobalStateHook({
@@ -138,6 +139,7 @@ export const useNethlinkData = createGlobalStateHook({
   isForwardDialogOpen: false,
   isShortcutDialogOpen: false,
   isDeviceDialogOpen: false,
+  isIncomingCallsDialogOpen: false,
   phonebookModule: {
     selectedContact: undefined
   },

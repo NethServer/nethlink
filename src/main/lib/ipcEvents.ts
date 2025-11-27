@@ -284,6 +284,26 @@ export function registerIpcEvents() {
     PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, devices)
   })
 
+  ipcMain.on(IPC_EVENTS.CHANGE_RINGTONE_SETTINGS, (_, settings) => {
+    Log.info('Received CHANGE_RINGTONE_SETTINGS in ipcEvents:', settings)
+    PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_RINGTONE_SETTINGS, settings)
+  })
+
+  ipcMain.on(IPC_EVENTS.PLAY_RINGTONE_PREVIEW, (_, audioData) => {
+    PhoneIslandController.instance.window.emit(IPC_EVENTS.PLAY_RINGTONE_PREVIEW, audioData)
+  })
+
+  ipcMain.on(IPC_EVENTS.STOP_RINGTONE_PREVIEW, () => {
+    PhoneIslandController.instance.window.emit(IPC_EVENTS.STOP_RINGTONE_PREVIEW)
+  })
+
+  ipcMain.on(IPC_EVENTS.AUDIO_PLAYER_CLOSED, () => {
+    // Broadcast to all windows
+    BrowserWindow.getAllWindows().forEach(window => {
+      window.webContents.send(IPC_EVENTS.AUDIO_PLAYER_CLOSED)
+    })
+  })
+
   ipcMain.on(IPC_EVENTS.CHANGE_SHORTCUT, async (_, combo) => {
     // unregister previous shortcut
     await globalShortcut.unregisterAll();
