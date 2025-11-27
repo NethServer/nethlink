@@ -121,13 +121,11 @@ export function PhoneIslandPage() {
 
     // Handle ringtone preview play
     window.electron.receive(IPC_EVENTS.PLAY_RINGTONE_PREVIEW, (audioData: { base64_audio_file: string; description: string; type: string }) => {
-      Log.info('Received PLAY_RINGTONE_PREVIEW in PhoneIslandPage')
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-player-start'], audioData)
     })
 
     // Handle ringtone preview stop
     window.electron.receive(IPC_EVENTS.STOP_RINGTONE_PREVIEW, () => {
-      Log.info('Received STOP_RINGTONE_PREVIEW in PhoneIslandPage')
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-player-pause'], {})
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-player-close'], {})
     })

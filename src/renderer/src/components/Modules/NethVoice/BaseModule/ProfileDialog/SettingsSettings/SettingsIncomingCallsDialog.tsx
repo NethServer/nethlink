@@ -123,21 +123,13 @@ export function SettingsIncomingCallsDialog() {
       outputDevice: savedOutputDevice || '',
     })
 
-    // Listen for audio player close event
-    const handleAudioPlayerClose = () => {
+    // Listen for audio player closed via IPC
+    window.electron.receive(IPC_EVENTS.AUDIO_PLAYER_CLOSED, () => {
       setPlayingRingtone(null)
-    }
-
-    window.addEventListener(
-      PHONE_ISLAND_EVENTS['phone-island-audio-player-close'],
-      handleAudioPlayerClose,
-    )
+    })
 
     return () => {
-      window.removeEventListener(
-        PHONE_ISLAND_EVENTS['phone-island-audio-player-close'],
-        handleAudioPlayerClose,
-      )
+      // Cleanup IPC listener
     }
   }, [availableRingtones])
 
@@ -172,18 +164,12 @@ export function SettingsIncomingCallsDialog() {
 
     // Stop audio player if playing
     if (playingRingtone) {
-      Log.info('Stopping audio player before saving')
       window.electron.send(IPC_EVENTS.STOP_RINGTONE_PREVIEW, {})
     }
 
     // Save to localStorage
     setRingtoneToLocalStorage(formData.ringtone)
     setOutputDeviceToLocalStorage(formData.outputDevice)
-
-    Log.info('Sending ringtone settings via IPC:', {
-      ringtone: formData.ringtone,
-      outputDevice: formData.outputDevice,
-    })
 
     // Send IPC event to PhoneIslandPage to apply settings
     window.electron.send(IPC_EVENTS.CHANGE_RINGTONE_SETTINGS, {
@@ -222,7 +208,6 @@ export function SettingsIncomingCallsDialog() {
   // Stop ringtone preview
   const stopRingtonePreview = () => {
     setPlayingRingtone(null)
-    Log.info('Stopping ringtone preview via IPC')
     window.electron.send(IPC_EVENTS.STOP_RINGTONE_PREVIEW, {})
   }
 

@@ -290,13 +290,18 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.PLAY_RINGTONE_PREVIEW, (_, audioData) => {
-    Log.info('Received PLAY_RINGTONE_PREVIEW in ipcEvents')
     PhoneIslandController.instance.window.emit(IPC_EVENTS.PLAY_RINGTONE_PREVIEW, audioData)
   })
 
   ipcMain.on(IPC_EVENTS.STOP_RINGTONE_PREVIEW, () => {
-    Log.info('Received STOP_RINGTONE_PREVIEW in ipcEvents')
     PhoneIslandController.instance.window.emit(IPC_EVENTS.STOP_RINGTONE_PREVIEW)
+  })
+
+  ipcMain.on(IPC_EVENTS.AUDIO_PLAYER_CLOSED, () => {
+    // Broadcast to all windows
+    BrowserWindow.getAllWindows().forEach(window => {
+      window.webContents.send(IPC_EVENTS.AUDIO_PLAYER_CLOSED)
+    })
   })
 
   ipcMain.on(IPC_EVENTS.CHANGE_SHORTCUT, async (_, combo) => {
