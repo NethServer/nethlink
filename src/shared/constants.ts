@@ -95,6 +95,11 @@ export enum IPC_EVENTS {
   CHANGE_PREFERRED_DEVICES = "CHANGE_PREFERRED_DEVICES",
   PHONE_ISLAND_READY = "PHONE_ISLAND_READY",
   URL_OPEN = "URL_OPEN",
+  EMIT_RINGTONE_LIST = "EMIT_RINGTONE_LIST",
+  CHANGE_RINGTONE_SETTINGS = "CHANGE_RINGTONE_SETTINGS",
+  PLAY_RINGTONE_PREVIEW = "PLAY_RINGTONE_PREVIEW",
+  STOP_RINGTONE_PREVIEW = "STOP_RINGTONE_PREVIEW",
+  AUDIO_PLAYER_CLOSED = "AUDIO_PLAYER_CLOSED",
 }
 
 //PHONE ISLAND EVENTS
@@ -231,4 +236,11 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-already-opened-external-page' = 'phone-island-already-opened-external-page',
   // Init audio
   'phone-island-init-audio' = 'phone-island-init-audio',
+  // Ringing tone events
+  'phone-island-ringing-tone-list' = 'phone-island-ringing-tone-list',
+  'phone-island-ringing-tone-list-response' = 'phone-island-ringing-tone-list-response',
+  'phone-island-ringing-tone-select' = 'phone-island-ringing-tone-select',
+  'phone-island-ringing-tone-selected' = 'phone-island-ringing-tone-selected',
+  'phone-island-ringing-tone-output' = 'phone-island-ringing-tone-output',
+  'phone-island-ringing-tone-output-changed' = 'phone-island-ringing-tone-output-changed',
 }

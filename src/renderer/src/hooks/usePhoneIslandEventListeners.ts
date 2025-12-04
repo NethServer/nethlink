@@ -28,6 +28,7 @@ const defaultCall = {
 export const usePhoneIslandEventListener = () => {
   const [account] = useSharedState('account')
   const [connected, setConnected] = useSharedState('connection')
+  const [availableRingtones, setAvailableRingtones] = useSharedState('availableRingtones')
 
   const [phoneIslandData, setPhoneIslandData] = useState<PhoneIslandData>({
     activeAlerts: {},
@@ -46,7 +47,12 @@ export const usePhoneIslandEventListener = () => {
     [event]: (...data) => {
       const customEvent = data[0]
       const detail = customEvent['detail']
-      Log.debug('PHONE ISLAND', event, data, detail)
+      // Don't log ringtone list response details (contains large base64 data)
+      if (event !== PHONE_ISLAND_EVENTS["phone-island-ringing-tone-list-response"]) {
+        Log.debug('PHONE ISLAND', event, data, detail)
+      } else {
+        Log.debug('PHONE ISLAND', event, '(ringtone data omitted)')
+      }
       callback?.(detail)
     }
   })
@@ -149,7 +155,9 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-video-input-changed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-video-output-changed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-closed"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-closed"], () => {
+        window.electron.send(IPC_EVENTS.AUDIO_PLAYER_CLOSED)
+      }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-pause"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-paused"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-play"]),
@@ -238,6 +246,11 @@ export const usePhoneIslandEventListener = () => {
         setTimeout(() => {
           Log.info("phone-island-webrtc-registered", "send PHONE_ISLAND_READY event")
           window.electron.send(IPC_EVENTS.PHONE_ISLAND_READY)
+
+          // Request ringtone list from phone-island
+          Log.info("Requesting ringtone list from phone-island")
+          const ringtoneListEvent = new CustomEvent(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list'], {})
+          window.dispatchEvent(ringtoneListEvent)
         }, 500);
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"]),
@@ -254,6 +267,23 @@ export const usePhoneIslandEventListener = () => {
         window.electron.send(IPC_EVENTS.URL_OPEN, data.formattedUrl)
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-already-opened-external-page"]),
+
+      // Ringtone events
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-list-response"], (data) => {
+        const ringtoneList = data?.ringtones || []
+        Log.info('Received', ringtoneList.length, 'ringtones from phone-island')
+
+        setAvailableRingtones(ringtoneList.map((r: any) => ({
+          name: r.name,
+          base64: r.base64Audio || r.base64 || ''
+        })))
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-selected"], (data) => {
+        Log.info('Phone-island confirmed ringtone selected:', data?.name)
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-output-changed"], (data) => {
+        Log.info('Phone-island confirmed output device changed:', data?.deviceId)
+      }),
     }
   }
 }

@@ -397,7 +397,8 @@ export type LocalStorageData = {
   lastDevice?: Device,
   isCallsEnabled: boolean,
   accountStatus: StatusTypes,
-  shortcut?: string
+  shortcut?: string,
+  availableRingtones?: RingtoneType[]
 }
 
 export type OnDraggingWindow = {
@@ -434,6 +435,11 @@ export type FeatureCodes = {
   que_toggle?: string
 }
 
+export type RingtoneType = {
+  name: string
+  base64: string
+}
+
 export type NethLinkPageData = {
   selectedSidebarMenu: MENU_ELEMENT,
   operators?: OperatorData,
@@ -446,6 +452,7 @@ export type NethLinkPageData = {
   isForwardDialogOpen?: boolean,
   isShortcutDialogOpen?: boolean,
   isDeviceDialogOpen?: boolean,
+  isIncomingCallsDialogOpen?: boolean,
   showAddContactModule?: boolean,
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData
