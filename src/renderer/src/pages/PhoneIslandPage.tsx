@@ -32,7 +32,6 @@ export function PhoneIslandPage() {
   const isUrlOpening = useRef<boolean>(false)
   const urlOpenAttempts = useRef<number>(0)
   const urlOpenListenerRegistered = useRef<boolean>(false)
-  const hasRunWarmup = useRef<boolean>(false)
 
   useEffect(() => {
     resize(phoneIsalndSizes)
@@ -75,29 +74,31 @@ export function PhoneIslandPage() {
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
     })
 
-    window.electron.receive(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (devices: PreferredDevices) => {
-      Log.info('Received CHANGE_PREFERRED_DEVICES in PhoneIslandPage:', devices)
+    window.electron.receive(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, (devices: PreferredDevices & { shouldRunWarmup?: boolean }) => {
+      const { shouldRunWarmup, audioInput, videoInput, audioOutput } = devices
+      Log.info('Received CHANGE_PREFERRED_DEVICES in PhoneIslandPage:', { devices, shouldRunWarmup })
 
       // Run audio warm-up first, only once after PhoneIsland is fully initialized
-      // Only on Windows/macOS where the issue occurs
-      if (!hasRunWarmup.current) {
-        hasRunWarmup.current = true
-        Log.info('Requesting audio warm-up from main process...')
+      // Main process tracks whether warmup has already run (survives re-renders/reconnections)
+      // Phone-island also checks for active calls before running warmup
+      if (shouldRunWarmup) {
+        Log.info('Requesting audio warm-up from main process (first initialization)...')
         setTimeout(() => {
           eventDispatch(PHONE_ISLAND_EVENTS['phone-island-init-audio'])
         }, 1000)
 
         // Dispatch device changes after warm-up completes (after ~5 seconds)
         setTimeout(() => {
-          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
-          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
-          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
+          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: audioInput })
+          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: videoInput })
+          eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: audioOutput })
         }, 5000)
       } else {
-        // If warm-up already done or not needed, dispatch immediately
-        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: devices.audioInput })
-        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: devices.videoInput })
-        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: devices.audioOutput })
+        // If warm-up already done or not needed (reconnection), dispatch device changes immediately
+        Log.info('Skipping audio warm-up (already done or reconnection), dispatching device changes immediately')
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-input-change'], { deviceId: audioInput })
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-video-input-change'], { deviceId: videoInput })
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-audio-output-change'], { deviceId: audioOutput })
       }
     })
 

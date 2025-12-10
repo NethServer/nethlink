@@ -1,5 +1,5 @@
 import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut } from 'electron'
-import { registerIpcEvents } from '@/lib/ipcEvents'
+import { registerIpcEvents, isCallActive } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
 import { Account, AuthAppData, AvailableThemes } from '@shared/types'
@@ -564,7 +564,14 @@ async function onAppResume() {
       if (autoLoginResult) {
         NethLinkController.instance.window.getWindow()?.reload()
         await delay(500)
-        PhoneIslandController.instance.window.getWindow()?.reload()
+        // Don't reload PhoneIsland if there's an active call - this would destroy the call
+        const activeCall = isCallActive()
+        if (activeCall) {
+          Log.info('APP POWER RESUME - Skipping PhoneIsland reload due to active call')
+        } else {
+          Log.info('APP POWER RESUME - Reloading PhoneIsland (no active call)')
+          PhoneIslandController.instance.window.getWindow()?.reload()
+        }
       }
     }
     isInPowerResume = false
