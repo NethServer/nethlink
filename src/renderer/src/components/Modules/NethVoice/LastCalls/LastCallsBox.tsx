@@ -22,17 +22,6 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
   const [preparedCalls, setPreparedCalls] = useState<LastCallData[]>([])
   const [audioTestCode, setAudioTestCode] = useState<string>('*41')
 
-  const getFilteredCallsCount = (): number => {
-    if (!lastCalls) return 0
-    return lastCalls.filter((call) => {
-      const numberToCheck = call.direction === 'in' ? call.src : call.dst
-      return !numberToCheck?.includes(audioTestCode)
-    }).length
-  }
-
-  const filteredCount = getFilteredCallsCount()
-  const title = `${t('LastCalls.Calls', { count: filteredCount })} (${filteredCount})`
-
   useEffect(() => {
     prepareCalls()
   }, [lastCalls, missedCalls, audioTestCode])
@@ -99,7 +88,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
   return (
     <>
       <ModuleTitle
-        title={title}
+        title={t('LastCalls.Last calls')}
         action={viewAllMissedCalls}
         actionIcon={ShowMissedCallIcon}
         actionText={t('Common.View all')}
