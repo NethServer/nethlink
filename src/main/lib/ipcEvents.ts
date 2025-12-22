@@ -21,6 +21,14 @@ const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 // Global flag to ensure audio warm-up runs only once per app session
 let hasRunAudioWarmup = false
 
+// Global flag to track if there's an active call (prevents PhoneIsland reload during calls)
+let hasActiveCall = false
+
+// Export function to check active call state from other modules
+export function isCallActive(): boolean {
+  return hasActiveCall
+}
+
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
   asyncCallback: (...args: any[]) => Promise<T>
@@ -272,9 +280,20 @@ export function registerIpcEvents() {
     const account = store.get('account') as Account
 
     setTimeout(() => {
-      Log.info('Send CHANGE_PREFERRED_DEVICES event with', account.preferredDevices)
+      // Include flag to indicate if audio warmup should run (only first time)
+      const shouldRunWarmup = !hasRunAudioWarmup
+      if (shouldRunWarmup) {
+        hasRunAudioWarmup = true
+      }
+      Log.info('Send CHANGE_PREFERRED_DEVICES event with', {
+        preferredDevices: account.preferredDevices,
+        shouldRunWarmup
+      })
       AccountController.instance.updatePreferredDevice(account.preferredDevices)
-      PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, account.preferredDevices)
+      PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, {
+        ...account.preferredDevices,
+        shouldRunWarmup
+      })
     }, 250)
   })
 
@@ -362,7 +381,16 @@ export function registerIpcEvents() {
     }
   })
 
+  ipcMain.on(IPC_EVENTS.EMIT_CALL_ACTIVE, (_) => {
+    if (!hasActiveCall) {
+      Log.info('Call active (started or answered) - setting hasActiveCall = true')
+      hasActiveCall = true
+    }
+  })
+
   ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
+    Log.info('Call ended - setting hasActiveCall = false')
+    hasActiveCall = false
     try {
       NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_CALL_END)
     } catch (e) {

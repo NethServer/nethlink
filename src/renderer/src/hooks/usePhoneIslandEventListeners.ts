@@ -89,7 +89,10 @@ export const usePhoneIslandEventListener = () => {
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answer"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answered"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answered"], () => {
+        // Incoming call answered - mark as active call
+        window.electron.send(IPC_EVENTS.EMIT_CALL_ACTIVE)
+      }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-input-switch"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-input-switched"]),
@@ -97,7 +100,10 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-output-switched"]),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-start"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-started"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-started"], () => {
+        // Outgoing call started - mark as active call
+        window.electron.send(IPC_EVENTS.EMIT_CALL_ACTIVE)
+      }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-end"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ended"], () => {
         window.electron.send(IPC_EVENTS.EMIT_CALL_END)
