@@ -185,7 +185,7 @@ export function LastCall({
                     className='h-4 w-4 mr-2 ml-1'
                     aria-hidden='true'
                   />
-                  <div className='truncate max-w-48 mr-1'>
+                  <div className='truncate max-w-40 sm:max-w-96 lg:max-w-screen-sm 2xl:max-w-screen-lg mr-1'>
                     {queues?.[call.queue!]?.name
                       ? queues?.[call.queue!]?.name + ' ' + call?.queue
                       : t('QueueManager.Queue')}
