@@ -382,8 +382,10 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_CALL_ACTIVE, (_) => {
-    Log.info('Call active (started or answered) - setting hasActiveCall = true')
-    hasActiveCall = true
+    if (!hasActiveCall) {
+      Log.info('Call active (started or answered) - setting hasActiveCall = true')
+      hasActiveCall = true
+    }
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
