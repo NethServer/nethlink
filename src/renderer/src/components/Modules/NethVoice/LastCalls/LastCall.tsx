@@ -27,14 +27,14 @@ import classNames from 'classnames'
 export interface LastCallProps {
   call: LastCallData
   showContactForm: () => void
-  clearNotification: (call: LastCallData) => void
+  showCreateButton?: boolean
   className?: string
 }
 
 export function LastCall({
   call,
   showContactForm,
-  clearNotification,
+  showCreateButton = false,
   className,
 }: LastCallProps): JSX.Element {
   const phonebookModule = usePhonebookModule()
@@ -42,7 +42,6 @@ export function LastCall({
   const [queues] = useNethlinkData('queues')
   const [operators] = useNethlinkData('operators')
   const { isCallsEnabled } = useAccount()
-  const [showCreateButton, setShowCreateButton] = useState<boolean>(false)
   const [isQueueLoading, setIsQueueLoading] = useState<boolean>(true)
   const avatarSrc = operators?.avatars?.[call.username]
 
@@ -104,29 +103,16 @@ export function LastCall({
   const isFromQueue = Boolean(call.channel?.includes('from-queue'))
 
   return (
-    <div className='group'>
+    <div
+      className='group'
+    >
       <div
         className={`flex flex-grow gap-3 min-h-[72px] py-6 px-3 ${className}`}
-        onMouseEnter={() => {
-          if (
-            call.direction === 'in'
-              ? !(call.src || call.ccompany)
-              : call.direction === 'out'
-                ? !(call.dst_cnam || call.dst_ccompany)
-                : false
-          ) {
-            setShowCreateButton(() => true)
-          }
-        }}
-        onMouseLeave={() => setShowCreateButton(() => false)}
-        onClick={() => {
-          clearNotification(call)
-        }}
       >
         {call.hasNotification && (
           <div className={`relative w-0 h-0 z-0 overflow-visible mr-[-12px]`}>
             <div
-              className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-bgDark border-bgLight dark:group-hover:border-hoverDark group-hover:border-hoverLight`}
+              className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-bgDark border-bgLight`}
             />
           </div>
         )}
@@ -258,11 +244,12 @@ export function LastCall({
               <div className={classNames('absolute right-0')}>
                 <Button
                   variant='ghost'
-                  className='flex gap-3 items-center py-2 px-2 border dark:border-borderDark border-borderLight ml-auto dark:hover:bg-hoverDark hover:bg-hoverLight'
+                  className='group/add-contact flex gap-3 items-center py-2 px-2 border dark:border-borderDark border-borderLight ml-auto hover:bg-primaryHover/10 dark:hover:bg-primaryDarkHover/10'
                   onClick={handleCreateContact}
+                  size='base_square'
                 >
                   <FontAwesomeIcon
-                    className='text-base dark:text-textBlueDark text-textBlueLight'
+                    className='text-base dark:text-textBlueDark text-textBlueLight group-hover/add-contact:text-primaryHover dark:group-hover/add-contact:text-primaryDarkHover'
                     icon={AddUserIcon}
                   />
                 </Button>

@@ -20,7 +20,7 @@ import { useTheme } from '../../theme/Context'
 export interface ButtonProps
   extends Omit<ComponentPropsWithRef<'button'>, 'color' | 'style'> {
   children: ReactNode
-  size?: 'small' | 'base' | 'large' | 'inputSize'
+  size?: 'small' | 'base' | 'large' | 'inputSize' | 'base_square'
   variant?: 'primary' | 'secondary' | 'white' | 'ghost' | 'danger' | 'dashboard'
   fullWidth?: boolean
   fullHeight?: boolean
