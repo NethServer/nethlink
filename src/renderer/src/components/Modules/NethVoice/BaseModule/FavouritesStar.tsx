@@ -27,8 +27,8 @@ export const FavouriteStar = ({
       className={classNames(
         'text-base cursor-pointer',
         isContactFavourite
-          ? 'dark:text-textBlueDark text-textBlueLight'
-          : 'dark:text-gray-400 text-gray-600 hover:dark:text-textBlueDark hover:text-textBlueLight',
+          ? 'dark:text-indigo-400 text-indigo-700'
+          : 'dark:text-gray-400 text-gray-600 hover:dark:text-indigo-400 hover:text-indigo-700',
       )}
       icon={isContactFavourite ? FavouriteIcon : UnfavouriteIcon}
       onClick={() =>

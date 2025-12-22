@@ -325,7 +325,7 @@ const theme = {
       },
     },
     star: {
-      base: 'absolute -top-1 -right-1 block text-gray-500 dark:text-gray-400',
+      base: 'absolute -top-1 -right-1 block dark:text-indigo-400 text-indigo-700',
       sizes: {
         extra_small: 'h-2 w-2',
         small: 'h-2 w-2',
