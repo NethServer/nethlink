@@ -33,5 +33,14 @@ export class PhoneIslandWindow extends BaseWindow {
         nodeIntegration: true
       }
     })
+
+    // Set window level to ensure it appears above fullscreen applications
+    // This works across all platforms (macOS, Windows, Linux)
+    this.addOnBuildListener(() => {
+      const window = this.getWindow()
+      if (window) {
+        window.setAlwaysOnTop(true, 'screen-saver')
+      }
+    })
   }
 }

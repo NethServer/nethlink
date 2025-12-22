@@ -34,7 +34,7 @@ export class PhoneIslandController {
           // Don't show window during warm-up
           if (!window.isVisible() && !this.isWarmingUp) {
             window.show()
-            window.setAlwaysOnTop(true)
+            window.setAlwaysOnTop(true, 'screen-saver')
           }
         }
       }
@@ -196,7 +196,7 @@ export class PhoneIslandController {
         const bounds = window.getBounds()
         if (bounds.width > 0 && bounds.height > 0) {
           window.show()
-          window.setAlwaysOnTop(true)
+          window.setAlwaysOnTop(true, 'screen-saver')
           Log.info('PhoneIsland window shown')
         }
       }
