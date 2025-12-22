@@ -4,7 +4,7 @@ import {
   faPenToSquare as ModifyIcon,
   faTrash as DeleteIcon,
 } from '@fortawesome/free-solid-svg-icons'
-import { Menu } from '@headlessui/react'
+import { Menu, MenuItem, MenuItems, MenuButton } from '@headlessui/react'
 import { ContactType } from '@shared/types'
 import { t } from 'i18next'
 import { useNethlinkData } from '@renderer/store'
@@ -35,7 +35,7 @@ export function ContactNumber({
 
   return (
     <div
-      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 w-full  ${className}`}
+      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 w-full ${className}`}
     >
       <ContactNameAndActions
         contact={speedDial}
@@ -43,61 +43,75 @@ export function ContactNumber({
         displayedNumber={truncate(speedDial.speeddial_num || '', 19)}
         isHighlight={false}
         number={speedDial.speeddial_num!}
-        username={operators?.extensions[speedDial.speeddial_num || '']?.username}
+        username={
+          operators?.extensions[speedDial.speeddial_num || '']?.username
+        }
         isFavourite={isFavouritePage}
         isSearchData={false}
       />
 
-      {!isFavouritePage &&
-        <div className="flex justify-center min-w-4 min-h-4">
+      {!isFavouritePage && (
+        <div className='flex justify-center min-w-4 min-h-4'>
           <div>
             <Menu>
               <div>
-                <Menu.Button className={classNames('flex items-center justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent', nethTheme.button.ghost, nethTheme.button.base, nethTheme.button.rounded.base)}>
+                <MenuButton
+                  className={classNames(
+                    'flex items-center justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent',
+                    nethTheme.button.ghost,
+                    nethTheme.button.base,
+                    nethTheme.button.rounded.base,
+                  )}
+                >
                   <FontAwesomeIcon
-                    className="dark:text-titleDark text-titleLight text-base"
+                    className='dark:text-titleDark text-titleLight text-base'
                     icon={MenuIcon}
                   />
-                </Menu.Button>
+                </MenuButton>
               </div>
-              <Menu.Items
+              <MenuItems
                 className={`absolute ${isLastItem ? 'top-[-48px]' : 'top-0'} border dark:border-borderDark border-borderLight rounded-lg min-w-[180px] min-h-[84px] dark:bg-bgDark bg-bgLight translate-x-[calc(-100%+36px)] z-[110]`}
               >
-                <Menu.Item as={'div'} className="cursor-pointer">
+                <MenuItem as={'div'} className='cursor-pointer'>
                   <div
-                    className="flex flex-row items-center py-[10px] px-6 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2"
+                    className='flex flex-row items-center py-[10px] px-6 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2'
                     onClick={() => {
                       handleEditSpeedDial?.(speedDial)
                     }}
                   >
-                    <div className="flex gap-3 items-center">
+                    <div className='flex gap-3 items-center'>
                       <FontAwesomeIcon
-                        className="text-base dark:text-titleDark text-titleLight"
+                        className='text-base dark:text-titleDark text-titleLight'
                         icon={ModifyIcon}
                       />
-                      <p className="font-normal text-[14px] leading-5 dark:text-titleDark text-titleLight">
+                      <p className='font-normal text-[14px] leading-5 dark:text-titleDark text-titleLight'>
                         {t('Common.Edit')}
                       </p>
                     </div>
                   </div>
-                </Menu.Item>
+                </MenuItem>
 
-                <Menu.Item as={'div'} className="cursor-pointer">
+                <MenuItem as={'div'} className='cursor-pointer'>
                   <div
-                    className="flex flex-row items-center py-[10px] px-6 dark:text-rose-500 text-rose-700 dark:hover:bg-rose-800 dark:hover:text-gray-50 hover:bg-rose-700 hover:text-gray-50 mb-2"
+                    className='flex flex-row items-center py-[10px] px-6 dark:text-rose-500 text-rose-700 dark:hover:bg-rose-800 dark:hover:text-gray-50 hover:bg-rose-700 hover:text-gray-50 mb-2'
                     onClick={() => handleDeleteSpeedDial?.(speedDial)}
                   >
-                    <div className="flex gap-3 items-center">
-                      <FontAwesomeIcon className="text-base" icon={DeleteIcon} />
-                      <p className="font-normal text-[14px] leading-5">{t('Common.Delete')}</p>
+                    <div className='flex gap-3 items-center'>
+                      <FontAwesomeIcon
+                        className='text-base'
+                        icon={DeleteIcon}
+                      />
+                      <p className='font-normal text-[14px] leading-5'>
+                        {t('Common.Delete')}
+                      </p>
                     </div>
                   </div>
-                </Menu.Item>
-              </Menu.Items>
-            </Menu >
-          </div >
-        </div >
-      }
-    </div >
+                </MenuItem>
+              </MenuItems>
+            </Menu>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }

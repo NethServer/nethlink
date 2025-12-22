@@ -1,7 +1,7 @@
 import {
   faPhone as CallIcon,
   faUserPlus as AddUserIcon,
-  faSearch as EmptySearchIcon
+  faSearch as EmptySearchIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { SearchNumber } from './SearchNumber'
@@ -10,7 +10,11 @@ import { BaseAccountData, SearchData } from '@shared/types'
 import { t } from 'i18next'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { cloneDeep } from 'lodash'
-import { cleanRegex, getIsPhoneNumber, sortByProperty } from '@renderer/lib/utils'
+import {
+  cleanRegex,
+  getIsPhoneNumber,
+  sortByProperty,
+} from '@renderer/lib/utils'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
@@ -25,14 +29,23 @@ interface SearchNumberBoxProps {
   showContactDetail: (contact: SearchData, primaryNumber: string | null) => void
   className?: string
 }
-export function SearchNumberBox({ searchResult, showContactForm, showContactDetail, className }: SearchNumberBoxProps) {
+export function SearchNumberBox({
+  searchResult,
+  showContactForm,
+  showContactDetail,
+  className,
+}: SearchNumberBoxProps) {
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
   const [operators] = useNethlinkData('operators')
-  const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<SearchData[]>([])
+  const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<
+    SearchData[]
+  >([])
   const [canAddToPhonebook, setCanAddToPhonebook] = useState<boolean>(false)
   const { isCallsEnabled } = useAccount()
+
+  const isPhoneNumberQuery = !!searchText && getIsPhoneNumber(searchText)
   useEffect(() => {
     if (searchResult) preparePhoneNumbers(searchResult)
   }, [searchResult, searchText])
@@ -43,12 +56,17 @@ export function SearchNumberBox({ searchResult, showContactForm, showContactDeta
 
   const getFoundedOperators = (): BaseAccountData[] => {
     const cleanQuery = searchText?.replace(cleanRegex, '') || ''
-    let operatorsResults = Object.values(operators?.operators || {}).filter((op: any) => {
-      return (
-        (op.name && new RegExp(cleanQuery, 'i').test(op.name.replace(cleanRegex, ''))) ||
-        new RegExp(cleanQuery, 'i').test(op.endpoints?.mainextension[0]?.id)
-      )
-    })
+    let operatorsResults = Object.values(operators?.operators || {}).filter(
+      (op: any) => {
+        return (
+          (op.name &&
+            new RegExp(cleanQuery, 'i').test(
+              op.name.replace(cleanRegex, ''),
+            )) ||
+          new RegExp(cleanQuery, 'i').test(op.endpoints?.mainextension[0]?.id)
+        )
+      },
+    )
 
     if (operatorsResults.length) {
       operatorsResults = cloneDeep(operatorsResults)
@@ -102,62 +120,77 @@ export function SearchNumberBox({ searchResult, showContactForm, showContactDeta
   }
 
   const isCallButtonEnabled =
-    searchText && isCallsEnabled && getIsPhoneNumber(searchText) && searchText.length > 1
+    searchText &&
+    isCallsEnabled &&
+    getIsPhoneNumber(searchText) &&
+    searchText.length > 1
 
   return (
-    <div className={classNames("flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight h-full", className)}>
-      <div className="mr-[6px]">
-        <div
-          className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
-          onClick={() => {
-            if (isCallButtonEnabled && searchText) {
-              debouncer('onCallNumber', () => {
-                callNumber(searchText)
-              }, 250)
-            }
-          }}
-        >
-          <FontAwesomeIcon
-            className="text-base dark:text-gray-50 text-gray-600 mr-1"
-            icon={CallIcon}
-          />
-          <p className="font-normal">
-            {t('Operators.Call')} {searchText}
-          </p>
-        </div>
-
-        <div className="group">
+    <div
+      className={classNames(
+        'flex flex-col dark:text-titleDark text-titleLight dark:bg-bgDark bg-bgLight h-full',
+        className,
+      )}
+    >
+      {isPhoneNumberQuery && (
+        <div className='mr-[6px]'>
           <div
-            className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
+            className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
             onClick={() => {
-              if (canAddToPhonebook) showAddContactToPhonebook()
+              if (isCallButtonEnabled && searchText) {
+                debouncer(
+                  'onCallNumber',
+                  () => {
+                    callNumber(searchText)
+                  },
+                  250,
+                )
+              }
             }}
           >
             <FontAwesomeIcon
-              className="text-base dark:text-gray-50 text-gray-600"
-              icon={AddUserIcon}
+              className='text-base dark:text-gray-50 text-gray-600 mr-1'
+              icon={CallIcon}
             />
-            <p className="font-normal">
-              {t('Common.Add')} {searchText?.toString()} {t('Common.to')} {t('Phonebook.Phonebook')}
+            <p className='font-normal'>
+              {t('Operators.Call')} {searchText}
             </p>
           </div>
-          <div className="px-4">
-            <div className="border-b dark:border-borderDark border-borderLight group-hover:border-transparent"></div>
+
+          <div className='group'>
+            <div
+              className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
+              onClick={() => {
+                if (canAddToPhonebook) showAddContactToPhonebook()
+              }}
+            >
+              <FontAwesomeIcon
+                className='text-base dark:text-gray-50 text-gray-600'
+                icon={AddUserIcon}
+              />
+              <p className='font-normal'>
+                {t('Common.Add')} {searchText?.toString()} {t('Common.to')}{' '}
+                {t('Phonebook.Phonebook')}
+              </p>
+            </div>
+            <div className='px-4'>
+              <div className='border-b dark:border-borderDark border-borderLight group-hover:border-transparent'></div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
       <Scrollable>
-        {
-          filteredPhoneNumbers.length > 0
-            ? filteredPhoneNumbers.map((user, index) => (
-              <SearchNumber
-                key={'SearchNumber_' + index}
-                user={user}
-                onClick={user.displayName ? showContactDetail : undefined}
-              />
-            ))
-            : <EmptyList icon={EmptySearchIcon} text={t('Devices.No results')} />
-        }
+        {filteredPhoneNumbers.length > 0 ? (
+          filteredPhoneNumbers.map((user, index) => (
+            <SearchNumber
+              key={'SearchNumber_' + index}
+              user={user}
+              onClick={user.displayName ? showContactDetail : undefined}
+            />
+          ))
+        ) : (
+          <EmptyList icon={EmptySearchIcon} text={t('Devices.No results')} />
+        )}
       </Scrollable>
     </div>
   )

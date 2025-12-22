@@ -21,7 +21,7 @@ export const ContactNameAndActions = ({
   username,
   isFavourite,
   isSearchData,
-  onOpenDetail
+  onOpenDetail,
 }: {
   contact: ContactType
   number: string
@@ -31,7 +31,7 @@ export const ContactNameAndActions = ({
   avatarDim: 'small' | 'base' | 'extra_small' | 'large' | 'extra_large'
   username: string | undefined
   isFavourite: boolean
-  isSearchData: boolean,
+  isSearchData: boolean
   onOpenDetail?: () => void
 }) => {
   const { isCallsEnabled } = useAccount()
@@ -40,6 +40,22 @@ export const ContactNameAndActions = ({
   const avatarSrc = username && operators?.avatars?.[username]
 
   const isOperator = username && !!operators?.operators?.[username]
+
+  const operatorPresence = isOperator
+    ? operators?.operators?.[username!]?.mainPresence
+    : undefined
+  const isOperatorOnline =
+    !isOperator ||
+    operatorPresence === 'online' ||
+    operatorPresence === 'available'
+  const isCallDisabled = !isCallsEnabled || !isOperatorOnline
+
+  const isDisplayedNumberEmpty =
+    displayedNumber === null ||
+    displayedNumber === undefined ||
+    (Array.isArray(displayedNumber)
+      ? displayedNumber.length === 0
+      : displayedNumber.length === 0)
 
   const onClick = (e) => {
     if (onOpenDetail) {
@@ -51,7 +67,8 @@ export const ContactNameAndActions = ({
 
   const displayName = isFavourite
     ? contact.company && contact.company !== ' '
-      ? contact.company : `${t('Common.Unknown')}`
+      ? contact.company
+      : `${t('Common.Unknown')}`
     : contact.name && contact.name !== ' '
       ? contact.name
       : contact.company && contact.company !== ' '
@@ -62,13 +79,17 @@ export const ContactNameAndActions = ({
     <div
       className={classNames(
         avatarDim === 'small' ? 'gap-3' : 'gap-6',
-        'flex flex-row items-center w-full max-w-full'
+        'flex flex-row items-center w-full max-w-full',
       )}
     >
       <Avatar
         size={avatarDim}
         src={avatarSrc}
-        status={isOperator ? operators?.operators?.[username]?.mainPresence : undefined}
+        status={
+          isOperator
+            ? operators?.operators?.[username]?.mainPresence
+            : undefined
+        }
         bordered={true}
         placeholderType={
           operators?.extensions[contact?.speeddial_num || '']
@@ -77,15 +98,22 @@ export const ContactNameAndActions = ({
               ? 'company'
               : 'person'
         }
-        className={classNames('border-[1px]', onOpenDetail ? 'cursor-pointer dark:hover:border-bgLight hover:border-bgDark' : '')}
+        className={classNames(
+          'border-[1px]',
+          onOpenDetail
+            ? 'cursor-pointer dark:hover:border-bgLight hover:border-bgDark'
+            : '',
+        )}
         onClick={onClick}
       />
-      <div className="relative w-full h-[44px] ">
-        <div className="absolute top-0 left-0 flex flex-col gap-1 w-full ">
-          <div className="flex flex-row gap-2 w-full overflow-hidden">
-            <div className={classNames("dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap ",
-              onOpenDetail ? 'cursor-pointer hover:underline' : ''
-            )}
+      <div className='relative w-full h-[44px] '>
+        <div className='absolute top-0 left-0 flex flex-col gap-1 w-full '>
+          <div className='flex flex-row gap-2 w-full overflow-hidden'>
+            <div
+              className={classNames(
+                'dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap ',
+                onOpenDetail ? 'cursor-pointer hover:underline' : '',
+              )}
               onClick={onClick}
             >
               {displayName}
@@ -101,46 +129,72 @@ export const ContactNameAndActions = ({
                         avatarDim,
                         username,
                         isFavourite,
-                        isSearchData
-                      })
+                        isSearchData,
+                      }),
                     )
                   }}
-                  className="absolute top-[-4px] left-[-26px] text-[8px] cursor-pointer"
+                  className='absolute top-[-4px] left-[-26px] text-[8px] cursor-pointer'
                 >
                   [{contact.id}]
                 </span>
               )}
             </div>
-            {isOperator && <FavouriteStar contact={contact} isSearchData={isSearchData} />}
+            {isOperator && (
+              <FavouriteStar contact={contact} isSearchData={isSearchData} />
+            )}
           </div>
-          <div className="flex flex-row gap-2 items-center">
+          <div className='flex flex-row gap-2 items-center'>
             {!isHighlight && (
               <FontAwesomeIcon
-                className="dark:text-gray-400 text-gray-600 text-base"
+                className={classNames(
+                  'text-base',
+                  isCallDisabled
+                    ? 'dark:text-gray-400 text-gray-500 cursor-not-allowed'
+                    : 'dark:text-gray-400 text-gray-600 cursor-pointer hover:dark:text-textBlueDark hover:text-textBlueLight',
+                )}
                 icon={CallIcon}
                 onClick={() => {
-                  debouncer('onCallNumber', () => {
-                    callNumber(contact.speeddial_num!)
-                  }, 250)
+                  if (isCallDisabled) return
+                  debouncer(
+                    'onCallNumber',
+                    () => {
+                      callNumber(contact.speeddial_num!)
+                    },
+                    250,
+                  )
                 }}
               />
             )}
             <div className='flex flex-row'>
-
               <NumberCaller
                 number={number}
-                disabled={displayedNumber?.length === 0 || !isCallsEnabled}
-                className={`${displayedNumber?.length === 0 ? '' : 'dark:text-textBlueDark text-textBlueLight'} font-normal hover:underline`}
+                disabled={isDisplayedNumberEmpty || isCallDisabled}
+                className={classNames(
+                  isDisplayedNumberEmpty
+                    ? ''
+                    : isCallDisabled
+                      ? 'dark:text-gray-400 text-gray-500'
+                      : 'dark:text-textBlueDark text-textBlueLight',
+                  'font-normal',
+                  isDisplayedNumberEmpty || isCallDisabled
+                    ? ''
+                    : 'hover:underline',
+                )}
                 isNumberHiglighted={isHighlight}
               >
                 {displayedNumber !== ' ' &&
-                  displayedNumber !== '' &&
-                  displayedNumber !== null &&
-                  (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
+                displayedNumber !== '' &&
+                displayedNumber !== null &&
+                (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
                   ? displayedNumber
                   : '-'}
               </NumberCaller>
-              <span onClick={onClick} className='ml-2 cursor-pointer hover:underline dark:text-textBlueDark text-textBlueLight'>{otherNumber}</span>
+              <span
+                onClick={onClick}
+                className='ml-2 cursor-pointer hover:underline dark:text-textBlueDark text-textBlueLight'
+              >
+                {otherNumber}
+              </span>
             </div>
           </div>
         </div>

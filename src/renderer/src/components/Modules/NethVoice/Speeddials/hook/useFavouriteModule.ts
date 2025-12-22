@@ -11,6 +11,12 @@ export const useFavouriteModule = () => {
   const [operators] = useNethlinkData('operators')
   const [favourites, setFavourites] = useState<ContactType[] | undefined>(undefined)
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
+
+  const getUsernameFromContact = (contact: ContactType): string | undefined => {
+    const extension = contact.speeddial_num || ''
+    const usernameFromExtension = extension ? operators?.extensions?.[extension]?.username : undefined
+    return usernameFromExtension || contact.name || undefined
+  }
   useEffect(() => {
     rawSpeedDials && filterFavourites(rawSpeedDials, speeddialsModule?.favouriteOrder || FilterTypes.AZ)
   }, [rawSpeedDials, speeddialsModule?.favouriteOrder, operators])
@@ -45,12 +51,14 @@ export const useFavouriteModule = () => {
 
   const isActiveOperator = (contact: ContactType) => {
     // If no operators data or no contact name, don't show the favorite
-    if (!operators?.groups || !contact.name) {
+    if (!operators?.groups) {
       return false
     }
+    const username = getUsernameFromContact(contact)
+    if (!username) return false
     // Check if the contact's username exists in any operator group
     return Object.values(operators.groups).some(group =>
-      group.users.includes(contact.name!)
+      group.users.includes(username)
     )
   }
 
@@ -62,18 +70,28 @@ export const useFavouriteModule = () => {
     return false
   }
 
+  const isSpeedDialAlsoAFavourite = (contact: ContactType) => {
+    const extension = contact.speeddial_num || ''
+    if (!extension) return false
+    return !!favourites?.some((s) => s.speeddial_num === extension)
+  }
+
   function toggleFavourite(contact: ContactType) {
     debouncer(`toggleFavourite-${contact.id}`, async () => {
-      const speedDial = favourites?.find((s) => s.id === contact.id)
-      if (!speedDial) {
+      const extension = contact.speeddial_num || ''
+      const favouriteSpeedDial = extension
+        ? favourites?.find((s) => s.speeddial_num === extension)
+        : favourites?.find((s) => s.id === contact.id)
+
+      if (!favouriteSpeedDial) {
         //if I am creating a favourite it means that I am from speeddial. in speeddial the username is saved in name
-        const username = contact.name
+        const username = getUsernameFromContact(contact)
         const operator = username && operators?.operators[username]
         if (operator)
           await NethVoiceAPI.Phonebook.createFavourite(operator)
       } else {
         //if I am deleting favourite then I am in favourite, I can use the id directly
-        await NethVoiceAPI.Phonebook.deleteSpeeddial({ id: `${speedDial.id!}` })
+        await NethVoiceAPI.Phonebook.deleteSpeeddial({ id: `${favouriteSpeedDial.id!}` })
       }
       const updatedSpeedDials = await NethVoiceAPI.Phonebook.getSpeeddials()
       setRawSpeedDials(() => updatedSpeedDials)
@@ -102,6 +120,7 @@ export const useFavouriteModule = () => {
     favourites,
     toggleFavourite,
     isFavourite,
+    isSpeedDialAlsoAFavourite,
     isSearchAlsoAFavourite,
     toggleFavouriteFromSearch
   }
