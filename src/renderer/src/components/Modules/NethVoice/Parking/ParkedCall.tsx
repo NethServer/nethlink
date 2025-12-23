@@ -170,7 +170,7 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
                 : 'textBlueLight dark:textBlueDark',
             )}
           >
-            {cardPressStates ? `${t('Parks.Hold')}` : `${t('Parks.Pick up')}`}
+            {t('Parks.Pick up')}
           </span>
         </Button>
       </div>
