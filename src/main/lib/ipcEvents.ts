@@ -1,6 +1,7 @@
 import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
+import { CommandBarController } from '@/classes/controllers/CommandBarController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
 import { BrowserWindow, app, ipcMain, screen, shell, desktopCapturer, globalShortcut, clipboard } from 'electron'
@@ -461,5 +462,34 @@ export function registerIpcEvents() {
     } catch (e) {
       Log.error('URL PARAM error', e)
     }
+  })
+
+  ipcMain.on(IPC_EVENTS.TOGGLE_COMMAND_BAR, () => {
+    try {
+      CommandBarController.instance?.toggle()
+    } catch (e) {
+      Log.error('TOGGLE_COMMAND_BAR error', e)
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.SHOW_COMMAND_BAR, () => {
+    try {
+      CommandBarController.instance?.show()
+    } catch (e) {
+      Log.error('SHOW_COMMAND_BAR error', e)
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.HIDE_COMMAND_BAR, () => {
+    try {
+      CommandBarController.instance?.hide()
+    } catch (e) {
+      Log.error('HIDE_COMMAND_BAR error', e)
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.CHANGE_COMMAND_BAR_SHORTCUT, async (_, combo) => {
+    AccountController.instance.updateCommandBarShortcut(combo)
+    Log.info('Command Bar shortcut changed to:', combo)
   })
 }

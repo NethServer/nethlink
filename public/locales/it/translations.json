@@ -931,6 +931,10 @@
     "update_available": "Aggiornamento disponibile per il download",
     "download": "Scarica l'aggiornamento"
   },
+  "CommandBar": {
+    "Placeholder": "Inserisci un numero di telefono...",
+    "Call": "Chiama"
+  },
   "Errors": {
     "browser_permissions": "Errore nei permessi del browser",
     "user_permissions": "Errore nei permessi dei media",

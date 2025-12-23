@@ -932,6 +932,10 @@
     "update_available": "Update available for download",
     "download": "Download the update"
   },
+  "CommandBar": {
+    "Placeholder": "Enter a phone number...",
+    "Call": "Call"
+  },
   "Errors": {
     "browser_permissions": "Browser permissions error",
     "user_permissions": "Media permissions error",

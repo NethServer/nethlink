@@ -273,6 +273,22 @@ export class AccountController {
     }
   }
 
+  async updateCommandBarShortcut(commandBarShortcut: any) {
+    if (store.store) {
+      const account = store.store.account
+      if (account) {
+        account.commandBarShortcut = commandBarShortcut
+
+        store.set('account', account, true)
+        const auth = store.store.auth
+
+        auth!.availableAccounts[getAccountUID(account)] = account
+        store.set('auth', auth, true)
+      }
+      store.saveToDisk()
+    }
+  }
+
 
   getAccountPhoneIslandPosition(): { x: number; y: number } | undefined {
     return store.store.account?.phoneIslandPosition

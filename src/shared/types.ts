@@ -8,8 +8,8 @@ export enum PAGES {
   LOGIN = "Login",
   PHONEISLAND = "phoneislandpage",
   NETHLINK = "NethLink",
-  DEVTOOLS = "devtoolspage"
-
+  DEVTOOLS = "devtoolspage",
+  COMMANDBAR = "commandbarpage"
 }
 
 export type StateType<T> = [(T | undefined), (value: T | undefined) => void]
@@ -33,6 +33,7 @@ export type Account = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: AccountData,
   shortcut?: string
+  commandBarShortcut?: string
   preferredDevices?: PreferredDevices
   apiBasePath?: string // Store which API path works for this account
 }

@@ -2,6 +2,7 @@ import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, d
 import { registerIpcEvents, isCallActive } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
+import { CommandBarController } from './classes/controllers/CommandBarController'
 import { Account, AuthAppData, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
@@ -374,6 +375,22 @@ function attachOnReadyProcess() {
     Log.info("Unregister all shortcuts")
     await globalShortcut.unregisterAll()
 
+    // Stop uiohook for command bar
+    if (uiohookStarted) {
+      try {
+        const { uIOhook } = require('uiohook-napi')
+        uIOhook.stop()
+        Log.info('uIOhook stopped')
+      } catch (e) {
+        Log.warning('Failed to stop uIOhook:', e)
+      }
+    }
+
+    // Quit command bar
+    if (CommandBarController.instance) {
+      await CommandBarController.instance.safeQuit()
+    }
+
     Log.info('APP QUIT CORRECTLY')
     app.exit();
   })
@@ -705,6 +722,8 @@ async function createNethLink(show: boolean = true) {
     NethLinkController.instance.show()
   await delay(1000)
   new PhoneIslandController()
+  new CommandBarController()
+  initCommandBarShortcut()
   checkForUpdate()
   const account = store.get('account') as Account
   if (account) {
@@ -713,6 +732,43 @@ async function createNethLink(show: boolean = true) {
     if (account.shortcut && account.shortcut?.length > 0) {
       ipcMain.emit(IPC_EVENTS.CHANGE_SHORTCUT, undefined, account.shortcut)
     }
+  }
+}
+
+let uiohookStarted = false
+let lastModifierPress = 0
+const DOUBLE_TAP_THRESHOLD = 400
+
+function initCommandBarShortcut() {
+  if (uiohookStarted) return
+
+  try {
+    const { uIOhook, UiohookKey } = require('uiohook-napi')
+
+    uIOhook.on('keydown', (e: any) => {
+      const isMac = process.platform === 'darwin'
+      const isModifierKey = isMac
+        ? e.keycode === UiohookKey.Meta || e.keycode === UiohookKey.MetaRight
+        : e.keycode === UiohookKey.Ctrl || e.keycode === UiohookKey.CtrlRight
+
+      if (isModifierKey) {
+        const now = Date.now()
+        if (now - lastModifierPress < DOUBLE_TAP_THRESHOLD) {
+          if (CommandBarController.instance) {
+            CommandBarController.instance.toggle()
+          }
+          lastModifierPress = 0
+        } else {
+          lastModifierPress = now
+        }
+      }
+    })
+
+    uIOhook.start()
+    uiohookStarted = true
+    Log.info('Command Bar shortcut initialized (double-tap Cmd/Ctrl)')
+  } catch (e) {
+    Log.warning('Failed to initialize Command Bar shortcut:', e)
   }
 }
 
