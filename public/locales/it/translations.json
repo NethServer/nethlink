@@ -347,6 +347,7 @@
     "IP Phone": "Telefono IP",
     "Only nethlink": "Solo Nethlink",
     "ShortcutToCall": "Scorciatoia per chiamare",
+    "CommandBarShortcut": "Scorciatoia per Command Bar",
     "ShortcutHelp": "Inserisci una scorciatoia da tastiera per far partire una chiamata dopo aver selezionato un testo.",
     "ShortcutHelpDesc": "Caratteri non consentiti: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\", \"Shift\".",
     "Clear and remove shortcut": "Ripristina e rimuovi scorciatoia"
@@ -377,7 +378,9 @@
     "Settings": "Impostazioni",
     "Shortcut": "Scorciatoia",
     "Keyboard shortcut to call": "Scorciatoia per chiamare",
+    "Keyboard shortcut for command bar": "Scorciatoia per Command Bar",
     "Shortcut title description": "Scegli una combinazione di tasti per avviare una chiamata dopo aver selezionato un testo.",
+    "Command bar shortcut title description": "Scegli una combinazione di tasti per aprire o nascondere la Command Bar.",
     "Shortcut subtitle description": "Non usare scorciatoie già presenti nel sistema.",
     "Shortcut body description": "Tasti non consentiti: tab, capsLock, numLock, insert, esc, shift",
     "Preferred devices": "Impostazioni Audio e Video",

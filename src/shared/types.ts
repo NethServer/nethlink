@@ -452,6 +452,7 @@ export type NethLinkPageData = {
   showPhonebookSearchModule?: boolean,
   isForwardDialogOpen?: boolean,
   isShortcutDialogOpen?: boolean,
+  isCommandBarShortcutDialogOpen?: boolean,
   isDeviceDialogOpen?: boolean,
   isIncomingCallsDialogOpen?: boolean,
   showAddContactModule?: boolean,

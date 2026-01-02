@@ -14,6 +14,11 @@ import { delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS, GIT_RELEASES_URL } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
+import {
+  getDefaultCommandBarModifier,
+  startCommandBarDoubleTapShortcut,
+  stopCommandBarDoubleTapShortcut,
+} from './lib/commandBarShortcut'
 import { store } from './lib/mainStore'
 import fs from 'fs'
 import path from 'path'
@@ -376,15 +381,7 @@ function attachOnReadyProcess() {
     await globalShortcut.unregisterAll()
 
     // Stop uiohook for command bar
-    if (uiohookStarted) {
-      try {
-        const { uIOhook } = require('uiohook-napi')
-        uIOhook.stop()
-        Log.info('uIOhook stopped')
-      } catch (e) {
-        Log.warning('Failed to stop uIOhook:', e)
-      }
-    }
+    stopCommandBarDoubleTapShortcut()
 
     // Quit command bar
     if (CommandBarController.instance) {
@@ -723,52 +720,32 @@ async function createNethLink(show: boolean = true) {
   await delay(1000)
   new PhoneIslandController()
   new CommandBarController()
-  initCommandBarShortcut()
   checkForUpdate()
   const account = store.get('account') as Account
   if (account) {
+    // read command bar shortcut from config and set it to app
+    Log.info('Command Bar shortcut readed:', account.commandBarShortcut)
+    if (account.commandBarShortcut && account.commandBarShortcut?.length > 0) {
+      ipcMain.emit(
+        IPC_EVENTS.CHANGE_COMMAND_BAR_SHORTCUT,
+        undefined,
+        account.commandBarShortcut,
+      )
+    } else {
+      startCommandBarDoubleTapShortcut(getDefaultCommandBarModifier(), () => {
+        CommandBarController.instance?.toggle()
+      })
+    }
+
     // read shortcut from config and set it to app
     Log.info("Shortcut readed:", account.shortcut)
     if (account.shortcut && account.shortcut?.length > 0) {
       ipcMain.emit(IPC_EVENTS.CHANGE_SHORTCUT, undefined, account.shortcut)
     }
-  }
-}
-
-let uiohookStarted = false
-let lastModifierPress = 0
-const DOUBLE_TAP_THRESHOLD = 400
-
-function initCommandBarShortcut() {
-  if (uiohookStarted) return
-
-  try {
-    const { uIOhook, UiohookKey } = require('uiohook-napi')
-
-    uIOhook.on('keydown', (e: any) => {
-      const isMac = process.platform === 'darwin'
-      const isModifierKey = isMac
-        ? e.keycode === UiohookKey.Meta || e.keycode === UiohookKey.MetaRight
-        : e.keycode === UiohookKey.Ctrl || e.keycode === UiohookKey.CtrlRight
-
-      if (isModifierKey) {
-        const now = Date.now()
-        if (now - lastModifierPress < DOUBLE_TAP_THRESHOLD) {
-          if (CommandBarController.instance) {
-            CommandBarController.instance.toggle()
-          }
-          lastModifierPress = 0
-        } else {
-          lastModifierPress = now
-        }
-      }
+  } else {
+    startCommandBarDoubleTapShortcut(getDefaultCommandBarModifier(), () => {
+      CommandBarController.instance?.toggle()
     })
-
-    uIOhook.start()
-    uiohookStarted = true
-    Log.info('Command Bar shortcut initialized (double-tap Cmd/Ctrl)')
-  } catch (e) {
-    Log.warning('Failed to initialize Command Bar shortcut:', e)
   }
 }
 

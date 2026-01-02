@@ -16,6 +16,12 @@ import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
 import { ClientRequest, get } from 'http'
 import os from 'os'
+import {
+  CommandBarDoubleTapModifier,
+  getDefaultCommandBarModifier,
+  startCommandBarDoubleTapShortcut,
+  stopCommandBarDoubleTapShortcut,
+} from './commandBarShortcut'
 
 const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 
@@ -325,14 +331,21 @@ export function registerIpcEvents() {
   })
 
   ipcMain.on(IPC_EVENTS.CHANGE_SHORTCUT, async (_, combo) => {
-    // unregister previous shortcut
-    await globalShortcut.unregisterAll();
+    const previousCombo = store.store.account?.shortcut
+    if (previousCombo) {
+      try {
+        globalShortcut.unregister(previousCombo)
+      } catch (e) {
+        Log.warning('Failed to unregister previous call shortcut:', e)
+      }
+    }
 
-    // save config to disk
     AccountController.instance.updateShortcut(combo)
 
-    // register shortcut
-    globalShortcut.register(combo, async () => {
+    if (!combo || combo.length === 0) return
+
+    try {
+      const registered = globalShortcut.register(combo, async () => {
       // get selected text content
       const isMac = os.platform() === 'darwin'
       const isLinux = os.platform() === 'linux';
@@ -363,7 +376,13 @@ export function registerIpcEvents() {
       } else {
         Log.info('Selected text is not a valid number:', selectedText)
       }
-    });
+      })
+      if (!registered) {
+        Log.warning('Failed to register call shortcut:', combo)
+      }
+    } catch (e) {
+      Log.warning('Failed to register call shortcut:', e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.GET_NETHVOICE_CONFIG, async (e, account) => {
@@ -488,8 +507,136 @@ export function registerIpcEvents() {
     }
   })
 
+  // Keep exactly one Command Bar shortcut active at a time.
+  let activeCommandBarAccelerator: string | undefined
+  let activeCommandBarLastTrigger = 0
+
   ipcMain.on(IPC_EVENTS.CHANGE_COMMAND_BAR_SHORTCUT, async (_, combo) => {
-    AccountController.instance.updateCommandBarShortcut(combo)
-    Log.info('Command Bar shortcut changed to:', combo)
+    const rawCombo = typeof combo === 'string' ? combo.trim() : ''
+    const normalizedCombo = rawCombo.replace(/AltGraph/g, 'AltGr')
+
+    const toggle = () => {
+      try {
+        CommandBarController.instance?.toggle()
+      } catch (e) {
+        Log.error('TOGGLE_COMMAND_BAR error', e)
+      }
+    }
+
+    const allowedSoloModifiers: CommandBarDoubleTapModifier[] = ['Ctrl', 'Alt', 'AltGr', 'Cmd']
+    const isSoloModifier = (value: string): value is CommandBarDoubleTapModifier =>
+      allowedSoloModifiers.includes(value as CommandBarDoubleTapModifier)
+
+    const isOnlyModifiersButMultiple = (value: string) => {
+      const parts = value.split('+').map((p) => p.trim()).filter(Boolean)
+      return parts.length > 1 && parts.every((p) => isSoloModifier(p))
+    }
+
+    const applyDefault = () => {
+      stopCommandBarDoubleTapShortcut()
+      startCommandBarDoubleTapShortcut(getDefaultCommandBarModifier(), toggle)
+      activeCommandBarAccelerator = undefined
+      activeCommandBarLastTrigger = 0
+    }
+
+    const clearCurrent = () => {
+      stopCommandBarDoubleTapShortcut()
+
+      if (activeCommandBarAccelerator) {
+        try {
+          globalShortcut.unregister(activeCommandBarAccelerator)
+        } catch (e) {
+          Log.warning('Failed to unregister active Command Bar shortcut:', e)
+        }
+      }
+
+      activeCommandBarAccelerator = undefined
+      activeCommandBarLastTrigger = 0
+    }
+
+    // Snapshot current persisted value so we can restore on failure.
+    const persistedCombo = (store.store.account?.commandBarShortcut || '').trim()
+
+    clearCurrent()
+
+    // Clear => restore default double-tap
+    if (!normalizedCombo) {
+      AccountController.instance.updateCommandBarShortcut('')
+      Log.info('Command Bar shortcut cleared: restoring default')
+      applyDefault()
+      return
+    }
+
+    // Reject modifier-only combos with multiple modifiers (e.g. Ctrl+Alt)
+    if (isOnlyModifiersButMultiple(normalizedCombo)) {
+      Log.warning('Invalid Command Bar shortcut (multiple modifiers only):', normalizedCombo)
+      AccountController.instance.updateCommandBarShortcut('')
+      applyDefault()
+      return
+    }
+
+    // Modifier-only => use double-tap uiohook
+    if (isSoloModifier(normalizedCombo)) {
+      startCommandBarDoubleTapShortcut(normalizedCombo, toggle)
+      AccountController.instance.updateCommandBarShortcut(normalizedCombo)
+      Log.info('Command Bar shortcut changed (double-tap):', normalizedCombo)
+      return
+    }
+
+    // Key combo => use Electron globalShortcut but require double-press.
+    // Electron triggers the callback on single press; we gate it to double within threshold.
+    let registered = false
+    try {
+      registered = globalShortcut.register(normalizedCombo, () => {
+        const now = Date.now()
+        if (now - activeCommandBarLastTrigger < 400) {
+          activeCommandBarLastTrigger = 0
+          toggle()
+        } else {
+          activeCommandBarLastTrigger = now
+        }
+      })
+    } catch (e) {
+      Log.warning('Failed to register Command Bar shortcut:', e)
+      registered = false
+    }
+
+    if (registered) {
+      activeCommandBarAccelerator = normalizedCombo
+      activeCommandBarLastTrigger = 0
+      AccountController.instance.updateCommandBarShortcut(normalizedCombo)
+      Log.info('Command Bar shortcut changed (double-press):', normalizedCombo)
+      return
+    }
+
+    // Registration failed => restore persisted combo or default
+    Log.warning('Failed to register Command Bar shortcut:', normalizedCombo)
+    if (persistedCombo) {
+      if (isSoloModifier(persistedCombo)) {
+        startCommandBarDoubleTapShortcut(persistedCombo, toggle)
+      } else {
+        try {
+          const restored = globalShortcut.register(persistedCombo, () => {
+            const now = Date.now()
+            if (now - activeCommandBarLastTrigger < 400) {
+              activeCommandBarLastTrigger = 0
+              toggle()
+            } else {
+              activeCommandBarLastTrigger = now
+            }
+          })
+          if (restored) {
+            activeCommandBarAccelerator = persistedCombo
+          } else {
+            applyDefault()
+          }
+        } catch (e) {
+          Log.warning('Failed to restore previous Command Bar shortcut:', e)
+          applyDefault()
+        }
+      }
+    } else {
+      applyDefault()
+    }
   })
 }

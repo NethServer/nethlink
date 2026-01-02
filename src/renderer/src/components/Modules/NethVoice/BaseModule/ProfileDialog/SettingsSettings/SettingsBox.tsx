@@ -9,6 +9,9 @@ import { OptionElement } from '../OptionElement'
 
 export function SettingsBox({ onClose }: { onClose?: () => void }) {
   const [, setIsShortcutDialogOpen] = useNethlinkData('isShortcutDialogOpen')
+  const [, setIsCommandBarShortcutDialogOpen] = useNethlinkData(
+    'isCommandBarShortcutDialogOpen',
+  )
   const [, setIsDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
   const [, setIsIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
 
@@ -20,6 +23,15 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
         label={t('Settings.ShortcutToCall')}
         onClick={() => {
           setIsShortcutDialogOpen(true)
+          if (onClose) onClose()
+        }}
+      />
+      <OptionElement
+        isSelected={false}
+        icon={KeyboardIcon}
+        label={t('Settings.CommandBarShortcut')}
+        onClick={() => {
+          setIsCommandBarShortcutDialogOpen(true)
           if (onClose) onClose()
         }}
       />
