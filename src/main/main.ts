@@ -1,5 +1,5 @@
 import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut } from 'electron'
-import { registerIpcEvents, isCallActive } from '@/lib/ipcEvents'
+import { registerIpcEvents, isCallActive, disableCommandBarShortcuts } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
 import { CommandBarController } from './classes/controllers/CommandBarController'
@@ -80,11 +80,27 @@ function startup() {
         AccountController.instance.saveLoggedAccount(account, password)
       }
       store.saveToDisk()
-      createNethLink(showNethlink)
+
+      // Create app windows only if we actually have a logged account.
+      if (store.store.account) {
+        createNethLink(showNethlink)
+      } else {
+        Log.info('LOGIN event ignored: no logged account in store')
+      }
     })
 
     ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
       Log.info('logout from event')
+
+      // Disable Command Bar when not logged in
+      try {
+        disableCommandBarShortcuts()
+        CommandBarController.instance?.hide()
+        await CommandBarController.instance?.safeQuit()
+      } catch (e) {
+        Log.warning('Failed to disable Command Bar on logout:', e)
+      }
+
       await PhoneIslandController.instance.logout()
       NethLinkController.instance.logout()
       AccountController.instance.logout()
@@ -719,10 +735,11 @@ async function createNethLink(show: boolean = true) {
     NethLinkController.instance.show()
   await delay(1000)
   new PhoneIslandController()
-  new CommandBarController()
   checkForUpdate()
   const account = store.get('account') as Account
   if (account) {
+    new CommandBarController()
+
     // read command bar shortcut from config and set it to app
     Log.info('Command Bar shortcut readed:', account.commandBarShortcut)
     if (account.commandBarShortcut && account.commandBarShortcut?.length > 0) {
@@ -742,10 +759,6 @@ async function createNethLink(show: boolean = true) {
     if (account.shortcut && account.shortcut?.length > 0) {
       ipcMain.emit(IPC_EVENTS.CHANGE_SHORTCUT, undefined, account.shortcut)
     }
-  } else {
-    startCommandBarDoubleTapShortcut(getDefaultCommandBarModifier(), () => {
-      CommandBarController.instance?.toggle()
-    })
   }
 }
 

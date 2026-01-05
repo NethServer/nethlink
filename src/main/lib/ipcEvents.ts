@@ -64,6 +64,30 @@ export function once(event: IPC_EVENTS, callback: () => void) {
     callback()
   })
 }
+
+function isUserLoggedIn(): boolean {
+  return !!store.store.account
+}
+
+// Keep exactly one Command Bar shortcut active at a time.
+let activeCommandBarAccelerator: string | undefined
+let activeCommandBarLastTrigger = 0
+
+export function disableCommandBarShortcuts() {
+  stopCommandBarDoubleTapShortcut()
+
+  if (activeCommandBarAccelerator) {
+    try {
+      globalShortcut.unregister(activeCommandBarAccelerator)
+    } catch (e) {
+      Log.warning('Failed to unregister active Command Bar shortcut:', e)
+    }
+  }
+
+  activeCommandBarAccelerator = undefined
+  activeCommandBarLastTrigger = 0
+}
+
 export function registerIpcEvents() {
 
   let draggingWindows: OnDraggingWindow = {}
@@ -485,6 +509,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.TOGGLE_COMMAND_BAR, () => {
     try {
+      if (!isUserLoggedIn()) return
       CommandBarController.instance?.toggle()
     } catch (e) {
       Log.error('TOGGLE_COMMAND_BAR error', e)
@@ -493,6 +518,7 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.SHOW_COMMAND_BAR, () => {
     try {
+      if (!isUserLoggedIn()) return
       CommandBarController.instance?.show()
     } catch (e) {
       Log.error('SHOW_COMMAND_BAR error', e)
@@ -507,16 +533,18 @@ export function registerIpcEvents() {
     }
   })
 
-  // Keep exactly one Command Bar shortcut active at a time.
-  let activeCommandBarAccelerator: string | undefined
-  let activeCommandBarLastTrigger = 0
-
   ipcMain.on(IPC_EVENTS.CHANGE_COMMAND_BAR_SHORTCUT, async (_, combo) => {
+    if (!isUserLoggedIn()) {
+      disableCommandBarShortcuts()
+      return
+    }
+
     const rawCombo = typeof combo === 'string' ? combo.trim() : ''
     const normalizedCombo = rawCombo.replace(/AltGraph/g, 'AltGr')
 
     const toggle = () => {
       try {
+        if (!isUserLoggedIn()) return
         CommandBarController.instance?.toggle()
       } catch (e) {
         Log.error('TOGGLE_COMMAND_BAR error', e)
@@ -533,25 +561,12 @@ export function registerIpcEvents() {
     }
 
     const applyDefault = () => {
-      stopCommandBarDoubleTapShortcut()
+      disableCommandBarShortcuts()
       startCommandBarDoubleTapShortcut(getDefaultCommandBarModifier(), toggle)
-      activeCommandBarAccelerator = undefined
-      activeCommandBarLastTrigger = 0
     }
 
     const clearCurrent = () => {
-      stopCommandBarDoubleTapShortcut()
-
-      if (activeCommandBarAccelerator) {
-        try {
-          globalShortcut.unregister(activeCommandBarAccelerator)
-        } catch (e) {
-          Log.warning('Failed to unregister active Command Bar shortcut:', e)
-        }
-      }
-
-      activeCommandBarAccelerator = undefined
-      activeCommandBarLastTrigger = 0
+      disableCommandBarShortcuts()
     }
 
     // Snapshot current persisted value so we can restore on failure.
