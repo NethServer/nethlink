@@ -1,5 +1,6 @@
 import { t } from 'i18next'
 import {
+  faPhone as PhoneIcon,
   faKeyboard as KeyboardIcon,
   faHeadphones as DevicesIcon,
   faPhoneVolume as IncomingCallsIcon,
@@ -9,6 +10,9 @@ import { OptionElement } from '../OptionElement'
 
 export function SettingsBox({ onClose }: { onClose?: () => void }) {
   const [, setIsShortcutDialogOpen] = useNethlinkData('isShortcutDialogOpen')
+  const [, setIsCommandBarShortcutDialogOpen] = useNethlinkData(
+    'isCommandBarShortcutDialogOpen',
+  )
   const [, setIsDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
   const [, setIsIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
 
@@ -16,10 +20,19 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
     <div className="py-2">
       <OptionElement
         isSelected={false}
-        icon={KeyboardIcon}
+        icon={PhoneIcon}
         label={t('Settings.ShortcutToCall')}
         onClick={() => {
           setIsShortcutDialogOpen(true)
+          if (onClose) onClose()
+        }}
+      />
+      <OptionElement
+        isSelected={false}
+        icon={KeyboardIcon}
+        label={t('Settings.CommandBarShortcut')}
+        onClick={() => {
+          setIsCommandBarShortcutDialogOpen(true)
           if (onClose) onClose()
         }}
       />

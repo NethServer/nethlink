@@ -40,6 +40,8 @@ export const ProfileDialog = ({
   isOpen: boolean
   onClose: () => void
 }) => {
+  const MENU_WIDTH_PX = 300
+  const MENU_SLIDE_PX = MENU_WIDTH_PX - 2
   const { status } = useAccount()
   const [selectedMenu, setSelectedMenu] = useState<MenuItem | undefined>(
     undefined,
@@ -68,7 +70,7 @@ export const ProfileDialog = ({
 
   useEffect(() => {
     if (selectedMenu) {
-      setX(250)
+      setX(MENU_SLIDE_PX)
       switch (selectedMenu) {
         case MenuItem.device:
           setDialogPageTitle(() => t('TopBar.Pair device'))
@@ -109,11 +111,12 @@ export const ProfileDialog = ({
     <div className={classNames('absolute')}>
       <div
         className={classNames(
-          'w-[252px] h-[333px]',
+          'h-[333px]',
           'bg-bgInput dark:bg-bgInputDark',
           'rounded-lg border dark:border-borderDark border-borderLight',
           'fixed z-[200] right-[58px] top-[54px]',
         )}
+        style={{ width: `${MENU_WIDTH_PX}px` }}
       >
         <div className='relative w-full h-full overflow-hidden'>
           <div className='flex flex-col'>

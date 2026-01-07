@@ -10,6 +10,7 @@ import { SearchBox } from '../SearchResults/SearchBox'
 import { ProfileDialog } from './ProfileDialog'
 import { PresenceForwardDialog } from './ProfileDialog/PresenceSettings/PresenceForwardDialog'
 import { SettingsShortcutDialog } from './ProfileDialog/SettingsSettings/SettingsShortcutDialog'
+import { SettingsCommandBarShortcutDialog } from './ProfileDialog/SettingsSettings/SettingsCommandBarShortcutDialog'
 import { SettingsDeviceDialog } from './ProfileDialog/SettingsSettings/SettingsDevicesDialog'
 import { SettingsIncomingCallsDialog } from './ProfileDialog/SettingsSettings/SettingsIncomingCallsDialog'
 
@@ -23,6 +24,9 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   const [operators] = useNethlinkData('operators')
   const [isForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
   const [isShortcutDialogOpen] = useNethlinkData('isShortcutDialogOpen')
+  const [isCommandBarShortcutDialogOpen] = useNethlinkData(
+    'isCommandBarShortcutDialogOpen',
+  )
   const [isDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
   const [isIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
 
@@ -57,6 +61,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
       </div>
       {isForwardDialogOpen && <PresenceForwardDialog />}
       {isShortcutDialogOpen && <SettingsShortcutDialog />}
+      {isCommandBarShortcutDialogOpen && <SettingsCommandBarShortcutDialog />}
       {isDeviceDialogOpen && <SettingsDeviceDialog />}
       {isIncomingCallsDialogOpen && <SettingsIncomingCallsDialog />}
       <ProfileDialog
