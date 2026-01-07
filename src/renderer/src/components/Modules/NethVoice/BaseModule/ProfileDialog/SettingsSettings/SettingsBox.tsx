@@ -1,5 +1,6 @@
 import { t } from 'i18next'
 import {
+  faPhone as PhoneIcon,
   faKeyboard as KeyboardIcon,
   faHeadphones as DevicesIcon,
   faPhoneVolume as IncomingCallsIcon,
@@ -19,7 +20,7 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
     <div className="py-2">
       <OptionElement
         isSelected={false}
-        icon={KeyboardIcon}
+        icon={PhoneIcon}
         label={t('Settings.ShortcutToCall')}
         onClick={() => {
           setIsShortcutDialogOpen(true)
