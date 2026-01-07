@@ -3,7 +3,7 @@ import { IPC_EVENTS } from '@shared/constants'
 import { useSharedState } from '@renderer/store'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPhone, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faPhone, faSearch, faXmark } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
 import { parseThemeToClassName } from '@renderer/utils'
 import { TextInput } from '@renderer/components/Nethesis'
@@ -77,7 +77,7 @@ export function CommandBarPage() {
         <TextInput
           ref={inputRef}
           rounded="base"
-          icon={faPhone}
+          icon={faSearch}
           type="text"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}

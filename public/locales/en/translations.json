@@ -380,7 +380,7 @@
     "Keyboard shortcut to call": "Keyboard shortcut to call",
     "Keyboard shortcut for command bar": "Keyboard shortcut for command bar",
     "Shortcut title description": "Choose a keyboard shortcut to dial any selected number. ",
-    "Command bar shortcut title description": "Choose a keyboard shortcut to open or hide the Command Bar.",
+    "Command bar shortcut title description": "Choose a keyboard shortcut to open or hide the Command Bar. To trigger it, press the shortcut twice in a row.",
     "Shortcut subtitle description": "Avoid using system-reserved shortcuts.",
     "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc, shift",
     "Preferred devices": "Audio and Video settings",
