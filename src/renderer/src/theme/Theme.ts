@@ -23,6 +23,7 @@ const theme = {
     sizes: {
       small: 'px-2.5 py-1.5 text-xs',
       base: 'px-3 py-2 text-sm leading-4',
+      base_square: 'px-2.5 py-2.5 text-sm leading-4',
       large: 'px-4 py-2 text-sm',
       full_h: 'h-full',
       full_w: 'w-full',
@@ -325,7 +326,7 @@ const theme = {
       },
     },
     star: {
-      base: 'absolute -top-1 -right-1 block text-gray-500 dark:text-gray-400',
+      base: 'absolute -top-1 -right-1 block dark:text-indigo-400 text-indigo-700',
       sizes: {
         extra_small: 'h-2 w-2',
         small: 'h-2 w-2',

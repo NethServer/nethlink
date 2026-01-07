@@ -1,12 +1,11 @@
 import { FC, useEffect, useState } from 'react'
-import { formatDistance } from 'date-fns'
+import { differenceInSeconds } from 'date-fns'
 import { format } from 'date-fns-tz'
 import { utcToZonedTime } from 'date-fns-tz'
-import { enGB, it } from 'date-fns/locale'
 import {
   formatDateLocIsAnnouncement,
   getCallTimeToDisplayIsAnnouncement,
-  getTimeDifference
+  getTimeDifference,
 } from '../../lib/dateTime'
 import i18next from 'i18next'
 import { UTCDate } from '@date-fns/utc'
@@ -18,9 +17,16 @@ interface CallsDateProps {
   spaced?: boolean
   isInQueue?: boolean
   isInAnnouncement?: boolean
+  inline?: boolean
 }
 
-export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnnouncement }) => {
+export const CallsDate: FC<CallsDateProps> = ({
+  call,
+  spaced,
+  isInQueue,
+  isInAnnouncement,
+  inline,
+}) => {
   const [account] = useSharedState('account')
 
   const [selectedLanguage, setSelectedLanguage] = useState('')
@@ -55,11 +61,29 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnn
       differenceValueBetweenTimezone = getTimeDifference(account, false)
     }
 
-    let diffValueEditedFormat = diffValueConversation(differenceValueBetweenTimezone)
+    let diffValueEditedFormat = diffValueConversation(
+      differenceValueBetweenTimezone,
+    )
     return diffValueEditedFormat
   }
 
-  const getHeader = (account, call: any, isInAnnouncement: boolean) => {
+  const formatCompactDistance = (totalSeconds: number) => {
+    const safeSeconds = Number.isFinite(totalSeconds)
+      ? Math.max(0, Math.floor(totalSeconds))
+      : 0
+
+    const days = Math.floor(safeSeconds / 86400)
+    const hours = Math.floor((safeSeconds % 86400) / 3600)
+    const minutes = Math.floor((safeSeconds % 3600) / 60)
+    const seconds = safeSeconds % 60
+
+    if (days > 0) return `${days}d`
+    if (hours > 0) return `${hours}h ${minutes}m`
+    if (minutes > 0) return `${minutes}m`
+    return `${seconds}s`
+  }
+
+  const getHeaderText = (account, call: any, isInAnnouncement: boolean) => {
     let localTimeZone = getLocalTimezoneOffset()
     let differenceBetweenTimezone = ''
     if (isInQueue) {
@@ -84,37 +108,34 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnn
 
       const utcDate = new UTCDate(year, month, day, hour, minute, second)
 
-      return (
-        <div className="text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5">
-          {formatDistance(
-            utcToZonedTime(utcDate, differenceBetweenTimezone),
-            utcToZonedTime(new Date(), localTimeZone),
-            {
-              addSuffix: true,
-              includeSeconds: true,
-              locale: selectedLanguage === 'it' ? it : enGB
-            }
-          )}
-        </div>
-      )
+      const eventDate = utcToZonedTime(utcDate, differenceBetweenTimezone)
+      const nowDate = utcToZonedTime(new Date(), localTimeZone)
+      const diffSeconds = differenceInSeconds(nowDate, eventDate)
+      const compact = formatCompactDistance(Math.abs(diffSeconds))
+
+      return diffSeconds >= 0
+        ? i18next.t('Common.time_distance_ago', { timeDistance: compact })
+        : `in ${compact}`
     } else {
-      return (
-        <div className="text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5">
-          {formatDistance(
-            utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
-            utcToZonedTime(new Date(), localTimeZone),
-            {
-              addSuffix: true,
-              includeSeconds: true,
-              locale: selectedLanguage === 'it' ? it : enGB
-            }
-          )}
-        </div>
+      const eventDate = utcToZonedTime(
+        call?.time * 1000,
+        differenceBetweenTimezone,
       )
+      const nowDate = utcToZonedTime(new Date(), localTimeZone)
+      const diffSeconds = differenceInSeconds(nowDate, eventDate)
+      const compact = formatCompactDistance(Math.abs(diffSeconds))
+
+      return diffSeconds >= 0
+        ? i18next.t('Common.time_distance_ago', { timeDistance: compact })
+        : `in ${compact}`
     }
   }
 
-  const getBody = (account: Account, call: any, isInAnnouncement: boolean) => {
+  const getBodyText = (
+    account: Account,
+    call: any,
+    isInAnnouncement: boolean,
+  ) => {
     let differenceBetweenTimezone = ''
     if (isInQueue) {
       differenceBetweenTimezone = getDifferenceBetweenTimezone(account, true)
@@ -123,20 +144,15 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnn
     }
 
     if (isInAnnouncement) {
-      return (
-        <div className="text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5">
-          ({formatDateLocIsAnnouncement(call)}{' '}
-          {getCallTimeToDisplayIsAnnouncement(call, differenceBetweenTimezone)})
-        </div>
-      )
+      return `(${formatDateLocIsAnnouncement(call)} ${getCallTimeToDisplayIsAnnouncement(
+        call,
+        differenceBetweenTimezone,
+      )})`
     } else {
-      return (
-        <div className="text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5">
-          (
-          {format(utcToZonedTime(call?.time * 1000, differenceBetweenTimezone), 'd MMM yyyy HH:mm')}
-          )
-        </div>
-      )
+      return `(${format(
+        utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
+        'd MMM yyyy HH:mm',
+      )})`
     }
   }
 
@@ -149,12 +165,32 @@ export const CallsDate: FC<CallsDateProps> = ({ call, spaced, isInQueue, isInAnn
   }, [i18next?.languages[0]])
 
   if (!account) return <></>
+
+  const headerText = getHeaderText(
+    account,
+    call,
+    isInAnnouncement ? true : false,
+  )
+  const bodyText = getBodyText(account, call, isInAnnouncement ? true : false)
+
   return (
     <>
-      <div className={`flex flex-col justify-center flex-shrink-0 ${spaced ? 'gap-1.5' : ''}`}>
-        {getHeader(account, call, isInAnnouncement ? true : false)}
-        {getBody(account, call, isInAnnouncement ? true : false)}
-      </div>
+      {inline ? (
+        <div className='text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5'>
+          {headerText} {bodyText}
+        </div>
+      ) : (
+        <div
+          className={`flex flex-col justify-center flex-shrink-0 ${spaced ? 'gap-1.5' : ''}`}
+        >
+          <div className='text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5'>
+            {headerText}
+          </div>
+          <div className='text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5'>
+            {bodyText}
+          </div>
+        </div>
+      )}
     </>
   )
 }
