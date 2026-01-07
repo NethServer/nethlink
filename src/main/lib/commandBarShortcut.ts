@@ -4,10 +4,12 @@ export type CommandBarDoubleTapModifier = 'Ctrl' | 'Alt' | 'AltGr' | 'Cmd'
 
 let uiohookStarted = false
 let lastModifierPress = 0
+let modifierPressedAlone = false
 const DOUBLE_TAP_THRESHOLD_MS = 400
 
 let currentModifier: CommandBarDoubleTapModifier | undefined
 let keydownHandler: ((e: any) => void) | undefined
+let keyupHandler: ((e: any) => void) | undefined
 
 function isModifierKeyEvent(e: any, UiohookKey: any, modifier: CommandBarDoubleTapModifier) {
   switch (modifier) {
@@ -42,11 +44,18 @@ export function stopCommandBarDoubleTapShortcut() {
     const { uIOhook } = require('uiohook-napi')
 
     if (keydownHandler) {
-      // uiohook-napi uses EventEmitter-like API
       if (typeof uIOhook.off === 'function') {
         uIOhook.off('keydown', keydownHandler)
       } else if (typeof uIOhook.removeListener === 'function') {
         uIOhook.removeListener('keydown', keydownHandler)
+      }
+    }
+
+    if (keyupHandler) {
+      if (typeof uIOhook.off === 'function') {
+        uIOhook.off('keyup', keyupHandler)
+      } else if (typeof uIOhook.removeListener === 'function') {
+        uIOhook.removeListener('keyup', keyupHandler)
       }
     }
 
@@ -57,8 +66,10 @@ export function stopCommandBarDoubleTapShortcut() {
   } finally {
     uiohookStarted = false
     lastModifierPress = 0
+    modifierPressedAlone = false
     currentModifier = undefined
     keydownHandler = undefined
+    keyupHandler = undefined
   }
 }
 
@@ -75,8 +86,26 @@ export function startCommandBarDoubleTapShortcut(
   try {
     const { uIOhook, UiohookKey } = require('uiohook-napi')
 
+    // On keydown: track if modifier is pressed, but invalidate if other keys are pressed
     keydownHandler = (e: any) => {
+      if (isModifierKeyEvent(e, UiohookKey, modifier)) {
+        // Modifier pressed - mark as potentially alone
+        modifierPressedAlone = true
+      } else {
+        // Another key pressed - this is a combo, not a solo modifier tap
+        modifierPressedAlone = false
+      }
+    }
+
+    // On keyup: check double-tap only if modifier was released alone
+    keyupHandler = (e: any) => {
       if (!isModifierKeyEvent(e, UiohookKey, modifier)) return
+
+      // Only count as a tap if no other keys were pressed
+      if (!modifierPressedAlone) {
+        modifierPressedAlone = false
+        return
+      }
 
       const now = Date.now()
       if (now - lastModifierPress < DOUBLE_TAP_THRESHOLD_MS) {
@@ -89,9 +118,11 @@ export function startCommandBarDoubleTapShortcut(
       } else {
         lastModifierPress = now
       }
+      modifierPressedAlone = false
     }
 
     uIOhook.on('keydown', keydownHandler)
+    uIOhook.on('keyup', keyupHandler)
     uIOhook.start()
 
     uiohookStarted = true
@@ -101,6 +132,7 @@ export function startCommandBarDoubleTapShortcut(
     uiohookStarted = false
     currentModifier = undefined
     keydownHandler = undefined
+    keyupHandler = undefined
     Log.warning('Failed to initialize Command Bar shortcut (uiohook):', e)
   }
 }
