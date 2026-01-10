@@ -9,7 +9,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
 import { usePhoneIsland } from '@renderer/hooks/usePhoneIsland'
 import { PhoneIslandContainer } from '@renderer/components/pageComponents/phoneIsland/phoneIslandContainer'
-import { usePhoneIslandEventListener } from '@renderer/hooks/usePhoneIslandEventListeners'
+import { usePhoneIslandEventListener, resetPhoneIslandReadyState } from '@renderer/hooks/usePhoneIslandEventListeners'
 import { useInitialize } from '@renderer/hooks/useInitialize'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 export function PhoneIslandPage() {
@@ -318,6 +318,8 @@ export function PhoneIslandPage() {
 
   async function logout() {
     isOnLogout.current = true
+    // Reset phone island ready state to allow re-initialization on next login
+    resetPhoneIslandReadyState()
     if (deviceInformationObject.current) {
       await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-call-end'], PHONE_ISLAND_EVENTS['phone-island-call-ended'])
       await dispatchAndWait(PHONE_ISLAND_EVENTS['phone-island-detach'], PHONE_ISLAND_EVENTS['phone-island-detached'], {

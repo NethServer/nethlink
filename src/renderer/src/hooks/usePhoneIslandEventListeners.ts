@@ -6,10 +6,16 @@ import {
   PhoneIslandSizes,
 } from "@shared/types"
 import { Log } from "@shared/utils/logger"
-import { useState } from "react"
+import { useState, useRef, useCallback } from "react"
 import { t } from "i18next"
 import { sendNotification } from "@renderer/utils"
 import { useSharedState } from "@renderer/store"
+
+// Track readiness state for both WebRTC and Socket
+// Using module-level variables to persist across re-renders and ensure proper state tracking
+let isWebRTCRegistered = false
+let isSocketAuthorized = false
+let hasTriggeredPhoneIslandReady = false
 
 
 const defaultSize: PhoneIslandSizes = {
@@ -23,6 +29,34 @@ const defaultCall = {
   incoming: false,
   outgoing: false,
   transferring: false
+}
+
+// Function to check if both WebRTC and Socket are ready, and trigger PHONE_ISLAND_READY
+const checkAndTriggerPhoneIslandReady = () => {
+  Log.info("checkAndTriggerPhoneIslandReady", {
+    isWebRTCRegistered,
+    isSocketAuthorized,
+    hasTriggeredPhoneIslandReady
+  })
+
+  if (isWebRTCRegistered && isSocketAuthorized && !hasTriggeredPhoneIslandReady) {
+    hasTriggeredPhoneIslandReady = true
+    Log.info("Both WebRTC and Socket are ready - sending PHONE_ISLAND_READY event")
+    window.electron.send(IPC_EVENTS.PHONE_ISLAND_READY)
+  } else if (!isWebRTCRegistered || !isSocketAuthorized) {
+    Log.info("Waiting for both WebRTC and Socket to be ready", {
+      waitingForWebRTC: !isWebRTCRegistered,
+      waitingForSocket: !isSocketAuthorized
+    })
+  }
+}
+
+// Reset the readiness state (called on logout or disconnection)
+export const resetPhoneIslandReadyState = () => {
+  isWebRTCRegistered = false
+  isSocketAuthorized = false
+  hasTriggeredPhoneIslandReady = false
+  Log.info("Phone island ready state reset")
 }
 
 export const usePhoneIslandEventListener = () => {
@@ -249,15 +283,25 @@ export const usePhoneIslandEventListener = () => {
         window.api.logout()
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-webrtc-registered"], () => {
-        setTimeout(() => {
-          Log.info("phone-island-webrtc-registered", "send PHONE_ISLAND_READY event")
-          window.electron.send(IPC_EVENTS.PHONE_ISLAND_READY)
+        Log.info("phone-island-webrtc-registered received")
+        isWebRTCRegistered = true
 
-          // Request ringtone list from phone-island
-          Log.info("Requesting ringtone list from phone-island")
-          const ringtoneListEvent = new CustomEvent(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list'], {})
-          window.dispatchEvent(ringtoneListEvent)
-        }, 500);
+        // Request ringtone list from phone-island
+        Log.info("Requesting ringtone list from phone-island")
+        const ringtoneListEvent = new CustomEvent(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list'], {})
+        window.dispatchEvent(ringtoneListEvent)
+
+        // Check if both WebRTC and Socket are ready
+        setTimeout(() => {
+          checkAndTriggerPhoneIslandReady()
+        }, 500)
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-authorized"], () => {
+        Log.info("phone-island-socket-authorized received")
+        isSocketAuthorized = true
+
+        // Check if both WebRTC and Socket are ready
+        checkAndTriggerPhoneIslandReady()
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-fullscreen-entered"], () => {
