@@ -743,16 +743,19 @@ async function createNethLink(show: boolean = true) {
     // read command bar shortcut from config and set it to app
     Log.info('Command Bar shortcut readed:', account.commandBarShortcut)
     if (account.commandBarShortcut && account.commandBarShortcut?.length > 0) {
+      // User has a custom shortcut set
       ipcMain.emit(
         IPC_EVENTS.CHANGE_COMMAND_BAR_SHORTCUT,
         undefined,
         account.commandBarShortcut,
       )
-    } else {
+    } else if (account.commandBarShortcut === undefined) {
+      // Never set - apply default
       startCommandBarDoubleTapShortcut(getDefaultCommandBarModifier(), () => {
         CommandBarController.instance?.toggle()
       })
     }
+    // If commandBarShortcut is '', user explicitly cleared it - don't apply any shortcut
 
     // read shortcut from config and set it to app
     Log.info("Shortcut readed:", account.shortcut)

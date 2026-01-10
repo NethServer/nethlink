@@ -1,6 +1,7 @@
 import { CommandBarWindow } from '../windows'
 import { IPC_EVENTS } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
+import { debouncer } from '@shared/utils/utils'
 import { screen } from 'electron'
 
 export class CommandBarController {
@@ -39,7 +40,6 @@ export class CommandBarController {
 
         window.setBounds({ x: centerX, y: centerY })
         window.show()
-        window.setAlwaysOnTop(true, 'screen-saver')
         window.focus()
         this.isVisible = true
         this.window.emit(IPC_EVENTS.SHOW_COMMAND_BAR)
@@ -53,9 +53,11 @@ export class CommandBarController {
     try {
       const window = this.window.getWindow()
       if (window && this.isVisible) {
-        window.hide()
         this.isVisible = false
-        this.window.emit(IPC_EVENTS.HIDE_COMMAND_BAR)
+        debouncer('hide-command-bar', () => {
+          window.hide()
+          this.window.emit(IPC_EVENTS.HIDE_COMMAND_BAR)
+        }, 100)
       }
     } catch (e) {
       Log.warning('error during hiding CommandBarWindow:', e)

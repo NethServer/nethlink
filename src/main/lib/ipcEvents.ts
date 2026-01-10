@@ -354,19 +354,29 @@ export function registerIpcEvents() {
     })
   })
 
+  // Track currently registered call shortcut to handle race conditions
+  // (renderer may update store via UPDATE_SHARED_STATE before CHANGE_SHORTCUT is processed)
+  let registeredCallShortcut: string | undefined = undefined
+
   ipcMain.on(IPC_EVENTS.CHANGE_SHORTCUT, async (_, combo) => {
-    const previousCombo = store.store.account?.shortcut
+    // Use tracked shortcut if available, otherwise fall back to store
+    const previousCombo = registeredCallShortcut || store.store.account?.shortcut
     if (previousCombo) {
       try {
         globalShortcut.unregister(previousCombo)
+        Log.info('Unregistered previous call shortcut:', previousCombo)
       } catch (e) {
         Log.warning('Failed to unregister previous call shortcut:', e)
       }
     }
+    registeredCallShortcut = undefined
 
     AccountController.instance.updateShortcut(combo)
 
-    if (!combo || combo.length === 0) return
+    if (!combo || combo.length === 0) {
+      Log.info('Call shortcut cleared')
+      return
+    }
 
     try {
       const registered = globalShortcut.register(combo, async () => {
@@ -401,7 +411,10 @@ export function registerIpcEvents() {
         Log.info('Selected text is not a valid number:', selectedText)
       }
       })
-      if (!registered) {
+      if (registered) {
+        registeredCallShortcut = combo
+        Log.info('Call shortcut registered:', combo)
+      } else {
         Log.warning('Failed to register call shortcut:', combo)
       }
     } catch (e) {
@@ -570,15 +583,15 @@ export function registerIpcEvents() {
     }
 
     // Snapshot current persisted value so we can restore on failure.
-    const persistedCombo = (store.store.account?.commandBarShortcut || '').trim()
+    // Preserve distinction: undefined = never set, '' = explicitly cleared
+    const persistedCombo = store.store.account?.commandBarShortcut?.trim()
 
     clearCurrent()
 
-    // Clear => restore default double-tap
+    // Clear => disable shortcut completely
     if (!normalizedCombo) {
       AccountController.instance.updateCommandBarShortcut('')
-      Log.info('Command Bar shortcut cleared: restoring default')
-      applyDefault()
+      Log.info('Command Bar shortcut cleared: shortcut disabled')
       return
     }
 
@@ -626,7 +639,8 @@ export function registerIpcEvents() {
 
     // Registration failed => restore persisted combo or default
     Log.warning('Failed to register Command Bar shortcut:', normalizedCombo)
-    if (persistedCombo) {
+    if (persistedCombo && persistedCombo.length > 0) {
+      // User had a custom shortcut - try to restore it
       if (isSoloModifier(persistedCombo)) {
         startCommandBarDoubleTapShortcut(persistedCombo, toggle)
       } else {
@@ -650,8 +664,10 @@ export function registerIpcEvents() {
           applyDefault()
         }
       }
-    } else {
+    } else if (persistedCombo === undefined) {
+      // Never set - apply default
       applyDefault()
     }
+    // If persistedCombo is '', user explicitly cleared it - don't apply any shortcut
   })
 }

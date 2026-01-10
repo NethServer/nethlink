@@ -56,9 +56,8 @@ export function SettingsCommandBarShortcutDialog() {
   }, [])
 
   useEffect(() => {
-    if (account?.commandBarShortcut) {
-      setCombo(account.commandBarShortcut)
-    }
+    // Use ?? to handle both undefined and empty string correctly
+    setCombo(account?.commandBarShortcut ?? '')
   }, [account?.commandBarShortcut])
 
   const schema: z.ZodType<{ combo: string }> = z.object({
