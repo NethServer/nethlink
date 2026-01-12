@@ -543,15 +543,15 @@ async function attachProtocolListeners() {
   function handleNethLinkProtocol(url: string): Promise<Response> {
     //we have to define the purpose of the nethlink custom protocol
     Log.info('HandleProtocol Nethlink:', url)
-    
+
     const cleanUrl = url.replace(/^nethlink:\/?\/?/, '')
     const [actionPart, queryString] = cleanUrl.split('?')
     const action = actionPart.toLowerCase().trim()
     const params = new URLSearchParams(queryString || '')
     const to = params.get('to')
-    
+
     Log.info(`[NethLink Protocol] Action: '${action}', To: '${to}'`)
-    
+
     try {
       switch (action) {
         case 'transfer': {
@@ -564,14 +564,14 @@ async function attachProtocolListeners() {
         case 'listen': {
           if (to) {
             Log.info('Listen call to:', to)
-            PhoneIslandController.instance.callTransfer(to)
+            PhoneIslandController.instance.listenCall(to)
           }
           break;
         }
         case 'intrude': {
           if (to) {
             Log.info('Intrude call to:', to)
-            PhoneIslandController.instance.callTransfer(to)
+            PhoneIslandController.instance.intrudeCall(to)
           }
           break;
         }
