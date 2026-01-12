@@ -124,6 +124,14 @@ export class PhoneIslandController {
     this.window.emit(IPC_EVENTS.TRANSFER_CALL, to)
   }
 
+  intrudeCall(to: string) {
+    this.window.emit(IPC_EVENTS.INTRUDE_CALL, to)
+  }
+
+  listenCall(to: string) {
+    this.window.emit(IPC_EVENTS.LISTEN_CALL, to)
+  }
+
   updateDefaultDevice(ext: Extension, force: boolean) {
     try {
 

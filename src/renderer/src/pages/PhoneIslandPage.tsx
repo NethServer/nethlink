@@ -188,6 +188,18 @@ export function PhoneIslandPage() {
       })
     })
 
+    window.electron.receive(IPC_EVENTS.INTRUDE_CALL, (to: string) => {
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-intrude'], {
+        to
+      })
+    })
+
+    window.electron.receive(IPC_EVENTS.LISTEN_CALL, (to: string) => {
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-listen'], {
+        to
+      })
+    })
+
     window.electron.receive(IPC_EVENTS.RECONNECT_PHONE_ISLAND, () => {
       logout()
     })
