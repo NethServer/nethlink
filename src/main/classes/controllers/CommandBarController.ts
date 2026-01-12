@@ -8,6 +8,7 @@ export class CommandBarController {
   static instance: CommandBarController
   window: CommandBarWindow
   private isVisible: boolean = false
+  private originalSize = { width: 500, height: 80 }
 
   constructor() {
     CommandBarController.instance = this
@@ -30,6 +31,13 @@ export class CommandBarController {
     try {
       const window = this.window.getWindow()
       if (window && !this.isVisible) {
+        // Restore original size if it was reset to [0,0]
+        const bounds = window.getBounds()
+        window.setBounds({
+          width: this.originalSize.width,
+          height: this.originalSize.height
+        })
+
         const cursorPoint = screen.getCursorScreenPoint()
         const currentDisplay = screen.getDisplayNearestPoint(cursorPoint)
         const { x, y, width, height } = currentDisplay.workArea
@@ -40,7 +48,16 @@ export class CommandBarController {
 
         window.setBounds({ x: centerX, y: centerY })
         window.show()
-        window.focus()
+        window.setAlwaysOnTop(true, 'screen-saver')
+
+        // Small delay to ensure focus is applied after window is shown
+        setTimeout(() => {
+          window.focus()
+          if (window.webContents) {
+            window.webContents.focus()
+          }
+        }, 50)
+
         this.isVisible = true
         this.window.emit(IPC_EVENTS.SHOW_COMMAND_BAR)
       }
@@ -54,6 +71,8 @@ export class CommandBarController {
       const window = this.window.getWindow()
       if (window && this.isVisible) {
         this.isVisible = false
+        // Reset size to [0,0] to avoid slowness/inconsistent state - same as PhoneIsland pattern
+        window.setBounds({ width: 0, height: 0 })
         debouncer('hide-command-bar', () => {
           window.hide()
           this.window.emit(IPC_EVENTS.HIDE_COMMAND_BAR)
