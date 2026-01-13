@@ -311,14 +311,18 @@ export function registerIpcEvents() {
     const account = store.get('account') as Account
 
     setTimeout(() => {
-      // Include flag to indicate if audio warmup should run (only first time)
-      const shouldRunWarmup = !hasRunAudioWarmup
+      // Include flag to indicate if audio warmup should run
+      // Only run warmup if: not already run AND main device is NOT physical (i.e., nethlink or webrtc)
+      const deviceType = account.data?.default_device?.type
+      const isNethLinkDevice = deviceType !== 'physical'
+      const shouldRunWarmup = !hasRunAudioWarmup && isNethLinkDevice
       if (shouldRunWarmup) {
         hasRunAudioWarmup = true
       }
       Log.info('Send CHANGE_PREFERRED_DEVICES event with', {
         preferredDevices: account.preferredDevices,
-        shouldRunWarmup
+        shouldRunWarmup,
+        deviceType
       })
       AccountController.instance.updatePreferredDevice(account.preferredDevices)
       PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, {
