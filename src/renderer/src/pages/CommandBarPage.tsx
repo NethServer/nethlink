@@ -17,9 +17,17 @@ export function CommandBarPage() {
   useEffect(() => {
     window.electron.receive(IPC_EVENTS.SHOW_COMMAND_BAR, () => {
       setPhoneNumber('')
-      setTimeout(() => {
+
+      // Focus with retry mechanism to handle race conditions
+      const focusInput = (attempt = 0) => {
         inputRef.current?.focus()
-      }, 50)
+        // Verify focus was successful, retry if not (up to 3 attempts)
+        if (attempt < 3 && document.activeElement !== inputRef.current) {
+          setTimeout(() => focusInput(attempt + 1), 50)
+        }
+      }
+
+      setTimeout(() => focusInput(), 50)
     })
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -70,7 +78,6 @@ export function CommandBarPage() {
           'h-[80px] w-[500px] rounded-xl overflow-hidden',
           'bg-bgLight dark:bg-bgDark',
           'border border-gray-200 dark:border-gray-700',
-          'shadow-2xl',
           'flex items-center px-4 gap-3'
         )}
       >

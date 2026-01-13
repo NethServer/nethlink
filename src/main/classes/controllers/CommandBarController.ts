@@ -2,12 +2,15 @@ import { CommandBarWindow } from '../windows'
 import { IPC_EVENTS } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
 import { debouncer } from '@shared/utils/utils'
+import { forceWindowFocus } from '@/lib/windowsFocus'
 import { screen } from 'electron'
 
 export class CommandBarController {
   static instance: CommandBarController
   window: CommandBarWindow
   private isVisible: boolean = false
+  private isShowingInProgress: boolean = false // Grace period to ignore blur during focus transition
+  private lastToggleTime: number = 0 // Throttle toggle calls
   private originalSize = { width: 500, height: 80 }
 
   constructor() {
@@ -21,7 +24,10 @@ export class CommandBarController {
       const window = this.window.getWindow()
       if (window) {
         window.on('blur', () => {
-          this.hide()
+          // Ignore blur during the grace period after showing
+          if (!this.isShowingInProgress) {
+            this.hide()
+          }
         })
       }
     })
@@ -31,8 +37,10 @@ export class CommandBarController {
     try {
       const window = this.window.getWindow()
       if (window && !this.isVisible) {
+        // Start grace period to ignore blur events during focus transition
+        this.isShowingInProgress = true
+
         // Restore original size if it was reset to [0,0]
-        const bounds = window.getBounds()
         window.setBounds({
           width: this.originalSize.width,
           height: this.originalSize.height
@@ -47,36 +55,69 @@ export class CommandBarController {
         const centerY = y + Math.round(height * 0.3)
 
         window.setBounds({ x: centerX, y: centerY })
-        window.show()
-        window.setAlwaysOnTop(true, 'screen-saver')
 
-        // Small delay to ensure focus is applied after window is shown
-        setTimeout(() => {
-          window.focus()
-          if (window.webContents) {
-            window.webContents.focus()
-          }
-        }, 50)
+        const isWindows = process.platform === 'win32'
 
         this.isVisible = true
-        this.window.emit(IPC_EVENTS.SHOW_COMMAND_BAR)
+
+        if (isWindows) {
+          // Windows: use native API to force focus
+          window.show()
+          window.setAlwaysOnTop(true, 'screen-saver')
+          setTimeout(() => {
+            // Use native Windows API to force foreground
+            forceWindowFocus(window)
+            window.focus()
+            window.webContents?.focus()
+            // Emit SHOW_COMMAND_BAR after focus operations complete
+            this.window.emit(IPC_EVENTS.SHOW_COMMAND_BAR)
+            // End grace period after focus is applied
+            setTimeout(() => {
+              this.isShowingInProgress = false
+            }, 350)
+          }, 50)
+        } else {
+          // macOS/Linux
+          window.show()
+          window.setAlwaysOnTop(true, 'screen-saver')
+          this.window.emit(IPC_EVENTS.SHOW_COMMAND_BAR)
+          setTimeout(() => {
+            window.focus()
+            window.webContents?.focus()
+            // End grace period after focus is applied
+            this.isShowingInProgress = false
+          }, 50)
+        }
       }
     } catch (e) {
+      this.isShowingInProgress = false
       Log.warning('error during showing CommandBarWindow:', e)
     }
   }
 
   hide() {
+    const isMac = process.platform === 'darwin'
+
     try {
       const window = this.window.getWindow()
       if (window && this.isVisible) {
         this.isVisible = false
         // Reset size to [0,0] to avoid slowness/inconsistent state - same as PhoneIsland pattern
         window.setBounds({ width: 0, height: 0 })
-        debouncer('hide-command-bar', () => {
+
+        if (isMac) {
           window.hide()
           this.window.emit(IPC_EVENTS.HIDE_COMMAND_BAR)
-        }, 100)
+        } else {
+          debouncer(
+            'hide-command-bar',
+            () => {
+              window.hide()
+              this.window.emit(IPC_EVENTS.HIDE_COMMAND_BAR)
+            },
+            100
+          )
+        }
       }
     } catch (e) {
       Log.warning('error during hiding CommandBarWindow:', e)
@@ -84,6 +125,13 @@ export class CommandBarController {
   }
 
   toggle() {
+    // Throttle toggle calls to prevent rapid open/close cycles
+    const now = Date.now()
+    if (now - this.lastToggleTime < 300) {
+      return
+    }
+    this.lastToggleTime = now
+
     if (this.isVisible) {
       this.hide()
     } else {

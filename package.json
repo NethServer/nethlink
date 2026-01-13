@@ -107,6 +107,7 @@
   },
   "dependencies": {
     "@nut-tree-fork/nut-js": "^4.2.6",
+    "koffi": "^2.15.0",
     "uiohook-napi": "^1.5.4"
   }
 }

@@ -7,6 +7,7 @@ export class CommandBarWindow extends BaseWindow {
       width: 500,
       height: 80,
       show: false,
+      focusable: true,
       fullscreenable: false,
       autoHideMenuBar: true,
       closable: false,
@@ -20,7 +21,7 @@ export class CommandBarWindow extends BaseWindow {
       parent: undefined,
       transparent: true,
       hiddenInMissionControl: true,
-      hasShadow: true,
+      hasShadow: false, // Same as PhoneIsland - prevents border artifacts on Windows
       center: true,
       fullscreen: false,
       enableLargerThanScreen: false,
