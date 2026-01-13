@@ -347,6 +347,7 @@
     "IP Phone": "IP Phone",
     "Only nethlink": "Only Nethlink",
     "ShortcutToCall": "Shortcut to Call",
+    "CommandBarShortcut": "Shortcut for Command Bar",
     "ShortcutHelp": "Enter a keyboard shortcut to start a call after selecting some text.",
     "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\", \"Shift\".",
     "Clear and remove shortcut": "Clear and remove shortcut"
@@ -376,8 +377,10 @@
     "Theme": "Theme",
     "Settings": "Settings",
     "Shortcut": "Shortcut",
-    "Keyboard shortcut to call": "Keyboard shortcut to call",
+    "Keyboard shortcut to call": "Keyboard shortcut to Call",
+    "Keyboard shortcut for command bar": "Keyboard shortcut for Command bar",
     "Shortcut title description": "Choose a keyboard shortcut to dial any selected number. ",
+    "Command bar shortcut title description": "Choose a keyboard shortcut to open or hide the Command Bar. To trigger it, press the shortcut twice in a row.",
     "Shortcut subtitle description": "Avoid using system-reserved shortcuts.",
     "Shortcut body description": "Keys not supported: tab, capsLock, numLock, insert, esc, shift",
     "Preferred devices": "Audio and Video settings",
@@ -931,6 +934,10 @@
     "current_version": "Current version: nethlink {{version}}",
     "update_available": "Update available for download",
     "download": "Download the update"
+  },
+  "CommandBar": {
+    "Placeholder": "Enter a phone number...",
+    "Call": "Call"
   },
   "Errors": {
     "browser_permissions": "Browser permissions error",

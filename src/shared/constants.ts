@@ -101,6 +101,10 @@ export enum IPC_EVENTS {
   PLAY_RINGTONE_PREVIEW = "PLAY_RINGTONE_PREVIEW",
   STOP_RINGTONE_PREVIEW = "STOP_RINGTONE_PREVIEW",
   AUDIO_PLAYER_CLOSED = "AUDIO_PLAYER_CLOSED",
+  TOGGLE_COMMAND_BAR = "TOGGLE_COMMAND_BAR",
+  SHOW_COMMAND_BAR = "SHOW_COMMAND_BAR",
+  HIDE_COMMAND_BAR = "HIDE_COMMAND_BAR",
+  CHANGE_COMMAND_BAR_SHORTCUT = "CHANGE_COMMAND_BAR_SHORTCUT",
 }
 
 //PHONE ISLAND EVENTS
@@ -219,6 +223,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-server-reloaded' = 'phone-island-server-reloaded',
   'phone-island-server-disconnected' = 'phone-island-server-disconnected',
   'phone-island-socket-connected' = 'phone-island-socket-connected',
+  'phone-island-socket-authorized' = 'phone-island-socket-authorized',
   'phone-island-socket-disconnected' = 'phone-island-socket-disconnected',
   'phone-island-socket-reconnected' = 'phone-island-socket-reconnected',
   'phone-island-socket-disconnected-popup-open' = 'phone-island-socket-disconnected-popup-open',

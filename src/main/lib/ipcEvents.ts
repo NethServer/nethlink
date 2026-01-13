@@ -1,6 +1,7 @@
 import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
+import { CommandBarController } from '@/classes/controllers/CommandBarController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
 import { BrowserWindow, app, ipcMain, screen, shell, desktopCapturer, globalShortcut, clipboard } from 'electron'
@@ -15,6 +16,12 @@ import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
 import { ClientRequest, get } from 'http'
 import os from 'os'
+import {
+  CommandBarDoubleTapModifier,
+  getDefaultCommandBarModifier,
+  startCommandBarDoubleTapShortcut,
+  stopCommandBarDoubleTapShortcut,
+} from './commandBarShortcut'
 
 const { keyboard, Key } = require("@nut-tree-fork/nut-js");
 
@@ -57,6 +64,30 @@ export function once(event: IPC_EVENTS, callback: () => void) {
     callback()
   })
 }
+
+function isUserLoggedIn(): boolean {
+  return !!store.store.account
+}
+
+// Keep exactly one Command Bar shortcut active at a time.
+let activeCommandBarAccelerator: string | undefined
+let activeCommandBarLastTrigger = 0
+
+export function disableCommandBarShortcuts() {
+  stopCommandBarDoubleTapShortcut()
+
+  if (activeCommandBarAccelerator) {
+    try {
+      globalShortcut.unregister(activeCommandBarAccelerator)
+    } catch (e) {
+      Log.warning('Failed to unregister active Command Bar shortcut:', e)
+    }
+  }
+
+  activeCommandBarAccelerator = undefined
+  activeCommandBarLastTrigger = 0
+}
+
 export function registerIpcEvents() {
 
   let draggingWindows: OnDraggingWindow = {}
@@ -280,14 +311,18 @@ export function registerIpcEvents() {
     const account = store.get('account') as Account
 
     setTimeout(() => {
-      // Include flag to indicate if audio warmup should run (only first time)
-      const shouldRunWarmup = !hasRunAudioWarmup
+      // Include flag to indicate if audio warmup should run
+      // Only run warmup if: not already run AND main device is NOT physical (i.e., nethlink or webrtc)
+      const deviceType = account.data?.default_device?.type
+      const isNethLinkDevice = deviceType !== 'physical'
+      const shouldRunWarmup = !hasRunAudioWarmup && isNethLinkDevice
       if (shouldRunWarmup) {
         hasRunAudioWarmup = true
       }
       Log.info('Send CHANGE_PREFERRED_DEVICES event with', {
         preferredDevices: account.preferredDevices,
-        shouldRunWarmup
+        shouldRunWarmup,
+        deviceType
       })
       AccountController.instance.updatePreferredDevice(account.preferredDevices)
       PhoneIslandController.instance.window.emit(IPC_EVENTS.CHANGE_PREFERRED_DEVICES, {
@@ -323,15 +358,32 @@ export function registerIpcEvents() {
     })
   })
 
-  ipcMain.on(IPC_EVENTS.CHANGE_SHORTCUT, async (_, combo) => {
-    // unregister previous shortcut
-    await globalShortcut.unregisterAll();
+  // Track currently registered call shortcut to handle race conditions
+  // (renderer may update store via UPDATE_SHARED_STATE before CHANGE_SHORTCUT is processed)
+  let registeredCallShortcut: string | undefined = undefined
 
-    // save config to disk
+  ipcMain.on(IPC_EVENTS.CHANGE_SHORTCUT, async (_, combo) => {
+    // Use tracked shortcut if available, otherwise fall back to store
+    const previousCombo = registeredCallShortcut || store.store.account?.shortcut
+    if (previousCombo) {
+      try {
+        globalShortcut.unregister(previousCombo)
+        Log.info('Unregistered previous call shortcut:', previousCombo)
+      } catch (e) {
+        Log.warning('Failed to unregister previous call shortcut:', e)
+      }
+    }
+    registeredCallShortcut = undefined
+
     AccountController.instance.updateShortcut(combo)
 
-    // register shortcut
-    globalShortcut.register(combo, async () => {
+    if (!combo || combo.length === 0) {
+      Log.info('Call shortcut cleared')
+      return
+    }
+
+    try {
+      const registered = globalShortcut.register(combo, async () => {
       // get selected text content
       const isMac = os.platform() === 'darwin'
       const isLinux = os.platform() === 'linux';
@@ -362,7 +414,16 @@ export function registerIpcEvents() {
       } else {
         Log.info('Selected text is not a valid number:', selectedText)
       }
-    });
+      })
+      if (registered) {
+        registeredCallShortcut = combo
+        Log.info('Call shortcut registered:', combo)
+      } else {
+        Log.warning('Failed to register call shortcut:', combo)
+      }
+    } catch (e) {
+      Log.warning('Failed to register call shortcut:', e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.GET_NETHVOICE_CONFIG, async (e, account) => {
@@ -461,5 +522,156 @@ export function registerIpcEvents() {
     } catch (e) {
       Log.error('URL PARAM error', e)
     }
+  })
+
+  ipcMain.on(IPC_EVENTS.TOGGLE_COMMAND_BAR, () => {
+    try {
+      if (!isUserLoggedIn()) return
+      CommandBarController.instance?.toggle()
+    } catch (e) {
+      Log.error('TOGGLE_COMMAND_BAR error', e)
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.SHOW_COMMAND_BAR, () => {
+    try {
+      if (!isUserLoggedIn()) return
+      CommandBarController.instance?.show()
+    } catch (e) {
+      Log.error('SHOW_COMMAND_BAR error', e)
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.HIDE_COMMAND_BAR, () => {
+    try {
+      CommandBarController.instance?.hide()
+    } catch (e) {
+      Log.error('HIDE_COMMAND_BAR error', e)
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.CHANGE_COMMAND_BAR_SHORTCUT, async (_, combo) => {
+    if (!isUserLoggedIn()) {
+      disableCommandBarShortcuts()
+      return
+    }
+
+    const rawCombo = typeof combo === 'string' ? combo.trim() : ''
+    const normalizedCombo = rawCombo.replace(/AltGraph/g, 'AltGr')
+
+    const toggle = () => {
+      try {
+        if (!isUserLoggedIn()) return
+        CommandBarController.instance?.toggle()
+      } catch (e) {
+        Log.error('TOGGLE_COMMAND_BAR error', e)
+      }
+    }
+
+    const allowedSoloModifiers: CommandBarDoubleTapModifier[] = ['Ctrl', 'Alt', 'AltGr', 'Cmd']
+    const isSoloModifier = (value: string): value is CommandBarDoubleTapModifier =>
+      allowedSoloModifiers.includes(value as CommandBarDoubleTapModifier)
+
+    const isOnlyModifiersButMultiple = (value: string) => {
+      const parts = value.split('+').map((p) => p.trim()).filter(Boolean)
+      return parts.length > 1 && parts.every((p) => isSoloModifier(p))
+    }
+
+    const applyDefault = () => {
+      disableCommandBarShortcuts()
+      startCommandBarDoubleTapShortcut(getDefaultCommandBarModifier(), toggle)
+    }
+
+    const clearCurrent = () => {
+      disableCommandBarShortcuts()
+    }
+
+    // Snapshot current persisted value so we can restore on failure.
+    // Preserve distinction: undefined = never set, '' = explicitly cleared
+    const persistedCombo = store.store.account?.commandBarShortcut?.trim()
+
+    clearCurrent()
+
+    // Clear => disable shortcut completely
+    if (!normalizedCombo) {
+      AccountController.instance.updateCommandBarShortcut('')
+      Log.info('Command Bar shortcut cleared: shortcut disabled')
+      return
+    }
+
+    // Reject modifier-only combos with multiple modifiers (e.g. Ctrl+Alt)
+    if (isOnlyModifiersButMultiple(normalizedCombo)) {
+      Log.warning('Invalid Command Bar shortcut (multiple modifiers only):', normalizedCombo)
+      AccountController.instance.updateCommandBarShortcut('')
+      applyDefault()
+      return
+    }
+
+    // Modifier-only => use double-tap uiohook
+    if (isSoloModifier(normalizedCombo)) {
+      startCommandBarDoubleTapShortcut(normalizedCombo, toggle)
+      AccountController.instance.updateCommandBarShortcut(normalizedCombo)
+      Log.info('Command Bar shortcut changed (double-tap):', normalizedCombo)
+      return
+    }
+
+    // Key combo => use Electron globalShortcut but require double-press.
+    // Electron triggers the callback on single press; we gate it to double within threshold.
+    let registered = false
+    try {
+      registered = globalShortcut.register(normalizedCombo, () => {
+        const now = Date.now()
+        if (now - activeCommandBarLastTrigger < 400) {
+          activeCommandBarLastTrigger = 0
+          toggle()
+        } else {
+          activeCommandBarLastTrigger = now
+        }
+      })
+    } catch (e) {
+      Log.warning('Failed to register Command Bar shortcut:', e)
+      registered = false
+    }
+
+    if (registered) {
+      activeCommandBarAccelerator = normalizedCombo
+      activeCommandBarLastTrigger = 0
+      AccountController.instance.updateCommandBarShortcut(normalizedCombo)
+      Log.info('Command Bar shortcut changed (double-press):', normalizedCombo)
+      return
+    }
+
+    // Registration failed => restore persisted combo or default
+    Log.warning('Failed to register Command Bar shortcut:', normalizedCombo)
+    if (persistedCombo && persistedCombo.length > 0) {
+      // User had a custom shortcut - try to restore it
+      if (isSoloModifier(persistedCombo)) {
+        startCommandBarDoubleTapShortcut(persistedCombo, toggle)
+      } else {
+        try {
+          const restored = globalShortcut.register(persistedCombo, () => {
+            const now = Date.now()
+            if (now - activeCommandBarLastTrigger < 400) {
+              activeCommandBarLastTrigger = 0
+              toggle()
+            } else {
+              activeCommandBarLastTrigger = now
+            }
+          })
+          if (restored) {
+            activeCommandBarAccelerator = persistedCombo
+          } else {
+            applyDefault()
+          }
+        } catch (e) {
+          Log.warning('Failed to restore previous Command Bar shortcut:', e)
+          applyDefault()
+        }
+      }
+    } else if (persistedCombo === undefined) {
+      // Never set - apply default
+      applyDefault()
+    }
+    // If persistedCombo is '', user explicitly cleared it - don't apply any shortcut
   })
 }

@@ -49,7 +49,7 @@
     "@nethesis/nethesis-brands-svg-icons": "github:nethesis/Font-Awesome#ns-brands",
     "@nethesis/nethesis-light-svg-icons": "github:nethesis/Font-Awesome#ns-light",
     "@nethesis/nethesis-solid-svg-icons": "github:nethesis/Font-Awesome#ns-solid",
-    "@nethesis/phone-island": "^0.18.0",
+    "@nethesis/phone-island": "^0.18.1",
     "@tailwindcss/forms": "^0.5.7",
     "@types/lodash": "^4.14.202",
     "@types/node": "^18.19.9",
@@ -106,6 +106,8 @@
     "dmg-license": "^1.0.11"
   },
   "dependencies": {
-    "@nut-tree-fork/nut-js": "^4.2.6"
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "koffi": "^2.15.0",
+    "uiohook-napi": "^1.5.4"
   }
 }

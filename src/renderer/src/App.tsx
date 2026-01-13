@@ -1,6 +1,6 @@
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
-import { LoginPage, PhoneIslandPage, SplashScreenPage, NethLinkPage } from '@/pages'
+import { LoginPage, PhoneIslandPage, SplashScreenPage, NethLinkPage, CommandBarPage } from '@/pages'
 import { loadI18n } from './lib/i18n'
 import { Log } from '@shared/utils/logger'
 import { useEffect, useState } from 'react'
@@ -101,6 +101,10 @@ const RequestStateComponent = () => {
         {
           path: PAGES.DEVTOOLS,
           element: <DevToolsPage handleRefreshConnection={checkConnection} />
+        },
+        {
+          path: PAGES.COMMANDBAR,
+          element: <CommandBarPage />
         }
       ]
     }

@@ -1,7 +1,8 @@
 import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut } from 'electron'
-import { registerIpcEvents, isCallActive } from '@/lib/ipcEvents'
+import { registerIpcEvents, isCallActive, disableCommandBarShortcuts } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
+import { CommandBarController } from './classes/controllers/CommandBarController'
 import { Account, AuthAppData, AvailableThemes } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
@@ -13,6 +14,11 @@ import { delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS, GIT_RELEASES_URL } from '@shared/constants'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
+import {
+  getDefaultCommandBarModifier,
+  startCommandBarDoubleTapShortcut,
+  stopCommandBarDoubleTapShortcut,
+} from './lib/commandBarShortcut'
 import { store } from './lib/mainStore'
 import fs from 'fs'
 import path from 'path'
@@ -74,11 +80,27 @@ function startup() {
         AccountController.instance.saveLoggedAccount(account, password)
       }
       store.saveToDisk()
-      createNethLink(showNethlink)
+
+      // Create app windows only if we actually have a logged account.
+      if (store.store.account) {
+        createNethLink(showNethlink)
+      } else {
+        Log.info('LOGIN event ignored: no logged account in store')
+      }
     })
 
     ipcMain.on(IPC_EVENTS.LOGOUT, async (_event) => {
       Log.info('logout from event')
+
+      // Disable Command Bar when not logged in
+      try {
+        disableCommandBarShortcuts()
+        CommandBarController.instance?.hide()
+        await CommandBarController.instance?.safeQuit()
+      } catch (e) {
+        Log.warning('Failed to disable Command Bar on logout:', e)
+      }
+
       await PhoneIslandController.instance.logout()
       NethLinkController.instance.logout()
       AccountController.instance.logout()
@@ -373,6 +395,14 @@ function attachOnReadyProcess() {
     // read shortcut from config and unregister
     Log.info("Unregister all shortcuts")
     await globalShortcut.unregisterAll()
+
+    // Stop uiohook for command bar
+    stopCommandBarDoubleTapShortcut()
+
+    // Quit command bar
+    if (CommandBarController.instance) {
+      await CommandBarController.instance.safeQuit()
+    }
 
     Log.info('APP QUIT CORRECTLY')
     app.exit();
@@ -708,6 +738,25 @@ async function createNethLink(show: boolean = true) {
   checkForUpdate()
   const account = store.get('account') as Account
   if (account) {
+    new CommandBarController()
+
+    // read command bar shortcut from config and set it to app
+    Log.info('Command Bar shortcut readed:', account.commandBarShortcut)
+    if (account.commandBarShortcut && account.commandBarShortcut?.length > 0) {
+      // User has a custom shortcut set
+      ipcMain.emit(
+        IPC_EVENTS.CHANGE_COMMAND_BAR_SHORTCUT,
+        undefined,
+        account.commandBarShortcut,
+      )
+    } else if (account.commandBarShortcut === undefined) {
+      // Never set - apply default
+      startCommandBarDoubleTapShortcut(getDefaultCommandBarModifier(), () => {
+        CommandBarController.instance?.toggle()
+      })
+    }
+    // If commandBarShortcut is '', user explicitly cleared it - don't apply any shortcut
+
     // read shortcut from config and set it to app
     Log.info("Shortcut readed:", account.shortcut)
     if (account.shortcut && account.shortcut?.length > 0) {

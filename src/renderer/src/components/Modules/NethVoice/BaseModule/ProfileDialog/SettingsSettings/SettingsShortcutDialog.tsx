@@ -52,9 +52,8 @@ export function SettingsShortcutDialog() {
   }, [])
 
   useEffect(() => {
-    if (account?.shortcut) {
-      setCombo(account.shortcut)
-    }
+    // Use ?? to handle both undefined and empty string correctly
+    setCombo(account?.shortcut ?? '')
   }, [account?.shortcut])
 
   const schema: z.ZodType<{ combo: string }> = z.object({
