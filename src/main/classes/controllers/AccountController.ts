@@ -33,6 +33,22 @@ export class AccountController {
     AccountController.instance = this
   }
 
+  /**
+   * Wait for safeStorage encryption to become available
+   * @param maxRetries Maximum number of retries (default 20)
+   * @param delayMs Delay between retries in milliseconds (default 500)
+   * @returns true if encryption became available, false if timed out
+   */
+  private async waitForSafeStorage(maxRetries: number = 20, delayMs: number = 500): Promise<boolean> {
+    let retries = 0
+    while (!safeStorage.isEncryptionAvailable() && retries < maxRetries) {
+      Log.info(`waiting for safeStorage to become available (attempt ${retries + 1}/${maxRetries})`)
+      await new Promise(resolve => setTimeout(resolve, delayMs))
+      retries++
+    }
+    return safeStorage.isEncryptionAvailable()
+  }
+
   listAvailableAccounts(): Account[] {
     const authAppData = store.store.auth
     if (authAppData) return Object.values(authAppData.availableAccounts)
@@ -76,6 +92,11 @@ export class AccountController {
       const lastLoggedAccount = authAppData.availableAccounts[authAppData.lastUser]
       if (lastLoggedAccount && authAppData.lastUserCryptPsw) {
         try {
+          // Wait for encryption to become available (max 10 seconds with 500ms intervals)
+          if (!await this.waitForSafeStorage()) {
+            Log.warning('auto login failed: safeStorage encryption not available after waiting')
+            return false
+          }
           try {
             const bfs = Object.values(authAppData.lastUserCryptPsw) as any;
             if (bfs[0] === 'Buffer') {
@@ -181,6 +202,11 @@ export class AccountController {
 
   async saveLoggedAccount(account: Account, password: string): Promise<Account> {
     try {
+      // Wait for encryption to become available (max 10 seconds with 500ms intervals)
+      if (!await this.waitForSafeStorage()) {
+        Log.error('saveLoggedAccount: safeStorage encryption not available after waiting')
+        throw new Error('Encryption not available')
+      }
       const clearString = JSON.stringify({ host: account.host, username: account.username, password: password })
       const cryptString = safeStorage.encryptString(clearString)
       const accountUID = getAccountUID(account)

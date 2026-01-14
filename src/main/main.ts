@@ -77,7 +77,7 @@ function startup() {
       if (LoginController.instance && LoginController.instance.window.isOpen() && password && account) {
         Log.info("LOGIN SUCCESS")
         await LoginController.instance.quit()
-        AccountController.instance.saveLoggedAccount(account, password)
+        await AccountController.instance.saveLoggedAccount(account, password)
       }
       store.saveToDisk()
 
