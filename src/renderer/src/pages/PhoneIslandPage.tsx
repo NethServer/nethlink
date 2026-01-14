@@ -183,7 +183,22 @@ export function PhoneIslandPage() {
     })
 
     window.electron.receive(IPC_EVENTS.TRANSFER_CALL, (to: string) => {
+      Log.info("Receive event and send Transfer to", to)
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-transfer'], {
+        to
+      })
+    })
+
+    window.electron.receive(IPC_EVENTS.INTRUDE_CALL, (to: string) => {
+      Log.info("Receive event and send Intrude to", to)
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-intrude'], {
+        to
+      })
+    })
+
+    window.electron.receive(IPC_EVENTS.LISTEN_CALL, (to: string) => {
+      Log.info("Receive event and send Listen to", to)
+      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-listen'], {
         to
       })
     })
