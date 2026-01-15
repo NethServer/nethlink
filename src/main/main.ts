@@ -546,7 +546,7 @@ async function attachProtocolListeners() {
 
     const cleanUrl = url.replace(/^nethlink:\/?\/?/, '')
     const [actionPart, queryString] = cleanUrl.split('?')
-    const action = actionPart.toLowerCase().trim()
+    const action = actionPart.toLowerCase().trim().replace(/\/$/, '')
     const params = new URLSearchParams(queryString || '')
     const to = params.get('to')
 
