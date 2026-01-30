@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from 'react'
-import { differenceInSeconds } from 'date-fns'
-import { format } from 'date-fns-tz'
-import { utcToZonedTime } from 'date-fns-tz'
+import { formatDistanceToNowStrict } from 'date-fns'
+import { format, utcToZonedTime } from 'date-fns-tz'
+import { enGB, it } from 'date-fns/locale'
 import {
   formatDateLocIsAnnouncement,
   getCallTimeToDisplayIsAnnouncement,
@@ -45,13 +45,6 @@ export const CallsDate: FC<CallsDateProps> = ({
   }
 
   // get the local timezone offset in the format +hhmm or -hhmm
-  const getLocalTimezoneOffset = () => {
-    let localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const now = new Date()
-    const offset = format(now, 'xx', { timeZone: localTimezone })
-    return offset
-  }
-
   // get the difference between the local timezone and the timezone of the server
   const getDifferenceBetweenTimezone = (account, isInQueue: boolean) => {
     let differenceValueBetweenTimezone: any
@@ -67,30 +60,62 @@ export const CallsDate: FC<CallsDateProps> = ({
     return diffValueEditedFormat
   }
 
-  const formatCompactDistance = (totalSeconds: number) => {
-    const safeSeconds = Number.isFinite(totalSeconds)
-      ? Math.max(0, Math.floor(totalSeconds))
-      : 0
-
-    const days = Math.floor(safeSeconds / 86400)
-    const hours = Math.floor((safeSeconds % 86400) / 3600)
-    const minutes = Math.floor((safeSeconds % 3600) / 60)
-    const seconds = safeSeconds % 60
-
-    if (days > 0) return `${days}d`
-    if (hours > 0) return `${hours}h ${minutes}m`
-    if (minutes > 0) return `${minutes}m`
-    return `${seconds}s`
-  }
-
   const getHeaderText = (account, call: any, isInAnnouncement: boolean) => {
-    let localTimeZone = getLocalTimezoneOffset()
-    let differenceBetweenTimezone = ''
-    if (isInQueue) {
-      differenceBetweenTimezone = getDifferenceBetweenTimezone(account, true)
-    } else {
-      differenceBetweenTimezone = getDifferenceBetweenTimezone(account, false)
+    const differenceBetweenTimezone = getDifferenceBetweenTimezone(
+      account,
+      isInQueue ? true : false,
+    )
+    const currentLanguage =
+      selectedLanguage || i18next?.languages[0] || 'en'
+
+    const shortIt = {
+      ...it,
+      formatDistance: (token: string, count: number, options?: any) => {
+        const map: Record<string, string> = {
+          xSeconds: 's',
+          xMinutes: 'm',
+          xHours: 'h',
+          xDays: 'g',
+          xMonths: 'mes',
+          xYears: 'a',
+        }
+
+        const unit = map[token] || ''
+        const suffix = options?.addSuffix
+          ? options.comparison && options.comparison > 0
+            ? ' tra'
+            : ' fa'
+          : ''
+
+        return `${count}${unit}${suffix}`
+      },
     }
+
+    const shortEn = {
+      ...enGB,
+      formatDistance: (token: string, count: number, options?: any) => {
+        const map: Record<string, string> = {
+          xSeconds: 's',
+          xMinutes: 'm',
+          xHours: 'h',
+          xDays: 'd',
+          xMonths: 'mo',
+          xYears: 'y',
+        }
+
+        const unit = map[token] || ''
+        const suffix = options?.addSuffix
+          ? options.comparison && options.comparison > 0
+            ? ' in'
+            : ' ago'
+          : ''
+
+        return `${count}${unit}${suffix}`
+      },
+    }
+
+    const locale = currentLanguage === 'it' ? shortIt : shortEn
+
     if (isInAnnouncement) {
       const dateParts = call?.date_creation.split('/')
       const timeParts = call?.time_creation.split(':')
@@ -107,27 +132,19 @@ export const CallsDate: FC<CallsDateProps> = ({
       const second = parseInt(timeParts[2], 10)
 
       const utcDate = new UTCDate(year, month, day, hour, minute, second)
+      const callDate = utcToZonedTime(utcDate, differenceBetweenTimezone)
 
-      const eventDate = utcToZonedTime(utcDate, differenceBetweenTimezone)
-      const nowDate = utcToZonedTime(new Date(), localTimeZone)
-      const diffSeconds = differenceInSeconds(nowDate, eventDate)
-      const compact = formatCompactDistance(Math.abs(diffSeconds))
-
-      return diffSeconds >= 0
-        ? i18next.t('Common.time_distance_ago', { timeDistance: compact })
-        : `in ${compact}`
+      return formatDistanceToNowStrict(callDate, {
+        addSuffix: true,
+        locale,
+      })
     } else {
-      const eventDate = utcToZonedTime(
-        call?.time * 1000,
-        differenceBetweenTimezone,
-      )
-      const nowDate = utcToZonedTime(new Date(), localTimeZone)
-      const diffSeconds = differenceInSeconds(nowDate, eventDate)
-      const compact = formatCompactDistance(Math.abs(diffSeconds))
+      const callDate = utcToZonedTime(call?.time * 1000, differenceBetweenTimezone)
 
-      return diffSeconds >= 0
-        ? i18next.t('Common.time_distance_ago', { timeDistance: compact })
-        : `in ${compact}`
+      return formatDistanceToNowStrict(callDate, {
+        addSuffix: true,
+        locale,
+      })
     }
   }
 
@@ -142,6 +159,8 @@ export const CallsDate: FC<CallsDateProps> = ({
     } else {
       differenceBetweenTimezone = getDifferenceBetweenTimezone(account, false)
     }
+    const currentLanguage = selectedLanguage || i18next?.languages[0] || 'en'
+    const locale = currentLanguage === 'it' ? it : enGB
 
     if (isInAnnouncement) {
       return `(${formatDateLocIsAnnouncement(call)} ${getCallTimeToDisplayIsAnnouncement(
@@ -152,6 +171,7 @@ export const CallsDate: FC<CallsDateProps> = ({
       return `(${format(
         utcToZonedTime(call?.time * 1000, differenceBetweenTimezone),
         'd MMM yyyy HH:mm',
+        { locale },
       )})`
     }
   }
