@@ -386,19 +386,18 @@ function attachOnReadyProcess() {
         stopConnectionPolling()
         return
       }
-      if (net.isOnline()) {
-        const connected = await NetworkController.instance.head('https://connectivitycheck.gstatic.com/generate_204', 3000)
-        if (connected) {
-          Log.info('START - network came back online, retrying automatically')
-          waitingForConnection = false
-          stopConnectionPolling()
-          try {
-            SplashScreenController.instance.window.emit(IPC_EVENTS.HIDE_NO_CONNECTION)
-          } catch (e) {
-            // Splash screen might be closed
-          }
-          startApp(0)
+      // Reuse checkConnection which has fallback logic
+      const connected = await checkConnection()
+      if (connected) {
+        Log.info('START - network came back online, retrying automatically')
+        waitingForConnection = false
+        stopConnectionPolling()
+        try {
+          SplashScreenController.instance.window.emit(IPC_EVENTS.HIDE_NO_CONNECTION)
+        } catch (e) {
+          // Splash screen might be closed
         }
+        startApp(0)
       }
     }, 5000) // Check every 5 seconds
   }
