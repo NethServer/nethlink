@@ -71,6 +71,7 @@
     "This field must be at least": "This field must be at least {{number}} characters",
     "This is not a phone number": "This is not a phone number",
     "Quit": "Quit",
+    "Retry": "Retry",
     "No internet connection title": "No internet connection",
     "No internet connection description": "Please check your connection and try again",
     "Refresh": "Refresh",

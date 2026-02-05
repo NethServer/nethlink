@@ -71,6 +71,7 @@
     "This field must be at least": "Questo campo deve avere almeno {{number}} caratteri",
     "This is not a phone number": "Questo non é un numero telefonico",
     "Quit": "Chiudi",
+    "Retry": "Riprova",
     "No internet connection title": "Nessuna connessione internet",
     "No internet connection description": "Si prega di controllare la connessione e riprovare",
     "Refresh": "Aggiorna",

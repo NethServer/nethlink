@@ -289,6 +289,9 @@ function attachOnReadyProcess() {
     }
   })
 
+  // Track if we're waiting for connection (dialog is shown)
+  let waitingForConnection = false
+
   async function startApp(attempt = 0) {
     let data = store.store || store.getFromDisk()
     if (!checkData(data)) {
@@ -311,13 +314,19 @@ function attachOnReadyProcess() {
       const isOnline = await checkConnection()
       Log.info('START - START APP, retry:', attempt)
       if (!isOnline) {
-        Log.info('START - NO CONNECTION', attempt, store.store)
+        Log.info('START - NO CONNECTION', attempt)
         if (attempt >= 3) {
+          // Stop retrying and show the no connection dialog
+          Log.info('START - showing no connection dialog, stopping automatic retries')
+          waitingForConnection = true
+          startConnectionPolling()
           try {
             SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
           } catch (e) {
             Log.error(e)
           }
+          // Don't continue retrying - wait for user to click Retry or network to come back
+          return
         }
 
         retryAppStart = setTimeout(() => {
@@ -365,6 +374,49 @@ function attachOnReadyProcess() {
       }
     }
   }
+
+  // Polling interval for checking connection when waiting
+  let connectionCheckInterval: NodeJS.Timeout | null = null
+
+  // Start polling for connection when dialog is shown
+  function startConnectionPolling() {
+    if (connectionCheckInterval) return
+    connectionCheckInterval = setInterval(async () => {
+      if (!waitingForConnection) {
+        stopConnectionPolling()
+        return
+      }
+      if (net.isOnline()) {
+        const connected = await NetworkController.instance.head('https://connectivitycheck.gstatic.com/generate_204', 3000)
+        if (connected) {
+          Log.info('START - network came back online, retrying automatically')
+          waitingForConnection = false
+          stopConnectionPolling()
+          try {
+            SplashScreenController.instance.window.emit(IPC_EVENTS.HIDE_NO_CONNECTION)
+          } catch (e) {
+            // Splash screen might be closed
+          }
+          startApp(0)
+        }
+      }
+    }, 5000) // Check every 5 seconds
+  }
+
+  function stopConnectionPolling() {
+    if (connectionCheckInterval) {
+      clearInterval(connectionCheckInterval)
+      connectionCheckInterval = null
+    }
+  }
+
+  // Listen for retry connection event from the splash screen
+  ipcMain.on(IPC_EVENTS.RETRY_CONNECTION, () => {
+    Log.info('START - user requested connection retry')
+    waitingForConnection = false
+    stopConnectionPolling()
+    startApp(0)
+  })
 
   app.on('window-all-closed', () => {
     app.dock?.hide()
