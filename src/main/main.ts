@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut } from 'electron'
+import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut, net } from 'electron'
 import { registerIpcEvents, isCallActive, disableCommandBarShortcuts } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -807,14 +807,33 @@ function checkData(data: any): boolean {
 
 }
 
+const CONNECTIVITY_CHECK_ENDPOINTS = [
+  'https://connectivitycheck.gstatic.com/generate_204', // Google's connectivity check
+  'https://1.1.1.1/cdn-cgi/trace', // Cloudflare
+  'https://cloudflare.com/cdn-cgi/trace' // Cloudflare alternative
+]
+
 async function checkConnection() {
-  const connected = await new Promise((resolve) => {
-    NetworkController.instance.get('https://google.com', {} as any).then(() => {
-      resolve(true)
-    }).catch(() => {
-      resolve(false)
-    })
-  })
+  // Quick check using Electron's built-in net.isOnline()
+  if (!net.isOnline()) {
+    Log.debug("checkConnection: net.isOnline() returned false")
+    if (store.store.connection !== false) {
+      ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, false);
+    }
+    return false
+  }
+
+  // Try connectivity check endpoints with fallbacks
+  let connected = false
+  for (const endpoint of CONNECTIVITY_CHECK_ENDPOINTS) {
+    connected = await NetworkController.instance.head(endpoint, 3000)
+    if (connected) {
+      Log.debug("checkConnection: succeeded with", endpoint)
+      break
+    }
+    Log.debug("checkConnection: failed with", endpoint, "trying next...")
+  }
+
   Log.debug("checkConnection:", { connected, connection: store.store.connection })
   if (connected !== store.store.connection) {
     ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, connected);

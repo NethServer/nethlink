@@ -22,16 +22,35 @@ const RequestStateComponent = () => {
   const [account,] = useSharedState('account')
   const [connection,] = useSharedState('connection')
   const [hasWindowConfig, setHasWindowConfig] = useState<boolean>(false)
-  const { GET } = useNetwork()
+  const { HEAD } = useNetwork()
+
+  const CONNECTIVITY_CHECK_ENDPOINTS = [
+    'https://connectivitycheck.gstatic.com/generate_204', // Google's connectivity check
+    'https://1.1.1.1/cdn-cgi/trace', // Cloudflare
+    'https://cloudflare.com/cdn-cgi/trace' // Cloudflare alternative
+  ]
 
   async function checkConnection() {
-    const connected = await new Promise((resolve) => {
-      GET('https://google.com', {} as any).then(() => {
-        resolve(true)
-      }).catch(() => {
-        resolve(false)
-      })
-    })
+    // Quick check using browser's navigator.onLine
+    if (!navigator.onLine) {
+      Log.debug('check connection: navigator.onLine returned false')
+      if (connection !== false) {
+        window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, false);
+      }
+      return
+    }
+
+    // Try connectivity check endpoints with fallbacks
+    let connected = false
+    for (const endpoint of CONNECTIVITY_CHECK_ENDPOINTS) {
+      connected = await HEAD(endpoint, 3000)
+      if (connected) {
+        Log.debug('check connection: succeeded with', endpoint)
+        break
+      }
+      Log.debug('check connection: failed with', endpoint, 'trying next...')
+    }
+
     Log.debug('check connection', { connected, connection: connection })
     if (connected !== connection) {
       window.electron.send(IPC_EVENTS.UPDATE_CONNECTION_STATE, connected);
