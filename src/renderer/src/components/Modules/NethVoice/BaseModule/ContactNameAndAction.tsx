@@ -69,7 +69,7 @@ export const ContactNameAndActions = ({
     ? contact.company && contact.company !== ' '
       ? contact.company
       : `${t('Common.Unknown')}`
-    : contact.name && contact.name !== ' '
+    : contact.name && contact.name !== ' ' && contact.name !== '-'
       ? contact.name
       : contact.company && contact.company !== ' '
         ? contact.company

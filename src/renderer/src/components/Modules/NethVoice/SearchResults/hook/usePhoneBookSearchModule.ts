@@ -17,12 +17,12 @@ export const usePhonebookSearchModule = (): {
 
   function mapContact(contact: SearchData) {
     // kind & display name
-    if (contact.name) {
+     if (contact?.name && contact?.name !== '-') {
       contact.kind = 'person'
-      contact.displayName = contact.name
+      contact.displayName = contact?.name
     } else {
       contact.kind = 'company'
-      contact.displayName = contact.company
+      contact.displayName = contact?.company
     }
 
     // company contacts
