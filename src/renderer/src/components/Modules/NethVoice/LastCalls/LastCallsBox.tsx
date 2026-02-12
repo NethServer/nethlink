@@ -117,7 +117,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
         {preparedCalls ? (
           preparedCalls.length > 0 ? (
             preparedCalls.map((preparedCall, idx) => {
-              const callKey = preparedCall.uniqueid ?? String(idx)
+              const callKey = `${preparedCall?.uniqueid}_${idx}`
               return (
                 <div
                   className='dark:hover:bg-hoverDark hover:bg-hoverLight'
