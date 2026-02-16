@@ -2,7 +2,11 @@ import {
   faUserPlus as AddUserIcon,
   faUsers as BadgeIcon,
   faCircleUser,
+  faArrowLeft,
+  faXmark,
+  IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
+import { faMissed } from '@nethesis/nethesis-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Avatar, Button } from '../../../Nethesis'
 import { NumberCaller } from '../../../NumberCaller'
@@ -16,12 +20,6 @@ import { Badge } from '../../../Nethesis/Badge'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { useNethlinkData } from '@renderer/store'
 import { usePhonebookModule } from '../PhonebookModule/hook/usePhonebookModule'
-import {
-  OutCallAnsweredIcon,
-  OutCallNotAnsweredIcon,
-  InCallAnsweredIcon,
-  InCallNotAnsweredIcon,
-} from '@renderer/icons'
 import classNames from 'classnames'
 
 export interface LastCallProps {
@@ -103,9 +101,7 @@ export function LastCall({
   const isFromQueue = Boolean(call.channel?.includes('from-queue'))
 
   return (
-    <div
-      className='group'
-    >
+    <div className='group'>
       <div
         className={`flex flex-grow gap-3 min-h-[72px] py-6 px-3 ${className}`}
       >
@@ -191,26 +187,49 @@ export function LastCall({
             className='flex flex-row gap-2 items-center'
             data-tooltip-id={`call_${tooltipId}`}
             data-tooltip-content={
-              call.disposition === 'NO ANSWER'
+              call.disposition === 'ANSWERED'
                 ? call.direction === 'in'
-                  ? t('History.Incoming missed')
-                  : t('History.Outgoing missed')
-                : call.direction === 'in'
                   ? t('History.Incoming answered')
                   : t('History.Outgoing answered')
+                : call.direction === 'in'
+                  ? t('History.Incoming missed')
+                  : t('History.Outgoing missed')
             }
           >
-            <div className={`h-4 w-4`}>
-              {call.disposition === 'NO ANSWER' ? (
-                call.direction === 'in' ? (
-                  <InCallNotAnsweredIcon />
-                ) : (
-                  <OutCallNotAnsweredIcon />
-                )
-              ) : call.direction === 'in' ? (
-                <InCallAnsweredIcon />
-              ) : (
-                <OutCallAnsweredIcon />
+            <div>
+              {call.direction === 'in' && (
+                <div>
+                  {call.disposition === 'ANSWERED' ? (
+                    <FontAwesomeIcon
+                      icon={faArrowLeft}
+                      className='-rotate-45 h-4 w-4 text-surfacePresenceOnline dark:text-surfacePresenceOnlineDark'
+                      aria-hidden='true'
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faMissed as IconDefinition}
+                      className='h-4 w-4 text-surfacePresenceBusy dark:text-surfacePresenceBusyDark'
+                      aria-hidden='true'
+                    />
+                  )}
+                </div>
+              )}
+              {call.direction === 'out' && (
+                <div>
+                  {call.disposition === 'ANSWERED' ? (
+                    <FontAwesomeIcon
+                      icon={faArrowLeft}
+                      className='h-4 w-4 rotate-[135deg] text-surfacePresenceOnline dark:text-surfacePresenceOnlineDark'
+                      aria-hidden='true'
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faXmark}
+                      className='h-4 w-4 text-surfacePresenceBusy dark:text-surfacePresenceBusyDark'
+                      aria-hidden='true'
+                    />
+                  )}
+                </div>
               )}
             </div>
             <Tooltip
