@@ -34,4 +34,17 @@ export class NetworkController {
     }
   }
 
+  async head(path: string, timeoutMs: number = 5000): Promise<boolean> {
+    try {
+      await axios.head(path, {
+        timeout: timeoutMs
+      })
+      return true
+    } catch (e: any) {
+      const err: AxiosError = e
+      Log.debug('during fetch HEAD', err.name, err.code, err.message, path)
+      return false
+    }
+  }
+
 }

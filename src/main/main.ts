@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut } from 'electron'
+import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut, net } from 'electron'
 import { registerIpcEvents, isCallActive, disableCommandBarShortcuts } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
@@ -289,6 +289,9 @@ function attachOnReadyProcess() {
     }
   })
 
+  // Track if we're waiting for connection (dialog is shown)
+  let waitingForConnection = false
+
   async function startApp(attempt = 0) {
     let data = store.store || store.getFromDisk()
     if (!checkData(data)) {
@@ -311,13 +314,19 @@ function attachOnReadyProcess() {
       const isOnline = await checkConnection()
       Log.info('START - START APP, retry:', attempt)
       if (!isOnline) {
-        Log.info('START - NO CONNECTION', attempt, store.store)
+        Log.info('START - NO CONNECTION', attempt)
         if (attempt >= 3) {
+          // Stop retrying and show the no connection dialog
+          Log.info('START - showing no connection dialog, stopping automatic retries')
+          waitingForConnection = true
+          startConnectionPolling()
           try {
             SplashScreenController.instance.window.emit(IPC_EVENTS.SHOW_NO_CONNECTION)
           } catch (e) {
             Log.error(e)
           }
+          // Don't continue retrying - wait for user to click Retry or network to come back
+          return
         }
 
         retryAppStart = setTimeout(() => {
@@ -365,6 +374,48 @@ function attachOnReadyProcess() {
       }
     }
   }
+
+  // Polling interval for checking connection when waiting
+  let connectionCheckInterval: NodeJS.Timeout | null = null
+
+  // Start polling for connection when dialog is shown
+  function startConnectionPolling() {
+    if (connectionCheckInterval) return
+    connectionCheckInterval = setInterval(async () => {
+      if (!waitingForConnection) {
+        stopConnectionPolling()
+        return
+      }
+      // Reuse checkConnection which has fallback logic
+      const connected = await checkConnection()
+      if (connected) {
+        Log.info('START - network came back online, retrying automatically')
+        waitingForConnection = false
+        stopConnectionPolling()
+        try {
+          SplashScreenController.instance.window.emit(IPC_EVENTS.HIDE_NO_CONNECTION)
+        } catch (e) {
+          // Splash screen might be closed
+        }
+        startApp(0)
+      }
+    }, 5000) // Check every 5 seconds
+  }
+
+  function stopConnectionPolling() {
+    if (connectionCheckInterval) {
+      clearInterval(connectionCheckInterval)
+      connectionCheckInterval = null
+    }
+  }
+
+  // Listen for retry connection event from the splash screen
+  ipcMain.on(IPC_EVENTS.RETRY_CONNECTION, () => {
+    Log.info('START - user requested connection retry')
+    waitingForConnection = false
+    stopConnectionPolling()
+    startApp(0)
+  })
 
   app.on('window-all-closed', () => {
     app.dock?.hide()
@@ -807,14 +858,33 @@ function checkData(data: any): boolean {
 
 }
 
+const CONNECTIVITY_CHECK_ENDPOINTS = [
+  'https://connectivitycheck.gstatic.com/generate_204', // Google's connectivity check
+  'https://1.1.1.1/cdn-cgi/trace', // Cloudflare
+  'https://cloudflare.com/cdn-cgi/trace' // Cloudflare alternative
+]
+
 async function checkConnection() {
-  const connected = await new Promise((resolve) => {
-    NetworkController.instance.get('https://google.com', {} as any).then(() => {
-      resolve(true)
-    }).catch(() => {
-      resolve(false)
-    })
-  })
+  // Quick check using Electron's built-in net.isOnline()
+  if (!net.isOnline()) {
+    Log.debug("checkConnection: net.isOnline() returned false")
+    if (store.store.connection !== false) {
+      ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, false);
+    }
+    return false
+  }
+
+  // Try connectivity check endpoints with fallbacks
+  let connected = false
+  for (const endpoint of CONNECTIVITY_CHECK_ENDPOINTS) {
+    connected = await NetworkController.instance.head(endpoint, 3000)
+    if (connected) {
+      Log.debug("checkConnection: succeeded with", endpoint)
+      break
+    }
+    Log.debug("checkConnection: failed with", endpoint, "trying next...")
+  }
+
   Log.debug("checkConnection:", { connected, connection: store.store.connection })
   if (connected !== store.store.connection) {
     ipcMain.emit(IPC_EVENTS.UPDATE_CONNECTION_STATE, undefined, connected);
