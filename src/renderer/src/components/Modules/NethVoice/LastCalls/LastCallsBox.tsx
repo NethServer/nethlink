@@ -48,21 +48,18 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
 
   const prepareCalls = () => {
     if (lastCalls) {
+      const missedCallIds = new Set(missedCalls?.map(c => c.uniqueid))
       const preparedCalls: LastCallData[] = lastCalls
-        .map((c) => {
-          const elem: LastCallData = {
-            ...c,
-            username: getCallName(c),
-            hasNotification:
-              missedCalls?.map((c) => c.uniqueid).includes(c.uniqueid) || false,
-          }
-          return elem
-        })
+        .map((c) => ({
+          ...c,
+          username: getCallName(c),
+          hasNotification: missedCallIds.has(c.uniqueid),
+        }))
         .filter((call) => {
           const numberToCheck = call.direction === 'in' ? call.src : call.dst
           return !numberToCheck?.includes(audioTestCode)
         })
-      setPreparedCalls((p) => preparedCalls)
+      setPreparedCalls(preparedCalls)
     }
   }
 

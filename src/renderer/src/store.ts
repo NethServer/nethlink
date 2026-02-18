@@ -94,12 +94,16 @@ export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWith
             Log.debug('shared state received from', fromPage)
             Object.keys(newStore as object).forEach((k: any) => {
               setData(k, newStore[k])
-              //global[k] = newStore[k]
             })
           }
         })
         Log.debug('shared state requested for the first time')
         window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE);
+
+        return () => {
+          window.electron.removeAllListeners(IPC_EVENTS.SHARED_STATE_UPDATED)
+          isRegistered.current = false
+        }
       }
     }, [pageData]);
   }
