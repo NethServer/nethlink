@@ -213,12 +213,12 @@ export function registerIpcEvents() {
               height
             }, false)
           } else {
-            const [w, h] = window.getContentSize()
+            const bounds = window.getBounds()
             window.setBounds({
               x: newX,
               y: newY,
-              width: w,
-              height: h
+              width: bounds.width,
+              height: bounds.height
             }, false)
           }
         }

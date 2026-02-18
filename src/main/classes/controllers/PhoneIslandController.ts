@@ -22,15 +22,19 @@ export class PhoneIslandController {
       const { w, h } = size
       const window = this.window.getWindow()
       if (window) {
-        const bounds = window.getBounds()
-        if (bounds.height !== h || bounds.width !== w) {
-          window.setBounds({ width: w, height: h })
-          PhoneIslandWindow.currentSize = { width: w, height: h }
-        }
-        //make sure the size is equal to [0,0] when you want to close the phone island, otherwise the size will not close and will generate slowness problems.
         if (h === 0 && w === 0) {
+          // Skip setBounds for 0x0: on Windows with mixed DPI monitors, setBounds with
+          // zero dimensions causes Chromium to multiply the position by the primary
+          // display's scaleFactor (e.g. 1.25), drifting the window on every call cycle.
+          // Just hide directly — the next show will set the correct size.
           window.hide()
+          PhoneIslandWindow.currentSize = { width: 0, height: 0 }
         } else {
+          const bounds = window.getBounds()
+          if (bounds.height !== h || bounds.width !== w) {
+            window.setBounds({ x: bounds.x, y: bounds.y, width: w, height: h })
+            PhoneIslandWindow.currentSize = { width: w, height: h }
+          }
           // Don't show window during warm-up
           if (!window.isVisible() && !this.isWarmingUp) {
             window.show()
@@ -48,8 +52,8 @@ export class PhoneIslandController {
     try {
       const window = this.window.getWindow()
       if (window) {
+        const { w, h } = size
 
-        this.resize(size)
         if (process.platform !== 'linux') {
           const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
           if (phoneIslandPosition) {
@@ -59,22 +63,26 @@ export class PhoneIslandController {
                 result ||
                 (phoneIslandPosition.x >= area.x &&
                   phoneIslandPosition.y >= area.y &&
-                  (phoneIslandPosition.x + size.w) < (area.x + area.width) &&
-                  (phoneIslandPosition.y + size.h) < (area.y + area.height))
+                  (phoneIslandPosition.x + w) < (area.x + area.width) &&
+                  (phoneIslandPosition.y + h) < (area.y + area.height))
               )
             }, false)
             if (isPhoneIslandOnDisplay) {
-              window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
-            } else {
-              window?.center()
+              // Set position and size in a single call BEFORE showing, to avoid
+              // the window briefly appearing at the wrong position (visual trail)
+              window.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y, width: w, height: h }, false)
+              PhoneIslandWindow.currentSize = { width: w, height: h }
+              if (!window.isVisible() && !this.isWarmingUp) {
+                window.show()
+                window.setAlwaysOnTop(true, 'screen-saver')
+              }
+              return
             }
           }
-          else {
-            window?.center()
-          }
-        } else {
-          window?.center()
         }
+        // Fallback: no saved position, off-screen, or Linux
+        this.resize(size)
+        window.center()
       }
     } catch (e) {
       Log.warning('error during showing PhoneIslandWindow:', e)
