@@ -8,7 +8,6 @@ import { IPC_EVENTS, PERMISSION } from "@shared/constants"
 import { getTimeDifference } from "@renderer/lib/dateTime"
 import { format, utcToZonedTime } from "date-fns-tz"
 import { useLoggedNethVoiceAPI } from "./useLoggedNethVoiceAPI"
-import { differenceWith } from "lodash"
 import { t } from "i18next"
 import { useRefState } from "./useRefState"
 
@@ -112,33 +111,32 @@ export const usePhoneIslandEventHandler = () => {
       return `${sign}${hours}${minutes}`
     }
 
-    const diff = differenceWith(newLastCalls.rows, lastCalls.current || [], (a, b) => a.uniqueid === b.uniqueid)
-    const _missedCalls: CallData[] = [
-      ...(missedCalls.current || [])
-    ]
-    let missed: CallData[] = []
+    const existingIds = new Set((lastCalls.current || []).map(c => c.uniqueid))
+    const diff = newLastCalls.rows.filter(c => !existingIds.has(c.uniqueid))
+
     if (diff.length > 0) {
-      diff.forEach((c) => {
-        if (c.direction === 'in' && c.disposition === 'NO ANSWER') {
-          _missedCalls.push(c)
-          const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account.current!, false))
-          const timeDiff = format(utcToZonedTime(c.time! * 1000, differenceBetweenTimezone), 'HH:mm')
-          sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('Notification.lost_call_body', { number: c.src, datetime: timeDiff }))
-        }
+      const newMissed = diff.filter(c => c.direction === 'in' && c.disposition === 'NO ANSWER')
+
+      newMissed.forEach((c) => {
+        const differenceBetweenTimezone = diffValueConversation(getTimeDifference(account.current!, false))
+        const timeDiff = format(utcToZonedTime(c.time! * 1000, differenceBetweenTimezone), 'HH:mm')
+        sendNotification(t('Notification.lost_call_title', { user: c.cnam || c.ccompany || c.src || t('Common.Unknown') }), t('Notification.lost_call_body', { number: c.src, datetime: timeDiff }))
       })
 
-      setMissedCalls((p) => {
-        const pmap = p?.map((c) => c.uniqueid) || []
-        missed = [
-          ...(p || []),
-          ..._missedCalls.filter((c) => !pmap.includes(c.uniqueid))
-        ]
-        return missed
-      })
+      if (newMissed.length > 0) {
+        const MAX_MISSED_CALLS = 50
+        setMissedCalls((p) => {
+          const existingMissedIds = new Set((p || []).map(c => c.uniqueid))
+          const uniqueNewMissed = newMissed.filter(c => !existingMissedIds.has(c.uniqueid))
+          const combined = [...(p || []), ...uniqueNewMissed]
+          return combined.length > MAX_MISSED_CALLS
+            ? combined.slice(combined.length - MAX_MISSED_CALLS)
+            : combined
+        })
+      }
     }
-    setLastCalls(() => [
-      ...newLastCalls.rows
-    ])
+
+    setLastCalls(() => newLastCalls.rows)
   }
 
   const updateLastCalls = async () => {

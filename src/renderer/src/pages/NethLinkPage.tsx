@@ -33,15 +33,43 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   const accountMeInterval = useRef<NodeJS.Timeout>()
 
   useInitialize(() => {
-    initialize()
+    Log.info('INITIALIZE NETHLINK FRONTEND')
+    Notification.requestPermission()
+      .then(() => {
+        Log.info('requested notification permission')
+      })
+      .catch((e) => {
+        Log.warning('notification permission error or unsuccessfully acquired', e)
+      })
   })
 
   useEffect(() => {
     if (account) {
+      window.electron.receive(IPC_EVENTS.UPDATE_APP_NOTIFICATION, showUpdateAppNotification)
+      window.electron.receive(IPC_EVENTS.EMIT_CALL_END, updateLastCalls)
+      window.electron.receive(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, onMainPresence)
+      window.electron.receive(IPC_EVENTS.EMIT_PARKING_UPDATE, updateParkings)
+      window.electron.receive(IPC_EVENTS.EMIT_QUEUE_UPDATE, onQueueUpdate)
+      window.electron.receive(IPC_EVENTS.UPDATE_ACCOUNT, updateAccountData)
+      window.electron.receive(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, handleStartCallByUrlResponse)
+      window.electron.receive(IPC_EVENTS.RECONNECT_SOCKET, handleSocketReconnect)
+
       if (!accountMeInterval.current) {
         accountMeInterval.current = setInterval(loadData,
           1000 * 60 * 5
         )
+      }
+
+      return () => {
+        window.electron.removeAllListeners(IPC_EVENTS.UPDATE_APP_NOTIFICATION)
+        window.electron.removeAllListeners(IPC_EVENTS.EMIT_CALL_END)
+        window.electron.removeAllListeners(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE)
+        window.electron.removeAllListeners(IPC_EVENTS.EMIT_PARKING_UPDATE)
+        window.electron.removeAllListeners(IPC_EVENTS.EMIT_QUEUE_UPDATE)
+        window.electron.removeAllListeners(IPC_EVENTS.UPDATE_ACCOUNT)
+        window.electron.removeAllListeners(IPC_EVENTS.RESPONSE_START_CALL_BY_URL)
+        window.electron.removeAllListeners(IPC_EVENTS.RECONNECT_SOCKET)
+        stopInterval(accountMeInterval)
       }
     } else {
       Log.info('Account logout')
@@ -61,25 +89,6 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
       const phone = account?.data?.default_device.description || t('Settings.IP Phone')
       sendNotification(t('Common.Warning'), t('Notification.physical_phone_error', { phone }))
     }
-  }
-
-  function initialize() {
-    Log.info('INITIALIZE NETHLINK FRONTEND')
-    Notification.requestPermission()
-      .then(() => {
-        Log.info('requested notification permission')
-      })
-      .catch((e) => {
-        Log.warning('notification permission error or unsuccessfully acquired', e)
-      })
-    window.electron.receive(IPC_EVENTS.UPDATE_APP_NOTIFICATION, showUpdateAppNotification)
-    window.electron.receive(IPC_EVENTS.EMIT_CALL_END, updateLastCalls)
-    window.electron.receive(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, onMainPresence)
-    window.electron.receive(IPC_EVENTS.EMIT_PARKING_UPDATE, updateParkings)
-    window.electron.receive(IPC_EVENTS.EMIT_QUEUE_UPDATE, onQueueUpdate)
-    window.electron.receive(IPC_EVENTS.UPDATE_ACCOUNT, updateAccountData)
-    window.electron.receive(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, handleStartCallByUrlResponse)
-    window.electron.receive(IPC_EVENTS.RECONNECT_SOCKET, handleSocketReconnect)
   }
 
   const handleSocketReconnect = () => {
