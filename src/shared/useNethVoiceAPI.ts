@@ -24,7 +24,7 @@ const PRIMARY_API_BASE_PATH = '/api'
 const FALLBACK_API_BASE_PATH = '/webrest'
 
 export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) => {
-  const { GET, POST } = useNetwork()
+  const { GET, POST, DELETE } = useNetwork()
   let isFirstHeartbeat = true
   let account: Account | undefined = loggedAccount || undefined
   // Use account's stored API path preference, or default to primary
@@ -45,9 +45,6 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         }
         if (endpoint === '/logout') {
           return `${FALLBACK_API_BASE_PATH}/authentication/logout`
-        }
-        if (endpoint === '/authentication/phone_island_token_login') {
-          return `${FALLBACK_API_BASE_PATH}/authentication/phone_island_token_login`
         }
         // For other endpoints, use webrest format
         return `${FALLBACK_API_BASE_PATH}${endpoint}`
@@ -143,6 +140,17 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
       if (!path.includes('login') && !path.includes('2fa/verify-otp'))
         console.error(e)
+      throw e
+    }
+  }
+
+  async function _DELETE(path: string, hasAuth = true): Promise<any> {
+    try {
+      return (await DELETE(_joinUrl(path), _getHeaders(hasAuth)))
+    } catch (e) {
+      if (!path.includes('login') && !path.includes('2fa/verify-otp')) {
+        console.error(e)
+      }
       throw e
     }
   }
@@ -393,11 +401,30 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       })
     },
 
-    phoneIslandTokenLogin: async (): Promise<{ username: string, token: string }> =>
-      await _POST(buildApiPath('/authentication/phone_island_token_login'), { subtype: 'nethlink' }),
+    // Dedicated token for Phone Island in NethLink (kept separate by design).
+    phoneIslandTokenLogin: async (): Promise<{ username: string, token: string }> => {
+      try {
+        return await _POST(buildApiPath('/tokens/persistent/nethlink'))
+      } catch (reason: any) {
+        if (reason?.response?.status === 404) {
+          // Legacy middleware fallback.
+          return await _POST(buildApiPath('/authentication/phone_island_token_login'), { subtype: 'nethlink' })
+        }
+        throw reason
+      }
+    },
 
-    phoneIslandTokenLogout: async (): Promise<{ username: string, token: string }> =>
-      await _POST(buildApiPath('/authentication/persistent_token_remove'), { type: 'phone-island', subtype: 'nethlink' }),
+    phoneIslandTokenLogout: async (): Promise<void> => {
+      try {
+        return await _DELETE(buildApiPath('/tokens/persistent/nethlink'))
+      } catch (reason: any) {
+        if (reason?.response?.status === 404) {
+          // Legacy middleware fallback.
+          return await _POST(buildApiPath('/authentication/persistent_token_remove'), { type: 'phone-island', subtype: 'nethlink' })
+        }
+        throw reason
+      }
+    },
   }
 
   const CustCard = {}
