@@ -14,7 +14,8 @@ import { debouncer, getAccountUID, getPageFromQuery, isDev } from '@shared/utils
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
-import { ClientRequest, get } from 'http'
+import { ClientRequest, get as httpGet } from 'http'
+import { get as httpsGet } from 'https'
 import os from 'os'
 import {
   CommandBarDoubleTapModifier,
@@ -113,10 +114,13 @@ export function registerIpcEvents() {
       }
     }
     try {
-      const request = get(
+      const isHttps = url.startsWith('https')
+      const doGet = isHttps ? httpsGet : httpGet
+      const request = doGet(
         url,
         {
-          timeout: 3000
+          timeout: 3000,
+          ...(isHttps && { rejectUnauthorized: false })
         },
         (res) => {
           if (res.statusCode !== 200) {
