@@ -936,7 +936,7 @@
     "download": "Scarica l'aggiornamento"
   },
   "CommandBar": {
-    "Placeholder": "Inserisci un numero di telefono...",
+    "Placeholder": "Cerca contatto o componi numero...",
     "Call": "Chiama"
   },
   "Errors": {

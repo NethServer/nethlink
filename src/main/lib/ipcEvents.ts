@@ -550,6 +550,14 @@ export function registerIpcEvents() {
     }
   })
 
+  ipcMain.on(IPC_EVENTS.COMMAND_BAR_RESIZE, (_, size: { width: number, height: number }) => {
+    try {
+      CommandBarController.instance?.resize(size)
+    } catch (e) {
+      Log.error('COMMAND_BAR_RESIZE error', e)
+    }
+  })
+
   ipcMain.on(IPC_EVENTS.CHANGE_COMMAND_BAR_SHORTCUT, async (_, combo) => {
     if (!isUserLoggedIn()) {
       disableCommandBarShortcuts()
