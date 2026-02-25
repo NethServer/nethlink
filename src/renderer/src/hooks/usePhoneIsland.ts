@@ -8,14 +8,19 @@ export const usePhoneIsland = () => {
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
 
   const createDataConfig = async (account: Account): Promise<[Extension, string]> => {
-    const phoneIslandTokenLoginResponse = (await NethVoiceAPI.Authentication.phoneIslandTokenLogin()).token
+    const tokenResponse = await NethVoiceAPI.Authentication.phoneIslandTokenLogin()
+    const phoneIslandToken = tokenResponse?.token
+    if (!phoneIslandToken) {
+      throw new Error('Unable to retrieve dedicated Phone Island token')
+    }
+
     const deviceInformationObject: Extension | undefined = account.data!.endpoints.extension.find((e) => e.type === 'nethlink')
     if (deviceInformationObject) {
       const hostname = account!.host
       const config: PhoneIslandConfig = {
         hostname,
         username: account.username,
-        authToken: phoneIslandTokenLoginResponse,
+        authToken: phoneIslandToken,
         sipExten: deviceInformationObject.id,
         sipSecret: deviceInformationObject.secret,
         sipHost: account.sipHost || '',
