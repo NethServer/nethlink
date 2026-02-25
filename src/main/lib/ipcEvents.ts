@@ -14,7 +14,8 @@ import { debouncer, getAccountUID, getPageFromQuery, isDev } from '@shared/utils
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
-import { ClientRequest, get } from 'http'
+import * as http from 'http'
+import * as https from 'https'
 import os from 'os'
 import {
   CommandBarDoubleTapModifier,
@@ -100,38 +101,97 @@ export function registerIpcEvents() {
     PhoneIslandController.instance.call(phoneNumber)
   })
 
-  ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url) => {
-    function triggerError(e, request: ClientRequest | undefined = undefined) {
-      Log.error(e)
+  ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, rawUrl) => {
+    Log.info('START_CALL_BY_URL - Request received')
+
+    const triggerError = (e: any) => {
+      Log.error('START_CALL_BY_URL - Error:', e?.message || e)
       try {
         PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
         NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, false)
-      } catch (e) {
-        Log.error(e)
-      } finally {
-        request && request.destroy()
+      } catch (emitError) {
+        Log.error('START_CALL_BY_URL - Emit error:', emitError)
       }
     }
-    try {
-      const request = get(
-        url,
-        {
-          timeout: 3000
-        },
-        (res) => {
-          if (res.statusCode !== 200) {
-            triggerError(new Error('status error'), request)
-          }
-          NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, true)
-          PhoneIslandController.instance.window.show()
-          Log.debug('START_CALL_BY_URL', url, res.statusCode)
-        }
-      )
 
-      request.on('error', (e) => {
-        triggerError(e, request)
-      })
-    } catch (e) {
+    try {
+      const parsedUrl = new URL(rawUrl)
+
+      // decodeURIComponent is vital to restore special characters like commas in passwords
+      const username = decodeURIComponent(parsedUrl.username)
+      const password = decodeURIComponent(parsedUrl.password)
+
+      if (parsedUrl.searchParams.has('outgoing_uri')) {
+        parsedUrl.searchParams.delete('outgoing_uri')
+      }
+
+      const auth = Buffer.from(`${username}:${password}`).toString('base64')
+      // Restore '=' signs that the Node URL object might have encoded as '%3D'
+      const requestPath = (parsedUrl.pathname + parsedUrl.search).replace(/%3D/g, '=')
+
+      const executeRequest = (useHttps: boolean): Promise<void> => {
+        return new Promise((resolve, reject) => {
+          const client = useHttps ? https : http
+          const port = parsedUrl.port || (useHttps ? 443 : 80)
+
+          const options = {
+            protocol: useHttps ? 'https:' : 'http:',
+            hostname: parsedUrl.hostname,
+            port: port,
+            path: requestPath,
+            method: 'GET',
+            timeout: 3000,
+            ...(useHttps && { rejectUnauthorized: false }),
+            headers: {
+              'Authorization': `Basic ${auth}`,
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+          }
+
+          const request = client.request(options, (res) => {
+            // Drain the response buffer to avoid memory leaks
+            res.on('data', () => { })
+            res.on('end', () => {
+              if (res.statusCode === 200) {
+                Log.info(`START_CALL_BY_URL - Call successfully started via ${useHttps ? 'HTTPS' : 'HTTP'}`)
+                resolve()
+              } else if (res.statusCode === 401 || res.statusCode === 403) {
+                reject({ fatal: true, error: new Error(`Authentication error: ${res.statusCode} - ${res.statusMessage}`) })
+              } else {
+                reject({ fatal: false, error: new Error(`Status error: ${res.statusCode} - ${res.statusMessage}`) })
+              }
+            })
+          })
+
+          request.on('error', (e) => reject({ fatal: false, error: e }))
+
+          request.on('timeout', () => {
+            request.destroy()
+            reject({ fatal: false, error: new Error('Request timeout') })
+          })
+
+          request.end()
+        })
+      }
+
+      // Fallback logic: Try HTTPS first, fallback to HTTP on network failure
+      try {
+        await executeRequest(true)
+      } catch (httpsResult: any) {
+        if (httpsResult.fatal) throw httpsResult.error
+
+        Log.warning('START_CALL_BY_URL - HTTPS failed, falling back to HTTP...')
+        try {
+          await executeRequest(false)
+        } catch (httpResult: any) {
+          throw httpResult.error
+        }
+      }
+
+      NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, true)
+      PhoneIslandController.instance.window.show()
+
+    } catch (e: any) {
       triggerError(e)
     }
   })
@@ -384,36 +444,36 @@ export function registerIpcEvents() {
 
     try {
       const registered = globalShortcut.register(combo, async () => {
-      // get selected text content
-      const isMac = os.platform() === 'darwin'
-      const isLinux = os.platform() === 'linux';
-      const modifierKey = isMac ? Key.LeftSuper : Key.LeftControl
-      keyboard.config.autoDelayMs = 50;
-      await keyboard.pressKey(modifierKey);
-      await keyboard.pressKey(Key.C);
-      await keyboard.releaseKey(Key.C);
-      await keyboard.releaseKey(modifierKey);
-      await new Promise(resolve => setTimeout(resolve, 100));
+        // get selected text content
+        const isMac = os.platform() === 'darwin'
+        const isLinux = os.platform() === 'linux';
+        const modifierKey = isMac ? Key.LeftSuper : Key.LeftControl
+        keyboard.config.autoDelayMs = 50;
+        await keyboard.pressKey(modifierKey);
+        await keyboard.pressKey(Key.C);
+        await keyboard.releaseKey(Key.C);
+        await keyboard.releaseKey(modifierKey);
+        await new Promise(resolve => setTimeout(resolve, 100));
 
-      // trim spaces
-      let selectedText = await clipboard.readText(isLinux ? 'selection' : 'clipboard');
-      if (typeof selectedText !== 'string') return
-      selectedText = selectedText.trim()
+        // trim spaces
+        let selectedText = await clipboard.readText(isLinux ? 'selection' : 'clipboard');
+        if (typeof selectedText !== 'string') return
+        selectedText = selectedText.trim()
 
-      // remove spaces between text
-      const prefixMatch = selectedText.match(/^[*#+]+/)
-      const prefix = prefixMatch ? prefixMatch[0] : ''
-      let sanitized = selectedText.replace(/[^\d]/g, '')
-      let number = prefix + sanitized
+        // remove spaces between text
+        const prefixMatch = selectedText.match(/^[*#+]+/)
+        const prefix = prefixMatch ? prefixMatch[0] : ''
+        let sanitized = selectedText.replace(/[^\d]/g, '')
+        let number = prefix + sanitized
 
-      // check is a valid number
-      const isValidNumber = /^([*#+]?)(\d{2,})$/.test(number)
-      if (isValidNumber) {
-        Log.info('Shortcut call to:', number)
-        PhoneIslandController.instance.call(number)
-      } else {
-        Log.info('Selected text is not a valid number:', selectedText)
-      }
+        // check is a valid number
+        const isValidNumber = /^([*#+]?)(\d{2,})$/.test(number)
+        if (isValidNumber) {
+          Log.info('Shortcut call to:', number)
+          PhoneIslandController.instance.call(number)
+        } else {
+          Log.info('Selected text is not a valid number:', selectedText)
+        }
       })
       if (registered) {
         registeredCallShortcut = combo
