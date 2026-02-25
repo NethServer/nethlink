@@ -403,27 +403,19 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
     // Dedicated token for Phone Island in NethLink (kept separate by design).
     phoneIslandTokenLogin: async (): Promise<{ username: string, token: string }> => {
-      try {
-        return await _POST(buildApiPath('/tokens/persistent/nethlink'))
-      } catch (reason: any) {
-        if (reason?.response?.status === 404) {
-          // Legacy middleware fallback.
-          return await _POST(buildApiPath('/authentication/phone_island_token_login'), { subtype: 'nethlink' })
-        }
-        throw reason
+      if (currentApiBasePath === FALLBACK_API_BASE_PATH) {
+        return await _POST(buildApiPath('/authentication/phone_island_token_login'), { subtype: 'nethlink' })
       }
+
+      return await POST(_joinUrl(buildApiPath('/tokens/persistent/nethlink')), undefined, _getHeaders())
     },
 
     phoneIslandTokenLogout: async (): Promise<void> => {
-      try {
-        return await _DELETE(buildApiPath('/tokens/persistent/nethlink'))
-      } catch (reason: any) {
-        if (reason?.response?.status === 404) {
-          // Legacy middleware fallback.
-          return await _POST(buildApiPath('/authentication/persistent_token_remove'), { type: 'phone-island', subtype: 'nethlink' })
-        }
-        throw reason
+      if (currentApiBasePath === FALLBACK_API_BASE_PATH) {
+        return await _POST(buildApiPath('/authentication/persistent_token_remove'), { type: 'phone-island', subtype: 'nethlink' })
       }
+
+      return await DELETE(_joinUrl(buildApiPath('/tokens/persistent/nethlink')), _getHeaders())
     },
   }
 
