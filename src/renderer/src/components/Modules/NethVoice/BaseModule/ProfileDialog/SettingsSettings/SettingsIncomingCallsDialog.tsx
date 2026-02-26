@@ -33,6 +33,7 @@ const capitalizeFirstLetter = (str: string): string => {
 const LOCALSTORAGE_KEYS = {
   ringtone: 'phone-island-ringing-tone',
   outputDevice: 'phone-island-ringing-tone-output',
+  showNotification: 'phone-island-show-notification',
 } as const
 
 const getRingtoneFromLocalStorage = (): string | null => {
@@ -95,6 +96,36 @@ const setOutputDeviceToLocalStorage = (value: string): void => {
   }
 }
 
+const getShowNotificationFromLocalStorage = (): boolean => {
+  try {
+    const rawValue = localStorage.getItem(LOCALSTORAGE_KEYS.showNotification)
+    if (!rawValue) return true
+
+    try {
+      const parsed = JSON.parse(rawValue)
+      return parsed.enabled !== false
+    } catch (parseError) {
+      console.warn(
+        'localStorage value for show notification is not valid JSON, using default:',
+        rawValue,
+      )
+      return true
+    }
+  } catch (error) {
+    console.warn('Error reading show notification from localStorage:', error)
+    return true
+  }
+}
+
+const setShowNotificationToLocalStorage = (value: boolean): void => {
+  try {
+    const jsonValue = JSON.stringify({ enabled: value })
+    localStorage.setItem(LOCALSTORAGE_KEYS.showNotification, jsonValue)
+  } catch (error) {
+    console.warn('Error saving show notification to localStorage:', error)
+  }
+}
+
 export function SettingsIncomingCallsDialog() {
   const [, setIsIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
   const [availableRingtones] = useSharedState('availableRingtones')
@@ -103,6 +134,7 @@ export function SettingsIncomingCallsDialog() {
   const [formData, setFormData] = useState({
     ringtone: '',
     outputDevice: '',
+    showNotification: true,
   })
 
   // Convert availableRingtones from store to local format
@@ -114,13 +146,20 @@ export function SettingsIncomingCallsDialog() {
   useEffect(() => {
     initAudioOutputDevices()
 
+    // Request ringtone list from phone-island when dialog opens
+    Log.info('Requesting ringtone list from phone-island on dialog open')
+    const ringtoneListEvent = new CustomEvent(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list'], {})
+    window.dispatchEvent(ringtoneListEvent)
+
     // Load saved preferences from localStorage
     const savedRingtone = getRingtoneFromLocalStorage()
     const savedOutputDevice = getOutputDeviceFromLocalStorage()
+    const savedShowNotification = getShowNotificationFromLocalStorage()
 
     setFormData({
       ringtone: savedRingtone || '',
       outputDevice: savedOutputDevice || '',
+      showNotification: savedShowNotification,
     })
 
     // Listen for audio player closed via IPC
@@ -130,6 +169,20 @@ export function SettingsIncomingCallsDialog() {
 
     return () => {
       // Cleanup IPC listener
+    }
+  }, [])
+
+  // Update form data when ringtones become available
+  useEffect(() => {
+    if (availableRingtones && availableRingtones.length > 0 && !formData.ringtone) {
+      const savedRingtone = getRingtoneFromLocalStorage()
+      if (savedRingtone) {
+        setFormData((prev) => ({
+          ...prev,
+          ringtone: savedRingtone,
+        }))
+        Log.info('Updated ringtone in form after ringtones loaded:', savedRingtone)
+      }
     }
   }, [availableRingtones])
 
@@ -170,6 +223,7 @@ export function SettingsIncomingCallsDialog() {
     // Save to localStorage
     setRingtoneToLocalStorage(formData.ringtone)
     setOutputDeviceToLocalStorage(formData.outputDevice)
+    setShowNotificationToLocalStorage(formData.showNotification)
 
     // Send IPC event to PhoneIslandPage to apply settings
     window.electron.send(IPC_EVENTS.CHANGE_RINGTONE_SETTINGS, {
@@ -388,6 +442,32 @@ export function SettingsIncomingCallsDialog() {
                       </div>
                     </Dropdown>
                   </div>
+                </div>
+
+                {/* Show notification checkbox */}
+                <div className='flex flex-col gap-1 mt-3'>
+                  <label className='flex items-center gap-2 cursor-pointer'>
+                    <input
+                      type='checkbox'
+                      checked={formData.showNotification}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          showNotification: e.target.checked,
+                        }))
+                      }
+                      className='h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500'
+                    />
+                    <span className='text-sm font-medium'>
+                      {t('Settings.ShowNotificationOnIncomingCall')}
+                    </span>
+                  </label>
+                  <p className='text-xs text-gray-500 dark:text-gray-400 ml-6'>
+                    {t('Settings.ShowNotificationOnIncomingCallDescription')}
+                  </p>
+                </div>
+
+                {/* div>
                 </div>
 
                 {/* Action buttons */}

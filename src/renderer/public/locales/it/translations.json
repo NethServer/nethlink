@@ -334,6 +334,8 @@
     "Devices": "Audio e Video",
     "IncomingCalls": "Chiamate in Arrivo",
     "Ringtone": "Suoneria",
+    "ShowNotificationOnIncomingCall": "Mostra notifica chiamata in arrivo",
+    "ShowNotificationOnIncomingCallDescription": "Visualizza la Phone Island quando ricevi una chiamata in entrata",
     "Time preferences": "Preferenze di tempo",
     "Login/logout preferences": "Preferenze di entrata/uscita",
     "Logout from queue automatically": "Esci dalla coda automaticamente",

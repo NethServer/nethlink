@@ -274,6 +274,28 @@ export function PhoneIslandPage() {
       const t = Number((top ?? '0px').replace('px', ''))
       const l = Number((left ?? '0px').replace('px', ''))
       const b = Number((bottom ?? '0px').replace('px', ''))
+
+      // Check if user wants to show Phone Island on incoming call
+      let shouldShowPhoneIsland = true
+      try {
+        const savedShowNotificationRaw = localStorage.getItem('phone-island-show-notification')
+        if (savedShowNotificationRaw) {
+          const parsed = JSON.parse(savedShowNotificationRaw)
+          shouldShowPhoneIsland = parsed.enabled !== false
+        }
+      } catch (error) {
+        Log.warning('Error reading show notification preference:', error)
+      }
+
+      // If user disabled notifications and there's a size change (incoming call), hide the Phone Island
+      let finalW = w
+      let finalH = h
+      if (!shouldShowPhoneIsland && w > 0 && h > 0) {
+        Log.info('Phone Island notification disabled by user - keeping window hidden')
+        finalW = 0
+        finalH = 0
+      }
+
       const data = {
         width,
         height,
@@ -293,8 +315,8 @@ export function PhoneIslandPage() {
       `)
 
       window.api.resizePhoneIsland({
-        w: w + r + l,
-        h: h + t + b + transcription ,
+        w: finalW + r + l,
+        h: finalH + t + b + transcription ,
       })
     }
   }
