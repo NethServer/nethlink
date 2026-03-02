@@ -40,21 +40,20 @@ export class CommandBarController {
         // Start grace period to ignore blur events during focus transition
         this.isShowingInProgress = true
 
-        // Restore original size if it was reset to [0,0]
-        window.setBounds({
-          width: this.originalSize.width,
-          height: this.originalSize.height
-        })
-
         const cursorPoint = screen.getCursorScreenPoint()
         const currentDisplay = screen.getDisplayNearestPoint(cursorPoint)
         const { x, y, width, height } = currentDisplay.workArea
-        const windowBounds = window.getBounds()
 
-        const centerX = x + Math.round((width - windowBounds.width) / 2)
+        const centerX = x + Math.round((width - this.originalSize.width) / 2)
         const centerY = y + Math.round(height * 0.3)
 
-        window.setBounds({ x: centerX, y: centerY })
+        // Always pass the full rect to setBounds to avoid DPI issues on Windows
+        window.setBounds({
+          x: centerX,
+          y: centerY,
+          width: this.originalSize.width,
+          height: this.originalSize.height
+        })
 
         const isWindows = process.platform === 'win32'
 
@@ -102,8 +101,6 @@ export class CommandBarController {
       const window = this.window.getWindow()
       if (window && this.isVisible) {
         this.isVisible = false
-        // Reset size to [0,0] to avoid slowness/inconsistent state - same as PhoneIsland pattern
-        window.setBounds({ width: 0, height: 0 })
 
         if (isMac) {
           window.hide()
@@ -121,6 +118,24 @@ export class CommandBarController {
       }
     } catch (e) {
       Log.warning('error during hiding CommandBarWindow:', e)
+    }
+  }
+
+  resize(size: { width: number, height: number }) {
+    try {
+      const window = this.window.getWindow()
+      if (window && this.isVisible) {
+        const bounds = window.getBounds()
+        // Always pass the full rect to avoid DPI issues on Windows
+        window.setBounds({
+          x: bounds.x,
+          y: bounds.y,
+          width: size.width,
+          height: size.height
+        })
+      }
+    } catch (e) {
+      Log.warning('error during resizing CommandBarWindow:', e)
     }
   }
 

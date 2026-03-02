@@ -937,7 +937,7 @@
     "download": "Download the update"
   },
   "CommandBar": {
-    "Placeholder": "Enter a phone number...",
+    "Placeholder": "Search contact or dial number...",
     "Call": "Call"
   },
   "Errors": {
