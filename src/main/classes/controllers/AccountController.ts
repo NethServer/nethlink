@@ -127,13 +127,9 @@ export class AccountController {
 
               try {
                 // Make a simple API call to verify the token is still accepted by the server
-                // Use the /api/user/me endpoint to validate the token
-                const testUrl = `https://${lastLoggedAccount.host}/api/user/me`
-                const response = await NetworkController.instance.get(testUrl, {
-                  headers: {
-                    'Authorization': `Bearer ${lastLoggedAccount.jwtToken}`
-                  }
-                } as any)
+                // Use the API client so path selection (/api vs /webrest) follows account settings/fallback logic
+                const { NethVoiceAPI } = useNethVoiceAPI(lastLoggedAccount)
+                await NethVoiceAPI.User.me()
 
                 // If we get here, the token is valid on the server
                 Log.info('auto login: token validated with server, using saved token')
