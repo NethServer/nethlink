@@ -27,6 +27,17 @@ export const useNetwork = () => {
     }
   }
 
+  async function DELETE(path: string, config: { headers: { Authorization?: string | undefined; 'Content-Type': string } } | undefined = { headers: { 'Content-Type': 'application/json' } }): Promise<any> {
+    try {
+      const response = await axios.delete(path, config)
+      return response.data
+    } catch (e: any) {
+      const err: AxiosError = e
+      Log.error('during fetch DELETE', err.name, err.code, err.message, path, config)
+      throw e
+    }
+  }
+
   async function HEAD(path: string, timeoutMs: number = 5000): Promise<boolean> {
     try {
       await axios.head(path, {
@@ -43,6 +54,7 @@ export const useNetwork = () => {
   return {
     GET,
     POST,
+    DELETE,
     HEAD
   }
 }
