@@ -6,9 +6,9 @@ import {
   PhoneIslandSizes,
 } from "@shared/types"
 import { Log } from "@shared/utils/logger"
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { t } from "i18next"
-import { sendNotification } from "@renderer/utils"
+import { sendNotification, sendSystemNotification } from "@renderer/utils"
 import { useSharedState } from "@renderer/store"
 
 // Track readiness state for both WebRTC and Socket
@@ -63,6 +63,7 @@ export const usePhoneIslandEventListener = () => {
   const [account] = useSharedState('account')
   const [connected, setConnected] = useSharedState('connection')
   const [availableRingtones, setAvailableRingtones] = useSharedState('availableRingtones')
+  const notifiedSummaryIdsRef = useRef<Set<string>>(new Set())
 
   const [phoneIslandData, setPhoneIslandData] = useState<PhoneIslandData>({
     activeAlerts: {},
@@ -75,6 +76,10 @@ export const usePhoneIslandEventListener = () => {
     view: null
   })
   const [phoneIsalndSizes, setPhoneIslandSizes] = useState<PhoneIslandSizes>(defaultSize)
+
+  useEffect(() => {
+    notifiedSummaryIdsRef.current.clear()
+  }, [account?.username])
 
 
   const eventHandler = (event: PHONE_ISLAND_EVENTS, callback?: (data?: any) => void | Promise<void>) => ({
@@ -333,6 +338,29 @@ export const usePhoneIslandEventListener = () => {
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-output-changed"], (data) => {
         Log.info('Phone-island confirmed output device changed:', data?.deviceId)
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-not-ready"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-ready"], (data) => {
+        const linkedid = data?.linkedid
+        const isSummaryEnabled = account?.data?.call_summary_enabled === true
+        const isSummaryNotificationEnabled =
+          account?.data?.settings?.call_summary_notifications !== false
+
+        if (!linkedid || !account || !isSummaryEnabled || !isSummaryNotificationEnabled) {
+          return
+        }
+
+        if (notifiedSummaryIdsRef.current.has(linkedid)) {
+          return
+        }
+
+        notifiedSummaryIdsRef.current.add(linkedid)
+
+        sendSystemNotification(
+          t('Notification.call_summary_ready_title'),
+          t('Notification.call_summary_ready_body'),
+          `/history?section=Calls&summaryLinkedid=${encodeURIComponent(linkedid)}`,
+        )
       }),
     }
   }

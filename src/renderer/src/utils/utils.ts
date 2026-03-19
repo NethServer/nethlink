@@ -40,6 +40,18 @@ export async function sendNotification(title: string, body: string, openUrl?: st
   }
 }
 
+export function sendSystemNotification(title: string, body: string, openUrl?: string) {
+  window.api.sendNotification(
+    title,
+    {
+      body,
+      icon: "./icons/Nethlink-logo.svg",
+      silent: false,
+    },
+    openUrl,
+  )
+}
+
 export const ClassNames = (...args: ClassValue[]) => {
   return twMerge(clsx(...args))
 }
