@@ -32,7 +32,7 @@ export function SettingsShortcutDialog() {
   ])
 
   const isModifierKey = (key: string) =>
-    ['Control', 'Alt', 'Meta'].includes(key)
+    ['Control', 'Alt', 'Meta', 'AltGraph'].includes(key)
 
   const normalizeKey = (key: string): string => {
     switch (key) {
@@ -40,6 +40,8 @@ export function SettingsShortcutDialog() {
         return 'Ctrl'
       case 'Meta':
         return 'Cmd'
+      case 'AltGraph':
+        return 'AltGr'
       case ' ':
         return 'Space'
       default:
@@ -100,21 +102,39 @@ export function SettingsShortcutDialog() {
 
     const newKeys = new Set(keysPressed)
 
-    if (e.ctrlKey) newKeys.add('Ctrl')
-    if (e.altKey) newKeys.add('Alt')
+    const code = (e as any).code as string | undefined
+    const hasGetModifierState = typeof (e as any).getModifierState === 'function'
+    const modifierStateAltGraph = hasGetModifierState
+      ? (e as any).getModifierState('AltGraph')
+      : false
+
+    const isAltGr =
+      rawKey === 'AltGraph' ||
+      modifierStateAltGraph ||
+      code === 'AltRight' ||
+      (code === 'AltRight' && e.ctrlKey)
+
+    if (isAltGr) {
+      newKeys.add('AltGr')
+    } else {
+      if (e.ctrlKey) newKeys.add('Ctrl')
+      if (e.altKey) newKeys.add('Alt')
+    }
+
     if (e.metaKey) newKeys.add('Cmd')
 
     if (!isModifierKey(rawKey)) {
       newKeys.add(normalizeKey(rawKey))
     }
 
-    setKeysPressed(newKeys)
-
-    const orderedModifiers = ['Ctrl', 'Alt', 'Cmd']
+    const orderedModifiers = ['Ctrl', 'Alt', 'AltGr', 'Cmd']
     const modifiers = orderedModifiers.filter((k) => newKeys.has(k))
-    const others = [...newKeys].filter(
-      (k) => !orderedModifiers.includes(k as any),
-    )
+    const others = [...newKeys].filter((k) => !orderedModifiers.includes(k as any))
+
+    // Require at least one modifier key — reject bare keys like "6", "R", etc.
+    if (others.length > 0 && modifiers.length === 0) return
+
+    setKeysPressed(newKeys)
     setCombo([...modifiers, ...others].join('+'))
   }
 

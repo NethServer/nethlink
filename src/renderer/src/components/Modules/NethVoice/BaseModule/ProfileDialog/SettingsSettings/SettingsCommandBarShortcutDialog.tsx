@@ -158,11 +158,15 @@ export function SettingsCommandBarShortcutDialog() {
       newKeys.add(normalizeKey(rawKey))
     }
 
-    setKeysPressed(newKeys)
-
     const orderedModifiers = ['Ctrl', 'Alt', 'AltGr', 'Cmd']
     const modifiers = orderedModifiers.filter((k) => newKeys.has(k))
     const others = [...newKeys].filter((k) => !orderedModifiers.includes(k as any))
+
+    // Require at least one modifier key — reject bare keys like "6", "R", etc.
+    // Solo modifiers (e.g. just "Ctrl") are still allowed for double-tap.
+    if (others.length > 0 && modifiers.length === 0) return
+
+    setKeysPressed(newKeys)
     setCombo([...modifiers, ...others].join('+'))
   }
 
