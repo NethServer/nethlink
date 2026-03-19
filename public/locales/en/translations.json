@@ -150,7 +150,8 @@
     "call_transferred_title": "Call transferred",
     "call_transferred_body": "The call was succesfully transferred",
     "call_summary_ready_title": "Call summary ready",
-    "call_summary_ready_body": "The summary is ready for review and editing"
+    "call_summary_ready_body": "The summary is ready for review and editing",
+    "call_summary_ready_body_with_contact": "The summary of your call with {{contact}} is ready"
   },
   "Phonebook": {
     "Phonebook": "Phonebook",

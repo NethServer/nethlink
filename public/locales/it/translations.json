@@ -150,7 +150,8 @@
     "call_transferred_title": "Traferimento di chiamata",
     "call_transferred_body": "La chiamata è stata trasferita con successo",
     "call_summary_ready_title": "Riepilogo chiamata pronto",
-    "call_summary_ready_body": "Il riepilogo e' pronto per la revisione e la modifica"
+    "call_summary_ready_body": "Il riepilogo e' pronto per la revisione e la modifica",
+    "call_summary_ready_body_with_contact": "Il riepilogo della tua chiamata con {{contact}} e' pronto"
   },
   "Phonebook": {
     "Phonebook": "Rubrica",
