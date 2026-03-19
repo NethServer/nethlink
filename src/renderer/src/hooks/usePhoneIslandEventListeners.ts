@@ -342,6 +342,8 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-not-ready"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-ready"], (data) => {
         const linkedid = data?.linkedid
+        const displayName = data?.display_name?.trim?.() || ''
+        const displayNumber = data?.display_number?.trim?.() || ''
         const isSummaryEnabled = account?.data?.call_summary_enabled === true
         const isSummaryNotificationEnabled =
           account?.data?.settings?.call_summary_notifications !== false
@@ -356,9 +358,15 @@ export const usePhoneIslandEventListener = () => {
 
         notifiedSummaryIdsRef.current.add(linkedid)
 
+        const contact = displayName || displayNumber
+
+        const notificationBody = contact
+          ? t('Notification.call_summary_ready_body_with_contact', { contact })
+          : t('Notification.call_summary_ready_body')
+
         sendSystemNotification(
           t('Notification.call_summary_ready_title'),
-          t('Notification.call_summary_ready_body'),
+          notificationBody,
           `/history?section=Calls&summaryLinkedid=${encodeURIComponent(linkedid)}`,
         )
       }),
