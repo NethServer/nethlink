@@ -4,8 +4,7 @@ import { PhoneIslandController } from '@/classes/controllers/PhoneIslandControll
 import { CommandBarController } from '@/classes/controllers/CommandBarController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
-import { BrowserWindow, app, ipcMain, screen, shell, desktopCapturer, globalShortcut, clipboard } from 'electron'
-import { join } from 'path'
+import { BrowserWindow, app, ipcMain, screen, shell, desktopCapturer, globalShortcut, clipboard, Notification } from 'electron'
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
@@ -67,6 +66,10 @@ export function once(event: IPC_EVENTS, callback: () => void) {
 
 function isUserLoggedIn(): boolean {
   return !!store.store.account
+}
+
+function buildHostUrl(host: string, path: string): string {
+  return new URL(path, `https://${host}`).toString()
 }
 
 // Keep exactly one Command Bar shortcut active at a time.
@@ -255,11 +258,27 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.OPEN_HOST_PAGE, async (_, path) => {
     const account = store.store.account
-    shell.openExternal(join('https://' + account!.host, path))
+    shell.openExternal(buildHostUrl(account!.host, path))
   })
 
   ipcMain.on(IPC_EVENTS.OPEN_EXTERNAL_PAGE, async (event, path) => {
     shell.openExternal(path)
+  })
+
+  ipcMain.on(IPC_EVENTS.SEND_NOTIFICATION, async (_, title, options, openPath) => {
+    const notification = new Notification({
+      title,
+      ...options,
+    })
+
+    notification.on('click', () => {
+      const account = store.store.account
+      if (openPath && account?.host) {
+        shell.openExternal(buildHostUrl(account.host, openPath))
+      }
+    })
+
+    notification.show()
   })
 
   ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
