@@ -9,6 +9,23 @@ export default {
         borderDark: '#374151', //gray-700
         borderLight: '#E5E7EB', //gray-200
 
+        //design system surfaces
+        elevationL1: '#F9FAFB', // gray-50
+
+        //design system text
+        textPrimaryNeutral: '#111827', // gray-900
+        textPrimaryNeutralDark: '#F9FAFB', // gray-50
+        textSecondaryNeutral: '#374151', // gray-700
+        textSecondaryNeutralDark: '#E5E7EB', // gray-200
+
+        //design system product
+        productPrimaryNethlinkActive: '#1d4ed8', // blue-700
+        productPrimaryNethlinkActiveDark: '#3b82f6', // blue-500
+
+        //design system surfaces
+        surfaceToggleBackgroundDisabled: '#9CA3AF', // gray-400
+        surfaceToggleBackgroundDisabledDark: '#4B5563', // gray-600
+
         //primary
         primary: '#1d4ed8', // blue-700
         primaryHover: '#1e40af', // blue-800
@@ -37,6 +54,8 @@ export default {
         //amber icon
         iconAmberLight: '#b45309', //amber-700
         iconAmberDark: '#fef3c7', // amber-100
+        iconTooltip: '#6366F1', // indigo-500
+        iconTooltipDark: '#A5B4FC', // indigo-300
 
         //buttonPrimary
         primaryButtonText: '#fff', // white
@@ -111,6 +130,11 @@ export default {
         '5xl': '2560px',
         '6xl': '3072px',
         '7xl': '3584px',
+      },
+      boxShadow: {
+        lightXs: '0px 1px 2px 0px rgba(0, 0, 0, 0.05)',
+        lightXl:
+          '0px 20px 25px -5px rgba(0, 0, 0, 0.10), 0px 8px 10px -6px rgba(0, 0, 0, 0.10)',
       },
       fontFamily: {
         Poppins: ['Poppins', 'sans-serif'],
