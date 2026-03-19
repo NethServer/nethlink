@@ -100,6 +100,9 @@ export type AccountData = BaseAccountData & {
     outbound_routes_permissions: OutboundRoutePermission[]
   }
   default_device: Extension
+  call_summary_enabled?: boolean
+  call_transcription_enabled?: boolean
+  voicemail_transcription_enabled?: boolean
   settings: UserSettings,
   mainextension?: string
 }
@@ -127,9 +130,10 @@ export type OutboundRoutePermission = {
   permission: boolean
 }
 export type UserSettings = {
-  desktop_notifications: true
+  desktop_notifications: boolean
   open_ccard: 'enabled' | 'disabled'
-  chat_notifications: true
+  chat_notifications: boolean
+  call_summary_notifications?: boolean
   avatar?: string
 }
 
@@ -455,6 +459,7 @@ export type NethLinkPageData = {
   isCommandBarShortcutDialogOpen?: boolean,
   isDeviceDialogOpen?: boolean,
   isIncomingCallsDialogOpen?: boolean,
+  isNotificationsDialogOpen?: boolean,
   showAddContactModule?: boolean,
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData

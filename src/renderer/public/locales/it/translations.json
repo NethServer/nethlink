@@ -148,7 +148,9 @@
     "lost_call_body": "Hai ricevuto una chiamata da {{number}} alle {{datetime}}",
     "physical_phone_error": "Il telefono {{phone}} non è raggiungibile. Assicurarsi che sia collegato",
     "call_transferred_title": "Traferimento di chiamata",
-    "call_transferred_body": "La chiamata è stata trasferita con successo"
+    "call_transferred_body": "La chiamata è stata trasferita con successo",
+    "call_summary_ready_title": "Riepilogo chiamata pronto",
+    "call_summary_ready_body": "Il riepilogo e' pronto per la revisione e la modifica"
   },
   "Phonebook": {
     "Phonebook": "Rubrica",
@@ -333,6 +335,7 @@
     "Delete profile picture": "Elimina immagine profilo",
     "Devices": "Audio e Video",
     "IncomingCalls": "Chiamate in Arrivo",
+    "Notifications": "Notifiche",
     "Ringtone": "Suoneria",
     "Time preferences": "Preferenze di tempo",
     "Login/logout preferences": "Preferenze di entrata/uscita",
@@ -349,6 +352,9 @@
     "Only nethlink": "Solo Nethlink",
     "ShortcutToCall": "Scorciatoia per Chiamare",
     "CommandBarShortcut": "Scorciatoia per Command Bar",
+    "CallSummaryNotifications": "Notifica riassunto chiamata",
+    "CallSummaryNotificationsDescription": "Ricevi una notifica di sistema operativo quando il riassunto della chiamata e' pronto.",
+    "CallSummaryNotificationsSaveError": "Impossibile salvare le preferenze di notifica.",
     "ShortcutHelp": "Inserisci una scorciatoia da tastiera per far partire una chiamata dopo aver selezionato un testo.",
     "ShortcutHelpDesc": "Caratteri non consentiti: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\", \"Shift\".",
     "Clear and remove shortcut": "Ripristina e rimuovi scorciatoia"
