@@ -64,6 +64,7 @@ export const usePhoneIslandEventListener = () => {
   const [connected, setConnected] = useSharedState('connection')
   const [availableRingtones, setAvailableRingtones] = useSharedState('availableRingtones')
   const notifiedSummaryIdsRef = useRef<Set<string>>(new Set())
+  const watchedSummaryIdsRef = useRef<Set<string>>(new Set())
 
   const [phoneIslandData, setPhoneIslandData] = useState<PhoneIslandData>({
     activeAlerts: {},
@@ -79,6 +80,7 @@ export const usePhoneIslandEventListener = () => {
 
   useEffect(() => {
     notifiedSummaryIdsRef.current.clear()
+    watchedSummaryIdsRef.current.clear()
   }, [account?.username])
 
 
@@ -339,7 +341,37 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-output-changed"], (data) => {
         Log.info('Phone-island confirmed output device changed:', data?.deviceId)
       }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-not-ready"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-not-ready"], (data) => {
+        const linkedid = data?.linkedid
+        const isSummaryEnabled = account?.data?.call_summary_enabled === true
+        const isSummaryNotificationEnabled =
+          account?.data?.settings?.call_summary_notifications !== false
+
+        if (!linkedid) {
+          return
+        }
+
+        if (!account) {
+          return
+        }
+
+        if (!isSummaryEnabled) {
+          return
+        }
+
+        if (!isSummaryNotificationEnabled) {
+          return
+        }
+
+        if (watchedSummaryIdsRef.current.has(linkedid)) {
+          return
+        }
+
+        watchedSummaryIdsRef.current.add(linkedid)
+        window.dispatchEvent(new CustomEvent('phone-island-call-summary-notify', {
+          detail: { linkedid }
+        }))
+      }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-ready"], (data) => {
         const linkedid = data?.linkedid
         const displayName = data?.display_name?.trim?.() || ''
@@ -348,7 +380,19 @@ export const usePhoneIslandEventListener = () => {
         const isSummaryNotificationEnabled =
           account?.data?.settings?.call_summary_notifications !== false
 
-        if (!linkedid || !account || !isSummaryEnabled || !isSummaryNotificationEnabled) {
+        if (!linkedid) {
+          return
+        }
+
+        if (!account) {
+          return
+        }
+
+        if (!isSummaryEnabled) {
+          return
+        }
+
+        if (!isSummaryNotificationEnabled) {
           return
         }
 
@@ -357,6 +401,7 @@ export const usePhoneIslandEventListener = () => {
         }
 
         notifiedSummaryIdsRef.current.add(linkedid)
+  watchedSummaryIdsRef.current.delete(linkedid)
 
         const contact = displayName || displayNumber
 
