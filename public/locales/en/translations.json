@@ -148,7 +148,10 @@
     "lost_call_body": "You received a call from {{number}} at {{datetime}}",
     "physical_phone_error": "the phone {{phone}} is not reachable. Make sure it is connected",
     "call_transferred_title": "Call transferred",
-    "call_transferred_body": "The call was succesfully transferred"
+    "call_transferred_body": "The call was succesfully transferred",
+    "call_summary_ready_title": "Call summary ready",
+    "call_summary_ready_body": "The summary is ready for review and editing",
+    "call_summary_ready_body_with_contact": "The summary of your call with {{contact}} is ready"
   },
   "Phonebook": {
     "Phonebook": "Phonebook",
@@ -333,6 +336,7 @@
     "Delete profile picture": "Delete profile picture",
     "Devices": "Audio and Video",
     "IncomingCalls": "Incoming Calls",
+    "Notifications": "Notifications",
     "Ringtone": "Ringtone",
     "Time preferences": "Time preferences",
     "Login/logout preferences": "Login/logout preferences",
@@ -349,6 +353,14 @@
     "Only nethlink": "Only Nethlink",
     "ShortcutToCall": "Shortcut to Call",
     "CommandBarShortcut": "Shortcut for Command Bar",
+    "NotificationsDescription": "Manage notifications for call features and AI-generated content.",
+    "NotificationsScopeDescription": "Settings apply to web phone and desktop app.",
+    "CallSummaryNotifications": "Call summary notifications",
+    "CallSummaryNotificationsDescription": "Receive an operating system notification when a call summary is ready.",
+    "CallSummaryNotificationsSaveError": "Unable to save notification preferences.",
+    "CallTranscriptionReady": "Call transcription ready",
+    "Enabled": "Enabled",
+    "Disabled": "Disabled",
     "ShortcutHelp": "Enter a keyboard shortcut to start a call after selecting some text.",
     "ShortcutHelpDesc": "Unsupported keys: \"Tab\", \"CapsLock\", \"NumLock\", \"Insert\", \"Escape\", \"Shift\".",
     "Clear and remove shortcut": "Clear and remove shortcut"
