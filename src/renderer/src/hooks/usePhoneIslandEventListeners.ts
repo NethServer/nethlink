@@ -65,7 +65,6 @@ export const usePhoneIslandEventListener = () => {
   const [availableRingtones, setAvailableRingtones] = useSharedState('availableRingtones')
   const notifiedSummaryIdsRef = useRef<Set<string>>(new Set())
   const watchedSummaryIdsRef = useRef<Set<string>>(new Set())
-  const latestOutgoingSummaryLinkedIdRef = useRef<string | null>(null)
 
   const [phoneIslandData, setPhoneIslandData] = useState<PhoneIslandData>({
     activeAlerts: {},
@@ -223,16 +222,7 @@ export const usePhoneIslandEventListener = () => {
         const username = account?.username
         const conversations = username ? data?.[username]?.conversations : undefined
 
-        Log.info('[Summary Flow][NethLink] phone-island-conversations received', {
-          username,
-          hasConversations: !!conversations,
-          conversationCount: conversations ? Object.keys(conversations).length : 0,
-        })
-
         if (!conversations) {
-          Log.warning('[Summary Flow][NethLink] phone-island-conversations skipped for summary tracking because no conversations found', {
-            username,
-          })
           return
         }
 
@@ -254,19 +244,6 @@ export const usePhoneIslandEventListener = () => {
           }
         })
 
-        if (latestOutgoingConversation?.linkedId) {
-          latestOutgoingSummaryLinkedIdRef.current = latestOutgoingConversation.linkedId
-          Log.info('[Summary Flow][NethLink] latest outgoing linkedId tracked from conversations', {
-            linkedid: latestOutgoingConversation.linkedId,
-            conversationId: latestOutgoingConversation.id,
-            counterpartNum: latestOutgoingConversation.counterpartNum,
-            startTime: latestOutgoingConversation.startTime,
-          })
-        } else {
-          Log.info('[Summary Flow][NethLink] no connected outgoing conversation found to track summary linkedId', {
-            username,
-          })
-        }
       }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-change"]),
@@ -396,51 +373,27 @@ export const usePhoneIslandEventListener = () => {
         const isSummaryNotificationEnabled =
           account?.data?.settings?.call_summary_notifications !== false
 
-        Log.info('[Summary Flow][NethLink] phone-island-summary-not-ready received', {
-          linkedid,
-          account: account?.username,
-          isSummaryEnabled,
-          isSummaryNotificationEnabled,
-          alreadyWatched: linkedid ? watchedSummaryIdsRef.current.has(linkedid) : false,
-        })
-
         if (!linkedid) {
-          Log.warning('[Summary Flow][NethLink] summary-not-ready skipped because linkedid is missing')
           return
         }
 
         if (!account) {
-          Log.warning('[Summary Flow][NethLink] summary-not-ready skipped because account is missing', {
-            linkedid,
-          })
           return
         }
 
         if (!isSummaryEnabled) {
-          Log.info('[Summary Flow][NethLink] summary-not-ready skipped because call summary is disabled', {
-            linkedid,
-          })
           return
         }
 
         if (!isSummaryNotificationEnabled) {
-          Log.info('[Summary Flow][NethLink] summary-not-ready skipped because summary notifications are disabled', {
-            linkedid,
-          })
           return
         }
 
         if (watchedSummaryIdsRef.current.has(linkedid)) {
-          Log.info('[Summary Flow][NethLink] summary-not-ready skipped because linkedid is already watched', {
-            linkedid,
-          })
           return
         }
 
         watchedSummaryIdsRef.current.add(linkedid)
-        Log.info('[Summary Flow][NethLink] dispatching phone-island-call-summary-notify', {
-          linkedid,
-        })
         window.dispatchEvent(new CustomEvent('phone-island-call-summary-notify', {
           detail: { linkedid }
         }))
@@ -453,48 +406,23 @@ export const usePhoneIslandEventListener = () => {
         const isSummaryNotificationEnabled =
           account?.data?.settings?.call_summary_notifications !== false
 
-        Log.info('[Summary Flow][NethLink] phone-island-summary-ready received', {
-          linkedid,
-          displayName,
-          displayNumber,
-          account: account?.username,
-          isSummaryEnabled,
-          isSummaryNotificationEnabled,
-          alreadyNotified: linkedid ? notifiedSummaryIdsRef.current.has(linkedid) : false,
-          wasWatched: linkedid ? watchedSummaryIdsRef.current.has(linkedid) : false,
-          latestOutgoingSummaryLinkedId: latestOutgoingSummaryLinkedIdRef.current,
-        })
-
         if (!linkedid) {
-          Log.warning('[Summary Flow][NethLink] summary-ready skipped because linkedid is missing')
           return
         }
 
         if (!account) {
-          Log.warning('[Summary Flow][NethLink] summary-ready skipped because account is missing', {
-            linkedid,
-          })
           return
         }
 
         if (!isSummaryEnabled) {
-          Log.info('[Summary Flow][NethLink] summary-ready skipped because call summary is disabled', {
-            linkedid,
-          })
           return
         }
 
         if (!isSummaryNotificationEnabled) {
-          Log.info('[Summary Flow][NethLink] summary-ready skipped because summary notifications are disabled', {
-            linkedid,
-          })
           return
         }
 
         if (notifiedSummaryIdsRef.current.has(linkedid)) {
-          Log.info('[Summary Flow][NethLink] summary-ready skipped because linkedid was already notified', {
-            linkedid,
-          })
           return
         }
 
@@ -507,11 +435,6 @@ export const usePhoneIslandEventListener = () => {
           ? t('Notification.call_summary_ready_body_with_contact', { contact })
           : t('Notification.call_summary_ready_body')
 
-        Log.info('[Summary Flow][NethLink] sending system notification for summary-ready', {
-          linkedid,
-          contact,
-          notificationBody,
-        })
         sendSystemNotification(
           t('Notification.call_summary_ready_title'),
           notificationBody,
