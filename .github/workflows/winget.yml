@@ -2,6 +2,12 @@ name: Bump Winget PR
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 1.4.2). Leave empty to use latest tag.'
+        required: false
+  release:
+    types: [released]
 
 jobs:
   winget-bump:
@@ -12,19 +18,21 @@ jobs:
 
       - name: Get release version
         run: |
-          # Extract tag
-          TAG_NAME="${{ github.event.release.tag_name }}"
-          if [ -z "$TAG_NAME" ]; then
+          # Priority: manual input > release event > latest tag
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+            VERSION=$(echo "$VERSION" | sed 's/^v//')
+          elif [ -n "${{ github.event.release.tag_name }}" ]; then
+            VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
+          else
             TAG_NAME=$(git fetch --tags && git describe --tags $(git rev-list --tags --max-count=1))
+            VERSION=$(echo "$TAG_NAME" | sed 's/^v//')
           fi
-
-          # Remove 'v' before tag
-          VERSION=$(echo "$TAG_NAME" | sed 's/^v//')
 
           echo "Release version: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Use winget-releaser to create a PR
+      - name: Create winget PR
         uses: vedantmgoyal9/winget-releaser@main
         with:
           identifier: "Nethesis.NethLink"
@@ -32,3 +40,33 @@ jobs:
           token: ${{ secrets.WINGET_GITHUB_TOKEN }}
           fork-user: edospadoni
           release-tag: v${{ env.VERSION }}
+
+      - name: Patch installer architecture to x64
+        run: |
+          # Find the branch created by winget-releaser on the fork
+          BRANCH=$(gh api repos/edospadoni/winget-pkgs/branches --jq '.[].name' | grep "Nethesis.NethLink" | grep "${{ env.VERSION }}" | head -1)
+          if [ -z "$BRANCH" ]; then
+            echo "No branch found for version ${{ env.VERSION }}, skipping patch"
+            exit 0
+          fi
+          echo "Branch: $BRANCH"
+
+          # Clone the fork branch and fix the architecture
+          git clone --depth 1 --branch "$BRANCH" "https://x-access-token:${WINGET_TOKEN}@github.com/edospadoni/winget-pkgs.git" winget-pkgs
+
+          INSTALLER_YAML="winget-pkgs/manifests/n/Nethesis/NethLink/${{ env.VERSION }}/Nethesis.NethLink.installer.yaml"
+
+          # Only patch if architecture is not already x64
+          if grep -q 'Architecture: x86' "$INSTALLER_YAML"; then
+            sed -i 's/Architecture: x86/Architecture: x64/' "$INSTALLER_YAML"
+            cd winget-pkgs
+            git add .
+            git commit -m "Fix architecture to x64"
+            git push
+            echo "Patched architecture to x64"
+          else
+            echo "Architecture already x64, no patch needed"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.WINGET_GITHUB_TOKEN }}
+          WINGET_TOKEN: ${{ secrets.WINGET_GITHUB_TOKEN }}
