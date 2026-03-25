@@ -30,11 +30,14 @@ export class PhoneIslandController {
         //make sure the size is equal to [0,0] when you want to close the phone island, otherwise the size will not close and will generate slowness problems.
         if (h === 0 && w === 0) {
           window.hide()
+          Log.info('PhoneIsland resize to 0x0 -> hidden')
         } else {
           // Don't show window during warm-up
           if (!window.isVisible() && !this.isWarmingUp) {
             window.show()
             window.setAlwaysOnTop(true, 'screen-saver')
+            const finalBounds = window.getBounds()
+            Log.info(`PhoneIsland shown via resize at position (${finalBounds.x}, ${finalBounds.y}) size ${finalBounds.width}x${finalBounds.height}`)
           }
         }
       }
@@ -48,12 +51,14 @@ export class PhoneIslandController {
     try {
       const window = this.window.getWindow()
       if (window) {
-
+        Log.info(`PhoneIsland showPhoneIsland called with size ${size.w}x${size.h}`)
         this.resize(size)
         if (process.platform !== 'linux') {
           const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
+          Log.info(`PhoneIsland saved position: ${phoneIslandPosition ? `(${phoneIslandPosition.x}, ${phoneIslandPosition.y})` : 'none'}`)
           if (phoneIslandPosition) {
-            const isPhoneIslandOnDisplay = screen.getAllDisplays().reduce((result, display) => {
+            const displays = screen.getAllDisplays()
+            const isPhoneIslandOnDisplay = displays.reduce((result, display) => {
               const area = display.workArea
               return (
                 result ||
@@ -65,16 +70,21 @@ export class PhoneIslandController {
             }, false)
             if (isPhoneIslandOnDisplay) {
               window?.setBounds({ x: phoneIslandPosition.x, y: phoneIslandPosition.y }, false)
+              Log.info(`PhoneIsland positioned at saved location (${phoneIslandPosition.x}, ${phoneIslandPosition.y})`)
             } else {
               window?.center()
+              Log.info(`PhoneIsland saved position is off-screen, centered instead. Displays: ${JSON.stringify(displays.map(d => d.workArea))}`)
             }
           }
           else {
             window?.center()
+            Log.info('PhoneIsland no saved position, centered')
           }
         } else {
           window?.center()
         }
+        const finalBounds = window.getBounds()
+        Log.info(`PhoneIsland final bounds after showPhoneIsland: (${finalBounds.x}, ${finalBounds.y}) ${finalBounds.width}x${finalBounds.height}`)
       }
     } catch (e) {
       Log.warning('error during showing PhoneIslandWindow:', e)
@@ -86,6 +96,7 @@ export class PhoneIslandController {
       const window = this.window.getWindow()
       const phoneIslandBounds = window?.getBounds()
       if (phoneIslandBounds) {
+        Log.info(`PhoneIsland hiding, saving position (${phoneIslandBounds.x}, ${phoneIslandBounds.y}) size ${phoneIslandBounds.width}x${phoneIslandBounds.height}`)
         AccountController.instance.setAccountPhoneIslandPosition({
           x: phoneIslandBounds.x,
           y: phoneIslandBounds.y

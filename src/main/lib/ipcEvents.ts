@@ -185,6 +185,10 @@ export function registerIpcEvents() {
       const cursorPosition = screen.getCursorScreenPoint();
       const deltaX = cursorPosition.x - draggingWindow.startMousePosition.x;
       const deltaY = cursorPosition.y - draggingWindow.startMousePosition.y;
+      if (window.title === PAGES.PHONEISLAND) {
+        const bounds = window.getBounds()
+        Log.info(`PhoneIsland dragged from (${draggingWindow.startWindowPosition.x}, ${draggingWindow.startWindowPosition.y}) to (${bounds.x}, ${bounds.y})`)
+      }
       if (Math.abs(deltaX) <= 3 && Math.abs(deltaY) <= 3) {
         debouncer(IPC_EVENTS.ENABLE_CLICK, () => {
           event.sender.send(IPC_EVENTS.ENABLE_CLICK)
