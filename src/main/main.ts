@@ -1,6 +1,6 @@
 import { app, ipcMain, nativeTheme, powerMonitor, protocol, systemPreferences, dialog, shell, globalShortcut, net } from 'electron'
 if (process.platform === 'win32') {
-  require('win-ca')
+  require('win-ca/api')({ inject: '+', save: false })
 }
 import { registerIpcEvents, isCallActive, disableCommandBarShortcuts } from '@/lib/ipcEvents'
 import { AccountController } from './classes/controllers'
