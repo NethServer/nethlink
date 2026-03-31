@@ -1,4 +1,4 @@
-import { Account, AuthAppData, AvailableDevices, ConfigFile } from '@shared/types'
+import { Account, AuthAppData, AvailableDevices, ConfigFile, PhoneIslandPosition } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { safeStorage } from 'electron'
 import { store } from '@/lib/mainStore'
@@ -312,11 +312,11 @@ export class AccountController {
   }
 
 
-  getAccountPhoneIslandPosition(): { x: number; y: number } | undefined {
+  getAccountPhoneIslandPosition(): PhoneIslandPosition | undefined {
     return store.store.account?.phoneIslandPosition
   }
 
-  setAccountPhoneIslandPosition(phoneIslandPosition: { x: number; y: number }): void {
+  setAccountPhoneIslandPosition(phoneIslandPosition: PhoneIslandPosition): void {
     const account = store.store.account
     const auth = store.store.auth
     if (account) {
