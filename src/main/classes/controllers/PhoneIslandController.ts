@@ -5,12 +5,176 @@ import { AccountController } from './AccountController'
 import { debouncer } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
 import { screen } from 'electron'
-import { Extension, Size } from '@shared/types'
+import { Extension, PhoneIslandPosition, Size } from '@shared/types'
 
 export class PhoneIslandController {
   static instance: PhoneIslandController
   window: PhoneIslandWindow
   private isWarmingUp: boolean = false
+
+  private getBoundsForSize(bounds: Electron.Rectangle, size: Size): Electron.Rectangle {
+    return {
+      x: bounds.x,
+      y: bounds.y,
+      width: size.w,
+      height: size.h
+    }
+  }
+
+  private areBoundsEqual(left: Electron.Rectangle, right: Electron.Rectangle): boolean {
+    return left.x === right.x && left.y === right.y && left.width === right.width && left.height === right.height
+  }
+
+  private buildSavedPosition(bounds: Electron.Rectangle): PhoneIslandPosition {
+    const display = screen.getDisplayMatching(bounds)
+
+    return {
+      x: bounds.x,
+      y: bounds.y,
+      width: bounds.width,
+      height: bounds.height,
+      displayId: display.id,
+      displayScaleFactor: display.scaleFactor,
+      displayBounds: {
+        x: display.bounds.x,
+        y: display.bounds.y,
+        width: display.bounds.width,
+        height: display.bounds.height
+      },
+      workArea: {
+        x: display.workArea.x,
+        y: display.workArea.y,
+        width: display.workArea.width,
+        height: display.workArea.height
+      }
+    }
+  }
+
+  private savePhoneIslandPosition(bounds: Electron.Rectangle) {
+    AccountController.instance.setAccountPhoneIslandPosition(this.buildSavedPosition(bounds))
+  }
+
+  private isRectInsideWorkArea(bounds: Electron.Rectangle, workArea: Electron.Rectangle): boolean {
+    return (
+      bounds.x >= workArea.x &&
+      bounds.y >= workArea.y &&
+      bounds.x + bounds.width <= workArea.x + workArea.width &&
+      bounds.y + bounds.height <= workArea.y + workArea.height
+    )
+  }
+
+  private clampBoundsToDisplay(bounds: Electron.Rectangle, display: Electron.Display): Electron.Rectangle {
+    const { workArea } = display
+    const width = Math.min(bounds.width, workArea.width)
+    const height = Math.min(bounds.height, workArea.height)
+    const maxX = workArea.x + workArea.width - width
+    const maxY = workArea.y + workArea.height - height
+
+    return {
+      x: Math.min(Math.max(bounds.x, workArea.x), maxX),
+      y: Math.min(Math.max(bounds.y, workArea.y), maxY),
+      width,
+      height
+    }
+  }
+
+  private getPrimaryDisplayBounds(size: Size): Electron.Rectangle {
+    const primaryDisplay = screen.getPrimaryDisplay()
+    const width = Math.min(size.w, primaryDisplay.workArea.width)
+    const height = Math.min(size.h, primaryDisplay.workArea.height)
+
+    return {
+      x: primaryDisplay.workArea.x + Math.round((primaryDisplay.workArea.width - width) / 2),
+      y: primaryDisplay.workArea.y + Math.round((primaryDisplay.workArea.height - height) / 2),
+      width,
+      height
+    }
+  }
+
+  private hasDisplayContextChanged(savedPosition: PhoneIslandPosition, display: Electron.Display): boolean {
+    if (savedPosition.displayScaleFactor !== undefined && Math.abs(savedPosition.displayScaleFactor - display.scaleFactor) > 0.01) {
+      return true
+    }
+
+    if (savedPosition.workArea) {
+      const { workArea } = savedPosition
+      return (
+        workArea.x !== display.workArea.x ||
+        workArea.y !== display.workArea.y ||
+        workArea.width !== display.workArea.width ||
+        workArea.height !== display.workArea.height
+      )
+    }
+
+    return false
+  }
+
+  private resolveWindowsBounds(size: Size): Electron.Rectangle {
+    const savedPosition = AccountController.instance.getAccountPhoneIslandPosition()
+
+    if (!savedPosition) {
+      const primaryBounds = this.getPrimaryDisplayBounds(size)
+      Log.info(`PhoneIsland no saved Windows position, fallback to primary display (${primaryBounds.x}, ${primaryBounds.y})`)
+      return primaryBounds
+    }
+
+    const displays = screen.getAllDisplays()
+    const savedBounds: Electron.Rectangle = {
+      x: savedPosition.x,
+      y: savedPosition.y,
+      width: size.w,
+      height: size.h
+    }
+
+    const displayFromId = savedPosition.displayId !== undefined
+      ? displays.find((display) => display.id === savedPosition.displayId)
+      : undefined
+
+    if (displayFromId) {
+      if (this.hasDisplayContextChanged(savedPosition, displayFromId)) {
+        const primaryBounds = this.getPrimaryDisplayBounds(size)
+        Log.info('PhoneIsland saved Windows display context changed, fallback to primary display', {
+          savedPosition,
+          displayId: displayFromId.id,
+          currentScaleFactor: displayFromId.scaleFactor,
+          currentWorkArea: displayFromId.workArea,
+          fallbackBounds: primaryBounds
+        })
+        return primaryBounds
+      }
+
+      const clampedBounds = this.clampBoundsToDisplay(savedBounds, displayFromId)
+      Log.info('PhoneIsland restored on saved Windows display', {
+        savedPosition,
+        displayId: displayFromId.id,
+        restoredBounds: clampedBounds
+      })
+      return clampedBounds
+    }
+
+    const displayMatchingBounds = displays.find((display) => this.isRectInsideWorkArea(savedBounds, display.workArea))
+    if (displayMatchingBounds) {
+      const clampedBounds = this.clampBoundsToDisplay(savedBounds, displayMatchingBounds)
+      Log.info('PhoneIsland restored from legacy Windows position', {
+        savedPosition,
+        displayId: displayMatchingBounds.id,
+        restoredBounds: clampedBounds
+      })
+      return clampedBounds
+    }
+
+    const primaryBounds = this.getPrimaryDisplayBounds(size)
+    Log.info('PhoneIsland saved Windows position is invalid, fallback to primary display', {
+      savedPosition,
+      displays: displays.map((display) => ({
+        id: display.id,
+        scaleFactor: display.scaleFactor,
+        workArea: display.workArea
+      })),
+      fallbackBounds: primaryBounds
+    })
+    return primaryBounds
+  }
 
   constructor() {
     PhoneIslandController.instance = this
@@ -23,17 +187,24 @@ export class PhoneIslandController {
       const window = this.window.getWindow()
       if (window) {
         const bounds = window.getBounds()
-        if (bounds.height !== h || bounds.width !== w) {
-          window.setBounds({ width: w, height: h })
+        const nextBounds = this.getBoundsForSize(bounds, size)
+
+        if (!this.areBoundsEqual(bounds, nextBounds)) {
+          window.setBounds(nextBounds, false)
           PhoneIslandWindow.currentSize = { width: w, height: h }
         }
         //make sure the size is equal to [0,0] when you want to close the phone island, otherwise the size will not close and will generate slowness problems.
         if (h === 0 && w === 0) {
+          this.savePhoneIslandPosition(bounds)
           window.hide()
-          Log.info('PhoneIsland resize to 0x0 -> hidden')
+          Log.info(`PhoneIsland resize to 0x0 -> hidden from (${bounds.x}, ${bounds.y})`)
         } else {
           // Don't show window during warm-up
           if (!window.isVisible() && !this.isWarmingUp) {
+            if (process.platform === 'win32') {
+              const restoredBounds = this.resolveWindowsBounds(size)
+              window.setBounds(restoredBounds, false)
+            }
             window.show()
             window.setAlwaysOnTop(true, 'screen-saver')
             const finalBounds = window.getBounds()
@@ -53,7 +224,14 @@ export class PhoneIslandController {
       if (window) {
         Log.info(`PhoneIsland showPhoneIsland called with size ${size.w}x${size.h}`)
         this.resize(size)
-        if (process.platform !== 'linux') {
+        if (process.platform === 'win32') {
+          const restoredBounds = this.resolveWindowsBounds(size)
+          window.setBounds(restoredBounds, false)
+          if (!window.isVisible() && !this.isWarmingUp) {
+            window.show()
+            window.setAlwaysOnTop(true, 'screen-saver')
+          }
+        } else if (process.platform !== 'linux') {
           const phoneIslandPosition = AccountController.instance.getAccountPhoneIslandPosition()
           Log.info(`PhoneIsland saved position: ${phoneIslandPosition ? `(${phoneIslandPosition.x}, ${phoneIslandPosition.y})` : 'none'}`)
           if (phoneIslandPosition) {
@@ -97,10 +275,7 @@ export class PhoneIslandController {
       const phoneIslandBounds = window?.getBounds()
       if (phoneIslandBounds) {
         Log.info(`PhoneIsland hiding, saving position (${phoneIslandBounds.x}, ${phoneIslandBounds.y}) size ${phoneIslandBounds.width}x${phoneIslandBounds.height}`)
-        AccountController.instance.setAccountPhoneIslandPosition({
-          x: phoneIslandBounds.x,
-          y: phoneIslandBounds.y
-        })
+        this.savePhoneIslandPosition(phoneIslandBounds)
       }
       debouncer('hide', () => window?.hide(), 250)
     } catch (e) {
@@ -201,6 +376,7 @@ export class PhoneIslandController {
       const window = this.window.getWindow()
       if (window) {
         this.isWarmingUp = true
+        this.savePhoneIslandPosition(window.getBounds())
         window.hide()
         Log.info('PhoneIsland window hidden')
       }
@@ -217,6 +393,10 @@ export class PhoneIslandController {
         // Only show if there's actually content (size > 0)
         const bounds = window.getBounds()
         if (bounds.width > 0 && bounds.height > 0) {
+          if (process.platform === 'win32') {
+            const restoredBounds = this.resolveWindowsBounds({ w: bounds.width, h: bounds.height })
+            window.setBounds(restoredBounds, false)
+          }
           window.show()
           window.setAlwaysOnTop(true, 'screen-saver')
           Log.info('PhoneIsland window shown')
