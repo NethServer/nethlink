@@ -11,6 +11,25 @@ export class PhoneIslandController {
   static instance: PhoneIslandController
   window: PhoneIslandWindow
   private isWarmingUp: boolean = false
+  private lastVisibleBounds: Electron.Rectangle | undefined
+
+  private isValidVisibleBounds(bounds: Electron.Rectangle | undefined): bounds is Electron.Rectangle {
+    return !!bounds && bounds.width > 1 && bounds.height > 1
+  }
+
+  private rememberVisibleBounds(bounds: Electron.Rectangle | undefined) {
+    if (this.isValidVisibleBounds(bounds)) {
+      this.lastVisibleBounds = { ...bounds }
+    }
+  }
+
+  private getPersistableBounds(bounds: Electron.Rectangle | undefined): Electron.Rectangle | undefined {
+    if (this.isValidVisibleBounds(bounds)) {
+      return bounds
+    }
+
+    return this.lastVisibleBounds ? { ...this.lastVisibleBounds } : undefined
+  }
 
   private getBoundsForSize(bounds: Electron.Rectangle, size: Size): Electron.Rectangle {
     return {
@@ -51,6 +70,7 @@ export class PhoneIslandController {
   }
 
   private savePhoneIslandPosition(bounds: Electron.Rectangle) {
+    this.rememberVisibleBounds(bounds)
     AccountController.instance.setAccountPhoneIslandPosition(this.buildSavedPosition(bounds))
   }
 
@@ -187,27 +207,37 @@ export class PhoneIslandController {
       const window = this.window.getWindow()
       if (window) {
         const bounds = window.getBounds()
+        this.rememberVisibleBounds(bounds)
         const nextBounds = this.getBoundsForSize(bounds, size)
 
         if (!this.areBoundsEqual(bounds, nextBounds)) {
           window.setBounds(nextBounds, false)
           PhoneIslandWindow.currentSize = { width: w, height: h }
+          if (w > 0 && h > 0) {
+            this.rememberVisibleBounds(window.getBounds())
+          }
         }
         //make sure the size is equal to [0,0] when you want to close the phone island, otherwise the size will not close and will generate slowness problems.
         if (h === 0 && w === 0) {
-          this.savePhoneIslandPosition(bounds)
+          const persistableBounds = this.getPersistableBounds(bounds)
+          if (persistableBounds) {
+            this.savePhoneIslandPosition(persistableBounds)
+          }
           window.hide()
-          Log.info(`PhoneIsland resize to 0x0 -> hidden from (${bounds.x}, ${bounds.y})`)
+          const hiddenFrom = persistableBounds || bounds
+          Log.info(`PhoneIsland resize to 0x0 -> hidden from (${hiddenFrom.x}, ${hiddenFrom.y})`)
         } else {
           // Don't show window during warm-up
           if (!window.isVisible() && !this.isWarmingUp) {
             if (process.platform === 'win32') {
               const restoredBounds = this.resolveWindowsBounds(size)
               window.setBounds(restoredBounds, false)
+              this.rememberVisibleBounds(restoredBounds)
             }
             window.show()
             window.setAlwaysOnTop(true, 'screen-saver')
             const finalBounds = window.getBounds()
+            this.rememberVisibleBounds(finalBounds)
             Log.info(`PhoneIsland shown via resize at position (${finalBounds.x}, ${finalBounds.y}) size ${finalBounds.width}x${finalBounds.height}`)
           }
         }
@@ -227,6 +257,7 @@ export class PhoneIslandController {
         if (process.platform === 'win32') {
           const restoredBounds = this.resolveWindowsBounds(size)
           window.setBounds(restoredBounds, false)
+          this.rememberVisibleBounds(restoredBounds)
           if (!window.isVisible() && !this.isWarmingUp) {
             window.show()
             window.setAlwaysOnTop(true, 'screen-saver')
@@ -273,9 +304,10 @@ export class PhoneIslandController {
     try {
       const window = this.window.getWindow()
       const phoneIslandBounds = window?.getBounds()
-      if (phoneIslandBounds) {
-        Log.info(`PhoneIsland hiding, saving position (${phoneIslandBounds.x}, ${phoneIslandBounds.y}) size ${phoneIslandBounds.width}x${phoneIslandBounds.height}`)
-        this.savePhoneIslandPosition(phoneIslandBounds)
+      const persistableBounds = this.getPersistableBounds(phoneIslandBounds)
+      if (persistableBounds) {
+        Log.info(`PhoneIsland hiding, saving position (${persistableBounds.x}, ${persistableBounds.y}) size ${persistableBounds.width}x${persistableBounds.height}`)
+        this.savePhoneIslandPosition(persistableBounds)
       }
       debouncer('hide', () => window?.hide(), 250)
     } catch (e) {
@@ -376,7 +408,10 @@ export class PhoneIslandController {
       const window = this.window.getWindow()
       if (window) {
         this.isWarmingUp = true
-        this.savePhoneIslandPosition(window.getBounds())
+        const persistableBounds = this.getPersistableBounds(window.getBounds())
+        if (persistableBounds) {
+          this.savePhoneIslandPosition(persistableBounds)
+        }
         window.hide()
         Log.info('PhoneIsland window hidden')
       }
@@ -396,9 +431,11 @@ export class PhoneIslandController {
           if (process.platform === 'win32') {
             const restoredBounds = this.resolveWindowsBounds({ w: bounds.width, h: bounds.height })
             window.setBounds(restoredBounds, false)
+            this.rememberVisibleBounds(restoredBounds)
           }
           window.show()
           window.setAlwaysOnTop(true, 'screen-saver')
+          this.rememberVisibleBounds(window.getBounds())
           Log.info('PhoneIsland window shown')
         }
       }
