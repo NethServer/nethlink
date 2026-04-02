@@ -201,6 +201,11 @@ function startLogger() {
     if (message && isDev())
       logOnFile(message)
   })
+  // Always log PhoneIsland renderer messages (for audio diagnostics in production)
+  ipcMain.on('phone-island-log', (_e, message) => {
+    if (message)
+      logOnFile(message)
+  })
 
   function deleteLogFile() {
     if (fs.existsSync(logFilePath)) {
