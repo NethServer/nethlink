@@ -6,9 +6,9 @@ import {
   PhoneIslandSizes,
 } from "@shared/types"
 import { Log } from "@shared/utils/logger"
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { t } from "i18next"
-import { sendNotification } from "@renderer/utils"
+import { sendNotification, sendSystemNotification } from "@renderer/utils"
 import { useSharedState } from "@renderer/store"
 
 // Track readiness state for both WebRTC and Socket
@@ -63,6 +63,8 @@ export const usePhoneIslandEventListener = () => {
   const [account] = useSharedState('account')
   const [connected, setConnected] = useSharedState('connection')
   const [availableRingtones, setAvailableRingtones] = useSharedState('availableRingtones')
+  const notifiedSummaryIdsRef = useRef<Set<string>>(new Set())
+  const watchedSummaryIdsRef = useRef<Set<string>>(new Set())
 
   const [phoneIslandData, setPhoneIslandData] = useState<PhoneIslandData>({
     activeAlerts: {},
@@ -75,6 +77,11 @@ export const usePhoneIslandEventListener = () => {
     view: null
   })
   const [phoneIsalndSizes, setPhoneIslandSizes] = useState<PhoneIslandSizes>(defaultSize)
+
+  useEffect(() => {
+    notifiedSummaryIdsRef.current.clear()
+    watchedSummaryIdsRef.current.clear()
+  }, [account?.username])
 
 
   const eventHandler = (event: PHONE_ISLAND_EVENTS, callback?: (data?: any) => void | Promise<void>) => ({
@@ -211,7 +218,33 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expand"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expanded"]),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-conversations"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-conversations"], (data) => {
+        const username = account?.username
+        const conversations = username ? data?.[username]?.conversations : undefined
+
+        if (!conversations) {
+          return
+        }
+
+        let latestOutgoingConversation: any = null
+        Object.values(conversations).forEach((conversation: any) => {
+          if (!conversation?.connected || conversation?.direction !== 'out' || !conversation?.linkedId) {
+            return
+          }
+
+          if (!latestOutgoingConversation) {
+            latestOutgoingConversation = conversation
+            return
+          }
+
+          const latestStartTime = latestOutgoingConversation.startTime ?? 0
+          const currentStartTime = conversation.startTime ?? 0
+          if (currentStartTime > latestStartTime) {
+            latestOutgoingConversation = conversation
+          }
+        })
+
+      }),
 
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-change"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-changed"]),
@@ -333,6 +366,80 @@ export const usePhoneIslandEventListener = () => {
       }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-output-changed"], (data) => {
         Log.info('Phone-island confirmed output device changed:', data?.deviceId)
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-not-ready"], (data) => {
+        const linkedid = data?.linkedid
+        const isSummaryEnabled = account?.data?.call_summary_enabled === true
+        const isSummaryNotificationEnabled =
+          account?.data?.settings?.call_summary_notifications !== false
+
+        if (!linkedid) {
+          return
+        }
+
+        if (!account) {
+          return
+        }
+
+        if (!isSummaryEnabled) {
+          return
+        }
+
+        if (!isSummaryNotificationEnabled) {
+          return
+        }
+
+        if (watchedSummaryIdsRef.current.has(linkedid)) {
+          return
+        }
+
+        watchedSummaryIdsRef.current.add(linkedid)
+        window.dispatchEvent(new CustomEvent('phone-island-call-summary-notify', {
+          detail: { linkedid }
+        }))
+      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-ready"], (data) => {
+        const linkedid = data?.linkedid
+        const displayName = data?.display_name?.trim?.() || ''
+        const displayNumber = data?.display_number?.trim?.() || ''
+        const isSummaryEnabled = account?.data?.call_summary_enabled === true
+        const isSummaryNotificationEnabled =
+          account?.data?.settings?.call_summary_notifications !== false
+
+        if (!linkedid) {
+          return
+        }
+
+        if (!account) {
+          return
+        }
+
+        if (!isSummaryEnabled) {
+          return
+        }
+
+        if (!isSummaryNotificationEnabled) {
+          return
+        }
+
+        if (notifiedSummaryIdsRef.current.has(linkedid)) {
+          return
+        }
+
+        notifiedSummaryIdsRef.current.add(linkedid)
+  watchedSummaryIdsRef.current.delete(linkedid)
+
+        const contact = displayName || displayNumber
+
+        const notificationBody = contact
+          ? t('Notification.call_summary_ready_body_with_contact', { contact })
+          : t('Notification.call_summary_ready_body')
+
+        sendSystemNotification(
+          t('Notification.call_summary_ready_title'),
+          notificationBody,
+          `/history?section=Calls&summaryLinkedid=${encodeURIComponent(linkedid)}`,
+        )
       }),
     }
   }
