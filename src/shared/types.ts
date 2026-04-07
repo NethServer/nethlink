@@ -3,6 +3,17 @@ import { FilterTypes, MENU_ELEMENT, NEW_ACCOUNT } from "./constants"
 export type AvailableThemes = 'system' | 'light' | 'dark'
 export type AvailableDevices = 'nethlink' | 'physical' | 'webrtc'
 
+export type PhoneIslandPosition = {
+  x: number
+  y: number
+  width?: number
+  height?: number
+  displayId?: number
+  displayScaleFactor?: number
+  displayBounds?: Pick<Electron.Rectangle, 'x' | 'y' | 'width' | 'height'>
+  workArea?: Pick<Electron.Rectangle, 'x' | 'y' | 'width' | 'height'>
+}
+
 export enum PAGES {
   SPLASHSCREEN = "splashscreenpage",
   LOGIN = "Login",
@@ -21,7 +32,7 @@ export type Account = {
   lastAccess?: string
   host: string
   theme: AvailableThemes
-  phoneIslandPosition?: { x: number; y: number }
+  phoneIslandPosition?: PhoneIslandPosition
   nethlinkBounds?: Electron.Rectangle
   companyName?: string
   companyUrl?: string
