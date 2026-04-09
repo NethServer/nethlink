@@ -57,7 +57,7 @@ export const loadI18n = () => {
     saveMissing: true,
     saveMissingTo: 'current'
   }
-  i18next.use(Backend).use(electronDetector).use(initReactI18next).init(config)
+  i18next.use(Backend as any).use(electronDetector).use(initReactI18next).init(config)
 }
 
 window.api.i18nextElectronBackend.onLanguageChange((args) => {
