@@ -39,12 +39,21 @@ function mapContact(contact: SearchData): SearchData {
   }
 }
 
-function getPrimaryNumber(contact: SearchData): string {
-  const keys: (keyof SearchData)[] = ['extension', 'cellphone', 'homephone', 'workphone']
-  for (const key of keys) {
-    if (contact[key]) return contact[key] as string
+const PHONE_KEYS: { key: keyof SearchData; labelKey: string }[] = [
+  { key: 'extension', labelKey: 'Phonebook.Extension' },
+  { key: 'cellphone', labelKey: 'Phonebook.Mobile phone' },
+  { key: 'homephone', labelKey: 'Phonebook.Home phone' },
+  { key: 'workphone', labelKey: 'Phonebook.Work phone' },
+]
+
+function getContactNumbers(contact: SearchData): { number: string; labelKey: string }[] {
+  const numbers: { number: string; labelKey: string }[] = []
+  for (const { key, labelKey } of PHONE_KEYS) {
+    if (contact[key]) {
+      numbers.push({ number: contact[key] as string, labelKey })
+    }
   }
-  return ''
+  return numbers
 }
 
 export function CommandBarPage() {
@@ -97,7 +106,7 @@ export function CommandBarPage() {
     }))
   }, [searchText, operatorVersion])
 
-  // Merge: operators first (deduped by extension), then phonebook results
+  // Merge: operators first (deduped by extension), then phonebook results expanded per phone number
   const allItems = useMemo(() => {
     const operatorExtensions = new Set(matchingOperators.map((o) => o.contact.extension))
     const filteredPhonebook = searchResults.filter((c) => {
@@ -105,14 +114,21 @@ export function CommandBarPage() {
       return true
     })
 
-    const items: { type: 'call' | 'contact'; contact?: SearchData; number?: string; username?: string; mainPresence?: StatusTypes }[] = []
+    const items: { type: 'call' | 'contact'; contact?: SearchData; number?: string; numberLabel?: string; username?: string; mainPresence?: StatusTypes }[] = []
 
     if (isPhoneNumber && searchText.trim().length > 0) {
       items.push({ type: 'call', number: searchText.trim() })
     }
     matchingOperators.forEach((op) => items.push(op))
     filteredPhonebook.forEach((contact) => {
-      items.push({ type: 'contact', contact })
+      const numbers = getContactNumbers(contact)
+      if (numbers.length === 0) {
+        items.push({ type: 'contact', contact })
+      } else {
+        numbers.forEach(({ number, labelKey }) => {
+          items.push({ type: 'contact', contact, number, numberLabel: labelKey })
+        })
+      }
     })
 
     return items
@@ -240,9 +256,9 @@ export function CommandBarPage() {
       if (item.type === 'call') {
         handleCall(item.number)
       } else if (item.type === 'contact' && item.contact) {
-        const number = getPrimaryNumber(item.contact)
-        if (number) {
-          handleCall(number)
+        const num = item.number || getContactNumbers(item.contact)[0]?.number
+        if (num) {
+          handleCall(num)
         }
       }
     } else if (isPhoneNumber) {
@@ -408,14 +424,14 @@ export function CommandBarPage() {
                   }
 
                   const contact = item.contact!
-                  const number = getPrimaryNumber(contact)
+                  const rowNumber = item.number || getContactNumbers(contact)[0]?.number || ''
                   const isOperator = !!contact.isOperator
                   const avatarSrc = isOperator && item.username
                     ? avatarsRef.current?.[item.username] || ''
                     : ''
                   return (
                     <div
-                      key={`contact-${contact.id}-${index}`}
+                      key={`contact-${contact.id}-${rowNumber}-${index}`}
                       className={classNames(
                         'flex items-center gap-3 px-5 cursor-pointer',
                         'h-[56px]',
@@ -424,7 +440,7 @@ export function CommandBarPage() {
                           : 'dark:hover:bg-hoverDark hover:bg-hoverLight'
                       )}
                       onClick={() => {
-                        if (number) handleCall(number)
+                        if (rowNumber) handleCall(rowNumber)
                       }}
                       onMouseEnter={() => setSelectedIndex(index)}
                     >
@@ -446,9 +462,9 @@ export function CommandBarPage() {
                         <span className="text-sm font-medium dark:text-titleDark text-titleLight truncate">
                           {contact.displayName}
                         </span>
-                        {number && (
+                        {rowNumber && (
                           <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {number}
+                            {rowNumber}{item.numberLabel ? ` · ${t(item.numberLabel)}` : ''}
                           </span>
                         )}
                       </div>
