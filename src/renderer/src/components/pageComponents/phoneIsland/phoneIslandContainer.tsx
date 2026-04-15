@@ -21,7 +21,16 @@ export const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, isDa
   }
 
   const PhoneIslandComponent = useMemo(() => {
-    return dataConfig && isDataConfigCreated && <PhoneIsland dataConfig={dataConfig} uaType='mobile' />
+    return (
+      dataConfig &&
+      isDataConfigCreated && (
+        <PhoneIsland
+          dataConfig={dataConfig}
+          uaType='mobile'
+          preferredSummaryExtensionType='nethlink'
+        />
+      )
+    )
   }, [account?.username, dataConfig, isDataConfigCreated])
 
   return PhoneIslandComponent

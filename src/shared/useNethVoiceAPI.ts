@@ -585,6 +585,8 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     all_avatars: async () => await _GET(buildApiPath('/user/all_avatars')),
     all_endpoints: async () => await _GET(buildApiPath('/user/endpoints/all')),
     heartbeat: async (extension: string, username: string) => await _POST(buildApiPath('/user/nethlink'), { extension, username }),
+    settings: async (settings: Partial<AccountData['settings']>) =>
+      await _POST(buildApiPath('/user/settings'), settings),
     default_device: async (deviceIdInformation: Extension, force = false): Promise<boolean> => {
       try {
         if (account?.data?.default_device.type !== 'physical' || force) {

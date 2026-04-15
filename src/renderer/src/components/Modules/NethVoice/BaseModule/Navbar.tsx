@@ -13,6 +13,7 @@ import { SettingsShortcutDialog } from './ProfileDialog/SettingsSettings/Setting
 import { SettingsCommandBarShortcutDialog } from './ProfileDialog/SettingsSettings/SettingsCommandBarShortcutDialog'
 import { SettingsDeviceDialog } from './ProfileDialog/SettingsSettings/SettingsDevicesDialog'
 import { SettingsIncomingCallsDialog } from './ProfileDialog/SettingsSettings/SettingsIncomingCallsDialog'
+import { SettingsNotificationsDialog } from './ProfileDialog/SettingsSettings/SettingsNotificationsDialog'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -29,6 +30,8 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   )
   const [isDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
   const [isIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
+  const [isNotificationsDialogOpen] = useNethlinkData('isNotificationsDialogOpen')
+  const isCallSummaryEnabled = account?.data?.call_summary_enabled === true
 
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false)
 
@@ -64,6 +67,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
       {isCommandBarShortcutDialogOpen && <SettingsCommandBarShortcutDialog />}
       {isDeviceDialogOpen && <SettingsDeviceDialog />}
       {isIncomingCallsDialogOpen && <SettingsIncomingCallsDialog />}
+      {isCallSummaryEnabled && isNotificationsDialogOpen && <SettingsNotificationsDialog />}
       <ProfileDialog
         isOpen={isProfileDialogOpen}
         onClose={() => setIsProfileDialogOpen(false)}
