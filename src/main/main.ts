@@ -53,8 +53,7 @@ Log.debug('ENV:', process.env)
 
 function startup() {
   app.setName('NethLink')
-  //if (isDev())
-  app.setAppUserModelId(app.getName()) //add app name to the notification title
+  app.setAppUserModelId('com.nethesis.nethlink.app') //must match electron-builder appId so Windows notification permissions and taskbar pinning work correctly
   ///LOGGER
   startLogger()
 
