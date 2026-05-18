@@ -16,6 +16,7 @@ export function AboutModule({ }: AboutBoxProps) {
   const page = usePageCtx()
   const [theme] = useSharedState('theme')
   const [notifications] = useSharedState('notifications')
+  const [account] = useSharedState('account')
 
   // Donwload NethLink release page
   const releasePage = 'https://nethserver.github.io/nethlink/'
@@ -24,8 +25,10 @@ export function AboutModule({ }: AboutBoxProps) {
     window.api.openExternalPage(releasePage)
   }
 
-  const openNethesisPage = () => {
-    window.api.openExternalPage('https://www.nethesis.it/')
+  const openCompanyUrl = () => {
+    if (account?.companyUrl) {
+      window.api.openExternalPage(account.companyUrl)
+    }
   }
 
   return (
@@ -46,9 +49,9 @@ export function AboutModule({ }: AboutBoxProps) {
               NethLink by{' '}
               <span
                 className="text-textBlueLight dark:text-textBlueDark cursor-pointer hover:underline"
-                onClick={openNethesisPage}
+                onClick={openCompanyUrl}
               >
-                Nethesis
+                {account?.companyName}
               </span>
             </div>
           </div>
