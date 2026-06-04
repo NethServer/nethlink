@@ -65,12 +65,11 @@ jobs:
       - name: Install Linux build dependencies (libuiohook/X11)
         if: matrix.os == 'ubuntu-latest'
         # uiohook-napi is rebuilt from source against Electron's ABI and needs
-        # the X11 dev headers (X11/keysym.h) to compile libuiohook.
+        # the X11 dev headers to compile libuiohook. Packages match the
+        # libraries linked in uiohook-napi's binding.gyp: -lX11 -lXrandr -lXtst -lXt
         run: |
           sudo apt-get update
-          sudo apt-get install -y libx11-dev libxtst-dev libxt-dev \
-            libxinerama-dev libx11-xcb-dev libxkbcommon-dev \
-            libxkbcommon-x11-dev libxkbfile-dev
+          sudo apt-get install -y libx11-dev libxrandr-dev libxtst-dev libxt-dev
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
