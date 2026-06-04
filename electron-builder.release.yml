@@ -1,0 +1,21 @@
+# Release-only config: inherits everything from electron-builder.yml and adds
+# Windows code signing via Azure Trusted Signing. Used only by the prod release
+# workflow (build-prod.yml) for the Windows build, so dev/PR and local builds
+# remain unsigned and credential-free.
+#
+# Signing during the build (rather than as a post-build step on the installer)
+# ensures the inner app binary (NethLink.exe) and the uninstaller are signed
+# too — not just the NSIS installer. An unsigned NethLink.exe is what Windows
+# Smart App Control blocks.
+extends: ./electron-builder.yml
+win:
+  azureSignOptions:
+    # Must match the Common Name (CN) of the Trusted Signing certificate EXACTLY
+    # (also used by electron-updater to verify update signatures).
+    # Verify with: (Get-AuthenticodeSignature <signed-setup.exe>).SignerCertificate.Subject
+    publisherName: 'Nethesis Srl'
+    endpoint: ${env.AZURE_SIGNING_ENDPOINT}
+    codeSigningAccountName: ${env.AZURE_SIGNING_ACCOUNT}
+    certificateProfileName: ${env.AZURE_CERT_PROFILE}
+    timestampRfc3161: http://timestamp.acs.microsoft.com
+    timestampDigest: SHA256

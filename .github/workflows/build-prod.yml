@@ -38,6 +38,15 @@ jobs:
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
           xcrun --find notarytool
 
+      - name: Install Linux build dependencies (libuiohook/X11)
+        if: matrix.os == 'ubuntu-latest'
+        # uiohook-napi is rebuilt from source against Electron's ABI and needs
+        # the X11 dev headers to compile libuiohook. Packages match the
+        # libraries linked in uiohook-napi's binding.gyp: -lX11 -lXrandr -lXtst -lXt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxrandr-dev libxtst-dev libxt-dev
+
       - name: Build/release Electron app (macOS/Linux)
         if: "!startsWith(matrix.os, 'windows')"
         uses: samuelmeuli/action-electron-builder@v1
@@ -72,30 +81,27 @@ jobs:
           path: notarization-error.log
           if-no-files-found: ignore
 
-      # --- Windows: build without release, sign, then upload ---
+      # --- Windows: build with the release config (electron-builder signs every
+      # binary via Azure Trusted Signing during packaging), then upload ---
       - name: Build Electron app (Windows)
         if: startsWith(matrix.os, 'windows')
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.github_token }}
           release: false
-          args: --${{ matrix.arch }}
-
-      - name: Sign Windows installer with Azure Trusted Signing
-        if: startsWith(matrix.os, 'windows')
-        uses: azure/trusted-signing-action@v1.2.0
-        with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          endpoint: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
-          signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
-          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE }}
-          files-folder: dist/
-          files-folder-filter: exe
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
+          # Use the release config so azureSignOptions is applied (dev/local
+          # builds use electron-builder.yml and stay unsigned).
+          args: --${{ matrix.arch }} --config electron-builder.release.yml
+        env:
+          # Consumed by electron-builder.release.yml's azureSignOptions. Signing
+          # inside the build also covers the inner NethLink.exe and the
+          # uninstaller, not just the installer.
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SIGNING_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          AZURE_CERT_PROFILE: ${{ secrets.AZURE_CERT_PROFILE }}
 
       - name: Upload signed Windows installer to release
         if: startsWith(matrix.os, 'windows') && startsWith(github.ref, 'refs/tags/v')

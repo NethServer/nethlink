@@ -1,6 +1,6 @@
 appId: 'com.nethesis.nethlink.app'
 productName: 'NethLink'
-copyright: 'Copyright © 2025 NethesisSRL'
+copyright: 'Copyright © 2026 NethesisSRL'
 afterSign: electron-builder-notarize
 electronLanguages:
   - en
@@ -29,6 +29,9 @@ win:
   icon: icons/icon.ico
   target:
     - nsis
+  # NOTE: Windows code signing (Azure Trusted Signing) is intentionally NOT
+  # configured here so that dev/PR and local builds don't need credentials and
+  # stay fast. Signing is added only for releases via electron-builder.release.yml.
 nsis:
   oneClick: false
   perMachine: true
