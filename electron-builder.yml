@@ -1,6 +1,6 @@
 appId: 'com.nethesis.nethlink.app'
 productName: 'NethLink'
-copyright: 'Copyright © 2025 NethesisSRL'
+copyright: 'Copyright © 2026 NethesisSRL'
 afterSign: electron-builder-notarize
 electronLanguages:
   - en
@@ -29,6 +29,20 @@ win:
   icon: icons/icon.ico
   target:
     - nsis
+  # Sign with Azure Trusted Signing *during* the build, so electron-builder
+  # signs the inner app binary (NethLink.exe), the uninstaller and the NSIS
+  # installer. Signing the installer afterwards is not enough: the app exe is
+  # already sealed (unsigned) inside it, which is what Smart App Control blocks.
+  azureSignOptions:
+    # IMPORTANT: must match the Common Name (CN) of the Trusted Signing
+    # certificate EXACTLY (also used by electron-updater's signature check).
+    # Verify with: (Get-AuthenticodeSignature <signed-setup.exe>).SignerCertificate.Subject
+    publisherName: 'Nethesis Srl'
+    endpoint: ${env.AZURE_SIGNING_ENDPOINT}
+    codeSigningAccountName: ${env.AZURE_SIGNING_ACCOUNT}
+    certificateProfileName: ${env.AZURE_CERT_PROFILE}
+    timestampRfc3161: http://timestamp.acs.microsoft.com
+    timestampDigest: SHA256
 nsis:
   oneClick: false
   perMachine: true
