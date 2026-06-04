@@ -38,6 +38,16 @@ jobs:
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
           xcrun --find notarytool
 
+      - name: Install Linux build dependencies (libuiohook/X11)
+        if: matrix.os == 'ubuntu-latest'
+        # uiohook-napi is rebuilt from source against Electron's ABI and needs
+        # the X11 dev headers (X11/keysym.h) to compile libuiohook.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxtst-dev libxt-dev \
+            libxinerama-dev libx11-xcb-dev libxkbcommon-dev \
+            libxkbcommon-x11-dev libxkbfile-dev
+
       - name: Build/release Electron app (macOS/Linux)
         if: "!startsWith(matrix.os, 'windows')"
         uses: samuelmeuli/action-electron-builder@v1

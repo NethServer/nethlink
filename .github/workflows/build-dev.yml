@@ -62,6 +62,16 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 
+      - name: Install Linux build dependencies (libuiohook/X11)
+        if: matrix.os == 'ubuntu-latest'
+        # uiohook-napi is rebuilt from source against Electron's ABI and needs
+        # the X11 dev headers (X11/keysym.h) to compile libuiohook.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxtst-dev libxt-dev \
+            libxinerama-dev libx11-xcb-dev libxkbcommon-dev \
+            libxkbcommon-x11-dev libxkbfile-dev
+
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
