@@ -7,6 +7,13 @@
 # ensures the inner app binary (NethLink.exe) and the uninstaller are signed
 # too — not just the NSIS installer. An unsigned NethLink.exe is what Windows
 # Smart App Control blocks.
+#
+# IMPORTANT: electron-builder does NOT expand ${env.*} inside azureSignOptions
+# (the values are passed verbatim to Invoke-TrustedSigning). The release
+# workflow therefore REGENERATES this file before the Windows build, injecting
+# the real endpoint/codeSigningAccountName/certificateProfileName from
+# repository secrets. The ${env.*} values below are placeholders for reference
+# only — a local prod build must replace them with literal values.
 extends: ./electron-builder.yml
 win:
   azureSignOptions:

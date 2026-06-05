@@ -83,6 +83,29 @@ jobs:
 
       # --- Windows: build with the release config (electron-builder signs every
       # binary via Azure Trusted Signing during packaging), then upload ---
+      - name: Render Windows signing config from secrets
+        if: startsWith(matrix.os, 'windows')
+        shell: bash
+        env:
+          AZURE_SIGNING_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          AZURE_CERT_PROFILE: ${{ secrets.AZURE_CERT_PROFILE }}
+        # electron-builder does NOT expand ${env.*} inside azureSignOptions, so
+        # the endpoint/account/profile must be written as literal values. Inject
+        # them here from secrets (keeps them out of the repo).
+        run: |
+          cat > electron-builder.release.yml <<EOF
+          extends: ./electron-builder.yml
+          win:
+            azureSignOptions:
+              publisherName: 'Nethesis Srl'
+              endpoint: '${AZURE_SIGNING_ENDPOINT}'
+              codeSigningAccountName: '${AZURE_SIGNING_ACCOUNT}'
+              certificateProfileName: '${AZURE_CERT_PROFILE}'
+              timestampRfc3161: http://timestamp.acs.microsoft.com
+              timestampDigest: SHA256
+          EOF
+
       - name: Build Electron app (Windows)
         if: startsWith(matrix.os, 'windows')
         uses: samuelmeuli/action-electron-builder@v1
