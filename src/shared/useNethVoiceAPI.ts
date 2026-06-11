@@ -15,6 +15,7 @@ import {
   ExtensionsType
 } from '@shared/types'
 import { Log } from '@shared/utils/logger'
+import { normalizeSharedGroups, serializeSharedGroups } from './phonebook'
 import { useNetwork } from './useNetwork'
 import { SpeeddialTypes } from './constants'
 import { requires2FA } from '@shared/utils/jwt'
@@ -527,20 +528,21 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     },
     //CONTACTS
     createContact: async (create: ContactType) => {
+      const sharedGroups = normalizeSharedGroups(create.shared_groups)
+      const visibilityType =
+        create.privacy === 'group' ? serializeSharedGroups(sharedGroups) : create.privacy || 'public'
+
       const newContact: ContactType = {
-        privacy: create.privacy,
-        type: create.privacy,
+        type: visibilityType,
+        source: 'cti',
+        ...(sharedGroups.length > 0 ? { shared_groups: sharedGroups } : {}),
         name: create.name,
         company: create.company,
         extension: create.extension,
         workphone: create.workphone,
         cellphone: create.cellphone,
         workemail: create.workemail,
-        notes: create.notes,
-        //DEFAULT VALUES
-        favorite: false,
-        selectedPrefNum: 'extension',
-        kind: 'person'
+        notes: create.notes
       }
       await _POST(`${currentApiBasePath}/phonebook/create`, newContact)
       return newContact

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Button, TextInput } from '../../../Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
+import { faChevronDown, faCheck, faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
 import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { t } from 'i18next'
@@ -13,15 +13,25 @@ import { Log } from '@shared/utils/logger'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
 import { usePhonebookSearchModule } from '../SearchResults/hook/usePhoneBookSearchModule'
+import { useSharedState, useNethlinkData } from '@renderer/store'
+import {
+  canWritePhonebookVisibility,
+  normalizeSharedGroups,
+} from '@shared/phonebook'
+import classNames from 'classnames'
 export function AddToPhonebookBox({ close }) {
   const phoneBookSearchModule = usePhonebookSearchModule()
   const phonebookModule = usePhonebookModule()
   const [searchText] = phoneBookSearchModule.searchTextState
   const [selectedContact] = phonebookModule.selectedContact
+  const [account] = useSharedState('account')
+  const [operators] = useNethlinkData('operators')
 
   const submitButtonRef = useRef<HTMLButtonElement>(null)
+  const sharedGroupsDropdownRef = useRef<HTMLDivElement>(null)
   const baseSchema = z.object({
     privacy: z.string(),
+    shared_groups: z.array(z.string()).default([]),
     extension: z
       .string()
       .trim()
@@ -60,6 +70,8 @@ export function AddToPhonebookBox({ close }) {
     .and(baseSchema)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isSharedGroupsDropdownOpen, setIsSharedGroupsDropdownOpen] = useState(false)
+  const [sharedGroupsError, setSharedGroupsError] = useState('')
 
   const {
     register,
@@ -73,6 +85,7 @@ export function AddToPhonebookBox({ close }) {
   } = useForm<ContactType>({
     defaultValues: {
       privacy: '',
+      shared_groups: [],
       type: '',
       name: '',
       company: '',
@@ -86,6 +99,26 @@ export function AddToPhonebookBox({ close }) {
   })
 
   const watchType = watch('type')
+  const watchPrivacy = watch('privacy')
+  const selectedGroups = watch('shared_groups') || []
+  const profile = account?.data?.profile
+  const availableGroups = Object.keys(operators?.groups || {}).sort((left, right) =>
+    left.localeCompare(right),
+  )
+  const visibilityOptions = [
+    {
+      id: 'public',
+      label: t('Phonebook.Everybody'),
+    },
+    {
+      id: 'private',
+      label: t('Phonebook.Only me'),
+    },
+    {
+      id: 'group',
+      label: t('Phonebook.Groups'),
+    },
+  ].filter((option) => canWritePhonebookVisibility(profile, option.id as 'public' | 'private' | 'group'))
 
   useEffect(() => {
     !!errors.name && trigger('name')
@@ -98,6 +131,7 @@ export function AddToPhonebookBox({ close }) {
 
   useEffect(() => {
     setValue('privacy', 'public')
+    setValue('shared_groups', [])
     setValue('type', 'person')
 
     if (searchText != undefined) {
@@ -120,7 +154,46 @@ export function AddToPhonebookBox({ close }) {
     }
   }, [])
 
+  useEffect(() => {
+    const allowedVisibilityValues = visibilityOptions.map((option) => option.id)
+    if (!allowedVisibilityValues.includes(watchPrivacy || '')) {
+      setValue('privacy', visibilityOptions[0]?.id || 'private')
+    }
+  }, [setValue, visibilityOptions, watchPrivacy])
+
+  useEffect(() => {
+    if (watchPrivacy !== 'group') {
+      setValue('shared_groups', [])
+      setSharedGroupsError('')
+      setIsSharedGroupsDropdownOpen(false)
+    }
+  }, [setValue, watchPrivacy])
+
+  useEffect(() => {
+    function handleOutsideClick(event: MouseEvent) {
+      if (
+        sharedGroupsDropdownRef.current &&
+        !sharedGroupsDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsSharedGroupsDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [])
+
   function handleSave(data: ContactType) {
+    if (data.privacy === 'group') {
+      const normalizedGroups = normalizeSharedGroups(data.shared_groups)
+      if (normalizedGroups.length === 0) {
+        setSharedGroupsError(`${t('Phonebook.Select at least one group')}`)
+        return
+      }
+      data.shared_groups = normalizedGroups
+    }
+
+    setSharedGroupsError('')
     //NETHVOICE uses the value '-' when entering a company that is unnamed
     //data.name === '' can only be true in the case where you enter a company
     setIsLoading(true)
@@ -167,6 +240,18 @@ export function AddToPhonebookBox({ close }) {
     }
   }
 
+  function toggleSharedGroup(groupName: string) {
+    const normalizedGroups = normalizeSharedGroups(selectedGroups)
+    const nextGroups = normalizedGroups.includes(groupName)
+      ? normalizedGroups.filter((group) => group !== groupName)
+      : [...normalizedGroups, groupName]
+
+    setValue('shared_groups', nextGroups, { shouldDirty: true })
+    if (nextGroups.length > 0) {
+      setSharedGroupsError('')
+    }
+  }
+
   return (
     <>
       <ModuleTitle
@@ -183,40 +268,81 @@ export function AddToPhonebookBox({ close }) {
           <label className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
             <p className="font-medium text-[14px] leading-5">{t('Phonebook.Visibility')}</p>
             <div className="flex flex-row gap-8 items-center">
-              <div className="flex flex-row gap-2 items-center">
-                <input
-                  {...register('privacy')}
-                  id="public"
-                  type="radio"
-                  value="public"
-                  name="visibility"
-                  className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight  focus:ring-offset-ringOffsetLight dark:focus:ring-offset-ringOffsetDark"
-                />
-                <label
-                  htmlFor="public"
-                  className="whitespace-nowrap font-normal text-[14px] leading-5"
-                >
-                  {t('Phonebook.All')}
-                </label>
-              </div>
-              <div className="flex flex-row gap-2 items-center">
-                <input
-                  {...register('privacy')}
-                  id="private"
-                  type="radio"
-                  value="private"
-                  name="visibility"
-                  className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight dark:focus:ring-offset-ringOffsetDark focus:ring-offset-ringOffsetLight"
-                />
-                <label
-                  htmlFor="private"
-                  className="whitespace-nowrap font-normal text-[14px] leading-5"
-                >
-                  {t('Phonebook.Only me')}
-                </label>
-              </div>
+              {visibilityOptions.map((option) => (
+                <div key={option.id} className="flex flex-row gap-2 items-center">
+                  <input
+                    {...register('privacy')}
+                    id={option.id}
+                    type="radio"
+                    value={option.id}
+                    name="visibility"
+                    className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight focus:ring-offset-ringOffsetLight dark:focus:ring-offset-ringOffsetDark"
+                  />
+                  <label
+                    htmlFor={option.id}
+                    className="whitespace-nowrap font-normal text-[14px] leading-5"
+                  >
+                    {option.label}
+                  </label>
+                </div>
+              ))}
             </div>
           </label>
+
+          {watchPrivacy === 'group' && (
+            <div className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
+              <p className="font-medium text-[14px] leading-5">{t('Phonebook.Groups')}</p>
+              <div className="relative" ref={sharedGroupsDropdownRef}>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-bgDark dark:text-titleDark"
+                  onClick={() => setIsSharedGroupsDropdownOpen((open) => !open)}
+                >
+                  <span className="truncate">
+                    {selectedGroups.length > 0
+                      ? selectedGroups.join(', ')
+                      : t('Phonebook.Choose one or more groups')}
+                  </span>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={classNames(
+                      'h-4 w-4 transition-transform',
+                      isSharedGroupsDropdownOpen && 'rotate-180',
+                    )}
+                  />
+                </button>
+                {isSharedGroupsDropdownOpen && (
+                  <div className="absolute z-20 mt-2 max-h-56 w-full overflow-y-auto rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
+                    {availableGroups.length > 0 ? (
+                      availableGroups.map((groupName) => {
+                        const isSelected = selectedGroups.includes(groupName)
+                        return (
+                          <button
+                            key={groupName}
+                            type="button"
+                            className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-800"
+                            onClick={() => toggleSharedGroup(groupName)}
+                          >
+                            <span className="inline-flex h-4 w-4 items-center justify-center text-textBlueLight dark:text-textBlueDark">
+                              {isSelected && <FontAwesomeIcon icon={faCheck} className="h-3.5 w-3.5" />}
+                            </span>
+                            <span className="truncate">{groupName}</span>
+                          </button>
+                        )
+                      })
+                    ) : (
+                      <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                        {t('Phonebook.No groups available')}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {sharedGroupsError && (
+                <p className="text-sm text-red-600 dark:text-red-400">{sharedGroupsError}</p>
+              )}
+            </div>
+          )}
 
           <label className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
             <p className="font-medium text-[14px] leading-5">{t('Phonebook.Type')}</p>

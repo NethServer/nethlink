@@ -231,6 +231,7 @@ export type ContactType = {
   id?: string | number
   owner_id?: string
   type?: string
+  shared_groups?: string[]
   homeemail?: string
   workemail?: string
   homephone?: string
@@ -273,6 +274,7 @@ export type ParkingType = {
 export type NewContactType = {
   name: string
   privacy?: string
+  shared_groups?: string[]
   favorite?: boolean
   selectedPrefNum?: string
   setInput?: string
@@ -286,6 +288,7 @@ export type NewContactType = {
 export type NewSpeedDialType = {
   name: string
   privacy?: string
+  shared_groups?: string[]
   favorite?: boolean
   selectedPrefNum?: string
   setInput?: string
