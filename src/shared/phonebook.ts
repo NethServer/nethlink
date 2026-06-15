@@ -1,4 +1,4 @@
-import { AccountData, ContactType, SearchData } from './types'
+import { AccountData, ContactType, GroupsType, SearchData } from './types'
 
 type ContactLike =
   | Pick<ContactType, 'type' | 'source' | 'shared_groups'>
@@ -19,6 +19,47 @@ function getPermissionValue(
   return permission?.value === true
 }
 
+function getGroupPermissionId(groupName: string) {
+  return `grp_${groupName.replace(/[^a-z0-9]/gi, '').toLowerCase()}`
+}
+
+export function getPresencePanelPermissions(profile?: AccountData['profile']) {
+  return profile?.macro_permissions?.presence_panel?.permissions || {}
+}
+
+export function getAllowedOperatorGroupsIds(profile?: AccountData['profile']) {
+  const permissions = getPresencePanelPermissions(profile)
+
+  return Object.keys(permissions).filter((permissionName) => {
+    return permissionName.startsWith('grp_') && permissions[permissionName]?.value === true
+  })
+}
+
+export function getVisiblePhonebookGroups(
+  allowedGroupsIds: string[],
+  allGroups: GroupsType | undefined,
+  canSeeAllGroups: boolean | undefined,
+  username: string | undefined,
+) {
+  const groups = allGroups || {}
+
+  if (canSeeAllGroups) {
+    return Object.keys(groups).sort((left, right) => left.localeCompare(right))
+  }
+
+  const allowedGroups = Object.keys(groups).filter((groupName) => {
+    return allowedGroupsIds.includes(getGroupPermissionId(groupName))
+  })
+
+  const belongingGroups = Object.keys(groups).filter((groupName) => {
+    return !!username && groups[groupName]?.users.includes(username)
+  })
+
+  return Array.from(new Set([...allowedGroups, ...belongingGroups])).sort((left, right) =>
+    left.localeCompare(right),
+  )
+}
+
 export function getPhonebookPermissionLevel(profile?: AccountData['profile']) {
   if (!profile?.macro_permissions?.phonebook?.value) {
     return -1
@@ -33,6 +74,10 @@ export function getPhonebookPermissionLevel(profile?: AccountData['profile']) {
 
   if (getPermissionValue(profile, 'phonebook_level_1')) {
     return 1
+  }
+
+  if (getPermissionValue(profile, 'phonebook_level_0')) {
+    return 0
   }
 
   return 0

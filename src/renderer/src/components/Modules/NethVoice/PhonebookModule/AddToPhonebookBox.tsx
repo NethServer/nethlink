@@ -1,7 +1,14 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Button, TextInput } from '../../../Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronDown, faCheck, faSpinner as LoadingIcon } from '@fortawesome/free-solid-svg-icons'
+import {
+  faChevronDown,
+  faCheck,
+  faCircleInfo,
+  faSpinner as LoadingIcon,
+  faUsers,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons'
 import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { t } from 'i18next'
@@ -16,9 +23,13 @@ import { usePhonebookSearchModule } from '../SearchResults/hook/usePhoneBookSear
 import { useSharedState, useNethlinkData } from '@renderer/store'
 import {
   canWritePhonebookVisibility,
+  getAllowedOperatorGroupsIds,
+  getPresencePanelPermissions,
+  getVisiblePhonebookGroups,
   normalizeSharedGroups,
 } from '@shared/phonebook'
 import classNames from 'classnames'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CurstomThemedTooltip'
 export function AddToPhonebookBox({ close }) {
   const phoneBookSearchModule = usePhonebookSearchModule()
   const phonebookModule = usePhonebookModule()
@@ -72,6 +83,7 @@ export function AddToPhonebookBox({ close }) {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isSharedGroupsDropdownOpen, setIsSharedGroupsDropdownOpen] = useState(false)
   const [sharedGroupsError, setSharedGroupsError] = useState('')
+  const [visibilityError, setVisibilityError] = useState('')
 
   const {
     register,
@@ -102,23 +114,38 @@ export function AddToPhonebookBox({ close }) {
   const watchPrivacy = watch('privacy')
   const selectedGroups = watch('shared_groups') || []
   const profile = account?.data?.profile
-  const availableGroups = Object.keys(operators?.groups || {}).sort((left, right) =>
-    left.localeCompare(right),
+  const username = account?.data?.username || account?.username
+  const presencePanelPermissions = getPresencePanelPermissions(profile)
+  const availableGroups = useMemo(
+    () =>
+      getVisiblePhonebookGroups(
+        getAllowedOperatorGroupsIds(profile),
+        operators?.groups,
+        presencePanelPermissions?.all_groups?.value,
+        username,
+      ),
+    [operators?.groups, presencePanelPermissions?.all_groups?.value, profile, username],
   )
-  const visibilityOptions = [
-    {
-      id: 'public',
-      label: t('Phonebook.Everybody'),
-    },
-    {
-      id: 'private',
-      label: t('Phonebook.Only me'),
-    },
-    {
-      id: 'group',
-      label: t('Phonebook.Groups'),
-    },
-  ].filter((option) => canWritePhonebookVisibility(profile, option.id as 'public' | 'private' | 'group'))
+  const visibilityOptions = useMemo(
+    () =>
+      [
+        {
+          id: 'public',
+          label: t('Phonebook.Public'),
+        },
+        {
+          id: 'private',
+          label: t('Phonebook.Private'),
+        },
+        {
+          id: 'group',
+          label: t('Phonebook.Group'),
+        },
+      ].filter((option) =>
+        canWritePhonebookVisibility(profile, option.id as 'public' | 'private' | 'group'),
+      ),
+    [profile],
+  )
 
   useEffect(() => {
     !!errors.name && trigger('name')
@@ -157,7 +184,7 @@ export function AddToPhonebookBox({ close }) {
   useEffect(() => {
     const allowedVisibilityValues = visibilityOptions.map((option) => option.id)
     if (!allowedVisibilityValues.includes(watchPrivacy || '')) {
-      setValue('privacy', visibilityOptions[0]?.id || 'private')
+      setValue('privacy', visibilityOptions[0]?.id || '')
     }
   }, [setValue, visibilityOptions, watchPrivacy])
 
@@ -168,6 +195,16 @@ export function AddToPhonebookBox({ close }) {
       setIsSharedGroupsDropdownOpen(false)
     }
   }, [setValue, watchPrivacy])
+
+  useEffect(() => {
+    const visibleSelectedGroups = normalizeSharedGroups(selectedGroups).filter((groupName) =>
+      availableGroups.includes(groupName),
+    )
+
+    if (visibleSelectedGroups.length !== selectedGroups.length) {
+      setValue('shared_groups', visibleSelectedGroups)
+    }
+  }, [availableGroups, selectedGroups, setValue])
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
@@ -184,6 +221,12 @@ export function AddToPhonebookBox({ close }) {
   }, [])
 
   function handleSave(data: ContactType) {
+    if (!canWritePhonebookVisibility(profile, data.privacy as 'public' | 'private' | 'group')) {
+      setVisibilityError(`${t('Phonebook.Cannot create contact')}`)
+      return
+    }
+
+    setVisibilityError('')
     if (data.privacy === 'group') {
       const normalizedGroups = normalizeSharedGroups(data.shared_groups)
       if (normalizedGroups.length === 0) {
@@ -265,29 +308,43 @@ export function AddToPhonebookBox({ close }) {
             handleSubmit(onSubmitForm)(e)
           }}
         >
-          <label className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
-            <p className="font-medium text-[14px] leading-5">{t('Phonebook.Visibility')}</p>
-            <div className="flex flex-row gap-8 items-center">
-              {visibilityOptions.map((option) => (
-                <div key={option.id} className="flex flex-row gap-2 items-center">
-                  <input
-                    {...register('privacy')}
-                    id={option.id}
-                    type="radio"
-                    value={option.id}
-                    name="visibility"
-                    className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight focus:ring-offset-ringOffsetLight dark:focus:ring-offset-ringOffsetDark"
-                  />
-                  <label
-                    htmlFor={option.id}
-                    className="whitespace-nowrap font-normal text-[14px] leading-5"
-                  >
-                    {option.label}
-                  </label>
-                </div>
-              ))}
+          <div className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
+            <div className="flex items-center">
+              <p className="font-medium text-[14px] leading-5">{t('Phonebook.Visibility')}</p>
+              <FontAwesomeIcon
+                icon={faCircleInfo}
+                className="ml-2 h-4 w-4 cursor-help text-textIndigoLight dark:text-textIndigoDark"
+                data-tooltip-id="phonebook-visibility-info"
+                data-tooltip-content={t('Phonebook.Visibility info')}
+              />
+              <CustomThemedTooltip id="phonebook-visibility-info" place="right" />
             </div>
-          </label>
+            <fieldset>
+              <legend className="sr-only">{t('Phonebook.Visibility')}</legend>
+              <div className="flex flex-col gap-3">
+                {visibilityOptions.map((option) => (
+                  <div key={option.id} className="flex flex-row gap-2 items-center">
+                    <input
+                      {...register('privacy')}
+                      id={option.id}
+                      type="radio"
+                      value={option.id}
+                      className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight focus:ring-offset-ringOffsetLight dark:focus:ring-offset-ringOffsetDark"
+                    />
+                    <label
+                      htmlFor={option.id}
+                      className="whitespace-nowrap font-normal text-[14px] leading-5"
+                    >
+                      {option.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </fieldset>
+            {visibilityError && (
+              <p className="text-sm text-red-600 dark:text-red-400">{visibilityError}</p>
+            )}
+          </div>
 
           {watchPrivacy === 'group' && (
             <div className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
@@ -299,9 +356,7 @@ export function AddToPhonebookBox({ close }) {
                   onClick={() => setIsSharedGroupsDropdownOpen((open) => !open)}
                 >
                   <span className="truncate">
-                    {selectedGroups.length > 0
-                      ? selectedGroups.join(', ')
-                      : t('Phonebook.Choose one or more groups')}
+                    {t('Phonebook.Choose one or more groups')}
                   </span>
                   <FontAwesomeIcon
                     icon={faChevronDown}
@@ -326,6 +381,10 @@ export function AddToPhonebookBox({ close }) {
                             <span className="inline-flex h-4 w-4 items-center justify-center text-textBlueLight dark:text-textBlueDark">
                               {isSelected && <FontAwesomeIcon icon={faCheck} className="h-3.5 w-3.5" />}
                             </span>
+                            <FontAwesomeIcon
+                              icon={faUsers}
+                              className="h-3.5 w-3.5 text-gray-500 dark:text-gray-300"
+                            />
                             <span className="truncate">{groupName}</span>
                           </button>
                         )
@@ -338,6 +397,27 @@ export function AddToPhonebookBox({ close }) {
                   </div>
                 )}
               </div>
+              {selectedGroups.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <p className="font-medium text-[14px] leading-5">{t('Phonebook.Selected')}</p>
+                  {selectedGroups.map((groupName) => (
+                    <span
+                      key={groupName}
+                      className="inline-flex items-center gap-2 rounded-full bg-textBlueLight/10 px-3 py-1 text-sm font-medium text-textBlueLight dark:bg-textBlueDark/10 dark:text-textBlueDark"
+                    >
+                      {groupName}
+                      <button
+                        type="button"
+                        className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-textBlueLight/20 dark:hover:bg-textBlueDark/20"
+                        aria-label={`${t('Common.Delete')} ${groupName}`}
+                        onClick={() => toggleSharedGroup(groupName)}
+                      >
+                        <FontAwesomeIcon icon={faXmark} className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
               {sharedGroupsError && (
                 <p className="text-sm text-red-600 dark:text-red-400">{sharedGroupsError}</p>
               )}

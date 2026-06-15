@@ -27,6 +27,10 @@ export default {
         textBlueLight: '#1d4ed8', //blue-700
         textBlueDark: '#3b82f6', // blue-500
 
+        //indigo text
+        textIndigoLight: '#4c1d95', //indigo-700
+        textIndigoDark: '#818cf8', // indigo-400
+
         //yellow text
         textYellowLight: '#B45309', //yellow-700
         textYellowDark: '#F59E0B', // yellow-500

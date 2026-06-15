@@ -542,7 +542,8 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         workphone: create.workphone,
         cellphone: create.cellphone,
         workemail: create.workemail,
-        notes: create.notes
+        notes: create.notes,
+        kind: 'person'
       }
       await _POST(`${currentApiBasePath}/phonebook/create`, newContact)
       return newContact
