@@ -529,6 +529,11 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     //CONTACTS
     createContact: async (create: ContactType) => {
       const sharedGroups = normalizeSharedGroups(create.shared_groups)
+
+      if (create.privacy === 'group' && sharedGroups.length === 0) {
+        throw new Error('Cannot create group contact without shared groups')
+      }
+
       const visibilityType =
         create.privacy === 'group' ? serializeSharedGroups(sharedGroups) : create.privacy || 'public'
 
@@ -536,6 +541,8 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         type: visibilityType,
         source: 'cti',
         ...(sharedGroups.length > 0 ? { shared_groups: sharedGroups } : {}),
+        favorite: false,
+        selectedPrefNum: 'extension',
         name: create.name,
         company: create.company,
         extension: create.extension,

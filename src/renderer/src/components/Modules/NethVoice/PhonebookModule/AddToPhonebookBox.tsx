@@ -9,6 +9,7 @@ import {
   faUsers,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons'
+import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
 import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { t } from 'i18next'
@@ -39,7 +40,6 @@ export function AddToPhonebookBox({ close }) {
   const [operators] = useNethlinkData('operators')
 
   const submitButtonRef = useRef<HTMLButtonElement>(null)
-  const sharedGroupsDropdownRef = useRef<HTMLDivElement>(null)
   const baseSchema = z.object({
     privacy: z.string(),
     shared_groups: z.array(z.string()).default([]),
@@ -81,7 +81,6 @@ export function AddToPhonebookBox({ close }) {
     .and(baseSchema)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [isSharedGroupsDropdownOpen, setIsSharedGroupsDropdownOpen] = useState(false)
   const [sharedGroupsError, setSharedGroupsError] = useState('')
   const [visibilityError, setVisibilityError] = useState('')
 
@@ -113,6 +112,10 @@ export function AddToPhonebookBox({ close }) {
   const watchType = watch('type')
   const watchPrivacy = watch('privacy')
   const selectedGroups = watch('shared_groups') || []
+  const normalizedSelectedGroups = useMemo(
+    () => normalizeSharedGroups(selectedGroups),
+    [selectedGroups],
+  )
   const profile = account?.data?.profile
   const username = account?.data?.username || account?.username
   const presencePanelPermissions = getPresencePanelPermissions(profile)
@@ -150,7 +153,7 @@ export function AddToPhonebookBox({ close }) {
   useEffect(() => {
     !!errors.name && trigger('name')
     !!errors.company && trigger('company')
-  }, [watchType])
+  }, [errors.company, errors.name, trigger, watchType])
 
   const onSubmitForm: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
@@ -170,7 +173,6 @@ export function AddToPhonebookBox({ close }) {
         setTimeout(() => setFocus('extension'), 10)
       }
     }
-    //Caso in cui ho selezionato da create in MISSEDCALL
     if (selectedContact?.company) {
       setValue('company', selectedContact.company)
       setTimeout(() => setFocus('extension'), 10)
@@ -179,7 +181,7 @@ export function AddToPhonebookBox({ close }) {
       setValue('extension', selectedContact.number)
       setTimeout(() => setFocus('name'), 10)
     }
-  }, [])
+  }, [searchText, selectedContact?.company, selectedContact?.number, setFocus, setValue])
 
   useEffect(() => {
     const allowedVisibilityValues = visibilityOptions.map((option) => option.id)
@@ -192,33 +194,21 @@ export function AddToPhonebookBox({ close }) {
     if (watchPrivacy !== 'group') {
       setValue('shared_groups', [])
       setSharedGroupsError('')
-      setIsSharedGroupsDropdownOpen(false)
     }
   }, [setValue, watchPrivacy])
 
   useEffect(() => {
-    const visibleSelectedGroups = normalizeSharedGroups(selectedGroups).filter((groupName) =>
+    const visibleSelectedGroups = normalizedSelectedGroups.filter((groupName) =>
       availableGroups.includes(groupName),
     )
+    const hasChanged =
+      visibleSelectedGroups.length !== normalizedSelectedGroups.length ||
+      visibleSelectedGroups.some((groupName, index) => groupName !== normalizedSelectedGroups[index])
 
-    if (visibleSelectedGroups.length !== selectedGroups.length) {
+    if (hasChanged) {
       setValue('shared_groups', visibleSelectedGroups)
     }
-  }, [availableGroups, selectedGroups, setValue])
-
-  useEffect(() => {
-    function handleOutsideClick(event: MouseEvent) {
-      if (
-        sharedGroupsDropdownRef.current &&
-        !sharedGroupsDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsSharedGroupsDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
-  }, [])
+  }, [availableGroups, normalizedSelectedGroups, setValue])
 
   function handleSave(data: ContactType) {
     if (!canWritePhonebookVisibility(profile, data.privacy as 'public' | 'private' | 'group')) {
@@ -237,10 +227,7 @@ export function AddToPhonebookBox({ close }) {
     }
 
     setSharedGroupsError('')
-    //NETHVOICE uses the value '-' when entering a company that is unnamed
-    //data.name === '' can only be true in the case where you enter a company
     setIsLoading(true)
-    //Added a timeout to show the spinner as the call is too fast
     setTimeout(() => {
       if (watchType === 'company') {
         data.name = '-'
@@ -283,23 +270,18 @@ export function AddToPhonebookBox({ close }) {
     }
   }
 
-  function toggleSharedGroup(groupName: string) {
-    const normalizedGroups = normalizeSharedGroups(selectedGroups)
-    const nextGroups = normalizedGroups.includes(groupName)
-      ? normalizedGroups.filter((group) => group !== groupName)
-      : [...normalizedGroups, groupName]
+  function handleSharedGroupsChange(nextGroups: string[]) {
+    const normalizedGroups = normalizeSharedGroups(nextGroups)
 
-    setValue('shared_groups', nextGroups, { shouldDirty: true })
-    if (nextGroups.length > 0) {
+    setValue('shared_groups', normalizedGroups, { shouldDirty: true })
+    if (normalizedGroups.length > 0) {
       setSharedGroupsError('')
     }
   }
 
   return (
     <>
-      <ModuleTitle
-        title={t('Phonebook.Add to Phonebook')}
-      />
+      <ModuleTitle title={t('Phonebook.Add to Phonebook')} />
       <Scrollable innerClassName={'min-w-[344px]'}>
         <form
           className="flex flex-col gap-5 h-full px-5 pt-2"
@@ -349,58 +331,56 @@ export function AddToPhonebookBox({ close }) {
           {watchPrivacy === 'group' && (
             <div className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
               <p className="font-medium text-[14px] leading-5">{t('Phonebook.Groups')}</p>
-              <div className="relative" ref={sharedGroupsDropdownRef}>
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-bgDark dark:text-titleDark"
-                  onClick={() => setIsSharedGroupsDropdownOpen((open) => !open)}
-                >
-                  <span className="truncate">
-                    {t('Phonebook.Choose one or more groups')}
-                  </span>
-                  <FontAwesomeIcon
-                    icon={faChevronDown}
-                    className={classNames(
-                      'h-4 w-4 transition-transform',
-                      isSharedGroupsDropdownOpen && 'rotate-180',
-                    )}
-                  />
-                </button>
-                {isSharedGroupsDropdownOpen && (
-                  <div className="absolute z-20 mt-2 max-h-56 w-full overflow-y-auto rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
-                    {availableGroups.length > 0 ? (
-                      availableGroups.map((groupName) => {
-                        const isSelected = selectedGroups.includes(groupName)
-                        return (
-                          <button
+              <Listbox value={normalizedSelectedGroups} onChange={handleSharedGroupsChange} multiple>
+                {({ open }) => (
+                  <div className="relative">
+                    <ListboxButton className="flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-bgDark dark:text-titleDark">
+                      <span className="truncate">{t('Phonebook.Choose one or more groups')}</span>
+                      <FontAwesomeIcon
+                        icon={faChevronDown}
+                        className={classNames('h-4 w-4 transition-transform', open && 'rotate-180')}
+                      />
+                    </ListboxButton>
+                    <ListboxOptions className="absolute z-20 mt-2 max-h-56 w-full overflow-y-auto rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
+                      {availableGroups.length > 0 ? (
+                        availableGroups.map((groupName) => (
+                          <ListboxOption
                             key={groupName}
-                            type="button"
-                            className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-800"
-                            onClick={() => toggleSharedGroup(groupName)}
+                            value={groupName}
+                            className={({ focus }) =>
+                              classNames(
+                                'flex w-full cursor-pointer items-center gap-3 px-4 py-2 text-left text-sm',
+                                focus && 'bg-gray-100 dark:bg-slate-800',
+                              )
+                            }
                           >
-                            <span className="inline-flex h-4 w-4 items-center justify-center text-textBlueLight dark:text-textBlueDark">
-                              {isSelected && <FontAwesomeIcon icon={faCheck} className="h-3.5 w-3.5" />}
-                            </span>
-                            <FontAwesomeIcon
-                              icon={faUsers}
-                              className="h-3.5 w-3.5 text-gray-500 dark:text-gray-300"
-                            />
-                            <span className="truncate">{groupName}</span>
-                          </button>
-                        )
-                      })
-                    ) : (
-                      <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                        {t('Phonebook.No groups available')}
-                      </div>
-                    )}
+                            {({ selected }) => (
+                              <>
+                                <span className="inline-flex h-4 w-4 items-center justify-center text-textBlueLight dark:text-textBlueDark">
+                                  {selected && <FontAwesomeIcon icon={faCheck} className="h-3.5 w-3.5" />}
+                                </span>
+                                <FontAwesomeIcon
+                                  icon={faUsers}
+                                  className="h-3.5 w-3.5 text-gray-500 dark:text-gray-300"
+                                />
+                                <span className="truncate">{groupName}</span>
+                              </>
+                            )}
+                          </ListboxOption>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
+                          {t('Phonebook.No groups available')}
+                        </div>
+                      )}
+                    </ListboxOptions>
                   </div>
                 )}
-              </div>
-              {selectedGroups.length > 0 && (
+              </Listbox>
+              {normalizedSelectedGroups.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <p className="font-medium text-[14px] leading-5">{t('Phonebook.Selected')}</p>
-                  {selectedGroups.map((groupName) => (
+                  {normalizedSelectedGroups.map((groupName) => (
                     <span
                       key={groupName}
                       className="inline-flex items-center gap-2 rounded-full bg-textBlueLight/10 px-3 py-1 text-sm font-medium text-textBlueLight dark:bg-textBlueDark/10 dark:text-textBlueDark"
@@ -410,7 +390,11 @@ export function AddToPhonebookBox({ close }) {
                         type="button"
                         className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-textBlueLight/20 dark:hover:bg-textBlueDark/20"
                         aria-label={`${t('Common.Delete')} ${groupName}`}
-                        onClick={() => toggleSharedGroup(groupName)}
+                        onClick={() =>
+                          handleSharedGroupsChange(
+                            normalizedSelectedGroups.filter((group) => group !== groupName),
+                          )
+                        }
                       >
                         <FontAwesomeIcon icon={faXmark} className="h-3 w-3" />
                       </button>
@@ -436,10 +420,7 @@ export function AddToPhonebookBox({ close }) {
                   name="type"
                   className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight dark:focus:ring-offset-ringOffsetDark focus:ring-offset-ringOffsetLight"
                 />
-                <label
-                  htmlFor="person"
-                  className="whitespace-nowrap font-normal text-[14px] leading-5"
-                >
+                <label htmlFor="person" className="whitespace-nowrap font-normal text-[14px] leading-5">
                   {t('Phonebook.Person')}
                 </label>
               </div>
@@ -452,10 +433,7 @@ export function AddToPhonebookBox({ close }) {
                   name="type"
                   className="h-4 w-4 dark:text-textBlueDark text-textBlueLight dark:focus:ring-ringBlueDark focus:ring-ringBlueLight dark:focus:ring-offset-ringOffsetDark focus:ring-offset-ringOffsetLight"
                 />
-                <label
-                  htmlFor="company"
-                  className="whitespace-nowrap font-normal text-[14px] leading-5"
-                >
+                <label htmlFor="company" className="whitespace-nowrap font-normal text-[14px] leading-5">
                   {t('Phonebook.Company')}
                 </label>
               </div>
@@ -463,17 +441,15 @@ export function AddToPhonebookBox({ close }) {
           </label>
 
           {watchType === 'person' ? (
-            <>
-              <TextInput
-                {...register('name')}
-                type="text"
-                label={t('Phonebook.Name') as string}
-                helper={errors.name?.message || undefined}
-                error={!!errors.name?.message}
-                onKeyDown={handlekeyDown}
-                className="font-normal text-[14px] leading-5"
-              />
-            </>
+            <TextInput
+              {...register('name')}
+              type="text"
+              label={t('Phonebook.Name') as string}
+              helper={errors.name?.message || undefined}
+              error={!!errors.name?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
           ) : null}
           <TextInput
             {...register('company')}

@@ -20,7 +20,7 @@ function getPermissionValue(
 }
 
 function getGroupPermissionId(groupName: string) {
-  return `grp_${groupName.replace(/[^a-z0-9]/gi, '').toLowerCase()}`
+  return `grp_${groupName.trim().replace(/[^a-z0-9]/gi, '').toLowerCase()}`
 }
 
 export function getPresencePanelPermissions(profile?: AccountData['profile']) {
@@ -118,7 +118,7 @@ export function serializeSharedGroups(sharedGroups?: string[] | null) {
   const normalizedGroups = normalizeSharedGroups(sharedGroups)
 
   if (normalizedGroups.length === 0) {
-    return 'private'
+    throw new Error('Cannot serialize group visibility without shared groups')
   }
 
   return `${GROUP_PREFIX}${normalizedGroups.join(',')}`
@@ -149,19 +149,10 @@ export function getContactVisibility(contact?: ContactLike | null) {
     return 'public'
   }
 
-  if (contact.source !== 'cti') {
-    return 'public'
-  }
-
   const sharedGroups = getContactSharedGroups(contact)
   if (sharedGroups.length > 0) {
     return 'group'
   }
 
   return contact.type === 'private' ? 'private' : 'public'
-}
-
-export function getContactVisibilityKind(contact?: ContactLike | null) {
-  const visibility = getContactVisibility(contact)
-  return visibility === 'public' ? 'public' : visibility
 }
