@@ -108,7 +108,7 @@ const ContactVisibility = ({ contact }: { contact: SearchData }) => {
             className={classNames('text-base w-5', visibility === 'private' ? 'text-indigo-800 dark:text-indigo-100' : 'text-teal-800 dark:text-teal-100')}
             icon={visibility === 'private' ? PrivateIcon : PublicIcon}
           />
-          {visibility === 'private' ? t("Phonebook.Only me") : t("Phonebook.Everybody")}
+          {visibility === 'private' ? t("Phonebook.Only me") : t("Phonebook.Public")}
         </div>}
     </div>
   </div>

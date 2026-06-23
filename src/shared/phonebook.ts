@@ -154,5 +154,5 @@ export function getContactVisibility(contact?: ContactLike | null) {
     return 'group'
   }
 
-  return contact.type === 'private' ? 'private' : 'public'
+  return contact.type === 'private' && contact.source === 'cti' ? 'private' : 'public'
 }
