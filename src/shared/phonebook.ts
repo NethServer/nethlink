@@ -32,24 +32,18 @@ export function getAllowedOperatorGroupsIds(profile?: AccountData['profile']) {
 }
 
 /**
- * Operator groups a user may share a phonebook contact with: the groups the
- * user is directly a member of, plus every group when they hold full phonebook
- * management permission (level 2 / ad_phonebook).
+ * Operator groups a user may share a phonebook contact with: ONLY the groups the
+ * user is directly a member of (CTI Configurations > Users > Group).
  *
- * Sharing must depend only on the groups assigned to the user, NOT on
- * presence-panel permissions (all_groups / grp_*), mirroring the
- * nethcti-middleware write validation.
+ * There is no admin / phonebook-level-2 bypass: sharing depends solely on group
+ * membership for everyone, mirroring the nethcti-middleware write validation, and
+ * does NOT consider presence-panel permissions (all_groups / grp_*).
  */
 export function getVisiblePhonebookGroups(
   allGroups: GroupsType | undefined,
-  canShareAllGroups: boolean | undefined,
   username: string | undefined,
 ) {
   const groups = allGroups || {}
-
-  if (canShareAllGroups) {
-    return Object.keys(groups).sort((left, right) => left.localeCompare(right))
-  }
 
   return Object.keys(groups)
     .filter((groupName) => !!username && groups[groupName]?.users.includes(username))
