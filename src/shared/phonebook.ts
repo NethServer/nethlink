@@ -19,10 +19,6 @@ function getPermissionValue(
   return permission?.value === true
 }
 
-function getGroupPermissionId(groupName: string) {
-  return `grp_${groupName.trim().replace(/[^a-z0-9]/gi, '').toLowerCase()}`
-}
-
 export function getPresencePanelPermissions(profile?: AccountData['profile']) {
   return profile?.macro_permissions?.presence_panel?.permissions || {}
 }
@@ -35,29 +31,29 @@ export function getAllowedOperatorGroupsIds(profile?: AccountData['profile']) {
   })
 }
 
+/**
+ * Operator groups a user may share a phonebook contact with: the groups the
+ * user is directly a member of, plus every group when they hold full phonebook
+ * management permission (level 2 / ad_phonebook).
+ *
+ * Sharing must depend only on the groups assigned to the user, NOT on
+ * presence-panel permissions (all_groups / grp_*), mirroring the
+ * nethcti-middleware write validation.
+ */
 export function getVisiblePhonebookGroups(
-  allowedGroupsIds: string[],
   allGroups: GroupsType | undefined,
-  canSeeAllGroups: boolean | undefined,
+  canShareAllGroups: boolean | undefined,
   username: string | undefined,
 ) {
   const groups = allGroups || {}
 
-  if (canSeeAllGroups) {
+  if (canShareAllGroups) {
     return Object.keys(groups).sort((left, right) => left.localeCompare(right))
   }
 
-  const allowedGroups = Object.keys(groups).filter((groupName) => {
-    return allowedGroupsIds.includes(getGroupPermissionId(groupName))
-  })
-
-  const belongingGroups = Object.keys(groups).filter((groupName) => {
-    return !!username && groups[groupName]?.users.includes(username)
-  })
-
-  return Array.from(new Set([...allowedGroups, ...belongingGroups])).sort((left, right) =>
-    left.localeCompare(right),
-  )
+  return Object.keys(groups)
+    .filter((groupName) => !!username && groups[groupName]?.users.includes(username))
+    .sort((left, right) => left.localeCompare(right))
 }
 
 export function getPhonebookPermissionLevel(profile?: AccountData['profile']) {

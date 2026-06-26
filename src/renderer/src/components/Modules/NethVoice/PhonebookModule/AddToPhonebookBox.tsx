@@ -24,8 +24,7 @@ import { usePhonebookSearchModule } from '../SearchResults/hook/usePhoneBookSear
 import { useSharedState, useNethlinkData } from '@renderer/store'
 import {
   canWritePhonebookVisibility,
-  getAllowedOperatorGroupsIds,
-  getPresencePanelPermissions,
+  getPhonebookPermissionLevel,
   getVisiblePhonebookGroups,
   normalizeSharedGroups,
 } from '@shared/phonebook'
@@ -118,16 +117,10 @@ export function AddToPhonebookBox({ close }) {
   )
   const profile = account?.data?.profile
   const username = account?.data?.username || account?.username
-  const presencePanelPermissions = getPresencePanelPermissions(profile)
+  const canShareAllGroups = getPhonebookPermissionLevel(profile) >= 2
   const availableGroups = useMemo(
-    () =>
-      getVisiblePhonebookGroups(
-        getAllowedOperatorGroupsIds(profile),
-        operators?.groups,
-        presencePanelPermissions?.all_groups?.value,
-        username,
-      ),
-    [operators?.groups, presencePanelPermissions?.all_groups?.value, profile, username],
+    () => getVisiblePhonebookGroups(operators?.groups, canShareAllGroups, username),
+    [operators?.groups, canShareAllGroups, username],
   )
   const visibilityOptions = useMemo(
     () =>
