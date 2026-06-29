@@ -848,11 +848,15 @@ async function createNethLink(show: boolean = true) {
 }
 
 async function checkForUpdate() {
-  Log.info('Current app version:', app.getVersion(), 'check for updates...')
-  const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
-  Log.info('Head add version:', latestVersionData.name)
-  if (latestVersionData.name !== ("v" + app.getVersion()) || isDev()) {
-    NethLinkController.instance.sendUpdateNotification()
+  try {
+    Log.info('Current app version:', app.getVersion(), 'check for updates...')
+    const latestVersionData = await NetworkController.instance.get(GIT_RELEASES_URL)
+    Log.info('Head add version:', latestVersionData.name)
+    if (latestVersionData.name !== ("v" + app.getVersion()) || isDev()) {
+      NethLinkController.instance.sendUpdateNotification()
+    }
+  } catch (error: any) {
+    Log.warning('Skipping update check after network error', error?.message || error)
   }
 }
 

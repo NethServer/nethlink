@@ -3,6 +3,8 @@ import {
   faClone as CopyIcon,
   faEarth as PublicIcon,
   faEye as VisibilityIcon,
+  faUserGroup as GroupIcon,
+  faUserLock as PrivateIcon,
   faPhone as PhoneIcon,
   faMobileScreen as MobilePhoneIcon,
   faBriefcase as WorkIcon,
@@ -22,6 +24,7 @@ import { NumberCaller } from '@renderer/components/NumberCaller'
 import { useAccount } from '@renderer/hooks/useAccount'
 import classNames from 'classnames'
 import { useTheme } from '@renderer/theme/Context'
+import { getContactSharedGroups, getContactVisibility } from '@shared/phonebook'
 
 interface SearchNumberBoxProps {
   contactDetail?: {
@@ -56,7 +59,7 @@ export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxPro
           <div className='pl-6 pt-6 w-full h-full'>
             <Scrollable>
               <div className='flex flex-col gap-6 w-full pr-1'>
-                <ContactVisibility isPublic={!(contact?.type === 'private' && contact?.source === 'cti')} />
+                <ContactVisibility contact={contact} />
                 {/* <ContactDetail icon={PhoneIcon} label={t('Phonebook.Primary phone')} copy>{primaryNumber || ''}</ContactDetail> */}
                 <ContactDetail icon={PhoneIcon} label={t('Phonebook.Home phone')} copy protocol='callto'>{contact.homephone}</ContactDetail>
                 <ContactDetail icon={MobilePhoneIcon} label={t('Phonebook.Mobile phone')} copy protocol='callto'>{contact.cellphone}</ContactDetail>
@@ -74,8 +77,11 @@ export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxPro
 }
 
 
-const ContactVisibility = ({ isPublic }: { isPublic: boolean }) => {
+const ContactVisibility = ({ contact }: { contact: SearchData }) => {
   const { theme } = useTheme()
+  const visibility = getContactVisibility(contact)
+  const sharedGroups = getContactSharedGroups(contact)
+
   return <div className='flex flex-row w-full justify-start'>
     <div className='flex flex-row gap-2 items-center min-w-[170px] w-full dark:text-titleDark text-titleLight'>
       <FontAwesomeIcon
@@ -85,13 +91,25 @@ const ContactVisibility = ({ isPublic }: { isPublic: boolean }) => {
       {t("Phonebook.Visibility")}
     </div>
     <div className='w-full'>
-      <div className={classNames(theme.badge.base, theme.badge.rounded.full, theme.badge.sizes.small, 'w-fit justify-start bg-teal-100 dark:bg-teal-700  text-teal-800 dark:text-teal-100 flex flex-row gap-1 items-center ')}>
-        <FontAwesomeIcon
-          className="text-base text-teal-800 dark:text-teal-100 w-5"
-          icon={PublicIcon}
-        />
-        {isPublic ? t("Phonebook.Public") : t("Phonebook.Only me")}
-      </div>
+      {visibility === 'group'
+        ? <div className='flex flex-wrap gap-2'>
+          {sharedGroups.map((groupName) => (
+            <div key={groupName} className={classNames(theme.badge.base, theme.badge.rounded.full, theme.badge.sizes.small, 'w-fit justify-start bg-sky-100 dark:bg-sky-700 text-sky-800 dark:text-sky-100 flex flex-row gap-1 items-center')}>
+              <FontAwesomeIcon
+                className="text-base text-sky-800 dark:text-sky-100 w-5"
+                icon={GroupIcon}
+              />
+              {groupName}
+            </div>
+          ))}
+        </div>
+        : <div className={classNames(theme.badge.base, theme.badge.rounded.full, theme.badge.sizes.small, 'w-fit justify-start flex flex-row gap-1 items-center', visibility === 'private' ? 'bg-indigo-100 dark:bg-indigo-700 text-indigo-800 dark:text-indigo-100' : 'bg-teal-100 dark:bg-teal-700 text-teal-800 dark:text-teal-100')}>
+          <FontAwesomeIcon
+            className={classNames('text-base w-5', visibility === 'private' ? 'text-indigo-800 dark:text-indigo-100' : 'text-teal-800 dark:text-teal-100')}
+            icon={visibility === 'private' ? PrivateIcon : PublicIcon}
+          />
+          {visibility === 'private' ? t("Phonebook.Only me") : t("Phonebook.Public")}
+        </div>}
     </div>
   </div>
 }
