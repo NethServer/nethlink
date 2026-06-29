@@ -28,7 +28,7 @@ import {
   normalizeSharedGroups,
 } from '@shared/phonebook'
 import classNames from 'classnames'
-import { CustomThemedTooltip } from '@renderer/components/Nethesis/CurstomThemedTooltip'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 export function AddToPhonebookBox({ close }) {
   const phoneBookSearchModule = usePhonebookSearchModule()
   const phonebookModule = usePhonebookModule()
