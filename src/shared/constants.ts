@@ -103,6 +103,7 @@ export enum IPC_EVENTS {
   PLAY_RINGTONE_PREVIEW = "PLAY_RINGTONE_PREVIEW",
   STOP_RINGTONE_PREVIEW = "STOP_RINGTONE_PREVIEW",
   AUDIO_PLAYER_CLOSED = "AUDIO_PLAYER_CLOSED",
+  SEND_NOTIFICATION = "SEND_NOTIFICATION",
   TOGGLE_COMMAND_BAR = "TOGGLE_COMMAND_BAR",
   SHOW_COMMAND_BAR = "SHOW_COMMAND_BAR",
   HIDE_COMMAND_BAR = "HIDE_COMMAND_BAR",
@@ -254,4 +255,6 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-ringing-tone-selected' = 'phone-island-ringing-tone-selected',
   'phone-island-ringing-tone-output' = 'phone-island-ringing-tone-output',
   'phone-island-ringing-tone-output-changed' = 'phone-island-ringing-tone-output-changed',
+  'phone-island-summary-not-ready' = 'phone-island-summary-not-ready',
+  'phone-island-summary-ready' = 'phone-island-summary-ready',
 }

@@ -29,7 +29,11 @@ export interface IElectronAPI {
 
   //EMITTER - only emit, no response
   openDevTool(hash: string): unknown
-  sendNotification(notificationoption: NotificationConstructorOptions, openUrl: string | undefined): void
+  sendNotification(
+    title: string,
+    notificationoption: NotificationConstructorOptions,
+    openUrl?: string,
+  ): void
   logout: () => void
   startCall(phoneNumber: string): void
   hideLoginWindow(): void
@@ -102,6 +106,7 @@ const api: IElectronAPI = {
   hidePhoneIsland: setEmitter(IPC_EVENTS.HIDE_PHONE_ISLAND),
   showPhoneIsland: setEmitter(IPC_EVENTS.SHOW_PHONE_ISLAND),
   copyToClipboard: setEmitter(IPC_EVENTS.COPY_TO_CLIPBOARD),
+  sendNotification: setEmitter(IPC_EVENTS.SEND_NOTIFICATION),
 
   //LISTENERS - receive data async
   onUpdateAppNotification: addListener(IPC_EVENTS.UPDATE_APP_NOTIFICATION),
