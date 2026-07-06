@@ -5,6 +5,7 @@ import {
   faChevronDown,
   faCheck,
   faCircleInfo,
+  faCirclePlus,
   faSpinner as LoadingIcon,
   faUsers,
   faXmark,
@@ -38,22 +39,26 @@ export function AddToPhonebookBox({ close }) {
   const [operators] = useNethlinkData('operators')
 
   const submitButtonRef = useRef<HTMLButtonElement>(null)
+  const phoneNumberSchema = z
+    .string()
+    .trim()
+    .regex(/^[0-9*#+]*$/, 'This is not a phone number')
+
   const baseSchema = z.object({
     privacy: z.string(),
     shared_groups: z.array(z.string()).default([]),
-    extension: z
-      .string()
-      .trim()
-      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
-    workphone: z
-      .string()
-      .trim()
-      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
-    cellphone: z
-      .string()
-      .trim()
-      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
+    job: z.string(),
+    extension: phoneNumberSchema,
+    workphone: phoneNumberSchema,
+    workphone2: phoneNumberSchema,
+    cellphone: phoneNumberSchema,
+    cellphone2: phoneNumberSchema,
+    otherphone: phoneNumberSchema,
     workemail: z.string(),
+    otheremail: z.string(),
+    facebook: z.string(),
+    instagram: z.string(),
+    linkedin: z.string(),
     notes: z.string()
   })
 
@@ -61,15 +66,14 @@ export function AddToPhonebookBox({ close }) {
     .discriminatedUnion('type', [
       z.object({
         type: z.literal('person'),
-        name: z
-          .string()
-          .trim()
-          .min(1, `${t('Common.This field is required')}`),
+        firstname: z.string().trim(),
+        lastname: z.string().trim(),
         company: z.string().trim()
       }),
       z.object({
         type: z.literal('company'),
-        name: z.string().trim(),
+        firstname: z.string().trim(),
+        lastname: z.string().trim(),
         company: z
           .string()
           .trim()
@@ -77,10 +81,31 @@ export function AddToPhonebookBox({ close }) {
       })
     ])
     .and(baseSchema)
+    .superRefine((data, ctx) => {
+      // A person needs at least a first or last name (name is composed from them).
+      if (data.type === 'person' && !data.firstname?.trim() && !data.lastname?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['firstname'],
+          message: `${t('Common.This field is required')}`
+        })
+      }
+    })
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [sharedGroupsError, setSharedGroupsError] = useState('')
   const [visibilityError, setVisibilityError] = useState('')
+  // Optional fields revealed via the "Add …" buttons (progressive disclosure).
+  // The inputs stay mounted and only their wrapper is hidden, so react-hook-form
+  // keeps their values even while collapsed.
+  const [visibleFields, setVisibleFields] = useState<Set<string>>(new Set())
+  const isFieldVisible = (key: string) => visibleFields.has(key)
+  const revealField = (key: string) =>
+    setVisibleFields((prev) => new Set(prev).add(key))
+  const PHONE_EXTRA_FIELDS = ['workphone2', 'cellphone2', 'otherphone']
+  const SOCIAL_FIELDS = ['facebook', 'instagram', 'linkedin']
+  const nextHiddenPhoneField = PHONE_EXTRA_FIELDS.find((key) => !isFieldVisible(key))
+  const allSocialVisible = SOCIAL_FIELDS.every((key) => isFieldVisible(key))
 
   const {
     register,
@@ -96,12 +121,21 @@ export function AddToPhonebookBox({ close }) {
       privacy: '',
       shared_groups: [],
       type: '',
-      name: '',
+      firstname: '',
+      lastname: '',
+      job: '',
       company: '',
       extension: '',
       workphone: '',
+      workphone2: '',
       cellphone: '',
+      cellphone2: '',
+      otherphone: '',
       workemail: '',
+      otheremail: '',
+      facebook: '',
+      instagram: '',
+      linkedin: '',
       notes: ''
     },
     resolver: zodResolver(resultSchema)
@@ -142,9 +176,9 @@ export function AddToPhonebookBox({ close }) {
   )
 
   useEffect(() => {
-    !!errors.name && trigger('name')
+    !!errors.firstname && trigger('firstname')
     !!errors.company && trigger('company')
-  }, [errors.company, errors.name, trigger, watchType])
+  }, [errors.company, errors.firstname, trigger, watchType])
 
   const onSubmitForm: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
@@ -158,9 +192,9 @@ export function AddToPhonebookBox({ close }) {
     if (searchText != undefined) {
       if (validatePhoneNumber(searchText)) {
         setValue('extension', searchText)
-        setTimeout(() => setFocus('name'), 10)
+        setTimeout(() => setFocus('firstname'), 10)
       } else {
-        setValue('name', searchText)
+        setValue('firstname', searchText)
         setTimeout(() => setFocus('extension'), 10)
       }
     }
@@ -170,7 +204,7 @@ export function AddToPhonebookBox({ close }) {
     }
     if (selectedContact?.number) {
       setValue('extension', selectedContact.number)
-      setTimeout(() => setFocus('name'), 10)
+      setTimeout(() => setFocus('firstname'), 10)
     }
   }, [searchText, selectedContact?.company, selectedContact?.number, setFocus, setValue])
 
@@ -220,8 +254,13 @@ export function AddToPhonebookBox({ close }) {
     setSharedGroupsError('')
     setIsLoading(true)
     setTimeout(() => {
+      // `name` is authoritative (Asterisk resolves the caller on it) and is never
+      // edited directly: for persons it is composed from first + last name, for
+      // companies it keeps the '-' sentinel.
       if (watchType === 'company') {
         data.name = '-'
+      } else {
+        data.name = `${data.firstname || ''} ${data.lastname || ''}`.trim()
       }
       phonebookModule
         .handleAddContactToPhonebook(data)
@@ -432,25 +471,62 @@ export function AddToPhonebookBox({ close }) {
           </label>
 
           {watchType === 'person' ? (
+            <>
+              <TextInput
+                {...register('firstname')}
+                type="text"
+                label={t('Phonebook.First name') as string}
+                placeholder={t('Phonebook.First name placeholder') as string}
+                helper={errors.firstname?.message || undefined}
+                error={!!errors.firstname?.message}
+                onKeyDown={handlekeyDown}
+                className="font-normal text-[14px] leading-5"
+              />
+              <TextInput
+                {...register('lastname')}
+                type="text"
+                label={t('Phonebook.Last name') as string}
+                placeholder={t('Phonebook.Last name placeholder') as string}
+                onKeyDown={handlekeyDown}
+                className="font-normal text-[14px] leading-5"
+              />
+              <div className={isFieldVisible('job') ? '' : 'hidden'}>
+                <TextInput
+                  {...register('job')}
+                  type="text"
+                  label={t('Phonebook.Job title') as string}
+                  onKeyDown={handlekeyDown}
+                  className="font-normal text-[14px] leading-5"
+                />
+              </div>
+              {!isFieldVisible('job') && (
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="gap-3 self-start"
+                  onClick={() => revealField('job')}
+                >
+                  <FontAwesomeIcon
+                    icon={faCirclePlus}
+                    className="dark:text-textBlueDark text-textBlueLight h-4 w-4"
+                  />
+                  <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+                    {t('Phonebook.Add job title')}
+                  </p>
+                </Button>
+              )}
+            </>
+          ) : (
             <TextInput
-              {...register('name')}
+              {...register('company')}
               type="text"
-              label={t('Phonebook.Name') as string}
-              helper={errors.name?.message || undefined}
-              error={!!errors.name?.message}
+              label={t('Phonebook.Company') as string}
+              helper={errors.company?.message || undefined}
+              error={!!errors.company?.message}
               onKeyDown={handlekeyDown}
               className="font-normal text-[14px] leading-5"
             />
-          ) : null}
-          <TextInput
-            {...register('company')}
-            type="text"
-            label={t('Phonebook.Company') as string}
-            helper={errors.company?.message || undefined}
-            error={!!errors.company?.message}
-            onKeyDown={handlekeyDown}
-            className="font-normal text-[14px] leading-5"
-          />
+          )}
 
           <TextInput
             {...register('extension')}
@@ -485,6 +561,59 @@ export function AddToPhonebookBox({ close }) {
             className="font-normal text-[14px] leading-5"
           />
 
+          <div className={isFieldVisible('workphone2') ? '' : 'hidden'}>
+            <TextInput
+              {...register('workphone2')}
+              type="tel"
+              minLength={3}
+              label={t('Phonebook.Work phone 2') as string}
+              helper={errors.workphone2?.message || undefined}
+              error={!!errors.workphone2?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('cellphone2') ? '' : 'hidden'}>
+            <TextInput
+              {...register('cellphone2')}
+              type="tel"
+              minLength={3}
+              label={t('Phonebook.Mobile phone 2') as string}
+              helper={errors.cellphone2?.message || undefined}
+              error={!!errors.cellphone2?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('otherphone') ? '' : 'hidden'}>
+            <TextInput
+              {...register('otherphone')}
+              type="tel"
+              minLength={3}
+              label={t('Phonebook.Other phone') as string}
+              helper={errors.otherphone?.message || undefined}
+              error={!!errors.otherphone?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          {nextHiddenPhoneField && (
+            <Button
+              variant="ghost"
+              type="button"
+              className="gap-3 self-start"
+              onClick={() => revealField(nextHiddenPhoneField)}
+            >
+              <FontAwesomeIcon
+                icon={faCirclePlus}
+                className="dark:text-textBlueDark text-textBlueLight h-4 w-4"
+              />
+              <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+                {t('Phonebook.Add phone')}
+              </p>
+            </Button>
+          )}
+
           <TextInput
             {...register('workemail')}
             type="email"
@@ -493,6 +622,44 @@ export function AddToPhonebookBox({ close }) {
             className="font-normal text-[14px] leading-5"
           />
 
+          <div className={isFieldVisible('otheremail') ? '' : 'hidden'}>
+            <TextInput
+              {...register('otheremail')}
+              type="email"
+              label={t('Phonebook.Other email') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          {!isFieldVisible('otheremail') && (
+            <Button
+              variant="ghost"
+              type="button"
+              className="gap-3 self-start"
+              onClick={() => revealField('otheremail')}
+            >
+              <FontAwesomeIcon
+                icon={faCirclePlus}
+                className="dark:text-textBlueDark text-textBlueLight h-4 w-4"
+              />
+              <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+                {t('Phonebook.Add email')}
+              </p>
+            </Button>
+          )}
+
+          {watchType === 'person' && (
+            <TextInput
+              {...register('company')}
+              type="text"
+              label={t('Phonebook.Company') as string}
+              helper={errors.company?.message || undefined}
+              error={!!errors.company?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          )}
+
           <TextInput
             {...register('notes')}
             type="text"
@@ -500,6 +667,54 @@ export function AddToPhonebookBox({ close }) {
             onKeyDown={handlekeyDown}
             className="font-normal text-[14px] leading-5"
           />
+
+          <div className={isFieldVisible('facebook') ? '' : 'hidden'}>
+            <TextInput
+              {...register('facebook')}
+              type="text"
+              label={t('Phonebook.Facebook') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('instagram') ? '' : 'hidden'}>
+            <TextInput
+              {...register('instagram')}
+              type="text"
+              label={t('Phonebook.Instagram') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('linkedin') ? '' : 'hidden'}>
+            <TextInput
+              {...register('linkedin')}
+              type="text"
+              label={t('Phonebook.LinkedIn') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          {!allSocialVisible && (
+            <Button
+              variant="ghost"
+              type="button"
+              className="gap-3 self-start"
+              onClick={() => setVisibleFields((prev) => {
+                const next = new Set(prev)
+                SOCIAL_FIELDS.forEach((key) => next.add(key))
+                return next
+              })}
+            >
+              <FontAwesomeIcon
+                icon={faCirclePlus}
+                className="dark:text-textBlueDark text-textBlueLight h-4 w-4"
+              />
+              <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+                {t('Phonebook.Add field')}
+              </p>
+            </Button>
+          )}
           <div className="flex flex-row gap-4 justify-end pb-2">
             <Button variant="ghost" onClick={handleCancel} disabled={isLoading}>
               <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">

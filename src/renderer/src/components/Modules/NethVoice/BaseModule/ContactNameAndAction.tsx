@@ -7,7 +7,7 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { useNethlinkData } from '@renderer/store'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Avatar } from '../../../Nethesis'
-import { faPhone as CallIcon } from '@fortawesome/free-solid-svg-icons'
+import { faPhone as CallIcon, faBriefcase as CompanyIcon } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { ReactNode } from 'react'
 import classNames from 'classnames'
@@ -22,6 +22,7 @@ export const ContactNameAndActions = ({
   isFavourite,
   isSearchData,
   onOpenDetail,
+  showCompany = false,
 }: {
   contact: ContactType
   number: string
@@ -33,6 +34,7 @@ export const ContactNameAndActions = ({
   isFavourite: boolean
   isSearchData: boolean
   onOpenDetail?: () => void
+  showCompany?: boolean
 }) => {
   const { isCallsEnabled } = useAccount()
   const [operators] = useNethlinkData('operators')
@@ -75,6 +77,15 @@ export const ContactNameAndActions = ({
         ? contact.company
         : `${t('Common.Unknown')}`
 
+  // Show a company line under the name/number only in search results for person
+  const hasCompanyLine =
+    showCompany &&
+    contact.kind !== 'company' &&
+    !!contact.company &&
+    contact.company !== ' ' &&
+    contact.company !== '-' &&
+    contact.company !== displayName
+
   return (
     <div
       className={classNames(
@@ -106,8 +117,8 @@ export const ContactNameAndActions = ({
         )}
         onClick={onClick}
       />
-      <div className='relative w-full h-[44px] '>
-        <div className='absolute top-0 left-0 flex flex-col gap-1 w-full '>
+      <div className={classNames('relative w-full', hasCompanyLine ? '' : 'h-[44px]')}>
+        <div className={classNames('flex flex-col gap-1 w-full', hasCompanyLine ? '' : 'absolute top-0 left-0')}>
           <div className='flex flex-row gap-2 w-full overflow-hidden'>
             <div
               className={classNames(
@@ -174,13 +185,12 @@ export const ContactNameAndActions = ({
                     ? ''
                     : isCallDisabled
                       ? 'dark:text-gray-400 text-gray-500'
-                      : 'dark:text-textBlueDark text-textBlueLight',
+                      : 'dark:text-textBlueDark text-textBlueLight hover:text-primaryHover dark:hover:text-primaryDarkHover',
                   'font-normal',
                   isDisplayedNumberEmpty || isCallDisabled
                     ? ''
                     : 'hover:underline',
                 )}
-                isNumberHiglighted={isHighlight}
               >
                 {displayedNumber !== ' ' &&
                 displayedNumber !== '' &&
@@ -191,12 +201,23 @@ export const ContactNameAndActions = ({
               </NumberCaller>
               <span
                 onClick={onClick}
-                className='ml-2 cursor-pointer hover:underline dark:text-textBlueDark text-textBlueLight'
+                className='ml-2 cursor-pointer hover:underline dark:text-textBlueDark text-textBlueLight hover:text-primaryHover dark:hover:text-primaryDarkHover'
               >
                 {otherNumber}
               </span>
             </div>
           </div>
+          {hasCompanyLine && (
+            <div className='flex flex-row gap-2 items-center w-full overflow-hidden'>
+              <FontAwesomeIcon
+                className='text-sm dark:text-gray-400 text-gray-600 shrink-0'
+                icon={CompanyIcon}
+              />
+              <span className='dark:text-gray-400 text-gray-600 font-normal text-[14px] leading-5 truncate'>
+                {contact.company}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

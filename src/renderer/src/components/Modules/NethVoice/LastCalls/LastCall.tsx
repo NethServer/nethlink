@@ -245,9 +245,8 @@ export function LastCall({
               }
               disabled={!isCallsEnabled}
               className={
-                'dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline inset-pink-600'
+                'dark:text-textBlueDark text-textBlueLight hover:text-primaryHover dark:hover:text-primaryDarkHover font-normal text-[14px] leading-5 hover:underline inset-pink-600'
               }
-              isNumberHiglighted={false}
             >
               {(call.direction === 'in' ? call.src : call.dst) ||
                 t('Common.Unknown')}

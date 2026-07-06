@@ -108,6 +108,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
           username={username}
           isFavourite={false}
           isSearchData={true}
+          showCompany={true}
           onOpenDetail={onClick ? () => {
             onClick?.(user, phoneNumber)
           } : undefined}
