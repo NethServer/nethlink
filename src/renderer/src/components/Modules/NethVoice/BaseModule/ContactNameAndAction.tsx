@@ -7,6 +7,7 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { useNethlinkData } from '@renderer/store'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Avatar } from '../../../Nethesis'
+import { CustomThemedTooltip } from '../../../Nethesis/CustomThemedTooltip'
 import { faPhone as CallIcon, faBriefcase as CompanyIcon } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { ReactNode } from 'react'
@@ -126,7 +127,12 @@ export const ContactNameAndActions = ({
                 onOpenDetail ? 'cursor-pointer hover:underline' : '',
               )}
               onClick={onClick}
+              data-tooltip-id={onOpenDetail ? `tooltip-view-details-${contact.id}` : undefined}
+              data-tooltip-content={onOpenDetail ? (t('Phonebook.View details') as string) : undefined}
             >
+              {onOpenDetail && (
+                <CustomThemedTooltip id={`tooltip-view-details-${contact.id}`} place="top" />
+              )}
               {displayName}
               {isDev() && (
                 <span

@@ -115,13 +115,13 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
         {selected.map((option) => (
           <span
             key={option}
-            className="inline-flex items-center gap-1.5 rounded-full bg-textBlueLight/10 px-2.5 py-0.5 text-xs font-medium text-textBlueLight dark:bg-textBlueDark/10 dark:text-textBlueDark"
+            className="inline-flex w-fit items-center gap-x-1 rounded bg-gray-200 px-2.5 py-0.5 text-sm font-medium text-gray-800 dark:bg-gray-600 dark:text-gray-100"
           >
             {option}
             {!disabled && (
               <button
                 type="button"
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-textBlueLight/20 dark:hover:bg-textBlueDark/20"
+                className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-black/10 dark:hover:bg-white/10"
                 aria-label={removeLabel ? removeLabel(option) : `Remove ${option}`}
                 onClick={(e) => {
                   e.stopPropagation()

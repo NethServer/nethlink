@@ -400,7 +400,7 @@ export function AddToPhonebookBox({ close }) {
 
   return (
     <>
-      <ModuleTitle title={t('Phonebook.Add to Phonebook')} />
+      <ModuleTitle title={t('Phonebook.Create new contact')} />
       <Scrollable innerClassName={'min-w-[344px]'}>
         <form
           className="flex flex-col gap-5 h-full px-5 pt-2"
@@ -468,7 +468,7 @@ export function AddToPhonebookBox({ close }) {
 
           <label className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
             <p className="font-medium text-[14px] leading-5">{t('Phonebook.Type')}</p>
-            <div className="flex flex-row gap-8 items-center">
+            <div className="flex flex-col gap-3">
               <div className="flex flex-row gap-2 items-center">
                 <input
                   {...register('type')}
@@ -515,6 +515,15 @@ export function AddToPhonebookBox({ close }) {
                 type="text"
                 label={t('Phonebook.Last name') as string}
                 placeholder={t('Phonebook.Last name placeholder') as string}
+                onKeyDown={handlekeyDown}
+                className="font-normal text-[14px] leading-5"
+              />
+              <TextInput
+                {...register('company')}
+                type="text"
+                label={t('Phonebook.Company') as string}
+                helper={errors.company?.message || undefined}
+                error={!!errors.company?.message}
                 onKeyDown={handlekeyDown}
                 className="font-normal text-[14px] leading-5"
               />
@@ -725,18 +734,6 @@ export function AddToPhonebookBox({ close }) {
                 </p>
               </Button>
             </Dropdown>
-          )}
-
-          {watchType === 'person' && (
-            <TextInput
-              {...register('company')}
-              type="text"
-              label={t('Phonebook.Company') as string}
-              helper={errors.company?.message || undefined}
-              error={!!errors.company?.message}
-              onKeyDown={handlekeyDown}
-              className="font-normal text-[14px] leading-5"
-            />
           )}
 
           <TextInput

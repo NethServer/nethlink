@@ -206,10 +206,7 @@ export function SearchNumberBox({
                 className='text-base dark:text-gray-50 text-gray-600'
                 icon={AddUserIcon}
               />
-              <p className='font-normal'>
-                {t('Common.Add')} {searchText?.toString()} {t('Common.to')}{' '}
-                {t('Phonebook.Phonebook')}
-              </p>
+              <p className='font-normal'>{t('Phonebook.Create new contact')}</p>
             </div>
             <div className='px-4'>
               <div className='border-b dark:border-borderDark border-borderLight group-hover:border-transparent'></div>
