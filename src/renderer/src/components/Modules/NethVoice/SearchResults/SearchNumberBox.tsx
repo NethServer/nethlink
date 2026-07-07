@@ -125,6 +125,7 @@ export function SearchNumberBox({
   function preparePhoneNumbers(unFilteredNumbers: SearchData[]) {
     const cleanQuery = searchText?.replace(cleanRegex, '') || ''
     if (cleanQuery.length == 0) {
+      setCanAddToPhonebook(false)
       return
     }
 
@@ -152,7 +153,8 @@ export function SearchNumberBox({
 
     const filteredOperators = getFoundedOperators()
     const copy = [...filteredOperators, ...unFilteredNumbers]
-    let _canAddInPhonebook = isPhoneNumber
+    // Allow creating a contact from any meaningful query — number or name.
+    let _canAddInPhonebook = cleanQuery.length > 1
     setFilteredPhoneNumbers(() => copy as any)
     setCanAddToPhonebook(() => _canAddInPhonebook)
   }
@@ -170,30 +172,32 @@ export function SearchNumberBox({
         className,
       )}
     >
-      {isPhoneNumberQuery && (
+      {(isPhoneNumberQuery || canAddToPhonebook) && (
         <div className='mr-[6px]'>
-          <div
-            className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
-            onClick={() => {
-              if (isCallButtonEnabled && searchText) {
-                debouncer(
-                  'onCallNumber',
-                  () => {
-                    callNumber(searchText)
-                  },
-                  250,
-                )
-              }
-            }}
-          >
-            <FontAwesomeIcon
-              className='text-base dark:text-gray-50 text-gray-600 mr-1'
-              icon={CallIcon}
-            />
-            <p className='font-normal'>
-              {t('Operators.Call')} {searchText}
-            </p>
-          </div>
+          {isPhoneNumberQuery && (
+            <div
+              className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
+              onClick={() => {
+                if (isCallButtonEnabled && searchText) {
+                  debouncer(
+                    'onCallNumber',
+                    () => {
+                      callNumber(searchText)
+                    },
+                    250,
+                  )
+                }
+              }}
+            >
+              <FontAwesomeIcon
+                className='text-base dark:text-gray-50 text-gray-600 mr-1'
+                icon={CallIcon}
+              />
+              <p className='font-normal'>
+                {t('Operators.Call')} {searchText}
+              </p>
+            </div>
+          )}
 
           <div className='group'>
             <div

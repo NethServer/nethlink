@@ -127,8 +127,11 @@ export function AddToPhonebookBox({ close }) {
   // keeps their values even while collapsed.
   const [visibleFields, setVisibleFields] = useState<Set<string>>(new Set())
   const isFieldVisible = (key: string) => visibleFields.has(key)
-  const revealField = (key: string) =>
+  const [pendingFocusKey, setPendingFocusKey] = useState<string | null>(null)
+  const revealField = (key: string) => {
     setVisibleFields((prev) => new Set(prev).add(key))
+    setPendingFocusKey(key)
+  }
   const hiddenPhoneFields = PHONE_FIELD_OPTIONS.filter((o) => !isFieldVisible(o.key))
   const hiddenEmailFields = EMAIL_FIELD_OPTIONS.filter((o) => !isFieldVisible(o.key))
 
@@ -274,6 +277,15 @@ export function AddToPhonebookBox({ close }) {
       setTimeout(() => setFocus('firstname'), 10)
     }
   }, [searchText, selectedContact?.company, selectedContact?.number, setFocus, setValue])
+
+  useEffect(() => {
+    if (!pendingFocusKey) return
+    const focusNameByKey: Record<string, keyof ContactType> = { address: 'workstreet' }
+    const name = (focusNameByKey[pendingFocusKey] ??
+      pendingFocusKey) as keyof ContactType
+    setFocus(name)
+    setPendingFocusKey(null)
+  }, [visibleFields, pendingFocusKey, setFocus])
 
   useEffect(() => {
     const allowedVisibilityValues = visibilityOptions.map((option) => option.id)
@@ -661,6 +673,7 @@ export function AddToPhonebookBox({ close }) {
           {hiddenPhoneFields.length > 0 && (
             <Dropdown
               position="topLeft"
+              width="w-44"
               className="self-start"
               items={
                 <>
@@ -713,6 +726,7 @@ export function AddToPhonebookBox({ close }) {
           {hiddenEmailFields.length > 0 && (
             <Dropdown
               position="topLeft"
+              width="w-44"
               className="self-start"
               items={
                 <>
@@ -849,7 +863,7 @@ export function AddToPhonebookBox({ close }) {
               </p>
             </Button>
             {isAddFieldOpen && (
-              <div className="absolute bottom-full left-0 z-20 mb-2 w-56 rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
+              <div className="absolute bottom-full left-0 z-20 mb-2 w-40 rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
                 {!isFieldVisible('address') && (
                   <button
                     type="button"
@@ -880,7 +894,7 @@ export function AddToPhonebookBox({ close }) {
                       <FontAwesomeIcon icon={faAngleRight} className="h-3 w-3" />
                     </button>
                     {isSocialSubmenuOpen && (
-                      <div className="absolute left-full top-0 z-30 w-56 rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
+                      <div className="absolute left-full top-0 z-30 w-40 rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
                         {SOCIAL_FIELD_OPTIONS.filter((o) => !isFieldVisible(o.key)).map((o) => (
                           <button
                             key={o.key}
@@ -922,14 +936,11 @@ export function AddToPhonebookBox({ close }) {
               </p>
             </Button>
             <Button type="submit" ref={submitButtonRef} className="gap-3">
-              <p className="dark:text-titleLight text-titleDark font-medium text-[14px] leading-5">
+              <p className="font-medium text-[14px] leading-5">
                 {t('Common.Save')}
               </p>
               {isLoading && (
-                <FontAwesomeIcon
-                  icon={LoadingIcon}
-                  className="dark:text-titleLight text-titleDark animate-spin"
-                />
+                <FontAwesomeIcon icon={LoadingIcon} className="animate-spin" />
               )}
             </Button>
           </div>
