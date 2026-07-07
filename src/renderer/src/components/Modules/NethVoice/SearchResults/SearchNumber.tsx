@@ -1,14 +1,11 @@
 import { ReactNode } from 'react'
 import { t } from 'i18next'
 import { SearchData } from '@shared/types'
-import { useAccount } from '@renderer/hooks/useAccount'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
-import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
 import { useFavouriteModule } from '../Speeddials/hook/useFavouriteModule'
-import { debouncer } from '@shared/utils/utils'
 import { ClassNames } from '@renderer/utils'
 
 export interface SearchNumberProps {
@@ -19,10 +16,8 @@ export interface SearchNumberProps {
 
 export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   const phoneBookModule = usePhonebookSearchModule()
-  const { callNumber } = usePhoneIslandEventHandler()
   const [searchText] = phoneBookModule.searchTextState
   const [operators] = useNethlinkData('operators')
-  const { isCallsEnabled } = useAccount()
   const { isSearchAlsoAFavourite } = useFavouriteModule()
 
 
@@ -113,19 +108,14 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
             onClick?.(user, phoneNumber)
           } : undefined}
         />
-        {phoneNumber && phoneNumber !== '' && (
+        {onClick && (
           <Button
             className="group-hover:bg-transparent"
             variant="ghost"
-            disabled={!isCallsEnabled}
-            onClick={() => {
-              debouncer('onCallNumber', () => {
-                callNumber(phoneNumber)
-              }, 250)
-            }}
+            onClick={() => onClick(user, phoneNumber)}
           >
             <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
-              {t('Operators.Call')}
+              {t('Phonebook.Details')}
             </p>
           </Button>
         )}
