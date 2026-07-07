@@ -371,6 +371,7 @@ const theme = {
         right: 'left-0 w-60 mt-2',
         left: 'right-0 w-60 mt-2',
         top: 'right-[3rem] top-0',
+        topLeft: 'bottom-full left-0 mb-2 w-56',
         topCard: 'right-[1.2rem] top-[-1rem]',
         bottom: 'bottom-0',
         leftSingleItem: 'w-60 right-[2.8rem] top-[0rem]',

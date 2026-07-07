@@ -15,6 +15,7 @@ export interface DropdownProps extends ComponentProps<'div'> {
   | 'left'
   | 'right'
   | 'top'
+  | 'topLeft'
   | 'bottom'
   | 'leftSingleItem'
   | 'topMultipleItem'

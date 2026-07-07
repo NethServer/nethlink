@@ -223,7 +223,13 @@
     "Add job title": "Aggiungi ruolo",
     "Add phone": "Aggiungi telefono",
     "Add email": "Aggiungi email",
-    "Add field": "Aggiungi campo"
+    "Add field": "Aggiungi campo",
+    "Address": "Indirizzo",
+    "City": "Città",
+    "Province": "Provincia",
+    "Postal code": "CAP",
+    "Country": "Nazione",
+    "Social": "Social"
   },
   "History": {
     "History": "Storico",

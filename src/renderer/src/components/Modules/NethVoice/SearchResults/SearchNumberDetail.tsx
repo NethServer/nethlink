@@ -44,7 +44,7 @@ export function SearchNumberDetail({ contactDetail, onBack }: SearchNumberBoxPro
           {/* Title row: back arrow + name + visibility badge (mock 936-24158).
               px-4 matches the search box padding above (Navbar.tsx px-4 pt-2). */}
           <div className="px-4">
-            <div className="flex items-center gap-2 pb-1 border-b dark:border-borderDark border-borderLight min-h-[28px]">
+            <div className="flex items-center gap-2 pt-2 pb-2 border-b dark:border-borderDark border-borderLight min-h-[28px]">
               <FontAwesomeIcon
                 className="text-base dark:text-gray-50 text-gray-600 size-4 shrink-0 cursor-pointer"
                 icon={BackIcon}

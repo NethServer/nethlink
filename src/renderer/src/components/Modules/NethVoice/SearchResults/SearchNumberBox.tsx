@@ -16,6 +16,10 @@ import {
   sortByProperty,
 } from '@renderer/lib/utils'
 import { useNethlinkData, useSharedState } from '@renderer/store'
+import {
+  getAllowedOperatorGroupsIds,
+  getPresencePanelPermissions,
+} from '@shared/phonebook'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
@@ -39,6 +43,7 @@ export function SearchNumberBox({
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
   const [operators] = useNethlinkData('operators')
+  const [account] = useSharedState('account')
   const [filteredPhoneNumbers, setFilteredPhoneNumbers] = useState<
     SearchData[]
   >([])
@@ -54,9 +59,46 @@ export function SearchNumberBox({
     showContactForm()
   }
 
+  const getVisibleOperatorGroups = (): string[] | null => {
+    const profile = account?.data?.profile
+    const allGroups = operators?.groups
+    const username = account?.data?.username
+    if (!profile || !allGroups) {
+      return null
+    }
+
+    const presencePermissions = getPresencePanelPermissions(profile)
+    if (presencePermissions?.['all_groups']?.value === true) {
+      return Object.keys(allGroups)
+    }
+
+    const allowedGroupsIds = getAllowedOperatorGroupsIds(profile)
+    const allowedGroups = Object.keys(allGroups).filter((group) => {
+      const groupId = 'grp_' + group.replace(/[^a-z0-9]/gi, '').toLowerCase()
+      return allowedGroupsIds.includes(groupId)
+    })
+
+    const belongingGroups = username
+      ? Object.keys(allGroups).filter((groupName) =>
+          allGroups[groupName]?.users?.includes(username),
+        )
+      : []
+
+    return Array.from(new Set([...allowedGroups, ...belongingGroups]))
+  }
+
   const getFoundedOperators = (): BaseAccountData[] => {
     const cleanQuery = searchText?.replace(cleanRegex, '') || ''
-    let operatorsResults = Object.values(operators?.operators || {}).filter(
+    const visibleGroups = getVisibleOperatorGroups()
+    let candidates = Object.values(operators?.operators || {})
+    if (visibleGroups) {
+      candidates = candidates.filter((op: any) =>
+        visibleGroups.some((g) =>
+          operators?.groups?.[g]?.users?.includes(op.username),
+        ),
+      )
+    }
+    let operatorsResults = candidates.filter(
       (op: any) => {
         return (
           (op.name &&
@@ -96,8 +138,8 @@ export function SearchNumberBox({
       }, '')
     }
 
-    unFilteredNumbers.sort((a, b) => {
-      if (isPhoneNumber) {
+    if (isPhoneNumber) {
+      unFilteredNumbers.sort((a, b) => {
         const al = s(a).length
         if (al > 0) {
           if (al === searchText?.length) return -1
@@ -105,12 +147,8 @@ export function SearchNumberBox({
           if (bl > 0) return al - bl
         }
         return -1
-      } else {
-        const as = a?.name?.toLowerCase()?.replace(cleanRegex, '')
-        const bs = b?.name?.toLowerCase()?.replace(cleanRegex, '')
-        return as < bs ? -1 : as > bs ? 1 : 0
-      }
-    })
+      })
+    }
 
     const filteredOperators = getFoundedOperators()
     const copy = [...filteredOperators, ...unFilteredNumbers]
