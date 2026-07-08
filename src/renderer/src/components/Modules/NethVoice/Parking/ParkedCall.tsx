@@ -14,7 +14,7 @@ import {
   type MouseEvent as ReactMouseEvent,
 } from 'react'
 import classNames from 'classnames'
-import { Tooltip } from 'react-tooltip'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 
 export interface ParkingCallProps {
   parkingDetails: ParkingType
@@ -92,12 +92,11 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
               data-tooltip-content={`${t('Parks.Parking')} ${parkingDetails.name}`}
             >
               {t('Parks.Parking')} {parkingDetails.name}
-              <Tooltip
+              <CustomThemedTooltip
                 id={`tooltip-parked-title-${parkingDetails.name}`}
                 place='bottom'
                 className='z-[100000]'
-                opacity={1}
-                noArrow={false}
+                zIndex={100000}
               />
             </span>
           </div>
@@ -107,12 +106,11 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
             className={`text-sm text-left text-gray-900 dark:text-gray-100 truncate font-medium tooltip-parked-user-${parkingDetails.name} `}
           >
             {parkingDetails?.parkedCaller?.name}
-            <Tooltip
+            <CustomThemedTooltip
               id={`tooltip-parked-user-${parkingDetails.name}`}
               place='bottom'
               className='z-[100000]'
-              opacity={1}
-              noArrow={false}
+              zIndex={100000}
             />
           </span>
           <div className='flex flex-row gap-2 items-center min-w-0'>

@@ -12,7 +12,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { DefaultTFuncReturn, t } from 'i18next'
 import { ClassNames } from '@renderer/utils'
 import { useRef, useState } from 'react'
-import { Tooltip } from 'react-tooltip'
 import { useAccount } from '@renderer/hooks/useAccount'
 import classNames from 'classnames'
 import { useTheme } from '@renderer/theme/Context'
@@ -219,7 +218,7 @@ const ContactDetail = ({ children, label, copy, protocol, href, plain }: {
       </div>
       }
     </div>
-    <Tooltip id={`tooltip-copy-${label}`} place="bottom" className="z-10" opacity={1} noArrow={false} />
-    <Tooltip id={`tooltip-copied-${label}`} place="top" className="z-10" opacity={1} isOpen={copied} noArrow={false} />
+    <CustomThemedTooltip id={`tooltip-copy-${label}`} place="bottom" className="z-10" />
+    <CustomThemedTooltip id={`tooltip-copied-${label}`} place="top" className="z-10" isOpen={copied} />
   </div>
 }

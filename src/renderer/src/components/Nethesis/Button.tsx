@@ -21,7 +21,7 @@ export interface ButtonProps
   extends Omit<ComponentPropsWithRef<'button'>, 'color' | 'style'> {
   children: ReactNode
   size?: 'small' | 'base' | 'large' | 'inputSize' | 'base_square'
-  variant?: 'primary' | 'secondary' | 'white' | 'ghost' | 'danger' | 'dashboard'
+  variant?: 'primary' | 'secondary' | 'white' | 'ghost' | 'danger' | 'dashboard' | 'tertiary'
   fullWidth?: boolean
   fullHeight?: boolean
   disabled?: boolean

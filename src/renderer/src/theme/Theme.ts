@@ -12,6 +12,8 @@ const theme = {
       'border shadow-sm border-gray-300 dark:border-gray-500 bg-transparent dark:bg-transparent text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:focus:ring-primaryDark focus:ring-2 focus:ring-offset-2 leading-5 text-sm font-medium',
     ghost:
       'border-gray-300 text-primary dark:text-primaryDark  hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:border-gray-600 dark:focus:ring-primaryDark leading-5 text-sm font-medium',
+    tertiary:
+      'border border-transparent text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-70 hover:text-primaryHover dark:hover:bg-gray-600 dark:hover:bg-opacity-30 dark:hover:text-primaryDarkHover focus:ring-primaryDark dark:focus:ring-primaryDark font-medium',
     dashboard:
       'border-gray-300 text-primary dark:text-primaryDark hover:bg-gray-200 dark:border-gray-600  dark:hover:bg-gray-700 dark:hover:disabled:bg-transparent hover:disabled:bg-transparent dark:focus:ring-primaryDark',
     danger:
@@ -78,7 +80,7 @@ const theme = {
       large: 'px-4 py-3 text-base',
     },
     colors: {
-      gray: 'border-gray-300 focus:border-primaryLight focus:ring-primaryLight placeholder:text-gray-400 dark:border-gray-600 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-500',
+      gray: 'border-gray-300 focus:border-primaryRing focus:ring-2 focus:ring-primaryRing placeholder:text-gray-400 dark:border-gray-500 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-500',
       error:
         'border-rose-500 focus:border-rose-500 focus:ring-rose-500 dark:border-rose-400 dark:focus:border-rose-400 dark:focus:ring-rose-400',
     },

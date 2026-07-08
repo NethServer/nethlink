@@ -24,6 +24,7 @@ import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { EmptyList } from '@renderer/components/EmptyList'
+import { Button } from '@renderer/components/Nethesis'
 import { debouncer } from '@shared/utils/utils'
 import classNames from 'classnames'
 
@@ -173,10 +174,12 @@ export function SearchNumberBox({
       )}
     >
       {(isPhoneNumberQuery || canAddToPhonebook) && (
-        <div className='mr-[6px]'>
+        <div className='mr-[6px] px-3 pt-1 pb-1 border-b dark:border-borderDark border-borderLight flex flex-col gap-0.5'>
           {isPhoneNumberQuery && (
-            <div
-              className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 min-h-9 items-start  ${isCallButtonEnabled ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : 'dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
+            <Button
+              variant='tertiary'
+              disabled={!isCallButtonEnabled}
+              className='gap-3 self-start disabled:opacity-50'
               onClick={() => {
                 if (isCallButtonEnabled && searchText) {
                   debouncer(
@@ -189,33 +192,24 @@ export function SearchNumberBox({
                 }
               }}
             >
-              <FontAwesomeIcon
-                className='text-base dark:text-gray-50 text-gray-600 mr-1'
-                icon={CallIcon}
-              />
-              <p className='font-normal'>
+              <FontAwesomeIcon className='h-4 w-4' icon={CallIcon} />
+              <span className='font-medium text-sm leading-5'>
                 {t('Operators.Call')} {searchText}
-              </p>
-            </div>
+              </span>
+            </Button>
           )}
-
-          <div className='group'>
-            <div
-              className={`flex gap-5 pt-[10px] pr-8 pb-[10px] pl-7 w-full min-h-9  ${canAddToPhonebook ? 'cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight' : ' dark:bg-hoverDark bg-hoverLight opacity-50 cursor-not-allowed'}`}
-              onClick={() => {
-                if (canAddToPhonebook) showAddContactToPhonebook()
-              }}
+          {canAddToPhonebook && (
+            <Button
+              variant='tertiary'
+              className='gap-3 self-start'
+              onClick={showAddContactToPhonebook}
             >
-              <FontAwesomeIcon
-                className='text-base dark:text-gray-50 text-gray-600'
-                icon={AddUserIcon}
-              />
-              <p className='font-normal'>{t('Phonebook.Create new contact')}</p>
-            </div>
-            <div className='px-4'>
-              <div className='border-b dark:border-borderDark border-borderLight group-hover:border-transparent'></div>
-            </div>
-          </div>
+              <FontAwesomeIcon className='h-4 w-4' icon={AddUserIcon} />
+              <span className='font-medium text-sm leading-5'>
+                {t('Phonebook.Create contact')}
+              </span>
+            </Button>
+          )}
         </div>
       )}
       <Scrollable>
@@ -228,7 +222,11 @@ export function SearchNumberBox({
             />
           ))
         ) : (
-          <EmptyList icon={EmptySearchIcon} text={t('Devices.No results')} />
+          <EmptyList
+            icon={EmptySearchIcon}
+            text={t('Phonebook.No contacts found')}
+            subtitle={t('Phonebook.Try changing your search') as string}
+          />
         )}
       </Scrollable>
     </div>

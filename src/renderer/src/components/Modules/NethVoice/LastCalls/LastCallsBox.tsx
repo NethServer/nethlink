@@ -117,7 +117,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
               const callKey = `${preparedCall?.uniqueid}_${idx}`
               return (
                 <div
-                  className='dark:hover:bg-hoverDark hover:bg-hoverLight'
+                  className='dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]'
                   key={callKey}
                   onMouseEnter={() => {
                     setCreateButtonCallKey(

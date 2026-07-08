@@ -88,33 +88,35 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   return (
     <div className="group">
       <div className={ClassNames(
-        "flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight",
+        "flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]",
       )
       }
 
       >
-        <ContactNameAndActions
-          avatarDim="small"
-          contact={user}
-          number={phoneNumber}
-          displayedNumber={highlightedNumber}
-          otherNumber={otherNumbers.length > 1 ? t('Common.PlusOther', { count: otherNumbers.length - 1 }) as string : ''}
-          isHighlight={true}
-          username={username}
-          isFavourite={false}
-          isSearchData={true}
-          showCompany={true}
-          onOpenDetail={onClick ? () => {
-            onClick?.(user, phoneNumber)
-          } : undefined}
-        />
+        <div className="min-w-0 flex-1">
+          <ContactNameAndActions
+            avatarDim="small"
+            contact={user}
+            number={phoneNumber}
+            displayedNumber={highlightedNumber}
+            otherNumber={otherNumbers.length > 1 ? t('Common.PlusOther', { count: otherNumbers.length - 1 }) as string : ''}
+            isHighlight={true}
+            username={username}
+            isFavourite={false}
+            isSearchData={true}
+            showCompany={true}
+            onOpenDetail={onClick ? () => {
+              onClick?.(user, phoneNumber)
+            } : undefined}
+          />
+        </div>
         {onClick && (
           <Button
-            className="group-hover:bg-transparent"
-            variant="ghost"
+            variant="tertiary"
+            className="self-center ml-2 shrink-0"
             onClick={() => onClick(user, phoneNumber)}
           >
-            <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+            <p className="font-medium text-[14px] leading-5">
               {t('Phonebook.Details')}
             </p>
           </Button>
