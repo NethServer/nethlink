@@ -206,7 +206,7 @@ export const ContactNameAndActions = ({
             <div className='flex flex-row items-center min-w-0 flex-1'>
               <div
                 ref={numberRef}
-                className='min-w-0 flex-1 truncate'
+                className='min-w-0 truncate'
                 data-tooltip-id={isNumberTruncated ? numberTooltipId : undefined}
                 data-tooltip-content={isNumberTruncated ? number : undefined}
               >

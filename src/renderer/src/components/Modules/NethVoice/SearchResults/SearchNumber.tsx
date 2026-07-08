@@ -21,17 +21,6 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   const { isSearchAlsoAFavourite } = useFavouriteModule()
 
 
-  const otherNumbers = [
-    user.cellphone,
-    user.workphone,
-    user.homephone,
-  ].reduce((p, c) => {
-    if (c && !p.includes(c)) {
-      p.push(c)
-    }
-    return p
-  }, [] as string[])
-
   const getUsernameFromPhoneNumber = (number: string) => {
     return user.type !== 'extension' ? operators?.extensions[number]?.username : undefined
   }
@@ -81,6 +70,13 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
     }, '')
 
   const highlightedNumber = highlightMatch(phoneNumber, searchText || '')
+  const otherDevicesCount = Array.from(
+    new Set(
+      keys
+        .map((k) => user[k])
+        .filter((n): n is string => !!n && n !== ' '),
+    ),
+  ).filter((n) => n !== phoneNumber).length
 
   const username = getUsernameFromPhoneNumber(phoneNumber)
   const avatarSrc = username ? operators?.avatars?.[username] : ''
@@ -99,7 +95,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
             contact={user}
             number={phoneNumber}
             displayedNumber={highlightedNumber}
-            otherNumber={otherNumbers.length > 1 ? t('Common.PlusOther', { count: otherNumbers.length - 1 }) as string : ''}
+            otherNumber={otherDevicesCount > 0 ? t('Common.PlusOther', { count: otherDevicesCount }) as string : ''}
             isHighlight={true}
             username={username}
             isFavourite={false}
