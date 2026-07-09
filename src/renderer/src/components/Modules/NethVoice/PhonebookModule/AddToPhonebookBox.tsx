@@ -11,7 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { t } from 'i18next'
+import i18next, { t } from 'i18next'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { sendNotification, validatePhoneNumber } from '@renderer/utils'
@@ -119,7 +119,7 @@ export function AddToPhonebookBox({ close }) {
         })
       }
     })
-  }, [t])
+  }, [t, i18next.language])
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [sharedGroupsError, setSharedGroupsError] = useState('')
