@@ -57,6 +57,7 @@ export function AddToPhonebookBox({ close }) {
   const [operators] = useNethlinkData('operators')
 
   const submitButtonRef = useRef<HTMLButtonElement>(null)
+  const resultSchema = useMemo(() => {
   const phoneNumberSchema = z
     .string()
     .trim()
@@ -89,7 +90,7 @@ export function AddToPhonebookBox({ close }) {
     notes: z.string()
   })
 
-  const resultSchema = z
+  return z
     .discriminatedUnion('type', [
       z.object({
         type: z.literal('person'),
@@ -118,6 +119,7 @@ export function AddToPhonebookBox({ close }) {
         })
       }
     })
+  }, [t])
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [sharedGroupsError, setSharedGroupsError] = useState('')

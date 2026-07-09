@@ -52,7 +52,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   }
 
   let phoneNumber: string | null = null
-  const keys = ['extension', 'cellphone', 'homephone', 'workphone']
+  const keys = ['extension', 'cellphone', 'homephone', 'workphone', 'workphone2', 'cellphone2', 'otherphone']
 
   for (const key of keys) {
     if (!phoneNumber) {
