@@ -1,4 +1,5 @@
 import { NotificationConstructorOptions, contextBridge, ipcRenderer } from 'electron'
+import os from 'os'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS } from '@shared/constants'
 import {
@@ -12,6 +13,8 @@ export interface IElectronAPI {
   env: NodeJS.ProcessEnv,
   appVersion: string,
   platform: string,
+  osRelease: string,
+  arch: string,
 
   // Use `contextBridge` APIs to expose Electron APIs to
   // renderer only if context isolation is enabled, otherwise
@@ -88,6 +91,8 @@ const api: IElectronAPI = {
   env: process.env,
   appVersion: process.env['APP_VERSION'] || '0.0.1',
   platform: process.platform,
+  osRelease: os.release(),
+  arch: process.arch,
   i18nextElectronBackend: preloadBindings(ipcRenderer, process),
   //SYNC EMITTERS - expect response
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),

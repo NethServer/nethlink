@@ -24,6 +24,29 @@ import { requires2FA } from '@shared/utils/jwt'
 const PRIMARY_API_BASE_PATH = '/api'
 const FALLBACK_API_BASE_PATH = '/webrest'
 
+function getNethlinkClientInfo(): {
+  nethlink_version: string
+  os_type: string
+  os_release: string
+  arch: string
+} {
+  const api = typeof window !== 'undefined' ? (window as any).api : undefined
+  if (api) {
+    return {
+      nethlink_version: api.appVersion || '',
+      os_type: api.platform || '',
+      os_release: api.osRelease || '',
+      arch: api.arch || ''
+    }
+  }
+  return {
+    nethlink_version: (typeof process !== 'undefined' && process.env?.['APP_VERSION']) || '',
+    os_type: typeof process !== 'undefined' ? process.platform : '',
+    os_release: '',
+    arch: typeof process !== 'undefined' ? process.arch : ''
+  }
+}
+
 export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) => {
   const { GET, POST, DELETE } = useNetwork()
   let isFirstHeartbeat = true
@@ -594,7 +617,8 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     all: async () => await _GET(buildApiPath('/user/all')),
     all_avatars: async () => await _GET(buildApiPath('/user/all_avatars')),
     all_endpoints: async () => await _GET(buildApiPath('/user/endpoints/all')),
-    heartbeat: async (extension: string, username: string) => await _POST(buildApiPath('/user/nethlink'), { extension, username }),
+    heartbeat: async (extension: string, username: string) =>
+      await _POST(buildApiPath('/user/nethlink'), { extension, username, ...getNethlinkClientInfo() }),
     settings: async (settings: Partial<AccountData['settings']>) =>
       await _POST(buildApiPath('/user/settings'), settings),
     default_device: async (deviceIdInformation: Extension, force = false): Promise<boolean> => {
