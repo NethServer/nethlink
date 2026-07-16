@@ -452,10 +452,12 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       search: string,
       offset = 0,
       pageSize = 10,
-      view: 'all' | 'company' | 'person' = 'all'
+      view: 'all' | 'company' | 'person' = 'all',
+      visibility = 'all',
+      sort = 'displayname'
     ) => {
       const s = await _GET(
-        buildApiPath(`/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}`)
+        buildApiPath(`/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}&visibility=${visibility}&sort=${sort}`)
       )
       return s
     },
