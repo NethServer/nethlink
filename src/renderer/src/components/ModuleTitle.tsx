@@ -31,7 +31,7 @@ export const ModuleTitle = ({
 
   return (
     <div className="px-5">
-      <div className={ClassNames("flex justify-between items-center pt-2 pb-2 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight min-h-[28px]", className)}>
+      <div className={ClassNames("flex justify-between items-center pb-1 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight h-[28px]", className)}>
         {title && <h1
           ref={titleRef}
           className="font-medium text-base leading-5 dark:text-titleDark text-titleLight truncate"

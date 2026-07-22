@@ -144,7 +144,7 @@ export const ContactNameAndActions = ({
             <div
               ref={nameRef}
               className={classNames(
-                'min-w-0 flex-1 dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap ',
+                'min-w-0 dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap ',
                 onOpenDetail ? 'cursor-pointer hover:underline' : '',
               )}
               onClick={onClick}
