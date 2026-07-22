@@ -191,6 +191,16 @@ export type SearchData = {
   workpostalcode: string
   workprovince: string
   workstreet: string
+  firstname?: string
+  lastname?: string
+  job?: string
+  facebook?: string
+  instagram?: string
+  linkedin?: string
+  workphone2?: string
+  cellphone2?: string
+  otherphone?: string
+  otheremail?: string
 }
 export type CallData = {
   time?: number
@@ -266,6 +276,16 @@ export type ContactType = {
   favorite?: boolean
   selectedPrefNum?: string
   kind?: string
+  firstname?: string
+  lastname?: string
+  job?: string
+  facebook?: string
+  instagram?: string
+  linkedin?: string
+  workphone2?: string
+  cellphone2?: string
+  otherphone?: string
+  otheremail?: string
 }
 
 export type ParkingType = {

@@ -5,30 +5,24 @@ type NumberCallerProps = {
   children: JSX.Element | JSX.Element[] | ReactNode | ReactNode[]
   disabled: boolean
   className?: string
-  isNumberHiglighted?: boolean
 }
 export const NumberCaller = ({
   number,
   children,
   disabled,
   className,
-  isNumberHiglighted = true,
   ...args
 }: NumberCallerProps) => {
 
   return disabled ? (
-    <div className={ClassNames(className, 'cursor-not-allowed',)}>{children}</div>
+    <span className={ClassNames(className, 'font-normal cursor-not-allowed',)}>{children}</span>
   ) : (
     <a
       href={`callto://${('' + number).replace(/ /g, '')}`}
-      className={ClassNames(className, 'dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-md')}
+      className={ClassNames(className, 'font-normal dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-md')}
       {...args}
     >
-      <div
-        className={`${isNumberHiglighted ? 'dark:text-titleDark text-titleLight' : ''} font-normal`}
-      >
-        {children}
-      </div>
+      {children}
     </a>
   )
 }

@@ -1,14 +1,11 @@
 import { ReactNode } from 'react'
 import { t } from 'i18next'
 import { SearchData } from '@shared/types'
-import { useAccount } from '@renderer/hooks/useAccount'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
-import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
 import { useFavouriteModule } from '../Speeddials/hook/useFavouriteModule'
-import { debouncer } from '@shared/utils/utils'
 import { ClassNames } from '@renderer/utils'
 
 export interface SearchNumberProps {
@@ -19,23 +16,10 @@ export interface SearchNumberProps {
 
 export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   const phoneBookModule = usePhonebookSearchModule()
-  const { callNumber } = usePhoneIslandEventHandler()
   const [searchText] = phoneBookModule.searchTextState
   const [operators] = useNethlinkData('operators')
-  const { isCallsEnabled } = useAccount()
   const { isSearchAlsoAFavourite } = useFavouriteModule()
 
-
-  const otherNumbers = [
-    user.cellphone,
-    user.workphone,
-    user.homephone,
-  ].reduce((p, c) => {
-    if (c && !p.includes(c)) {
-      p.push(c)
-    }
-    return p
-  }, [] as string[])
 
   const getUsernameFromPhoneNumber = (number: string) => {
     return user.type !== 'extension' ? operators?.extensions[number]?.username : undefined
@@ -68,7 +52,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   }
 
   let phoneNumber: string | null = null
-  const keys = ['extension', 'cellphone', 'homephone', 'workphone']
+  const keys = ['extension', 'cellphone', 'homephone', 'workphone', 'workphone2', 'cellphone2', 'otherphone']
 
   for (const key of keys) {
     if (!phoneNumber) {
@@ -86,6 +70,13 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
     }, '')
 
   const highlightedNumber = highlightMatch(phoneNumber, searchText || '')
+  const otherDevicesCount = Array.from(
+    new Set(
+      keys
+        .map((k) => user[k])
+        .filter((n): n is string => !!n && n !== ' '),
+    ),
+  ).filter((n) => n !== phoneNumber).length
 
   const username = getUsernameFromPhoneNumber(phoneNumber)
   const avatarSrc = username ? operators?.avatars?.[username] : ''
@@ -93,38 +84,36 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   return (
     <div className="group">
       <div className={ClassNames(
-        "flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight",
+        "flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]",
       )
       }
 
       >
-        <ContactNameAndActions
-          avatarDim="small"
-          contact={user}
-          number={phoneNumber}
-          displayedNumber={highlightedNumber}
-          otherNumber={otherNumbers.length > 1 ? t('Common.PlusOther', { count: otherNumbers.length - 1 }) as string : ''}
-          isHighlight={true}
-          username={username}
-          isFavourite={false}
-          isSearchData={true}
-          onOpenDetail={onClick ? () => {
-            onClick?.(user, phoneNumber)
-          } : undefined}
-        />
-        {phoneNumber && phoneNumber !== '' && (
+        <div className="min-w-0 flex-1">
+          <ContactNameAndActions
+            avatarDim="small"
+            contact={user}
+            number={phoneNumber}
+            displayedNumber={highlightedNumber}
+            otherNumber={otherDevicesCount > 0 ? t('Common.PlusOther', { count: otherDevicesCount }) as string : ''}
+            isHighlight={true}
+            username={username}
+            isFavourite={false}
+            isSearchData={true}
+            showCompany={true}
+            onOpenDetail={onClick ? () => {
+              onClick?.(user, phoneNumber)
+            } : undefined}
+          />
+        </div>
+        {onClick && (
           <Button
-            className="group-hover:bg-transparent"
-            variant="ghost"
-            disabled={!isCallsEnabled}
-            onClick={() => {
-              debouncer('onCallNumber', () => {
-                callNumber(phoneNumber)
-              }, 250)
-            }}
+            variant="tertiary"
+            className="self-center ml-2 shrink-0"
+            onClick={() => onClick(user, phoneNumber)}
           >
-            <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
-              {t('Operators.Call')}
+            <p className="font-medium text-[14px] leading-5">
+              {t('Phonebook.Details')}
             </p>
           </Button>
         )}

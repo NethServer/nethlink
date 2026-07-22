@@ -12,7 +12,7 @@ import {
   faPlay as PlayIcon,
   faStop as StopIcon,
 } from '@fortawesome/free-solid-svg-icons'
-import { Tooltip } from 'react-tooltip'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 import { Dropdown } from '@renderer/components/Nethesis/dropdown'
 import { DropdownItem } from '@renderer/components/Nethesis/dropdown/DropdownItem'
 import { DropdownHeader } from '@renderer/components/Nethesis/dropdown/DropdownHeader'
@@ -290,12 +290,11 @@ export function SettingsIncomingCallsDialog() {
                           </div>
                         </DropdownHeader>
                         <div className='absolute'>
-                          <Tooltip
+                          <CustomThemedTooltip
                             id='ringtone'
                             place='left'
                             className='z-[10000] font-medium text-xs leading-[18px]'
-                            opacity={1}
-                            noArrow={false}
+                            zIndex={10000}
                           />
                         </div>
                       </Dropdown>
@@ -378,12 +377,11 @@ export function SettingsIncomingCallsDialog() {
                         </div>
                       </DropdownHeader>
                       <div className='absolute'>
-                        <Tooltip
+                        <CustomThemedTooltip
                           id='output-device'
                           place='left'
                           className='z-[10000] font-medium text-xs leading-[18px]'
-                          opacity={1}
-                          noArrow={false}
+                          zIndex={10000}
                         />
                       </div>
                     </Dropdown>

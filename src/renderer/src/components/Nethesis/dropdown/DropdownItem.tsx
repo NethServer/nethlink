@@ -35,6 +35,7 @@ export const DropdownItem: FC<DropdownItemProps> = ({
         <div
           className={classNames(
             !isRed ? theme?.item?.base : theme?.item?.baseRed,
+            !isRed && !active ? theme?.item?.light : '',
             !isRed && active ? theme?.item?.active : isRed && active ? theme.item.activeRed : '',
             isRed && !active ? theme.item.textRed : '',
             centered && theme.item.centered,

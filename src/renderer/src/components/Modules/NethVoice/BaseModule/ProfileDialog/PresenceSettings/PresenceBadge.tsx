@@ -6,7 +6,7 @@ import { StatusTypes } from '@shared/types'
 import { t } from 'i18next'
 import { useTheme } from '@renderer/theme/Context'
 import classNames from 'classnames'
-import { Tooltip } from 'react-tooltip'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 import { useEffect, useState } from 'react'
 
 export interface PresenceBadgeProps {
@@ -75,13 +75,11 @@ export const PresenceBadge = ({ className }: PresenceBadgeProps) => {
               aria-hidden="true"
             />
 
-            <Tooltip
+            <CustomThemedTooltip
               id={`presence_box`}
               place="bottom"
               className="z-[100000] font-medium text-xs leading-[18px]"
-              opacity={1}
-              noArrow={false}
-
+              zIndex={100000}
             />
           </Badge>
 

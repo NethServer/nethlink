@@ -15,6 +15,7 @@ export interface DropdownProps extends ComponentProps<'div'> {
   | 'left'
   | 'right'
   | 'top'
+  | 'topLeft'
   | 'bottom'
   | 'leftSingleItem'
   | 'topMultipleItem'
@@ -26,6 +27,7 @@ export interface DropdownProps extends ComponentProps<'div'> {
   | 'oneVoicemail'
   | 'bottomTranscription'
   size?: 'full'
+  width?: string
 }
 
 const DropdownComponent: FC<DropdownProps> = ({
@@ -34,6 +36,7 @@ const DropdownComponent: FC<DropdownProps> = ({
   divider,
   position,
   size,
+  width,
   className,
 }) => {
   const { dropdown: theme } = useTheme().theme
@@ -50,6 +53,7 @@ const DropdownComponent: FC<DropdownProps> = ({
             divider && theme.items.divider,
             position ? theme.items.position[position] : theme.items.position.right,
             position === 'top' ? 'py-1' : '',
+            width,
           )}
         >
           {items}

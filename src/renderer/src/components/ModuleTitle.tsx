@@ -2,9 +2,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Button } from "./Nethesis"
 import { IconProp } from "@fortawesome/fontawesome-svg-core"
 import { DefaultTFuncReturn } from "i18next"
-import { ReactNode } from "react"
+import { ReactNode, useId } from "react"
 import { ClassNames } from "@renderer/utils"
-import { Tooltip } from 'react-tooltip'
+import { useIsTruncated } from "@renderer/hooks/useIsTruncated"
+import { CustomThemedTooltip } from "./Nethesis/CustomThemedTooltip"
 
 export interface ModuleTitleProps {
   title?: string | DefaultTFuncReturn | ReactNode,
@@ -24,23 +25,22 @@ export const ModuleTitle = ({
   className
 }: ModuleTitleProps) => {
 
+  const tooltipId = useId()
+  const [titleRef, isTitleTruncated] = useIsTruncated<HTMLHeadingElement>([title])
+  const showTitleTooltip = typeof title === 'string' && isTitleTruncated
+
   return (
     <div className="px-5">
-      <div className={ClassNames("flex justify-between items-center pb-1 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight h-[28px]", className)}>
+      <div className={ClassNames("flex justify-between items-center pt-2 pb-2 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight min-h-[28px]", className)}>
         {title && <h1
+          ref={titleRef}
           className="font-medium text-base leading-5 dark:text-titleDark text-titleLight truncate"
-          data-tooltip-id={`tooltip-module-title`}
-          data-tooltip-content={title as string}
+          data-tooltip-id={showTitleTooltip ? tooltipId : undefined}
+          data-tooltip-content={showTitleTooltip ? title : undefined}
         >
           {title}
+          {showTitleTooltip && <CustomThemedTooltip id={tooltipId} place="bottom" />}
         </h1>}
-        <Tooltip
-          id={`tooltip-module-title`}
-          place="bottom"
-          className="z-10"
-          opacity={1}
-          noArrow={false}
-        />
         {action && (
           <Button
             variant="ghost"

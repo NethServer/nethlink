@@ -57,8 +57,8 @@ export function ContactNumber({
               <div>
                 <MenuButton
                   className={classNames(
-                    'flex items-center justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent',
-                    nethTheme.button.ghost,
+                    'flex items-center justify-center min-w-8 min-h-8',
+                    nethTheme.button.tertiary,
                     nethTheme.button.base,
                     nethTheme.button.rounded.base,
                   )}

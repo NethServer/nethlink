@@ -1,18 +1,17 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { Button, TextInput } from '../../../Nethesis'
+import { Button, MultiSelectCombobox, TextInput } from '../../../Nethesis'
+import { Dropdown } from '@renderer/components/Nethesis/dropdown'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faChevronDown,
-  faCheck,
+  faAngleRight,
   faCircleInfo,
+  faCirclePlus,
   faSpinner as LoadingIcon,
   faUsers,
-  faXmark,
 } from '@fortawesome/free-solid-svg-icons'
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
 import { ContactType } from '@shared/types'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { t } from 'i18next'
+import i18next, { t } from 'i18next'
 import * as z from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { sendNotification, validatePhoneNumber } from '@renderer/utils'
@@ -27,8 +26,28 @@ import {
   getVisiblePhonebookGroups,
   normalizeSharedGroups,
 } from '@shared/phonebook'
-import classNames from 'classnames'
 import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
+
+const PHONE_FIELD_OPTIONS = [
+  { key: 'workphone2', labelKey: 'Phonebook.Work phone 2' },
+  { key: 'cellphone2', labelKey: 'Phonebook.Mobile phone 2' },
+  { key: 'fax', labelKey: 'Phonebook.Fax' },
+  { key: 'homephone', labelKey: 'Phonebook.Home phone' },
+  { key: 'otherphone', labelKey: 'Phonebook.Other phone' },
+]
+
+const EMAIL_FIELD_OPTIONS = [
+  { key: 'homeemail', labelKey: 'Phonebook.Home email' },
+  { key: 'otheremail', labelKey: 'Phonebook.Other email' },
+]
+
+// "Add field" menu: Address, Social (submenu), Website.
+const SOCIAL_FIELD_OPTIONS = [
+  { key: 'linkedin', labelKey: 'Phonebook.LinkedIn' },
+  { key: 'instagram', labelKey: 'Phonebook.Instagram' },
+  { key: 'facebook', labelKey: 'Phonebook.Facebook' },
+]
+
 export function AddToPhonebookBox({ close }) {
   const phoneBookSearchModule = usePhonebookSearchModule()
   const phonebookModule = usePhonebookModule()
@@ -38,38 +57,51 @@ export function AddToPhonebookBox({ close }) {
   const [operators] = useNethlinkData('operators')
 
   const submitButtonRef = useRef<HTMLButtonElement>(null)
+  const resultSchema = useMemo(() => {
+  const phoneNumberSchema = z
+    .string()
+    .trim()
+    .regex(/^[0-9*#+]*$/, 'This is not a phone number')
+
   const baseSchema = z.object({
     privacy: z.string(),
     shared_groups: z.array(z.string()).default([]),
-    extension: z
-      .string()
-      .trim()
-      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
-    workphone: z
-      .string()
-      .trim()
-      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
-    cellphone: z
-      .string()
-      .trim()
-      .regex(/^[0-9*#+]*$/, 'This is not a phone number'),
+    job: z.string(),
+    extension: phoneNumberSchema,
+    workphone: phoneNumberSchema,
+    workphone2: phoneNumberSchema,
+    cellphone: phoneNumberSchema,
+    cellphone2: phoneNumberSchema,
+    otherphone: phoneNumberSchema,
+    fax: phoneNumberSchema,
+    homephone: phoneNumberSchema,
     workemail: z.string(),
+    otheremail: z.string(),
+    homeemail: z.string(),
+    facebook: z.string(),
+    instagram: z.string(),
+    linkedin: z.string(),
+    workstreet: z.string(),
+    workcity: z.string(),
+    workprovince: z.string(),
+    workpostalcode: z.string(),
+    workcountry: z.string(),
+    url: z.string(),
     notes: z.string()
   })
 
-  const resultSchema = z
+  return z
     .discriminatedUnion('type', [
       z.object({
         type: z.literal('person'),
-        name: z
-          .string()
-          .trim()
-          .min(1, `${t('Common.This field is required')}`),
+        firstname: z.string().trim(),
+        lastname: z.string().trim(),
         company: z.string().trim()
       }),
       z.object({
         type: z.literal('company'),
-        name: z.string().trim(),
+        firstname: z.string().trim(),
+        lastname: z.string().trim(),
         company: z
           .string()
           .trim()
@@ -77,10 +109,66 @@ export function AddToPhonebookBox({ close }) {
       })
     ])
     .and(baseSchema)
+    .superRefine((data, ctx) => {
+      // A person needs at least a first or last name (name is composed from them).
+      if (data.type === 'person' && !data.firstname?.trim() && !data.lastname?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['firstname'],
+          message: `${t('Common.This field is required')}`
+        })
+      }
+    })
+  }, [t, i18next.language])
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [sharedGroupsError, setSharedGroupsError] = useState('')
   const [visibilityError, setVisibilityError] = useState('')
+  // Optional fields revealed via the "Add …" buttons (progressive disclosure).
+  // The inputs stay mounted and only their wrapper is hidden, so react-hook-form
+  // keeps their values even while collapsed.
+  const [visibleFields, setVisibleFields] = useState<Set<string>>(new Set())
+  const isFieldVisible = (key: string) => visibleFields.has(key)
+  const [pendingFocusKey, setPendingFocusKey] = useState<string | null>(null)
+  const revealField = (key: string) => {
+    setVisibleFields((prev) => new Set(prev).add(key))
+    setPendingFocusKey(key)
+  }
+  const hiddenPhoneFields = PHONE_FIELD_OPTIONS.filter((o) => !isFieldVisible(o.key))
+  const hiddenEmailFields = EMAIL_FIELD_OPTIONS.filter((o) => !isFieldVisible(o.key))
+
+  // "Add field" menu (Address / Social flyout / Website): the only one with a nested
+  // submenu, so it is hand-rolled (like the CTI) instead of using the generic Dropdown.
+  const [isAddFieldOpen, setIsAddFieldOpen] = useState(false)
+  const [isSocialSubmenuOpen, setIsSocialSubmenuOpen] = useState(false)
+  const addFieldDropdownRef = useRef() as React.MutableRefObject<HTMLDivElement>
+  // Delayed-close for the Social flyout: moving the pointer across the small gap
+  // between the "Social" item and the flyout would otherwise fire mouseLeave and
+  // dismiss it before the pointer reaches the panel.
+  const socialSubmenuCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const openSocialSubmenu = () => {
+    if (socialSubmenuCloseTimer.current) {
+      clearTimeout(socialSubmenuCloseTimer.current)
+      socialSubmenuCloseTimer.current = null
+    }
+    setIsSocialSubmenuOpen(true)
+  }
+  const scheduleCloseSocialSubmenu = () => {
+    if (socialSubmenuCloseTimer.current) {
+      clearTimeout(socialSubmenuCloseTimer.current)
+    }
+    socialSubmenuCloseTimer.current = setTimeout(() => {
+      setIsSocialSubmenuOpen(false)
+      socialSubmenuCloseTimer.current = null
+    }, 200)
+  }
+  useEffect(() => {
+    return () => {
+      if (socialSubmenuCloseTimer.current) {
+        clearTimeout(socialSubmenuCloseTimer.current)
+      }
+    }
+  }, [])
 
   const {
     register,
@@ -96,12 +184,30 @@ export function AddToPhonebookBox({ close }) {
       privacy: '',
       shared_groups: [],
       type: '',
-      name: '',
+      firstname: '',
+      lastname: '',
+      job: '',
       company: '',
       extension: '',
       workphone: '',
+      workphone2: '',
       cellphone: '',
+      cellphone2: '',
+      otherphone: '',
+      fax: '',
+      homephone: '',
       workemail: '',
+      otheremail: '',
+      homeemail: '',
+      facebook: '',
+      instagram: '',
+      linkedin: '',
+      workstreet: '',
+      workcity: '',
+      workprovince: '',
+      workpostalcode: '',
+      workcountry: '',
+      url: '',
       notes: ''
     },
     resolver: zodResolver(resultSchema)
@@ -142,9 +248,9 @@ export function AddToPhonebookBox({ close }) {
   )
 
   useEffect(() => {
-    !!errors.name && trigger('name')
+    !!errors.firstname && trigger('firstname')
     !!errors.company && trigger('company')
-  }, [errors.company, errors.name, trigger, watchType])
+  }, [errors.company, errors.firstname, trigger, watchType])
 
   const onSubmitForm: SubmitHandler<ContactType> = (data) => {
     handleSave(data)
@@ -158,9 +264,9 @@ export function AddToPhonebookBox({ close }) {
     if (searchText != undefined) {
       if (validatePhoneNumber(searchText)) {
         setValue('extension', searchText)
-        setTimeout(() => setFocus('name'), 10)
+        setTimeout(() => setFocus('firstname'), 10)
       } else {
-        setValue('name', searchText)
+        setValue('firstname', searchText)
         setTimeout(() => setFocus('extension'), 10)
       }
     }
@@ -170,9 +276,18 @@ export function AddToPhonebookBox({ close }) {
     }
     if (selectedContact?.number) {
       setValue('extension', selectedContact.number)
-      setTimeout(() => setFocus('name'), 10)
+      setTimeout(() => setFocus('firstname'), 10)
     }
   }, [searchText, selectedContact?.company, selectedContact?.number, setFocus, setValue])
+
+  useEffect(() => {
+    if (!pendingFocusKey) return
+    const focusNameByKey: Record<string, keyof ContactType> = { address: 'workstreet' }
+    const name = (focusNameByKey[pendingFocusKey] ??
+      pendingFocusKey) as keyof ContactType
+    setFocus(name)
+    setPendingFocusKey(null)
+  }, [visibleFields, pendingFocusKey, setFocus])
 
   useEffect(() => {
     const allowedVisibilityValues = visibilityOptions.map((option) => option.id)
@@ -201,6 +316,28 @@ export function AddToPhonebookBox({ close }) {
     }
   }, [availableGroups, normalizedSelectedGroups, setValue])
 
+  useEffect(() => {
+    if (!isAddFieldOpen) {
+      return
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        addFieldDropdownRef.current &&
+        !addFieldDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsAddFieldOpen(false)
+        setIsSocialSubmenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isAddFieldOpen])
+
   function handleSave(data: ContactType) {
     if (!canWritePhonebookVisibility(profile, data.privacy as 'public' | 'private' | 'group')) {
       setVisibilityError(`${t('Phonebook.Cannot create contact')}`)
@@ -220,8 +357,13 @@ export function AddToPhonebookBox({ close }) {
     setSharedGroupsError('')
     setIsLoading(true)
     setTimeout(() => {
+      // `name` is authoritative (Asterisk resolves the caller on it) and is never
+      // edited directly: for persons it is composed from first + last name, for
+      // companies it keeps the '-' sentinel.
       if (watchType === 'company') {
         data.name = '-'
+      } else {
+        data.name = `${data.firstname || ''} ${data.lastname || ''}`.trim()
       }
       phonebookModule
         .handleAddContactToPhonebook(data)
@@ -272,7 +414,7 @@ export function AddToPhonebookBox({ close }) {
 
   return (
     <>
-      <ModuleTitle title={t('Phonebook.Add to Phonebook')} />
+      <ModuleTitle title={t('Phonebook.Create new contact')} />
       <Scrollable innerClassName={'min-w-[344px]'}>
         <form
           className="flex flex-col gap-5 h-full px-5 pt-2"
@@ -322,77 +464,16 @@ export function AddToPhonebookBox({ close }) {
           {watchPrivacy === 'group' && (
             <div className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
               <p className="font-medium text-[14px] leading-5">{t('Phonebook.Groups')}</p>
-              <Listbox value={normalizedSelectedGroups} onChange={handleSharedGroupsChange} multiple>
-                {({ open }) => (
-                  <div className="relative">
-                    <ListboxButton className="flex w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-left text-sm text-gray-700 shadow-sm dark:border-gray-600 dark:bg-bgDark dark:text-titleDark">
-                      <span className="truncate">{t('Phonebook.Choose one or more groups')}</span>
-                      <FontAwesomeIcon
-                        icon={faChevronDown}
-                        className={classNames('h-4 w-4 transition-transform', open && 'rotate-180')}
-                      />
-                    </ListboxButton>
-                    <ListboxOptions className="absolute z-20 mt-2 max-h-56 w-full overflow-y-auto rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
-                      {availableGroups.length > 0 ? (
-                        availableGroups.map((groupName) => (
-                          <ListboxOption
-                            key={groupName}
-                            value={groupName}
-                            className={({ focus }) =>
-                              classNames(
-                                'flex w-full cursor-pointer items-center gap-3 px-4 py-2 text-left text-sm',
-                                focus && 'bg-gray-100 dark:bg-slate-800',
-                              )
-                            }
-                          >
-                            {({ selected }) => (
-                              <>
-                                <span className="inline-flex h-4 w-4 items-center justify-center text-textBlueLight dark:text-textBlueDark">
-                                  {selected && <FontAwesomeIcon icon={faCheck} className="h-3.5 w-3.5" />}
-                                </span>
-                                <FontAwesomeIcon
-                                  icon={faUsers}
-                                  className="h-3.5 w-3.5 text-gray-500 dark:text-gray-300"
-                                />
-                                <span className="truncate">{groupName}</span>
-                              </>
-                            )}
-                          </ListboxOption>
-                        ))
-                      ) : (
-                        <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                          {t('Phonebook.No groups available')}
-                        </div>
-                      )}
-                    </ListboxOptions>
-                  </div>
-                )}
-              </Listbox>
-              {normalizedSelectedGroups.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <p className="font-medium text-[14px] leading-5">{t('Phonebook.Selected')}</p>
-                  {normalizedSelectedGroups.map((groupName) => (
-                    <span
-                      key={groupName}
-                      className="inline-flex items-center gap-2 rounded-full bg-textBlueLight/10 px-3 py-1 text-sm font-medium text-textBlueLight dark:bg-textBlueDark/10 dark:text-textBlueDark"
-                    >
-                      {groupName}
-                      <button
-                        type="button"
-                        className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-textBlueLight/20 dark:hover:bg-textBlueDark/20"
-                        aria-label={`${t('Common.Delete')} ${groupName}`}
-                        onClick={() =>
-                          handleSharedGroupsChange(
-                            normalizedSelectedGroups.filter((group) => group !== groupName),
-                          )
-                        }
-                      >
-                        <FontAwesomeIcon icon={faXmark} className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
+              <MultiSelectCombobox
+                options={availableGroups}
+                selected={normalizedSelectedGroups}
+                onChange={handleSharedGroupsChange}
+                optionIcon={faUsers}
+                placeholder={String(t('Phonebook.Choose one or more groups') || '')}
+                noOptionsText={String(t('Phonebook.No groups available') || '')}
+                removeLabel={(groupName) => `${t('Common.Delete')} ${groupName}`}
+                error={!!sharedGroupsError}
+              />
               {sharedGroupsError && (
                 <p className="text-sm text-red-600 dark:text-red-400">{sharedGroupsError}</p>
               )}
@@ -401,7 +482,7 @@ export function AddToPhonebookBox({ close }) {
 
           <label className="flex flex-col gap-2 dark:text-titleDark text-titleLight">
             <p className="font-medium text-[14px] leading-5">{t('Phonebook.Type')}</p>
-            <div className="flex flex-row gap-8 items-center">
+            <div className="flex flex-col gap-3">
               <div className="flex flex-row gap-2 items-center">
                 <input
                   {...register('type')}
@@ -432,25 +513,71 @@ export function AddToPhonebookBox({ close }) {
           </label>
 
           {watchType === 'person' ? (
+            <>
+              <TextInput
+                {...register('firstname')}
+                type="text"
+                label={t('Phonebook.First name') as string}
+                placeholder={t('Phonebook.First name placeholder') as string}
+                helper={errors.firstname?.message || undefined}
+                error={!!errors.firstname?.message}
+                onKeyDown={handlekeyDown}
+                className="font-normal text-[14px] leading-5"
+              />
+              <TextInput
+                {...register('lastname')}
+                type="text"
+                label={t('Phonebook.Last name') as string}
+                placeholder={t('Phonebook.Last name placeholder') as string}
+                onKeyDown={handlekeyDown}
+                className="font-normal text-[14px] leading-5"
+              />
+              <TextInput
+                {...register('company')}
+                type="text"
+                label={t('Phonebook.Company') as string}
+                helper={errors.company?.message || undefined}
+                error={!!errors.company?.message}
+                onKeyDown={handlekeyDown}
+                className="font-normal text-[14px] leading-5"
+              />
+              <div className={isFieldVisible('job') ? '' : 'hidden'}>
+                <TextInput
+                  {...register('job')}
+                  type="text"
+                  label={t('Phonebook.Job title') as string}
+                  onKeyDown={handlekeyDown}
+                  className="font-normal text-[14px] leading-5"
+                />
+              </div>
+              {!isFieldVisible('job') && (
+                <Button
+                  variant="ghost"
+                  type="button"
+                  className="gap-3 self-start"
+                  onClick={() => revealField('job')}
+                >
+                  <FontAwesomeIcon
+                    icon={faCirclePlus}
+                    className="dark:text-textBlueDark text-textBlueLight h-4 w-4"
+                  />
+                  <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+                    {t('Phonebook.Add job title')}
+                  </p>
+                </Button>
+              )}
+            </>
+          ) : (
             <TextInput
-              {...register('name')}
+              {...register('company')}
               type="text"
-              label={t('Phonebook.Name') as string}
-              helper={errors.name?.message || undefined}
-              error={!!errors.name?.message}
+              label={t('Phonebook.Company') as string}
+              helper={errors.company?.message || undefined}
+              error={!!errors.company?.message}
               onKeyDown={handlekeyDown}
               className="font-normal text-[14px] leading-5"
             />
-          ) : null}
-          <TextInput
-            {...register('company')}
-            type="text"
-            label={t('Phonebook.Company') as string}
-            helper={errors.company?.message || undefined}
-            error={!!errors.company?.message}
-            onKeyDown={handlekeyDown}
-            className="font-normal text-[14px] leading-5"
-          />
+          )}
 
           <TextInput
             {...register('extension')}
@@ -485,6 +612,93 @@ export function AddToPhonebookBox({ close }) {
             className="font-normal text-[14px] leading-5"
           />
 
+          <div className={isFieldVisible('workphone2') ? '' : 'hidden'}>
+            <TextInput
+              {...register('workphone2')}
+              type="tel"
+              minLength={3}
+              label={t('Phonebook.Work phone 2') as string}
+              helper={errors.workphone2?.message || undefined}
+              error={!!errors.workphone2?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('cellphone2') ? '' : 'hidden'}>
+            <TextInput
+              {...register('cellphone2')}
+              type="tel"
+              minLength={3}
+              label={t('Phonebook.Mobile phone 2') as string}
+              helper={errors.cellphone2?.message || undefined}
+              error={!!errors.cellphone2?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('otherphone') ? '' : 'hidden'}>
+            <TextInput
+              {...register('otherphone')}
+              type="tel"
+              minLength={3}
+              label={t('Phonebook.Other phone') as string}
+              helper={errors.otherphone?.message || undefined}
+              error={!!errors.otherphone?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('fax') ? '' : 'hidden'}>
+            <TextInput
+              {...register('fax')}
+              type="tel"
+              minLength={3}
+              label={t('Phonebook.Fax') as string}
+              helper={errors.fax?.message || undefined}
+              error={!!errors.fax?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('homephone') ? '' : 'hidden'}>
+            <TextInput
+              {...register('homephone')}
+              type="tel"
+              minLength={3}
+              label={t('Phonebook.Home phone') as string}
+              helper={errors.homephone?.message || undefined}
+              error={!!errors.homephone?.message}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          {hiddenPhoneFields.length > 0 && (
+            <Dropdown
+              position="topLeft"
+              width="w-44"
+              className="self-start"
+              items={
+                <>
+                  {hiddenPhoneFields.map((o) => (
+                    <Dropdown.Item key={o.key} onClick={() => revealField(o.key)}>
+                      {t(o.labelKey)}
+                    </Dropdown.Item>
+                  ))}
+                </>
+              }
+            >
+              <Button variant="ghost" type="button" className="gap-3">
+                <FontAwesomeIcon
+                  icon={faCirclePlus}
+                  className="dark:text-textBlueDark text-textBlueLight h-4 w-4"
+                />
+                <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+                  {t('Phonebook.Add phone')}
+                </p>
+              </Button>
+            </Dropdown>
+          )}
+
           <TextInput
             {...register('workemail')}
             type="email"
@@ -493,6 +707,51 @@ export function AddToPhonebookBox({ close }) {
             className="font-normal text-[14px] leading-5"
           />
 
+          <div className={isFieldVisible('homeemail') ? '' : 'hidden'}>
+            <TextInput
+              {...register('homeemail')}
+              type="email"
+              label={t('Phonebook.Home email') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('otheremail') ? '' : 'hidden'}>
+            <TextInput
+              {...register('otheremail')}
+              type="email"
+              label={t('Phonebook.Other email') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          {hiddenEmailFields.length > 0 && (
+            <Dropdown
+              position="topLeft"
+              width="w-44"
+              className="self-start"
+              items={
+                <>
+                  {hiddenEmailFields.map((o) => (
+                    <Dropdown.Item key={o.key} onClick={() => revealField(o.key)}>
+                      {t(o.labelKey)}
+                    </Dropdown.Item>
+                  ))}
+                </>
+              }
+            >
+              <Button variant="ghost" type="button" className="gap-3">
+                <FontAwesomeIcon
+                  icon={faCirclePlus}
+                  className="dark:text-textBlueDark text-textBlueLight h-4 w-4"
+                />
+                <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+                  {t('Phonebook.Add email')}
+                </p>
+              </Button>
+            </Dropdown>
+          )}
+
           <TextInput
             {...register('notes')}
             type="text"
@@ -500,6 +759,178 @@ export function AddToPhonebookBox({ close }) {
             onKeyDown={handlekeyDown}
             className="font-normal text-[14px] leading-5"
           />
+
+          {/* Company address sub-form */}
+          <div className={isFieldVisible('address') ? 'flex flex-col gap-4' : 'hidden'}>
+            <TextInput
+              {...register('workstreet')}
+              type="text"
+              label={t('Phonebook.Address') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+            <TextInput
+              {...register('workcity')}
+              type="text"
+              label={t('Phonebook.City') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <TextInput
+                {...register('workprovince')}
+                type="text"
+                label={t('Phonebook.Province') as string}
+                onKeyDown={handlekeyDown}
+                className="font-normal text-[14px] leading-5"
+              />
+              <TextInput
+                {...register('workpostalcode')}
+                type="text"
+                label={t('Phonebook.Postal code') as string}
+                onKeyDown={handlekeyDown}
+                className="font-normal text-[14px] leading-5"
+              />
+            </div>
+            <TextInput
+              {...register('workcountry')}
+              type="text"
+              label={t('Phonebook.Country') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('linkedin') ? '' : 'hidden'}>
+            <TextInput
+              {...register('linkedin')}
+              type="text"
+              label={t('Phonebook.LinkedIn') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('instagram') ? '' : 'hidden'}>
+            <TextInput
+              {...register('instagram')}
+              type="text"
+              label={t('Phonebook.Instagram') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('facebook') ? '' : 'hidden'}>
+            <TextInput
+              {...register('facebook')}
+              type="text"
+              label={t('Phonebook.Facebook') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          <div className={isFieldVisible('url') ? '' : 'hidden'}>
+            <TextInput
+              {...register('url')}
+              type="text"
+              label={t('Phonebook.Website') as string}
+              onKeyDown={handlekeyDown}
+              className="font-normal text-[14px] leading-5"
+            />
+          </div>
+          {/* "Add field" menu (Address, Social flyout, Website) — opens upward, left-aligned */}
+          <div className="relative self-start" ref={addFieldDropdownRef}>
+            <Button
+              variant="ghost"
+              type="button"
+              className="gap-3"
+              disabled={
+                isFieldVisible('address') &&
+                isFieldVisible('url') &&
+                SOCIAL_FIELD_OPTIONS.every((o) => isFieldVisible(o.key))
+              }
+              onClick={() =>
+                setIsAddFieldOpen((open) => {
+                  if (open) {
+                    setIsSocialSubmenuOpen(false)
+                  }
+                  return !open
+                })
+              }
+            >
+              <FontAwesomeIcon
+                icon={faCirclePlus}
+                className="dark:text-textBlueDark text-textBlueLight h-4 w-4"
+              />
+              <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+                {t('Phonebook.Add field')}
+              </p>
+            </Button>
+            {isAddFieldOpen && (
+              <div className="absolute bottom-full left-0 z-20 mb-2 w-40 rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
+                {!isFieldVisible('address') && (
+                  <button
+                    type="button"
+                    className="block w-full px-4 py-2 text-left text-sm text-titleLight transition hover:bg-gray-100 dark:text-titleDark dark:hover:bg-slate-800"
+                    onClick={() => {
+                      revealField('address')
+                      setIsAddFieldOpen(false)
+                      setIsSocialSubmenuOpen(false)
+                    }}
+                  >
+                    {t('Phonebook.Address')}
+                  </button>
+                )}
+                {SOCIAL_FIELD_OPTIONS.some((o) => !isFieldVisible(o.key)) && (
+                  <div
+                    className="relative"
+                    onMouseEnter={openSocialSubmenu}
+                    onMouseLeave={scheduleCloseSocialSubmenu}
+                  >
+                    <button
+                      type="button"
+                      className="flex w-full items-center justify-between px-4 py-2 text-left text-sm text-titleLight transition hover:bg-gray-100 dark:text-titleDark dark:hover:bg-slate-800"
+                      aria-haspopup="menu"
+                      aria-expanded={isSocialSubmenuOpen}
+                      onClick={() => (isSocialSubmenuOpen ? setIsSocialSubmenuOpen(false) : openSocialSubmenu())}
+                    >
+                      <span>{t('Phonebook.Social')}</span>
+                      <FontAwesomeIcon icon={faAngleRight} className="h-3 w-3" />
+                    </button>
+                    {isSocialSubmenuOpen && (
+                      <div className="absolute left-full top-0 z-30 w-40 rounded-md border border-gray-200 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-slate-900">
+                        {SOCIAL_FIELD_OPTIONS.filter((o) => !isFieldVisible(o.key)).map((o) => (
+                          <button
+                            key={o.key}
+                            type="button"
+                            className="block w-full px-4 py-2 text-left text-sm text-titleLight transition hover:bg-gray-100 dark:text-titleDark dark:hover:bg-slate-800"
+                            onClick={() => {
+                              revealField(o.key)
+                              setIsSocialSubmenuOpen(false)
+                              setIsAddFieldOpen(false)
+                            }}
+                          >
+                            {t(o.labelKey)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                {!isFieldVisible('url') && (
+                  <button
+                    type="button"
+                    className="block w-full px-4 py-2 text-left text-sm text-titleLight transition hover:bg-gray-100 dark:text-titleDark dark:hover:bg-slate-800"
+                    onClick={() => {
+                      revealField('url')
+                      setIsAddFieldOpen(false)
+                      setIsSocialSubmenuOpen(false)
+                    }}
+                  >
+                    {t('Phonebook.Website')}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <div className="flex flex-row gap-4 justify-end pb-2">
             <Button variant="ghost" onClick={handleCancel} disabled={isLoading}>
               <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
@@ -507,14 +938,11 @@ export function AddToPhonebookBox({ close }) {
               </p>
             </Button>
             <Button type="submit" ref={submitButtonRef} className="gap-3">
-              <p className="dark:text-titleLight text-titleDark font-medium text-[14px] leading-5">
+              <p className="font-medium text-[14px] leading-5">
                 {t('Common.Save')}
               </p>
               {isLoading && (
-                <FontAwesomeIcon
-                  icon={LoadingIcon}
-                  className="dark:text-titleLight text-titleDark animate-spin"
-                />
+                <FontAwesomeIcon icon={LoadingIcon} className="animate-spin" />
               )}
             </Button>
           </div>

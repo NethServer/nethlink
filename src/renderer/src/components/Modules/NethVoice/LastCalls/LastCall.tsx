@@ -14,8 +14,8 @@ import { useEffect, useState } from 'react'
 import { LastCallData } from '@shared/types'
 import { t } from 'i18next'
 import { CallsDate } from '../../../Nethesis/CallsDate'
-import { truncate } from '@renderer/utils'
-import { Tooltip } from 'react-tooltip'
+import { CustomThemedTooltip } from '../../../Nethesis/CustomThemedTooltip'
+import { useIsTruncated } from '@renderer/hooks/useIsTruncated'
 import { Badge } from '../../../Nethesis/Badge'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { useNethlinkData } from '@renderer/store'
@@ -100,6 +100,11 @@ export function LastCall({
   const tooltipId = call.uniqueid?.replace('.', '_')
   const isFromQueue = Boolean(call.channel?.includes('from-queue'))
 
+  const callName = getCallName(call)
+  const callNumberValue = (call.direction === 'in' ? call.src : call.dst) || ''
+  const [nameRef, isNameTruncated] = useIsTruncated<HTMLParagraphElement>([callName])
+  const [numberRef, isNumberTruncated] = useIsTruncated<HTMLDivElement>([callNumberValue])
+
   return (
     <div className='group'>
       <div
@@ -126,20 +131,22 @@ export function LastCall({
             />
           )}
         </div>
-        <div className='flex flex-col gap-1 dark:text-titleDark text-titleLight'>
+        <div className='flex flex-col gap-1 min-w-0 flex-1 dark:text-titleDark text-titleLight'>
           <p
-            className={`font-medium text-[14px] leading-5`}
-            data-tooltip-id={`tooltip-username-${tooltipId}`}
-            data-tooltip-content={getCallName(call)}
+            ref={nameRef}
+            className={`font-medium text-[14px] leading-5 truncate`}
+            data-tooltip-id={isNameTruncated ? `tooltip-username-${tooltipId}` : undefined}
+            data-tooltip-content={isNameTruncated ? callName : undefined}
           >
-            {truncate(getCallName(call), 24)}
+            {callName}
           </p>
-          <Tooltip
-            id={`tooltip-username-${tooltipId}`}
-            place='bottom'
-            opacity={1}
-            className='z-10'
-          />
+          {isNameTruncated && (
+            <CustomThemedTooltip
+              id={`tooltip-username-${tooltipId}`}
+              place='bottom'
+              className='z-10'
+            />
+          )}
 
           {isFromQueue && (
             <div>
@@ -172,11 +179,10 @@ export function LastCall({
                       ? queues?.[call.queue!]?.name + ' ' + call?.queue
                       : t('QueueManager.Queue')}
                   </div>
-                  <Tooltip
+                  <CustomThemedTooltip
                     id={`tooltip-queue-${tooltipId}`}
                     place='bottom'
                     className='z-[10]'
-                    opacity={1}
                   />
                 </Badge>
               )}
@@ -184,7 +190,7 @@ export function LastCall({
           )}
 
           <div
-            className='flex flex-row gap-2 items-center'
+            className='flex flex-row gap-2 items-center min-w-0'
             data-tooltip-id={`call_${tooltipId}`}
             data-tooltip-content={
               call.disposition === 'ANSWERED'
@@ -232,26 +238,37 @@ export function LastCall({
                 </div>
               )}
             </div>
-            <Tooltip
+            <CustomThemedTooltip
               id={`call_${tooltipId}`}
               place='right'
               className='z-10'
-              opacity={1}
-              noArrow={false}
             />
-            <NumberCaller
-              number={
-                (call.direction === 'in' ? call.src : call.dst) || 'no number'
-              }
-              disabled={!isCallsEnabled}
-              className={
-                'dark:text-textBlueDark text-textBlueLight font-normal text-[14px] leading-5 hover:underline inset-pink-600'
-              }
-              isNumberHiglighted={false}
+            <div
+              ref={numberRef}
+              className='min-w-0 truncate'
+              data-tooltip-id={isNumberTruncated ? `tooltip-number-${tooltipId}` : undefined}
+              data-tooltip-content={isNumberTruncated ? callNumberValue : undefined}
             >
-              {(call.direction === 'in' ? call.src : call.dst) ||
-                t('Common.Unknown')}
-            </NumberCaller>
+              <NumberCaller
+                number={
+                  (call.direction === 'in' ? call.src : call.dst) || 'no number'
+                }
+                disabled={!isCallsEnabled}
+                className={
+                  'dark:text-textBlueDark text-textBlueLight hover:text-primaryHover dark:hover:text-primaryDarkHover font-normal text-[14px] leading-5 hover:underline inset-pink-600'
+                }
+              >
+                {(call.direction === 'in' ? call.src : call.dst) ||
+                  t('Common.Unknown')}
+              </NumberCaller>
+            </div>
+            {isNumberTruncated && (
+              <CustomThemedTooltip
+                id={`tooltip-number-${tooltipId}`}
+                place='bottom'
+                className='z-10'
+              />
+            )}
           </div>
 
           <CallsDate call={call} inline={true} />

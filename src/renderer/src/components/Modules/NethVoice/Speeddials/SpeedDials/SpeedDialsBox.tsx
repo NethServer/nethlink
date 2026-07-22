@@ -44,7 +44,7 @@ export function SpeedDialsBox({ showSpeedDialForm, showDeleteSpeedDialDialog }):
           speedDials.length > 0 ? (
             speedDials?.map((e, idx) => {
               return (
-                <div key={idx} className="dark:hover:bg-hoverDark hover:bg-hoverLight">
+                <div key={idx} className="dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]">
                   <div className="px-5">
                     <div
                       className={`${idx === speedDials.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}

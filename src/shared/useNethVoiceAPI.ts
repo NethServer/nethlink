@@ -452,10 +452,12 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       search: string,
       offset = 0,
       pageSize = 10,
-      view: 'all' | 'company' | 'person' = 'all'
+      view: 'all' | 'company' | 'person' = 'all',
+      visibility = 'all',
+      sort = 'displayname'
     ) => {
       const s = await _GET(
-        buildApiPath(`/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}`)
+        buildApiPath(`/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}&visibility=${visibility}&sort=${sort}`)
       )
       return s
     },
@@ -544,11 +546,30 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         favorite: false,
         selectedPrefNum: 'extension',
         name: create.name,
+        firstname: create.firstname,
+        lastname: create.lastname,
+        job: create.job,
         company: create.company,
         extension: create.extension,
         workphone: create.workphone,
+        workphone2: create.workphone2,
         cellphone: create.cellphone,
+        cellphone2: create.cellphone2,
+        otherphone: create.otherphone,
+        fax: create.fax,
+        homephone: create.homephone,
         workemail: create.workemail,
+        otheremail: create.otheremail,
+        homeemail: create.homeemail,
+        facebook: create.facebook,
+        instagram: create.instagram,
+        linkedin: create.linkedin,
+        workstreet: create.workstreet,
+        workcity: create.workcity,
+        workprovince: create.workprovince,
+        workpostalcode: create.workpostalcode,
+        workcountry: create.workcountry,
+        url: create.url,
         notes: create.notes,
         kind: 'person'
       }
