@@ -9,3 +9,9 @@ package-lock.json
 certification
 *.env
 test/
+
+# Electron build artifacts
+nethlink.AppImage
+*.AppImage
+*.exe
+*.dmg
