@@ -184,6 +184,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     if (currentApiBasePath !== PRIMARY_API_BASE_PATH) {
       return false
     }
+    if (path.includes('/user/nethlink')) {
+      return false
+    }
 
     // Try fallback for connection errors (404, 503, or network failures)
     const isConnectionError = error?.response?.status === 404 || error?.response?.status === 503 || !error?.response
@@ -609,8 +612,12 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       //the !loggedAccount flag allow to reduce the invocation only to the backend module and only at the first login
       if (ext && !loggedAccount && isFirstHeartbeat) {
         isFirstHeartbeat = false
-        const response = await User.heartbeat(ext.id, data.username)
-        Log.debug('Sent HEARTBEAT', { response })
+        try {
+          const response = await User.heartbeat(ext.id, data.username)
+          Log.debug('Sent HEARTBEAT', { response })
+        } catch (error) {
+          Log.debug('HEARTBEAT skipped: endpoint unavailable', { error })
+        }
       }
       return data
     },
