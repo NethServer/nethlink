@@ -24,6 +24,29 @@ import { requires2FA } from '@shared/utils/jwt'
 const PRIMARY_API_BASE_PATH = '/api'
 const FALLBACK_API_BASE_PATH = '/webrest'
 
+function getNethlinkClientInfo(): {
+  nethlink_version: string
+  os_type: string
+  os_release: string
+  arch: string
+} {
+  const api = typeof window !== 'undefined' ? (window as any).api : undefined
+  if (api) {
+    return {
+      nethlink_version: api.appVersion || '',
+      os_type: api.platform || '',
+      os_release: api.osRelease || '',
+      arch: api.arch || ''
+    }
+  }
+  return {
+    nethlink_version: (typeof process !== 'undefined' && process.env?.['APP_VERSION']) || '',
+    os_type: typeof process !== 'undefined' ? process.platform : '',
+    os_release: '',
+    arch: typeof process !== 'undefined' ? process.arch : ''
+  }
+}
+
 export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) => {
   const { GET, POST, DELETE } = useNetwork()
   let isFirstHeartbeat = true
@@ -159,6 +182,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
   function shouldTryFallback(path: string, error: any): boolean {
     // Only try fallback if we're using primary path
     if (currentApiBasePath !== PRIMARY_API_BASE_PATH) {
+      return false
+    }
+    if (path.includes('/user/nethlink')) {
       return false
     }
 
@@ -607,15 +633,20 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       //the !loggedAccount flag allow to reduce the invocation only to the backend module and only at the first login
       if (ext && !loggedAccount && isFirstHeartbeat) {
         isFirstHeartbeat = false
-        const response = await User.heartbeat(ext.id, data.username)
-        Log.debug('Sent HEARTBEAT', { response })
+        try {
+          const response = await User.heartbeat(ext.id, data.username)
+          Log.debug('Sent HEARTBEAT', { response })
+        } catch (error) {
+          Log.debug('HEARTBEAT skipped: endpoint unavailable', { error })
+        }
       }
       return data
     },
     all: async () => await _GET(buildApiPath('/user/all')),
     all_avatars: async () => await _GET(buildApiPath('/user/all_avatars')),
     all_endpoints: async () => await _GET(buildApiPath('/user/endpoints/all')),
-    heartbeat: async (extension: string, username: string) => await _POST(buildApiPath('/user/nethlink'), { extension, username }),
+    heartbeat: async (extension: string, username: string) =>
+      await _POST(buildApiPath('/user/nethlink'), { extension, username, ...getNethlinkClientInfo() }),
     settings: async (settings: Partial<AccountData['settings']>) =>
       await _POST(buildApiPath('/user/settings'), settings),
     default_device: async (deviceIdInformation: Extension, force = false): Promise<boolean> => {
