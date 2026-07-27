@@ -10,6 +10,7 @@ import { AccountController } from '../controllers'
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
   size: { w: number; h: number } | undefined
+  private _programmaticBoundsUntil = 0
   constructor() {
     super(PAGES.NETHLINK, {
       width: NethLinkPageSize.w,
@@ -41,6 +42,11 @@ export class NethLinkWindow extends BaseWindow {
     NethLinkWindow.instance = this
   }
 
+  private _applyBounds(bounds: Electron.Rectangle) {
+    this._programmaticBoundsUntil = Date.now() + 1500
+    this._window?.setBounds(bounds, false)
+  }
+
   _setBounds() {
     try {
       const MARGIN = 8
@@ -62,7 +68,7 @@ export class NethLinkWindow extends BaseWindow {
         y = screenBounds.y + MACBARHEIGHT + MARGIN
       }
       const nethlinkBounds: Electron.Rectangle = { x, y, width: w, height: h }
-      this._window?.setBounds(nethlinkBounds, false)
+      this._applyBounds(nethlinkBounds)
     } catch (e) {
       Log.warning('during update bounds of the NethLinkWindow:', e)
     }
@@ -78,12 +84,12 @@ export class NethLinkWindow extends BaseWindow {
             result ||
             (accountBounds.x >= area.x &&
               accountBounds.y >= area.y &&
-              (accountBounds.x + accountBounds.width) < (area.x + area.width) &&
-              (accountBounds.y + accountBounds.height) < (area.y + area.height))
+              (accountBounds.x + accountBounds.width) <= (area.x + area.width) &&
+              (accountBounds.y + accountBounds.height) <= (area.y + area.height))
           )
         }, false)
         if (isAccountBoundsOnDisplay) {
-          this._window?.setBounds(accountBounds, false)
+          this._applyBounds(accountBounds)
         } else {
           this._setBounds()
         }
@@ -115,6 +121,9 @@ export class NethLinkWindow extends BaseWindow {
   }
 
   saveBounds(bounds: Electron.Rectangle | undefined = undefined) {
+    if (this._window?.isMaximized() || this._window?.isFullScreen()) {
+      return
+    }
     const nethlinkBounds = bounds || this._window?.getBounds()
     AccountController.instance.setAccountNethLinkBounds(nethlinkBounds)
   }
@@ -124,6 +133,21 @@ export class NethLinkWindow extends BaseWindow {
     this._window?.on('hide', this.toggleVisibility)
     this._window?.on('moved', () => {
       debouncer('onMoveNethLinkWindow', () => this.saveBounds(), 1000)
+    })
+    this._window?.on('resize', () => {
+      if (Date.now() < this._programmaticBoundsUntil) {
+        return
+      }
+      debouncer('onMoveNethLinkWindow', () => {
+        if (!this._window || this._window.isDestroyed() || this._window.isMinimized() || !this._window.isVisible()) {
+          return
+        }
+        const bounds = this._window.getBounds()
+        if (bounds.width < NethLinkPageSize.w || bounds.height < NethLinkPageSize.h) {
+          return
+        }
+        this.saveBounds(bounds)
+      }, 1000)
     })
     this._window?.on('show', this.toggleVisibility)
     this._window?.on('closed', this.toggleVisibility)
