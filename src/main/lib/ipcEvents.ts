@@ -122,12 +122,15 @@ export function registerIpcEvents() {
           timeout: 3000
         },
         (res) => {
-          if (res.statusCode !== 200) {
-            triggerError(new Error('status error'), request)
+          const statusCode = res.statusCode ?? 0
+          const isSuccess = (statusCode >= 200 && statusCode < 300) || statusCode === 302
+          if (!isSuccess) {
+            triggerError(new Error(`status error: ${statusCode}`), request)
+            return
           }
           NethLinkController.instance.window.emit(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, true)
           PhoneIslandController.instance.window.show()
-          Log.debug('START_CALL_BY_URL', url, res.statusCode)
+          Log.debug('START_CALL_BY_URL', url, statusCode)
         }
       )
 
