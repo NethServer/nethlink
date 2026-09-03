@@ -11,7 +11,7 @@ import {
 import { t } from 'i18next'
 import { useEffect, useRef, useState } from 'react'
 import { Button, TextInput } from '@renderer/components/Nethesis'
-import { Account, LoginData } from '@shared/types'
+import { Account, HostConfig, LoginData } from '@shared/types'
 import { DisplayedAccountLogin } from './DisplayedAccountLogin'
 import { OTPInput, OTPInputRef } from './OTPInput'
 import { useLoginPageData, useSharedState } from '@renderer/store'
@@ -43,30 +43,30 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
   const [showTwoFactor, setShowTwoFactor] = useLoginPageData('showTwoFactor')
   const [tempAccount, setTempAccount] = useState<Account | undefined>(undefined)
   const [otpDisabled, setOtpDisabled] = useState(false)
+  const [loginStep, setLoginStep] = useLoginPageData('loginStep')
+  const [hostConfig, setHostConfig] = useLoginPageData('hostConfig')
   const passwordRef = useRef<string>()
   const otpInputRef = useRef() as React.MutableRefObject<OTPInputRef>
+  const hostConfigHandlerRef = useRef<(res: { hostConfig?: HostConfig, error?: string }) => void>()
+  const ssoResultHandlerRef = useRef<(res: { token?: string, error?: string }) => void>()
 
   const schema: z.ZodType<LoginData> = z.object({
     host: z
       .string()
       .trim()
       .min(1, `${t('Common.This field is required')}`),
-    username: z
-      .string()
-      .trim()
-      .min(1, `${t('Common.This field is required')}`),
-    password: z
-      .string()
-      .trim()
-      .min(1, `${t('Common.This field is required')}`),
+    username: z.string().trim().optional(),
+    password: z.string().trim().optional(),
   })
 
   const {
     register,
     handleSubmit,
     setValue,
+    getValues,
     reset,
     setFocus,
+    setError: setFieldError,
     formState: { errors },
   } = useForm<LoginData>({
     defaultValues: {},
@@ -78,6 +78,15 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
   }, [Object.keys(errors).length, error])
 
   useEffect(() => {
+    window.electron.receive(IPC_EVENTS.SET_HOST_CONFIG, (res) =>
+      hostConfigHandlerRef.current?.(res),
+    )
+    window.electron.receive(IPC_EVENTS.SSO_LOGIN_RESULT, (res) =>
+      ssoResultHandlerRef.current?.(res),
+    )
+  }, [])
+
+  useEffect(() => {
     setIsLoading(false)
     setTempAccount(undefined)
     setOnOTPError(false)
@@ -86,17 +95,26 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
         if (selectedAccount === NEW_ACCOUNT) {
           setShowTwoFactor(false) // Reset 2FA when switching to new account
           reset()
+          setLoginStep('host')
+          setHostConfig(undefined)
           focus('host')
         } else {
           setShowTwoFactor(false) // Reset 2FA when switching to existing account
           reset()
           setValue('host', selectedAccount.host)
           setValue('username', selectedAccount.username)
-          focus('password')
+          if (selectedAccount.authenticationMethod === 'saml2') {
+            // the SSO entry point is read from the host at every login
+            fetchHostConfig(selectedAccount.host)
+          } else {
+            focus('password')
+          }
         }
       } else {
         setShowTwoFactor(false) // Reset 2FA when going back to account list
         setError(undefined)
+        setLoginStep('host')
+        setHostConfig(undefined)
         focus('host')
       }
     }
@@ -115,6 +133,121 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     }
   }, [showTwoFactor])
 
+  function cleanHost(rawHost: string): string | undefined {
+    const hostReg =
+      /^(?:(https?:\/\/)?([^:/$]{1,})(?::(\d{1,}))?(?:($|\/(?:[^?#]{0,}))?((?:\?(?:[^#]{1,}))?)?(?:(#(?:.*)?)?|$)))$/g
+    return hostReg.exec(rawHost.trim())?.[2]
+  }
+
+  // shared login completion: enrich the account with the host configuration,
+  // then hand it over to the main process together with the password (empty
+  // for SSO accounts)
+  function completeLogin(loggedAccount: Account, password: string) {
+    window.electron.receive(
+      IPC_EVENTS.SET_NETHVOICE_CONFIG,
+      (account: Account) => {
+        passwordRef.current = password
+        Log.info('LOGIN received account server configuration', account)
+        const previousLoggedAccount =
+          auth?.availableAccounts[getAccountUID(account)]
+        account.theme = previousLoggedAccount
+          ? previousLoggedAccount.theme
+          : 'system'
+        Log.info('LOGIN send login event to the backend', account)
+        window.electron.send(IPC_EVENTS.LOGIN, {
+          password: passwordRef.current,
+          account,
+        })
+      },
+    )
+    Log.info('LOGIN get account server configuration')
+    window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
+  }
+
+  function fetchHostConfig(host: string) {
+    setHostConfig(undefined)
+    hostConfigHandlerRef.current = (res) => {
+      if (res.hostConfig) {
+        setHostConfig(res.hostConfig)
+      } else {
+        Log.warning('LOGIN unable to read the host configuration', res.error)
+        setError(() => new Error(t('Login.Network connection is lost')!))
+      }
+    }
+    window.electron.send(IPC_EVENTS.GET_HOST_CONFIG, host)
+  }
+
+  // step 1: read the host authentication capabilities, then show the proper
+  // credentials step (username/password or SSO button)
+  function handleHostNext(data: LoginData) {
+    const host = cleanHost(data.host)
+    if (!host) {
+      setError(() => new Error(t('Login.Wrong host or username or password')!))
+      return
+    }
+    setIsLoading(true)
+    setError(() => undefined)
+    hostConfigHandlerRef.current = (res) => {
+      setIsLoading(false)
+      if (res.hostConfig) {
+        setValue('host', host)
+        setHostConfig(res.hostConfig)
+        setLoginStep('credentials')
+        if (res.hostConfig.authenticationMethod === 'password') {
+          focus('username')
+        }
+      } else {
+        Log.warning('LOGIN unable to read the host configuration', res.error)
+        setError(() => new Error(t('Login.Network connection is lost')!))
+      }
+    }
+    window.electron.send(IPC_EVENTS.GET_HOST_CONFIG, host)
+  }
+
+  // Single Sign-On: the main process runs the SAML dance in a dedicated
+  // window and returns the minted JWT
+  function handleSsoLogin() {
+    if (isLoading || !hostConfig?.ssoLoginUrl) return
+    const host =
+      selectedAccount && selectedAccount !== NEW_ACCOUNT
+        ? selectedAccount.host
+        : getValues('host')
+    setIsLoading(true)
+    setError(() => undefined)
+    ssoResultHandlerRef.current = async (res) => {
+      if (!res.token) {
+        setIsLoading(false)
+        if (res.error !== 'SSO window closed') {
+          Log.warning('LOGIN SSO failed', res.error)
+          setError(() => new Error(t('Login.SSO login failed')!))
+        }
+        return
+      }
+      try {
+        Log.info('LOGIN SSO token received, completing login')
+        const loggedAccount = await NethVoiceAPI.Authentication.ssoLogin(
+          host,
+          res.token,
+        )
+        completeLogin(loggedAccount, '')
+        setError(() => undefined)
+      } catch (error: any) {
+        setIsLoading(false)
+        if (error.message === 'User not authorized for NethLink') {
+          setError(
+            () => new Error(t('Login.User not authorized for NethLink')!),
+          )
+        } else {
+          setError(() => new Error(t('Login.SSO login failed')!))
+        }
+      }
+    }
+    window.electron.send(IPC_EVENTS.SSO_LOGIN, {
+      host,
+      url: hostConfig.ssoLoginUrl,
+    })
+  }
+
   async function handleLogin(data: LoginData) {
     if (!isLoading) {
       let e: Error | undefined = undefined
@@ -128,8 +261,8 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
           Log.info('LOGIN try login with credential')
           const loggedAccount = await NethVoiceAPI.Authentication.login(
             res[2],
-            data.username,
-            data.password,
+            data.username!,
+            data.password!,
           )
           Log.info('LOGIN successfully logged in with credential')
 
@@ -144,25 +277,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
           }
 
           // Complete login flow
-          window.electron.receive(
-            IPC_EVENTS.SET_NETHVOICE_CONFIG,
-            (account: Account) => {
-              passwordRef.current = data.password
-              Log.info('LOGIN received account server configuration', account)
-              const previousLoggedAccount =
-                auth?.availableAccounts[getAccountUID(account)]
-              account.theme = previousLoggedAccount
-                ? previousLoggedAccount.theme
-                : 'system'
-              Log.info('LOGIN send login event to the backend', account)
-              window.electron.send(IPC_EVENTS.LOGIN, {
-                password: passwordRef.current,
-                account,
-              })
-            },
-          )
-          Log.info('LOGIN get account server configuration')
-          window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, loggedAccount)
+          completeLogin(loggedAccount, data.password!)
 
           setFormValues({
             host: '',
@@ -223,27 +338,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
       Log.info('LOGIN 2FA verification successful')
 
       // Complete login flow
-      window.electron.receive(
-        IPC_EVENTS.SET_NETHVOICE_CONFIG,
-        (account: Account) => {
-          Log.info(
-            'LOGIN received account server configuration after 2FA',
-            account,
-          )
-          const previousLoggedAccount =
-            auth?.availableAccounts[getAccountUID(account)]
-          account.theme = previousLoggedAccount
-            ? previousLoggedAccount.theme
-            : 'system'
-          Log.info('LOGIN send login event to the backend after 2FA', account)
-          window.electron.send(IPC_EVENTS.LOGIN, {
-            password: passwordRef.current,
-            account,
-          })
-        },
-      )
-      Log.info('LOGIN get account server configuration after 2FA')
-      window.electron.send(IPC_EVENTS.GET_NETHVOICE_CONFIG, verifiedAccount)
+      completeLogin(verifiedAccount, passwordRef.current || '')
 
       setTempAccount(undefined)
       setError(() => undefined)
@@ -277,13 +372,33 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
   }
 
   const onSubmitForm: SubmitHandler<LoginData> = (data) => {
-    handleLogin(data)
+    const isSavedAccount = !!(selectedAccount && selectedAccount !== NEW_ACCOUNT)
+    if (!isSavedAccount && loginStep === 'host') {
+      handleHostNext(data)
+      return
+    }
+    let valid = true
+    if (!isSavedAccount && !data.username?.trim()) {
+      setFieldError('username', {
+        message: `${t('Common.This field is required')}`,
+      })
+      valid = false
+    }
+    if (!data.password?.trim()) {
+      setFieldError('password', {
+        message: `${t('Common.This field is required')}`,
+      })
+      valid = false
+    }
+    if (valid) {
+      handleLogin(data)
+    }
   }
 
   function setFormValues(data: LoginData) {
     setValue('host', data.host)
-    setValue('username', data.username)
-    setValue('password', data.password)
+    setValue('username', data.username || '')
+    setValue('password', data.password || '')
   }
 
   const focus = (selector: keyof LoginData) => {
@@ -291,6 +406,15 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
       setFocus(selector)
     }, 100)
   }
+
+  const isSavedAccount = !!(selectedAccount && selectedAccount !== NEW_ACCOUNT)
+  const authMethod = isSavedAccount
+    ? (selectedAccount as Account).authenticationMethod || 'password'
+    : hostConfig?.authenticationMethod || 'password'
+  const showSsoButton =
+    authMethod === 'saml2' && (isSavedAccount || loginStep === 'credentials')
+  const ssoButtonLabel =
+    hostConfig?.ssoButtonLabel || (t('Login.Sign in with SSO') as string)
 
   const RenderConnectionError = ({ handleRefreshConnection }) => {
     return (
@@ -417,22 +541,25 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
           {connection ? (
             <form onSubmit={handleSubmit(onSubmitForm)}>
               <div className='flex flex-col gap-7'>
-                {!(selectedAccount && selectedAccount !== NEW_ACCOUNT) && (
-                  <>
-                    <TextInput
-                      {...register('host')}
-                      type='text'
-                      label={t('Login.Host') as string}
-                      helper={errors.host?.message || undefined}
-                      error={!!errors.host?.message}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          submitButtonRef.current?.focus()
-                          handleSubmit(onSubmitForm)(e)
-                        }
-                      }}
-                    />
+                {!isSavedAccount && loginStep === 'host' && (
+                  <TextInput
+                    {...register('host')}
+                    type='text'
+                    label={t('Login.Host') as string}
+                    helper={errors.host?.message || undefined}
+                    error={!!errors.host?.message}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        submitButtonRef.current?.focus()
+                        handleSubmit(onSubmitForm)(e)
+                      }
+                    }}
+                  />
+                )}
+                {!isSavedAccount &&
+                  loginStep === 'credentials' &&
+                  authMethod === 'password' && (
                     <TextInput
                       {...register('username', {
                         setValueAs: (value) => value?.toLowerCase() || '',
@@ -449,28 +576,61 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                         }
                       }}
                     />
-                  </>
+                  )}
+                {authMethod === 'password' &&
+                  (isSavedAccount || loginStep === 'credentials') && (
+                    <TextInput
+                      {...register('password')}
+                      label={t('Login.Password') as string}
+                      type={pwdVisible ? 'text' : 'password'}
+                      icon={pwdVisible ? EyeIcon : EyeSlashIcon}
+                      onIconClick={() => setPwdVisible(!pwdVisible)}
+                      trailingIcon={true}
+                      helper={errors.password?.message || undefined}
+                      error={!!errors.password?.message}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          submitButtonRef.current?.focus()
+                          handleSubmit(onSubmitForm)(e)
+                        }
+                      }}
+                    />
+                  )}
+                {showSsoButton ? (
+                  <div className='flex flex-col gap-4'>
+                    <Button
+                      type='button'
+                      variant='primary'
+                      disabled={!hostConfig?.ssoLoginUrl}
+                      onClick={handleSsoLogin}
+                    >
+                      {ssoButtonLabel}
+                    </Button>
+                    {(hostConfig?.ssoIdpName || hostConfig?.ssoIdpLogo) && (
+                      <div className='flex items-center justify-center gap-2'>
+                        {hostConfig?.ssoIdpLogo && (
+                          <img
+                            src={hostConfig.ssoIdpLogo}
+                            alt=''
+                            className='h-5 w-auto'
+                          />
+                        )}
+                        {hostConfig?.ssoIdpName && (
+                          <span className='text-sm text-gray-700 dark:text-gray-200'>
+                            {hostConfig.ssoIdpName}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Button ref={submitButtonRef} type='submit' variant='primary'>
+                    {!isSavedAccount && loginStep === 'host'
+                      ? t('Login.Continue')
+                      : t('Login.Sign in')}
+                  </Button>
                 )}
-                <TextInput
-                  {...register('password')}
-                  label={t('Login.Password') as string}
-                  type={pwdVisible ? 'text' : 'password'}
-                  icon={pwdVisible ? EyeIcon : EyeSlashIcon}
-                  onIconClick={() => setPwdVisible(!pwdVisible)}
-                  trailingIcon={true}
-                  helper={errors.password?.message || undefined}
-                  error={!!errors.password?.message}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      submitButtonRef.current?.focus()
-                      handleSubmit(onSubmitForm)(e)
-                    }
-                  }}
-                />
-                <Button ref={submitButtonRef} type='submit' variant='primary'>
-                  {t('Login.Sign in')}
-                </Button>
               </div>
             </form>
           ) : (

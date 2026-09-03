@@ -18,7 +18,7 @@ import { Log } from '@shared/utils/logger'
 import { normalizeSharedGroups, serializeSharedGroups } from './phonebook'
 import { useNetwork } from './useNetwork'
 import { SpeeddialTypes } from './constants'
-import { requires2FA } from '@shared/utils/jwt'
+import { decodeJWT, requires2FA } from '@shared/utils/jwt'
 
 // Base paths for API endpoints (fallback from /api to /webrest)
 const PRIMARY_API_BASE_PATH = '/api'
@@ -357,6 +357,32 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
       // This should never be reached
       throw new Error('No authentication method available')
+    },
+
+    // Complete a Single Sign-On login: the JWT was already minted through the
+    // host SSO flow (see SSO_LOGIN in the main process), no password involved.
+    ssoLogin: async (host: string, token: string): Promise<Account> => {
+      const payload = decodeJWT(token)
+      const username = (payload?.username || payload?.id || '').toString().toLowerCase()
+      if (!username) {
+        throw new Error('Unauthorized')
+      }
+      account = {
+        host,
+        username,
+        theme: 'system',
+        jwtToken: token,
+        lastAccess: moment().toISOString(),
+        apiBasePath: PRIMARY_API_BASE_PATH,
+        authenticationMethod: 'saml2'
+      } as Account
+      const me = await User.me()
+      account.data = me
+      const nethlinkExtension = account.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+      if (!nethlinkExtension) {
+        throw new Error('User not authorized for NethLink')
+      }
+      return account
     },
 
     verify2FA: async (otp: string, tempAccount: Account | undefined): Promise<Account> => {

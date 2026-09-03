@@ -1,4 +1,4 @@
-import { Account } from "./types"
+import { Account, HostConfig } from "./types"
 
 export const useLogin = () => {
 
@@ -33,7 +33,22 @@ export const useLogin = () => {
     return account
   }
 
+  // Read the authentication capabilities; hosts without SSO support have no
+  // AUTHENTICATION_METHOD key and default to password.
+  const parseHostConfig = (config: string): HostConfig => {
+    const read = (key: string) => config.match(new RegExp(`${key}: '([^']*)'`))?.[1] || ''
+    const authenticationMethod = read('AUTHENTICATION_METHOD') === 'saml2' ? 'saml2' : 'password'
+    return {
+      authenticationMethod,
+      ssoLoginUrl: read('SSO_LOGIN_URL'),
+      ssoButtonLabel: read('SSO_BUTTON_LABEL'),
+      ssoIdpName: read('SSO_IDP_NAME'),
+      ssoIdpLogo: read('SSO_IDP_LOGO')
+    }
+  }
+
   return {
-    parseConfig
+    parseConfig,
+    parseHostConfig
   }
 }

@@ -161,6 +161,13 @@ export class AccountController {
             }
           }
 
+          // SSO accounts have no password: when the token expires the user
+          // must go through the interactive SSO flow again
+          if (lastLoggedAccount.authenticationMethod === 'saml2') {
+            Log.info('auto login failed: SSO account token expired, user interaction needed')
+            return false
+          }
+
           // Token is expired or doesn't exist, do a new login
           const tempLoggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
 

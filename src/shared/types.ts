@@ -47,6 +47,16 @@ export type Account = {
   commandBarShortcut?: string
   preferredDevices?: PreferredDevices
   apiBasePath?: string // Store which API path works for this account
+  authenticationMethod?: 'password' | 'saml2'
+}
+
+// authentication capabilities read from the host config/config.production.js
+export type HostConfig = {
+  authenticationMethod: 'password' | 'saml2'
+  ssoLoginUrl: string
+  ssoButtonLabel: string
+  ssoIdpName: string
+  ssoIdpLogo: string
 }
 
 export type PreferredDevices = {
@@ -57,8 +67,8 @@ export type PreferredDevices = {
 
 export type LoginData = {
   host: string
-  username: string
-  password: string
+  username?: string
+  password?: string
 }
 
 export type ConfigFile = {
@@ -455,6 +465,8 @@ export type LoginPageData = {
   isLoading: boolean
   windowHeight?: number
   showTwoFactor: boolean
+  loginStep: 'host' | 'credentials'
+  hostConfig?: HostConfig
 }
 
 export type AuthAppData = {
