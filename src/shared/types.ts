@@ -47,6 +47,22 @@ export type Account = {
   commandBarShortcut?: string
   preferredDevices?: PreferredDevices
   apiBasePath?: string // Store which API path works for this account
+  authenticationMethod?: AuthenticationMethod
+}
+
+// Pluggable authentication methods; 'saml2' and 'oidc' share the same SSO flow.
+export type AuthenticationMethod = 'password' | 'saml2' | 'oidc'
+
+export const isSsoMethod = (method?: AuthenticationMethod | string): boolean =>
+  method === 'saml2' || method === 'oidc'
+
+// authentication capabilities read from the host config/config.production.js
+export type HostConfig = {
+  authenticationMethod: AuthenticationMethod
+  ssoLoginUrl: string
+  ssoButtonLabel: string
+  ssoIdpName: string
+  ssoIdpLogo: string
 }
 
 export type PreferredDevices = {
@@ -57,8 +73,8 @@ export type PreferredDevices = {
 
 export type LoginData = {
   host: string
-  username: string
-  password: string
+  username?: string
+  password?: string
 }
 
 export type ConfigFile = {
@@ -455,6 +471,8 @@ export type LoginPageData = {
   isLoading: boolean
   windowHeight?: number
   showTwoFactor: boolean
+  loginStep: 'host' | 'credentials'
+  hostConfig?: HostConfig
 }
 
 export type AuthAppData = {

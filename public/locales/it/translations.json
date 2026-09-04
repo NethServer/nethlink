@@ -119,7 +119,10 @@
       "OTP verification failed": "Verifica OTP fallita",
       "Two-Factor Authentication": "Autenticazione a Due Fattori",
       "Enter the 6-digit code (OTP code) from your authenticator app. If you cannot access the app, you can use one recovery OTP code.": "Inserisci il codice a 6 cifre (codice OTP) dalla tua app di autenticazione. Se non puoi accedere all'app, puoi utilizzare un codice OTP di recupero."
-    }
+    },
+    "Continue": "Continua",
+    "Sign in with SSO": "Accedi con SSO",
+    "SSO login failed": "Accesso Single Sign-On non riuscito, riprova"
   },
   "SplashScreen": {
     "Description": "Benvenuti in NethLink, la soluzione desktop per comunicazioni senza confini. Effettua e ricevi chiamate, salva i contatti nella tua rubrica e molto altro ancora.",
