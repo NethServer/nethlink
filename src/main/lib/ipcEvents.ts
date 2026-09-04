@@ -510,7 +510,7 @@ export function registerIpcEvents() {
       request.on('error', (error) => settle(undefined, error.message))
       request.end('{}')
     }
-    // the SAML dance ends with a redirect to https://<host>/?ssologin=1: the
+    // the SSO flow ends with a redirect to https://<host>/?ssologin=1: the
     // session cookie is already set, mint the token instead of loading the app
     const checkUrl = (e: Electron.Event, newUrl: string) => {
       try {

@@ -1,4 +1,4 @@
-import { Account, HostConfig } from "./types"
+import { Account, AuthenticationMethod, HostConfig } from "./types"
 
 export const useLogin = () => {
 
@@ -37,7 +37,9 @@ export const useLogin = () => {
   // AUTHENTICATION_METHOD key and default to password.
   const parseHostConfig = (config: string): HostConfig => {
     const read = (key: string) => config.match(new RegExp(`${key}: '([^']*)'`))?.[1] || ''
-    const authenticationMethod = read('AUTHENTICATION_METHOD') === 'saml2' ? 'saml2' : 'password'
+    const method = read('AUTHENTICATION_METHOD')
+    const authenticationMethod: AuthenticationMethod =
+      method === 'saml2' || method === 'oidc' ? method : 'password'
     return {
       authenticationMethod,
       ssoLoginUrl: read('SSO_LOGIN_URL'),

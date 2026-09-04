@@ -3,6 +3,7 @@ import moment from 'moment'
 import hmacSHA1 from 'crypto-js/hmac-sha1'
 import {
   Account,
+  AuthenticationMethod,
   NewContactType,
   OperatorData,
   ContactType,
@@ -361,7 +362,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
     // Complete a Single Sign-On login: the JWT was already minted through the
     // host SSO flow (see SSO_LOGIN in the main process), no password involved.
-    ssoLogin: async (host: string, token: string): Promise<Account> => {
+    ssoLogin: async (host: string, token: string, method: AuthenticationMethod = 'saml2'): Promise<Account> => {
       const payload = decodeJWT(token)
       const username = (payload?.username || payload?.id || '').toString().toLowerCase()
       if (!username) {
@@ -374,7 +375,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         jwtToken: token,
         lastAccess: moment().toISOString(),
         apiBasePath: PRIMARY_API_BASE_PATH,
-        authenticationMethod: 'saml2'
+        authenticationMethod: method
       } as Account
       const me = await User.me()
       account.data = me

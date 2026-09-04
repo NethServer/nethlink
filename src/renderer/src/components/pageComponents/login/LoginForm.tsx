@@ -11,7 +11,7 @@ import {
 import { t } from 'i18next'
 import { useEffect, useRef, useState } from 'react'
 import { Button, TextInput } from '@renderer/components/Nethesis'
-import { Account, HostConfig, LoginData } from '@shared/types'
+import { Account, HostConfig, LoginData, isSsoMethod } from '@shared/types'
 import { DisplayedAccountLogin } from './DisplayedAccountLogin'
 import { OTPInput, OTPInputRef } from './OTPInput'
 import { useLoginPageData, useSharedState } from '@renderer/store'
@@ -103,7 +103,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
           reset()
           setValue('host', selectedAccount.host)
           setValue('username', selectedAccount.username)
-          if (selectedAccount.authenticationMethod === 'saml2') {
+          if (isSsoMethod(selectedAccount.authenticationMethod)) {
             // the SSO entry point is read from the host at every login
             fetchHostConfig(selectedAccount.host)
           } else {
@@ -204,7 +204,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     window.electron.send(IPC_EVENTS.GET_HOST_CONFIG, host)
   }
 
-  // Single Sign-On: the main process runs the SAML dance in a dedicated
+  // Single Sign-On: the main process runs the SSO flow in a dedicated
   // window and returns the minted JWT
   function handleSsoLogin() {
     if (isLoading || !hostConfig?.ssoLoginUrl) return
@@ -228,6 +228,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
         const loggedAccount = await NethVoiceAPI.Authentication.ssoLogin(
           host,
           res.token,
+          hostConfig?.authenticationMethod,
         )
         completeLogin(loggedAccount, '')
         setError(() => undefined)
@@ -412,7 +413,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     ? (selectedAccount as Account).authenticationMethod || 'password'
     : hostConfig?.authenticationMethod || 'password'
   const showSsoButton =
-    authMethod === 'saml2' && (isSavedAccount || loginStep === 'credentials')
+    isSsoMethod(authMethod) && (isSavedAccount || loginStep === 'credentials')
   const ssoButtonLabel =
     hostConfig?.ssoButtonLabel || (t('Login.Sign in with SSO') as string)
 

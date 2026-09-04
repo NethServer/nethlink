@@ -1,4 +1,4 @@
-import { Account, LoginData } from '@shared/types'
+import { Account, LoginData, isSsoMethod } from '@shared/types'
 import classNames from 'classnames'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import spinner from '../assets/loginPageSpinner.svg'
@@ -139,7 +139,7 @@ export function LoginPage({
       if (selectedAccount === NEW_ACCOUNT) {
         if (loginStep === 'host') {
           loginWindowHeight = LoginSizes.HOST_STEP
-        } else if (hostConfig?.authenticationMethod === 'saml2') {
+        } else if (hostConfig && isSsoMethod(hostConfig.authenticationMethod)) {
           loginWindowHeight = LoginSizes.SSO_STEP
           if (hostConfig.ssoIdpName || hostConfig.ssoIdpLogo) {
             loginWindowHeight += 40
