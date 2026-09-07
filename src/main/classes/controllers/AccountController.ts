@@ -1,4 +1,4 @@
-import { Account, AuthAppData, AvailableDevices, ConfigFile, PhoneIslandPosition } from '@shared/types'
+import { Account, AuthAppData, AvailableDevices, ConfigFile, PhoneIslandPosition, isSsoMethod } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { safeStorage } from 'electron'
 import { store } from '@/lib/mainStore'
@@ -159,6 +159,13 @@ export class AccountController {
             } else {
               Log.info('auto login: saved token expired, need to re-login')
             }
+          }
+
+          // SSO accounts have no password: when the token expires the user
+          // must go through the interactive SSO flow again
+          if (isSsoMethod(lastLoggedAccount.authenticationMethod)) {
+            Log.info('auto login failed: SSO account token expired, user interaction needed')
+            return false
           }
 
           // Token is expired or doesn't exist, do a new login

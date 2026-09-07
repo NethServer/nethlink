@@ -76,7 +76,7 @@ function startup() {
 
     ipcMain.on(IPC_EVENTS.LOGIN, async (e, props?: { account?: Account, password?: string, showNethlink: boolean, }) => {
       const { password, showNethlink, account } = props || { showNethlink: true }
-      if (LoginController.instance && LoginController.instance.window.isOpen() && password && account) {
+      if (LoginController.instance && LoginController.instance.window.isOpen() && password !== undefined && account) {
         Log.info("LOGIN SUCCESS")
         await LoginController.instance.quit()
         await AccountController.instance.saveLoggedAccount(account, password)
