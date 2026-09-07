@@ -122,7 +122,8 @@
     },
     "Continue": "Continue",
     "Sign in with SSO": "Sign in with SSO",
-    "SSO login failed": "Single Sign-On failed, try again"
+    "SSO login failed": "Single Sign-On failed, try again",
+    "SSO user not enabled": "You signed in on the identity provider, but this user is not enabled to use the CTI. Contact your administrator."
   },
   "SplashScreen": {
     "Description": "Welcome to NethLink, a desktop solution for seamless communication. Make and receive calls, save contacts to you phonebook and much more.",

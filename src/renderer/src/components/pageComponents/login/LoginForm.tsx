@@ -219,7 +219,11 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
         setIsLoading(false)
         if (res.error !== 'SSO window closed') {
           Log.warning('LOGIN SSO failed', res.error)
-          setError(() => new Error(t('Login.SSO login failed')!))
+          const msg =
+            res.error === 'SSO_USER_NOT_ENABLED'
+              ? t('Login.SSO user not enabled')
+              : t('Login.SSO login failed')
+          setError(() => new Error(msg!))
         }
         return
       }

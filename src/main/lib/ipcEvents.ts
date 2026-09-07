@@ -501,6 +501,10 @@ export function registerIpcEvents() {
           try {
             const token = JSON.parse(body).token
             if (response.statusCode === 200 && token) settle(token)
+            // authenticated on the IdP but the mint was rejected: a 401/403
+            // means the user is not enabled on this CTI
+            else if (response.statusCode === 401 || response.statusCode === 403)
+              settle(undefined, 'SSO_USER_NOT_ENABLED')
             else settle(undefined, `SSO login failed with status ${response.statusCode}`)
           } catch {
             settle(undefined, 'SSO login failed: invalid response')
