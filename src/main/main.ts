@@ -6,7 +6,7 @@ import { registerIpcEvents, isCallActive, disableCommandBarShortcuts } from '@/l
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
 import { CommandBarController } from './classes/controllers/CommandBarController'
-import { Account, AuthAppData, AvailableThemes } from '@shared/types'
+import { Account, AuthAppData, AvailableThemes, LocalStorageData } from '@shared/types'
 import { TrayController } from './classes/controllers/TrayController'
 import { LoginController } from './classes/controllers/LoginController'
 import { join, resolve } from 'path'
@@ -56,6 +56,7 @@ function startup() {
   app.setAppUserModelId('com.nethesis.nethlink.app') //must match electron-builder appId so Windows notification permissions and taskbar pinning work correctly
   ///LOGGER
   startLogger()
+  attachGlobalErrorHandlers()
 
   //windows
   const gotTheLock = multipleInstances || app.requestSingleInstanceLock()
@@ -214,6 +215,21 @@ function startLogger() {
   deleteLogFile()
 }
 
+/**
+ * Without these the main process swallows any rejection coming from the several fire
+ * and forget async flows, which makes issues that only show up on customer machines
+ * - a crash during startup leaving the app stuck on the splash screen - invisible in
+ * the logs.
+ */
+function attachGlobalErrorHandlers() {
+  process.on('unhandledRejection', (reason) => {
+    Log.error('UNHANDLED REJECTION', reason)
+  })
+  process.on('uncaughtException', (error) => {
+    Log.error('UNCAUGHT EXCEPTION', error)
+  })
+}
+
 function attachOnReadyProcess() {
   new AppController(app)
   new NetworkController()
@@ -242,13 +258,13 @@ function attachOnReadyProcess() {
           // Wait for unlock-screen event before starting
           powerMonitor.once('unlock-screen', () => {
             Log.info('Windows unlocked, starting app now...')
-            setTimeout(startApp, 1000)
+            setTimeout(() => safeStartApp(0), 1000)
           })
           return
         }
       }
       // Normal flow: start after 1 second
-      setTimeout(startApp, 1000)
+      setTimeout(() => safeStartApp(0), 1000)
     })
     await attachProtocolListeners()
 
@@ -300,12 +316,12 @@ function attachOnReadyProcess() {
   let waitingForConnection = false
 
   async function startApp(attempt = 0) {
-    let data = store.store || store.getFromDisk()
+    let data: LocalStorageData | null = store.store || store.getFromDisk()
     if (!checkData(data)) {
       if (attempt === 0) {
         data = store.getFromDisk()
         store.updateStore(data, 'startApp')
-        startApp(++attempt)
+        safeStartApp(++attempt)
         return;
       } else {
         await resetApp()
@@ -337,7 +353,7 @@ function attachOnReadyProcess() {
         }
 
         retryAppStart = setTimeout(() => {
-          startApp(++attempt)
+          safeStartApp(++attempt)
         }, 1000)
       } else {
         if (retryAppStart) {
@@ -382,6 +398,36 @@ function attachOnReadyProcess() {
     }
   }
 
+  /**
+   * startApp is always launched in a fire and forget fashion: without this guard an
+   * unexpected rejection - a corrupted user data file being the known case - leaves
+   * the splash screen up forever, since nothing would ever reach showLogin() nor
+   * SplashScreenController.quit(). Degrading to the login window is always better
+   * than a frozen "starting application" screen.
+   */
+  function safeStartApp(attempt = 0) {
+    startApp(attempt).catch((error) => {
+      Log.error('START - unrecoverable error while starting the app', error)
+      try {
+        showLogin()
+      } catch (e) {
+        Log.error('START - unable to show the login window', e)
+      }
+      try {
+        SplashScreenController.instance.window.quit(true)
+      } catch (e) {
+        Log.error('START - unable to close the splash screen', e)
+      }
+      try {
+        TrayController.instance.updateTray({
+          enableShowButton: true
+        })
+      } catch (e) {
+        Log.error('START - unable to update the tray', e)
+      }
+    })
+  }
+
   // Polling interval for checking connection when waiting
   let connectionCheckInterval: NodeJS.Timeout | null = null
 
@@ -404,7 +450,7 @@ function attachOnReadyProcess() {
         } catch (e) {
           // Splash screen might be closed
         }
-        startApp(0)
+        safeStartApp(0)
       }
     }, 5000) // Check every 5 seconds
   }
@@ -421,7 +467,7 @@ function attachOnReadyProcess() {
     Log.info('START - user requested connection retry')
     waitingForConnection = false
     stopConnectionPolling()
-    startApp(0)
+    safeStartApp(0)
   })
 
   app.on('window-all-closed', () => {
