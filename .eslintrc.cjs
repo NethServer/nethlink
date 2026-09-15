@@ -8,14 +8,11 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:react/jsx-runtime',
+    'plugin:react-hooks/recommended',
+    'plugin:@typescript-eslint/recommended',
     '@electron-toolkit/eslint-config-ts/recommended',
     '@electron-toolkit/eslint-config-prettier',
-    'eslint:recommended',
-    'plugin:react/recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-    'react-app',
-    'react-app/jest'
+    'prettier'
   ],
   rules: {
     // disable the rule for all files
@@ -31,8 +28,7 @@ module.exports = {
     'spaced-comment': 'error',
     quotes: ['error', 'single'],
     'no-duplicate-imports': 'error',
-    'react/display-name': false,
-    'import/no-anonymous-default-export': 'off'
+    'react/display-name': 'off'
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -44,8 +40,8 @@ module.exports = {
   },
   plugins: ['react', 'react-hooks', '@typescript-eslint', 'prettier'],
   settings: {
-    'import/resolver': {
-      typescript: {}
+    react: {
+      version: 'detect'
     }
   }
 }
