@@ -1,36 +1,39 @@
-import { NotificationConstructorOptions, contextBridge, ipcRenderer } from 'electron'
+import {
+  NotificationConstructorOptions,
+  contextBridge,
+  ipcRenderer,
+} from 'electron'
 import os from 'os'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS } from '@shared/constants'
-import {
-  Account,
-  ContactType,
-  Size,
-} from '@shared/types'
+import { Account, ContactType, Size } from '@shared/types'
 import { preloadBindings } from 'i18next-electron-fs-backend'
 
 export interface IElectronAPI {
-  env: NodeJS.ProcessEnv,
-  appVersion: string,
-  platform: string,
-  osRelease: string,
-  arch: string,
+  env: NodeJS.ProcessEnv
+  appVersion: string
+  platform: string
+  osRelease: string
+  arch: string
 
   // Use `contextBridge` APIs to expose Electron APIs to
   // renderer only if context isolation is enabled, otherwise
   // just add to the DOM global.
-  //TRANSLATIONS
+  // TRANSLATIONS
   i18nextElectronBackend: any
 
-  //SYNC EMITTERS - expect response
-  login: (host: string, username: string, password: string) => Promise<Account | undefined>
+  // SYNC EMITTERS - expect response
+  login: (
+    host: string,
+    username: string,
+    password: string,
+  ) => Promise<Account | undefined>
   deleteSpeedDial(contact: ContactType): Promise<string>
   getLocale(): Promise<string>
   onStartCall(callback: (number: string | number) => void): void
   onUpdateAppNotification(showUpdateAppNotification: () => void): void
 
-
-  //EMITTER - only emit, no response
+  // EMITTER - only emit, no response
   openDevTool(hash: string): unknown
   sendNotification(
     title: string,
@@ -49,14 +52,14 @@ export interface IElectronAPI {
   hidePhoneIsland(): void
   showPhoneIsland(size: Size): void
   copyToClipboard(text: string): void
-
 }
 
 const customElectronAPI = {
   ...electronAPI,
   send: (channel, ...data) => ipcRenderer.send(channel, ...data),
-  receive: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args)),
-  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)
+  receive: (channel, func) =>
+    ipcRenderer.on(channel, (event, ...args) => func(...args)),
+  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
 }
 
 function addListener(channel) {
@@ -70,12 +73,15 @@ function addListener(channel) {
 function setEmitterSync<T>(event): () => Promise<T> {
   return async (...args): Promise<T> => {
     return await new Promise((resolve, reject) => {
-      //this timout is used to execute the react setters before sendSync freezes the UI
+      // this timout is used to execute the react setters before sendSync freezes the UI
       setTimeout(() => {
-        const [returnValue, err] = ipcRenderer.sendSync(event, ...args) as [T, Error | undefined]
+        const [returnValue, err] = ipcRenderer.sendSync(event, ...args) as [
+          T,
+          Error | undefined,
+        ]
         if (err) reject(err)
         else resolve(returnValue)
-      }, 100);
+      }, 100)
     })
   }
 }
@@ -94,11 +100,11 @@ const api: IElectronAPI = {
   osRelease: os.release(),
   arch: process.arch,
   i18nextElectronBackend: preloadBindings(ipcRenderer, process),
-  //SYNC EMITTERS - expect response
+  // SYNC EMITTERS - expect response
   login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
   getLocale: setEmitterSync<string>(IPC_EVENTS.GET_LOCALE),
 
-  //EMITTER - only emit, no response
+  // EMITTER - only emit, no response
   sendInitializationCompleted: setEmitter(IPC_EVENTS.INITIALIZATION_COMPELTED),
   openDevTool: setEmitter(IPC_EVENTS.OPEN_DEV_TOOLS),
   hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
@@ -113,9 +119,8 @@ const api: IElectronAPI = {
   copyToClipboard: setEmitter(IPC_EVENTS.COPY_TO_CLIPBOARD),
   sendNotification: setEmitter(IPC_EVENTS.SEND_NOTIFICATION),
 
-  //LISTENERS - receive data async
+  // LISTENERS - receive data async
   onUpdateAppNotification: addListener(IPC_EVENTS.UPDATE_APP_NOTIFICATION),
-
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

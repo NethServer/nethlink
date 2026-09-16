@@ -1,15 +1,10 @@
-import {
-  IPC_EVENTS, PHONE_ISLAND_EVENTS,
-} from "@shared/constants"
-import {
-  PhoneIslandData,
-  PhoneIslandSizes,
-} from "@shared/types"
-import { Log } from "@shared/utils/logger"
-import { useState, useRef, useCallback, useEffect } from "react"
-import { t } from "i18next"
-import { sendNotification, sendSystemNotification } from "@renderer/utils"
-import { useSharedState } from "@renderer/store"
+import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { PhoneIslandData, PhoneIslandSizes } from '@shared/types'
+import { Log } from '@shared/utils/logger'
+import { useState, useRef, useCallback, useEffect } from 'react'
+import { t } from 'i18next'
+import { sendNotification, sendSystemNotification } from '@renderer/utils'
+import { useSharedState } from '@renderer/store'
 
 // Track readiness state for both WebRTC and Socket
 // Using module-level variables to persist across re-renders and ensure proper state tracking
@@ -17,36 +12,41 @@ let isWebRTCRegistered = false
 let isSocketAuthorized = false
 let hasTriggeredPhoneIslandReady = false
 
-
 const defaultSize: PhoneIslandSizes = {
   sizes: {
     width: '0px',
-    height: '0px'
-  }
+    height: '0px',
+  },
 }
 const defaultCall = {
   accepted: false,
   incoming: false,
   outgoing: false,
-  transferring: false
+  transferring: false,
 }
 
 // Function to check if both WebRTC and Socket are ready, and trigger PHONE_ISLAND_READY
 const checkAndTriggerPhoneIslandReady = () => {
-  Log.info("checkAndTriggerPhoneIslandReady", {
+  Log.info('checkAndTriggerPhoneIslandReady', {
     isWebRTCRegistered,
     isSocketAuthorized,
-    hasTriggeredPhoneIslandReady
+    hasTriggeredPhoneIslandReady,
   })
 
-  if (isWebRTCRegistered && isSocketAuthorized && !hasTriggeredPhoneIslandReady) {
+  if (
+    isWebRTCRegistered &&
+    isSocketAuthorized &&
+    !hasTriggeredPhoneIslandReady
+  ) {
     hasTriggeredPhoneIslandReady = true
-    Log.info("Both WebRTC and Socket are ready - sending PHONE_ISLAND_READY event")
+    Log.info(
+      'Both WebRTC and Socket are ready - sending PHONE_ISLAND_READY event',
+    )
     window.electron.send(IPC_EVENTS.PHONE_ISLAND_READY)
   } else if (!isWebRTCRegistered || !isSocketAuthorized) {
-    Log.info("Waiting for both WebRTC and Socket to be ready", {
+    Log.info('Waiting for both WebRTC and Socket to be ready', {
       waitingForWebRTC: !isWebRTCRegistered,
-      waitingForSocket: !isSocketAuthorized
+      waitingForSocket: !isSocketAuthorized,
     })
   }
 }
@@ -56,391 +56,528 @@ export const resetPhoneIslandReadyState = () => {
   isWebRTCRegistered = false
   isSocketAuthorized = false
   hasTriggeredPhoneIslandReady = false
-  Log.info("Phone island ready state reset")
+  Log.info('Phone island ready state reset')
 }
 
 export const usePhoneIslandEventListener = () => {
   const [account] = useSharedState('account')
   const [connected, setConnected] = useSharedState('connection')
-  const [availableRingtones, setAvailableRingtones] = useSharedState('availableRingtones')
+  const [availableRingtones, setAvailableRingtones] =
+    useSharedState('availableRingtones')
   const notifiedSummaryIdsRef = useRef<Set<string>>(new Set())
   const watchedSummaryIdsRef = useRef<Set<string>>(new Set())
 
   const [phoneIslandData, setPhoneIslandData] = useState<PhoneIslandData>({
     activeAlerts: {},
     currentCall: {
-      ...defaultCall
+      ...defaultCall,
     },
     isActionExpanded: false,
     isListen: false,
     isOpen: true,
-    view: null
+    view: null,
   })
-  const [phoneIsalndSizes, setPhoneIslandSizes] = useState<PhoneIslandSizes>(defaultSize)
+  const [phoneIsalndSizes, setPhoneIslandSizes] =
+    useState<PhoneIslandSizes>(defaultSize)
 
   useEffect(() => {
     notifiedSummaryIdsRef.current.clear()
     watchedSummaryIdsRef.current.clear()
   }, [account?.username])
 
-
-  const eventHandler = (event: PHONE_ISLAND_EVENTS, callback?: (data?: any) => void | Promise<void>) => ({
+  const eventHandler = (
+    event: PHONE_ISLAND_EVENTS,
+    callback?: (data?: any) => void | Promise<void>,
+  ) => ({
     [event]: (...data) => {
       const customEvent = data[0]
       const detail = customEvent['detail']
       // Don't log ringtone list response details (contains large base64 data)
-      if (event !== PHONE_ISLAND_EVENTS["phone-island-ringing-tone-list-response"]) {
+      if (
+        event !== PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list-response']
+      ) {
         Log.debug('PHONE ISLAND', event, data, detail)
       } else {
         Log.debug('PHONE ISLAND', event, '(ringtone data omitted)')
       }
       callback?.(detail)
-    }
+    },
   })
 
   return {
     state: phoneIslandData,
     phoneIsalndSizes,
     events: {
-      //SIZE CHANGE
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-size-changed"], (data) => {
-        setPhoneIslandSizes(() => ({ ...data }))
-      }),
-      //CALLS
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-action-physical"], async (data) => {
-        window.electron.send(IPC_EVENTS.START_CALL_BY_URL, data.urlCallObject.url)
-        Log.debug('phone-island-action-physical', data.urlCallObject.url)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ringing"]),
+      // SIZE CHANGE
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-size-changed'],
+        (data) => {
+          setPhoneIslandSizes(() => ({ ...data }))
+        },
+      ),
+      // CALLS
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-action-physical'],
+        async (data) => {
+          window.electron.send(
+            IPC_EVENTS.START_CALL_BY_URL,
+            data.urlCallObject.url,
+          )
+          Log.debug('phone-island-action-physical', data.urlCallObject.url)
+        },
+      ),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-ringing']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-hold"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-held"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-hold']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-held']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-unheld"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-unhold"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-unheld']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-unhold']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-actions-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-actions-closed"], () => {
-        setPhoneIslandData((p) => ({ ...p, isActionExpanded: false }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-actions-close']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-actions-closed'],
+        () => {
+          setPhoneIslandData((p) => ({ ...p, isActionExpanded: false }))
+        },
+      ),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-actions-open"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-actions-opened"], () => {
-        setPhoneIslandData((p) => ({ ...p, isActionExpanded: true }))
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-actions-open']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-actions-opened'],
+        () => {
+          setPhoneIslandData((p) => ({ ...p, isActionExpanded: true }))
+        },
+      ),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answer"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-answered"], () => {
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-answer']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-answered'], () => {
         // Incoming call answered - mark as active call
         window.electron.send(IPC_EVENTS.EMIT_CALL_ACTIVE)
       }),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-input-switch"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-input-switched"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-output-switch"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-audio-output-switched"]),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-audio-input-switch'],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-audio-input-switched'],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-audio-output-switch'],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-audio-output-switched'],
+      ),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-start"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-started"], () => {
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-start']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-started'], () => {
         // Outgoing call started - mark as active call
         window.electron.send(IPC_EVENTS.EMIT_CALL_ACTIVE)
       }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-end"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-ended"], () => {
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-end']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-ended'], () => {
         window.electron.send(IPC_EVENTS.EMIT_CALL_END)
       }),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-intrude"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-intruded"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-intrude']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-intruded']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-closed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-open"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-opened"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-send"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-keypad-sent"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-keypad-close']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-keypad-closed']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-keypad-open']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-keypad-opened']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-keypad-send']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-keypad-sent']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-listen"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-listened"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-listen']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-listened']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-mute"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-muted"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-unmute"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-unmuted"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-mute']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-muted']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-unmute']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-unmuted']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-park"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-parked"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-park']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-parked']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfered"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-cancel"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-canceled"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-closed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-failed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-open"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-opened"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully-popup-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-successfully-popup-open"],
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-transfered']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-transfer-cancel']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-transfer-canceled'],
+      ),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-transfer-close']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-transfer-closed']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-transfer-failed']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-transfer-open']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-transfer-opened']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-transfer-successfully'],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS[
+          'phone-island-call-transfer-successfully-popup-close'
+        ],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS[
+          'phone-island-call-transfer-successfully-popup-open'
+        ],
         () => {
           sendNotification(
             t('Notification.call_transferred_title'),
-            t('Notification.call_transferred_body')
+            t('Notification.call_transferred_body'),
           )
-        }
+        },
       ),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-switch"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-call-transfer-switched"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-transfer-switch']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-call-transfer-switched'],
+      ),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-attach"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-attached"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-attach']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-attached']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-input-change"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-input-changed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-output-change"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-output-changed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-video-input-changed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-video-output-changed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-closed"], () => {
-        window.electron.send(IPC_EVENTS.AUDIO_PLAYER_CLOSED)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-pause"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-paused"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-play"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-played"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-start"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-audio-player-started"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-input-change']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-input-changed']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-output-change']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-output-changed']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-video-input-changed']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-video-output-changed']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-player-close']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-audio-player-closed'],
+        () => {
+          window.electron.send(IPC_EVENTS.AUDIO_PLAYER_CLOSED)
+        },
+      ),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-player-pause']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-player-paused']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-player-play']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-player-played']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-player-start']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-audio-player-started']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-compress"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-compressed"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-compress']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-compressed']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expand"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-expanded"]),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-expand']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-expanded']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-conversations"], (data) => {
-        const username = account?.username
-        const conversations = username ? data?.[username]?.conversations : undefined
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-conversations'],
+        (data) => {
+          const username = account?.username
+          const conversations = username
+            ? data?.[username]?.conversations
+            : undefined
 
-        if (!conversations) {
-          return
-        }
-
-        let latestOutgoingConversation: any = null
-        Object.values(conversations).forEach((conversation: any) => {
-          if (!conversation?.connected || conversation?.direction !== 'out' || !conversation?.linkedId) {
+          if (!conversations) {
             return
           }
 
-          if (!latestOutgoingConversation) {
-            latestOutgoingConversation = conversation
-            return
-          }
+          let latestOutgoingConversation: any = null
+          Object.values(conversations).forEach((conversation: any) => {
+            if (
+              !conversation?.connected ||
+              conversation?.direction !== 'out' ||
+              !conversation?.linkedId
+            ) {
+              return
+            }
 
-          const latestStartTime = latestOutgoingConversation.startTime ?? 0
-          const currentStartTime = conversation.startTime ?? 0
-          if (currentStartTime > latestStartTime) {
-            latestOutgoingConversation = conversation
-          }
-        })
+            if (!latestOutgoingConversation) {
+              latestOutgoingConversation = conversation
+              return
+            }
 
-      }),
+            const latestStartTime = latestOutgoingConversation.startTime ?? 0
+            const currentStartTime = conversation.startTime ?? 0
+            if (currentStartTime > latestStartTime) {
+              latestOutgoingConversation = conversation
+            }
+          })
+        },
+      ),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-change"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-changed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-default-device-updated"], (e) => {
-        Log.debug('"phone-island-default-device-updated', e)
-        window.electron.send(IPC_EVENTS.UPDATE_ACCOUNT)
-      }), //update the status of device from server
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-detach"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-detached"]),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-default-device-change'],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-default-device-changed'],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-default-device-updated'],
+        (e) => {
+          Log.debug('"phone-island-default-device-updated', e)
+          window.electron.send(IPC_EVENTS.UPDATE_ACCOUNT)
+        },
+      ), // update the status of device from server
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-detach']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-detached']),
 
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-main-presence'],
+        (data) => {
+          window.electron.send(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, data)
+        },
+      ),
 
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-parking-update'],
+        () => {
+          window.electron.send(IPC_EVENTS.EMIT_PARKING_UPDATE)
+        },
+      ),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-main-presence"], (data) => {
-        window.electron.send(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, data)
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-queue-member-update']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-queue-update'],
+        (data) => {
+          window.electron.send(IPC_EVENTS.EMIT_QUEUE_UPDATE, data)
+        },
+      ),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-parking-update"], () => {
-        window.electron.send(IPC_EVENTS.EMIT_PARKING_UPDATE)
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-close']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-closed']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-delete']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-deleted']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-open']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-opened']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-pause']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-paused']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-play']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-played']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-save']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-saved']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-start']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-started']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-stop']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-recording-stopped']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-queue-member-update"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-queue-update"], (data) => {
-        window.electron.send(IPC_EVENTS.EMIT_QUEUE_UPDATE, data)
-      }),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-server-disconnected']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-server-reloaded']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-closed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-delete"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-deleted"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-open"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-opened"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-pause"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-paused"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-play"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-played"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-save"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-saved"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-start"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-started"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-stop"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-recording-stopped"]),
-
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-disconnected"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-server-reloaded"]),
-
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-connected"], () => {
-        setConnected(true)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-close"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-disconnected-popup-open"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-reconnected"], () => {
-        window.electron.send(IPC_EVENTS.RECONNECT_SOCKET)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-internet-connected"], () => {
-        if (account && !connected) {
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-socket-connected'],
+        () => {
           setConnected(true)
-        }
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-internet-disconnected"], () => {
-        if (account && connected) {
-          setConnected(false)
-        }
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-theme-change"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-theme-changed"]),
+        },
+      ),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-socket-disconnected']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-close'],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-socket-disconnected-popup-open'],
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-socket-reconnected'],
+        () => {
+          window.electron.send(IPC_EVENTS.RECONNECT_SOCKET)
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-internet-connected'],
+        () => {
+          if (account && !connected) {
+            setConnected(true)
+          }
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-internet-disconnected'],
+        () => {
+          if (account && connected) {
+            setConnected(false)
+          }
+        },
+      ),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-theme-change']),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-theme-changed']),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-user-already-login"], () => {
-        window.api.logout()
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-webrtc-registered"], () => {
-        Log.info("phone-island-webrtc-registered received")
-        isWebRTCRegistered = true
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-user-already-login'],
+        () => {
+          window.api.logout()
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-webrtc-registered'],
+        () => {
+          Log.info('phone-island-webrtc-registered received')
+          isWebRTCRegistered = true
 
-        // Request ringtone list from phone-island
-        Log.info("Requesting ringtone list from phone-island")
-        const ringtoneListEvent = new CustomEvent(PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list'], {})
-        window.dispatchEvent(ringtoneListEvent)
+          // Request ringtone list from phone-island
+          Log.info('Requesting ringtone list from phone-island')
+          const ringtoneListEvent = new CustomEvent(
+            PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list'],
+            {},
+          )
+          window.dispatchEvent(ringtoneListEvent)
 
-        // Check if both WebRTC and Socket are ready
-        setTimeout(() => {
+          // Check if both WebRTC and Socket are ready
+          setTimeout(() => {
+            checkAndTriggerPhoneIslandReady()
+          }, 500)
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-socket-authorized'],
+        () => {
+          Log.info('phone-island-socket-authorized received')
+          isSocketAuthorized = true
+
+          // Check if both WebRTC and Socket are ready
           checkAndTriggerPhoneIslandReady()
-        }, 500)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-socket-authorized"], () => {
-        Log.info("phone-island-socket-authorized received")
-        isSocketAuthorized = true
-
-        // Check if both WebRTC and Socket are ready
-        checkAndTriggerPhoneIslandReady()
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"]),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-fullscreen-entered"], () => {
-        window.electron.send(IPC_EVENTS.FULLSCREEN_ENTER)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-fullscreen-exited"], () => {
-        window.electron.send(IPC_EVENTS.FULLSCREEN_EXIT)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-screen-share-initialized"], () => {
-        window.electron.send(IPC_EVENTS.SCREEN_SHARE_INIT)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-url-parameter-opened-external"], (data) => {
-        window.electron.send(IPC_EVENTS.URL_OPEN, data.formattedUrl)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-already-opened-external-page"]),
+        },
+      ),
+      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-all-alerts-removed']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-fullscreen-entered'],
+        () => {
+          window.electron.send(IPC_EVENTS.FULLSCREEN_ENTER)
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-fullscreen-exited'],
+        () => {
+          window.electron.send(IPC_EVENTS.FULLSCREEN_EXIT)
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-screen-share-initialized'],
+        () => {
+          window.electron.send(IPC_EVENTS.SCREEN_SHARE_INIT)
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-url-parameter-opened-external'],
+        (data) => {
+          window.electron.send(IPC_EVENTS.URL_OPEN, data.formattedUrl)
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-already-opened-external-page'],
+      ),
 
       // Ringtone events
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-list-response"], (data) => {
-        const ringtoneList = data?.ringtones || []
-        Log.info('Received', ringtoneList.length, 'ringtones from phone-island')
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-ringing-tone-list-response'],
+        (data) => {
+          const ringtoneList = data?.ringtones || []
+          Log.info(
+            'Received',
+            ringtoneList.length,
+            'ringtones from phone-island',
+          )
 
-        setAvailableRingtones(ringtoneList.map((r: any) => ({
-          name: r.name,
-          base64: r.base64Audio || r.base64 || ''
-        })))
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-selected"], (data) => {
-        Log.info('Phone-island confirmed ringtone selected:', data?.name)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-ringing-tone-output-changed"], (data) => {
-        Log.info('Phone-island confirmed output device changed:', data?.deviceId)
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-not-ready"], (data) => {
-        const linkedid = data?.linkedid
-        const isSummaryEnabled = account?.data?.call_summary_enabled === true
-        const isSummaryNotificationEnabled =
-          account?.data?.settings?.call_summary_notifications !== false
+          setAvailableRingtones(
+            ringtoneList.map((r: any) => ({
+              name: r.name,
+              base64: r.base64Audio || r.base64 || '',
+            })),
+          )
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-ringing-tone-selected'],
+        (data) => {
+          Log.info('Phone-island confirmed ringtone selected:', data?.name)
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-ringing-tone-output-changed'],
+        (data) => {
+          Log.info(
+            'Phone-island confirmed output device changed:',
+            data?.deviceId,
+          )
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-summary-not-ready'],
+        (data) => {
+          const linkedid = data?.linkedid
+          const isSummaryEnabled = account?.data?.call_summary_enabled === true
+          const isSummaryNotificationEnabled =
+            account?.data?.settings?.call_summary_notifications !== false
 
-        if (!linkedid) {
-          return
-        }
+          if (!linkedid) {
+            return
+          }
 
-        if (!account) {
-          return
-        }
+          if (!account) {
+            return
+          }
 
-        if (!isSummaryEnabled) {
-          return
-        }
+          if (!isSummaryEnabled) {
+            return
+          }
 
-        if (!isSummaryNotificationEnabled) {
-          return
-        }
+          if (!isSummaryNotificationEnabled) {
+            return
+          }
 
-        if (watchedSummaryIdsRef.current.has(linkedid)) {
-          return
-        }
+          if (watchedSummaryIdsRef.current.has(linkedid)) {
+            return
+          }
 
-        watchedSummaryIdsRef.current.add(linkedid)
-        window.dispatchEvent(new CustomEvent('phone-island-call-summary-notify', {
-          detail: { linkedid }
-        }))
-      }),
-      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-summary-ready"], (data) => {
-        const linkedid = data?.linkedid
-        const displayName = data?.display_name?.trim?.() || ''
-        const displayNumber = data?.display_number?.trim?.() || ''
-        const isSummaryEnabled = account?.data?.call_summary_enabled === true
-        const isSummaryNotificationEnabled =
-          account?.data?.settings?.call_summary_notifications !== false
+          watchedSummaryIdsRef.current.add(linkedid)
+          window.dispatchEvent(
+            new CustomEvent('phone-island-call-summary-notify', {
+              detail: { linkedid },
+            }),
+          )
+        },
+      ),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-summary-ready'],
+        (data) => {
+          const linkedid = data?.linkedid
+          const displayName = data?.display_name?.trim?.() || ''
+          const displayNumber = data?.display_number?.trim?.() || ''
+          const isSummaryEnabled = account?.data?.call_summary_enabled === true
+          const isSummaryNotificationEnabled =
+            account?.data?.settings?.call_summary_notifications !== false
 
-        if (!linkedid) {
-          return
-        }
+          if (!linkedid) {
+            return
+          }
 
-        if (!account) {
-          return
-        }
+          if (!account) {
+            return
+          }
 
-        if (!isSummaryEnabled) {
-          return
-        }
+          if (!isSummaryEnabled) {
+            return
+          }
 
-        if (!isSummaryNotificationEnabled) {
-          return
-        }
+          if (!isSummaryNotificationEnabled) {
+            return
+          }
 
-        if (notifiedSummaryIdsRef.current.has(linkedid)) {
-          return
-        }
+          if (notifiedSummaryIdsRef.current.has(linkedid)) {
+            return
+          }
 
-        notifiedSummaryIdsRef.current.add(linkedid)
-  watchedSummaryIdsRef.current.delete(linkedid)
+          notifiedSummaryIdsRef.current.add(linkedid)
+          watchedSummaryIdsRef.current.delete(linkedid)
 
-        const contact = displayName || displayNumber
+          const contact = displayName || displayNumber
 
-        const notificationBody = contact
-          ? t('Notification.call_summary_ready_body_with_contact', { contact })
-          : t('Notification.call_summary_ready_body')
+          const notificationBody = contact
+            ? t('Notification.call_summary_ready_body_with_contact', {
+                contact,
+              })
+            : t('Notification.call_summary_ready_body')
 
-        sendSystemNotification(
-          t('Notification.call_summary_ready_title'),
-          notificationBody,
-          `/history?section=Calls&summaryLinkedid=${encodeURIComponent(linkedid)}`,
-        )
-      }),
-    }
+          sendSystemNotification(
+            t('Notification.call_summary_ready_title'),
+            notificationBody,
+            `/history?section=Calls&summaryLinkedid=${encodeURIComponent(linkedid)}`,
+          )
+        },
+      ),
+    },
   }
 }

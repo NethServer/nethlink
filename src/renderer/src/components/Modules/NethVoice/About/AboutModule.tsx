@@ -10,9 +10,7 @@ import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
 import { parseThemeToClassName } from '@renderer/utils'
 
-export interface AboutBoxProps { }
-
-export function AboutModule({ }: AboutBoxProps) {
+export function AboutModule() {
   const page = usePageCtx()
   const [theme] = useSharedState('theme')
   const [notifications] = useSharedState('notifications')
@@ -35,38 +33,44 @@ export function AboutModule({ }: AboutBoxProps) {
     <>
       <ModuleTitle title={t('About.title')} />
       <Scrollable>
-        <div className="flex flex-col w-full items-center px-4 text-bgDark dark:text-bgLight mb-1">
-          <div className="mt-6 mb-4 flex flex-col items-center gap-2">
+        <div className='flex flex-col w-full items-center px-4 text-bgDark dark:text-bgLight mb-1'>
+          <div className='mt-6 mb-4 flex flex-col items-center gap-2'>
             <img
               src={
                 parseThemeToClassName(theme) === 'dark'
                   ? NethLinkLogoSimpleDark
                   : NethLinkLogoSimple
               }
-              className="h-10 overflow-hidden object-cover place-items-start"
+              className='h-10 overflow-hidden object-cover place-items-start'
             ></img>
-            <div className="font-medium">
+            <div className='font-medium'>
               NethLink by{' '}
               <span
-                className="text-textBlueLight dark:text-textBlueDark cursor-pointer hover:underline"
+                className='text-textBlueLight dark:text-textBlueDark cursor-pointer hover:underline'
                 onClick={openCompanyUrl}
               >
                 {account?.companyName}
               </span>
             </div>
           </div>
-          <div className="text-gray-400 mb-2">
+          <div className='text-gray-400 mb-2'>
             {t('About.current_version', { version: window.api.appVersion })}
           </div>
           {!!notifications?.system?.update && (
-            <div className="mt-6 flex flex-col gap-2 items-center">
-              <span className="font-medium text-[12px] leading-[18px]">
+            <div className='mt-6 flex flex-col gap-2 items-center'>
+              <span className='font-medium text-[12px] leading-[18px]'>
                 {t('About.update_available')}
               </span>
-              <Button variant="white" onClick={onDownloadButtonClick}>
-                <div className="flex flex-row items-center gap-4">
-                  <FontAwesomeIcon size="1x" icon={DownloadIcon} className="text-[16px]" />
-                  <span className="font-medium text-sm">{t('About.download')}</span>
+              <Button variant='white' onClick={onDownloadButtonClick}>
+                <div className='flex flex-row items-center gap-4'>
+                  <FontAwesomeIcon
+                    size='1x'
+                    icon={DownloadIcon}
+                    className='text-[16px]'
+                  />
+                  <span className='font-medium text-sm'>
+                    {t('About.download')}
+                  </span>
                 </div>
               </Button>
             </div>

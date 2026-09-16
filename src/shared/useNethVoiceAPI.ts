@@ -1,4 +1,3 @@
-
 import moment from 'moment'
 import hmacSHA1 from 'crypto-js/hmac-sha1'
 import {
@@ -12,7 +11,7 @@ import {
   OperatorsType,
   AccountData,
   BaseAccountData,
-  ExtensionsType
+  ExtensionsType,
 } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { normalizeSharedGroups, serializeSharedGroups } from './phonebook'
@@ -36,18 +35,21 @@ function getNethlinkClientInfo(): {
       nethlink_version: api.appVersion || '',
       os_type: api.platform || '',
       os_release: api.osRelease || '',
-      arch: api.arch || ''
+      arch: api.arch || '',
     }
   }
   return {
-    nethlink_version: (typeof process !== 'undefined' && process.env?.['APP_VERSION']) || '',
+    nethlink_version:
+      (typeof process !== 'undefined' && process.env?.['APP_VERSION']) || '',
     os_type: typeof process !== 'undefined' ? process.platform : '',
     os_release: '',
-    arch: typeof process !== 'undefined' ? process.arch : ''
+    arch: typeof process !== 'undefined' ? process.arch : '',
   }
 }
 
-export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) => {
+export const useNethVoiceAPI = (
+  loggedAccount: Account | undefined = undefined,
+) => {
   const { GET, POST, DELETE } = useNetwork()
   let isFirstHeartbeat = true
   let account: Account | undefined = loggedAccount || undefined
@@ -55,7 +57,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
   let currentApiBasePath = account?.apiBasePath || PRIMARY_API_BASE_PATH
 
   if (account?.apiBasePath) {
-    Log.debug(`Using stored API path for ${account.username}: ${account.apiBasePath}`)
+    Log.debug(
+      `Using stored API path for ${account.username}: ${account.apiBasePath}`,
+    )
   } else {
     Log.debug(`Using default API path: ${PRIMARY_API_BASE_PATH}`)
   }
@@ -77,12 +81,16 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       return `${currentApiBasePath}${endpoint}`
     })()
 
-    Log.debug(`buildApiPath(${endpoint}) -> ${result} (currentApiBasePath: ${currentApiBasePath})`)
+    Log.debug(
+      `buildApiPath(${endpoint}) -> ${result} (currentApiBasePath: ${currentApiBasePath})`,
+    )
     return result
   }
 
   function _toHash(username: string, password: string, nonce: string) {
-    const token = nonce ? hmacSHA1(`${username}:${password}:${nonce}`, password).toString() : ''
+    const token = nonce
+      ? hmacSHA1(`${username}:${password}:${nonce}`, password).toString()
+      : ''
     return token
   }
 
@@ -92,8 +100,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
   }
 
   function _getHeaders(hasAuth = true) {
-    if (hasAuth && !account)
-      throw new Error('no token')
+    if (hasAuth && !account) throw new Error('no token')
 
     const headers: { 'Content-Type': string; Authorization?: string } = {
       'Content-Type': 'application/json',
@@ -116,7 +123,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   async function _GET(path: string, hasAuth = true): Promise<any> {
     try {
-      return (await GET(_joinUrl(path), _getHeaders(hasAuth)))
+      return await GET(_joinUrl(path), _getHeaders(hasAuth))
     } catch (e) {
       // Check if we should try fallback path for critical endpoints
       if (shouldTryFallback(path, e)) {
@@ -153,9 +160,13 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     }
   }
 
-  async function _POST(path: string, data?: object, hasAuth = true): Promise<any> {
+  async function _POST(
+    path: string,
+    data?: object,
+    hasAuth = true,
+  ): Promise<any> {
     try {
-      return (await POST(_joinUrl(path), data, _getHeaders(hasAuth)))
+      return await POST(_joinUrl(path), data, _getHeaders(hasAuth))
     } catch (e) {
       // Check if we should try fallback path for critical endpoints
       if (shouldTryFallback(path, e)) {
@@ -170,7 +181,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   async function _DELETE(path: string, hasAuth = true): Promise<any> {
     try {
-      return (await DELETE(_joinUrl(path), _getHeaders(hasAuth)))
+      return await DELETE(_joinUrl(path), _getHeaders(hasAuth))
     } catch (e) {
       if (!path.includes('login') && !path.includes('2fa/verify-otp')) {
         console.error(e)
@@ -189,10 +200,14 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     }
 
     // Try fallback for connection errors (404, 503, or network failures)
-    const isConnectionError = error?.response?.status === 404 || error?.response?.status === 503 || !error?.response
+    const isConnectionError =
+      error?.response?.status === 404 ||
+      error?.response?.status === 503 ||
+      !error?.response
 
     // For auth endpoints, always try fallback on connection errors
-    const isCriticalAuthEndpoint = path.includes('login') || path.includes('2fa/verify-otp')
+    const isCriticalAuthEndpoint =
+      path.includes('login') || path.includes('2fa/verify-otp')
     if (isCriticalAuthEndpoint && isConnectionError) {
       return true
     }
@@ -206,7 +221,11 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     return false
   }
 
-  async function _POSTWithFallback(path: string, data?: object, hasAuth = true): Promise<any> {
+  async function _POSTWithFallback(
+    path: string,
+    data?: object,
+    hasAuth = true,
+  ): Promise<any> {
     const originalPath = path
 
     // Switch to fallback path
@@ -230,11 +249,18 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
     try {
       Log.debug(`Trying fallback path: ${fallbackPath}`)
-      const result = await POST(_joinUrl(fallbackPath), data, _getHeaders(hasAuth))
+      const result = await POST(
+        _joinUrl(fallbackPath),
+        data,
+        _getHeaders(hasAuth),
+      )
       return result
     } catch (fallbackError) {
       Log.warning('Fallback also failed:', fallbackError)
-      if (!originalPath.includes('login') && !originalPath.includes('2fa/verify-otp'))
+      if (
+        !originalPath.includes('login') &&
+        !originalPath.includes('2fa/verify-otp')
+      )
         console.error(fallbackError)
       throw fallbackError
     }
@@ -242,24 +268,30 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
   const AstProxy = {
     groups: async () => await _GET(buildApiPath('/astproxy/opgroups')),
-    extensions: async (): Promise<ExtensionsType> => await _GET(buildApiPath('/astproxy/extensions')),
+    extensions: async (): Promise<ExtensionsType> =>
+      await _GET(buildApiPath('/astproxy/extensions')),
     getQueues: async () => await _GET(buildApiPath('/astproxy/queues')),
     getParkings: async () => await _GET(buildApiPath('/astproxy/parkings')),
-    pickupParking: async (parkInformation: any) => await _POST(buildApiPath('/astproxy/pickup_parking'), parkInformation),
-    featureCodes: async () => await _GET(buildApiPath('/astproxy/feature_codes'))
+    pickupParking: async (parkInformation: any) =>
+      await _POST(buildApiPath('/astproxy/pickup_parking'), parkInformation),
+    featureCodes: async () =>
+      await _GET(buildApiPath('/astproxy/feature_codes')),
   }
 
-
   const Authentication = {
-    login: async (host: string, username: string, password: string): Promise<Account> => {
+    login: async (
+      host: string,
+      username: string,
+      password: string,
+    ): Promise<Account> => {
       const data = {
         username,
-        password
+        password,
       }
       account = {
         host,
         username,
-        theme: 'system'
+        theme: 'system',
       }
 
       // Try JWT authentication first (for /api)
@@ -273,7 +305,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
               ...account,
               jwtToken: response.token,
               lastAccess: moment().toISOString(),
-              apiBasePath: PRIMARY_API_BASE_PATH
+              apiBasePath: PRIMARY_API_BASE_PATH,
             } as Account
 
             // Check if 2FA is required
@@ -284,7 +316,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
               // Complete login process
               const me = await User.me()
               account.data = me
-              const nethlinkExtension = account.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+              const nethlinkExtension = account.data!.endpoints.extension.find(
+                (el) => el.type === 'nethlink',
+              )
               if (!nethlinkExtension) {
                 throw new Error('User not authorized for NethLink')
               }
@@ -321,7 +355,10 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         return new Promise((resolve, reject) => {
           _POST(buildApiPath('/login'), data, false).catch(async (reason) => {
             try {
-              if (reason.response?.status === 401 && reason.response?.headers['www-authenticate']) {
+              if (
+                reason.response?.status === 401 &&
+                reason.response?.headers['www-authenticate']
+              ) {
                 const digest = reason.response.headers['www-authenticate']
                 const nonce = digest.split(' ')[1]
                 if (nonce) {
@@ -330,11 +367,14 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
                     ...account,
                     accessToken,
                     lastAccess: moment().toISOString(),
-                    apiBasePath: FALLBACK_API_BASE_PATH
+                    apiBasePath: FALLBACK_API_BASE_PATH,
                   } as Account
                   const me = await User.me()
                   account.data = me
-                  const nethlinkExtension = account.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+                  const nethlinkExtension =
+                    account.data!.endpoints.extension.find(
+                      (el) => el.type === 'nethlink',
+                    )
                   if (!nethlinkExtension) {
                     reject(new Error('User not authorized for NethLink'))
                   } else {
@@ -359,7 +399,10 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       throw new Error('No authentication method available')
     },
 
-    verify2FA: async (otp: string, tempAccount: Account | undefined): Promise<Account> => {
+    verify2FA: async (
+      otp: string,
+      tempAccount: Account | undefined,
+    ): Promise<Account> => {
       account = tempAccount
 
       if (!account || !account.jwtToken) {
@@ -367,29 +410,38 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       }
 
       try {
-        const response = await _POST(buildApiPath('/2fa/verify-otp'), {
-          otp,
-          username: account.username
-        }, true)
+        const response = await _POST(
+          buildApiPath('/2fa/verify-otp'),
+          {
+            otp,
+            username: account.username,
+          },
+          true,
+        )
 
         if (response.data.token) {
           // Update account with new JWT token
           account = {
             ...account,
             jwtToken: response.data.token,
-            lastAccess: moment().toISOString()
+            lastAccess: moment().toISOString(),
           } as Account
 
           // Complete login process
           const me = await User.me()
           account.data = me
-          const nethlinkExtension = account.data!.endpoints.extension.find((el) => el.type === 'nethlink')
+          const nethlinkExtension = account.data!.endpoints.extension.find(
+            (el) => el.type === 'nethlink',
+          )
           if (!nethlinkExtension) {
             // Clean up backend token and clear account state
             try {
               await Authentication.logout()
             } catch (logoutError) {
-              Log.warning("Error during logout after unauthorized access:", logoutError)
+              Log.warning(
+                'Error during logout after unauthorized access:',
+                logoutError,
+              )
             }
             account = undefined
             throw new Error('User not authorized for NethLink')
@@ -412,37 +464,52 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
 
     logout: async () => {
       isFirstHeartbeat = false
-      return new Promise<void>(async (resolve) => {
-        try {
-          await _POST(buildApiPath('/logout'))
-        } catch (e) {
-          Log.warning("error during logout:", e)
-        } finally {
-          // Reset to primary API path for next login attempt
-          currentApiBasePath = PRIMARY_API_BASE_PATH
-          if (account) {
-            account.apiBasePath = PRIMARY_API_BASE_PATH
-          }
-          resolve()
+      // the enclosing function is already async: the Promise wrapper only added an
+      // async executor, which silently swallows rejections
+      try {
+        await _POST(buildApiPath('/logout'))
+      } catch (e) {
+        Log.warning('error during logout:', e)
+      } finally {
+        // Reset to primary API path for next login attempt
+        currentApiBasePath = PRIMARY_API_BASE_PATH
+        if (account) {
+          account.apiBasePath = PRIMARY_API_BASE_PATH
         }
-      })
+      }
     },
 
     // Dedicated token for Phone Island in NethLink (kept separate by design).
-    phoneIslandTokenLogin: async (): Promise<{ username: string, token: string }> => {
+    phoneIslandTokenLogin: async (): Promise<{
+      username: string
+      token: string
+    }> => {
       if (currentApiBasePath === FALLBACK_API_BASE_PATH) {
-        return await _POST(buildApiPath('/authentication/phone_island_token_login'), { subtype: 'nethlink' })
+        return await _POST(
+          buildApiPath('/authentication/phone_island_token_login'),
+          { subtype: 'nethlink' },
+        )
       }
 
-      return await POST(_joinUrl(buildApiPath('/tokens/persistent/nethlink')), undefined, _getHeaders())
+      return await POST(
+        _joinUrl(buildApiPath('/tokens/persistent/nethlink')),
+        undefined,
+        _getHeaders(),
+      )
     },
 
     phoneIslandTokenLogout: async (): Promise<void> => {
       if (currentApiBasePath === FALLBACK_API_BASE_PATH) {
-        return await _POST(buildApiPath('/authentication/persistent_token_remove'), { type: 'phone-island', subtype: 'nethlink' })
+        return await _POST(
+          buildApiPath('/authentication/persistent_token_remove'),
+          { type: 'phone-island', subtype: 'nethlink' },
+        )
       }
 
-      return await DELETE(_joinUrl(buildApiPath('/tokens/persistent/nethlink')), _getHeaders())
+      return await DELETE(
+        _joinUrl(buildApiPath('/tokens/persistent/nethlink')),
+        _getHeaders(),
+      )
     },
   }
 
@@ -458,7 +525,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       try {
         if (account) {
           const res = await _GET(
-            buildApiPath(`/historycall/interval/user/${account.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`)
+            buildApiPath(
+              `/historycall/interval/user/${account.username}/${from}/${to}?offset=0&limit=15&sort=time%20desc&removeLostCalls=undefined`,
+            ),
           )
           return res
         } else {
@@ -468,7 +537,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         console.error(e)
         throw e
       }
-    }
+    },
   }
 
   const OffHour = {}
@@ -480,17 +549,19 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       pageSize = 10,
       view: 'all' | 'company' | 'person' = 'all',
       visibility = 'all',
-      sort = 'displayname'
+      sort = 'displayname',
     ) => {
       const s = await _GET(
-        buildApiPath(`/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}&visibility=${visibility}&sort=${sort}`)
+        buildApiPath(
+          `/phonebook/search/${search.trim()}?offset=${offset}&limit=${pageSize}&view=${view}&visibility=${visibility}&sort=${sort}`,
+        ),
       )
       return s
     },
     getSpeeddials: async () => {
       return await _GET(buildApiPath('/phonebook/speeddials'))
     },
-    ///SPEEDDIALS
+    // /SPEEDDIALS
     createSpeeddial: async (create: NewContactType) => {
       const newSpeedDial: NewContactType = {
         name: create.name!,
@@ -500,7 +571,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         setInput: '',
         type: 'speeddial',
         speeddial_num: create.speeddial_num,
-        notes: SpeeddialTypes.BASIC
+        notes: SpeeddialTypes.BASIC,
       }
       try {
         await _POST(buildApiPath('/phonebook/create'), newSpeedDial)
@@ -511,15 +582,15 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     },
     createFavourite: async (create: BaseAccountData) => {
       const newSpeedDial: NewContactType = {
-        name: create.username,//username
-        company: create.name, //veronome
+        name: create.username, // username
+        company: create.name, // veronome
         privacy: 'private',
         favorite: true,
         selectedPrefNum: 'extension',
         setInput: '',
         type: 'speeddial',
         speeddial_num: create.endpoints.mainextension[0].id,
-        notes: SpeeddialTypes.FAVOURITES
+        notes: SpeeddialTypes.FAVOURITES,
       }
       try {
         await _POST(buildApiPath('/phonebook/create'), newSpeedDial)
@@ -533,7 +604,10 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         const editedSpeedDial = Object.assign({}, updatedContact)
         editedSpeedDial.id = editedSpeedDial.id?.toString()
         try {
-          await _POST(buildApiPath('/phonebook/modify_cticontact'), editedSpeedDial)
+          await _POST(
+            buildApiPath('/phonebook/modify_cticontact'),
+            editedSpeedDial,
+          )
           return editedSpeedDial
         } catch (e) {
           Log.warning('error during updateSpeeddialBy', e)
@@ -546,15 +620,20 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         editedSpeedDial.speeddial_num = edit.speeddial_num
         editedSpeedDial.name = edit.name
         editedSpeedDial.id = editedSpeedDial.id?.toString()
-        await _POST(`${currentApiBasePath}/phonebook/modify_cticontact`, editedSpeedDial)
+        await _POST(
+          `${currentApiBasePath}/phonebook/modify_cticontact`,
+          editedSpeedDial,
+        )
         return editedSpeedDial
       }
     },
     deleteSpeeddial: async (obj: { id: string }) => {
-      await _POST(buildApiPath('/phonebook/delete_cticontact'), { id: '' + obj.id })
+      await _POST(buildApiPath('/phonebook/delete_cticontact'), {
+        id: '' + obj.id,
+      })
       return obj
     },
-    //CONTACTS
+    // CONTACTS
     createContact: async (create: ContactType) => {
       const sharedGroups = normalizeSharedGroups(create.shared_groups)
 
@@ -563,7 +642,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       }
 
       const visibilityType =
-        create.privacy === 'group' ? serializeSharedGroups(sharedGroups) : create.privacy || 'public'
+        create.privacy === 'group'
+          ? serializeSharedGroups(sharedGroups)
+          : create.privacy || 'public'
 
       const newContact: ContactType = {
         type: visibilityType,
@@ -597,7 +678,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         workcountry: create.workcountry,
         url: create.url,
         notes: create.notes,
-        kind: 'person'
+        kind: 'person',
       }
       await _POST(`${currentApiBasePath}/phonebook/create`, newContact)
       return newContact
@@ -608,19 +689,22 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
         newSpeedDial.speeddial_num = edit.speeddial_num
         newSpeedDial.name = edit.name
         newSpeedDial.id = newSpeedDial.id?.toString()
-        await _POST(`${currentApiBasePath}/phonebook/modify_cticontact`, newSpeedDial)
+        await _POST(
+          `${currentApiBasePath}/phonebook/modify_cticontact`,
+          newSpeedDial,
+        )
         return current
       }
     },
     deleteContact: async (obj: { id: string }) => {
       await _POST(buildApiPath('/phonebook/delete_cticontact'), obj)
-    }
+    },
   }
 
   const Profiling = {
     all: async () => {
       return await _GET(buildApiPath('/profiling/all'))
-    }
+    },
   }
 
   const Streaming = {}
@@ -630,7 +714,7 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       const data: AccountData = await _GET(buildApiPath('/user/me'))
       data.mainextension = data!.endpoints.mainextension[0].id
       const ext = data.endpoints.extension.find((e) => e.type === 'nethlink')
-      //the !loggedAccount flag allow to reduce the invocation only to the backend module and only at the first login
+      // the !loggedAccount flag allow to reduce the invocation only to the backend module and only at the first login
       if (ext && !loggedAccount && isFirstHeartbeat) {
         isFirstHeartbeat = false
         try {
@@ -646,27 +730,40 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     all_avatars: async () => await _GET(buildApiPath('/user/all_avatars')),
     all_endpoints: async () => await _GET(buildApiPath('/user/endpoints/all')),
     heartbeat: async (extension: string, username: string) =>
-      await _POST(buildApiPath('/user/nethlink'), { extension, username, ...getNethlinkClientInfo() }),
+      await _POST(buildApiPath('/user/nethlink'), {
+        extension,
+        username,
+        ...getNethlinkClientInfo(),
+      }),
     settings: async (settings: Partial<AccountData['settings']>) =>
       await _POST(buildApiPath('/user/settings'), settings),
-    default_device: async (deviceIdInformation: Extension, force = false): Promise<boolean> => {
+    default_device: async (
+      deviceIdInformation: Extension,
+      force = false,
+    ): Promise<boolean> => {
       try {
         if (account?.data?.default_device.type !== 'physical' || force) {
-          await _POST(buildApiPath('/user/default_device'), { id: deviceIdInformation.id })
+          await _POST(buildApiPath('/user/default_device'), {
+            id: deviceIdInformation.id,
+          })
           return true
         }
       } catch (e) {
         Log.error(e)
       }
-      return false;
+      return false
     },
-    setPresence: async (status: StatusTypes, to?: string) => await _POST(buildApiPath('/user/presence'), { status, ...(to ? { to } : {}) })
+    setPresence: async (status: StatusTypes, to?: string) =>
+      await _POST(buildApiPath('/user/presence'), {
+        status,
+        ...(to ? { to } : {}),
+      }),
   }
 
   const Voicemail = {}
 
   const fetchOperators = async (): Promise<OperatorData> => {
-    const endpoints: OperatorsType = await User.all_endpoints() //all devices
+    const endpoints: OperatorsType = await User.all_endpoints() // all devices
     const groups = await AstProxy.groups()
     const extensions = await AstProxy.extensions()
     const avatars = await User.all_avatars()
@@ -675,10 +772,9 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
       operators: endpoints,
       extensions,
       groups,
-      avatars
+      avatars,
     }
   }
-
 
   const NethVoiceAPI = {
     AstProxy,
@@ -692,10 +788,10 @@ export const useNethVoiceAPI = (loggedAccount: Account | undefined = undefined) 
     Streaming,
     User,
     Voicemail,
-    fetchOperators
+    fetchOperators,
   }
 
   return {
-    NethVoiceAPI
+    NethVoiceAPI,
   }
 }

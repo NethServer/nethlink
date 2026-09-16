@@ -3,12 +3,28 @@ import { IPC_EVENTS } from '@shared/constants'
 import { useSharedState } from '@renderer/store'
 import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPhone, faSearch, faXmark, faUser, faBuilding } from '@fortawesome/free-solid-svg-icons'
+import {
+  faPhone,
+  faSearch,
+  faXmark,
+  faUser,
+  faBuilding,
+} from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
 import { parseThemeToClassName } from '@renderer/utils'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { AvatarType, OperatorsType, SearchCallData, SearchData, StatusTypes } from '@shared/types'
-import { cleanRegex, getIsPhoneNumber, sortByProperty } from '@renderer/lib/utils'
+import {
+  AvatarType,
+  OperatorsType,
+  SearchCallData,
+  SearchData,
+  StatusTypes,
+} from '@shared/types'
+import {
+  cleanRegex,
+  getIsPhoneNumber,
+  sortByProperty,
+} from '@renderer/lib/utils'
 import { debouncer } from '@shared/utils/utils'
 import { Avatar } from '@renderer/components/Nethesis'
 
@@ -33,9 +49,10 @@ function mapContact(contact: SearchData): SearchData {
     ...contact,
     kind: hasName ? 'person' : 'company',
     displayName: hasName ? contact.name : contact?.company,
-    contacts: contact.contacts && typeof contact.contacts === 'string'
-      ? JSON.parse(contact.contacts)
-      : contact.contacts,
+    contacts:
+      contact.contacts && typeof contact.contacts === 'string'
+        ? JSON.parse(contact.contacts)
+        : contact.contacts,
   }
 }
 
@@ -46,7 +63,9 @@ const PHONE_KEYS: { key: keyof SearchData; labelKey: string }[] = [
   { key: 'workphone', labelKey: 'Phonebook.Work phone' },
 ]
 
-function getContactNumbers(contact: SearchData): { number: string; labelKey: string }[] {
+function getContactNumbers(
+  contact: SearchData,
+): { number: string; labelKey: string }[] {
   const numbers: { number: string; labelKey: string }[] = []
   for (const { key, labelKey } of PHONE_KEYS) {
     if (contact[key]) {
@@ -72,7 +91,8 @@ export function CommandBarPage() {
   const lastFetchRef = useRef(0) // Timestamp of last successful operators/avatars fetch
   const [operatorVersion, setOperatorVersion] = useState(0) // Bumped when operators data changes, triggers useMemo
 
-  const isPhoneNumber = searchText.trim().length > 0 && getIsPhoneNumber(searchText.trim())
+  const isPhoneNumber =
+    searchText.trim().length > 0 && getIsPhoneNumber(searchText.trim())
 
   // Local operator search — same logic as SearchNumberBox.getFoundedOperators()
   // operatorsRef is fetched once on SHOW_COMMAND_BAR via User.all_endpoints()
@@ -108,13 +128,22 @@ export function CommandBarPage() {
 
   // Merge: operators first (deduped by extension), then phonebook results expanded per phone number
   const allItems = useMemo(() => {
-    const operatorExtensions = new Set(matchingOperators.map((o) => o.contact.extension))
+    const operatorExtensions = new Set(
+      matchingOperators.map((o) => o.contact.extension),
+    )
     const filteredPhonebook = searchResults.filter((c) => {
       if (c.extension && operatorExtensions.has(c.extension)) return false
       return true
     })
 
-    const items: { type: 'call' | 'contact'; contact?: SearchData; number?: string; numberLabel?: string; username?: string; mainPresence?: StatusTypes }[] = []
+    const items: {
+      type: 'call' | 'contact'
+      contact?: SearchData
+      number?: string
+      numberLabel?: string
+      username?: string
+      mainPresence?: StatusTypes
+    }[] = []
 
     if (isPhoneNumber && searchText.trim().length > 0) {
       items.push({ type: 'call', number: searchText.trim() })
@@ -126,7 +155,12 @@ export function CommandBarPage() {
         items.push({ type: 'contact', contact })
       } else {
         numbers.forEach(({ number, labelKey }) => {
-          items.push({ type: 'contact', contact, number, numberLabel: labelKey })
+          items.push({
+            type: 'contact',
+            contact,
+            number,
+            numberLabel: labelKey,
+          })
         })
       }
     })
@@ -138,50 +172,61 @@ export function CommandBarPage() {
 
   const resizeWindow = useCallback((itemCount: number) => {
     const visibleCount = Math.min(itemCount, MAX_VISIBLE_RESULTS)
-    const height = itemCount > 0
-      ? INPUT_HEIGHT + SEPARATOR_HEIGHT + visibleCount * RESULT_ROW_HEIGHT + DROPDOWN_PADDING
-      : INPUT_HEIGHT
-    window.electron.send(IPC_EVENTS.COMMAND_BAR_RESIZE, { width: WINDOW_WIDTH, height })
+    const height =
+      itemCount > 0
+        ? INPUT_HEIGHT +
+          SEPARATOR_HEIGHT +
+          visibleCount * RESULT_ROW_HEIGHT +
+          DROPDOWN_PADDING
+        : INPUT_HEIGHT
+    window.electron.send(IPC_EVENTS.COMMAND_BAR_RESIZE, {
+      width: WINDOW_WIDTH,
+      height,
+    })
   }, [])
 
   useEffect(() => {
     resizeWindow(allItems.length)
   }, [allItems.length, resizeWindow])
 
-  const doSearch = useCallback(async (query: string) => {
-    const currentId = ++searchIdRef.current
-    const trimmed = query.trim()
+  const doSearch = useCallback(
+    async (query: string) => {
+      const currentId = ++searchIdRef.current
+      const trimmed = query.trim()
 
-    if (trimmed.length < MIN_SEARCH_LENGTH) {
-      setSearchResults([])
-      // Compute locally to avoid stale closure over render-scoped isPhoneNumber
-      const isPhone = trimmed.length > 0 && getIsPhoneNumber(trimmed)
-      setSelectedIndex(isPhone ? 0 : -1)
-      return
-    }
-
-    setIsLoading(true)
-    try {
-      const result: SearchCallData = await NethVoiceAPI.Phonebook.search(trimmed)
-      if (currentId !== searchIdRef.current) return
-
-      const mapped = result.rows
-        .map((c) => mapContact(c))
-        .filter((c) => c.displayName && c.displayName !== '')
-        .sort(sortByProperty('displayName'))
-
-      setSearchResults(mapped)
-      setSelectedIndex(0)
-    } catch {
-      if (currentId === searchIdRef.current) {
+      if (trimmed.length < MIN_SEARCH_LENGTH) {
         setSearchResults([])
+        // Compute locally to avoid stale closure over render-scoped isPhoneNumber
+        const isPhone = trimmed.length > 0 && getIsPhoneNumber(trimmed)
+        setSelectedIndex(isPhone ? 0 : -1)
+        return
       }
-    } finally {
-      if (currentId === searchIdRef.current) {
-        setIsLoading(false)
+
+      setIsLoading(true)
+      try {
+        const result: SearchCallData =
+          await NethVoiceAPI.Phonebook.search(trimmed)
+        if (currentId !== searchIdRef.current) return
+
+        const mapped = result.rows
+          .map((c) => mapContact(c))
+          .filter((c) => c.displayName && c.displayName !== '')
+          .sort(sortByProperty('displayName'))
+
+        setSearchResults(mapped)
+        setSelectedIndex(0)
+      } catch {
+        if (currentId === searchIdRef.current) {
+          setSearchResults([])
+        }
+      } finally {
+        if (currentId === searchIdRef.current) {
+          setIsLoading(false)
+        }
       }
-    }
-  }, [NethVoiceAPI])
+    },
+    [NethVoiceAPI],
+  )
 
   useEffect(() => {
     window.electron.receive(IPC_EVENTS.SHOW_COMMAND_BAR, () => {
@@ -230,25 +275,32 @@ export function CommandBarPage() {
     setSearchText(value)
     setSelectedIndex(-1)
 
-    debouncer('command-bar-search', () => {
-      doSearch(value)
-    }, DEBOUNCE_MS)
+    debouncer(
+      'command-bar-search',
+      () => {
+        doSearch(value)
+      },
+      DEBOUNCE_MS,
+    )
   }
 
-  const handleCall = useCallback((number?: string) => {
-    const callNumber = number || searchText.trim()
-    if (!callNumber) return
+  const handleCall = useCallback(
+    (number?: string) => {
+      const callNumber = number || searchText.trim()
+      if (!callNumber) return
 
-    const prefixMatch = callNumber.match(/^[*#+]+/)
-    const prefix = prefixMatch ? prefixMatch[0] : ''
-    const sanitized = callNumber.replace(/[^\d]/g, '')
-    const finalNumber = prefix + sanitized
+      const prefixMatch = callNumber.match(/^[*#+]+/)
+      const prefix = prefixMatch ? prefixMatch[0] : ''
+      const sanitized = callNumber.replace(/[^\d]/g, '')
+      const finalNumber = prefix + sanitized
 
-    if (/^([*#+]?)(\d{2,})$/.test(finalNumber)) {
-      window.electron.send(IPC_EVENTS.EMIT_START_CALL, finalNumber)
-      window.electron.send(IPC_EVENTS.HIDE_COMMAND_BAR)
-    }
-  }, [searchText])
+      if (/^([*#+]?)(\d{2,})$/.test(finalNumber)) {
+        window.electron.send(IPC_EVENTS.EMIT_START_CALL, finalNumber)
+        window.electron.send(IPC_EVENTS.HIDE_COMMAND_BAR)
+      }
+    },
+    [searchText],
+  )
 
   const handleCallSelected = useCallback(() => {
     if (selectedIndex >= 0 && selectedIndex < allItems.length) {
@@ -283,7 +335,9 @@ export function CommandBarPage() {
     if (e.key === 'ArrowUp') {
       e.preventDefault()
       if (allItems.length > 0) {
-        setSelectedIndex((prev) => (prev - 1 + allItems.length) % allItems.length)
+        setSelectedIndex(
+          (prev) => (prev - 1 + allItems.length) % allItems.length,
+        )
       }
       return
     }
@@ -318,29 +372,32 @@ export function CommandBarPage() {
   const hasText = searchText.trim().length > 0
 
   return (
-    <div className={classNames(themeClass, 'font-Poppins h-screen overflow-hidden')}>
+    <div
+      className={classNames(
+        themeClass,
+        'font-Poppins h-screen overflow-hidden',
+      )}
+    >
       {/* Outer = border color bg + 1px padding. Inner = content bg. The gap IS the border. */}
-      <div className="w-[500px] rounded-xl p-[1px] bg-borderLight dark:bg-borderDark">
-        <div className="rounded-[11px] bg-bgLight dark:bg-bgDark overflow-hidden">
+      <div className='w-[500px] rounded-xl p-[1px] bg-borderLight dark:bg-borderDark'>
+        <div className='rounded-[11px] bg-bgLight dark:bg-bgDark overflow-hidden'>
           {/* Input row — 78px so that 78 + 2*1px border = 80px total */}
           <div
-            className={classNames(
-              'flex items-center px-4 gap-3',
-            )}
+            className={classNames('flex items-center px-4 gap-3')}
             style={{ height: INPUT_ROW_HEIGHT }}
           >
-            <div className="relative flex-1">
+            <div className='relative flex-1'>
               {/* Search icon */}
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+              <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
                 <FontAwesomeIcon
                   icon={faSearch}
-                  className="h-4 w-4 text-gray-400 dark:text-gray-500"
+                  className='h-4 w-4 text-gray-400 dark:text-gray-500'
                 />
               </div>
               {/* Input */}
               <input
                 ref={inputRef}
-                type="text"
+                type='text'
                 value={searchText}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
@@ -350,7 +407,7 @@ export function CommandBarPage() {
                   'dark:text-titleDark text-titleLight',
                   'border border-gray-300 dark:border-gray-600 rounded-lg',
                   'focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600',
-                  'placeholder:text-gray-400 dark:placeholder:text-gray-500'
+                  'placeholder:text-gray-400 dark:placeholder:text-gray-500',
                 )}
                 autoFocus
               />
@@ -362,10 +419,10 @@ export function CommandBarPage() {
                 className={classNames(
                   'p-2 rounded-full transition-colors',
                   'text-gray-400 hover:text-gray-600',
-                  'dark:text-gray-500 dark:hover:text-gray-300'
+                  'dark:text-gray-500 dark:hover:text-gray-300',
                 )}
               >
-                <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
+                <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
               </button>
             )}
 
@@ -377,10 +434,10 @@ export function CommandBarPage() {
                 'flex items-center gap-2',
                 hasText
                   ? 'bg-primary text-white hover:bg-primaryDark'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed',
               )}
             >
-              <FontAwesomeIcon icon={faPhone} className="h-4 w-4" />
+              <FontAwesomeIcon icon={faPhone} className='h-4 w-4' />
               <span>{t('CommandBar.Call')}</span>
             </button>
           </div>
@@ -388,11 +445,14 @@ export function CommandBarPage() {
           {/* Dropdown results */}
           {showDropdown && (
             <>
-              <div className="mx-4 border-t border-borderLight dark:border-borderDark" />
+              <div className='mx-4 border-t border-borderLight dark:border-borderDark' />
               <div
                 ref={resultsRef}
-                className="overflow-y-auto"
-                style={{ maxHeight: MAX_VISIBLE_RESULTS * RESULT_ROW_HEIGHT + DROPDOWN_PADDING }}
+                className='overflow-y-auto'
+                style={{
+                  maxHeight:
+                    MAX_VISIBLE_RESULTS * RESULT_ROW_HEIGHT + DROPDOWN_PADDING,
+                }}
               >
                 {allItems.map((item, index) => {
                   const isSelected = index === selectedIndex
@@ -405,17 +465,17 @@ export function CommandBarPage() {
                           'h-[56px]',
                           isSelected
                             ? 'dark:bg-hoverDark bg-hoverLight'
-                            : 'dark:hover:bg-hoverDark hover:bg-hoverLight'
+                            : 'dark:hover:bg-hoverDark hover:bg-hoverLight',
                         )}
                         onClick={() => handleCall(item.number)}
                         onMouseEnter={() => setSelectedIndex(index)}
                       >
                         <FontAwesomeIcon
                           icon={faPhone}
-                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                          className='h-4 w-4 text-gray-500 dark:text-gray-400'
                         />
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-medium dark:text-titleDark text-titleLight truncate">
+                        <div className='flex flex-col min-w-0'>
+                          <span className='text-sm font-medium dark:text-titleDark text-titleLight truncate'>
                             {t('CommandBar.Call')} {item.number}
                           </span>
                         </div>
@@ -424,11 +484,13 @@ export function CommandBarPage() {
                   }
 
                   const contact = item.contact!
-                  const rowNumber = item.number || getContactNumbers(contact)[0]?.number || ''
+                  const rowNumber =
+                    item.number || getContactNumbers(contact)[0]?.number || ''
                   const isOperator = !!contact.isOperator
-                  const avatarSrc = isOperator && item.username
-                    ? avatarsRef.current?.[item.username] || ''
-                    : ''
+                  const avatarSrc =
+                    isOperator && item.username
+                      ? avatarsRef.current?.[item.username] || ''
+                      : ''
                   return (
                     <div
                       key={`contact-${contact.id}-${rowNumber}-${index}`}
@@ -437,7 +499,7 @@ export function CommandBarPage() {
                         'h-[56px]',
                         isSelected
                           ? 'dark:bg-hoverDark bg-hoverLight'
-                          : 'dark:hover:bg-hoverDark hover:bg-hoverLight'
+                          : 'dark:hover:bg-hoverDark hover:bg-hoverLight',
                       )}
                       onClick={() => {
                         if (rowNumber) handleCall(rowNumber)
@@ -446,25 +508,30 @@ export function CommandBarPage() {
                     >
                       {isOperator ? (
                         <Avatar
-                          size="small"
+                          size='small'
                           src={avatarSrc}
                           status={item.mainPresence}
-                          placeholderType="operator"
+                          placeholderType='operator'
                           bordered={true}
                         />
                       ) : (
                         <FontAwesomeIcon
-                          icon={contact.kind === 'company' ? faBuilding : faUser}
-                          className="h-4 w-4 text-gray-500 dark:text-gray-400"
+                          icon={
+                            contact.kind === 'company' ? faBuilding : faUser
+                          }
+                          className='h-4 w-4 text-gray-500 dark:text-gray-400'
                         />
                       )}
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium dark:text-titleDark text-titleLight truncate">
+                      <div className='flex flex-col min-w-0'>
+                        <span className='text-sm font-medium dark:text-titleDark text-titleLight truncate'>
                           {contact.displayName}
                         </span>
                         {rowNumber && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {rowNumber}{item.numberLabel ? ` · ${t(item.numberLabel)}` : ''}
+                          <span className='text-xs text-gray-500 dark:text-gray-400 truncate'>
+                            {rowNumber}
+                            {item.numberLabel
+                              ? ` · ${t(item.numberLabel)}`
+                              : ''}
                           </span>
                         )}
                       </div>

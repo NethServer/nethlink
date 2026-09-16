@@ -11,7 +11,11 @@ let currentModifier: CommandBarDoubleTapModifier | undefined
 let keydownHandler: ((e: any) => void) | undefined
 let keyupHandler: ((e: any) => void) | undefined
 
-function isModifierKeyEvent(e: any, UiohookKey: any, modifier: CommandBarDoubleTapModifier) {
+function isModifierKeyEvent(
+  e: any,
+  UiohookKey: any,
+  modifier: CommandBarDoubleTapModifier,
+) {
   switch (modifier) {
     case 'Cmd':
       return e.keycode === UiohookKey.Meta || e.keycode === UiohookKey.MetaRight
@@ -23,8 +27,7 @@ function isModifierKeyEvent(e: any, UiohookKey: any, modifier: CommandBarDoubleT
       // On most Linux layouts AltGr is the right Alt key, but it can also emit CtrlRight.
       // Be permissive so the configured shortcut actually triggers.
       return (
-        e.keycode === UiohookKey.AltRight ||
-        e.keycode === UiohookKey.CtrlRight
+        e.keycode === UiohookKey.AltRight || e.keycode === UiohookKey.CtrlRight
       )
   }
 }

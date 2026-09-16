@@ -102,8 +102,12 @@ export function LastCall({
 
   const callName = getCallName(call)
   const callNumberValue = (call.direction === 'in' ? call.src : call.dst) || ''
-  const [nameRef, isNameTruncated] = useIsTruncated<HTMLParagraphElement>([callName])
-  const [numberRef, isNumberTruncated] = useIsTruncated<HTMLDivElement>([callNumberValue])
+  const [nameRef, isNameTruncated] = useIsTruncated<HTMLParagraphElement>([
+    callName,
+  ])
+  const [numberRef, isNumberTruncated] = useIsTruncated<HTMLDivElement>([
+    callNumberValue,
+  ])
 
   return (
     <div className='group'>
@@ -111,9 +115,11 @@ export function LastCall({
         className={`flex flex-grow gap-3 min-h-[72px] py-6 px-3 ${className}`}
       >
         {call.hasNotification && (
-          <div className={`relative w-0 h-0 z-0 overflow-visible mr-[-12px]`}>
+          <div className={'relative w-0 h-0 z-0 overflow-visible mr-[-12px]'}>
             <div
-              className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-bgDark border-bgLight`}
+              className={
+                'relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-bgDark border-bgLight'
+              }
             />
           </div>
         )}
@@ -134,8 +140,10 @@ export function LastCall({
         <div className='flex flex-col gap-1 min-w-0 flex-1 dark:text-titleDark text-titleLight'>
           <p
             ref={nameRef}
-            className={`font-medium text-[14px] leading-5 truncate`}
-            data-tooltip-id={isNameTruncated ? `tooltip-username-${tooltipId}` : undefined}
+            className={'font-medium text-[14px] leading-5 truncate'}
+            data-tooltip-id={
+              isNameTruncated ? `tooltip-username-${tooltipId}` : undefined
+            }
             data-tooltip-content={isNameTruncated ? callName : undefined}
           >
             {callName}
@@ -154,14 +162,14 @@ export function LastCall({
                 <Badge
                   variant='offline'
                   rounded='full'
-                  className={`animate-pulse overflow-hidden w-[108px] min-h-4`}
+                  className={'animate-pulse overflow-hidden w-[108px] min-h-4'}
                 ></Badge>
               ) : (
                 <Badge
                   size='small'
                   variant='offline'
                   rounded='full'
-                  className={`overflow-hidden`}
+                  className={'overflow-hidden'}
                   data-tooltip-id={`tooltip-queue-${tooltipId}`}
                   data-tooltip-content={
                     queues?.[call.queue!]?.name
@@ -246,8 +254,12 @@ export function LastCall({
             <div
               ref={numberRef}
               className='min-w-0 truncate'
-              data-tooltip-id={isNumberTruncated ? `tooltip-number-${tooltipId}` : undefined}
-              data-tooltip-content={isNumberTruncated ? callNumberValue : undefined}
+              data-tooltip-id={
+                isNumberTruncated ? `tooltip-number-${tooltipId}` : undefined
+              }
+              data-tooltip-content={
+                isNumberTruncated ? callNumberValue : undefined
+              }
             >
               <NumberCaller
                 number={

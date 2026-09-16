@@ -25,7 +25,17 @@ export interface OTPInputRef {
 }
 
 export const OTPInput = forwardRef<OTPInputRef, OTPInputProps>(
-  ({ value, onChange, length = 6, disabled = false, className = '', error = false }, ref) => {
+  (
+    {
+      value,
+      onChange,
+      length = 6,
+      disabled = false,
+      className = '',
+      error = false,
+    },
+    ref,
+  ) => {
     const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
     // Initialize input refs array
@@ -87,7 +97,10 @@ export const OTPInput = forwardRef<OTPInputRef, OTPInputProps>(
       }
     }
 
-    const handleKeyDown = (index: number, event: KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (
+      index: number,
+      event: KeyboardEvent<HTMLInputElement>,
+    ) => {
       const { key } = event
 
       if (key === 'Backspace') {
@@ -166,15 +179,15 @@ export const OTPInput = forwardRef<OTPInputRef, OTPInputProps>(
                 !error && value[index]
                   ? 'border-primary dark:border-primaryDark bg-primary/5 dark:bg-primaryDark/5'
                   : !error && !value[index]
-                  ? 'border-gray-300 dark:border-gray-600'
-                  : ''
+                    ? 'border-gray-300 dark:border-gray-600'
+                    : ''
               }
               ${
                 error && value[index]
                   ? 'bg-red-50 dark:bg-red-900/20'
                   : error && !value[index]
-                  ? 'bg-red-50 dark:bg-red-900/20'
-                  : ''
+                    ? 'bg-red-50 dark:bg-red-900/20'
+                    : ''
               }
               ${
                 disabled

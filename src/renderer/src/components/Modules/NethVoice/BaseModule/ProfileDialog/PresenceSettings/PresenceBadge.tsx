@@ -1,5 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRight, faMobile, faVoicemail } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowRight,
+  faMobile,
+  faVoicemail,
+} from '@fortawesome/free-solid-svg-icons'
 import { Badge } from '@renderer/components/Nethesis/Badge'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { StatusTypes } from '@shared/types'
@@ -25,8 +29,13 @@ export const PresenceBadge = ({ className }: PresenceBadgeProps) => {
   }, [account])
 
   if (PresenceBadgeVisibility.includes(mainPresence as string)) {
-    const isCallforward = ['callforward', 'voicemail'].includes(mainPresence as string)
-    if (!(account?.data?.mainextension && operators?.extensions[account.data.mainextension])) {
+    const isCallforward = ['callforward', 'voicemail'].includes(
+      mainPresence as string,
+    )
+    if (!(
+      account?.data?.mainextension &&
+      operators?.extensions[account.data.mainextension]
+    )) {
       return (
         <div
           className={classNames(
@@ -34,7 +43,7 @@ export const PresenceBadge = ({ className }: PresenceBadgeProps) => {
             theme.base,
             theme.rounded['full'],
             statuses[isCallforward ? 'callforward' : 'voicemail']?.badge.base,
-            theme.sizes['small']
+            theme.sizes['small'],
           )}
         ></div>
       )
@@ -42,26 +51,30 @@ export const PresenceBadge = ({ className }: PresenceBadgeProps) => {
       return (
         <div className={classNames('h-5 w-8 z-[100]', className)}>
           <Badge
-
             variant={isCallforward ? 'callforward' : 'voicemail'}
-            rounded="full"
-            size="small"
-            className={`flex flex-row justify-center px-2.5 py-0.5 h-5 w-full overflow-hidden`}
-            data-tooltip-id={`presence_box`}
-            data-tooltip-content={
-              `${mainPresence === 'callforward'
+            rounded='full'
+            size='small'
+            className={
+              'flex flex-row justify-center px-2.5 py-0.5 h-5 w-full overflow-hidden'
+            }
+            data-tooltip-id={'presence_box'}
+            data-tooltip-content={`${
+              mainPresence === 'callforward'
                 ? t('TopBar.Call forward')
                 : mainPresence === 'cellphone'
                   ? t('TopBar.Cellphone')
                   : t('TopBar.Voicemail')
-              } ${account?.data?.endpoints?.cellphone[0]?.id &&
-                mainPresence === 'cellphone' ?
-                `${': ' + account?.data?.endpoints?.cellphone[0]?.id}` : ''
-              } ${operators?.extensions[account.data.mainextension]?.cf !== '' &&
-                mainPresence === 'callforward' ?
-                `${': ' + operators?.extensions[account.data.mainextension]?.cf}` : ''
-              }`
-            }
+            } ${
+              account?.data?.endpoints?.cellphone[0]?.id &&
+              mainPresence === 'cellphone'
+                ? `${': ' + account?.data?.endpoints?.cellphone[0]?.id}`
+                : ''
+            } ${
+              operators?.extensions[account.data.mainextension]?.cf !== '' &&
+              mainPresence === 'callforward'
+                ? `${': ' + operators?.extensions[account.data.mainextension]?.cf}`
+                : ''
+            }`}
           >
             <FontAwesomeIcon
               icon={
@@ -71,18 +84,17 @@ export const PresenceBadge = ({ className }: PresenceBadgeProps) => {
                     ? faMobile
                     : faVoicemail
               }
-              className="h-4 w-4 text-topBarText dark:text-topBarTextDark"
-              aria-hidden="true"
+              className='h-4 w-4 text-topBarText dark:text-topBarTextDark'
+              aria-hidden='true'
             />
 
             <CustomThemedTooltip
-              id={`presence_box`}
-              place="bottom"
-              className="z-[100000] font-medium text-xs leading-[18px]"
+              id={'presence_box'}
+              place='bottom'
+              className='z-[100000] font-medium text-xs leading-[18px]'
               zIndex={100000}
             />
           </Badge>
-
         </div>
       )
     }

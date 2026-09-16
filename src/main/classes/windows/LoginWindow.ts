@@ -32,7 +32,6 @@ export class LoginWindow extends BaseWindow {
       thickFrame: true,
       icon: '../../public/LogoBlueSimpleDark.svg',
       titleBarOverlay: true,
-
     })
   }
 
@@ -40,13 +39,12 @@ export class LoginWindow extends BaseWindow {
     try {
       super.show()
       const bounds = this._window?.getBounds()
-      if (bounds && (bounds?.height === LoginPageSize.h)) {
-        bounds.height = 500;
+      if (bounds && bounds?.height === LoginPageSize.h) {
+        bounds.height = 500
         this._window?.setBounds(bounds)
         this._window?.center()
       }
-    }
-    catch (e: any) {
+    } catch (e: any) {
       if (e.message === 'Object has been destroyed') {
         this.buildWindow()
         return this.show()
@@ -78,7 +76,7 @@ export class LoginWindow extends BaseWindow {
   async toggleVisibility() {
     debouncer('loginToggleVisibility', async () => {
       TrayController.instance.updateTray({
-        enableShowButton: true
+        enableShowButton: true,
       })
     })
   }

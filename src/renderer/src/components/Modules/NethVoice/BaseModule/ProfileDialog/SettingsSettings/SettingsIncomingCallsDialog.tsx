@@ -96,9 +96,13 @@ const setOutputDeviceToLocalStorage = (value: string): void => {
 }
 
 export function SettingsIncomingCallsDialog() {
-  const [, setIsIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
+  const [, setIsIncomingCallsDialogOpen] = useNethlinkData(
+    'isIncomingCallsDialogOpen',
+  )
   const [availableRingtones] = useSharedState('availableRingtones')
-  const [audioOutputDevices, setAudioOutputDevices] = useState<MediaDeviceInfo[]>([])
+  const [audioOutputDevices, setAudioOutputDevices] = useState<
+    MediaDeviceInfo[]
+  >([])
   const [playingRingtone, setPlayingRingtone] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     ringtone: '',
@@ -106,9 +110,9 @@ export function SettingsIncomingCallsDialog() {
   })
 
   // Convert availableRingtones from store to local format
-  const ringtones: Ringtone[] = (availableRingtones || []).map(r => ({
+  const ringtones: Ringtone[] = (availableRingtones || []).map((r) => ({
     name: r.name,
-    base64: r.base64
+    base64: r.base64,
   }))
 
   useEffect(() => {
@@ -136,7 +140,9 @@ export function SettingsIncomingCallsDialog() {
   const initAudioOutputDevices = async () => {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices()
-      const audioOutput = devices.filter((device) => device.kind === 'audiooutput')
+      const audioOutput = devices.filter(
+        (device) => device.kind === 'audiooutput',
+      )
       Log.info('Available audio output devices:', audioOutput)
       setAudioOutputDevices(audioOutput)
     } catch (err) {
@@ -256,7 +262,9 @@ export function SettingsIncomingCallsDialog() {
                                   <span
                                     className='truncate'
                                     data-tooltip-id='ringtone'
-                                    data-tooltip-content={capitalizeFirstLetter(ringtone.name)}
+                                    data-tooltip-content={capitalizeFirstLetter(
+                                      ringtone.name,
+                                    )}
                                   >
                                     {capitalizeFirstLetter(ringtone.name)}
                                   </span>
@@ -280,11 +288,15 @@ export function SettingsIncomingCallsDialog() {
                             <span
                               className='truncate'
                               data-tooltip-id='ringtone'
-                              data-tooltip-content={
-                                capitalizeFirstLetter(getRingtoneByName(formData.ringtone)?.name || '')
-                              }
+                              data-tooltip-content={capitalizeFirstLetter(
+                                getRingtoneByName(formData.ringtone)?.name ||
+                                  '',
+                              )}
                             >
-                              {capitalizeFirstLetter(getRingtoneByName(formData.ringtone)?.name || '') || '-'}
+                              {capitalizeFirstLetter(
+                                getRingtoneByName(formData.ringtone)?.name ||
+                                  '',
+                              ) || '-'}
                             </span>
                             <FontAwesomeIcon icon={DropdownIcon} />
                           </div>
@@ -304,7 +316,9 @@ export function SettingsIncomingCallsDialog() {
                     <button
                       type='button'
                       onClick={() => {
-                        const selectedRingtone = getRingtoneByName(formData.ringtone)
+                        const selectedRingtone = getRingtoneByName(
+                          formData.ringtone,
+                        )
                         if (playingRingtone === formData.ringtone) {
                           stopRingtonePreview()
                         } else if (selectedRingtone) {
@@ -315,7 +329,11 @@ export function SettingsIncomingCallsDialog() {
                       className='px-2.5 py-1.5 flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-shrink-0'
                     >
                       <FontAwesomeIcon
-                        icon={playingRingtone === formData.ringtone ? StopIcon : PlayIcon}
+                        icon={
+                          playingRingtone === formData.ringtone
+                            ? StopIcon
+                            : PlayIcon
+                        }
                         className='w-3.5 h-3.5 text-white'
                       />
                     </button>

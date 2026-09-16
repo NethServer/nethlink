@@ -1,10 +1,14 @@
-import { PhoneIsland } from "@nethesis/phone-island"
-import { useSharedState } from "@renderer/store"
-import { IPC_EVENTS } from "@shared/constants"
-import { Log } from "@shared/utils/logger"
-import { useEffect, useMemo } from "react"
+import { PhoneIsland } from '@nethesis/phone-island'
+import { useSharedState } from '@renderer/store'
+import { IPC_EVENTS } from '@shared/constants'
+import { Log } from '@shared/utils/logger'
+import { useEffect, useMemo } from 'react'
 
-export const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, isDataConfigCreated }) => {
+export const PhoneIslandContainer = ({
+  dataConfig,
+  deviceInformationObject,
+  isDataConfigCreated,
+}) => {
   const [account] = useSharedState('account')
 
   useEffect(() => {
@@ -15,7 +19,10 @@ export const PhoneIslandContainer = ({ dataConfig, deviceInformationObject, isDa
     if (deviceInformationObject) {
       Log.info('FORCE DEFAULT DEVICE TO NETHLINK')
       if (account?.data?.default_device?.type === 'webrtc') {
-        window.electron.send(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, deviceInformationObject)
+        window.electron.send(
+          IPC_EVENTS.CHANGE_DEFAULT_DEVICE,
+          deviceInformationObject,
+        )
       }
     }
   }

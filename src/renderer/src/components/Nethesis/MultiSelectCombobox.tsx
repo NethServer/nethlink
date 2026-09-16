@@ -24,7 +24,11 @@
 import { FC, useEffect, useRef, useState } from 'react'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons'
+import {
+  faCheck,
+  faChevronDown,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons'
 import { IconDefinition } from '@fortawesome/fontawesome-common-types'
 
 export interface MultiSelectComboboxProps {
@@ -54,7 +58,7 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
   searchable = true,
   id,
   removeLabel,
-  className
+  className,
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -67,7 +71,10 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
     }
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false)
         setSearch('')
       }
@@ -81,14 +88,14 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
   }, [isOpen])
 
   const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(search.trim().toLowerCase())
+    option.toLowerCase().includes(search.trim().toLowerCase()),
   )
 
   const toggleOption = (option: string) => {
     onChange(
       selected.includes(option)
         ? selected.filter((current) => current !== option)
-        : [...selected, option]
+        : [...selected, option],
     )
   }
 
@@ -108,27 +115,29 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
           disabled ? 'cursor-not-allowed opacity-50' : 'cursor-text',
           error
             ? 'border-rose-500 focus-within:border-rose-500 focus-within:ring-1 focus-within:ring-rose-500'
-            : 'border-gray-300 hover:border-primary focus-within:border-primary focus-within:ring-1 focus-within:ring-primary dark:border-gray-600 dark:hover:border-primaryDark dark:focus-within:border-primaryDark dark:focus-within:ring-primaryDark'
+            : 'border-gray-300 hover:border-primary focus-within:border-primary focus-within:ring-1 focus-within:ring-primary dark:border-gray-600 dark:hover:border-primaryDark dark:focus-within:border-primaryDark dark:focus-within:ring-primaryDark',
         )}
         onClick={openDropdown}
       >
         {selected.map((option) => (
           <span
             key={option}
-            className="inline-flex w-fit items-center gap-x-1 rounded bg-gray-200 px-2.5 py-0.5 text-sm font-medium text-gray-800 dark:bg-gray-600 dark:text-gray-100"
+            className='inline-flex w-fit items-center gap-x-1 rounded bg-gray-200 px-2.5 py-0.5 text-sm font-medium text-gray-800 dark:bg-gray-600 dark:text-gray-100'
           >
             {option}
             {!disabled && (
               <button
-                type="button"
-                className="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-black/10 dark:hover:bg-white/10"
-                aria-label={removeLabel ? removeLabel(option) : `Remove ${option}`}
+                type='button'
+                className='ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded hover:bg-black/10 dark:hover:bg-white/10'
+                aria-label={
+                  removeLabel ? removeLabel(option) : `Remove ${option}`
+                }
                 onClick={(e) => {
                   e.stopPropagation()
                   toggleOption(option)
                 }}
               >
-                <FontAwesomeIcon icon={faXmark} className="h-3 w-3" />
+                <FontAwesomeIcon icon={faXmark} className='h-3 w-3' />
               </button>
             )}
           </span>
@@ -137,9 +146,9 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
           <input
             ref={inputRef}
             id={id}
-            type="text"
+            type='text'
             disabled={disabled}
-            className="min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-sm text-titleLight placeholder:text-placeHolderInputText focus:outline-none focus:ring-0 disabled:cursor-not-allowed dark:text-titleDark dark:placeholder:text-placeHolderInputTextDark"
+            className='min-w-[6rem] flex-1 border-0 bg-transparent p-0 text-sm text-titleLight placeholder:text-placeHolderInputText focus:outline-none focus:ring-0 disabled:cursor-not-allowed dark:text-titleDark dark:placeholder:text-placeHolderInputTextDark'
             placeholder={selected.length === 0 ? placeholder : ''}
             value={search}
             onChange={(e) => {
@@ -148,28 +157,35 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
             }}
             onFocus={() => setIsOpen(true)}
             onKeyDown={(e) => {
-              if (e.key === 'Backspace' && search === '' && selected.length > 0) {
+              if (
+                e.key === 'Backspace' &&
+                search === '' &&
+                selected.length > 0
+              ) {
                 toggleOption(selected[selected.length - 1])
               }
             }}
           />
         ) : (
           selected.length === 0 && (
-            <span className="flex-1 text-sm text-placeHolderInputText dark:text-placeHolderInputTextDark">
+            <span className='flex-1 text-sm text-placeHolderInputText dark:text-placeHolderInputTextDark'>
               {placeholder}
             </span>
           )
         )}
-        <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+        <span className='pointer-events-none absolute inset-y-0 right-3 flex items-center'>
           <FontAwesomeIcon
             icon={faChevronDown}
-            className={classNames('h-4 w-4 text-gray-400 transition-transform', isOpen && 'rotate-180')}
-            aria-hidden="true"
+            className={classNames(
+              'h-4 w-4 text-gray-400 transition-transform',
+              isOpen && 'rotate-180',
+            )}
+            aria-hidden='true'
           />
         </span>
       </div>
       {isOpen && (
-        <div className="absolute z-20 mt-2 max-h-56 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-slate-900">
+        <div className='absolute z-20 mt-2 max-h-56 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-slate-900'>
           {filteredOptions.length > 0 ? (
             filteredOptions.map((option) => {
               const isSelected = selected.includes(option)
@@ -177,8 +193,8 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
               return (
                 <button
                   key={option}
-                  type="button"
-                  className="flex w-full items-center gap-3 py-2 pl-3 pr-3 text-left text-sm text-titleLight transition hover:bg-gray-100 dark:text-titleDark dark:hover:bg-slate-800"
+                  type='button'
+                  className='flex w-full items-center gap-3 py-2 pl-3 pr-3 text-left text-sm text-titleLight transition hover:bg-gray-100 dark:text-titleDark dark:hover:bg-slate-800'
                   onClick={() => {
                     toggleOption(option)
                     setSearch('')
@@ -188,23 +204,25 @@ export const MultiSelectCombobox: FC<MultiSelectComboboxProps> = ({
                   {optionIcon && (
                     <FontAwesomeIcon
                       icon={optionIcon}
-                      className="h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-300"
-                      aria-hidden="true"
+                      className='h-3.5 w-3.5 shrink-0 text-gray-500 dark:text-gray-300'
+                      aria-hidden='true'
                     />
                   )}
-                  <span className="truncate">{option}</span>
+                  <span className='truncate'>{option}</span>
                   {isSelected && (
                     <FontAwesomeIcon
                       icon={faCheck}
-                      className="ml-auto h-3.5 w-3.5 shrink-0 text-primary dark:text-primaryDark"
-                      aria-hidden="true"
+                      className='ml-auto h-3.5 w-3.5 shrink-0 text-primary dark:text-primaryDark'
+                      aria-hidden='true'
                     />
                   )}
                 </button>
               )
             })
           ) : (
-            <p className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">{noOptionsText}</p>
+            <p className='px-3 py-2 text-sm text-gray-500 dark:text-gray-400'>
+              {noOptionsText}
+            </p>
           )}
         </div>
       )}

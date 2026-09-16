@@ -1,7 +1,6 @@
-import { Account } from "./types"
+import { Account } from './types'
 
 export const useLogin = () => {
-
   const parseConfig = (account: Account, config): Account => {
     const voiceHost = account.host.split('.')
     voiceHost.shift()
@@ -18,7 +17,10 @@ export const useLogin = () => {
     COMPANY_URL = config.split("COMPANY_URL: '")[1].split("',")[0].trim() //
     SIP_HOST = config.split("SIP_HOST: '")[1].split("',")[0].trim() //
     SIP_PORT = config.split("SIP_PORT: '")[1].split("',")[0].trim() //
-    NUMERIC_TIMEZONE = config.split("NUMERIC_TIMEZONE: '")[1].split("',")[0].trim() //
+    NUMERIC_TIMEZONE = config
+      .split("NUMERIC_TIMEZONE: '")[1]
+      .split("',")[0]
+      .trim() //
     TIMEZONE = config.split(" TIMEZONE: '")[1].split("',")[0].trim() //
     VOICE_ENDPOINT = config.split(" VOICE_ENDPOINT: '")[1].split("',")[0].trim() //
 
@@ -34,6 +36,6 @@ export const useLogin = () => {
   }
 
   return {
-    parseConfig
+    parseConfig,
   }
 }

@@ -1,6 +1,6 @@
 import {
   faMagnifyingGlass as SearchIcon,
-  faXmark as DeleteSearchIcon
+  faXmark as DeleteSearchIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -13,27 +13,22 @@ import { Button, TextInput } from '@renderer/components/Nethesis'
 import { Log } from '@shared/utils/logger'
 import { debouncer } from '@shared/utils/utils'
 type FormDataType = {
-  searchText: string | undefined;
+  searchText: string | undefined
 }
 export function SearchBox(): JSX.Element {
-
   const { callNumber } = usePhoneIslandEventHandler()
   const phoneBookSearchModule = usePhonebookSearchModule()
   const [searchText, setSearchText] = phoneBookSearchModule.searchTextState
   const [phonebookSearchModule] = useNethlinkData('phonebookSearchModule')
-  const [, setShowPhonebookSearchModule] = useNethlinkData('showPhonebookSearchModule')
+  const [, setShowPhonebookSearchModule] = useNethlinkData(
+    'showPhonebookSearchModule',
+  )
   const [, setShowAddContactModule] = useNethlinkData('showAddContactModule')
 
-  const {
-    register,
-    watch,
-    reset,
-    setValue,
-    handleSubmit
-  } = useForm({
+  const { register, watch, reset, setValue, handleSubmit } = useForm({
     defaultValues: {
-      searchText: ''
-    }
+      searchText: '',
+    },
   })
 
   useEffect(() => {
@@ -46,7 +41,6 @@ export function SearchBox(): JSX.Element {
   }, [searchText])
 
   const tempSearchText = watch('searchText')
-
 
   useEffect(() => {
     if (tempSearchText) {
@@ -82,26 +76,29 @@ export function SearchBox(): JSX.Element {
   }
 
   return (
-    <form className="flex flex-row items-center relative w-full" onSubmit={handleSubmit(submit)}>
+    <form
+      className='flex flex-row items-center relative w-full'
+      onSubmit={handleSubmit(submit)}
+    >
       <TextInput
-        rounded="base"
+        rounded='base'
         icon={SearchIcon}
-        type="text"
+        type='text'
         placeholder={t('Common.Call or compose') as string}
         onKeyDown={handleCallUser}
-        className="min-w-[180px] dark:text-titleDark text-titleLight"
+        className='min-w-[180px] dark:text-titleDark text-titleLight'
         {...register('searchText')}
       />
       {tempSearchText !== '' && (
         <Button
-          variant="ghost"
+          variant='ghost'
           type='reset'
-          className="absolute right-1 z-[101] cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px]"
+          className='absolute right-1 z-[101] cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px]'
           onClick={handleClearButton}
         >
           <FontAwesomeIcon
             icon={DeleteSearchIcon}
-            className="dark:text-titleDark text-titleLight h-4 w-4"
+            className='dark:text-titleDark text-titleLight h-4 w-4'
           />
         </Button>
       )}

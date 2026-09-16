@@ -1,4 +1,4 @@
-import { FilterTypes, MENU_ELEMENT, NEW_ACCOUNT } from "./constants"
+import { FilterTypes, MENU_ELEMENT, NEW_ACCOUNT } from './constants'
 
 export type AvailableThemes = 'system' | 'light' | 'dark'
 export type AvailableDevices = 'nethlink' | 'physical' | 'webrtc'
@@ -15,15 +15,15 @@ export type PhoneIslandPosition = {
 }
 
 export enum PAGES {
-  SPLASHSCREEN = "splashscreenpage",
-  LOGIN = "Login",
-  PHONEISLAND = "phoneislandpage",
-  NETHLINK = "NethLink",
-  DEVTOOLS = "devtoolspage",
-  COMMANDBAR = "commandbarpage"
+  SPLASHSCREEN = 'splashscreenpage',
+  LOGIN = 'Login',
+  PHONEISLAND = 'phoneislandpage',
+  NETHLINK = 'NethLink',
+  DEVTOOLS = 'devtoolspage',
+  COMMANDBAR = 'commandbarpage',
 }
 
-export type StateType<T> = [(T | undefined), (value: T | undefined) => void]
+export type StateType<T> = [T | undefined, (value: T | undefined) => void]
 
 export type Account = {
   username: string
@@ -42,7 +42,7 @@ export type Account = {
   numeric_timezone?: string
   timezone?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data?: AccountData,
+  data?: AccountData
   shortcut?: string
   commandBarShortcut?: string
   preferredDevices?: PreferredDevices
@@ -50,9 +50,9 @@ export type Account = {
 }
 
 export type PreferredDevices = {
-  audioInput: string,
-  audioOutput: string,
-  videoInput: string,
+  audioInput: string
+  audioOutput: string
+  videoInput: string
 }
 
 export type LoginData = {
@@ -104,7 +104,11 @@ export type AccountData = BaseAccountData & {
       [macro_permission_name: string]: {
         value: boolean
         permissions: {
-          [permission_name: string]: { id: string; name: string; value: boolean }
+          [permission_name: string]: {
+            id: string
+            name: string
+            value: boolean
+          }
         }
       }
     }
@@ -114,7 +118,7 @@ export type AccountData = BaseAccountData & {
   call_summary_enabled?: boolean
   call_transcription_enabled?: boolean
   voicemail_transcription_enabled?: boolean
-  settings: UserSettings,
+  settings: UserSettings
   mainextension?: string
 }
 
@@ -158,7 +162,7 @@ export type SearchCallData = MultipleResponse<SearchData>
 
 export type SearchData = {
   isOperator: boolean
-  kind: 'person' | 'company',
+  kind: 'person' | 'company'
   contacts?: any
   displayName: string
   cellphone: string
@@ -227,7 +231,10 @@ export type CallData = {
   queue?: string
 }
 
-export type LastCallData = CallData & { username: string, hasNotification: boolean }
+export type LastCallData = CallData & {
+  username: string
+  hasNotification: boolean
+}
 
 export type StatusTypes =
   | 'available'
@@ -289,9 +296,9 @@ export type ContactType = {
 }
 
 export type ParkingType = {
-  name: string,
-  parking: string,
-  timeout: number, //time in seconds
+  name: string
+  parking: string
+  timeout: number // time in seconds
   parkedCaller: any
 }
 
@@ -366,15 +373,13 @@ export type ExtensionsType = {
     chanType: string
     username: string
     sipuseragent: string
-    conversations: object,
+    conversations: object
   }
-
 }
 
 export type AvatarType = {
-  [username: string]: string //if present there is base64
+  [username: string]: string // if present there is base64
 }
-
 
 export type ParkingsType = {
   [parkId: string]: ParkingType
@@ -415,28 +420,27 @@ export type PageType = {
   }
 }
 
-
 export type Size = { w: number; h: number }
 
 export type Device = {
-  type: AvailableDevices,
-  id: string,
+  type: AvailableDevices
+  id: string
   status?: StatusTypes
 }
 
 export type LocalStorageData = {
-  account?: Account,
-  auth?: AuthAppData,
-  device?: Device,
-  page?: PageType,
-  theme?: AvailableThemes,
-  connection?: boolean,
-  notifications?: NotificationData,
-  lostCallNotifications?: CallData[],
-  lastDevice?: Device,
-  isCallsEnabled: boolean,
-  accountStatus: StatusTypes,
-  shortcut?: string,
+  account?: Account
+  auth?: AuthAppData
+  device?: Device
+  page?: PageType
+  theme?: AvailableThemes
+  connection?: boolean
+  notifications?: NotificationData
+  lostCallNotifications?: CallData[]
+  lastDevice?: Device
+  isCallsEnabled: boolean
+  accountStatus: StatusTypes
+  shortcut?: string
   availableRingtones?: RingtoneType[]
 }
 
@@ -445,9 +449,9 @@ export type OnDraggingWindow = {
 }
 
 export type DraggingWindow = {
-  interval: number,
-  startMousePosition: { x: number, y: number },
-  startWindowPosition: { x: number, y: number }
+  interval: number
+  startMousePosition: { x: number; y: number }
+  startWindowPosition: { x: number; y: number }
 }
 
 export type LoginPageData = {
@@ -458,19 +462,19 @@ export type LoginPageData = {
 }
 
 export type AuthAppData = {
-  lastUser?: string,
+  lastUser?: string
   lastUserCryptPsw?: Buffer
-  isFirstStart: boolean,
+  isFirstStart: boolean
   availableAccounts: {
     [accountUID: string]: Account
   }
 }
 export type FeatureCodes = {
-  pickup?: string,
-  dnd_toggle?: string,
-  audio_test?: string,
-  confbridge_conf?: string,
-  incall_audio?: string,
+  pickup?: string
+  dnd_toggle?: string
+  audio_test?: string
+  confbridge_conf?: string
+  incall_audio?: string
   que_toggle?: string
 }
 
@@ -480,24 +484,24 @@ export type RingtoneType = {
 }
 
 export type NethLinkPageData = {
-  selectedSidebarMenu: MENU_ELEMENT,
-  operators?: OperatorData,
-  queues?: QueuesType,
-  parkings?: ParkingType[],
-  lastCalls?: CallData[],
-  speeddials?: ContactType[],
-  missedCalls?: CallData[],
-  showPhonebookSearchModule?: boolean,
-  isForwardDialogOpen?: boolean,
-  isShortcutDialogOpen?: boolean,
-  isCommandBarShortcutDialogOpen?: boolean,
-  isDeviceDialogOpen?: boolean,
-  isIncomingCallsDialogOpen?: boolean,
-  isNotificationsDialogOpen?: boolean,
-  showAddContactModule?: boolean,
+  selectedSidebarMenu: MENU_ELEMENT
+  operators?: OperatorData
+  queues?: QueuesType
+  parkings?: ParkingType[]
+  lastCalls?: CallData[]
+  speeddials?: ContactType[]
+  missedCalls?: CallData[]
+  showPhonebookSearchModule?: boolean
+  isForwardDialogOpen?: boolean
+  isShortcutDialogOpen?: boolean
+  isCommandBarShortcutDialogOpen?: boolean
+  isDeviceDialogOpen?: boolean
+  isIncomingCallsDialogOpen?: boolean
+  isNotificationsDialogOpen?: boolean
+  showAddContactModule?: boolean
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData
-  phonebookModule?: PhonebookModuleData,
+  phonebookModule?: PhonebookModuleData
 }
 
 export type SpeedDialModuleData = {
@@ -507,7 +511,7 @@ export type SpeedDialModuleData = {
 }
 
 export type PhonebookSearchModuleData = {
-  searchText?: string | null,
+  searchText?: string | null
 }
 
 export type PhonebookModuleData = {
@@ -519,7 +523,6 @@ export type SelectedContact = {
   company?: string
 }
 
-
 export type NotificationData = {
   system: {
     update: NotificationItem
@@ -527,27 +530,27 @@ export type NotificationData = {
 }
 
 export type NotificationItem = {
-  message: string,
+  message: string
 }
 
 export type PhoneIslandData = {
-  view: PhoneIslandView | null,
+  view: PhoneIslandView | null
   activeAlerts: {
     [alertName: string]: boolean
-  },
-  isOpen: boolean,
-  isActionExpanded: boolean,
-  isListen: boolean,
+  }
+  isOpen: boolean
+  isActionExpanded: boolean
+  isListen: boolean
   currentCall: {
-    accepted: boolean,
-    transferring: boolean,
-    incoming: boolean,
+    accepted: boolean
+    transferring: boolean
+    incoming: boolean
     outgoing: boolean
   }
 }
 export type sizeInformationType = {
-  width: string,
-  height: string,
+  width: string
+  height: string
   top?: string
   bottom?: string
   left?: string
@@ -565,5 +568,5 @@ export enum PhoneIslandView {
   TRANSFER = 'transfer',
   PLAYER = 'player',
   RECORDER = 'recorder',
-  PHISICAL_PHONE_RECORDER = 'physicalPhoneRecorder'
+  PHISICAL_PHONE_RECORDER = 'physicalPhoneRecorder',
 }

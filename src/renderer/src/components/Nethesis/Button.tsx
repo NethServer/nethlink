@@ -17,11 +17,20 @@ import { ComponentPropsWithRef, forwardRef, ReactNode } from 'react'
 import classNames from 'classnames'
 import { useTheme } from '../../theme/Context'
 
-export interface ButtonProps
-  extends Omit<ComponentPropsWithRef<'button'>, 'color' | 'style'> {
+export interface ButtonProps extends Omit<
+  ComponentPropsWithRef<'button'>,
+  'color' | 'style'
+> {
   children: ReactNode
   size?: 'small' | 'base' | 'large' | 'inputSize' | 'base_square'
-  variant?: 'primary' | 'secondary' | 'white' | 'ghost' | 'danger' | 'dashboard' | 'tertiary'
+  variant?:
+    | 'primary'
+    | 'secondary'
+    | 'white'
+    | 'ghost'
+    | 'danger'
+    | 'dashboard'
+    | 'tertiary'
   fullWidth?: boolean
   fullHeight?: boolean
   disabled?: boolean

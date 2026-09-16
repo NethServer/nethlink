@@ -1,7 +1,6 @@
 import { DevToolsWindow } from '../windows'
 
 export class DevToolsController {
-
   static instance: DevToolsController
   window: DevToolsWindow
   constructor() {

@@ -14,7 +14,6 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
 import { sendNotification } from '@renderer/utils'
 
-
 export interface NethLinkPageProps {
   handleRefreshConnection: () => void
 }
@@ -26,8 +25,16 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   const { hasPermission, updateAccountData } = useAccount()
   const isFetching = useRef<boolean>(false)
 
-  const { saveOperators, onQueueUpdate, onParkingsUpdate, saveLastCalls, saveSpeeddials, onMainPresence, updateLastCalls, updateParkings } =
-    usePhoneIslandEventHandler()
+  const {
+    saveOperators,
+    onQueueUpdate,
+    onParkingsUpdate,
+    saveLastCalls,
+    saveSpeeddials,
+    onMainPresence,
+    updateLastCalls,
+    updateParkings,
+  } = usePhoneIslandEventHandler()
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const accountMeInterval = useRef<NodeJS.Timeout>()
@@ -39,25 +46,38 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
         Log.info('requested notification permission')
       })
       .catch((e) => {
-        Log.warning('notification permission error or unsuccessfully acquired', e)
+        Log.warning(
+          'notification permission error or unsuccessfully acquired',
+          e,
+        )
       })
   })
 
   useEffect(() => {
     if (account) {
-      window.electron.receive(IPC_EVENTS.UPDATE_APP_NOTIFICATION, showUpdateAppNotification)
+      window.electron.receive(
+        IPC_EVENTS.UPDATE_APP_NOTIFICATION,
+        showUpdateAppNotification,
+      )
       window.electron.receive(IPC_EVENTS.EMIT_CALL_END, updateLastCalls)
-      window.electron.receive(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE, onMainPresence)
+      window.electron.receive(
+        IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE,
+        onMainPresence,
+      )
       window.electron.receive(IPC_EVENTS.EMIT_PARKING_UPDATE, updateParkings)
       window.electron.receive(IPC_EVENTS.EMIT_QUEUE_UPDATE, onQueueUpdate)
       window.electron.receive(IPC_EVENTS.UPDATE_ACCOUNT, updateAccountData)
-      window.electron.receive(IPC_EVENTS.RESPONSE_START_CALL_BY_URL, handleStartCallByUrlResponse)
-      window.electron.receive(IPC_EVENTS.RECONNECT_SOCKET, handleSocketReconnect)
+      window.electron.receive(
+        IPC_EVENTS.RESPONSE_START_CALL_BY_URL,
+        handleStartCallByUrlResponse,
+      )
+      window.electron.receive(
+        IPC_EVENTS.RECONNECT_SOCKET,
+        handleSocketReconnect,
+      )
 
       if (!accountMeInterval.current) {
-        accountMeInterval.current = setInterval(loadData,
-          1000 * 60 * 5
-        )
+        accountMeInterval.current = setInterval(loadData, 1000 * 60 * 5)
       }
 
       return () => {
@@ -67,7 +87,9 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
         window.electron.removeAllListeners(IPC_EVENTS.EMIT_PARKING_UPDATE)
         window.electron.removeAllListeners(IPC_EVENTS.EMIT_QUEUE_UPDATE)
         window.electron.removeAllListeners(IPC_EVENTS.UPDATE_ACCOUNT)
-        window.electron.removeAllListeners(IPC_EVENTS.RESPONSE_START_CALL_BY_URL)
+        window.electron.removeAllListeners(
+          IPC_EVENTS.RESPONSE_START_CALL_BY_URL,
+        )
         window.electron.removeAllListeners(IPC_EVENTS.RECONNECT_SOCKET)
         stopInterval(accountMeInterval)
       }
@@ -77,7 +99,9 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     }
   }, [account?.username])
 
-  function stopInterval(interval: MutableRefObject<NodeJS.Timeout | undefined>) {
+  function stopInterval(
+    interval: MutableRefObject<NodeJS.Timeout | undefined>,
+  ) {
     if (interval.current) {
       clearInterval(interval.current)
       interval.current = undefined
@@ -86,8 +110,12 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
 
   function handleStartCallByUrlResponse(isValid: boolean) {
     if (!isValid) {
-      const phone = account?.data?.default_device.description || t('Settings.IP Phone')
-      sendNotification(t('Common.Warning'), t('Notification.physical_phone_error', { phone }))
+      const phone =
+        account?.data?.default_device.description || t('Settings.IP Phone')
+      sendNotification(
+        t('Common.Warning'),
+        t('Notification.physical_phone_error', { phone }),
+      )
     }
   }
 
@@ -101,9 +129,9 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
       ...p,
       system: {
         update: {
-          message: updateLink
-        }
-      }
+          message: updateLink,
+        },
+      },
     }))
   }
 
@@ -118,18 +146,24 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
           NethVoiceAPI.HistoryCall.interval().then(saveLastCalls),
           NethVoiceAPI.AstProxy.getQueues().then(onQueueUpdate),
           ...[
-            hasPermission(PERMISSION.PARKINGS) ? NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate) : []
+            hasPermission(PERMISSION.PARKINGS)
+              ? NethVoiceAPI.AstProxy.getParkings().then(onParkingsUpdate)
+              : [],
           ],
-          NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials)
+          NethVoiceAPI.Phonebook.getSpeeddials().then(saveSpeeddials),
         ])
         Log.debug(results)
-        const firstError = results.find(e => e)
+        const firstError = results.find((e) => e)
         if (firstError) {
           throw firstError
         }
-        debouncer('loadData', () => {
-          isFetching.current = false
-        }, 2000)
+        debouncer(
+          'loadData',
+          () => {
+            isFetching.current = false
+          },
+          2000,
+        )
       } catch (e: any) {
         Log.warning(e)
         if (e['status'] === 401) {
@@ -148,11 +182,13 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   }, [connection])
 
   return (
-    <div className="h-[100vh] w-[100vw] ">
-      <div className="absolute w-full h-full  flex flex-col justify-end items-center text-sm">
-        <div className={`flex flex-col h-full w-full items-center justify-between`}>
-          <div className="relative flex flex-row z-10 dark:bg-bgDark bg-bgLight w-full h-full">
-            <div className="flex flex-col gap-3 w-full h-full">
+    <div className='h-[100vh] w-[100vw] '>
+      <div className='absolute w-full h-full  flex flex-col justify-end items-center text-sm'>
+        <div
+          className={'flex flex-col h-full w-full items-center justify-between'}
+        >
+          <div className='relative flex flex-row z-10 dark:bg-bgDark bg-bgLight w-full h-full'>
+            <div className='flex flex-col gap-3 w-full h-full'>
               <Navbar onClickAccount={() => updateAccountData()} />
               <NethLinkModules />
             </div>
@@ -160,11 +196,13 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
           </div>
         </div>
       </div>
-      {!connection && <ConnectionErrorDialog
-        variant='nethlink'
-        onButtonClick={handleRefreshConnection}
-        buttonText={t('Common.Refresh')}
-      />}
+      {!connection && (
+        <ConnectionErrorDialog
+          variant='nethlink'
+          onButtonClick={handleRefreshConnection}
+          buttonText={t('Common.Refresh')}
+        />
+      )}
     </div>
   )
 }

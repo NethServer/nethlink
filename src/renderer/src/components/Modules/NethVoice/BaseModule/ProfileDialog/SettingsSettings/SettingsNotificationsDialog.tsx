@@ -13,13 +13,17 @@ import classNames from 'classnames'
 
 export function SettingsNotificationsDialog() {
   const tooltipId = 'tooltip-call-summary-notifications-info'
-  const [, setIsNotificationsDialogOpen] = useNethlinkData('isNotificationsDialogOpen')
+  const [, setIsNotificationsDialogOpen] = useNethlinkData(
+    'isNotificationsDialogOpen',
+  )
   const [account] = useSharedState('account')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const { updateAccountData } = useAccount()
   const [isSaving, setIsSaving] = useState(false)
   const isCallSummaryEnabled = account?.data?.call_summary_enabled === true
-  const [callSummaryNotifications, setCallSummaryNotifications] = useState<boolean | null>(() => {
+  const [callSummaryNotifications, setCallSummaryNotifications] = useState<
+    boolean | null
+  >(() => {
     if (!account?.data?.settings || !isCallSummaryEnabled) {
       return null
     }
@@ -108,12 +112,23 @@ export function SettingsNotificationsDialog() {
                   <button
                     type='button'
                     className='inline-flex h-4 w-4 items-center justify-center rounded-full text-iconTooltip focus:outline-none focus:ring-2 focus:ring-primaryRing focus:ring-offset-2 focus:ring-offset-elevationL1 dark:text-iconTooltipDark dark:focus:ring-primaryRingDark dark:focus:ring-offset-bgDark'
-                    aria-label={t('Settings.CallSummaryNotificationsDescription') as string}
+                    aria-label={
+                      t(
+                        'Settings.CallSummaryNotificationsDescription',
+                      ) as string
+                    }
                     data-tooltip-id={tooltipId}
-                    data-tooltip-content={t('Settings.CallSummaryNotificationsDescription') as string}
+                    data-tooltip-content={
+                      t(
+                        'Settings.CallSummaryNotificationsDescription',
+                      ) as string
+                    }
                     data-tooltip-place='top'
                   >
-                    <FontAwesomeIcon icon={faCircleInfo} className='text-base' />
+                    <FontAwesomeIcon
+                      icon={faCircleInfo}
+                      className='text-base'
+                    />
                   </button>
                   <CustomThemedTooltip id={tooltipId} place='top' />
                 </div>
@@ -128,7 +143,9 @@ export function SettingsNotificationsDialog() {
                       type='button'
                       role='switch'
                       aria-checked={callSummaryNotifications}
-                      aria-label={t('Settings.CallTranscriptionReady') as string}
+                      aria-label={
+                        t('Settings.CallTranscriptionReady') as string
+                      }
                       onClick={() => {
                         setCallSummaryNotifications((prev) => !prev)
                       }}
@@ -144,7 +161,9 @@ export function SettingsNotificationsDialog() {
                         aria-hidden='true'
                         className={classNames(
                           'block h-[18px] w-[18px] rounded-full bg-white shadow-lightXs transition-transform duration-200 ease-out',
-                          callSummaryNotifications ? 'translate-x-5' : 'translate-x-0',
+                          callSummaryNotifications
+                            ? 'translate-x-5'
+                            : 'translate-x-0',
                         )}
                       />
                     </button>

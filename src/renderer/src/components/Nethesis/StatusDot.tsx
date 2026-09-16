@@ -15,7 +15,10 @@ import classNames from 'classnames'
 import { StatusTypes } from '@shared/types'
 import { useTheme } from '@renderer/theme/Context'
 
-export interface statusDotProps extends Omit<ComponentPropsWithRef<'button'>, 'color' | 'style'> {
+export interface statusDotProps extends Omit<
+  ComponentPropsWithRef<'button'>,
+  'color' | 'style'
+> {
   size?: 'extra_small' | 'small' | 'base' | 'large' | 'extra_large'
   status: StatusTypes
 }

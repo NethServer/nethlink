@@ -1,4 +1,11 @@
-import { Menu, MenuItem, MenuItemConstructorOptions, Tray, nativeImage, nativeTheme } from 'electron'
+import {
+  Menu,
+  MenuItem,
+  MenuItemConstructorOptions,
+  Tray,
+  nativeImage,
+  nativeTheme,
+} from 'electron'
 import path from 'path'
 import { LoginController } from './LoginController'
 import { NethLinkController } from './NethLinkController'
@@ -10,7 +17,7 @@ import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
 
 export type TrayUpdaterProps = {
-  enableShowButton?: boolean,
+  enableShowButton?: boolean
   isShowButtonVisible?: boolean
 }
 export class TrayController {
@@ -18,9 +25,7 @@ export class TrayController {
   static instance: TrayController
   constructor() {
     TrayController.instance = this
-    const theme = nativeTheme.shouldUseDarkColors
-      ? 'dark'
-      : 'light'
+    const theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
     const image = this.getImage(theme)
     this.tray = new Tray(image)
     this.updateTray()
@@ -36,15 +41,17 @@ export class TrayController {
   getImage(theme: 'light' | 'dark') {
     let pathImage = '../../public/TrayToolbarIconWhite.png'
     if (process.platform === 'win32') {
-      pathImage = theme === 'light' ? '../../public/TrayToolbarIconBlack.png' : '../../public/TrayToolbarIconWhite.png'
+      pathImage =
+        theme === 'light'
+          ? '../../public/TrayToolbarIconBlack.png'
+          : '../../public/TrayToolbarIconWhite.png'
     }
-    const image = nativeImage.createFromPath(
-      path.join(__dirname, pathImage)
-    ).resize({ height: 18, width: 18 })
-    image.setTemplateImage(true);
+    const image = nativeImage
+      .createFromPath(path.join(__dirname, pathImage))
+      .resize({ height: 18, width: 18 })
+    image.setTemplateImage(true)
     return image
   }
-
 
   changeIconByTheme(theme: 'light' | 'dark') {
     const image = this.getImage(theme)
@@ -55,35 +62,46 @@ export class TrayController {
     try {
       if (enableShowButton) {
         if (store.store.account) {
-          if (NethLinkController.instance && NethLinkController.instance.window?.isOpen())
+          if (
+            NethLinkController.instance &&
+            NethLinkController.instance.window?.isOpen()
+          )
             NethLinkController.instance.hide()
-          else
-            NethLinkController.instance.show()
+          else NethLinkController.instance.show()
         } else {
-          if (LoginController.instance && LoginController.instance.window?.isOpen())
+          if (
+            LoginController.instance &&
+            LoginController.instance.window?.isOpen()
+          )
             LoginController.instance.hide()
-          else
-            LoginController.instance.show()
+          else LoginController.instance.show()
         }
-
       }
     } catch (e) {
-      Log.warning('error during toggling a NethLink window from the TrayIcon Button:', e)
+      Log.warning(
+        'error during toggling a NethLink window from the TrayIcon Button:',
+        e,
+      )
     }
   }
 
-  updateTray({
-    enableShowButton,
-    isShowButtonVisible
-  }: TrayUpdaterProps = {
-      isShowButtonVisible: true
-    }) {
+  updateTray(
+    { enableShowButton, isShowButtonVisible }: TrayUpdaterProps = {
+      isShowButtonVisible: true,
+    },
+  ) {
     try {
-      const _isShowButtonVisible = isShowButtonVisible === undefined ? true : isShowButtonVisible
-      //TODO: add check if window is focused and add the focus option
+      const _isShowButtonVisible =
+        isShowButtonVisible === undefined ? true : isShowButtonVisible
+      // TODO: add check if window is focused and add the focus option
       const label = store.store.account
-        ? ((NethLinkController.instance && NethLinkController.instance.window?.isOpen()) ? `${t('Tray.Hide')} NethLink` : `${t('Tray.Show')} NethLink`)
-        : ((LoginController.instance && LoginController.instance.window?.isOpen()) ? `${t('Tray.Hide')} Login` : `${t('Tray.Show')} Login`)
+        ? NethLinkController.instance &&
+          NethLinkController.instance.window?.isOpen()
+          ? `${t('Tray.Hide')} NethLink`
+          : `${t('Tray.Show')} NethLink`
+        : LoginController.instance && LoginController.instance.window?.isOpen()
+          ? `${t('Tray.Hide')} Login`
+          : `${t('Tray.Show')} Login`
       const menu: (MenuItemConstructorOptions | MenuItem)[] = [
         {
           role: 'window',
@@ -93,7 +111,7 @@ export class TrayController {
           visible: _isShowButtonVisible,
           click: (_menuItem, _window, _event) => {
             this.toggleWindow(enableShowButton ?? false)
-          }
+          },
         },
         {
           role: process.platform === 'win32' ? 'close' : 'window',
@@ -102,8 +120,8 @@ export class TrayController {
           enabled: enableShowButton ?? false,
           click: (_menuItem, _window, _event) => {
             AppController.safeQuit()
-          }
-        }
+          },
+        },
       ]
 
       if (isDev()) {
@@ -117,14 +135,15 @@ export class TrayController {
               new DevToolsController()
             }
             DevToolsController.instance.toggle()
-          }
+          },
         })
       }
       this.tray.setContextMenu(Menu.buildFromTemplate(menu))
     } catch (e) {
-      Log.warning('error during updating the Tray Icon menu context contents:', e)
+      Log.warning(
+        'error during updating the Tray Icon menu context contents:',
+        e,
+      )
     }
-
   }
-
 }

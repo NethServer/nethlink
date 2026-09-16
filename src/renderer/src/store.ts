@@ -1,136 +1,158 @@
-
 /**
  *  This file is an adaptation of the AIDAPT open library @aidapt/global-state for this project.
  *  https://www.npmjs.com/package/@aidapt/global-state
  */
 
-import { FilterTypes, IPC_EVENTS, LoginPageSize, MENU_ELEMENT } from '@shared/constants';
-import { LocalStorageData, LoginPageData, NethLinkPageData } from '@shared/types';
-import { Log } from '@shared/utils/logger';
-import { useEffect, useRef } from 'react';
-import { create } from 'zustand';
+import {
+  FilterTypes,
+  IPC_EVENTS,
+  LoginPageSize,
+  MENU_ELEMENT,
+} from '@shared/constants'
+import {
+  LocalStorageData,
+  LoginPageData,
+  NethLinkPageData,
+} from '@shared/types'
+import { Log } from '@shared/utils/logger'
+import { useEffect, useRef } from 'react'
+import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import { usePageCtx } from './contexts/pageContext';
+import { usePageCtx } from './contexts/pageContext'
 
 type SharedState<T> = {
   data: {
-    [Key in keyof T]: T[Key];
-  },
-  setData: (key: keyof T, value: any) => T;
-};
+    [Key in keyof T]: T[Key]
+  }
+  setData: (key: keyof T, value: any) => T
+}
 
 type CreateGlobalStateHook<T> = {
-  useGlobalState: <Key extends keyof T>(key: Key) => [T[Key], (setter: ((previous: T[Key]) => T[Key]) | T[Key]) => void];
+  useGlobalState: <Key extends keyof T>(
+    key: Key,
+  ) => [T[Key], (setter: ((previous: T[Key]) => T[Key]) | T[Key]) => void]
   useRegisterStoreHook: () => void
 }
 
-export function createGlobalStateHook<T>(globalStateDefaultObject: T, sharedWithBackend = false): CreateGlobalStateHook<T> {
-
-  // @ts-ignore
-  const useSharedStore = create<SharedState<T>>(devtools((set) => ({
-    data: {
-      ...globalStateDefaultObject,
-    },
-    setData: (key: keyof T, value: any) => {
-      let newState
-      set((state: SharedState<T>) => {
-        let res: T | undefined = typeof value === 'function'
-          ? value(state.data[key])
-          : value
-        newState = {
-          setData: state.setData,
-          data: {
-            ...state.data,
-            [key]: res
+export function createGlobalStateHook<T>(
+  globalStateDefaultObject: T,
+  sharedWithBackend = false,
+): CreateGlobalStateHook<T> {
+  const useSharedStore = create<SharedState<T>>(
+    // @ts-ignore -- must sit on the devtools() line: prettier split this call and
+    // the directive only covers the line directly below it
+    devtools((set) => ({
+      data: {
+        ...globalStateDefaultObject,
+      },
+      setData: (key: keyof T, value: any) => {
+        let newState
+        set((state: SharedState<T>) => {
+          const res: T | undefined =
+            typeof value === 'function' ? value(state.data[key]) : value
+          newState = {
+            setData: state.setData,
+            data: {
+              ...state.data,
+              [key]: res,
+            },
           }
-        }
-        return newState
-      })
-      return newState.data
-    }
-  })))
+          return newState
+        })
+        return newState.data
+      },
+    })),
+  )
 
   function useGlobalState<Key extends keyof T>(
-    key: Key
+    key: Key,
   ): [T[Key], (setter: ((previous: T[Key]) => T[Key]) | T[Key]) => void] {
-    //const global = useSharedStore((state: SharedState<T>) => state.data);
-    const value = useSharedStore((state: SharedState<T>) => state.data[key]);
-    const setData = useSharedStore((state: SharedState<T>) => state.setData);
+    // const global = useSharedStore((state: SharedState<T>) => state.data);
+    const value = useSharedStore((state: SharedState<T>) => state.data[key])
+    const setData = useSharedStore((state: SharedState<T>) => state.setData)
     const pageData = usePageCtx()
 
     const setValue = (arg0: ((prev: T[Key]) => T[Key]) | T[Key]) => {
       let global: T
       if (typeof arg0 === 'function') {
         global = setData(key, (prevValue: T[Key]) => {
-          return (arg0 as (prev: T[Key]) => T[Key])(prevValue);
-        });
-
+          return (arg0 as (prev: T[Key]) => T[Key])(prevValue)
+        })
       } else {
-        global = setData(key, arg0);
+        global = setData(key, arg0)
       }
 
       if (pageData?.page && sharedWithBackend) {
         const sharedStateCopy = Object.assign({}, global)
         Log.debug('STORE share state from', pageData?.page, { key: key })
-        window.electron.send(IPC_EVENTS.UPDATE_SHARED_STATE, sharedStateCopy, pageData.page, key);
+        window.electron.send(
+          IPC_EVENTS.UPDATE_SHARED_STATE,
+          sharedStateCopy,
+          pageData.page,
+          key,
+        )
       }
-    };
+    }
 
-    return [value, setValue];
+    return [value, setValue]
   }
 
   const useRegisterStoreHook = () => {
     const pageData = usePageCtx()
-    const setData = useSharedStore((state: SharedState<T>) => state.setData);
-    //const global = useSharedStore((state: SharedState<T>) => state.data);
+    const setData = useSharedStore((state: SharedState<T>) => state.setData)
+    // const global = useSharedStore((state: SharedState<T>) => state.data);
     const isRegistered = useRef(false)
 
     useEffect(() => {
       if (pageData && !isRegistered.current) {
         Log.debug('shared state registered')
         isRegistered.current = true
-        window.electron.receive(IPC_EVENTS.SHARED_STATE_UPDATED, (newStore: T, fromPage: string) => {
-          if (fromPage !== pageData.page) {
-            Log.debug('shared state received from', fromPage)
-            Object.keys(newStore as object).forEach((k: any) => {
-              setData(k, newStore[k])
-            })
-          }
-        })
+        window.electron.receive(
+          IPC_EVENTS.SHARED_STATE_UPDATED,
+          (newStore: T, fromPage: string) => {
+            if (fromPage !== pageData.page) {
+              Log.debug('shared state received from', fromPage)
+              Object.keys(newStore as object).forEach((k: any) => {
+                setData(k, newStore[k])
+              })
+            }
+          },
+        )
         Log.debug('shared state requested for the first time')
-        window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE);
+        window.electron.send(IPC_EVENTS.REQUEST_SHARED_STATE)
 
         return () => {
           window.electron.removeAllListeners(IPC_EVENTS.SHARED_STATE_UPDATED)
           isRegistered.current = false
         }
       }
-    }, [pageData]);
+    }, [pageData])
   }
 
   return {
     useGlobalState,
-    useRegisterStoreHook
+    useRegisterStoreHook,
   }
 }
-export const {
-  useGlobalState: useSharedState,
-  useRegisterStoreHook
-} = createGlobalStateHook({
-  account: undefined,
-  device: undefined,
-  auth: undefined,
-  connection: undefined,
-  lostCallNotifications: undefined,
-  notifications: undefined,
-  page: undefined,
-  theme: undefined,
-  shortcut: undefined,
-  lastDevice: undefined,
-  isCallsEnabled: false,
-  accountStatus: 'offline',
-  availableRingtones: []
-} as LocalStorageData, true)
+export const { useGlobalState: useSharedState, useRegisterStoreHook } =
+  createGlobalStateHook(
+    {
+      account: undefined,
+      device: undefined,
+      auth: undefined,
+      connection: undefined,
+      lostCallNotifications: undefined,
+      notifications: undefined,
+      page: undefined,
+      theme: undefined,
+      shortcut: undefined,
+      lastDevice: undefined,
+      isCallsEnabled: false,
+      accountStatus: 'offline',
+      availableRingtones: [],
+    } as LocalStorageData,
+    true,
+  )
 
 export const useNethlinkData = createGlobalStateHook({
   selectedSidebarMenu: MENU_ELEMENT.FAVOURITES,
@@ -147,25 +169,23 @@ export const useNethlinkData = createGlobalStateHook({
   isIncomingCallsDialogOpen: false,
   isNotificationsDialogOpen: false,
   phonebookModule: {
-    selectedContact: undefined
+    selectedContact: undefined,
   },
   speeddialsModule: {
     selectedSpeedDial: undefined,
     selectedFavourite: undefined,
-    favouriteOrder: FilterTypes.AZ
-
+    favouriteOrder: FilterTypes.AZ,
   },
   phonebookSearchModule: {
-    searchText: null
+    searchText: null,
   },
   showAddContactModule: false,
-  showPhonebookSearchModule: false
+  showPhonebookSearchModule: false,
 } as NethLinkPageData).useGlobalState
 
 export const useLoginPageData = createGlobalStateHook({
   isLoading: false,
   selectedAccount: undefined,
   windowHeight: LoginPageSize.h,
-  showTwoFactor: false
+  showTwoFactor: false,
 } as LoginPageData).useGlobalState
-

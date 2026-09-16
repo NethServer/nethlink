@@ -51,7 +51,7 @@ export const ParkingBox = () => {
                 >
                   <div className='px-5'>
                     <div
-                      className={`${idx === parkedCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+                      className={`${idx === parkedCalls.length - 1 ? '' : 'border-b dark:border-borderDark border-borderLight'}`}
                     >
                       <ParkedCall parkingDetails={e} onPickup={pickParking} />
                     </div>
@@ -68,7 +68,7 @@ export const ParkingBox = () => {
             .map((_, idx) => {
               return (
                 <div
-                  className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
+                  className={`${idx === 2 ? '' : 'border-b dark:border-borderDark border-borderLight'}`}
                   key={idx}
                 >
                   <ParkedCallSkeleton />
