@@ -94,7 +94,7 @@ jobs:
           DEBUG: electron-notarize*
 
       - name: Upload artifacts for Linux
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: matrix.os == 'ubuntu-latest'
         with:
           name: linux-app.AppImage
@@ -102,7 +102,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload artifacts for MacOS
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: matrix.os == 'macos-latest'
         with:
           name: macos-app-${{ matrix.arch }}.dmg
@@ -110,7 +110,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload artifacts for Windows
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: matrix.os == 'windows-latest'
         with:
           name: win-app.exe
