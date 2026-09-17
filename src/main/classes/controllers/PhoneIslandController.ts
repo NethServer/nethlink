@@ -365,20 +365,6 @@ export class PhoneIslandController {
     }
   }
 
-  reconnect() {
-    try {
-      Log.info('PHONE ISLAND RECONNECT')
-      this.window.emit(IPC_EVENTS.RECONNECT_PHONE_ISLAND)
-      once(IPC_EVENTS.LOGOUT_COMPLETED, () => {
-        Log.info('PHONE ISLAND RECONNECTION AFTER LOGOUT')
-        this.window.quit(false)
-        new PhoneIslandController()
-      })
-    } catch (e) {
-      Log.warning('error during emitting reconnect event to the PhoneIslandWindow:', e)
-    }
-  }
-
   muteAudio() {
     try {
       const window = this.window.getWindow()

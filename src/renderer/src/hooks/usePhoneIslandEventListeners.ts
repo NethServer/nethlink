@@ -336,6 +336,13 @@ export const usePhoneIslandEventListener = () => {
         // Check if both WebRTC and Socket are ready
         checkAndTriggerPhoneIslandReady()
       }),
+      ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-alert-set"], (data) => {
+        // A WebRTC failure may be due to SIP settings changed on the server (e.g. after a NethVoice
+        // update): ask the main process to re-check the server config
+        if (data?.type === 'webrtc_down') {
+          window.electron.send(IPC_EVENTS.CHECK_SERVER_CONFIG)
+        }
+      }),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-all-alerts-removed"]),
       ...eventHandler(PHONE_ISLAND_EVENTS["phone-island-fullscreen-entered"], () => {
         window.electron.send(IPC_EVENTS.FULLSCREEN_ENTER)
