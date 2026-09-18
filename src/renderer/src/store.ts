@@ -187,4 +187,6 @@ export const useLoginPageData = createGlobalStateHook({
   selectedAccount: undefined,
   windowHeight: LoginPageSize.h,
   showTwoFactor: false,
+  loginStep: 'host',
+  hostConfig: undefined,
 } as LoginPageData).useGlobalState
