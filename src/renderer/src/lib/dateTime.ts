@@ -27,7 +27,10 @@ export const getCallTimeToDisplay = (date: any) => {
 }
 
 export const formatInTimeZoneLoc = (date: any, fmt: string, tz: any) => {
-  return format(utcToZonedTime(date, tz), fmt, { timeZone: tz, locale: getLocale() })
+  return format(utcToZonedTime(date, tz), fmt, {
+    timeZone: tz,
+    locale: getLocale(),
+  })
 }
 
 export function formatDateLocIsDifferentTimezone(date: any, fmt: string) {
@@ -37,7 +40,10 @@ export function formatDateLocIsDifferentTimezone(date: any, fmt: string) {
 
 export const getCallTimeToDisplayIsDifferentTimezone = (date: any) => {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
-  return format(utcToZonedTime(date, timeZone), 'HH:mm', { timeZone, locale: getLocale() })
+  return format(utcToZonedTime(date, timeZone), 'HH:mm', {
+    timeZone,
+    locale: getLocale(),
+  })
 }
 
 export function formatDateLocIsAnnouncement(date: any) {
@@ -51,7 +57,10 @@ export function formatDateLocIsAnnouncement(date: any) {
   return format(formattedDate, 'PP', { locale: getLocale() })
 }
 
-export const getCallTimeToDisplayIsAnnouncement = (date: any, differenceInHours: any) => {
+export const getCallTimeToDisplayIsAnnouncement = (
+  date: any,
+  differenceInHours: any,
+) => {
   const timeParts = date?.time_creation.split(':')
   const hour = parseInt(timeParts[0], 10)
   const minute = parseInt(timeParts[1], 10)
@@ -69,7 +78,10 @@ export const getCallTimeToDisplayIsAnnouncement = (date: any, differenceInHours:
  *
  */
 export const formatCallDuration = (durationSeconds: number) => {
-  const duration: any = intervalToDuration({ start: 0, end: durationSeconds * 1000 })
+  const duration: any = intervalToDuration({
+    start: 0,
+    end: durationSeconds * 1000,
+  })
   const hours = duration.hours ? `${padStart(duration.hours, 2, '0')}:` : ''
   const minutes = padStart(duration.minutes, 2, '0')
   const seconds = padStart(duration.seconds, 2, '0')
@@ -83,7 +95,10 @@ export const formatCallDuration = (durationSeconds: number) => {
  * @param seconds - duration to format
  *
  */
-export const formatDurationLoc = (durationSeconds: number, options: any = {}) => {
+export const formatDurationLoc = (
+  durationSeconds: number,
+  options: any = {},
+) => {
   if (!durationSeconds) {
     return null
   }

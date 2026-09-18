@@ -34,7 +34,9 @@ export const CustomThemedTooltip: FC<CustomThemedTooltipProps> = ({
     return theme ? parseThemeToClassName(theme) : getSystemTheme()
   }
 
-  const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>(() => getResolvedTheme())
+  const [resolvedTheme, setResolvedTheme] = useState<'dark' | 'light'>(() =>
+    getResolvedTheme(),
+  )
 
   useEffect(() => {
     const updateResolvedTheme = () => {

@@ -19,7 +19,7 @@ const clean = ({ key, source }: ClearProps): object => {
 export const cleanClassName = (props: PropsWithChildren<object>): object => {
   return clean({
     key: 'className',
-    source: props
+    source: props,
   })
 }
 export const cleanRegex = /[^a-zA-Z0-9]/g
@@ -68,9 +68,9 @@ export const sortByProperty = (property: string | number) => {
  */
 export const sortByBooleanProperty = (property: string | number) => {
   return function (a: any, b: any) {
-    //set 1 if true, 0 otherwise
+    // set 1 if true, 0 otherwise
     const valueA = a[property] ? 1 : 0
-    //set 1 if true, 0 otherwise
+    // set 1 if true, 0 otherwise
     const valueB = b[property] ? 1 : 0
 
     if (valueA < valueB) {
@@ -182,9 +182,9 @@ function validatePhoneNumber(phoneNumber: any) {
 
 // The event to show the audio player view and play an audio file.
 export function playFileAudio(audioFileId: any, typeFile: string) {
-  let objectPlayAudioFile = {
+  const objectPlayAudioFile = {
     type: typeFile === 'announcement' ? 'announcement' : 'call_recording',
-    id: audioFileId.toString()
+    id: audioFileId.toString(),
   }
   eventDispatch('phone-island-audio-player-start', { ...objectPlayAudioFile })
 }
@@ -195,7 +195,9 @@ export function getHtmlFaviconElement() {
     return ''
   }
 
-  let faviconHtmlElement = document.querySelector("link[rel*='icon']") as HTMLLinkElement
+  const faviconHtmlElement = document.querySelector(
+    "link[rel*='icon']",
+  ) as HTMLLinkElement
   return faviconHtmlElement
 }
 
@@ -221,7 +223,7 @@ export function getNMonthsAgoDate(monthsAgo: number = 0): Date {
   const targetDate = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth() - monthsAgo,
-    currentDate.getDate()
+    currentDate.getDate(),
   )
   return targetDate
 }
@@ -239,7 +241,7 @@ export function invertObject(obj: any) {
   return invertedObj
 }
 
-//Open selected email manager
+// Open selected email manager
 export const openEmailClient = (emailAddress: any) => {
   const mailtoLink = `mailto:${emailAddress}`
   window.location.href = mailtoLink
@@ -247,7 +249,8 @@ export const openEmailClient = (emailAddress: any) => {
 
 export async function transferCall(operatorBadgeInformations: any) {
   if (operatorBadgeInformations?.endpoints?.mainextension[0]?.id) {
-    let destinationNumber = operatorBadgeInformations?.endpoints?.mainextension[0]?.id
+    const destinationNumber =
+      operatorBadgeInformations?.endpoints?.mainextension[0]?.id
 
     if (destinationNumber) {
       eventDispatch('phone-island-call-transfer', { to: destinationNumber })
@@ -276,7 +279,7 @@ export const clearLocalStorageAndCache = () => {
   // Delete browser caches
   if (caches && caches.keys) {
     caches.keys().then(function (names) {
-      for (let name of names) {
+      for (const name of names) {
         caches.delete(name)
       }
     })

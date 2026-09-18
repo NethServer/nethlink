@@ -14,25 +14,36 @@ export class NethLinkController {
   init() {
     try {
       this.show()
-    } catch (e) { Log.warning('error during initializing NethLinkWindow: ', e) }
+    } catch (e) {
+      Log.warning('error during initializing NethLinkWindow: ', e)
+    }
   }
 
   show() {
     try {
       this.window.show()
-    } catch (e) { Log.warning('error during showing NethLinkWindow: ', e) }
+    } catch (e) {
+      Log.warning('error during showing NethLinkWindow: ', e)
+    }
   }
 
   hide() {
     try {
       this.window.hide()
-    } catch (e) { Log.warning('error during hiding NethLinkWindow: ', e) }
+    } catch (e) {
+      Log.warning('error during hiding NethLinkWindow: ', e)
+    }
   }
 
   sendUpdateNotification() {
     try {
       this.window.emit(IPC_EVENTS.UPDATE_APP_NOTIFICATION)
-    } catch (e) { Log.warning('error during send update notification to the NethLinkWindow: ', e) }
+    } catch (e) {
+      Log.warning(
+        'error during send update notification to the NethLinkWindow: ',
+        e,
+      )
+    }
   }
 
   async logout() {

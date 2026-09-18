@@ -3,7 +3,6 @@ import { BaseWindow } from './BaseWindow'
 import { ipcMain } from 'electron'
 
 export class PhoneIslandWindow extends BaseWindow {
-
   public static currentSize: Partial<Electron.Rectangle> = {}
   constructor() {
     super(PAGES.PHONEISLAND, {
@@ -32,8 +31,8 @@ export class PhoneIslandWindow extends BaseWindow {
       trafficLightPosition: { x: 0, y: 0 },
       webPreferences: {
         nodeIntegration: true,
-        backgroundThrottling: false
-      }
+        backgroundThrottling: false,
+      },
     })
 
     this.addOnBuildListener(() => {
@@ -66,13 +65,23 @@ export class PhoneIslandWindow extends BaseWindow {
 
         // Forward all console messages from PhoneIsland renderer to main process log file
         // Uses 'phone-island-log' channel which always writes to file (not gated by isDev)
-        window.webContents.on('console-message', (_event, level, message, line, sourceId) => {
-          const levelMap = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
-          const levelStr = levelMap[level] || 'INFO'
-          const source = sourceId ? sourceId.split('/').pop() : 'unknown'
-          const timestamp = new Date().toISOString().replace('T', ' ').replace('Z', '')
-          ipcMain.emit('phone-island-log', {}, `${timestamp} [PhoneIsland] [${levelStr}] ${message} (${source}:${line})`)
-        })
+        window.webContents.on(
+          'console-message',
+          (_event, level, message, line, sourceId) => {
+            const levelMap = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
+            const levelStr = levelMap[level] || 'INFO'
+            const source = sourceId ? sourceId.split('/').pop() : 'unknown'
+            const timestamp = new Date()
+              .toISOString()
+              .replace('T', ' ')
+              .replace('Z', '')
+            ipcMain.emit(
+              'phone-island-log',
+              {},
+              `${timestamp} [PhoneIsland] [${levelStr}] ${message} (${source}:${line})`,
+            )
+          },
+        )
       }
     })
   }

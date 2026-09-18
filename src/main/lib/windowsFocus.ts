@@ -45,14 +45,22 @@ export function forceWindowFocus(window: BrowserWindow): boolean {
 
     // Define the functions we need
     const GetCurrentThreadId = kernel32.func('uint32_t GetCurrentThreadId()')
-    const GetWindowThreadProcessId = user32.func('uint32_t GetWindowThreadProcessId(void* hwnd, uint32_t* lpdwProcessId)')
-    const AttachThreadInput = user32.func('bool AttachThreadInput(uint32_t idAttach, uint32_t idAttachTo, bool fAttach)')
-    const SetForegroundWindow = user32.func('bool SetForegroundWindow(void* hwnd)')
+    const GetWindowThreadProcessId = user32.func(
+      'uint32_t GetWindowThreadProcessId(void* hwnd, uint32_t* lpdwProcessId)',
+    )
+    const AttachThreadInput = user32.func(
+      'bool AttachThreadInput(uint32_t idAttach, uint32_t idAttachTo, bool fAttach)',
+    )
+    const SetForegroundWindow = user32.func(
+      'bool SetForegroundWindow(void* hwnd)',
+    )
     const BringWindowToTop = user32.func('bool BringWindowToTop(void* hwnd)')
     const SetFocus = user32.func('void* SetFocus(void* hwnd)')
     const GetForegroundWindow = user32.func('void* GetForegroundWindow()')
     const ShowWindow = user32.func('bool ShowWindow(void* hwnd, int nCmdShow)')
-    const keybd_event = user32.func('void keybd_event(uint8_t bVk, uint8_t bScan, uint32_t dwFlags, uintptr_t dwExtraInfo)')
+    const keybd_event = user32.func(
+      'void keybd_event(uint8_t bVk, uint8_t bScan, uint32_t dwFlags, uintptr_t dwExtraInfo)',
+    )
 
     // Get the native window handle
     const hwnd = window.getNativeWindowHandle()

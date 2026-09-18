@@ -24,8 +24,10 @@ import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-common-types'
 
-export interface TextInputProps
-  extends Omit<ComponentProps<'input'>, 'ref' | 'color' | 'size'> {
+export interface TextInputProps extends Omit<
+  ComponentProps<'input'>,
+  'ref' | 'color' | 'size'
+> {
   label?: string
   placeholder?: string
   icon?: IconDefinition

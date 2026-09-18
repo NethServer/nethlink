@@ -35,8 +35,7 @@ export class NethLinkWindow extends BaseWindow {
       fullscreen: false,
       thickFrame: true,
       icon: '../../public/LogoBlueSimpleDark.svg',
-      titleBarOverlay: true
-
+      titleBarOverlay: true,
     })
     this.size = NethLinkPageSize
     NethLinkWindow.instance = this
@@ -76,18 +75,21 @@ export class NethLinkWindow extends BaseWindow {
 
   show(): void {
     try {
-      const accountBounds = AccountController.instance.getAccountNethLinkBounds()
+      const accountBounds =
+        AccountController.instance.getAccountNethLinkBounds()
       if (accountBounds) {
-        const isAccountBoundsOnDisplay = screen.getAllDisplays().reduce((result, display) => {
-          const area = display.workArea
-          return (
-            result ||
-            (accountBounds.x >= area.x &&
-              accountBounds.y >= area.y &&
-              (accountBounds.x + accountBounds.width) <= (area.x + area.width) &&
-              (accountBounds.y + accountBounds.height) <= (area.y + area.height))
-          )
-        }, false)
+        const isAccountBoundsOnDisplay = screen
+          .getAllDisplays()
+          .reduce((result, display) => {
+            const area = display.workArea
+            return (
+              result ||
+              (accountBounds.x >= area.x &&
+                accountBounds.y >= area.y &&
+                accountBounds.x + accountBounds.width <= area.x + area.width &&
+                accountBounds.y + accountBounds.height <= area.y + area.height)
+            )
+          }, false)
         if (isAccountBoundsOnDisplay) {
           this._applyBounds(accountBounds)
         } else {
@@ -100,8 +102,7 @@ export class NethLinkWindow extends BaseWindow {
       this._window?.setVisibleOnAllWorkspaces(true)
       this._window?.focus()
       this._window?.setVisibleOnAllWorkspaces(false)
-    }
-    catch (e: any) {
+    } catch (e: any) {
       if (e.message === 'Object has been destroyed') {
         this.buildWindow()
         return this.show()
@@ -138,16 +139,28 @@ export class NethLinkWindow extends BaseWindow {
       if (Date.now() < this._programmaticBoundsUntil) {
         return
       }
-      debouncer('onMoveNethLinkWindow', () => {
-        if (!this._window || this._window.isDestroyed() || this._window.isMinimized() || !this._window.isVisible()) {
-          return
-        }
-        const bounds = this._window.getBounds()
-        if (bounds.width < NethLinkPageSize.w || bounds.height < NethLinkPageSize.h) {
-          return
-        }
-        this.saveBounds(bounds)
-      }, 1000)
+      debouncer(
+        'onMoveNethLinkWindow',
+        () => {
+          if (
+            !this._window ||
+            this._window.isDestroyed() ||
+            this._window.isMinimized() ||
+            !this._window.isVisible()
+          ) {
+            return
+          }
+          const bounds = this._window.getBounds()
+          if (
+            bounds.width < NethLinkPageSize.w ||
+            bounds.height < NethLinkPageSize.h
+          ) {
+            return
+          }
+          this.saveBounds(bounds)
+        },
+        1000,
+      )
     })
     this._window?.on('show', this.toggleVisibility)
     this._window?.on('closed', this.toggleVisibility)
@@ -161,7 +174,7 @@ export class NethLinkWindow extends BaseWindow {
     debouncer('nethlinkToggleVisibility', async () => {
       await delay(250)
       TrayController.instance.updateTray({
-        enableShowButton: true
+        enableShowButton: true,
       })
     })
   }

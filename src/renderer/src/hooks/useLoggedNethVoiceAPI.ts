@@ -1,6 +1,6 @@
-import { useSharedState } from "@renderer/store"
-import { Account } from "@shared/types"
-import { useNethVoiceAPI } from "@shared/useNethVoiceAPI"
+import { useSharedState } from '@renderer/store'
+import { Account } from '@shared/types'
+import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 
 export const useLoggedNethVoiceAPI = () => {
   const [account] = useSharedState('account')

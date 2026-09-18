@@ -7,26 +7,30 @@ import { AvailableThemes } from '@shared/types'
 export const parseThemeToClassName = (theme: AvailableThemes | undefined) => {
   return theme === 'system' ? getSystemTheme() : theme || 'dark'
 }
-export async function sendNotification(title: string, body: string, openUrl?: string) {
+export async function sendNotification(
+  title: string,
+  body: string,
+  openUrl?: string,
+) {
   let hasPermission = false
-  if (!("Notification" in window)) {
+  if (!('Notification' in window)) {
     // Check if the browser supports notifications
-    alert("This browser does not support desktop notification");
-  } else if (Notification.permission === "granted") {
+    alert('This browser does not support desktop notification')
+  } else if (Notification.permission === 'granted') {
     hasPermission = true
-  } else if (Notification.permission !== "denied") {
+  } else if (Notification.permission !== 'denied') {
     const permission = await Notification.requestPermission()
-    hasPermission = permission === "granted"
+    hasPermission = permission === 'granted'
   }
 
   if (hasPermission) {
     const notificationoption: NotificationOptions = {
       body,
-      icon: "./icons/Nethlink-logo.svg",
-      //image: "./icons/TrayNotificationIcon.svg",
+      icon: './icons/Nethlink-logo.svg',
+      // image: "./icons/TrayNotificationIcon.svg",
       silent: false,
     }
-    const notification = new window.Notification(title, notificationoption);
+    const notification = new window.Notification(title, notificationoption)
     notification.onclick = () => {
       openUrl && window.open(openUrl, '_blank')
       Log.debug('onclick')
@@ -40,12 +44,16 @@ export async function sendNotification(title: string, body: string, openUrl?: st
   }
 }
 
-export function sendSystemNotification(title: string, body: string, openUrl?: string) {
+export function sendSystemNotification(
+  title: string,
+  body: string,
+  openUrl?: string,
+) {
   window.api.sendNotification(
     title,
     {
       body,
-      icon: "./icons/Nethlink-logo.svg",
+      icon: './icons/Nethlink-logo.svg',
       silent: false,
     },
     openUrl,
@@ -69,7 +77,7 @@ const clean = ({ key, source }: ClearProps): object => {
 export const cleanClassName = (props: PropsWithChildren<object>): object => {
   return clean({
     key: 'className',
-    source: props
+    source: props,
   })
 }
 
@@ -78,7 +86,9 @@ export function truncate(str: string, maxLength: number) {
 }
 
 export const getSystemTheme = () => {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
 }
 
 /**

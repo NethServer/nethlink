@@ -18,7 +18,6 @@ export class DevToolsWindow extends BaseWindow {
       maximizable: false,
       titleBarStyle: 'default',
       title: 'NethLink DevTools',
-
     })
   }
 }

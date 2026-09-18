@@ -10,7 +10,7 @@ import { ClassNames } from '@renderer/utils'
 
 export interface SearchNumberProps {
   user: SearchData
-  className?: string,
+  className?: string
   onClick?: (user: SearchData, primaryNumber: string | null) => void
 }
 
@@ -20,12 +20,16 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   const [operators] = useNethlinkData('operators')
   const { isSearchAlsoAFavourite } = useFavouriteModule()
 
-
   const getUsernameFromPhoneNumber = (number: string) => {
-    return user.type !== 'extension' ? operators?.extensions[number]?.username : undefined
+    return user.type !== 'extension'
+      ? operators?.extensions[number]?.username
+      : undefined
   }
 
-  function highlightMatch(number: string | undefined, searchText: string): ReactNode[] {
+  function highlightMatch(
+    number: string | undefined,
+    searchText: string,
+  ): ReactNode[] {
     const parts: ReactNode[] = []
     let lastIndex = 0
     if (number) {
@@ -37,10 +41,10 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
         parts.push(
           <span
             key={`highlight_${index}`}
-            className="dark:text-textBlueDark text-textBlueLight font-medium text-[1rem]"
+            className='dark:text-textBlueDark text-textBlueLight font-medium text-[1rem]'
           >
             {number.substring(index, index + searchText.length)}
-          </span>
+          </span>,
         )
         lastIndex = index + searchText.length
         index = lowerText.indexOf(lowerSearchText, lastIndex)
@@ -52,11 +56,21 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   }
 
   let phoneNumber: string | null = null
-  const keys = ['extension', 'cellphone', 'homephone', 'workphone', 'workphone2', 'cellphone2', 'otherphone']
+  const keys = [
+    'extension',
+    'cellphone',
+    'homephone',
+    'workphone',
+    'workphone2',
+    'cellphone2',
+    'otherphone',
+  ]
 
   for (const key of keys) {
     if (!phoneNumber) {
-      phoneNumber = (user[key] || '').includes(`${searchText}`) ? user[key] : null
+      phoneNumber = (user[key] || '').includes(`${searchText}`)
+        ? user[key]
+        : null
     } else {
       break
     }
@@ -72,9 +86,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   const highlightedNumber = highlightMatch(phoneNumber, searchText || '')
   const otherDevicesCount = Array.from(
     new Set(
-      keys
-        .map((k) => user[k])
-        .filter((n): n is string => !!n && n !== ' '),
+      keys.map((k) => user[k]).filter((n): n is string => !!n && n !== ' '),
     ),
   ).filter((n) => n !== phoneNumber).length
 
@@ -82,37 +94,46 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   const avatarSrc = username ? operators?.avatars?.[username] : ''
 
   return (
-    <div className="group">
-      <div className={ClassNames(
-        "flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]",
-      )
-      }
-
+    <div className='group'>
+      <div
+        className={ClassNames(
+          'flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]',
+        )}
       >
-        <div className="min-w-0 flex-1">
+        <div className='min-w-0 flex-1'>
           <ContactNameAndActions
-            avatarDim="small"
+            avatarDim='small'
             contact={user}
             number={phoneNumber}
             displayedNumber={highlightedNumber}
-            otherNumber={otherDevicesCount > 0 ? t('Common.PlusOther', { count: otherDevicesCount }) as string : ''}
+            otherNumber={
+              otherDevicesCount > 0
+                ? (t('Common.PlusOther', {
+                    count: otherDevicesCount,
+                  }) as string)
+                : ''
+            }
             isHighlight={true}
             username={username}
             isFavourite={false}
             isSearchData={true}
             showCompany={true}
-            onOpenDetail={onClick ? () => {
-              onClick?.(user, phoneNumber)
-            } : undefined}
+            onOpenDetail={
+              onClick
+                ? () => {
+                    onClick?.(user, phoneNumber)
+                  }
+                : undefined
+            }
           />
         </div>
         {onClick && (
           <Button
-            variant="tertiary"
-            className="self-center ml-2 shrink-0"
+            variant='tertiary'
+            className='self-center ml-2 shrink-0'
             onClick={() => onClick(user, phoneNumber)}
           >
-            <p className="font-medium text-[14px] leading-5">
+            <p className='font-medium text-[14px] leading-5'>
               {t('Phonebook.Details')}
             </p>
           </Button>

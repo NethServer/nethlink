@@ -1,11 +1,11 @@
-import { LoginController } from "./LoginController"
-import { NethLinkController } from "./NethLinkController"
-import { PhoneIslandController } from "./PhoneIslandController"
-import { TrayController } from "./TrayController"
-import { Log } from "@shared/utils/logger"
-import { DevToolsController } from "./DevToolsController"
-import { store } from "@/lib/mainStore"
-import { delay } from "@shared/utils/utils"
+import { LoginController } from './LoginController'
+import { NethLinkController } from './NethLinkController'
+import { PhoneIslandController } from './PhoneIslandController'
+import { TrayController } from './TrayController'
+import { Log } from '@shared/utils/logger'
+import { DevToolsController } from './DevToolsController'
+import { store } from '@/lib/mainStore'
+import { delay } from '@shared/utils/utils'
 
 export class AppController {
   static _app: Electron.App
@@ -13,7 +13,6 @@ export class AppController {
   constructor(app: Electron.App) {
     AppController._app = app
   }
-
 
   static async safeQuit() {
     if (!AppController.onQuit) {

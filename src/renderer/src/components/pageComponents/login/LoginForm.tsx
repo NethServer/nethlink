@@ -117,7 +117,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
 
   async function handleLogin(data: LoginData) {
     if (!isLoading) {
-      let e: Error | undefined = undefined
+      const e: Error | undefined = undefined
       setError(() => e)
       setIsLoading(true)
       const hostReg =

@@ -52,7 +52,7 @@ export class CommandBarController {
           x: centerX,
           y: centerY,
           width: this.originalSize.width,
-          height: this.originalSize.height
+          height: this.originalSize.height,
         })
 
         const isWindows = process.platform === 'win32'
@@ -112,7 +112,7 @@ export class CommandBarController {
               window.hide()
               this.window.emit(IPC_EVENTS.HIDE_COMMAND_BAR)
             },
-            100
+            100,
           )
         }
       }
@@ -121,7 +121,7 @@ export class CommandBarController {
     }
   }
 
-  resize(size: { width: number, height: number }) {
+  resize(size: { width: number; height: number }) {
     try {
       const window = this.window.getWindow()
       if (window && this.isVisible) {
@@ -131,7 +131,7 @@ export class CommandBarController {
           x: bounds.x,
           y: bounds.y,
           width: size.width,
-          height: size.height
+          height: size.height,
         })
       }
     } catch (e) {
