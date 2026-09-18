@@ -35,6 +35,28 @@ export function isCallActive(): boolean {
   return hasActiveCall
 }
 
+// Set when the SIP settings changed during a call: the PhoneIsland reload is deferred to the call end
+let isPhoneIslandReloadPending = false
+
+// Minimum interval between two server config checks triggered by PhoneIsland connection errors
+const SERVER_CONFIG_CHECK_MIN_INTERVAL = 10_000
+let lastServerConfigCheck = 0
+
+/**
+ * Reload the PhoneIsland so that it registers again with the current SIP host/port.
+ * When a call is active the reload is deferred to the call end, since it would drop the call.
+ */
+function reloadPhoneIslandForSipChange(trigger: string) {
+  if (isCallActive()) {
+    Log.info(`SIP config changed (${trigger}) but a call is active - PhoneIsland reload deferred to call end`)
+    isPhoneIslandReloadPending = true
+    return
+  }
+  isPhoneIslandReloadPending = false
+  Log.info(`SIP config changed (${trigger}) - reloading PhoneIsland`)
+  PhoneIslandController.instance?.window?.getWindow()?.reload()
+}
+
 function onSyncEmitter<T>(
   channel: IPC_EVENTS,
   asyncCallback: (...args: any[]) => Promise<T>
@@ -475,6 +497,14 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
     Log.info('Call ended - setting hasActiveCall = false')
     hasActiveCall = false
+    if (isPhoneIslandReloadPending) {
+      // give the PhoneIsland the time to close the call UI before reloading it
+      setTimeout(() => {
+        if (isPhoneIslandReloadPending) {
+          reloadPhoneIslandForSipChange('call ended')
+        }
+      }, 1000)
+    }
     try {
       NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_CALL_END)
     } catch (e) {
@@ -508,10 +538,34 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.RECONNECT_SOCKET, async () => {
     try {
+      const previous = { sipHost: store.store.account?.sipHost, sipPort: store.store.account?.sipPort }
+      // autoLogin refreshes the SIP settings from the server config too
       await AccountController.instance.autoLogin()
       NethLinkController.instance.window.emit(IPC_EVENTS.RECONNECT_SOCKET)
+      const account = store.store.account
+      if (account && (account.sipHost !== previous.sipHost || account.sipPort !== previous.sipPort)) {
+        reloadPhoneIslandForSipChange('socket reconnected')
+      }
     } catch (e) {
       Log.error('SOCKET Reconnection error on logout', e)
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.CHECK_SERVER_CONFIG, async () => {
+    // A PhoneIsland WebRTC failure may be caused by SIP settings changed on the server (e.g. NethVoice
+    // update while NethLink is running): re-read them and reload the PhoneIsland if they changed.
+    const now = Date.now()
+    if (now - lastServerConfigCheck < SERVER_CONFIG_CHECK_MIN_INTERVAL) {
+      return
+    }
+    lastServerConfigCheck = now
+    try {
+      const changed = await AccountController.instance.syncLoggedAccountServerConfig()
+      if (changed) {
+        reloadPhoneIslandForSipChange('webrtc down')
+      }
+    } catch (e) {
+      Log.error('CHECK_SERVER_CONFIG error', e)
     }
   })
 

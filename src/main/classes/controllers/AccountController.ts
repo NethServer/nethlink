@@ -139,6 +139,10 @@ export class AccountController {
                 return false
               }
 
+              // The saved SIP settings may be stale (e.g. NethVoice updated while NethLink was closed):
+              // refresh them from the server before the PhoneIsland is built with them
+              const sipChanged = await this.refreshServerConfig(lastLoggedAccount)
+
               // Update store with the saved account (don't do a new login!)
               // IMPORTANT: Preserve auth.lastUser and auth.lastUserCryptPsw so they are saved to disk
               // IMPORTANT: Set connection: true to prevent "No internet connection" banner
@@ -154,6 +158,9 @@ export class AccountController {
                   lastUserCryptPsw: authAppData.lastUserCryptPsw
                 }
               }, 'autoLogin')
+              if (sipChanged) {
+                store.saveToDisk()
+              }
 
               return true
             } else {
@@ -176,15 +183,13 @@ export class AccountController {
             return false
           }
 
-          let loggedAccount: Account = {
+          const loggedAccount: Account = {
             ...lastLoggedAccount,
             ...tempLoggedAccount,
             theme: lastLoggedAccount.theme || tempLoggedAccount.theme,
           }
 
-          const { parseConfig } = useLogin()
-          const config: string = await NetworkController.instance.get(`https://${loggedAccount.host}/config/config.production.js`)
-          loggedAccount = parseConfig(loggedAccount, config)
+          await this.refreshServerConfig(loggedAccount)
           await this.saveLoggedAccount(loggedAccount, password)
           return true
         } catch (e) {
@@ -194,6 +199,48 @@ export class AccountController {
       }
     }
     return false
+  }
+
+  /**
+   * Re-read the host config.production.js and update the SIP settings of the given account in place.
+   * It never throws: on network or parsing errors the cached values are kept.
+   * @returns true when sipHost or sipPort changed
+   */
+  async refreshServerConfig(account: Account): Promise<boolean> {
+    try {
+      const { parseConfig } = useLogin()
+      const config: string = await NetworkController.instance.get(`https://${account.host}/config/config.production.js`)
+      const previous = { sipHost: account.sipHost, sipPort: account.sipPort }
+      parseConfig(account, config)
+      const changed = previous.sipHost !== account.sipHost || previous.sipPort !== account.sipPort
+      if (changed) {
+        Log.info('server SIP config changed', { previous, current: { sipHost: account.sipHost, sipPort: account.sipPort } })
+      }
+      return changed
+    } catch (e) {
+      Log.warning('unable to refresh server config, keeping cached SIP settings:', e)
+      return false
+    }
+  }
+
+  /**
+   * Refresh the SIP settings of the logged account from the server and persist them if changed.
+   * @returns true when sipHost or sipPort changed
+   */
+  async syncLoggedAccountServerConfig(): Promise<boolean> {
+    const account = store.store.account
+    if (!account) return false
+    const changed = await this.refreshServerConfig(account)
+    if (changed) {
+      store.set('account', account, true)
+      const auth = store.store.auth
+      if (auth) {
+        auth.availableAccounts[getAccountUID(account)] = account
+        store.set('auth', auth, true)
+      }
+      store.saveToDisk()
+    }
+    return changed
   }
 
   async saveLoggedAccount(account: Account, password: string): Promise<Account> {

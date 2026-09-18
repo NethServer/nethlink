@@ -65,8 +65,8 @@ export enum IPC_EVENTS {
   REQUEST_SHARED_STATE = "REQUEST_SHARED_STATE",
   GET_NETHVOICE_CONFIG = "GET_NETHVOICE_CONFIG",
   SET_NETHVOICE_CONFIG = "SET_NETHVOICE_CONFIG",
-  RECONNECT_PHONE_ISLAND = "RECONNECT_PHONE_ISLAND",
   RECONNECT_SOCKET = "RECONNECT_SOCKET",
+  CHECK_SERVER_CONFIG = "CHECK_SERVER_CONFIG",
   LOGOUT_COMPLETED = "LOGOUT_COMPLETED",
   SHOW_NO_CONNECTION = "SHOW_NO_CONNECTION",
   HIDE_NO_CONNECTION = "HIDE_NO_CONNECTION",
@@ -237,6 +237,7 @@ export enum PHONE_ISLAND_EVENTS {
   'phone-island-internet-connected' = 'phone-island-internet-connected',
   'phone-island-internet-disconnected' = 'phone-island-internet-disconnected',
   // Alerts
+  'phone-island-alert-set' = 'phone-island-alert-set',
   'phone-island-all-alerts-removed' = 'phone-island-all-alerts-removed',
   // Videocall
   'phone-island-fullscreen-entered' = 'phone-island-fullscreen-entered',

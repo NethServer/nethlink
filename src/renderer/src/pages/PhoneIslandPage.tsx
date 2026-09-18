@@ -203,10 +203,6 @@ export function PhoneIslandPage() {
       })
     })
 
-    window.electron.receive(IPC_EVENTS.RECONNECT_PHONE_ISLAND, () => {
-      logout()
-    })
-
     window.electron.receive(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, async (deviceInformationObject, force) => {
       Log.debug('CHANGE_DEFAULT_DEVICE', { force, deviceInformationObject, })
       const changed = await NethVoiceAPI.User.default_device(deviceInformationObject, force)
