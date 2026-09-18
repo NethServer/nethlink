@@ -131,7 +131,8 @@ const theme = {
         leaveTo: 'opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95',
       },
     },
-    actions: 'px-4 py-3 flex flex-col sm:flex-row-reverse  sm:px-6 gap-3 bg-white dark:bg-gray-900',
+    actions:
+      'px-4 py-3 flex flex-col sm:flex-row-reverse  sm:px-6 gap-3 bg-white dark:bg-gray-900',
     sizes: {
       base: '',
       large: '',
@@ -357,7 +358,8 @@ const theme = {
     },
     item: {
       base: 'block px-4 text-sm flex items-center gap-3 mt-1 mb-1 cursor-pointer',
-      baseRed: 'block px-4 text-sm flex items-center gap-3 mt-1 mb-1 cursor-pointer',
+      baseRed:
+        'block px-4 text-sm flex items-center gap-3 mt-1 mb-1 cursor-pointer',
       textRed: 'text-rose-700 dark:text-rose-500',
       light: 'text-gray-700 dark:text-gray-300',
       activeRed: 'bg-rose-700 text-white dark:bg-rose-500 dark:text-white',
@@ -386,7 +388,8 @@ const theme = {
         oneVoicemail: 'w-60 right-[3rem] top-[-4.5rem]',
       },
       divider: 'divide-y divide-gray-200 dark:divide-gray-700',
-      header: 'block px-4 py-3 text-sm cursor-normal text-gray-700 dark:text-gray-300',
+      header:
+        'block px-4 py-3 text-sm cursor-normal text-gray-700 dark:text-gray-300',
       transition: {
         enter: 'transition ease-out duration-100',
         enterFrom: 'transform opacity-0 scale-95',
@@ -417,9 +420,12 @@ const theme = {
     base: 'border-l-4 rounded-md p-4 w-full flex items-start',
     type: {
       info: 'border-indigo-400 bg-indigo-100 dark:border-indigo-500 dark:bg-indigo-900',
-      error: 'border-rose-500 bg-rose-100 dark:border-rose-300 dark:bg-rose-900',
-      warning: 'border-amber-400 bg-amber-100 dark:border-amber-500 dark:bg-amber-700',
-      success: 'border-green-400 bg-green-100 dark:border-green-500 dark:bg-green-900',
+      error:
+        'border-rose-500 bg-rose-100 dark:border-rose-300 dark:bg-rose-900',
+      warning:
+        'border-amber-400 bg-amber-100 dark:border-amber-500 dark:bg-amber-700',
+      success:
+        'border-green-400 bg-green-100 dark:border-green-500 dark:bg-green-900',
     },
     titleStyle: {
       info: 'text-sm font-medium text-indigo-800 dark:text-indigo-100',
@@ -454,21 +460,24 @@ const theme = {
       error: 'text-sm font-medium text-red-800 dark:text-red-100',
       warning: 'text-sm font-medium text-yellow-800 dark:text-yellow-100',
       success: 'text-sm font-medium text-green-800 dark:text-green-100',
-      failed: 'border-green-400 bg-red-100 dark:border-green-500 dark:bg-green-800',
+      failed:
+        'border-green-400 bg-red-100 dark:border-green-500 dark:bg-green-800',
     },
     iconStyle: {
       info: 'h-4 w-4 relative -top-0.5 text-blue-400 dark:text-blue-300',
       error: 'h-4 w-4 relative -top-0.5 text-red-400 dark:text-red-300',
       warning: 'h-4 w-4 relative -top-0.5 text-yellow-600 dark:text-yellow-300',
       success: 'h-4 w-4 relative -top-0.5 text-green-600 dark:text-green-300',
-      failed: 'border-green-400 bg-red-100 dark:border-green-500 dark:bg-green-800',
+      failed:
+        'border-green-400 bg-red-100 dark:border-green-500 dark:bg-green-800',
     },
     childrenText: {
       info: 'mt-2 text-sm text-blue-700 dark:text-blue-200',
       error: 'mt-2 text-sm text-red-700 dark:text-red-200',
       warning: 'mt-2 text-sm text-yellow-700 dark:text-yellow-200',
       success: 'mt-2 text-sm text-green-700 dark:text-green-200',
-      failed: 'border-green-400 bg-red-100 dark:border-green-500 dark:bg-green-800',
+      failed:
+        'border-green-400 bg-red-100 dark:border-green-500 dark:bg-green-800',
     },
   },
   timePicker: {
@@ -482,17 +491,17 @@ const theme = {
       base: 'absolute bg-black dark:bg-white overflow-visible z-[100] opacity-20 flex items-center',
       variant: {
         splashscreen: 'top-0 left-0 h-full w-full rounded-2xl',
-        nethlink: 'top-0 left-0 h-full w-full rounded-b-lg'
-      }
+        nethlink: 'top-0 left-0 h-full w-full rounded-b-lg',
+      },
     },
     dialog: {
       base: 'absolute top-0 left-0 w-full h-full flex items-center',
       variant: {
         splashscreen: '',
-        nethlink: ''
-      }
-    }
-  }
+        nethlink: '',
+      },
+    },
+  },
 }
 
 export default theme

@@ -15,7 +15,8 @@ export interface SplashScreenPageProps {
 }
 
 export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
-  const [isNoConnectionDialogOpen, setIsnoConnectionDialogOpen] = useState<boolean>(false)
+  const [isNoConnectionDialogOpen, setIsnoConnectionDialogOpen] =
+    useState<boolean>(false)
   useInitialize(() => {
     window.electron.receive(IPC_EVENTS.SHOW_NO_CONNECTION, () => {
       setIsnoConnectionDialogOpen(true)
@@ -31,46 +32,45 @@ export function SplashScreenPage({ themeMode }: SplashScreenPageProps) {
   }
 
   return (
-    <div className="relative h-screen w-screen p-1 rounded-[10px]  overflow-hidden">
+    <div className='relative h-screen w-screen p-1 rounded-[10px]  overflow-hidden'>
       <img
         src={themeMode === 'dark' ? darkBackground : lightBackground}
         draggable={false}
-        className="absolute w-screen h-screen top-0 left-0 object-cover"
+        className='absolute w-screen h-screen top-0 left-0 object-cover'
       />
-      <div className="absolute top-0 left-0 w-screen h-screen">
+      <div className='absolute top-0 left-0 w-screen h-screen'>
         {isNoConnectionDialogOpen && (
           <ConnectionErrorDialog
             variant='splashscreen'
             onButtonClick={retryConnection}
             buttonText={t('Common.Refresh')}
           />
-        )
-        }
-        <div className="h-full w-full flex flex-col items-center p-9">
+        )}
+        <div className='h-full w-full flex flex-col items-center p-9'>
           <img
             src={themeMode === 'dark' ? darkHeader : lightHeader}
-            draggable="false"
-            className="mt-8"
+            draggable='false'
+            className='mt-8'
           ></img>
-          <p className="dark:text-gray-300 text-gray-700 text-sm px-5 text-center mt-10">
+          <p className='dark:text-gray-300 text-gray-700 text-sm px-5 text-center mt-10'>
             {t('SplashScreen.Description')}
           </p>
-          <p className="dark:text-gray-300 text-gray-700 text-sm px-5 text-center mt-5">
+          <p className='dark:text-gray-300 text-gray-700 text-sm px-5 text-center mt-5'>
             {t('SplashScreen.Initializing')}
           </p>
 
-          <div className="grow flex items-end">
+          <div className='grow flex items-end'>
             <img
               src={themeMode === 'dark' ? darkLogo : lightLogo}
-              className="w-12 h-12"
-              draggable="false"
+              className='w-12 h-12'
+              draggable='false'
             ></img>
           </div>
-          <p className="dark:text-gray-300 text-gray-700 text-sm px-5 text-center mt-5">
+          <p className='dark:text-gray-300 text-gray-700 text-sm px-5 text-center mt-5'>
             v{window.api.appVersion}
           </p>
         </div>
       </div>
-    </div >
+    </div>
   )
 }

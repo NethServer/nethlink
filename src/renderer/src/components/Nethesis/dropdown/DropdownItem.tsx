@@ -9,7 +9,10 @@ import { cleanClassName } from '@renderer/lib/utils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-common-types'
 
-export interface DropdownItemProps extends Omit<ComponentProps<'div'>, 'className'> {
+export interface DropdownItemProps extends Omit<
+  ComponentProps<'div'>,
+  'className'
+> {
   onClick?: () => void
   icon?: IconDefinition
   centered?: boolean
@@ -36,7 +39,11 @@ export const DropdownItem: FC<DropdownItemProps> = ({
           className={classNames(
             !isRed ? theme?.item?.base : theme?.item?.baseRed,
             !isRed && !active ? theme?.item?.light : '',
-            !isRed && active ? theme?.item?.active : isRed && active ? theme.item.activeRed : '',
+            !isRed && active
+              ? theme?.item?.active
+              : isRed && active
+                ? theme.item.activeRed
+                : '',
             isRed && !active ? theme.item.textRed : '',
             centered && theme.item.centered,
             variantTop ? '' : 'py-2',
@@ -47,7 +54,13 @@ export const DropdownItem: FC<DropdownItemProps> = ({
           {Icon && (
             <FontAwesomeIcon
               icon={Icon}
-              className={isRed && !active ? theme?.item?.iconRed : !isRed ? theme?.item?.icon : ''}
+              className={
+                isRed && !active
+                  ? theme?.item?.iconRed
+                  : !isRed
+                    ? theme?.item?.icon
+                    : ''
+              }
             />
           )}
           {children}

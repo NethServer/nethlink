@@ -13,8 +13,14 @@
  *
  */
 
-import { FC, ComponentProps, PropsWithChildren, RefObject } from 'react'
-import { Fragment, createRef } from 'react'
+import {
+  FC,
+  ComponentProps,
+  PropsWithChildren,
+  RefObject,
+  Fragment,
+  createRef,
+} from 'react'
 import { ModalContent } from './ModalContent'
 import { ModalActions } from './ModalActions'
 import { Transition, Dialog } from '@headlessui/react'
@@ -46,25 +52,38 @@ const ModalComponent: FC<ModalProps> = ({
   const cleanProps = cleanClassName(props)
 
   return (
-    <Transition.Root show={show} as={Fragment} afterLeave={() => afterLeave && afterLeave()}>
+    <Transition.Root
+      show={show}
+      as={Fragment}
+      afterLeave={() => afterLeave && afterLeave()}
+    >
       <Dialog
-        as="div"
+        as='div'
         className={classNames(themeMode, 'relative', 'z-50', className)}
         onClose={() => onClose()}
         initialFocus={focus && focus}
         {...cleanProps}
       >
         <Transition.Child as={Fragment} {...theme.panel.transition}>
-          <div className={classNames(theme.background.base, 'rounded-b-lg h-screen w-screen')} />
+          <div
+            className={classNames(
+              theme.background.base,
+              'rounded-b-lg h-screen w-screen',
+            )}
+          />
         </Transition.Child>
-        <div className="
+        <div
+          className='
         fixed inset-0 z-50
         overflow-y-auto        
         scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full scrollbar-thumb-opacity-50 scrollbar-track-gray-200 dark:scrollbar-track-gray-900 scrollbar-track-rounded-full scrollbar-track-opacity-25
-        ">
-          <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
+        '
+        >
+          <div className='flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0'>
             <Transition.Child as={Fragment} {...theme.background.transition}>
-              <Dialog.Panel className={theme.panel.base}>{children}</Dialog.Panel>
+              <Dialog.Panel className={theme.panel.base}>
+                {children}
+              </Dialog.Panel>
             </Transition.Child>
           </div>
         </div>
@@ -79,5 +98,5 @@ ModalActions.displayName = 'Modal.Actions'
 
 export const Modal = Object.assign(ModalComponent, {
   Content: ModalContent,
-  Actions: ModalActions
+  Actions: ModalActions,
 })

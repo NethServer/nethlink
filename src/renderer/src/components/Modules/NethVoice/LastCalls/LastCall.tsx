@@ -102,8 +102,12 @@ export function LastCall({
 
   const callName = getCallName(call)
   const callNumberValue = (call.direction === 'in' ? call.src : call.dst) || ''
-  const [nameRef, isNameTruncated] = useIsTruncated<HTMLParagraphElement>([callName])
-  const [numberRef, isNumberTruncated] = useIsTruncated<HTMLDivElement>([callNumberValue])
+  const [nameRef, isNameTruncated] = useIsTruncated<HTMLParagraphElement>([
+    callName,
+  ])
+  const [numberRef, isNumberTruncated] = useIsTruncated<HTMLDivElement>([
+    callNumberValue,
+  ])
 
   return (
     <div className='group'>
@@ -135,7 +139,9 @@ export function LastCall({
           <p
             ref={nameRef}
             className={`font-medium text-[14px] leading-5 truncate`}
-            data-tooltip-id={isNameTruncated ? `tooltip-username-${tooltipId}` : undefined}
+            data-tooltip-id={
+              isNameTruncated ? `tooltip-username-${tooltipId}` : undefined
+            }
             data-tooltip-content={isNameTruncated ? callName : undefined}
           >
             {callName}
@@ -246,8 +252,12 @@ export function LastCall({
             <div
               ref={numberRef}
               className='min-w-0 truncate'
-              data-tooltip-id={isNumberTruncated ? `tooltip-number-${tooltipId}` : undefined}
-              data-tooltip-content={isNumberTruncated ? callNumberValue : undefined}
+              data-tooltip-id={
+                isNumberTruncated ? `tooltip-number-${tooltipId}` : undefined
+              }
+              data-tooltip-content={
+                isNumberTruncated ? callNumberValue : undefined
+              }
             >
               <NumberCaller
                 number={

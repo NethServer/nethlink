@@ -13,22 +13,29 @@ const electronDetector: any = {
   init: Function.prototype,
   detect: () => {
     return new Promise((resolve) => {
-      window.api.getLocale().then((locale) => {
-        Log.info(locale)
-        const locales = uniq([locale!.split('-')[0], locale!.split('_')[0], ...fallbackLng])
-        resolve(locales)
-      }).catch(() => {
-        resolve(fallbackLng)
-      })
+      window.api
+        .getLocale()
+        .then((locale) => {
+          Log.info(locale)
+          const locales = uniq([
+            locale!.split('-')[0],
+            locale!.split('_')[0],
+            ...fallbackLng,
+          ])
+          resolve(locales)
+        })
+        .catch(() => {
+          resolve(fallbackLng)
+        })
     })
   },
-  cacheUserLanguage: Function.prototype
+  cacheUserLanguage: Function.prototype,
 }
 
 const convertPath = (filename): string => {
   let dir = __dirname
   if (__dirname.includes('electron.asar')) dir = './public'
-  let loadPath = join(dir, `locales/{{lng}}/${filename}.json`)
+  const loadPath = join(dir, `locales/{{lng}}/${filename}.json`)
   return loadPath
 }
 
@@ -47,17 +54,21 @@ export const loadI18n = () => {
       debug: true,
       loadPath,
       appPath,
-      contextBridgeApiKey: 'api'
+      contextBridgeApiKey: 'api',
     },
     react: {
-      useSuspense: false
+      useSuspense: false,
     },
     fallbackLng,
     debug: true,
     saveMissing: true,
-    saveMissingTo: 'current'
+    saveMissingTo: 'current',
   }
-  i18next.use(Backend as any).use(electronDetector).use(initReactI18next).init(config)
+  i18next
+    .use(Backend as any)
+    .use(electronDetector)
+    .use(initReactI18next)
+    .init(config)
 }
 
 window.api.i18nextElectronBackend.onLanguageChange((args) => {

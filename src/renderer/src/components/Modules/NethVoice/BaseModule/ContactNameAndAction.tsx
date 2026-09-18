@@ -9,7 +9,10 @@ import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventH
 import { useIsTruncated } from '@renderer/hooks/useIsTruncated'
 import { Avatar } from '../../../Nethesis'
 import { CustomThemedTooltip } from '../../../Nethesis/CustomThemedTooltip'
-import { faPhone as CallIcon, faBriefcase as CompanyIcon } from '@fortawesome/free-solid-svg-icons'
+import {
+  faPhone as CallIcon,
+  faBriefcase as CompanyIcon,
+} from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { ReactNode } from 'react'
 import classNames from 'classnames'
@@ -89,7 +92,9 @@ export const ContactNameAndActions = ({
     contact.company !== displayName
 
   // Attach tooltips only when the text is actually truncated
-  const [nameRef, isNameTruncated] = useIsTruncated<HTMLDivElement>([displayName])
+  const [nameRef, isNameTruncated] = useIsTruncated<HTMLDivElement>([
+    displayName,
+  ])
   const [companyRef, isCompanyTruncated] = useIsTruncated<HTMLSpanElement>([
     contact.company,
   ])
@@ -138,8 +143,18 @@ export const ContactNameAndActions = ({
         )}
         onClick={onClick}
       />
-      <div className={classNames('relative min-w-0 flex-1', hasCompanyLine ? '' : 'h-[44px]')}>
-        <div className={classNames('flex flex-col gap-1 w-full min-w-0', hasCompanyLine ? '' : 'absolute top-0 left-0')}>
+      <div
+        className={classNames(
+          'relative min-w-0 flex-1',
+          hasCompanyLine ? '' : 'h-[44px]',
+        )}
+      >
+        <div
+          className={classNames(
+            'flex flex-col gap-1 w-full min-w-0',
+            hasCompanyLine ? '' : 'absolute top-0 left-0',
+          )}
+        >
           <div className='flex flex-row gap-2 w-full overflow-hidden'>
             <div
               ref={nameRef}
@@ -152,7 +167,7 @@ export const ContactNameAndActions = ({
               data-tooltip-content={nameTooltipContent}
             >
               {nameTooltipContent && (
-                <CustomThemedTooltip id={nameTooltipId} place="top" />
+                <CustomThemedTooltip id={nameTooltipId} place='top' />
               )}
               {displayName}
               {isDev() && (
@@ -207,7 +222,9 @@ export const ContactNameAndActions = ({
               <div
                 ref={numberRef}
                 className='min-w-0 truncate'
-                data-tooltip-id={isNumberTruncated ? numberTooltipId : undefined}
+                data-tooltip-id={
+                  isNumberTruncated ? numberTooltipId : undefined
+                }
                 data-tooltip-content={isNumberTruncated ? number : undefined}
               >
                 <NumberCaller
@@ -228,7 +245,8 @@ export const ContactNameAndActions = ({
                   {displayedNumber !== ' ' &&
                   displayedNumber !== '' &&
                   displayedNumber !== null &&
-                  (!Array.isArray(displayedNumber) || displayedNumber.length > 0)
+                  (!Array.isArray(displayedNumber) ||
+                    displayedNumber.length > 0)
                     ? displayedNumber
                     : '-'}
                 </NumberCaller>
@@ -255,8 +273,12 @@ export const ContactNameAndActions = ({
               <span
                 ref={companyRef}
                 className='min-w-0 flex-1 dark:text-gray-400 text-gray-600 font-normal text-[14px] leading-5 truncate'
-                data-tooltip-id={isCompanyTruncated ? companyTooltipId : undefined}
-                data-tooltip-content={isCompanyTruncated ? contact.company : undefined}
+                data-tooltip-id={
+                  isCompanyTruncated ? companyTooltipId : undefined
+                }
+                data-tooltip-content={
+                  isCompanyTruncated ? contact.company : undefined
+                }
               >
                 {contact.company}
               </span>

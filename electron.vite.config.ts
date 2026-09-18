@@ -10,16 +10,16 @@ export default defineConfig({
         '@/lib': resolve('src/main/lib'),
         '@/classes': resolve('src/main/classes'),
         '@shared': resolve('src/shared'),
-      }
-    }
+      },
+    },
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
     resolve: {
       alias: {
-        '@shared': resolve('src/shared')
-      }
-    }
+        '@shared': resolve('src/shared'),
+      },
+    },
   },
   renderer: {
     assetsInclude: ['src/renderer/public/**/*'],
@@ -31,9 +31,9 @@ export default defineConfig({
         '@/assets': resolve('src/renderer/src/assets'),
         '@/pages': resolve('src/renderer/src/pages'),
         '@/components': resolve('src/renderer/src/components'),
-        '@/utils': resolve('src/renderer/src/utils')
-      }
+        '@/utils': resolve('src/renderer/src/utils'),
+      },
     },
-    plugins: [react()]
-  }
+    plugins: [react()],
+  },
 })

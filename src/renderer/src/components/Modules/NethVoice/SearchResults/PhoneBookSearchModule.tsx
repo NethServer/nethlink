@@ -1,22 +1,23 @@
-import { debouncer } from "@shared/utils/utils"
-import { SearchNumberBox } from "./SearchNumberBox"
-import { useEffect, useState } from "react"
-import { usePhonebookSearchModule } from "./hook/usePhoneBookSearchModule"
-import { SearchData } from "@shared/types"
-import { useNethlinkData } from "@renderer/store"
-import { SearchNumberDetail } from "./SearchNumberDetail"
-import classNames from "classnames"
+import { debouncer } from '@shared/utils/utils'
+import { SearchNumberBox } from './SearchNumberBox'
+import { useEffect, useState } from 'react'
+import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
+import { SearchData } from '@shared/types'
+import { useNethlinkData } from '@renderer/store'
+import { SearchNumberDetail } from './SearchNumberDetail'
+import classNames from 'classnames'
 
 export const PhoneBookSearchModule = () => {
-
   const phoneBookModule = usePhonebookSearchModule()
   const { searchPhonebookContacts } = phoneBookModule
   const [searchText] = phoneBookModule.searchTextState
   const [searchResult, setSearchResult] = useState<SearchData[]>()
-  const [, setShowPhonebookSearchModule] = useNethlinkData('showPhonebookSearchModule')
+  const [, setShowPhonebookSearchModule] = useNethlinkData(
+    'showPhonebookSearchModule',
+  )
   const [, setShowAddContactModule] = useNethlinkData('showAddContactModule')
   const [contactDetail, setContactDetail] = useState<{
-    contact: SearchData,
+    contact: SearchData
     primaryNumber: string | null
   }>()
 
@@ -28,7 +29,7 @@ export const PhoneBookSearchModule = () => {
           const result = await searchPhonebookContacts()
           setSearchResult(() => result)
         },
-        250
+        250,
       )
     } else {
       setSearchResult(() => [])
@@ -49,9 +50,12 @@ export const PhoneBookSearchModule = () => {
           setContactDetail(() => ({ contact, primaryNumber }))
         }}
       />
-      <SearchNumberDetail contactDetail={contactDetail} onBack={() => {
-        setContactDetail(() => undefined)
-      }} />
+      <SearchNumberDetail
+        contactDetail={contactDetail}
+        onBack={() => {
+          setContactDetail(() => undefined)
+        }}
+      />
     </>
   )
 }

@@ -12,7 +12,11 @@ export class BaseWindow {
   private _params: Record<string, string>
   private _config: WindowOptions
 
-  constructor(id: string, config?: WindowOptions, params?: Record<string, string>) {
+  constructor(
+    id: string,
+    config?: WindowOptions,
+    params?: Record<string, string>,
+  ) {
     this._id = id
     this._params = Object.assign({}, params)
     this._config = Object.assign({}, config)
@@ -28,9 +32,9 @@ export class BaseWindow {
       target.webContents.isDevToolsOpened()
         ? target.webContents.closeDevTools()
         : target.webContents.openDevTools({
-          title: target.title,
-          mode: 'detach'
-        })
+            title: target.title,
+            mode: 'detach',
+          })
     }
   }
 
@@ -43,7 +47,7 @@ export class BaseWindow {
       this._window?.webContents.send(event, ...args)
     } catch (e) {
       Log.error('on window.emit', e, { event, args })
-      throw (e)
+      throw e
     }
   }
 
@@ -103,7 +107,7 @@ export class BaseWindow {
 
     const onReady = (_e) => {
       this._callbacks.forEach((c) => c())
-      //once called I remove them
+      // once called I remove them
       this._callbacks = []
     }
 
@@ -112,9 +116,9 @@ export class BaseWindow {
     }
 
     window.once('ready-to-show', onReady)
-    isDev() && window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
+    isDev() &&
+      window.webContents.ipc.on(IPC_EVENTS.OPEN_DEV_TOOLS, onOpenDevTools)
     !isDev() && window.removeMenu()
     this._window = window
   }
 }
-

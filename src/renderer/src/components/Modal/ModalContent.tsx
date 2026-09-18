@@ -13,7 +13,9 @@ import { useTheme } from '@renderer/theme/Context'
 import { cleanClassName } from '@renderer/utils'
 import type { FC, PropsWithChildren, ComponentProps } from 'react'
 
-export type ModalContentProps = PropsWithChildren<Omit<ComponentProps<'div'>, 'className'>>
+export type ModalContentProps = PropsWithChildren<
+  Omit<ComponentProps<'div'>, 'className'>
+>
 
 export const ModalContent: FC<ModalContentProps> = ({ children, ...props }) => {
   const { modal: theme } = useTheme().theme

@@ -1,4 +1,10 @@
-import { Account, AuthAppData, AvailableDevices, ConfigFile, PhoneIslandPosition } from '@shared/types'
+import {
+  Account,
+  AuthAppData,
+  AvailableDevices,
+  ConfigFile,
+  PhoneIslandPosition,
+} from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { safeStorage } from 'electron'
 import { store } from '@/lib/mainStore'
@@ -10,7 +16,7 @@ import { requires2FA, isJWTExpired } from '@shared/utils/jwt'
 
 const defaultConfig: ConfigFile = {
   lastUser: undefined,
-  accounts: {}
+  accounts: {},
 }
 
 type EventCallback = (...args: any[]) => void | Promise<void>
@@ -20,7 +26,7 @@ type EventListenerCallback = {
 }
 export enum AccountEvents {
   LOGIN = 'LOGIN',
-  LOGOUT = 'LOGOUT'
+  LOGOUT = 'LOGOUT',
 }
 
 export class AccountController {
@@ -39,11 +45,16 @@ export class AccountController {
    * @param delayMs Delay between retries in milliseconds (default 500)
    * @returns true if encryption became available, false if timed out
    */
-  private async waitForSafeStorage(maxRetries: number = 20, delayMs: number = 500): Promise<boolean> {
+  private async waitForSafeStorage(
+    maxRetries: number = 20,
+    delayMs: number = 500,
+  ): Promise<boolean> {
     let retries = 0
     while (!safeStorage.isEncryptionAvailable() && retries < maxRetries) {
-      Log.info(`waiting for safeStorage to become available (attempt ${retries + 1}/${maxRetries})`)
-      await new Promise(resolve => setTimeout(resolve, delayMs))
+      Log.info(
+        `waiting for safeStorage to become available (attempt ${retries + 1}/${maxRetries})`,
+      )
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
       retries++
     }
     return safeStorage.isEncryptionAvailable()
@@ -63,25 +74,30 @@ export class AccountController {
         const { NethVoiceAPI } = useNethVoiceAPI(account)
         await NethVoiceAPI.Authentication.phoneIslandTokenLogout()
         await NethVoiceAPI.Authentication.logout()
-        Log.info('AccountController.logout() - logout API call completed successfully')
+        Log.info(
+          'AccountController.logout() - logout API call completed successfully',
+        )
       } catch (e) {
         Log.warning('Error calling logout API:', e)
       }
     }
 
-    store.updateStore({
-      auth: {
-        ...store.store.auth!,
-        lastUser: undefined,
-        lastUserCryptPsw: undefined
+    store.updateStore(
+      {
+        auth: {
+          ...store.store.auth!,
+          lastUser: undefined,
+          lastUserCryptPsw: undefined,
+        },
+        account: undefined,
+        theme: store.store.theme,
+        connection: store.store.connection || false,
+        accountStatus: store.store.accountStatus || 'offline',
+        isCallsEnabled: store.store.isCallsEnabled || false,
+        lastDevice: store.store.lastDevice || undefined,
       },
-      account: undefined,
-      theme: store.store.theme,
-      connection: store.store.connection || false,
-      accountStatus: store.store.accountStatus || 'offline',
-      isCallsEnabled: store.store.isCallsEnabled || false,
-      lastDevice: store.store.lastDevice || undefined
-    }, 'logout')
+      'logout',
+    )
     store.saveToDisk()
   }
 
@@ -89,16 +105,19 @@ export class AccountController {
     //
     const authAppData = store.store.auth
     if (authAppData?.lastUser) {
-      const lastLoggedAccount = authAppData.availableAccounts[authAppData.lastUser]
+      const lastLoggedAccount =
+        authAppData.availableAccounts[authAppData.lastUser]
       if (lastLoggedAccount && authAppData.lastUserCryptPsw) {
         try {
           // Wait for encryption to become available (max 10 seconds with 500ms intervals)
-          if (!await this.waitForSafeStorage()) {
-            Log.warning('auto login failed: safeStorage encryption not available after waiting')
+          if (!(await this.waitForSafeStorage())) {
+            Log.warning(
+              'auto login failed: safeStorage encryption not available after waiting',
+            )
             return false
           }
           try {
-            const bfs = Object.values(authAppData.lastUserCryptPsw) as any;
+            const bfs = Object.values(authAppData.lastUserCryptPsw) as any
             if (bfs[0] === 'Buffer') {
               authAppData.lastUserCryptPsw = bfs[1]
             } else {
@@ -107,7 +126,9 @@ export class AccountController {
           } catch (e) {
             Log.warning('auto login failed decrypt user:', e)
           }
-          const psw: Buffer = Buffer.from((authAppData.lastUserCryptPsw as Uint8Array))
+          const psw: Buffer = Buffer.from(
+            authAppData.lastUserCryptPsw as Uint8Array,
+          )
           const decryptString = safeStorage.decryptString(psw)
           const _accountData = JSON.parse(decryptString)
           const password = _accountData.password
@@ -117,7 +138,9 @@ export class AccountController {
             if (!isJWTExpired(lastLoggedAccount.jwtToken)) {
               // Token is still valid locally, check if it requires 2FA
               if (requires2FA(lastLoggedAccount.jwtToken)) {
-                Log.info('auto login failed: 2FA required, user interaction needed')
+                Log.info(
+                  'auto login failed: 2FA required, user interaction needed',
+                )
                 return false
               }
 
@@ -132,32 +155,41 @@ export class AccountController {
                 await NethVoiceAPI.User.me()
 
                 // If we get here, the token is valid on the server
-                Log.info('auto login: token validated with server, using saved token')
+                Log.info(
+                  'auto login: token validated with server, using saved token',
+                )
               } catch (error: any) {
                 // Token was rejected by server (401/403) or network error
-                Log.info('auto login failed: saved token rejected by server', error?.response?.status || error?.message)
+                Log.info(
+                  'auto login failed: saved token rejected by server',
+                  error?.response?.status || error?.message,
+                )
                 return false
               }
 
               // The saved SIP settings may be stale (e.g. NethVoice updated while NethLink was closed):
               // refresh them from the server before the PhoneIsland is built with them
-              const sipChanged = await this.refreshServerConfig(lastLoggedAccount)
+              const sipChanged =
+                await this.refreshServerConfig(lastLoggedAccount)
 
               // Update store with the saved account (don't do a new login!)
               // IMPORTANT: Preserve auth.lastUser and auth.lastUserCryptPsw so they are saved to disk
               // IMPORTANT: Set connection: true to prevent "No internet connection" banner
-              store.updateStore({
-                account: lastLoggedAccount,
-                theme: lastLoggedAccount.theme,
-                connection: true,
-                accountStatus: store.store.accountStatus || 'offline',
-                isCallsEnabled: store.store.isCallsEnabled || false,
-                auth: {
-                  ...authAppData,
-                  lastUser: authAppData.lastUser,
-                  lastUserCryptPsw: authAppData.lastUserCryptPsw
-                }
-              }, 'autoLogin')
+              store.updateStore(
+                {
+                  account: lastLoggedAccount,
+                  theme: lastLoggedAccount.theme,
+                  connection: true,
+                  accountStatus: store.store.accountStatus || 'offline',
+                  isCallsEnabled: store.store.isCallsEnabled || false,
+                  auth: {
+                    ...authAppData,
+                    lastUser: authAppData.lastUser,
+                    lastUserCryptPsw: authAppData.lastUserCryptPsw,
+                  },
+                },
+                'autoLogin',
+              )
               if (sipChanged) {
                 store.saveToDisk()
               }
@@ -169,10 +201,18 @@ export class AccountController {
           }
 
           // Token is expired or doesn't exist, do a new login
-          const tempLoggedAccount = await this.NethVoiceAPI.Authentication.login(lastLoggedAccount.host, lastLoggedAccount.username, password)
+          const tempLoggedAccount =
+            await this.NethVoiceAPI.Authentication.login(
+              lastLoggedAccount.host,
+              lastLoggedAccount.username,
+              password,
+            )
 
           // Check if 2FA is required - auto-login should fail in this case
-          if (tempLoggedAccount.jwtToken && requires2FA(tempLoggedAccount.jwtToken)) {
+          if (
+            tempLoggedAccount.jwtToken &&
+            requires2FA(tempLoggedAccount.jwtToken)
+          ) {
             Log.info('auto login failed: 2FA required, user interaction needed')
             return false
           }
@@ -209,16 +249,26 @@ export class AccountController {
   async refreshServerConfig(account: Account): Promise<boolean> {
     try {
       const { parseConfig } = useLogin()
-      const config: string = await NetworkController.instance.get(`https://${account.host}/config/config.production.js`)
+      const config: string = await NetworkController.instance.get(
+        `https://${account.host}/config/config.production.js`,
+      )
       const previous = { sipHost: account.sipHost, sipPort: account.sipPort }
       parseConfig(account, config)
-      const changed = previous.sipHost !== account.sipHost || previous.sipPort !== account.sipPort
+      const changed =
+        previous.sipHost !== account.sipHost ||
+        previous.sipPort !== account.sipPort
       if (changed) {
-        Log.info('server SIP config changed', { previous, current: { sipHost: account.sipHost, sipPort: account.sipPort } })
+        Log.info('server SIP config changed', {
+          previous,
+          current: { sipHost: account.sipHost, sipPort: account.sipPort },
+        })
       }
       return changed
     } catch (e) {
-      Log.warning('unable to refresh server config, keeping cached SIP settings:', e)
+      Log.warning(
+        'unable to refresh server config, keeping cached SIP settings:',
+        e,
+      )
       return false
     }
   }
@@ -243,14 +293,23 @@ export class AccountController {
     return changed
   }
 
-  async saveLoggedAccount(account: Account, password: string): Promise<Account> {
+  async saveLoggedAccount(
+    account: Account,
+    password: string,
+  ): Promise<Account> {
     try {
       // Wait for encryption to become available (max 10 seconds with 500ms intervals)
-      if (!await this.waitForSafeStorage()) {
-        Log.error('saveLoggedAccount: safeStorage encryption not available after waiting')
+      if (!(await this.waitForSafeStorage())) {
+        Log.error(
+          'saveLoggedAccount: safeStorage encryption not available after waiting',
+        )
         throw new Error('Encryption not available')
       }
-      const clearString = JSON.stringify({ host: account.host, username: account.username, password: password })
+      const clearString = JSON.stringify({
+        host: account.host,
+        username: account.username,
+        password: password,
+      })
       const cryptString = safeStorage.encryptString(clearString)
       const accountUID = getAccountUID(account)
       const authAppData = store.store.auth
@@ -259,31 +318,36 @@ export class AccountController {
         if (accountPreviousData) {
           account = {
             ...accountPreviousData,
-            ...account
+            ...account,
           }
         }
       }
-      store.updateStore({
-        account,
-        theme: account.theme,
-        auth: {
-          availableAccounts: {
-            ...store.store.auth?.availableAccounts,
-            [accountUID]: account
+      store.updateStore(
+        {
+          account,
+          theme: account.theme,
+          auth: {
+            availableAccounts: {
+              ...store.store.auth?.availableAccounts,
+              [accountUID]: account,
+            },
+            isFirstStart: false,
+            lastUser: accountUID,
+            lastUserCryptPsw: cryptString,
           },
-          isFirstStart: false,
-          lastUser: accountUID,
-          lastUserCryptPsw: cryptString
+          device: account.data?.default_device
+            ? {
+                type: account.data.default_device.type as AvailableDevices,
+                id: account.data.default_device.id,
+              }
+            : undefined,
+          connection: store.store.connection || false,
+          accountStatus: store.store.accountStatus || 'offline',
+          isCallsEnabled: store.store.isCallsEnabled || false,
+          lastDevice: store.store.lastDevice || undefined,
         },
-        device: account.data?.default_device ? {
-          type: account.data.default_device.type as AvailableDevices,
-          id: account.data.default_device.id,
-        } : undefined,
-        connection: store.store.connection || false,
-        accountStatus: store.store.accountStatus || 'offline',
-        isCallsEnabled: store.store.isCallsEnabled || false,
-        lastDevice: store.store.lastDevice || undefined
-      }, 'saveLoggedAccount')
+        'saveLoggedAccount',
+      )
       store.saveToDisk()
       return account
     } catch (e) {
@@ -292,8 +356,6 @@ export class AccountController {
       throw e
     }
   }
-
-
 
   async updateTheme(theme: any) {
     if (store.store) {
@@ -358,12 +420,13 @@ export class AccountController {
     }
   }
 
-
   getAccountPhoneIslandPosition(): PhoneIslandPosition | undefined {
     return store.store.account?.phoneIslandPosition
   }
 
-  setAccountPhoneIslandPosition(phoneIslandPosition: PhoneIslandPosition): void {
+  setAccountPhoneIslandPosition(
+    phoneIslandPosition: PhoneIslandPosition,
+  ): void {
     const account = store.store.account
     const auth = store.store.auth
     if (account) {
@@ -373,8 +436,8 @@ export class AccountController {
         ...auth,
         availableAccounts: {
           ...auth?.availableAccounts,
-          [getAccountUID(account)]: account
-        }
+          [getAccountUID(account)]: account,
+        },
       }
       store.set('auth', _auth, true)
       store.saveToDisk()
@@ -385,7 +448,9 @@ export class AccountController {
     return store.store.account?.nethlinkBounds
   }
 
-  setAccountNethLinkBounds(nethlinkBounds: Electron.Rectangle | undefined): void {
+  setAccountNethLinkBounds(
+    nethlinkBounds: Electron.Rectangle | undefined,
+  ): void {
     const account = store.store.account
     Log.debug('MAIN PRESENCE BACK', account?.data?.mainPresence)
     const auth = store.store.auth
@@ -396,8 +461,8 @@ export class AccountController {
         ...auth,
         availableAccounts: {
           ...auth?.availableAccounts,
-          [getAccountUID(account)]: account
-        }
+          [getAccountUID(account)]: account,
+        },
       }
       store.set('auth', _auth, true)
       store.saveToDisk()

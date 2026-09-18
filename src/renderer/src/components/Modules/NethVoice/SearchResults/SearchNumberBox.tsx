@@ -99,24 +99,20 @@ export function SearchNumberBox({
         ),
       )
     }
-    let operatorsResults = candidates.filter(
-      (op: any) => {
-        return (
-          (op.name &&
-            new RegExp(cleanQuery, 'i').test(
-              op.name.replace(cleanRegex, ''),
-            )) ||
-          new RegExp(cleanQuery, 'i').test(op.endpoints?.mainextension[0]?.id)
-        )
-      },
-    )
+    let operatorsResults = candidates.filter((op: any) => {
+      return (
+        (op.name &&
+          new RegExp(cleanQuery, 'i').test(op.name.replace(cleanRegex, ''))) ||
+        new RegExp(cleanQuery, 'i').test(op.endpoints?.mainextension[0]?.id)
+      )
+    })
 
     if (operatorsResults.length) {
       operatorsResults = cloneDeep(operatorsResults)
 
       operatorsResults.forEach((op: any) => {
         op.resultType = 'operator'
-        op.extension = op.endpoints?.mainextension[0]?.id //for phoneNumber search
+        op.extension = op.endpoints?.mainextension[0]?.id // for phoneNumber search
       })
     }
     operatorsResults.sort(sortByProperty('name'))
@@ -155,7 +151,7 @@ export function SearchNumberBox({
     const filteredOperators = getFoundedOperators()
     const copy = [...filteredOperators, ...unFilteredNumbers]
     // Allow creating a contact from any meaningful query — number or name.
-    let _canAddInPhonebook = cleanQuery.length > 1
+    const _canAddInPhonebook = cleanQuery.length > 1
     setFilteredPhoneNumbers(() => copy as any)
     setCanAddToPhonebook(() => _canAddInPhonebook)
   }

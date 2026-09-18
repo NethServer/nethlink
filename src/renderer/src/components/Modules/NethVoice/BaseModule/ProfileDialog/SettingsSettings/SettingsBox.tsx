@@ -16,12 +16,16 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
     'isCommandBarShortcutDialogOpen',
   )
   const [, setIsDeviceDialogOpen] = useNethlinkData('isDeviceDialogOpen')
-  const [, setIsIncomingCallsDialogOpen] = useNethlinkData('isIncomingCallsDialogOpen')
-  const [, setIsNotificationsDialogOpen] = useNethlinkData('isNotificationsDialogOpen')
+  const [, setIsIncomingCallsDialogOpen] = useNethlinkData(
+    'isIncomingCallsDialogOpen',
+  )
+  const [, setIsNotificationsDialogOpen] = useNethlinkData(
+    'isNotificationsDialogOpen',
+  )
   const isCallSummaryEnabled = account?.data?.call_summary_enabled === true
 
   return (
-    <div className="py-2">
+    <div className='py-2'>
       <OptionElement
         isSelected={false}
         icon={PhoneIcon}

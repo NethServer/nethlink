@@ -29,8 +29,8 @@ export class CommandBarWindow extends BaseWindow {
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 },
       webPreferences: {
-        nodeIntegration: true
-      }
+        nodeIntegration: true,
+      },
     })
 
     this.addOnBuildListener(() => {

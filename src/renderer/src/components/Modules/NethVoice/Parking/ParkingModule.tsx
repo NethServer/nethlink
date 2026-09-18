@@ -1,8 +1,5 @@
-import { ParkingBox } from "./ParkingBox"
+import { ParkingBox } from './ParkingBox'
 
 export const ParkingModule = () => {
-
-  return (
-    <ParkingBox />
-  )
+  return <ParkingBox />
 }

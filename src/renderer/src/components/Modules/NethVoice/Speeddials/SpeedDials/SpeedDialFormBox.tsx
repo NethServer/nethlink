@@ -34,16 +34,16 @@ export function SpeedDialFormBox({ close }) {
       .trim()
       .min(1, `${t('Common.This field is required')}`)
       .min(3, `${t('Common.This field must be at least', { number: '2' })}`)
-      .regex(/^[0-9*#+]*$/, `${t('Common.This is not a phone number')}`)
+      .regex(/^[0-9*#+]*$/, `${t('Common.This is not a phone number')}`),
   })
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm<ContactType>({
-    resolver: zodResolver(schema)
+    resolver: zodResolver(schema),
   })
 
   const onSubmitForm: SubmitHandler<ContactType> = (data) => {
@@ -67,12 +67,12 @@ export function SpeedDialFormBox({ close }) {
         if (selectedSpeedDial) {
           sendNotification(
             t('Notification.speeddial_modified_title'),
-            t('Notification.speeddial_modified_description')
+            t('Notification.speeddial_modified_description'),
           )
         } else {
           sendNotification(
             t('Notification.speeddial_created_title'),
-            t('Notification.speeddial_created_description')
+            t('Notification.speeddial_created_description'),
           )
         }
         reset()
@@ -82,12 +82,12 @@ export function SpeedDialFormBox({ close }) {
         if (selectedSpeedDial) {
           sendNotification(
             t('Notification.speeddial_not_modified_title'),
-            t('Notification.speeddial_not_modified_description')
+            t('Notification.speeddial_not_modified_description'),
           )
         } else {
           sendNotification(
             t('Notification.speeddial_not_created_title'),
-            t('Notification.speeddial_not_created_description')
+            t('Notification.speeddial_not_created_description'),
           )
         }
         Log.warning('error during speedDialModule.upsertSpeedDial:', e)
@@ -99,12 +99,16 @@ export function SpeedDialFormBox({ close }) {
 
   return (
     <>
-      <ModuleTitle title={selectedSpeedDial
-        ? t('SpeedDial.Edit speed dial')
-        : t('SpeedDial.Create speed dial')} />
+      <ModuleTitle
+        title={
+          selectedSpeedDial
+            ? t('SpeedDial.Edit speed dial')
+            : t('SpeedDial.Create speed dial')
+        }
+      />
       <Scrollable>
         <form
-          className="flex flex-col gap-5 h-full px-5 pt-2"
+          className='flex flex-col gap-5 h-full px-5 pt-2'
           onSubmit={(e) => {
             e.preventDefault()
             handleSubmit(onSubmitForm)(e)
@@ -113,7 +117,7 @@ export function SpeedDialFormBox({ close }) {
           <TextInput
             {...register('name', { required: true })}
             autoFocus={true}
-            type="text"
+            type='text'
             label={t('Phonebook.Name') as string}
             helper={errors.name?.message || undefined}
             error={!!errors.name?.message}
@@ -124,11 +128,11 @@ export function SpeedDialFormBox({ close }) {
                 handleSubmit(onSubmitForm)(e)
               }
             }}
-            className="font-medium text-[14px] leading-5"
+            className='font-medium text-[14px] leading-5'
           />
           <TextInput
             {...register('speeddial_num', { required: true })}
-            type="tel"
+            type='tel'
             minLength={2}
             label={t('Phonebook.Phone number') as string}
             helper={errors.speeddial_num?.message || undefined}
@@ -140,22 +144,22 @@ export function SpeedDialFormBox({ close }) {
                 handleSubmit(onSubmitForm)(e)
               }
             }}
-            className="font-medium text-[14px] leading-5"
+            className='font-medium text-[14px] leading-5'
           />
-          <div className="relative w-full flex flex-row justify-end gap-4 pb-2">
-            <Button variant="ghost" onClick={handleClose} disabled={isLoading}>
-              <p className="dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5">
+          <div className='relative w-full flex flex-row justify-end gap-4 pb-2'>
+            <Button variant='ghost' onClick={handleClose} disabled={isLoading}>
+              <p className='dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5'>
                 {t('Common.Cancel')}
               </p>
             </Button>
-            <Button type="submit" ref={submitButtonRef} className="gap-3">
-              <p className="dark:text-titleLight text-titleDark font-medium text-[14px] leading-5">
+            <Button type='submit' ref={submitButtonRef} className='gap-3'>
+              <p className='dark:text-titleLight text-titleDark font-medium text-[14px] leading-5'>
                 {selectedSpeedDial ? t('Common.Edit') : t('SpeedDial.Create')}
               </p>
               {isLoading && (
                 <FontAwesomeIcon
                   icon={LoadingIcon}
-                  className="dark:text-titleLight text-titleDark animate-spin"
+                  className='dark:text-titleLight text-titleDark animate-spin'
                 />
               )}
             </Button>

@@ -12,20 +12,20 @@ export interface DropdownProps extends ComponentProps<'div'> {
   items: ReactNode
   divider?: boolean
   position?:
-  | 'left'
-  | 'right'
-  | 'top'
-  | 'topLeft'
-  | 'bottom'
-  | 'leftSingleItem'
-  | 'topMultipleItem'
-  | 'leftUpTwoItems'
-  | 'leftUpVoicemail'
-  | 'leftDownVoicemail'
-  | 'topVoicemail'
-  | 'bottomVoicemail'
-  | 'oneVoicemail'
-  | 'bottomTranscription'
+    | 'left'
+    | 'right'
+    | 'top'
+    | 'topLeft'
+    | 'bottom'
+    | 'leftSingleItem'
+    | 'topMultipleItem'
+    | 'leftUpTwoItems'
+    | 'leftUpVoicemail'
+    | 'leftDownVoicemail'
+    | 'topVoicemail'
+    | 'bottomVoicemail'
+    | 'oneVoicemail'
+    | 'bottomTranscription'
   size?: 'full'
   width?: string
 }
@@ -51,7 +51,9 @@ const DropdownComponent: FC<DropdownProps> = ({
           className={classNames(
             theme.items.base,
             divider && theme.items.divider,
-            position ? theme.items.position[position] : theme.items.position.right,
+            position
+              ? theme.items.position[position]
+              : theme.items.position.right,
             position === 'top' ? 'py-1' : '',
             width,
           )}
