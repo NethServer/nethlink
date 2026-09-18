@@ -42,7 +42,7 @@ export const Badge: FC<BadgeProps> = ({
           rounded ? theme.rounded[rounded] : theme.rounded.base,
           variant && statuses[variant]?.badge.base,
           size ? theme.sizes[size] : theme.sizes.base,
-          className
+          className,
         )}
         {...props}
       >

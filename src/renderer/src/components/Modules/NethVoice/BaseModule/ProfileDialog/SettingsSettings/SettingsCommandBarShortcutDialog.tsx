@@ -133,7 +133,8 @@ export function SettingsCommandBarShortcutDialog() {
     // - sometimes it's "Alt" with code "AltRight"
     // - sometimes modifier flags are not set
     const code = (e as any).code as string | undefined
-    const hasGetModifierState = typeof (e as any).getModifierState === 'function'
+    const hasGetModifierState =
+      typeof (e as any).getModifierState === 'function'
     const modifierStateAltGraph = hasGetModifierState
       ? (e as any).getModifierState('AltGraph')
       : false
@@ -160,7 +161,9 @@ export function SettingsCommandBarShortcutDialog() {
 
     const orderedModifiers = ['Ctrl', 'Alt', 'AltGr', 'Cmd']
     const modifiers = orderedModifiers.filter((k) => newKeys.has(k))
-    const others = [...newKeys].filter((k) => !orderedModifiers.includes(k as any))
+    const others = [...newKeys].filter(
+      (k) => !orderedModifiers.includes(k as any),
+    )
 
     // Require at least one modifier key — reject bare keys like "6", "R", etc.
     // Solo modifiers (e.g. just "Ctrl") are still allowed for double-tap.
@@ -205,7 +208,10 @@ export function SettingsCommandBarShortcutDialog() {
                 </InlineNotification>
               }
 
-              <form onSubmit={handleSubmit(submit)} className='flex flex-col gap-5'>
+              <form
+                onSubmit={handleSubmit(submit)}
+                className='flex flex-col gap-5'
+              >
                 <div className='flex items-start gap-2'>
                   <TextInput
                     {...register('combo')}
@@ -227,7 +233,9 @@ export function SettingsCommandBarShortcutDialog() {
                       className='mt-3'
                       size='inputSize'
                       data-tooltip-id='tooltip-clear-command-bar-shortcut'
-                      data-tooltip-content={t('Settings.Clear and remove shortcut')}
+                      data-tooltip-content={t(
+                        'Settings.Clear and remove shortcut',
+                      )}
                       data-tooltip-place='top'
                     >
                       <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />

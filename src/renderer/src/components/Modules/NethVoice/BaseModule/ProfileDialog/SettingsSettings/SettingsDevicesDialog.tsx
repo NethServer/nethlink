@@ -211,35 +211,40 @@ export function SettingsDeviceDialog() {
                     </div>
                     <div className=''>
                       <Dropdown
-                        items={devices?.[deviceType]?.map((device) => {
-                          return (
-                            <DropdownItem
-                              key={device.deviceId}
-                              onClick={() => {
-                                console.log('change device:', device.deviceId)
-                                handleDeviceChange(deviceType, device.deviceId)
-                              }}
-                            >
-                              <div className='flex flex-row items-center gap-2 w-[200px]'>
-                                <span
-                                  className='truncate'
-                                  data-tooltip-id={`device-${deviceType}`}
-                                  data-tooltip-content={device.label}
-                                >
-                                  {device.label}
-                                </span>
-                                <FontAwesomeIcon
-                                  icon={SelectedIcon}
-                                  className={
-                                    formData[deviceType] === device.deviceId
-                                      ? 'visible'
-                                      : 'hidden'
-                                  }
-                                />
-                              </div>
-                            </DropdownItem>
-                          )
-                        }) || []}
+                        items={
+                          devices?.[deviceType]?.map((device) => {
+                            return (
+                              <DropdownItem
+                                key={device.deviceId}
+                                onClick={() => {
+                                  console.log('change device:', device.deviceId)
+                                  handleDeviceChange(
+                                    deviceType,
+                                    device.deviceId,
+                                  )
+                                }}
+                              >
+                                <div className='flex flex-row items-center gap-2 w-[200px]'>
+                                  <span
+                                    className='truncate'
+                                    data-tooltip-id={`device-${deviceType}`}
+                                    data-tooltip-content={device.label}
+                                  >
+                                    {device.label}
+                                  </span>
+                                  <FontAwesomeIcon
+                                    icon={SelectedIcon}
+                                    className={
+                                      formData[deviceType] === device.deviceId
+                                        ? 'visible'
+                                        : 'hidden'
+                                    }
+                                  />
+                                </div>
+                              </DropdownItem>
+                            )
+                          }) || []
+                        }
                         className='w-full'
                       >
                         <DropdownHeader>

@@ -1,12 +1,15 @@
-import { Account, AuthAppData, LocalStorageData } from '@shared/types';
-import { app, ipcMain } from 'electron';
-import path from 'path';
-import fs from 'fs';
-import { IPC_EVENTS } from '@shared/constants';
-import { Log } from '@shared/utils/logger';
-import { difference } from 'lodash';
+import { Account, AuthAppData, LocalStorageData } from '@shared/types'
+import { app, ipcMain } from 'electron'
+import path from 'path'
+import fs from 'fs'
+import { IPC_EVENTS } from '@shared/constants'
+import { Log } from '@shared/utils/logger'
+import { difference } from 'lodash'
 
-const AVAILABLE_USER_DATA_PATH = path.join(app.getPath("userData"), `available_user_data.json`);
+const AVAILABLE_USER_DATA_PATH = path.join(
+  app.getPath('userData'),
+  `available_user_data.json`,
+)
 
 // on Windows the rename can transiently fail while an antivirus keeps the target open
 const RENAME_RETRY_DELAYS_MS = [10, 30, 90]
@@ -78,7 +81,11 @@ function parseJsonFile(filePath: string): any | undefined {
       return undefined
     }
     if (isAllZeroes(buffer)) {
-      Log.warning('STORE', filePath, 'contains only NUL bytes - corrupted by an unclean shutdown')
+      Log.warning(
+        'STORE',
+        filePath,
+        'contains only NUL bytes - corrupted by an unclean shutdown',
+      )
       return undefined
     }
     return JSON.parse(buffer.toString('utf-8'))
@@ -103,15 +110,19 @@ function readJsonSafe<T>(filePath: string, fallback: T): T {
       return backup as T
     }
   }
-  Log.warning('STORE no usable data for', filePath, '- falling back to defaults')
+  Log.warning(
+    'STORE no usable data for',
+    filePath,
+    '- falling back to defaults',
+  )
   return fallback
 }
 
 class Store<T> {
-  assignedInstanceID;
+  assignedInstanceID
   USER_DATA_PATH
   constructor() {
-    const instance = process.argv.find(p => p.includes('INSTANCE='))
+    const instance = process.argv.find((p) => p.includes('INSTANCE='))
     if (instance) {
       const i = instance?.split('=')
       this.assignedInstanceID = i[1]
@@ -119,14 +130,23 @@ class Store<T> {
       this.assignedInstanceID = 0
     }
     Log.info({ assignedInstanceID: this.assignedInstanceID })
-    this.USER_DATA_PATH = path.join(app.getPath("userData"), `user_data${this.assignedInstanceID || ''}.json`);
+    this.USER_DATA_PATH = path.join(
+      app.getPath('userData'),
+      `user_data${this.assignedInstanceID || ''}.json`,
+    )
     const hasUserData = fs.existsSync(this.USER_DATA_PATH)
     const hasAvailableUserData = fs.existsSync(AVAILABLE_USER_DATA_PATH)
     if (!hasUserData || !hasAvailableUserData) {
       if (!hasAvailableUserData) {
         // migration path for the installations where the accounts lived only in user_data.json
-        const userData = readJsonSafe<Partial<LocalStorageData>>(this.USER_DATA_PATH, {})
-        writeJsonAtomic(AVAILABLE_USER_DATA_PATH, JSON.stringify(userData?.auth?.availableAccounts ?? {}))
+        const userData = readJsonSafe<Partial<LocalStorageData>>(
+          this.USER_DATA_PATH,
+          {},
+        )
+        writeJsonAtomic(
+          AVAILABLE_USER_DATA_PATH,
+          JSON.stringify(userData?.auth?.availableAccounts ?? {}),
+        )
       }
       if (!hasUserData) {
         writeJsonAtomic(this.USER_DATA_PATH, JSON.stringify({}))
@@ -148,36 +168,55 @@ class Store<T> {
     const diff = difference(Object.values(o), Object.values(this.store as any))
     if (diff.length > 0 || force) {
       this.store = o
-      ipcMain.emit(IPC_EVENTS.UPDATE_SHARED_STATE, undefined, this.store, 'main', selector)
+      ipcMain.emit(
+        IPC_EVENTS.UPDATE_SHARED_STATE,
+        undefined,
+        this.store,
+        'main',
+        selector,
+      )
     }
   }
 
   updateStore(newState: T | null | undefined, from: string) {
-    const diff = difference(Object.values(newState as any || {}), Object.values(this.store as any || {}))
-    Log.debug('STORE update shared store from', from, Object.keys(newState as any || {}))
+    const diff = difference(
+      Object.values((newState as any) || {}),
+      Object.values((this.store as any) || {}),
+    )
+    Log.debug(
+      'STORE update shared store from',
+      from,
+      Object.keys((newState as any) || {}),
+    )
     if (diff.length > 0 || this.store === undefined) {
       this.store = Object.assign({}, newState ?? ({} as T))
     }
   }
 
   saveToDisk(forceSave: boolean = false) {
-    const availableUserData = (this.store as LocalStorageData)?.auth?.availableAccounts
+    const availableUserData = (this.store as LocalStorageData)?.auth
+      ?.availableAccounts
     try {
-      writeJsonAtomic(this.USER_DATA_PATH, JSON.stringify(this.store ?? {}));
+      writeJsonAtomic(this.USER_DATA_PATH, JSON.stringify(this.store ?? {}))
     } catch (e) {
       Log.error('STORE unable to persist', this.USER_DATA_PATH, e)
     }
     if (Object.keys(availableUserData || {}).length > 0 || forceSave) {
       try {
-        writeJsonAtomic(AVAILABLE_USER_DATA_PATH, JSON.stringify(availableUserData ?? {}));
+        writeJsonAtomic(
+          AVAILABLE_USER_DATA_PATH,
+          JSON.stringify(availableUserData ?? {}),
+        )
       } catch (e) {
         Log.error('STORE unable to persist', AVAILABLE_USER_DATA_PATH, e)
       }
     }
   }
 
-  getAvailableFromDisk(): { [accountUID: string]: Account; } {
-    const availableUserData = readJsonSafe<{ [accountUID: string]: Account } | null>(AVAILABLE_USER_DATA_PATH, null)
+  getAvailableFromDisk(): { [accountUID: string]: Account } {
+    const availableUserData = readJsonSafe<{
+      [accountUID: string]: Account
+    } | null>(AVAILABLE_USER_DATA_PATH, null)
     if (!availableUserData || typeof availableUserData !== 'object') {
       return {}
     }
@@ -187,13 +226,16 @@ class Store<T> {
   getFromDisk(): T | null {
     const data = readJsonSafe<any>(this.USER_DATA_PATH, null)
     if (!data || typeof data !== 'object') {
-      Log.error('retrieving user data: no usable content in', this.USER_DATA_PATH)
+      Log.error(
+        'retrieving user data: no usable content in',
+        this.USER_DATA_PATH,
+      )
       return null
     }
     const retrivedStore = data as LocalStorageData
     retrivedStore.auth = {
       ...(retrivedStore.auth ?? {}),
-      availableAccounts: this.getAvailableFromDisk()
+      availableAccounts: this.getAvailableFromDisk(),
     } as AuthAppData
     return retrivedStore as T
   }

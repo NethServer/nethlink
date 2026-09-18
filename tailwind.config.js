@@ -5,109 +5,109 @@ export default {
   theme: {
     extend: {
       colors: {
-        //borders
-        borderDark: '#374151', //gray-700
-        borderLight: '#E5E7EB', //gray-200
+        // borders
+        borderDark: '#374151', // gray-700
+        borderLight: '#E5E7EB', // gray-200
 
-        //design system surfaces
+        // design system surfaces
         elevationL1: '#F9FAFB', // gray-50
 
-        //design system text
+        // design system text
         textPrimaryNeutral: '#111827', // gray-900
         textPrimaryNeutralDark: '#F9FAFB', // gray-50
         textSecondaryNeutral: '#374151', // gray-700
         textSecondaryNeutralDark: '#E5E7EB', // gray-200
 
-        //design system product
+        // design system product
         productPrimaryNethlinkActive: '#1d4ed8', // blue-700
         productPrimaryNethlinkActiveDark: '#3b82f6', // blue-500
 
-        //design system surfaces
+        // design system surfaces
         surfaceToggleBackgroundDisabled: '#9CA3AF', // gray-400
         surfaceToggleBackgroundDisabledDark: '#4B5563', // gray-600
 
-        //primary
+        // primary
         primary: '#1d4ed8', // blue-700
         primaryHover: '#1e40af', // blue-800
         primaryRing: '#3b82f6', // blue-500
 
-        //primary dark
+        // primary dark
         primaryDark: '#3b82f6', // blue-500
         primaryDarkHover: '#93c5fd', // blue-300
         primaryRingDark: '#bfdbfe', // blue-200
 
-        //text
+        // text
         titleLight: '#374151', // gray-700
         titleDark: '#E5E7EB', // gray-200
 
-        //blue text
-        textBlueLight: '#1d4ed8', //blue-700
+        // blue text
+        textBlueLight: '#1d4ed8', // blue-700
         textBlueDark: '#3b82f6', // blue-500
 
-        //indigo text
-        textIndigoLight: '#4c1d95', //indigo-700
+        // indigo text
+        textIndigoLight: '#4c1d95', // indigo-700
         textIndigoDark: '#818cf8', // indigo-400
 
-        //yellow text
-        textYellowLight: '#B45309', //yellow-700
+        // yellow text
+        textYellowLight: '#B45309', // yellow-700
         textYellowDark: '#F59E0B', // yellow-500
-        //red text
-        textRedLight: '#BE123C', //red-700
+        // red text
+        textRedLight: '#BE123C', // red-700
         textRedDark: '#F43F5E', // red-500
 
-        //amber icon
-        iconAmberLight: '#b45309', //amber-700
+        // amber icon
+        iconAmberLight: '#b45309', // amber-700
         iconAmberDark: '#fef3c7', // amber-100
         iconTooltip: '#6366F1', // indigo-500
         iconTooltipDark: '#A5B4FC', // indigo-300
 
-        //buttonPrimary
+        // buttonPrimary
         primaryButtonText: '#fff', // white
         primaryButtonTextDark: '#030712', // gray-950
 
-        //input
+        // input
         bgInput: '#fff', // white
         inputText: '#111827', // gray-900
         inputLabelTitle: '#111827', // gray-900
         placeHolderInputText: '#111827', // gray-900
         inputIcon: '#374151', // gray-700
 
-        //input dark
+        // input dark
         bgInputDark: '#030712', // gray-950
         inputTextDark: '#F9FAFB', // gray-50
         inputLabelTitleDark: '#F9FAFB', // gray-50
         placeHolderInputTextDark: '#F9FAFB', // gray-50
         inputIconDark: '#F9FAFB', // gray-50
 
-        //loadingSpinnerBackground
+        // loadingSpinnerBackground
         spinnerBgLight: '#f9fafb', // gray-50
         spinnerBgDark: '#030712', // gray-950
 
-        //background
+        // background
         bgLight: '#f9fafb', // gray-50
         bgDark: '#111827', // gray-900
         bgEmerald: '#15803D', // gray-900
 
-        //modal
-        bgAmberLight: '#fef3c7', //amber-100
-        bgAmberDark: '#b45309', //amber-700
+        // modal
+        bgAmberLight: '#fef3c7', // amber-100
+        bgAmberDark: '#b45309', // amber-700
 
-        //hover
+        // hover
         hoverDark: '#374151', // gray-700
         hoverLight: '#E5E7EB', // gray-200
 
-        //ring
+        // ring
         ringBlueDark: '#bfdbfe', // blue-200
         ringBlueLight: '#3b82f6', // blue-500
 
-        //ring-offset
+        // ring-offset
         ringOffsetDark: '#111827', // gray-900
         ringOffsetLight: '#F9FAFB', // gray-50
 
-        //iconEmpty
+        // iconEmpty
         emptyIconLight: '#9CA3AF',
         emptyIconDark: '#6B7280',
-        //textEmpty
+        // textEmpty
         emptyTextLight: '#374151',
         emptyTextDark: '#E5E7EB',
 

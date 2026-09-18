@@ -54,7 +54,7 @@ export const CallsDate: FC<CallsDateProps> = ({
       differenceValueBetweenTimezone = getTimeDifference(account, false)
     }
 
-    let diffValueEditedFormat = diffValueConversation(
+    const diffValueEditedFormat = diffValueConversation(
       differenceValueBetweenTimezone,
     )
     return diffValueEditedFormat
@@ -65,8 +65,7 @@ export const CallsDate: FC<CallsDateProps> = ({
       account,
       isInQueue ? true : false,
     )
-    const currentLanguage =
-      selectedLanguage || i18next?.languages[0] || 'en'
+    const currentLanguage = selectedLanguage || i18next?.languages[0] || 'en'
 
     const shortIt = {
       ...it,
@@ -139,7 +138,10 @@ export const CallsDate: FC<CallsDateProps> = ({
         locale,
       })
     } else {
-      const callDate = utcToZonedTime(call?.time * 1000, differenceBetweenTimezone)
+      const callDate = utcToZonedTime(
+        call?.time * 1000,
+        differenceBetweenTimezone,
+      )
 
       return formatDistanceToNowStrict(callDate, {
         addSuffix: true,

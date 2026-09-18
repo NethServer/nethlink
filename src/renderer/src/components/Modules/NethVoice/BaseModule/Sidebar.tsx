@@ -4,7 +4,7 @@ import {
   faPhone as MissedCallMenuIcon,
   faInfoCircle as InfoMenuIcon,
   faStar as FavouriteMenuIcon,
-  faSquareParking as ParkedCallMenuIcon
+  faSquareParking as ParkedCallMenuIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { ParkingType } from '@shared/types'
@@ -19,15 +19,19 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
-
-  const [selectedSidebarMenu, setSelectedSidebarMenu] = useNethlinkData('selectedSidebarMenu')
-  const [, setShowPhonebookSearchModule] = useNethlinkData('showPhonebookSearchModule')
+  const [selectedSidebarMenu, setSelectedSidebarMenu] = useNethlinkData(
+    'selectedSidebarMenu',
+  )
+  const [, setShowPhonebookSearchModule] = useNethlinkData(
+    'showPhonebookSearchModule',
+  )
   const [, setPhonebookSearchModule] = useNethlinkData('phonebookSearchModule')
   const [missedCalls] = useNethlinkData('missedCalls')
   const [notifications] = useSharedState('notifications')
-  const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(MENU_ELEMENT.FAVOURITES)
+  const [lastMenu, setLastMenu] = useState<MENU_ELEMENT>(
+    MENU_ELEMENT.FAVOURITES,
+  )
   const [isAboutVisited, setIsAboutVisited] = useState<boolean>(false)
-
 
   const viewedParkedCalls = useRef<ParkingType[]>([])
   const [parkedPulse, setParkedPulse] = useState<boolean>(false)
@@ -39,10 +43,9 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
     setSelectedSidebarMenu(menuElement)
     setShowPhonebookSearchModule(false)
     setPhonebookSearchModule({
-      searchText: undefined
+      searchText: undefined,
     })
   }
-
 
   useEffect(() => {
     if (selectedSidebarMenu && lastMenu !== selectedSidebarMenu) {
@@ -54,13 +57,14 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
     }
   }, [selectedSidebarMenu])
 
-
   useEffect(() => {
     if (selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS) {
       viewedParkedCalls.current = [...(parkedCalls || [])]
     }
     const currentNames = parkedCalls?.map((c) => c.parkedCaller.name) || []
-    viewedParkedCalls.current = viewedParkedCalls.current.filter((p) => currentNames.includes(p.parkedCaller.name))
+    viewedParkedCalls.current = viewedParkedCalls.current.filter((p) =>
+      currentNames.includes(p.parkedCaller.name),
+    )
     const names = viewedParkedCalls.current.map((c) => c.parkedCaller.name)
     const diff = difference(currentNames, names)
     if (diff.length > 0) {
@@ -69,8 +73,8 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   }, [parkedCalls, selectedSidebarMenu])
 
   return (
-    <div className="flex flex-col h-full max-w-[50px] justify-between pt-3 pb-2 px-2 border-0 border-l-[1px] dark:border-borderDark border-borderLight bg-bgLight dark:bg-bgDark z-10">
-      <div className="flex flex-col items-center gap-6">
+    <div className='flex flex-col h-full max-w-[50px] justify-between pt-3 pb-2 px-2 border-0 border-l-[1px] dark:border-borderDark border-borderLight bg-bgLight dark:bg-bgDark z-10'>
+      <div className='flex flex-col items-center gap-6'>
         {/* FAVOURITE */}
         <SidebarButton
           icon={FavouriteMenuIcon}
@@ -96,21 +100,19 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
           isSelected={selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS}
         />
         {/* PARKED CALLS */}
-        {
-          hasPermission(PERMISSION.PARKINGS) && (
-            <SidebarButton
-              icon={ParkedCallMenuIcon}
-              focus={selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS}
-              hasNotification={(parkedCalls?.length || 0) > 0}
-              hasPulseNotification={parkedPulse}
-              onClick={() => {
-                handleSidebarMenuSelection(MENU_ELEMENT.PARKED_CALLS)
-                setParkedPulse(false)
-              }}
-              isSelected={selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS}
-            />
-          )
-        }
+        {hasPermission(PERMISSION.PARKINGS) && (
+          <SidebarButton
+            icon={ParkedCallMenuIcon}
+            focus={selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS}
+            hasNotification={(parkedCalls?.length || 0) > 0}
+            hasPulseNotification={parkedPulse}
+            onClick={() => {
+              handleSidebarMenuSelection(MENU_ELEMENT.PARKED_CALLS)
+              setParkedPulse(false)
+            }}
+            isSelected={selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS}
+          />
+        )}
         {/* APP UPDATE */}
         <SidebarButton
           icon={InfoMenuIcon}
@@ -124,4 +126,3 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
     </div>
   )
 }
-

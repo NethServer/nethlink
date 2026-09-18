@@ -39,8 +39,8 @@ export function decodeJWT(token: string): JWTPayload | null {
     // Decode the payload (second part)
     const payload = parts[1]
     // Add padding if needed
-    const paddedPayload = payload + '='.repeat((4 - payload.length % 4) % 4)
-    
+    const paddedPayload = payload + '='.repeat((4 - (payload.length % 4)) % 4)
+
     const decodedPayload = base64Decode(paddedPayload)
     return JSON.parse(decodedPayload) as JWTPayload
   } catch (error) {

@@ -48,7 +48,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
 
   const prepareCalls = () => {
     if (lastCalls) {
-      const missedCallIds = new Set(missedCalls?.map(c => c.uniqueid))
+      const missedCallIds = new Set(missedCalls?.map((c) => c.uniqueid))
       const preparedCalls: LastCallData[] = lastCalls
         .map((c) => ({
           ...c,
@@ -64,7 +64,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
   }
 
   function getCallName(call: CallData): string {
-    let callName =
+    const callName =
       call.direction === 'out'
         ? call?.dst_cnam || call?.dst_ccompany
         : call.direction === 'in'
@@ -85,7 +85,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
         },
       )
     }
-    return operator?.username || t('Common.Unknown') //speeddialName ||
+    return operator?.username || t('Common.Unknown') // speeddialName ||
   }
 
   const handleClearNotification = (missedCall: CallData) => {

@@ -103,7 +103,8 @@ export function SettingsShortcutDialog() {
     const newKeys = new Set(keysPressed)
 
     const code = (e as any).code as string | undefined
-    const hasGetModifierState = typeof (e as any).getModifierState === 'function'
+    const hasGetModifierState =
+      typeof (e as any).getModifierState === 'function'
     const modifierStateAltGraph = hasGetModifierState
       ? (e as any).getModifierState('AltGraph')
       : false
@@ -129,7 +130,9 @@ export function SettingsShortcutDialog() {
 
     const orderedModifiers = ['Ctrl', 'Alt', 'AltGr', 'Cmd']
     const modifiers = orderedModifiers.filter((k) => newKeys.has(k))
-    const others = [...newKeys].filter((k) => !orderedModifiers.includes(k as any))
+    const others = [...newKeys].filter(
+      (k) => !orderedModifiers.includes(k as any),
+    )
 
     // Require at least one modifier key — reject bare keys like "6", "R", etc.
     if (others.length > 0 && modifiers.length === 0) return
@@ -155,98 +158,101 @@ export function SettingsShortcutDialog() {
 
       <div className='fixed inset-0 z-[205] overflow-y-auto pointer-events-none'>
         <div className='flex min-h-full items-center justify-center p-4 pointer-events-none'>
-        <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-[90%] pointer-events-auto'>
-          {/* Dialog content */}
-          <div className='p-6 flex flex-col gap-4'>
-            {/* Title */}
-            <h2 className='text-center font-semibold text-xl'>
-              {t('TopBar.Keyboard shortcut to call')}
-            </h2>
+          <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-[90%] pointer-events-auto'>
+            {/* Dialog content */}
+            <div className='p-6 flex flex-col gap-4'>
+              {/* Title */}
+              <h2 className='text-center font-semibold text-xl'>
+                {t('TopBar.Keyboard shortcut to call')}
+              </h2>
 
-            {/* Subtitle */}
-            <p className='text-center text-gray-600 dark:text-gray-300'>
-              {t('TopBar.Shortcut title description')}{' '}
-            </p>
-            {/* Inline notification */}
-            {(
-              <InlineNotification
-                title={t('Common.Warning')}
-                type='warning'
-                className=''
+              {/* Subtitle */}
+              <p className='text-center text-gray-600 dark:text-gray-300'>
+                {t('TopBar.Shortcut title description')}{' '}
+              </p>
+              {/* Inline notification */}
+              {
+                <InlineNotification
+                  title={t('Common.Warning')}
+                  type='warning'
+                  className=''
+                >
+                  <p>{t('TopBar.Shortcut subtitle description')}</p>
+                </InlineNotification>
+              }
+
+              {/* Form */}
+              <form
+                onSubmit={handleSubmit(submit)}
+                className='flex flex-col gap-5'
               >
-                <p>{t('TopBar.Shortcut subtitle description')}</p>
-              </InlineNotification>
-            )}
+                {/* Input field with clear button next to it */}
+                <div className='flex items-start gap-2'>
+                  <TextInput
+                    {...register('combo')}
+                    placeholder={t('Common.Shortcut') as string}
+                    className='flex-grow font-normal text-base leading-5 rounded-lg'
+                    helper={errors.combo?.message || undefined}
+                    error={!!errors.combo?.message}
+                    value={combo}
+                    onKeyDown={handleKeyDown}
+                    onKeyUp={handleKeyUp}
+                    onChange={() => {}}
+                    readOnly
+                    autoFocus
+                  />
+                  {!!combo && (
+                    <Button
+                      variant='ghost'
+                      onClick={handleClearShortcut}
+                      className='mt-3'
+                      size='inputSize'
+                      data-tooltip-id='tooltip-clear-shortcut'
+                      data-tooltip-content={t(
+                        'Settings.Clear and remove shortcut',
+                      )}
+                      data-tooltip-place='top'
+                    >
+                      <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
+                    </Button>
+                  )}
+                  <CustomThemedTooltip
+                    id='tooltip-clear-shortcut'
+                    place='top'
+                  />
+                </div>
 
-            {/* Form */}
-            <form
-              onSubmit={handleSubmit(submit)}
-              className='flex flex-col gap-5'
-            >
-              {/* Input field with clear button next to it */}
-              <div className='flex items-start gap-2'>
-                <TextInput
-                  {...register('combo')}
-                  placeholder={t('Common.Shortcut') as string}
-                  className='flex-grow font-normal text-base leading-5 rounded-lg'
-                  helper={errors.combo?.message || undefined}
-                  error={!!errors.combo?.message}
-                  value={combo}
-                  onKeyDown={handleKeyDown}
-                  onKeyUp={handleKeyUp}
-                  onChange={() => {}}
-                  readOnly
-                  autoFocus
-                />
-                {!!combo && (
+                {/* Keys not supported info */}
+                <p className='text-sm text-gray-500 dark:text-gray-400'>
+                  {t('TopBar.Shortcut body description')}
+                </p>
+
+                {/* Action buttons */}
+                <div className='flex flex-col gap-3 mt-2'>
+                  <Button
+                    variant='primary'
+                    type='button'
+                    className='w-full py-3 rounded-lg font-medium'
+                    onClick={(e) => {
+                      e.preventDefault()
+                      submit({ combo })
+                    }}
+                  >
+                    {t('Common.Save')}
+                  </Button>
+
                   <Button
                     variant='ghost'
-                    onClick={handleClearShortcut}
-                    className='mt-3'
-                    size='inputSize'
-                    data-tooltip-id='tooltip-clear-shortcut'
-                    data-tooltip-content={t(
-                      'Settings.Clear and remove shortcut',
-                    )}
-                    data-tooltip-place='top'
+                    type='button'
+                    onClick={handleCancel}
+                    className='text-center text-blue-700 dark:text-blue-500 font-medium'
                   >
-                    <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
+                    {t('Common.Cancel')}
                   </Button>
-                )}
-                <CustomThemedTooltip id='tooltip-clear-shortcut' place='top' />
-              </div>
-
-              {/* Keys not supported info */}
-              <p className='text-sm text-gray-500 dark:text-gray-400'>
-                {t('TopBar.Shortcut body description')}
-              </p>
-
-              {/* Action buttons */}
-              <div className='flex flex-col gap-3 mt-2'>
-                <Button
-                  variant='primary'
-                  type='button'
-                  className='w-full py-3 rounded-lg font-medium'
-                  onClick={(e) => {
-                    e.preventDefault()
-                    submit({ combo })
-                  }}
-                >
-                  {t('Common.Save')}
-                </Button>
-
-                <Button
-                  variant='ghost'
-                  type='button'
-                  onClick={handleCancel}
-                  className='text-center text-blue-700 dark:text-blue-500 font-medium'
-                >
-                  {t('Common.Cancel')}
-                </Button>
-              </div>
-            </form>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </>

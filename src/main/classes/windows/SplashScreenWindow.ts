@@ -28,7 +28,7 @@ export class SplashScreenWindow extends BaseWindow {
       acceptFirstMouse: false,
       frame: false,
       thickFrame: false,
-      trafficLightPosition: { x: 0, y: 0 }
+      trafficLightPosition: { x: 0, y: 0 },
     })
   }
 
@@ -37,10 +37,9 @@ export class SplashScreenWindow extends BaseWindow {
       super.show()
       TrayController.instance.updateTray({
         enableShowButton: true,
-        isShowButtonVisible: false
+        isShowButtonVisible: false,
       })
-    }
-    catch (e) {
+    } catch (e) {
       Log.warning('during showing the SplashScreenWindow:', e)
     }
   }
@@ -49,7 +48,7 @@ export class SplashScreenWindow extends BaseWindow {
     try {
       this._window?.hide()
       TrayController.instance.updateTray({
-        enableShowButton: true
+        enableShowButton: true,
       })
     } catch (e) {
       Log.warning('during hiding the SplashScreenWindow:', e)

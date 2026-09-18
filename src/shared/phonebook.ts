@@ -27,7 +27,10 @@ export function getAllowedOperatorGroupsIds(profile?: AccountData['profile']) {
   const permissions = getPresencePanelPermissions(profile)
 
   return Object.keys(permissions).filter((permissionName) => {
-    return permissionName.startsWith('grp_') && permissions[permissionName]?.value === true
+    return (
+      permissionName.startsWith('grp_') &&
+      permissions[permissionName]?.value === true
+    )
   })
 }
 
@@ -46,7 +49,9 @@ export function getVisiblePhonebookGroups(
   const groups = allGroups || {}
 
   return Object.keys(groups)
-    .filter((groupName) => !!username && groups[groupName]?.users.includes(username))
+    .filter(
+      (groupName) => !!username && groups[groupName]?.users.includes(username),
+    )
     .sort((left, right) => left.localeCompare(right))
 }
 
@@ -144,5 +149,7 @@ export function getContactVisibility(contact?: ContactLike | null) {
     return 'group'
   }
 
-  return contact.type === 'private' && contact.source === 'cti' ? 'private' : 'public'
+  return contact.type === 'private' && contact.source === 'cti'
+    ? 'private'
+    : 'public'
 }

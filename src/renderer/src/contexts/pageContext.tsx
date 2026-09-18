@@ -1,6 +1,6 @@
-import { PageType } from "@shared/types"
-import { Log } from "@shared/utils/logger"
-import { createContext, useContext, useEffect, useState } from "react"
+import { PageType } from '@shared/types'
+import { Log } from '@shared/utils/logger'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 export const PageCtx = createContext<PageType | undefined>(undefined)
 
@@ -24,23 +24,18 @@ export const PageContext = ({ children }) => {
           const [k, v] = c.split('=')
           return {
             ...p,
-            [k]: v
+            [k]: v,
           }
         }, {}) || {}
     const pageData: PageType = {
       query,
       page: props.page,
-      props
+      props,
     }
     Log.debug('page data:', pageData)
     setPage(() => ({ ...pageData }))
     window.document.title = pageData.page
   }, [])
 
-  return (
-    <PageCtx.Provider value={page}>
-      {children}
-    </PageCtx.Provider>
-  )
-
+  return <PageCtx.Provider value={page}>{children}</PageCtx.Provider>
 }
