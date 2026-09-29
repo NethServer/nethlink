@@ -1,4 +1,4 @@
-import { Account, LoginData } from '@shared/types'
+import { Account, LoginData, isSsoMethod } from '@shared/types'
 import classNames from 'classnames'
 import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import spinner from '../assets/loginPageSpinner.svg'
@@ -27,6 +27,8 @@ export interface LoginPageProps {
 
 enum LoginSizes {
   BASE = 550,
+  HOST_STEP = 400,
+  SSO_STEP = 400,
   ACCOUNT_FORM = 488,
   TWO_FACTOR_AUTH = 420,
   BACK_BUTTON = 60,
@@ -55,6 +57,8 @@ export function LoginPage({
     useLoginPageData('selectedAccount')
   const [windowHeight, setWindowHeight] = useLoginPageData('windowHeight')
   const [showTwoFactor, setShowTwoFactor] = useLoginPageData('showTwoFactor')
+  const [loginStep, setLoginStep] = useLoginPageData('loginStep')
+  const [hostConfig, setHostConfig] = useLoginPageData('hostConfig')
   const [connection] = useSharedState('connection')
   const [errorsData, setErrorsData] = useState<ErrorsData>()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
@@ -64,7 +68,15 @@ export function LoginPage({
 
   useEffect(() => {
     calculateHeight()
-  }, [selectedAccount, auth, errorsData, connection, showTwoFactor])
+  }, [
+    selectedAccount,
+    auth,
+    errorsData,
+    connection,
+    showTwoFactor,
+    loginStep,
+    hostConfig,
+  ])
 
   useEffect(() => {
     if (windowHeight) {
@@ -77,9 +89,16 @@ export function LoginPage({
       // If we're in OTP verification, go back to login form
       setShowTwoFactor(false)
       // Keep selectedAccount, stay in the login form
+    } else if (selectedAccount === NEW_ACCOUNT && loginStep === 'credentials') {
+      // Back from the credentials/SSO step to the host step
+      setLoginStep('host')
+      setHostConfig(undefined)
+      setErrorsData({ formErrors: {}, generalError: undefined })
     } else {
       // If we're in normal login form, go back to account selection
       setSelectedAccount(undefined)
+      setLoginStep('host')
+      setHostConfig(undefined)
       setErrorsData({ formErrors: {}, generalError: undefined })
     }
   }
@@ -126,9 +145,18 @@ export function LoginPage({
     // Login form is shown
     else if (selectedAccount) {
       if (selectedAccount === NEW_ACCOUNT) {
-        loginWindowHeight = LoginSizes.BASE
+        if (loginStep === 'host') {
+          loginWindowHeight = LoginSizes.HOST_STEP
+        } else if (hostConfig && isSsoMethod(hostConfig.authenticationMethod)) {
+          loginWindowHeight = LoginSizes.SSO_STEP
+          if (hostConfig.ssoIdpName || hostConfig.ssoIdpLogo) {
+            loginWindowHeight += 40
+          }
+        } else {
+          loginWindowHeight = LoginSizes.BASE
+        }
         if (!connection) loginWindowHeight = LoginSizes.CONNECTION_FAILURE_BASE
-        if (!auth?.isFirstStart) {
+        if (!auth?.isFirstStart || loginStep === 'credentials') {
           loginWindowHeight += LoginSizes.BACK_BUTTON - 24
         }
       } else {
@@ -186,22 +214,24 @@ export function LoginPage({
         </div>
         {auth && (
           <>
-            {Object.keys(auth.availableAccounts).length > 0 &&
-              selectedAccount && (
-                <Button
-                  variant='ghost'
-                  className='flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6'
-                  onClick={goBack}
-                >
-                  <FontAwesomeIcon
-                    icon={ArrowIcon}
-                    className='h-5 w-5 dark:text-textBlueDark text-textBlueLight'
-                  />
-                  <p className='dark:text-textBlueDark text-textBlueLight font-medium'>
-                    {t('Login.Back')}
-                  </p>
-                </Button>
-              )}
+            {((Object.keys(auth.availableAccounts).length > 0 &&
+              selectedAccount) ||
+              (selectedAccount === NEW_ACCOUNT &&
+                loginStep === 'credentials')) && (
+              <Button
+                variant='ghost'
+                className='flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6'
+                onClick={goBack}
+              >
+                <FontAwesomeIcon
+                  icon={ArrowIcon}
+                  className='h-5 w-5 dark:text-textBlueDark text-textBlueLight'
+                />
+                <p className='dark:text-textBlueDark text-textBlueLight font-medium'>
+                  {t('Login.Back')}
+                </p>
+              </Button>
+            )}
             {auth.isFirstStart ||
             selectedAccount ||
             showTwoFactor ||
