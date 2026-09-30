@@ -13,6 +13,7 @@ import { debouncer } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
 import { sendNotification } from '@renderer/utils'
+import { useChatBridge } from '@renderer/hooks/useChatBridge'
 
 export interface NethLinkPageProps {
   handleRefreshConnection: () => void
@@ -38,6 +39,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
 
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const accountMeInterval = useRef<NodeJS.Timeout>()
+  useChatBridge(account?.username)
 
   useInitialize(() => {
     Log.info('INITIALIZE NETHLINK FRONTEND')
