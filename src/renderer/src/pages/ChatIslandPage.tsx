@@ -2,7 +2,7 @@ import { ChatIsland } from '@nethesis/chat-island'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 // Room around the island for its shadows.
 const PAD = 24
@@ -107,6 +107,38 @@ export function ChatIslandPage() {
     }
   }, [on])
 
+  // The dock and the window header move the whole window; a drag is not a click.
+  const moved = useRef(false)
+  const onDragStart = (e: React.PointerEvent) => {
+    if (e.button !== 0) return
+    const from = { x: e.screenX, y: e.screenY }
+    moved.current = false
+    window.electron.send(IPC_EVENTS.START_DRAG)
+    const move = (ev: PointerEvent) => {
+      if (Math.abs(ev.screenX - from.x) + Math.abs(ev.screenY - from.y) > 4)
+        moved.current = true
+    }
+    const stop = () => {
+      window.electron.send(IPC_EVENTS.STOP_DRAG)
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', stop)
+      window.removeEventListener('blur', stop)
+    }
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', stop)
+    window.addEventListener('blur', stop)
+  }
+  useEffect(() => {
+    const click = (e: MouseEvent) => {
+      if (!moved.current) return
+      moved.current = false
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    document.addEventListener('click', click, true)
+    return () => document.removeEventListener('click', click, true)
+  }, [])
+
   if (!on) return null
   return (
     <>
@@ -116,6 +148,7 @@ export function ChatIslandPage() {
         dataConfig={dataConfig}
         theme={theme}
         drag={false}
+        onDragStart={onDragStart}
         newChatButton={false}
         maxHeads={5}
         notifications='auto'
