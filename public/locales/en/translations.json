@@ -995,7 +995,6 @@
   "CommandBar": {
     "Placeholder": "Search contact or dial number...",
     "Call": "Call",
-    "Chat": "Chat",
     "Chat hint": "Chat (Ctrl/⌘+Enter)"
   },
   "Errors": {
