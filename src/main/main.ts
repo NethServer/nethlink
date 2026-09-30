@@ -21,6 +21,7 @@ import {
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
 import { CommandBarController } from './classes/controllers/CommandBarController'
+import { ChatIslandController } from './classes/controllers/ChatIslandController'
 import {
   Account,
   AuthAppData,
@@ -135,6 +136,7 @@ function startup() {
       }
 
       await PhoneIslandController.instance.logout()
+      await ChatIslandController.instance?.safeQuit()
       NethLinkController.instance.logout()
       AccountController.instance.logout()
       await delay(1000)
@@ -759,6 +761,16 @@ async function attachProtocolListeners() {
           }
           break
         }
+        case 'chat': {
+          // The chat opens in its own window, not in NethLink.
+          ipcMain.emit(
+            IPC_EVENTS.CHAT_TO_ISLAND,
+            undefined,
+            to ? 'chat-island-open' : 'chat-island-new',
+            to ? { username: to } : undefined,
+          )
+          return new Promise((resolve) => resolve)
+        }
         default:
           Log.warning('Unknown nethlink action:', action)
       }
@@ -960,6 +972,7 @@ async function createNethLink(show: boolean = true) {
   if (show) NethLinkController.instance.show()
   await delay(1000)
   new PhoneIslandController()
+  new ChatIslandController()
   checkForUpdate()
   const account = store.get('account') as Account
   if (account) {

@@ -695,6 +695,12 @@
     "Z-A label": "Z-A",
     "EXT label": "Extension"
   },
+  "Chat": {
+    "Chat": "Chat",
+    "New chat": "New chat",
+    "No conversations": "No conversations",
+    "You": "You"
+  },
   "LastCalls": {
     "Last calls": "Last calls",
     "No calls": "No calls",
