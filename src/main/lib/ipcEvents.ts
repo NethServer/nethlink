@@ -2,6 +2,7 @@ import { AccountController, DevToolsController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { CommandBarController } from '@/classes/controllers/CommandBarController'
+import { ChatIslandController } from '@/classes/controllers/ChatIslandController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
 import {
@@ -347,6 +348,36 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
     clipboard.writeText(text)
+  })
+
+  // Chat island window: size, and island events between it and NethLink.
+  ipcMain.on(IPC_EVENTS.CHAT_ISLAND_RESIZE, (_, size) => {
+    ChatIslandController.instance?.resize(size)
+  })
+  ipcMain.on(IPC_EVENTS.CHAT_TO_ISLAND, (_, name, detail) => {
+    try {
+      ChatIslandController.instance?.window.emit(
+        IPC_EVENTS.CHAT_TO_ISLAND,
+        name,
+        detail,
+      )
+      if (name === 'chat-island-open' || name === 'chat-island-new') {
+        ChatIslandController.instance?.focus()
+      }
+    } catch (e) {
+      Log.warning('chat island unreachable:', e)
+    }
+  })
+  ipcMain.on(IPC_EVENTS.CHAT_FROM_ISLAND, (_, name, detail) => {
+    try {
+      NethLinkController.instance?.window.emit(
+        IPC_EVENTS.CHAT_FROM_ISLAND,
+        name,
+        detail,
+      )
+    } catch (e) {
+      Log.warning('nethlink unreachable:', e)
+    }
   })
 
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (_, size) => {

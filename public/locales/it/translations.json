@@ -695,6 +695,12 @@
     "Z-A label": "Z-A",
     "EXT label": "Interno"
   },
+  "Chat": {
+    "Chat": "Chat",
+    "New chat": "Nuova chat",
+    "No conversations": "Nessuna conversazione",
+    "You": "Tu"
+  },
   "LastCalls": {
     "Last calls": "Ultime chiamate",
     "No calls": "Nessuna chiamata",
