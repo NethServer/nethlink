@@ -22,13 +22,17 @@ export function ChatIslandPage() {
     !!account?.data?.profile?.macro_permissions?.nethvoice_cti?.permissions
       ?.chat?.value
 
-  // The chat is on for this NethVoice when its gateway answers.
+  // The chat is on for this NethVoice when its gateway answers; asked again every minute until it does.
   useEffect(() => {
     setEnabled(false)
     if (!account?.host || !allowed) return
-    fetch(`https://${account.host}/chat-gw/healthz`)
-      .then((r) => setEnabled(r.ok))
-      .catch(() => setEnabled(false))
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const probe = () =>
+      fetch(`https://${account.host}/chat-gw/healthz`)
+        .then((r) => (r.ok ? setEnabled(true) : Promise.reject()))
+        .catch(() => (timer = setTimeout(probe, 60 * 1000)))
+    probe()
+    return () => clearTimeout(timer)
   }, [account?.host, allowed])
 
   const dataConfig = useMemo(
@@ -70,15 +74,23 @@ export function ChatIslandPage() {
   // Events between the island and NethLink.
   useEffect(() => {
     if (!on) return
-    window.electron.receive(IPC_EVENTS.CHAT_TO_ISLAND, (name, detail) =>
-      window.dispatchEvent(new CustomEvent(name, { detail })),
-    )
-    const forward = (e: Event) =>
+    // Last value of each event, sent again when NethLink (re)loads.
+    const last: Record<string, unknown> = {}
+    window.electron.receive(IPC_EVENTS.CHAT_TO_ISLAND, (name, detail) => {
+      if (name !== 'chat-sync')
+        return window.dispatchEvent(new CustomEvent(name, { detail }))
+      Object.entries(last).forEach(([n, d]) =>
+        window.electron.send(IPC_EVENTS.CHAT_FROM_ISLAND, n, d),
+      )
+    })
+    const forward = (e: Event) => {
+      last[e.type] = (e as CustomEvent).detail
       window.electron.send(
         IPC_EVENTS.CHAT_FROM_ISLAND,
         e.type,
         (e as CustomEvent).detail,
       )
+    }
     const call = (e: Event) => {
       const number = (e as CustomEvent).detail?.number
       number && window.electron.send(IPC_EVENTS.EMIT_START_CALL, number)
