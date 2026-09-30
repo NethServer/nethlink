@@ -25,6 +25,8 @@ export function useChatBridge(username?: string) {
       if (name === 'chat-island-conversations')
         setChatConversations(detail?.conversations ?? [])
     })
+    // The chat window may be up already: ask for its state.
+    window.electron.send(IPC_EVENTS.CHAT_TO_ISLAND, 'chat-sync')
     return () => window.electron.removeAllListeners(IPC_EVENTS.CHAT_FROM_ISLAND)
   }, [])
 
