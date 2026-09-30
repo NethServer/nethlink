@@ -394,6 +394,18 @@ export function registerIpcEvents() {
     } catch (e) {
       Log.warning('nethlink unreachable:', e)
     }
+    // The command bar only needs to know whether the chat is there.
+    if (name === 'chat-island-status') {
+      try {
+        CommandBarController.instance?.window.emit(
+          IPC_EVENTS.CHAT_FROM_ISLAND,
+          name,
+          detail,
+        )
+      } catch (e) {
+        Log.warning('command bar unreachable:', e)
+      }
+    }
   })
 
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (_, size) => {

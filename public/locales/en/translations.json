@@ -994,7 +994,9 @@
   },
   "CommandBar": {
     "Placeholder": "Search contact or dial number...",
-    "Call": "Call"
+    "Call": "Call",
+    "Chat": "Chat",
+    "Chat hint": "Chat (Ctrl/⌘+Enter)"
   },
   "Errors": {
     "browser_permissions": "Browser permissions error",

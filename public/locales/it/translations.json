@@ -994,7 +994,9 @@
   },
   "CommandBar": {
     "Placeholder": "Cerca contatto o componi numero...",
-    "Call": "Chiama"
+    "Call": "Chiama",
+    "Chat": "Chat",
+    "Chat hint": "Chat (Ctrl/⌘+Invio)"
   },
   "Errors": {
     "browser_permissions": "Errore nei permessi del browser",
