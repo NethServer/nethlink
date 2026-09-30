@@ -6,13 +6,15 @@ export class ChatIslandController {
   static instance: ChatIslandController | undefined
   window: ChatIslandWindow
   private wantFocus = false
+  // Distance from the work area's bottom-right corner, kept after a drag.
+  private anchor = { right: 0, bottom: 0 }
 
   constructor() {
     ChatIslandController.instance = this
     this.window = new ChatIslandWindow()
   }
 
-  // Sized to the island, in the bottom-right corner; hidden when there is nothing to show.
+  // Sized to the island, grown from its bottom-right corner; hidden when there is nothing to show.
   resize(size: { w: number; h: number }) {
     try {
       const window = this.window.getWindow()
@@ -21,12 +23,12 @@ export class ChatIslandController {
         window.hide()
         return
       }
-      const { x, y, width, height } = screen.getPrimaryDisplay().workArea
+      const { x, y, width, height } = this.workArea()
       const w = Math.min(Math.ceil(size.w), width)
       const h = Math.min(Math.ceil(size.h), height)
       window.setBounds({
-        x: x + width - w,
-        y: y + height - h,
+        x: Math.max(x, x + width - this.anchor.right - w),
+        y: Math.max(y, y + height - this.anchor.bottom - h),
         width: w,
         height: h,
       })
@@ -37,6 +39,25 @@ export class ChatIslandController {
       } else if (!window.isVisible()) window.showInactive()
     } catch (e) {
       Log.warning('error during resizing ChatIslandWindow:', e)
+    }
+  }
+
+  private workArea() {
+    const window = this.window.getWindow()
+    return window?.isVisible()
+      ? screen.getDisplayMatching(window.getBounds()).workArea
+      : screen.getPrimaryDisplay().workArea
+  }
+
+  // After a drag: the new corner is where the island grows from.
+  keepPosition() {
+    const window = this.window.getWindow()
+    if (!window) return
+    const b = window.getBounds()
+    const { x, y, width, height } = this.workArea()
+    this.anchor = {
+      right: Math.max(0, x + width - b.x - b.width),
+      bottom: Math.max(0, y + height - b.y - b.height),
     }
   }
 

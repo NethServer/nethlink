@@ -241,6 +241,9 @@ export function registerIpcEvents() {
       const cursorPosition = screen.getCursorScreenPoint()
       const deltaX = cursorPosition.x - draggingWindow.startMousePosition.x
       const deltaY = cursorPosition.y - draggingWindow.startMousePosition.y
+      if (window.title === PAGES.CHATISLAND) {
+        ChatIslandController.instance?.keepPosition()
+      }
       if (window.title === PAGES.PHONEISLAND) {
         const bounds = window.getBounds()
         Log.info(
