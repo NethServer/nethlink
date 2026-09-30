@@ -14,6 +14,7 @@ import { AvailableThemes, PAGES } from '@shared/types'
 import { delay } from '@shared/utils/utils'
 import i18next from 'i18next'
 import { DevToolsPage } from './pages/DevToolsPage'
+import { ChatIslandPage } from './pages/ChatIslandPage'
 import { parseThemeToClassName } from './utils'
 import { useRegisterStoreHook, useSharedState } from '@renderer/store'
 import { PageContext, usePageCtx } from './contexts/pageContext'
@@ -143,6 +144,10 @@ const RequestStateComponent = () => {
           path: PAGES.COMMANDBAR,
           element: <CommandBarPage />,
         },
+        {
+          path: PAGES.CHATISLAND,
+          element: <ChatIslandPage />,
+        },
       ],
     },
   ])
@@ -161,6 +166,9 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes; page?: PAGES }) => {
     // Importing CSS dynamically when the page is not 'PHONEISLAND'
     if (page === PAGES.PHONEISLAND) {
       await import('@nethesis/phone-island/dist/index.css')
+    }
+    if (page === PAGES.CHATISLAND) {
+      await import('@nethesis/chat-island/dist/index.css')
     }
     setIsCSSLoaded(true)
   }

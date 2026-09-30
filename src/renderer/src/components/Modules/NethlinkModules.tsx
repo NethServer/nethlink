@@ -6,6 +6,7 @@ import { AboutModule } from './NethVoice/About/AboutModule'
 import classNames from 'classnames'
 import { FavouritesModule } from './NethVoice/Speeddials/Favourites/FavouritesModule'
 import { ParkingModule } from './NethVoice/Parking/ParkingModule'
+import { ChatModule } from './NethVoice/Chat/ChatModule'
 import { PhoneBookSearchModule } from './NethVoice/SearchResults/PhoneBookSearchModule'
 import { usePhonebookSearchModule } from './NethVoice/SearchResults/hook/usePhoneBookSearchModule'
 
@@ -42,6 +43,8 @@ export const NethLinkModules = () => {
         return <ParkingModule />
       case MENU_ELEMENT.ABOUT:
         return <AboutModule />
+      case MENU_ELEMENT.CHAT:
+        return <ChatModule />
       default:
         ;<>modules</>
     }
