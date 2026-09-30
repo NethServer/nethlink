@@ -283,6 +283,19 @@ export function registerIpcEvents() {
               },
               false,
             )
+          } else if (window.title === PAGES.CHATISLAND) {
+            // Kept inside the screen under the cursor, like the phone island.
+            const { width, height } = window.getBounds()
+            const wa = screen.getDisplayNearestPoint(cursorPosition).workArea
+            window.setBounds(
+              {
+                x: Math.min(Math.max(newX, wa.x), wa.x + wa.width - width),
+                y: Math.min(Math.max(newY, wa.y), wa.y + wa.height - height),
+                width,
+                height,
+              },
+              false,
+            )
           } else {
             const [w, h] = window.getContentSize()
             window.setBounds(
