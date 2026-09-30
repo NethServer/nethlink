@@ -470,24 +470,6 @@ export function CommandBarPage() {
               <FontAwesomeIcon icon={faPhone} className='h-4 w-4' />
               <span>{t('CommandBar.Call')}</span>
             </button>
-
-            {canChat && (
-              <button
-                onClick={() => handleChat(chatTarget)}
-                disabled={!chatTarget}
-                title={t('CommandBar.Chat hint') || ''}
-                className={classNames(
-                  'px-4 py-2 rounded-lg font-medium transition-colors',
-                  'flex items-center gap-2 border',
-                  chatTarget
-                    ? 'border-primary text-primary hover:bg-hoverLight dark:border-primaryDark dark:text-primaryDark dark:hover:bg-hoverDark'
-                    : 'border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed',
-                )}
-              >
-                <FontAwesomeIcon icon={faComment} className='h-4 w-4' />
-                <span>{t('CommandBar.Chat')}</span>
-              </button>
-            )}
           </div>
 
           {/* Dropdown results */}
