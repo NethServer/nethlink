@@ -96,9 +96,12 @@ export function ChatIslandPage() {
       number && window.electron.send(IPC_EVENTS.EMIT_START_CALL, number)
     }
     const notify = (e: Event) => {
-      const { peer, name, body } = (e as CustomEvent).detail || {}
+      const { peer, name, body, kind, author, text, avatar } =
+        (e as CustomEvent).detail || {}
       if (!body) return
-      const n = new Notification(name || peer, { body })
+      // Groups: "Author · Group"; the avatar as icon.
+      const title = kind === 'group' ? `${author} · ${name}` : name || peer
+      const n = new Notification(title, { body: text || body, icon: avatar })
       n.onclick = () =>
         window.electron.send(IPC_EVENTS.CHAT_TO_ISLAND, 'chat-island-open', {
           username: peer,
