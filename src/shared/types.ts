@@ -516,6 +516,7 @@ export type ChatConversation = {
   name: string
   avatar?: string
   online: boolean
+  inactive?: boolean
   owner?: boolean
   unread: number
   last?: { body: string; ts: number; mine: boolean; nick?: string }
