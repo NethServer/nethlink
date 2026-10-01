@@ -11,46 +11,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import i18next, { t } from 'i18next'
 import { format, formatDistanceToNowStrict } from 'date-fns'
 import { enGB, it } from 'date-fns/locale'
+import { shortLocale } from '@renderer/lib/dateTime'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { ChatConversation } from '@shared/types'
 import { Modal } from '@renderer/components'
-import { Button } from '@renderer/components/Nethesis'
 import { parseThemeToClassName, truncate } from '@renderer/utils'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { EmptyList } from '@renderer/components/EmptyList'
-import { Avatar } from '@renderer/components/Nethesis'
+import { Avatar, Button } from '@renderer/components/Nethesis'
 import { openChat } from '@renderer/hooks/useChatBridge'
 
 // Like the last calls: "15h ago (30 Sep 2026 18:08)".
-// Italian months and years in full: "2 mesi fa", not "2mes fa".
-const SHORT: Record<string, (n: number) => Record<string, string>> = {
-  en: () => ({
-    xSeconds: 's',
-    xMinutes: 'm',
-    xHours: 'h',
-    xDays: 'd',
-    xMonths: 'mo',
-    xYears: 'y',
-  }),
-  it: (n) => ({
-    xSeconds: 's',
-    xMinutes: 'm',
-    xHours: 'h',
-    xDays: 'g',
-    xMonths: n === 1 ? ' mese' : ' mesi',
-    xYears: n === 1 ? ' anno' : ' anni',
-  }),
-}
 const when = (ts: number) => {
-  const itLang = i18next.languages?.[0] === 'it'
-  const short = {
-    ...(itLang ? it : enGB),
-    formatDistance: (token: string, count: number) =>
-      `${count}${SHORT[itLang ? 'it' : 'en'](count)[token] || ''}${itLang ? ' fa' : ' ago'}`,
-  }
-  return `${formatDistanceToNowStrict(ts, { addSuffix: true, locale: short })} (${format(ts, 'd MMM yyyy HH:mm', { locale: itLang ? it : enGB })})`
+  const language = i18next.languages?.[0] || 'en'
+  return `${formatDistanceToNowStrict(ts, { addSuffix: true, locale: shortLocale(language) })} (${format(ts, 'd MMM yyyy HH:mm', { locale: language === 'it' ? it : enGB })})`
 }
 
 // Leaving a group I do not own; deleting a chat, or a group I own for everyone.
