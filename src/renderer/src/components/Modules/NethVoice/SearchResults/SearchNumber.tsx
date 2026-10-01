@@ -131,7 +131,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
             }
           />
         </div>
-        {/* A colleague: chat with them */}
+        {/* An operator: chat with them */}
         {username && chatStatus === 'online' && (
           <Button
             variant='ghost'
