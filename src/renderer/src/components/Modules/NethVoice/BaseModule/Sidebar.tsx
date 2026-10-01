@@ -5,7 +5,7 @@ import {
   faInfoCircle as InfoMenuIcon,
   faStar as FavouriteMenuIcon,
   faSquareParking as ParkedCallMenuIcon,
-  faComments as ChatMenuIcon,
+  faCommentDots as ChatMenuIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { ParkingType } from '@shared/types'
@@ -102,6 +102,16 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.LAST_CALLS)}
           isSelected={selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS}
         />
+        {/* CHAT: shown once the chat window is connecting */}
+        {chatStatus && (
+          <SidebarButton
+            icon={ChatMenuIcon}
+            focus={selectedSidebarMenu === MENU_ELEMENT.CHAT}
+            hasNotification={(chatUnread || 0) > 0}
+            onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.CHAT)}
+            isSelected={selectedSidebarMenu === MENU_ELEMENT.CHAT}
+          />
+        )}
         {/* PARKED CALLS */}
         {hasPermission(PERMISSION.PARKINGS) && (
           <SidebarButton
@@ -114,16 +124,6 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
               setParkedPulse(false)
             }}
             isSelected={selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS}
-          />
-        )}
-        {/* CHAT: shown once the chat window is connecting */}
-        {chatStatus && (
-          <SidebarButton
-            icon={ChatMenuIcon}
-            focus={selectedSidebarMenu === MENU_ELEMENT.CHAT}
-            hasNotification={(chatUnread || 0) > 0}
-            onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.CHAT)}
-            isSelected={selectedSidebarMenu === MENU_ELEMENT.CHAT}
           />
         )}
         {/* APP UPDATE */}

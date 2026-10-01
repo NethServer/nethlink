@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPhone,
-  faComment,
+  faCommentDots,
   faSearch,
   faXmark,
   faUser,
@@ -575,7 +575,7 @@ export function CommandBarPage() {
                           className='p-2 rounded-lg text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primaryDark dark:hover:bg-bgDark hover:bg-bgLight'
                         >
                           <FontAwesomeIcon
-                            icon={faComment}
+                            icon={faCommentDots}
                             className='h-4 w-4'
                           />
                         </button>
