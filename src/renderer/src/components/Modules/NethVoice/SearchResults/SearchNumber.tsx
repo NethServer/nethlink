@@ -8,7 +8,7 @@ import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/Ba
 import { useFavouriteModule } from '../Speeddials/hook/useFavouriteModule'
 import { ClassNames } from '@renderer/utils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faComment } from '@fortawesome/free-solid-svg-icons'
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons'
 import { openChat } from '@renderer/hooks/useChatBridge'
 
 export interface SearchNumberProps {
@@ -138,7 +138,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
             className='self-center ml-2 shrink-0'
             onClick={() => openChat(username)}
           >
-            <FontAwesomeIcon icon={faComment} className='text-base' />
+            <FontAwesomeIcon icon={faCommentDots} className='text-base' />
             <span className='sr-only'>{t('Chat.Chat')}</span>
           </Button>
         )}

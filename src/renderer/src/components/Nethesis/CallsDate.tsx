@@ -75,8 +75,8 @@ export const CallsDate: FC<CallsDateProps> = ({
           xMinutes: 'm',
           xHours: 'h',
           xDays: 'g',
-          xMonths: 'mes',
-          xYears: 'a',
+          xMonths: count === 1 ? ' mese' : ' mesi',
+          xYears: count === 1 ? ' anno' : ' anni',
         }
 
         const unit = map[token] || ''

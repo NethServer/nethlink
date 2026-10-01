@@ -696,6 +696,7 @@
     "EXT label": "Extension"
   },
   "Chat": {
+    "Messages": "Messages",
     "Chat": "Chat",
     "New chat": "New chat",
     "No conversations": "No conversations",
