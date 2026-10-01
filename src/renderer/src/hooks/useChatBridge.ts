@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNethlinkData } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
+import { contactsFromOperators } from '@nethesis/chat-island'
 
 /** Opens a conversation, or the new chat panel, in the chat window. */
 export const openChat = (username?: string) =>
@@ -32,17 +33,11 @@ export function useChatBridge(username?: string) {
 
   // Names, avatars, presence and number; sent again once the island is up.
   useEffect(() => {
-    const ops: any = operators?.operators || {}
-    const avatars: any = operators?.avatars || {}
-    const contacts = Object.values(ops)
-      .filter((op: any) => op?.username && op.username !== username)
-      .map((op: any) => ({
-        username: op.username,
-        name: op.name || op.username,
-        avatar: avatars[op.username],
-        presence: op.mainPresence,
-        number: op.endpoints?.mainextension?.[0]?.id,
-      }))
+    const contacts = contactsFromOperators(
+      operators?.operators as any,
+      operators?.avatars as any,
+      username || '',
+    )
     if (contacts.length && up) {
       window.electron.send(IPC_EVENTS.CHAT_TO_ISLAND, 'chat-island-contacts', {
         contacts,
