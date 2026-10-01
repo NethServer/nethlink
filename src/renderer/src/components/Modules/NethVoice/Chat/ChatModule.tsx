@@ -1,14 +1,16 @@
 import { createRef, useState } from 'react'
 import {
-  faComments as EmptyIcon,
-  faPenToSquare as NewChatIcon,
+  faCommentDots as EmptyIcon,
+  faCommentMedical as NewChatIcon,
   faRightFromBracket as LeaveIcon,
   faTrash as DeleteIcon,
   faTriangleExclamation as WarningIcon,
   faUsers as GroupIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { t } from 'i18next'
+import i18next, { t } from 'i18next'
+import { format, formatDistanceToNowStrict } from 'date-fns'
+import { enGB, it } from 'date-fns/locale'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { ChatConversation } from '@shared/types'
@@ -21,11 +23,34 @@ import { EmptyList } from '@renderer/components/EmptyList'
 import { Avatar } from '@renderer/components/Nethesis'
 import { openChat } from '@renderer/hooks/useChatBridge'
 
-const time = (ts: number) => {
-  const d = new Date(ts)
-  return d.toDateString() === new Date().toDateString()
-    ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    : d.toLocaleDateString()
+// Like the last calls: "15h ago (30 Sep 2026 18:08)".
+// Italian months and years in full: "2 mesi fa", not "2mes fa".
+const SHORT: Record<string, (n: number) => Record<string, string>> = {
+  en: () => ({
+    xSeconds: 's',
+    xMinutes: 'm',
+    xHours: 'h',
+    xDays: 'd',
+    xMonths: 'mo',
+    xYears: 'y',
+  }),
+  it: (n) => ({
+    xSeconds: 's',
+    xMinutes: 'm',
+    xHours: 'h',
+    xDays: 'g',
+    xMonths: n === 1 ? ' mese' : ' mesi',
+    xYears: n === 1 ? ' anno' : ' anni',
+  }),
+}
+const when = (ts: number) => {
+  const itLang = i18next.languages?.[0] === 'it'
+  const short = {
+    ...(itLang ? it : enGB),
+    formatDistance: (token: string, count: number) =>
+      `${count}${SHORT[itLang ? 'it' : 'en'](count)[token] || ''}${itLang ? ' fa' : ' ago'}`,
+  }
+  return `${formatDistanceToNowStrict(ts, { addSuffix: true, locale: short })} (${format(ts, 'd MMM yyyy HH:mm', { locale: itLang ? it : enGB })})`
 }
 
 // Leaving a group I do not own; deleting a chat, or a group I own for everyone.
@@ -108,72 +133,92 @@ export function ChatModule() {
   return (
     <>
       <ModuleTitle
-        title={t('Chat.Chat')}
+        title={t('Chat.Messages')}
         action={() => openChat()}
         actionIcon={NewChatIcon}
         actionText={t('Chat.New chat')}
       />
       <Scrollable>
         {conversations?.length ? (
-          conversations.map((c) => (
+          conversations.map((c, idx) => (
             <div
               key={c.peer}
               onClick={() => openChat(c.peer)}
-              className='group flex items-center gap-3 px-5 py-2 cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight'
+              className='group cursor-pointer dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]'
             >
-              {c.kind === 'group' && !c.avatar ? (
-                <span className='flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-700 text-white'>
-                  <FontAwesomeIcon icon={GroupIcon} className='text-base' />
-                </span>
-              ) : (
-                <Avatar
-                  size='base'
-                  src={c.avatar}
-                  placeholderType='person'
-                  status={c.kind === 'chat' && c.online ? 'online' : undefined}
-                />
-              )}
-              <div className='flex-1 min-w-0'>
-                <div className='flex justify-between gap-2'>
-                  <span className='truncate font-medium dark:text-titleDark text-titleLight'>
-                    {c.name}
-                  </span>
-                  {c.last && (
-                    <span className='shrink-0 text-xs text-gray-600 dark:text-gray-400'>
-                      {time(c.last.ts)}
-                    </span>
-                  )}
-                </div>
-                <div className='flex justify-between gap-2'>
-                  <span className='truncate text-gray-600 dark:text-gray-400'>
-                    {c.last &&
-                      (c.last.mine
-                        ? `${t('Chat.You')}: `
-                        : c.kind === 'group' && c.last.nick
-                          ? `${nameOf(c.last.nick)}: `
-                          : '')}
-                    {c.last?.body}
-                  </span>
-                  {c.unread > 0 && (
-                    <span className='shrink-0 min-w-5 h-5 px-1.5 rounded-full text-xs leading-5 text-center text-white bg-textBlueLight dark:bg-textBlueDark'>
-                      {c.unread}
-                    </span>
-                  )}
+              <div className='px-5'>
+                <div
+                  className={
+                    idx === conversations.length - 1
+                      ? ''
+                      : 'border-b dark:border-borderDark border-borderLight'
+                  }
+                >
+                  {/* Same layout as the last calls */}
+                  <div className='flex gap-3 min-h-[72px] py-6 px-3'>
+                    <div className='flex flex-col min-w-6 pt-[6px]'>
+                      {c.kind === 'group' && !c.avatar ? (
+                        <span className='flex h-8 w-8 items-center justify-center rounded-full bg-indigo-700 text-white'>
+                          <FontAwesomeIcon
+                            icon={GroupIcon}
+                            className='text-xs'
+                          />
+                        </span>
+                      ) : (
+                        <Avatar
+                          size='small'
+                          src={c.avatar}
+                          placeholderType='person'
+                          status={
+                            c.kind === 'chat' && c.online ? 'online' : undefined
+                          }
+                        />
+                      )}
+                    </div>
+                    <div className='flex flex-col gap-1 min-w-0 flex-1 dark:text-titleDark text-titleLight'>
+                      <p className='font-medium text-[14px] leading-5 truncate'>
+                        {c.name}
+                      </p>
+                      <p className='text-[14px] leading-5 truncate text-gray-600 dark:text-gray-400'>
+                        {c.last &&
+                          (c.last.mine
+                            ? `${t('Chat.You')}: `
+                            : c.kind === 'group' && c.last.nick
+                              ? `${nameOf(c.last.nick)}: `
+                              : '')}
+                        {c.last?.body}
+                      </p>
+                      {c.last && (
+                        <p className='truncate text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5'>
+                          {when(c.last.ts)}
+                        </p>
+                      )}
+                    </div>
+                    <div className='flex items-center gap-2 self-center shrink-0'>
+                      {c.unread > 0 && (
+                        <span className='min-w-5 h-5 px-1.5 rounded-full text-xs leading-5 text-center text-white bg-textBlueLight dark:bg-textBlueDark'>
+                          {c.unread}
+                        </span>
+                      )}
+                      <button
+                        title={
+                          (leaves(c) ? t('Chat.Leave') : t('Chat.Delete')) || ''
+                        }
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setToDelete(c)
+                        }}
+                        className='invisible group-hover:visible p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-textRedLight dark:hover:text-textRedDark'
+                      >
+                        <FontAwesomeIcon
+                          icon={leaves(c) ? LeaveIcon : DeleteIcon}
+                          className='text-sm'
+                        />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <button
-                title={(leaves(c) ? t('Chat.Leave') : t('Chat.Delete')) || ''}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setToDelete(c)
-                }}
-                className='invisible group-hover:visible shrink-0 p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-textRedLight dark:hover:text-textRedDark'
-              >
-                <FontAwesomeIcon
-                  icon={leaves(c) ? LeaveIcon : DeleteIcon}
-                  className='text-sm'
-                />
-              </button>
             </div>
           ))
         ) : (
