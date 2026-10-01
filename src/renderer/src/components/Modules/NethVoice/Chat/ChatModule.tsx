@@ -154,6 +154,11 @@ export function ChatModule() {
                     <div className='flex flex-col gap-1 min-w-0 flex-1 dark:text-titleDark text-titleLight'>
                       <p className='font-medium text-[14px] leading-5 truncate'>
                         {c.name}
+                        {c.inactive && (
+                          <span className='ml-2 font-normal text-xs text-gray-500 dark:text-gray-400'>
+                            {t('Chat.No longer active')}
+                          </span>
+                        )}
                       </p>
                       <p className='text-[14px] leading-5 truncate text-gray-600 dark:text-gray-400'>
                         {c.last &&
