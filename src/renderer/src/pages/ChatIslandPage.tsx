@@ -157,8 +157,10 @@ export function ChatIslandPage() {
   if (!on) return null
   return (
     <>
-      {/* Fixed widths: the island must not shrink to the window it sizes. */}
-      <style>{'.chat-island-root > * { flex-shrink: 0 }'}</style>
+      {/* Fixed widths: the island must not shrink to the window it sizes; shadows short enough to end inside PAD, not cut by the window edge. */}
+      <style>
+        {'.chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { box-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }'}
+      </style>
       <ChatIsland
         dataConfig={dataConfig}
         theme={theme}
