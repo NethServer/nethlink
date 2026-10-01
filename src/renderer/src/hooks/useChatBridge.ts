@@ -11,7 +11,7 @@ export const openChat = (username?: string) =>
     username ? { username } : undefined,
   )
 
-/** Island state for NethLink, and the colleagues for the island. */
+/** Island state for NethLink, and the operators for the island. */
 export function useChatBridge(username?: string) {
   const [chatStatus, setChatStatus] = useNethlinkData('chatStatus')
   const [, setChatUnread] = useNethlinkData('chatUnread')
