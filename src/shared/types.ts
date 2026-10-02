@@ -21,6 +21,7 @@ export enum PAGES {
   NETHLINK = 'NethLink',
   DEVTOOLS = 'devtoolspage',
   COMMANDBAR = 'commandbarpage',
+  CHATISLAND = 'chatislandpage',
 }
 
 export type StateType<T> = [T | undefined, (value: T | undefined) => void]
@@ -502,6 +503,22 @@ export type NethLinkPageData = {
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData
   phonebookModule?: PhonebookModuleData
+  chatStatus?: string
+  chatUnread?: number
+  chatConversations?: ChatConversation[]
+}
+
+// One row of the chat-island-conversations event.
+export type ChatConversation = {
+  peer: string
+  kind: 'chat' | 'group'
+  name: string
+  avatar?: string
+  online: boolean
+  inactive?: boolean
+  owner?: boolean
+  unread: number
+  last?: { body: string; ts: number; mine: boolean; nick?: string }
 }
 
 export type SpeedDialModuleData = {

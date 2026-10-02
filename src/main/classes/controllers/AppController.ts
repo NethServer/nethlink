@@ -1,6 +1,7 @@
 import { LoginController } from './LoginController'
 import { NethLinkController } from './NethLinkController'
 import { PhoneIslandController } from './PhoneIslandController'
+import { ChatIslandController } from './ChatIslandController'
 import { TrayController } from './TrayController'
 import { Log } from '@shared/utils/logger'
 import { DevToolsController } from './DevToolsController'
@@ -31,6 +32,11 @@ export class AppController {
         } catch (e) {
           Log.warning('unable to correctly close the PhoneIslandController:', e)
         }
+      }
+      try {
+        await ChatIslandController.instance?.safeQuit()
+      } catch (e) {
+        Log.warning('unable to correctly close the ChatIslandController:', e)
       }
       if (NethLinkController.instance) {
         try {

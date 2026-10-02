@@ -695,6 +695,19 @@
     "Z-A label": "Z-A",
     "EXT label": "Interno"
   },
+  "Chat": {
+    "No longer active": "Non più attivo",
+    "Messages": "Messaggi",
+    "Chat": "Chat",
+    "New chat": "Nuova chat",
+    "No conversations": "Nessuna conversazione",
+    "You": "Tu",
+    "Delete": "Elimina",
+    "Leave": "Abbandona",
+    "Delete confirm": "Eliminare la conversazione con \"{{name}}\"? La tua copia dei messaggi viene rimossa.",
+    "Delete group confirm": "Eliminare il gruppo \"{{name}}\" per tutti? I suoi messaggi vengono rimossi per tutti i membri.",
+    "Leave confirm": "Abbandonare il gruppo \"{{name}}\"? Non riceverai più i suoi messaggi e la tua copia viene rimossa."
+  },
   "LastCalls": {
     "Last calls": "Ultime chiamate",
     "No calls": "Nessuna chiamata",
@@ -988,7 +1001,8 @@
   },
   "CommandBar": {
     "Placeholder": "Cerca contatto o componi numero...",
-    "Call": "Chiama"
+    "Call": "Chiama",
+    "Chat hint": "Chat (Ctrl/⌘+Invio)"
   },
   "Errors": {
     "browser_permissions": "Errore nei permessi del browser",
