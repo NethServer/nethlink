@@ -28,6 +28,7 @@ import {
 } from '@renderer/lib/utils'
 import { debouncer } from '@shared/utils/utils'
 import { Avatar } from '@renderer/components/Nethesis'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 
 // Window = 500x80 initial. Border is faked via outer bg + p-[1px].
 // Outer div: bg = border color, p-[1px], rounded-xl → 500x80
@@ -373,8 +374,9 @@ export function CommandBarPage() {
     if (e.key === 'Enter') {
       e.preventDefault()
       // Ctrl/Cmd+Enter chats with the selected operator, Enter calls.
-      if ((e.ctrlKey || e.metaKey) && chatTarget) handleChat(chatTarget)
-      else handleCallSelected()
+      if (e.ctrlKey || e.metaKey) {
+        if (chatTarget) handleChat(chatTarget)
+      } else handleCallSelected()
       return
     }
   }
@@ -408,6 +410,7 @@ export function CommandBarPage() {
         'font-Poppins h-screen overflow-hidden',
       )}
     >
+      <CustomThemedTooltip id='tooltip-command-chat' place='left' />
       {/* Outer = border color bg + 1px padding. Inner = content bg. The gap IS the border. */}
       <div className='w-[500px] rounded-xl p-[1px] bg-borderLight dark:bg-borderDark'>
         <div className='rounded-[11px] bg-bgLight dark:bg-bgDark overflow-hidden'>
@@ -567,7 +570,8 @@ export function CommandBarPage() {
                       </div>
                       {isOperator && canChat && item.username && (
                         <button
-                          title={t('CommandBar.Chat hint') || ''}
+                          data-tooltip-id='tooltip-command-chat'
+                          data-tooltip-content={t('CommandBar.Chat hint') || ''}
                           onClick={(e) => {
                             e.stopPropagation()
                             handleChat(item.username)
