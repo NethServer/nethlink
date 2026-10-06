@@ -27,12 +27,19 @@ export function ChatIslandPage() {
     setEnabled(false)
     if (!account?.host || !allowed) return
     let timer: ReturnType<typeof setTimeout> | undefined
+    // A probe still in flight after the cleanup must neither enable the chat nor poll again.
+    let cancelled = false
     const probe = () =>
       fetch(`https://${account.host}/chat-gw/healthz`)
-        .then((r) => (r.ok ? setEnabled(true) : Promise.reject()))
-        .catch(() => (timer = setTimeout(probe, 60 * 1000)))
+        .then((r) => (r.ok ? !cancelled && setEnabled(true) : Promise.reject()))
+        .catch(() => {
+          if (!cancelled) timer = setTimeout(probe, 60 * 1000)
+        })
     probe()
-    return () => clearTimeout(timer)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
   }, [account?.host, allowed])
 
   const dataConfig = useMemo(
@@ -51,9 +58,18 @@ export function ChatIslandPage() {
       return
     }
     let observer: ResizeObserver | undefined
+    let watched: Element | null = null
+    // The island may replace its root: watch whichever one is in the page.
     const timer = setInterval(() => {
       const root = document.querySelector('.chat-island-root')
-      if (!root || observer) return
+      if (root === watched) return
+      observer?.disconnect()
+      observer = undefined
+      watched = root
+      if (!root) {
+        window.electron.send(IPC_EVENTS.CHAT_ISLAND_RESIZE, { w: 0, h: 0 })
+        return
+      }
       observer = new ResizeObserver(() => {
         const { width, height } = root.getBoundingClientRect()
         window.electron.send(
@@ -98,7 +114,8 @@ export function ChatIslandPage() {
     const notify = (e: Event) => {
       const { peer, name, body, kind, author, text, avatar } =
         (e as CustomEvent).detail || {}
-      if (!body) return
+      // Window hidden: the island shows its own notification, one is enough.
+      if (!body || document.visibilityState !== 'visible') return
       // Groups: "Author · Group"; the avatar as icon.
       const title = kind === 'group' ? `${author} · ${name}` : name || peer
       const n = new Notification(title, { body: text || body, icon: avatar })
@@ -114,6 +131,10 @@ export function ChatIslandPage() {
     window.addEventListener('chat-island-notify', notify)
     window.addEventListener('chat-island-error', error)
     return () => {
+      // Chat off: NethLink and the command bar must not keep showing it online.
+      window.electron.send(IPC_EVENTS.CHAT_FROM_ISLAND, 'chat-island-status', {
+        status: 'offline',
+      })
       window.electron.removeAllListeners(IPC_EVENTS.CHAT_TO_ISLAND)
       OUT.forEach((n) => window.removeEventListener(n, forward))
       window.removeEventListener('chat-island-call', call)
@@ -159,7 +180,9 @@ export function ChatIslandPage() {
     <>
       {/* Fixed widths: the island must not shrink to the window it sizes, nor its expanded chat stop at it; shadows short enough to end inside PAD. */}
       <style>
-        {'.chat-island-root { --ci-max-w: 100rem; --ci-max-h: 100rem } .chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { --tw-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }'}
+        {
+          '.chat-island-root { --ci-max-w: 100rem; --ci-max-h: 100rem } .chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { --tw-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }'
+        }
       </style>
       <ChatIsland
         dataConfig={dataConfig}
