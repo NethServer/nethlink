@@ -6,8 +6,10 @@ export class ChatIslandController {
   static instance: ChatIslandController | undefined
   window: ChatIslandWindow
   private wantFocus = false
-  // Distance from the work area's bottom-right corner, kept after a drag.
+  private focusTimer: ReturnType<typeof setTimeout> | undefined
+  // Distance from the work area's bottom-right corner, kept after a drag, and that display.
   private anchor = { right: 0, bottom: 0 }
+  private displayId: number | undefined
 
   constructor() {
     ChatIslandController.instance = this
@@ -44,9 +46,11 @@ export class ChatIslandController {
 
   private workArea() {
     const window = this.window.getWindow()
-    return window?.isVisible()
-      ? screen.getDisplayMatching(window.getBounds()).workArea
-      : screen.getPrimaryDisplay().workArea
+    if (window?.isVisible())
+      return screen.getDisplayMatching(window.getBounds()).workArea
+    // Hidden: back on the display it was dragged to, while it is still connected.
+    const d = screen.getAllDisplays().find((d) => d.id === this.displayId)
+    return (d ?? screen.getPrimaryDisplay()).workArea
   }
 
   // After a drag: the new corner is where the island grows from.
@@ -54,6 +58,7 @@ export class ChatIslandController {
     const window = this.window.getWindow()
     if (!window) return
     const b = window.getBounds()
+    this.displayId = screen.getDisplayMatching(b).id
     const { x, y, width, height } = this.workArea()
     this.anchor = {
       right: Math.max(0, x + width - b.x - b.width),
@@ -65,7 +70,10 @@ export class ChatIslandController {
   focus() {
     const window = this.window.getWindow()
     if (window?.isVisible()) window.focus()
+    // Only for the resize this open causes: a later one (a message growing the dock) must not steal focus.
     this.wantFocus = true
+    clearTimeout(this.focusTimer)
+    this.focusTimer = setTimeout(() => (this.wantFocus = false), 1000)
   }
 
   async safeQuit() {

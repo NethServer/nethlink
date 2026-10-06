@@ -22,6 +22,38 @@ import { Scrollable } from '@renderer/components/Scrollable'
 import { EmptyList } from '@renderer/components/EmptyList'
 import { Avatar, Button } from '@renderer/components/Nethesis'
 import { openChat } from '@renderer/hooks/useChatBridge'
+import { useIsTruncated } from '@renderer/hooks/useIsTruncated'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
+
+// A conversation name: the themed tooltip only when it does not fit, like the last calls.
+function Name({
+  peer,
+  name,
+  children,
+}: {
+  peer: string
+  name: string
+  children?: React.ReactNode
+}) {
+  const [ref, truncated] = useIsTruncated<HTMLParagraphElement>([name])
+  const id = `tooltip-chat-name-${peer}`
+  return (
+    <>
+      <p
+        ref={ref}
+        className='font-medium text-[14px] leading-5 truncate'
+        data-tooltip-id={truncated ? id : undefined}
+        data-tooltip-content={truncated ? name : undefined}
+      >
+        {name}
+        {children}
+      </p>
+      {truncated && (
+        <CustomThemedTooltip id={id} place='bottom' className='z-10' />
+      )}
+    </>
+  )
+}
 
 // Like the last calls: "15h ago (30 Sep 2026 18:08)".
 const when = (ts: number) => {
@@ -114,6 +146,7 @@ export function ChatModule() {
         actionIcon={NewChatIcon}
         actionText={t('Chat.New chat')}
       />
+      <CustomThemedTooltip id='tooltip-chat-action' place='left' />
       <Scrollable>
         {conversations?.length ? (
           conversations.map((c, idx) => (
@@ -152,14 +185,13 @@ export function ChatModule() {
                       )}
                     </div>
                     <div className='flex flex-col gap-1 min-w-0 flex-1 dark:text-titleDark text-titleLight'>
-                      <p className='font-medium text-[14px] leading-5 truncate'>
-                        {c.name}
+                      <Name peer={c.peer} name={c.name}>
                         {c.inactive && (
                           <span className='ml-2 font-normal text-xs text-gray-500 dark:text-gray-400'>
                             {t('Chat.No longer active')}
                           </span>
                         )}
-                      </p>
+                      </Name>
                       <p className='text-[14px] leading-5 truncate text-gray-600 dark:text-gray-400'>
                         {c.last &&
                           (c.last.mine
@@ -182,7 +214,8 @@ export function ChatModule() {
                         </span>
                       )}
                       <button
-                        title={
+                        data-tooltip-id='tooltip-chat-action'
+                        data-tooltip-content={
                           (leaves(c) ? t('Chat.Leave') : t('Chat.Delete')) || ''
                         }
                         onClick={(e) => {

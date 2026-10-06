@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useNethlinkData } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { contactsFromOperators } from '@nethesis/chat-island'
@@ -32,16 +32,29 @@ export function useChatBridge(username?: string) {
   }, [])
 
   // Names, avatars, presence and number; sent again once the island is up.
+  // Avatars travel only when they change: a presence update leaves them out and the island keeps its own.
+  const sentAvatars = useRef<string>()
   useEffect(() => {
+    if (!up) {
+      sentAvatars.current = undefined
+      return
+    }
     const contacts = contactsFromOperators(
       operators?.operators as any,
       operators?.avatars as any,
       username || '',
     )
-    if (contacts.length && up) {
-      window.electron.send(IPC_EVENTS.CHAT_TO_ISLAND, 'chat-island-contacts', {
-        contacts,
-      })
-    }
+    if (!contacts.length) return
+    // Compared by content: the shared state may hand over a new object with the same avatars.
+    const key = Object.entries(operators?.avatars || {})
+      .map(([u, a]) => `${u}:${String(a).length}:${String(a).slice(-16)}`)
+      .join('|')
+    const withAvatars = sentAvatars.current !== key
+    sentAvatars.current = key
+    window.electron.send(IPC_EVENTS.CHAT_TO_ISLAND, 'chat-island-contacts', {
+      contacts: withAvatars
+        ? contacts
+        : contacts.map(({ avatar: _avatar, ...c }) => c),
+    })
   }, [operators, username, up])
 }
