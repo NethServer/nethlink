@@ -192,6 +192,7 @@ export function ChatIslandPage() {
         newChatButton={false}
         maxHeads={5}
         notifications='auto'
+        nativeTooltips
       />
     </>
   )
