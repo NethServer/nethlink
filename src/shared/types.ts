@@ -518,6 +518,7 @@ export type ChatConversation = {
   inactive?: boolean
   owner?: boolean
   unread: number
+  members?: string[]
   last?: { body: string; ts: number; mine: boolean; nick?: string }
 }
 
