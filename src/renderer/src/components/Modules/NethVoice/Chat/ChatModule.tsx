@@ -192,6 +192,15 @@ export function ChatModule() {
                           </span>
                         )}
                       </Name>
+                      {/* As in the CTI: a group's size under its name, "No messages yet" until the first one. */}
+                      {c.kind === 'group' && c.members && (
+                        <p
+                          className='text-[14px] leading-5 truncate text-gray-500 dark:text-gray-400'
+                          title={c.members.map(nameOf).join(', ')}
+                        >
+                          {c.members.length} {t('Chat.members')}
+                        </p>
+                      )}
                       <p className='text-[14px] leading-5 truncate text-gray-600 dark:text-gray-400'>
                         {c.last &&
                           (c.last.mine
@@ -199,7 +208,13 @@ export function ChatModule() {
                             : c.kind === 'group' && c.last.nick
                               ? `${nameOf(c.last.nick)}: `
                               : '')}
-                        {c.last?.body}
+                        {c.last ? (
+                          c.last.body
+                        ) : (
+                          <span className='italic'>
+                            {t('Chat.No messages yet')}
+                          </span>
+                        )}
                       </p>
                       {c.last && (
                         <p className='truncate text-gray-600 dark:text-gray-100 font-normal text-[14px] leading-5'>
@@ -213,22 +228,26 @@ export function ChatModule() {
                           {c.unread}
                         </span>
                       )}
-                      <button
-                        data-tooltip-id='tooltip-chat-action'
-                        data-tooltip-content={
-                          (leaves(c) ? t('Chat.Leave') : t('Chat.Delete')) || ''
-                        }
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setToDelete(c)
-                        }}
-                        className='invisible group-hover:visible p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-textRedLight dark:hover:text-textRedDark'
-                      >
-                        <FontAwesomeIcon
-                          icon={leaves(c) ? LeaveIcon : DeleteIcon}
-                          className='text-sm'
-                        />
-                      </button>
+                      {/* The CTI groups' rooms follow the CTI: nobody leaves or deletes them here, as in the CTI. */}
+                      {!c.peer.startsWith('cti-') && (
+                        <button
+                          data-tooltip-id='tooltip-chat-action'
+                          data-tooltip-content={
+                            (leaves(c) ? t('Chat.Leave') : t('Chat.Delete')) ||
+                            ''
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setToDelete(c)
+                          }}
+                          className='invisible group-hover:visible p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-textRedLight dark:hover:text-textRedDark'
+                        >
+                          <FontAwesomeIcon
+                            icon={leaves(c) ? LeaveIcon : DeleteIcon}
+                            className='text-sm'
+                          />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
