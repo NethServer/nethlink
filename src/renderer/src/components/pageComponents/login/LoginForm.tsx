@@ -537,7 +537,11 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
               : t('Login.New Account description')}
           </p>
           {error && (
-            <InlineNotification type='error' title={t('Login.Login failed')}>
+            <InlineNotification
+              type='error'
+              title={t('Login.Login failed')}
+              className='mb-6'
+            >
               {error.message}
             </InlineNotification>
           )}
