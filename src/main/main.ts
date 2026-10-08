@@ -104,7 +104,7 @@ function startup() {
         if (
           LoginController.instance &&
           LoginController.instance.window.isOpen() &&
-          password &&
+          password !== undefined &&
           account
         ) {
           Log.info('LOGIN SUCCESS')
