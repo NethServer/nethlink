@@ -5,7 +5,8 @@ import {
   faRightFromBracket as LeaveIcon,
   faTrash as DeleteIcon,
   faTriangleExclamation as WarningIcon,
-  faUsers as GroupIcon,
+  faUserGroup as GroupIcon,
+  faUsers as QueueIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import i18next, { t } from 'i18next'
@@ -167,9 +168,16 @@ export function ChatModule() {
                   <div className='flex gap-3 min-h-[72px] py-6 px-3'>
                     <div className='flex flex-col min-w-6 pt-[6px]'>
                       {c.kind === 'group' && !c.avatar ? (
-                        <span className='flex h-8 w-8 items-center justify-center rounded-full bg-indigo-700 text-white'>
+                        // As in the CTI: operator groups (cti-…) blue, a queue's chat with the Queues icon, other groups purple.
+                        <span
+                          className={`flex h-8 w-8 items-center justify-center rounded-full ${c.peer.startsWith('cti-') ? 'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100' : 'bg-indigo-700 text-white'}`}
+                        >
                           <FontAwesomeIcon
-                            icon={GroupIcon}
+                            icon={
+                              c.name.startsWith('Queue - ')
+                                ? QueueIcon
+                                : GroupIcon
+                            }
                             className='text-xs'
                           />
                         </span>
