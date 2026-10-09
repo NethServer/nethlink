@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPhone,
+  faCommentDots,
   faSearch,
   faXmark,
   faUser,
@@ -27,6 +28,7 @@ import {
 } from '@renderer/lib/utils'
 import { debouncer } from '@shared/utils/utils'
 import { Avatar } from '@renderer/components/Nethesis'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 
 // Window = 500x80 initial. Border is faked via outer bg + p-[1px].
 // Outer div: bg = border color, p-[1px], rounded-xl → 500x80
@@ -90,6 +92,9 @@ export function CommandBarPage() {
   const avatarsRef = useRef<AvatarType | null>(null)
   const lastFetchRef = useRef(0) // Timestamp of last successful operators/avatars fetch
   const [operatorVersion, setOperatorVersion] = useState(0) // Bumped when operators data changes, triggers useMemo
+  // Chat window status: operators can be chatted with while it is online.
+  const [chatStatus, setChatStatus] = useState<string>()
+  const canChat = chatStatus === 'online'
 
   const isPhoneNumber =
     searchText.trim().length > 0 && getIsPhoneNumber(searchText.trim())
@@ -229,6 +234,14 @@ export function CommandBarPage() {
   )
 
   useEffect(() => {
+    window.electron.receive(IPC_EVENTS.CHAT_FROM_ISLAND, (name, detail) => {
+      if (name === 'chat-island-status') setChatStatus(detail?.status)
+    })
+    window.electron.send(IPC_EVENTS.CHAT_TO_ISLAND, 'chat-sync')
+    return () => window.electron.removeAllListeners(IPC_EVENTS.CHAT_FROM_ISLAND)
+  }, [])
+
+  useEffect(() => {
     window.electron.receive(IPC_EVENTS.SHOW_COMMAND_BAR, () => {
       setSearchText('')
       setSearchResults([])
@@ -302,6 +315,22 @@ export function CommandBarPage() {
     [searchText],
   )
 
+  const handleChat = useCallback((username?: string) => {
+    if (!username) return
+    window.electron.send(IPC_EVENTS.CHAT_TO_ISLAND, 'chat-island-open', {
+      username,
+    })
+    window.electron.send(IPC_EVENTS.HIDE_COMMAND_BAR)
+  }, [])
+
+  // The selected operator, when there is one to chat with.
+  const chatTarget =
+    canChat && selectedIndex >= 0
+      ? allItems[selectedIndex]?.contact?.isOperator
+        ? allItems[selectedIndex]?.username
+        : undefined
+      : undefined
+
   const handleCallSelected = useCallback(() => {
     if (selectedIndex >= 0 && selectedIndex < allItems.length) {
       const item = allItems[selectedIndex]
@@ -344,7 +373,10 @@ export function CommandBarPage() {
 
     if (e.key === 'Enter') {
       e.preventDefault()
-      handleCallSelected()
+      // Ctrl/Cmd+Enter chats with the selected operator, Enter calls.
+      if (e.ctrlKey || e.metaKey) {
+        if (chatTarget) handleChat(chatTarget)
+      } else handleCallSelected()
       return
     }
   }
@@ -378,6 +410,7 @@ export function CommandBarPage() {
         'font-Poppins h-screen overflow-hidden',
       )}
     >
+      <CustomThemedTooltip id='tooltip-command-chat' place='left' />
       {/* Outer = border color bg + 1px padding. Inner = content bg. The gap IS the border. */}
       <div className='w-[500px] rounded-xl p-[1px] bg-borderLight dark:bg-borderDark'>
         <div className='rounded-[11px] bg-bgLight dark:bg-bgDark overflow-hidden'>
@@ -522,7 +555,7 @@ export function CommandBarPage() {
                           className='h-4 w-4 text-gray-500 dark:text-gray-400'
                         />
                       )}
-                      <div className='flex flex-col min-w-0'>
+                      <div className='flex flex-col min-w-0 flex-1'>
                         <span className='text-sm font-medium dark:text-titleDark text-titleLight truncate'>
                           {contact.displayName}
                         </span>
@@ -535,6 +568,22 @@ export function CommandBarPage() {
                           </span>
                         )}
                       </div>
+                      {isOperator && canChat && item.username && (
+                        <button
+                          data-tooltip-id='tooltip-command-chat'
+                          data-tooltip-content={t('CommandBar.Chat hint') || ''}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleChat(item.username)
+                          }}
+                          className='p-2 rounded-lg text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primaryDark dark:hover:bg-bgDark hover:bg-bgLight'
+                        >
+                          <FontAwesomeIcon
+                            icon={faCommentDots}
+                            className='h-4 w-4'
+                          />
+                        </button>
+                      )}
                     </div>
                   )
                 })}

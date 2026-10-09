@@ -3,6 +3,7 @@ import { formatDistanceToNowStrict } from 'date-fns'
 import { format, utcToZonedTime } from 'date-fns-tz'
 import { enGB, it } from 'date-fns/locale'
 import {
+  shortLocale,
   formatDateLocIsAnnouncement,
   getCallTimeToDisplayIsAnnouncement,
   getTimeDifference,
@@ -67,53 +68,7 @@ export const CallsDate: FC<CallsDateProps> = ({
     )
     const currentLanguage = selectedLanguage || i18next?.languages[0] || 'en'
 
-    const shortIt = {
-      ...it,
-      formatDistance: (token: string, count: number, options?: any) => {
-        const map: Record<string, string> = {
-          xSeconds: 's',
-          xMinutes: 'm',
-          xHours: 'h',
-          xDays: 'g',
-          xMonths: 'mes',
-          xYears: 'a',
-        }
-
-        const unit = map[token] || ''
-        const suffix = options?.addSuffix
-          ? options.comparison && options.comparison > 0
-            ? ' tra'
-            : ' fa'
-          : ''
-
-        return `${count}${unit}${suffix}`
-      },
-    }
-
-    const shortEn = {
-      ...enGB,
-      formatDistance: (token: string, count: number, options?: any) => {
-        const map: Record<string, string> = {
-          xSeconds: 's',
-          xMinutes: 'm',
-          xHours: 'h',
-          xDays: 'd',
-          xMonths: 'mo',
-          xYears: 'y',
-        }
-
-        const unit = map[token] || ''
-        const suffix = options?.addSuffix
-          ? options.comparison && options.comparison > 0
-            ? ' in'
-            : ' ago'
-          : ''
-
-        return `${count}${unit}${suffix}`
-      },
-    }
-
-    const locale = currentLanguage === 'it' ? shortIt : shortEn
+    const locale = shortLocale(currentLanguage)
 
     if (isInAnnouncement) {
       const dateParts = call?.date_creation.split('/')

@@ -180,6 +180,9 @@ export const useNethlinkData = createGlobalStateHook({
   },
   showAddContactModule: false,
   showPhonebookSearchModule: false,
+  chatStatus: undefined,
+  chatUnread: 0,
+  chatConversations: [],
 } as NethLinkPageData).useGlobalState
 
 export const useLoginPageData = createGlobalStateHook({

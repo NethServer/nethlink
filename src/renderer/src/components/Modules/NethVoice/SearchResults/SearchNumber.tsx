@@ -7,6 +7,9 @@ import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
 import { useFavouriteModule } from '../Speeddials/hook/useFavouriteModule'
 import { ClassNames } from '@renderer/utils'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons'
+import { openChat } from '@renderer/hooks/useChatBridge'
 
 export interface SearchNumberProps {
   user: SearchData
@@ -18,6 +21,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   const phoneBookModule = usePhonebookSearchModule()
   const [searchText] = phoneBookModule.searchTextState
   const [operators] = useNethlinkData('operators')
+  const [chatStatus] = useNethlinkData('chatStatus')
   const { isSearchAlsoAFavourite } = useFavouriteModule()
 
   const getUsernameFromPhoneNumber = (number: string) => {
@@ -127,6 +131,17 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
             }
           />
         </div>
+        {/* An operator: chat with them */}
+        {username && chatStatus === 'online' && (
+          <Button
+            variant='ghost'
+            className='self-center ml-2 shrink-0'
+            onClick={() => openChat(username)}
+          >
+            <FontAwesomeIcon icon={faCommentDots} className='text-base' />
+            <span className='sr-only'>{t('Chat.Chat')}</span>
+          </Button>
+        )}
         {onClick && (
           <Button
             variant='tertiary'

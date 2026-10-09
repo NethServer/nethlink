@@ -695,6 +695,21 @@
     "Z-A label": "Z-A",
     "EXT label": "Extension"
   },
+  "Chat": {
+    "No longer active": "No longer active",
+    "Messages": "Messages",
+    "Chat": "Chat",
+    "New chat": "New chat",
+    "No conversations": "No conversations",
+    "No messages yet": "No messages yet",
+    "members": "members",
+    "You": "You",
+    "Delete": "Delete",
+    "Leave": "Leave",
+    "Delete confirm": "Delete the conversation with \"{{name}}\"? Your copy of the messages is removed.",
+    "Delete group confirm": "Delete the group \"{{name}}\" for everyone? Its messages are removed for all members.",
+    "Leave confirm": "Leave the group \"{{name}}\"? You stop receiving its messages and your copy is removed."
+  },
   "LastCalls": {
     "Last calls": "Last calls",
     "No calls": "No calls",
@@ -989,7 +1004,8 @@
   },
   "CommandBar": {
     "Placeholder": "Search contact or dial number...",
-    "Call": "Call"
+    "Call": "Call",
+    "Chat hint": "Chat (Ctrl/⌘+Enter)"
   },
   "Errors": {
     "browser_permissions": "Browser permissions error",

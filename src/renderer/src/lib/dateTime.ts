@@ -185,3 +185,45 @@ export const getTimeDifference = (account: Account, isInQueue: boolean) => {
 
   return differenceValueBetweenTimezone
 }
+
+// Short distances, as in the last calls: "15h ago", "2 mesi fa".
+const SHORT_UNITS: Record<string, (count: number) => Record<string, string>> = {
+  it: (count) => ({
+    xSeconds: 's',
+    xMinutes: 'm',
+    xHours: 'h',
+    xDays: 'g',
+    xMonths: count === 1 ? ' mese' : ' mesi',
+    xYears: count === 1 ? ' anno' : ' anni',
+  }),
+  en: () => ({
+    xSeconds: 's',
+    xMinutes: 'm',
+    xHours: 'h',
+    xDays: 'd',
+    xMonths: 'mo',
+    xYears: 'y',
+  }),
+}
+
+/** A date-fns locale for formatDistanceToNowStrict with the short units above. */
+export const shortLocale = (language: string) => {
+  const itLang = language === 'it'
+  return {
+    ...(itLang ? it : enGB),
+    formatDistance: (token: string, count: number, options?: any) => {
+      const unit = SHORT_UNITS[itLang ? 'it' : 'en'](count)[token] || ''
+      const future = options?.comparison && options.comparison > 0
+      const suffix = options?.addSuffix
+        ? itLang
+          ? future
+            ? ' tra'
+            : ' fa'
+          : future
+            ? ' in'
+            : ' ago'
+        : ''
+      return `${count}${unit}${suffix}`
+    },
+  }
+}
