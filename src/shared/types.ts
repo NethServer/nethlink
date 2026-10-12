@@ -21,6 +21,7 @@ export enum PAGES {
   NETHLINK = 'NethLink',
   DEVTOOLS = 'devtoolspage',
   COMMANDBAR = 'commandbarpage',
+  SCREENSHAREPICKER = 'screensharepickerpage',
 }
 
 export type StateType<T> = [T | undefined, (value: T | undefined) => void]
@@ -429,6 +430,14 @@ export type PageType = {
 }
 
 export type Size = { w: number; h: number }
+
+export type ScreenShareSource = {
+  id: string
+  name: string
+  type: 'screen' | 'window'
+  thumbnail: string
+  appIcon?: string
+}
 
 export type Device = {
   type: AvailableDevices

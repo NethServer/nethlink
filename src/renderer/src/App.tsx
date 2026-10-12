@@ -6,6 +6,7 @@ import {
   SplashScreenPage,
   NethLinkPage,
   CommandBarPage,
+  ScreenSharePickerPage,
 } from '@/pages'
 import { loadI18n } from './lib/i18n'
 import { Log } from '@shared/utils/logger'
@@ -142,6 +143,10 @@ const RequestStateComponent = () => {
         {
           path: PAGES.COMMANDBAR,
           element: <CommandBarPage />,
+        },
+        {
+          path: PAGES.SCREENSHAREPICKER,
+          element: <ScreenSharePickerPage />,
         },
       ],
     },

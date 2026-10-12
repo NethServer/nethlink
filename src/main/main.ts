@@ -21,6 +21,7 @@ import {
 import { AccountController } from './classes/controllers'
 import { PhoneIslandController } from './classes/controllers/PhoneIslandController'
 import { CommandBarController } from './classes/controllers/CommandBarController'
+import { ScreenSharePickerController } from './classes/controllers/ScreenSharePickerController'
 import {
   Account,
   AuthAppData,
@@ -130,6 +131,7 @@ function startup() {
         Log.warning('Failed to disable Command Bar on logout:', e)
       }
 
+      ScreenSharePickerController.instance?.cancel()
       await PhoneIslandController.instance.logout()
       NethLinkController.instance.logout()
       AccountController.instance.logout()
@@ -274,6 +276,7 @@ function attachOnReadyProcess() {
     // I create the Tray controller instance - I define to it the function it should execute upon clicking on the icon
     new SplashScreenController()
     new TrayController()
+    new ScreenSharePickerController()
 
     // I display the splashscreen when the splashscreen component is correctly loaded.
     SplashScreenController.instance.window.addOnBuildListener(() => {
@@ -545,6 +548,8 @@ function attachOnReadyProcess() {
     if (CommandBarController.instance) {
       await CommandBarController.instance.safeQuit()
     }
+
+    ScreenSharePickerController.instance?.cancel()
 
     Log.info('APP QUIT CORRECTLY')
     app.exit()
