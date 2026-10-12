@@ -1011,6 +1011,13 @@
     "Call": "Chiama",
     "Chat hint": "Chat (Ctrl/⌘+Invio)"
   },
+  "ScreenShare": {
+    "Title": "Scegli cosa condividere",
+    "Entire screen": "Schermo intero",
+    "Screen": "Schermo {{number}}",
+    "Window": "Finestra",
+    "Share": "Condividi"
+  },
   "Errors": {
     "browser_permissions": "Errore nei permessi del browser",
     "user_permissions": "Errore nei permessi dei media",

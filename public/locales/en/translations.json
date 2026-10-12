@@ -1011,6 +1011,13 @@
     "Call": "Call",
     "Chat hint": "Chat (Ctrl/⌘+Enter)"
   },
+  "ScreenShare": {
+    "Title": "Choose what to share",
+    "Entire screen": "Entire screen",
+    "Screen": "Screen {{number}}",
+    "Window": "Window",
+    "Share": "Share"
+  },
   "Errors": {
     "browser_permissions": "Browser permissions error",
     "user_permissions": "Media permissions error",
