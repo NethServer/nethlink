@@ -8,6 +8,7 @@ import {
   BrowserWindow,
   app,
   ipcMain,
+  net,
   screen,
   shell,
   desktopCapturer,
@@ -543,6 +544,103 @@ export function registerIpcEvents() {
     account = parseConfig(account, config)
     e.reply(IPC_EVENTS.SET_NETHVOICE_CONFIG, account)
   })
+
+  ipcMain.on(IPC_EVENTS.GET_HOST_CONFIG, async (e, host: string) => {
+    // read the authentication capabilities of the host before asking credentials
+    const { parseHostConfig } = useLogin()
+    try {
+      const config: string = await NetworkController.instance.get(
+        `https://${host}/config/config.production.js`,
+      )
+      e.reply(IPC_EVENTS.SET_HOST_CONFIG, {
+        hostConfig: parseHostConfig(config),
+      })
+    } catch (error: any) {
+      e.reply(IPC_EVENTS.SET_HOST_CONFIG, {
+        error: error?.message || 'unreachable host',
+      })
+    }
+  })
+
+  ipcMain.on(
+    IPC_EVENTS.SSO_LOGIN,
+    (event, payload: { host: string; url: string }) => {
+      // Single Sign-On: run the SAML dance in a dedicated browser window, then
+      // mint the JWT on the forwardAuth-guarded endpoint using the window session
+      // cookies. The persistent partition keeps the IdP session across logins.
+      const { host, url } = payload
+      const win = new BrowserWindow({
+        width: 520,
+        height: 660,
+        autoHideMenuBar: true,
+        webPreferences: {
+          partition: 'persist:sso',
+          nodeIntegration: false,
+          contextIsolation: true,
+          sandbox: true,
+        },
+      })
+      let settled = false
+      const settle = (token?: string, error?: string) => {
+        if (settled) return
+        settled = true
+        event.reply(IPC_EVENTS.SSO_LOGIN_RESULT, { token, error })
+        if (!win.isDestroyed()) win.destroy()
+      }
+      const mint = () => {
+        const request = net.request({
+          url: `https://${host}/api/sso-login`,
+          method: 'POST',
+          session: win.webContents.session,
+          useSessionCookies: true,
+        })
+        request.setHeader('Content-Type', 'application/json')
+        request.on('response', (response) => {
+          let body = ''
+          response.on('data', (chunk) => (body += chunk))
+          response.on('end', () => {
+            try {
+              const token = JSON.parse(body).token
+              if (response.statusCode === 200 && token) settle(token)
+              // authenticated on the IdP but the mint was rejected: a 401/403
+              // means the user is not enabled on this CTI
+              else if (
+                response.statusCode === 401 ||
+                response.statusCode === 403
+              )
+                settle(undefined, 'SSO_USER_NOT_ENABLED')
+              else
+                settle(
+                  undefined,
+                  `SSO login failed with status ${response.statusCode}`,
+                )
+            } catch {
+              settle(undefined, 'SSO login failed: invalid response')
+            }
+          })
+        })
+        request.on('error', (error) => settle(undefined, error.message))
+        request.end('{}')
+      }
+      // the SSO flow ends with a redirect to https://<host>/?ssologin=1: the
+      // session cookie is already set, mint the token instead of loading the app
+      const checkUrl = (e: Electron.Event, newUrl: string) => {
+        try {
+          const u = new URL(newUrl)
+          if (u.hostname === host && u.searchParams.has('ssologin')) {
+            e.preventDefault()
+            mint()
+          }
+        } catch (err) {
+          Log.warning('SSO login: unparsable navigation url', newUrl)
+        }
+      }
+      win.webContents.on('will-redirect', checkUrl)
+      win.webContents.on('will-navigate', checkUrl)
+      win.on('closed', () => settle(undefined, 'SSO window closed'))
+      win.loadURL(url)
+    },
+  )
 
   ipcMain.on(IPC_EVENTS.EMIT_QUEUE_UPDATE, (_, queue) => {
     try {

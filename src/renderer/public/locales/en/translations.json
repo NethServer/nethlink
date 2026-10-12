@@ -112,6 +112,9 @@
     "Delete account": "Are you sure you want to delete {{username}}?",
     "Back": "Back",
     "User not authorized for NethLink": "User not authorized for NethLink",
+    "Sign in with SSO": "Sign in with SSO",
+    "SSO login failed": "Single Sign-On failed, try again",
+    "SSO user not enabled": "You signed in on the identity provider, but this user is not enabled to use the CTI. Contact your administrator.",
     "Generic error": "Generic error",
     "2FA": {
       "OTP code": "OTP code",
