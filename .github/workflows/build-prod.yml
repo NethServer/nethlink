@@ -142,6 +142,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          # The step below needs the previous tag to generate the release
+          # notes. The default shallow checkout only fetches the tag being
+          # built, so PREV_TAG resolved to the current tag and the notes
+          # came out as "compare/vX...vX".
+          fetch-depth: 0
 
       - name: Generate Release Notes between Tags
         env:
@@ -152,11 +158,11 @@ jobs:
           TAG=${GITHUB_REF#refs/tags/}
 
           # Find the previous tag, ensuring it exists (exclude the current tag)
-          PREV_TAG=$(git tag --sort=v:refname | grep -B 1 "$TAG" | head -n 1)
+          PREV_TAG=$(git tag --sort=v:refname | grep -x -F -B 1 "$TAG" | head -n 1)
 
           # If PREV_TAG is the same as the current tag, adjust
           if [ "$PREV_TAG" == "$TAG" ]; then
-            PREV_TAG=$(git tag --sort=v:refname | grep -B 2 "$TAG" | head -n 1)
+            PREV_TAG=$(git tag --sort=v:refname | grep -x -F -B 2 "$TAG" | head -n 1)
           fi
 
           if [ -z "$PREV_TAG" ]; then
