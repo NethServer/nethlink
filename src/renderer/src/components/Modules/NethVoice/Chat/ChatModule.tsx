@@ -1,7 +1,6 @@
 import { createRef, useState } from 'react'
 import {
-  faCommentDots as EmptyIcon,
-  faCommentMedical as NewChatIcon,
+  faMessage as EmptyIcon,
   faRightFromBracket as LeaveIcon,
   faTrash as DeleteIcon,
   faTriangleExclamation as WarningIcon,
@@ -9,6 +8,7 @@ import {
   faUsers as QueueIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faNewChat as NewChatIcon } from './icons'
 import i18next, { t } from 'i18next'
 import { format, formatDistanceToNowStrict } from 'date-fns'
 import { enGB, it } from 'date-fns/locale'
