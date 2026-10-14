@@ -5,7 +5,7 @@ import {
   faInfoCircle as InfoMenuIcon,
   faStar as FavouriteMenuIcon,
   faSquareParking as ParkedCallMenuIcon,
-  faCommentDots as ChatMenuIcon,
+  faMessage as ChatMenuIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { ParkingType } from '@shared/types'
