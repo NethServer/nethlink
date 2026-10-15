@@ -1,24 +1,45 @@
 import { ChatIslandWindow } from '../windows'
 import { Log } from '@shared/utils/logger'
+import { IPC_EVENTS } from '@shared/constants'
 import { screen } from 'electron'
+
+type Corner = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+type Rect = { x: number; y: number; w: number; h: number }
+
+// Between the window's edge and the dock: the island's right-4/left-4, and its bottom-5/top-5 plus the dock's 0.75rem margin.
+const SIDE = 16
+const END = 32
 
 export class ChatIslandController {
   static instance: ChatIslandController | undefined
   window: ChatIslandWindow
   private wantFocus = false
   private focusTimer: ReturnType<typeof setTimeout> | undefined
-  // Distance from the work area's bottom-right corner, kept after a drag, and that display.
-  private anchor = { right: 0, bottom: 0 }
+  // The work area's corner nearest the dock, and the window's distance from its two edges, kept after a drag.
+  private corner: Corner = 'bottom-right'
+  private anchor = { x: 0, y: 0 }
   private displayId: number | undefined
+  private size: { w: number; h: number; dock?: Rect; corner?: Corner } = {
+    w: 0,
+    h: 0,
+  }
 
   constructor() {
     ChatIslandController.instance = this
     this.window = new ChatIslandWindow()
   }
 
-  // Sized to the island, grown from its bottom-right corner; hidden when there is nothing to show.
-  resize(size: { w: number; h: number }) {
+  // Sized to the island, grown from the corner nearest the dock; hidden when there is nothing to show.
+  resize(size: { w: number; h: number; dock?: Rect; corner?: Corner }) {
     try {
+      this.size = size
+      // A reloaded island starts from the default corner: tell it the current one.
+      if (size.corner && size.corner !== this.corner)
+        this.window.emit(
+          IPC_EVENTS.CHAT_TO_ISLAND,
+          'chat-island-corner',
+          this.corner,
+        )
       const window = this.window.getWindow()
       if (!window) return
       if (size.w < 8 || size.h < 8) {
@@ -28,9 +49,15 @@ export class ChatIslandController {
       const { x, y, width, height } = this.workArea()
       const w = Math.min(Math.ceil(size.w), width)
       const h = Math.min(Math.ceil(size.h), height)
+      const left = this.corner.endsWith('left')
+        ? x + this.anchor.x
+        : x + width - this.anchor.x - w
+      const top = this.corner.startsWith('top')
+        ? y + this.anchor.y
+        : y + height - this.anchor.y - h
       window.setBounds({
-        x: Math.max(x, x + width - this.anchor.right - w),
-        y: Math.max(y, y + height - this.anchor.bottom - h),
+        x: Math.min(Math.max(x, left), x + width - w),
+        y: Math.min(Math.max(y, top), y + height - h),
         width: w,
         height: h,
       })
@@ -53,16 +80,39 @@ export class ChatIslandController {
     return (d ?? screen.getPrimaryDisplay()).workArea
   }
 
-  // After a drag: the new corner is where the island grows from.
+  // After a drag: the corner nearest the dock is where the island grows from, as in the CTI.
   keepPosition() {
     const window = this.window.getWindow()
     if (!window) return
     const b = window.getBounds()
     this.displayId = screen.getDisplayMatching(b).id
     const { x, y, width, height } = this.workArea()
+    // The dock sits in the window's corner: its place follows from the bounds, only its size is measured.
+    const w = this.size.dock?.w ?? b.width - 2 * SIDE
+    const h = this.size.dock?.h ?? b.height - 2 * END
+    const dock = {
+      x: this.corner.endsWith('left') ? b.x + SIDE : b.x + b.width - SIDE - w,
+      y: this.corner.startsWith('top') ? b.y + END : b.y + b.height - END - h,
+      w,
+      h,
+    }
+    const left = dock.x + dock.w / 2 < x + width / 2
+    const top = dock.y + dock.h / 2 < y + height / 2
+    const corner: Corner = `${top ? 'top' : 'bottom'}-${left ? 'left' : 'right'}`
     this.anchor = {
-      right: Math.max(0, x + width - b.x - b.width),
-      bottom: Math.max(0, y + height - b.y - b.height),
+      x: Math.max(
+        0,
+        left ? dock.x - SIDE - x : x + width - dock.x - dock.w - SIDE,
+      ),
+      y: Math.max(
+        0,
+        top ? dock.y - END - y : y + height - dock.y - dock.h - END,
+      ),
+    }
+    if (corner !== this.corner) {
+      this.corner = corner
+      this.window.emit(IPC_EVENTS.CHAT_TO_ISLAND, 'chat-island-corner', corner)
+      this.resize(this.size)
     }
   }
 

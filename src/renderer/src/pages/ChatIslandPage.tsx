@@ -17,6 +17,10 @@ export function ChatIslandPage() {
   const [account] = useSharedState('account')
   const [theme] = useSharedState('theme')
   const [enabled, setEnabled] = useState(false)
+  // The screen corner nearest the dock, chosen by NethLink after a drag: panels open away from it.
+  const [corner, setCorner] = useState<
+    'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
+  >('bottom-right')
 
   const allowed =
     !!account?.data?.profile?.macro_permissions?.nethvoice_cti?.permissions
@@ -70,22 +74,32 @@ export function ChatIslandPage() {
         window.electron.send(IPC_EVENTS.CHAT_ISLAND_RESIZE, { w: 0, h: 0 })
         return
       }
-      observer = new ResizeObserver(() => {
+      // The size, and where the dock is in the window (NethLink picks the corner from it).
+      const send = () => {
         const { width, height } = root.getBoundingClientRect()
+        const d = root.lastElementChild?.getBoundingClientRect()
         window.electron.send(
           IPC_EVENTS.CHAT_ISLAND_RESIZE,
           width < 8
             ? { w: 0, h: 0 }
-            : { w: width + 16 + PAD, h: height + 20 + PAD },
+            : {
+                w: width + 16 + PAD,
+                h: height + 20 + PAD,
+                dock: d && { x: d.x, y: d.y, w: d.width, h: d.height },
+                corner,
+              },
         )
-      })
+      }
+      observer = new ResizeObserver(send)
       observer.observe(root)
+      if (root.lastElementChild) observer.observe(root.lastElementChild)
     }, 200)
     return () => {
       clearInterval(timer)
       observer?.disconnect()
     }
-  }, [on])
+    // A new corner moves the dock inside the window without resizing it: observe again, which reports at once.
+  }, [on, corner])
 
   // Events between the island and NethLink.
   useEffect(() => {
@@ -126,10 +140,12 @@ export function ChatIslandPage() {
     }
     const error = (e: Event) =>
       Log.warning('chat island', (e as CustomEvent).detail)
+    const moved = (e: Event) => setCorner((e as CustomEvent).detail)
     OUT.forEach((n) => window.addEventListener(n, forward))
     window.addEventListener('chat-island-call', call)
     window.addEventListener('chat-island-notify', notify)
     window.addEventListener('chat-island-error', error)
+    window.addEventListener('chat-island-corner', moved)
     return () => {
       // Chat off: NethLink and the command bar must not keep showing it online.
       window.electron.send(IPC_EVENTS.CHAT_FROM_ISLAND, 'chat-island-status', {
@@ -140,6 +156,7 @@ export function ChatIslandPage() {
       window.removeEventListener('chat-island-call', call)
       window.removeEventListener('chat-island-notify', notify)
       window.removeEventListener('chat-island-error', error)
+      window.removeEventListener('chat-island-corner', moved)
     }
   }, [on])
 
@@ -187,6 +204,7 @@ export function ChatIslandPage() {
       <ChatIsland
         dataConfig={dataConfig}
         theme={theme}
+        position={corner}
         drag={false}
         onDragStart={onDragStart}
         newChatButton={false}
