@@ -1,4 +1,5 @@
 import { ChatIsland } from '@nethesis/chat-island'
+import i18next from 'i18next'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
@@ -212,6 +213,7 @@ export function ChatIslandPage() {
         notifications='auto'
         nativeTooltips
         accent='blue'
+        language={i18next.language}
       />
     </>
   )
