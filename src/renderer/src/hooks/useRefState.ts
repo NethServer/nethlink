@@ -4,7 +4,6 @@ import {
   SetStateAction,
   useEffect,
   useRef,
-  useState,
 } from 'react'
 
 export const useRefState = <T>(

@@ -136,8 +136,6 @@ export const useNethVoiceAPI = (
   }
 
   async function _GETWithFallback(path: string, hasAuth = true): Promise<any> {
-    const originalPath = path
-
     // Switch to fallback path and rebuild the correct path
     currentApiBasePath = FALLBACK_API_BASE_PATH
     if (account) {
@@ -176,17 +174,6 @@ export const useNethVoiceAPI = (
 
       if (!path.includes('login') && !path.includes('2fa/verify-otp'))
         console.error(e)
-      throw e
-    }
-  }
-
-  async function _DELETE(path: string, hasAuth = true): Promise<any> {
-    try {
-      return await DELETE(_joinUrl(path), _getHeaders(hasAuth))
-    } catch (e) {
-      if (!path.includes('login') && !path.includes('2fa/verify-otp')) {
-        console.error(e)
-      }
       throw e
     }
   }
@@ -546,10 +533,6 @@ export const useNethVoiceAPI = (
     },
   }
 
-  const CustCard = {}
-
-  const HisCallSwitch = {}
-
   const HistoryCall = {
     interval: async () => {
       const now = moment()
@@ -572,8 +555,6 @@ export const useNethVoiceAPI = (
       }
     },
   }
-
-  const OffHour = {}
 
   const Phonebook = {
     search: async (
@@ -630,21 +611,6 @@ export const useNethVoiceAPI = (
         return newSpeedDial
       } catch (e) {
         Log.warning('error during createFavourite', e)
-      }
-    },
-    updateSpeeddialBy: async (updatedContact: ContactType) => {
-      if (updatedContact.name && updatedContact.speeddial_num) {
-        const editedSpeedDial = Object.assign({}, updatedContact)
-        editedSpeedDial.id = editedSpeedDial.id?.toString()
-        try {
-          await _POST(
-            buildApiPath('/phonebook/modify_cticontact'),
-            editedSpeedDial,
-          )
-          return editedSpeedDial
-        } catch (e) {
-          Log.warning('error during updateSpeeddialBy', e)
-        }
       }
     },
     updateSpeeddial: async (edit: NewSpeedDialType, current: ContactType) => {
@@ -716,31 +682,7 @@ export const useNethVoiceAPI = (
       await _POST(`${currentApiBasePath}/phonebook/create`, newContact)
       return newContact
     },
-    updateContact: async (edit: NewContactType, current: ContactType) => {
-      if (current.name && current.speeddial_num) {
-        const newSpeedDial = Object.assign({}, current)
-        newSpeedDial.speeddial_num = edit.speeddial_num
-        newSpeedDial.name = edit.name
-        newSpeedDial.id = newSpeedDial.id?.toString()
-        await _POST(
-          `${currentApiBasePath}/phonebook/modify_cticontact`,
-          newSpeedDial,
-        )
-        return current
-      }
-    },
-    deleteContact: async (obj: { id: string }) => {
-      await _POST(buildApiPath('/phonebook/delete_cticontact'), obj)
-    },
   }
-
-  const Profiling = {
-    all: async () => {
-      return await _GET(buildApiPath('/profiling/all'))
-    },
-  }
-
-  const Streaming = {}
 
   const User = {
     me: async (): Promise<AccountData> => {
@@ -759,7 +701,6 @@ export const useNethVoiceAPI = (
       }
       return data
     },
-    all: async () => await _GET(buildApiPath('/user/all')),
     all_avatars: async () => await _GET(buildApiPath('/user/all_avatars')),
     all_endpoints: async () => await _GET(buildApiPath('/user/endpoints/all')),
     heartbeat: async (extension: string, username: string) =>
@@ -793,8 +734,6 @@ export const useNethVoiceAPI = (
       }),
   }
 
-  const Voicemail = {}
-
   const fetchOperators = async (): Promise<OperatorData> => {
     const endpoints: OperatorsType = await User.all_endpoints() // all devices
     const groups = await AstProxy.groups()
@@ -812,15 +751,9 @@ export const useNethVoiceAPI = (
   const NethVoiceAPI = {
     AstProxy,
     Authentication,
-    CustCard,
-    HisCallSwitch,
     HistoryCall,
-    OffHour,
     Phonebook,
-    Profiling,
-    Streaming,
     User,
-    Voicemail,
     fetchOperators,
   }
 

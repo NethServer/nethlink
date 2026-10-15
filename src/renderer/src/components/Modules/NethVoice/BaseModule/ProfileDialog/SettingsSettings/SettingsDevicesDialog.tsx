@@ -18,7 +18,6 @@ import { DropdownItem } from '@renderer/components/Nethesis/dropdown/DropdownIte
 import { DropdownHeader } from '@renderer/components/Nethesis/dropdown/DropdownHeader'
 import { Log } from '@shared/utils/logger'
 import { delay } from '@shared/utils/utils'
-import { InlineNotification } from '@renderer/components/Nethesis/InlineNotification'
 
 type DeviceType = 'audioInput' | 'audioOutput' | 'videoInput'
 const LOCALSTORAGE_KEYS = {

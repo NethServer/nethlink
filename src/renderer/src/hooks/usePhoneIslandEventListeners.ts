@@ -1,7 +1,7 @@
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
 import { PhoneIslandData, PhoneIslandSizes } from '@shared/types'
 import { Log } from '@shared/utils/logger'
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { t } from 'i18next'
 import { sendNotification, sendSystemNotification } from '@renderer/utils'
 import { useSharedState } from '@renderer/store'

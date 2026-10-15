@@ -76,7 +76,6 @@ const ModalComponent: FC<ModalProps> = ({
           className='
         fixed inset-0 z-50
         overflow-y-auto        
-        scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-400 scrollbar-thumb-rounded-full scrollbar-thumb-opacity-50 scrollbar-track-gray-200 dark:scrollbar-track-gray-900 scrollbar-track-rounded-full scrollbar-track-opacity-25
         '
         >
           <div className='flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0'>

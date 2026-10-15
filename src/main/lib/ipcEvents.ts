@@ -1,4 +1,4 @@
-import { AccountController, DevToolsController } from '@/classes/controllers'
+import { AccountController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { CommandBarController } from '@/classes/controllers/CommandBarController'
@@ -20,12 +20,7 @@ import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
 import { store } from './mainStore'
-import {
-  debouncer,
-  getAccountUID,
-  getPageFromQuery,
-  isDev,
-} from '@shared/utils/utils'
+import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
 import { PhoneIslandWindow } from '@/classes/windows'
@@ -353,12 +348,6 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (_, size) => {
     PhoneIslandController.instance.resize(size)
   })
-  ipcMain.on(IPC_EVENTS.SHOW_PHONE_ISLAND, (_, size) => {
-    PhoneIslandController.instance.showPhoneIsland(size)
-  })
-  ipcMain.on(IPC_EVENTS.HIDE_PHONE_ISLAND, (_) => {
-    PhoneIslandController.instance.hidePhoneIsland()
-  })
   ipcMain.on(IPC_EVENTS.LOGIN_WINDOW_RESIZE, (_, h) => {
     LoginController.instance.resize(h)
   })
@@ -376,28 +365,9 @@ export function registerIpcEvents() {
     store.updateStore(newStore, 'delete account')
     store.saveToDisk(true)
   })
-  ipcMain.on(IPC_EVENTS.HIDE_LOGIN_WINDOW, () => {
-    LoginController.instance.hide()
-  })
 
   ipcMain.on(IPC_EVENTS.CHANGE_THEME, (_, theme) => {
     AccountController.instance.updateTheme(theme)
-    try {
-      NethLinkController.instance?.window?.emit(
-        IPC_EVENTS.ON_CHANGE_THEME,
-        theme,
-      )
-    } catch (e) {
-      Log.error(e)
-    }
-    try {
-      DevToolsController.instance?.window?.emit(
-        IPC_EVENTS.ON_CHANGE_THEME,
-        theme,
-      )
-    } catch (e) {
-      Log.error(e)
-    }
   })
 
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_READY, () => {
@@ -781,24 +751,6 @@ export function registerIpcEvents() {
       PhoneIslandController.instance.window.emit(IPC_EVENTS.URL_OPEN, data)
     } catch (e) {
       Log.error('URL PARAM error', e)
-    }
-  })
-
-  ipcMain.on(IPC_EVENTS.TOGGLE_COMMAND_BAR, () => {
-    try {
-      if (!isUserLoggedIn()) return
-      CommandBarController.instance?.toggle()
-    } catch (e) {
-      Log.error('TOGGLE_COMMAND_BAR error', e)
-    }
-  })
-
-  ipcMain.on(IPC_EVENTS.SHOW_COMMAND_BAR, () => {
-    try {
-      if (!isUserLoggedIn()) return
-      CommandBarController.instance?.show()
-    } catch (e) {
-      Log.error('SHOW_COMMAND_BAR error', e)
     }
   })
 

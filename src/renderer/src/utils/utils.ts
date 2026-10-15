@@ -27,7 +27,6 @@ export async function sendNotification(
     const notificationoption: NotificationOptions = {
       body,
       icon: './icons/Nethlink-logo.svg',
-      // image: "./icons/TrayNotificationIcon.svg",
       silent: false,
     }
     const notification = new window.Notification(title, notificationoption)

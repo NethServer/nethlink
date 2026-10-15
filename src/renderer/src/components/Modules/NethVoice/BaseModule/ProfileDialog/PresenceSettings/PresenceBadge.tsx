@@ -6,7 +6,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { Badge } from '@renderer/components/Nethesis/Badge'
 import { useNethlinkData, useSharedState } from '@renderer/store'
-import { StatusTypes } from '@shared/types'
 import { t } from 'i18next'
 import { useTheme } from '@renderer/theme/Context'
 import classNames from 'classnames'

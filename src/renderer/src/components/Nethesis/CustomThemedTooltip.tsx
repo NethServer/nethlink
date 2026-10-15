@@ -1,5 +1,5 @@
 // src/components/CustomThemedTooltip.tsx
-import React, { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 import { useSharedState } from '@renderer/store'
 import { getSystemTheme, parseThemeToClassName } from '@renderer/utils'

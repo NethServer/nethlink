@@ -1,5 +1,5 @@
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
-import { useNethlinkData, useSharedState } from '@renderer/store'
+import { useNethlinkData } from '@renderer/store'
 import { SpeeddialTypes } from '@shared/constants'
 import {
   ContactType,
@@ -13,7 +13,6 @@ import { useEffect, useState } from 'react'
 export const useSpeedDialsModule = (): {
   speedDials: ContactType[] | undefined
   speedDialsState: StateType<ContactType>
-  favouriteState: StateType<ContactType>
   deleteSpeedDial: (speedDial: ContactType) => Promise<void>
   upsertSpeedDial(data: ContactType): Promise<void>
 } => {
@@ -78,8 +77,7 @@ export const useSpeedDialsModule = (): {
           setRawSpeedDials(() => newSpeedDials)
         }
       } else {
-        const newSpeedDial =
-          await NethVoiceAPI.Phonebook.createSpeeddial(speedDial)
+        await NethVoiceAPI.Phonebook.createSpeeddial(speedDial)
         const newRawSpeedDials = await NethVoiceAPI.Phonebook.getSpeeddials()
         setRawSpeedDials((p) => newRawSpeedDials)
       }
@@ -93,10 +91,6 @@ export const useSpeedDialsModule = (): {
     speedDialsState: [
       speeddialsModule?.selectedSpeedDial,
       update<ContactType>('selectedSpeedDial'),
-    ] as StateType<ContactType>,
-    favouriteState: [
-      speeddialsModule?.selectedFavourite,
-      update<ContactType>('selectedFavourite'),
     ] as StateType<ContactType>,
     deleteSpeedDial,
     upsertSpeedDial,

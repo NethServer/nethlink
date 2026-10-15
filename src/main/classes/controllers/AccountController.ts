@@ -1,8 +1,6 @@
 import {
   Account,
-  AuthAppData,
   AvailableDevices,
-  ConfigFile,
   PhoneIslandPosition,
   isSsoMethod,
 } from '@shared/types'
@@ -14,21 +12,6 @@ import { useLogin } from '@shared/useLogin'
 import { NetworkController } from './NetworkController'
 import { getAccountUID } from '@shared/utils/utils'
 import { requires2FA, isJWTExpired } from '@shared/utils/jwt'
-
-const defaultConfig: ConfigFile = {
-  lastUser: undefined,
-  accounts: {},
-}
-
-type EventCallback = (...args: any[]) => void | Promise<void>
-type EventListenerCallback = {
-  event: keyof typeof AccountEvents
-  callback: EventCallback
-}
-export enum AccountEvents {
-  LOGIN = 'LOGIN',
-  LOGOUT = 'LOGOUT',
-}
 
 export class AccountController {
   _app: Electron.App | undefined
@@ -59,12 +42,6 @@ export class AccountController {
       retries++
     }
     return safeStorage.isEncryptionAvailable()
-  }
-
-  listAvailableAccounts(): Account[] {
-    const authAppData = store.store.auth
-    if (authAppData) return Object.values(authAppData.availableAccounts)
-    return []
   }
 
   async logout() {

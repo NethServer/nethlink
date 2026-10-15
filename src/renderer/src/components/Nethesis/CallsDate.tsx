@@ -8,7 +8,6 @@ import {
   getTimeDifference,
 } from '../../lib/dateTime'
 import i18next from 'i18next'
-import { UTCDate } from '@date-fns/utc'
 import { Account } from '@shared/types'
 import { useSharedState } from '@renderer/store'
 
@@ -130,7 +129,7 @@ export const CallsDate: FC<CallsDateProps> = ({
       const minute = parseInt(timeParts[1], 10)
       const second = parseInt(timeParts[2], 10)
 
-      const utcDate = new UTCDate(year, month, day, hour, minute, second)
+      const utcDate = new Date(Date.UTC(year, month, day, hour, minute, second))
       const callDate = utcToZonedTime(utcDate, differenceBetweenTimezone)
 
       return formatDistanceToNowStrict(callDate, {

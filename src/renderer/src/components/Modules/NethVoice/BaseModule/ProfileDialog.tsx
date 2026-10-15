@@ -4,7 +4,7 @@ import {
   faArrowRightFromBracket as LogoutIcon,
   faGear as SettingsIcon,
 } from '@fortawesome/free-solid-svg-icons'
-import { motion } from 'motion/react'
+import { motion } from 'framer-motion'
 import { ProfileData } from './ProfileDialog/ProfileData'
 import { MenuAction } from './ProfileDialog/MenuAction'
 import { t } from 'i18next'

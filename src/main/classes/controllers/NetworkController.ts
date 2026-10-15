@@ -6,39 +6,6 @@ export class NetworkController {
     NetworkController.instance = this
   }
 
-  async post(
-    path: string,
-    data: object | undefined,
-    config:
-      | {
-          headers: {
-            Authorization?: string | undefined
-            'Content-Type': string
-          }
-        }
-      | undefined = { headers: { 'Content-Type': 'application/json' } },
-  ): Promise<any> {
-    try {
-      const response = await axios.post(path, data, {
-        timeout: 5000,
-        ...config,
-      })
-
-      return response.data
-    } catch (e: any) {
-      const err: AxiosError = e
-      Log.error(
-        'during fetch POST',
-        err.name,
-        err.code,
-        err.message,
-        path,
-        config,
-        data,
-      )
-      throw e
-    }
-  }
   async get(
     path: string,
     config:

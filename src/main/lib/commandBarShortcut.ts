@@ -36,10 +36,6 @@ export function getDefaultCommandBarModifier(): CommandBarDoubleTapModifier {
   return process.platform === 'darwin' ? 'Cmd' : 'Ctrl'
 }
 
-export function isCommandBarDoubleTapShortcutStarted(): boolean {
-  return uiohookStarted
-}
-
 export function stopCommandBarDoubleTapShortcut() {
   if (!uiohookStarted) return
 

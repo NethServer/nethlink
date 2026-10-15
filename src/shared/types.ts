@@ -77,13 +77,6 @@ export type LoginData = {
   password?: string
 }
 
-export type ConfigFile = {
-  lastUser: string | undefined
-  accounts: {
-    [username: string]: Account
-  }
-}
-
 export type PhoneIslandConfig = {
   hostname: string
   username: string
@@ -172,7 +165,6 @@ export type MultipleResponse<T> = {
   count: number
   rows: T[]
 }
-export type HistorySpeedDialType = MultipleResponse<ContactType>
 export type HistoryCallData = MultipleResponse<CallData>
 export type SearchCallData = MultipleResponse<SearchData>
 
@@ -487,15 +479,6 @@ export type AuthAppData = {
     [accountUID: string]: Account
   }
 }
-export type FeatureCodes = {
-  pickup?: string
-  dnd_toggle?: string
-  audio_test?: string
-  confbridge_conf?: string
-  incall_audio?: string
-  que_toggle?: string
-}
-
 export type RingtoneType = {
   name: string
   base64: string

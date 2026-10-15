@@ -1,4 +1,4 @@
-import { useNethlinkData, useSharedState } from '@renderer/store'
+import { useNethlinkData } from '@renderer/store'
 import { MENU_ELEMENT } from '@shared/constants'
 import { useCallback, useEffect } from 'react'
 import { PhonebookModule, SpeeddialsModule, LastCallsModule } from '.'

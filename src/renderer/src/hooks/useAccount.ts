@@ -1,10 +1,4 @@
-import {
-  AvailableDevices,
-  Device,
-  Extension,
-  ExtensionsType,
-  StatusTypes,
-} from '@shared/types'
+import { AvailableDevices, Device, StatusTypes } from '@shared/types'
 import { useEffect, useRef, useState } from 'react'
 import { useSharedState } from '@renderer/store'
 import { PERMISSION } from '@shared/constants'

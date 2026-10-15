@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { t } from 'i18next'
 import { SearchData } from '@shared/types'
-import { useNethlinkData, useSharedState } from '@renderer/store'
+import { useNethlinkData } from '@renderer/store'
 import { Button } from '@renderer/components/Nethesis'
 import { usePhonebookSearchModule } from './hook/usePhoneBookSearchModule'
 import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
@@ -91,7 +91,6 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   ).filter((n) => n !== phoneNumber).length
 
   const username = getUsernameFromPhoneNumber(phoneNumber)
-  const avatarSrc = username ? operators?.avatars?.[username] : ''
 
   return (
     <div className='group'>
