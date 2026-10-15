@@ -22,7 +22,7 @@ import { cleanClassName } from '../../lib/utils'
 import { useTheme } from '../../theme/Context'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition } from '@fortawesome/fontawesome-common-types'
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 
 export interface TextInputProps extends Omit<
   ComponentProps<'input'>,

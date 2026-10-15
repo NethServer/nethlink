@@ -5,7 +5,6 @@ import { differenceInHours } from 'date-fns'
 import { enGB, it } from 'date-fns/locale'
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz'
 import { getNumericTimezone, getTimezone } from './utils'
-import { UTCDate } from '@date-fns/utc'
 import { Account } from '@shared/types'
 
 export const formatInTimeZoneLoc = (date: any, fmt: string, tz: any) => {
@@ -35,7 +34,7 @@ export const getCallTimeToDisplayIsAnnouncement = (
   const minute = parseInt(timeParts[1], 10)
   const second = parseInt(timeParts[2], 10)
 
-  const formattedTime = new UTCDate(0, 0, 0, hour, minute, second)
+  const formattedTime = new Date(Date.UTC(0, 0, 0, hour, minute, second))
 
   return formatInTimeZoneLoc(formattedTime, 'HH:mm', differenceInHours)
 }

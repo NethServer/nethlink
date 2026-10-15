@@ -29,7 +29,7 @@ import {
   faChevronDown,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons'
-import { IconDefinition } from '@fortawesome/fontawesome-common-types'
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 
 export interface MultiSelectComboboxProps {
   options: string[]

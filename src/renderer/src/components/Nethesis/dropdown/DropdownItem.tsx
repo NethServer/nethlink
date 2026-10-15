@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTheme } from '@renderer/theme/Context'
 import { cleanClassName } from '@renderer/lib/utils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition } from '@fortawesome/fontawesome-common-types'
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 
 export interface DropdownItemProps extends Omit<
   ComponentProps<'div'>,
