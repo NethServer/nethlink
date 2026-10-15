@@ -11,7 +11,6 @@ import {
   net,
   screen,
   shell,
-  desktopCapturer,
   globalShortcut,
   clipboard,
   Notification,
@@ -732,20 +731,6 @@ export function registerIpcEvents() {
       Log.error('EXIT FULLSCREEN error ', e)
     }
   })
-  ipcMain.on(IPC_EVENTS.SCREEN_SHARE_INIT, () => {
-    desktopCapturer
-      .getSources({ types: ['screen'] }) // allow only entire screen sharing
-      .then((sources) => {
-        PhoneIslandController.instance?.window?.emit(
-          IPC_EVENTS.SCREEN_SHARE_SOURCES,
-          sources,
-        )
-      })
-      .catch((e) => {
-        Log.error('ENTER SCREEN_SHARE_INIT error ', e)
-      })
-  })
-
   ipcMain.on(IPC_EVENTS.URL_OPEN, (_, data) => {
     try {
       PhoneIslandController.instance.window.emit(IPC_EVENTS.URL_OPEN, data)
