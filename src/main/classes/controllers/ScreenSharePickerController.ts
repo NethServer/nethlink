@@ -14,7 +14,7 @@ import { PhoneIslandController } from './PhoneIslandController'
 
 type SettleRequest = (source?: DesktopCapturerSource) => void
 
-const PICKER_LOAD_TIMEOUT_MS = 10000
+const PICKER_LOAD_TIMEOUT_MS = 30000
 
 export class ScreenSharePickerController {
   static instance: ScreenSharePickerController
@@ -134,16 +134,11 @@ export class ScreenSharePickerController {
         s.appIcon && !s.appIcon.isEmpty() ? s.appIcon.toDataURL() : undefined,
     }))
 
-    let sourcesRequested = false
-    let loadTimeout: ReturnType<typeof setTimeout> | undefined
+    const loadTimeout = setTimeout(() => {
+      Log.warning('SCREEN SHARE picker did not load')
+      settle()
+    }, PICKER_LOAD_TIMEOUT_MS)
 
-    window.webContents.once('did-finish-load', () => {
-      if (sourcesRequested) return
-      loadTimeout = setTimeout(() => {
-        Log.warning('SCREEN SHARE picker did not load')
-        settle()
-      }, PICKER_LOAD_TIMEOUT_MS)
-    })
     window.on('closed', () => {
       clearTimeout(loadTimeout)
       settle()
@@ -152,7 +147,6 @@ export class ScreenSharePickerController {
     window.webContents.on('did-fail-load', () => settle())
 
     pickerWindow.addListener(IPC_EVENTS.SCREEN_SHARE_PICKER_SOURCES, () => {
-      sourcesRequested = true
       clearTimeout(loadTimeout)
       pickerWindow.emit(
         IPC_EVENTS.SCREEN_SHARE_PICKER_SOURCES,
