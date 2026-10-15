@@ -43,6 +43,7 @@ export function useChatBridge(username?: string) {
       operators?.operators as any,
       operators?.avatars as any,
       username || '',
+      operators?.extensions as any,
     )
     if (!contacts.length) return
     // Compared by content: the shared state may hand over a new object with the same avatars.

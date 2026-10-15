@@ -211,6 +211,7 @@ export function ChatIslandPage() {
         maxHeads={5}
         notifications='auto'
         nativeTooltips
+        accent='blue'
       />
     </>
   )

@@ -6,7 +6,7 @@ import { screen } from 'electron'
 type Corner = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
 type Rect = { x: number; y: number; w: number; h: number }
 
-// Between the window's edge and the dock: the island's right-4/left-4, and its bottom-5/top-5 plus the dock's 0.75rem margin.
+// Between the window's edge and the dock: the island's right-4/left-4 and bottom-8/top-8.
 const SIDE = 16
 const END = 32
 
