@@ -2,15 +2,10 @@ import { eventDispatch } from '@renderer/hooks/eventDispatch'
 import { getI18nLoadPath } from '@renderer/lib/i18n'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
-import {
-  Extension,
-  PhoneIslandSizes,
-  PreferredDevices,
-  sizeInformationType,
-} from '@shared/types'
+import { Extension, PhoneIslandSizes, PreferredDevices } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { delay, isDev } from '@shared/utils/utils'
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ElectronDraggableWindow } from '@renderer/components/ElectronDraggableWindow'
 import { usePhoneIsland } from '@renderer/hooks/usePhoneIsland'
 import { PhoneIslandContainer } from '@renderer/components/pageComponents/phoneIsland/phoneIslandContainer'

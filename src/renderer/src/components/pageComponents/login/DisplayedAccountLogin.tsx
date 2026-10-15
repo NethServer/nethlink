@@ -4,7 +4,6 @@ import { t } from 'i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRemove as DeleteIcon } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from '../../Nethesis'
-import { isDev } from '@shared/utils/utils'
 
 type DisplayedAccountLoginProps = {
   account?: Account

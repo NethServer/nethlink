@@ -1,5 +1,5 @@
 import { SpeedDialsBox } from './SpeedDialsBox'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { SpeedDialFormBox } from './SpeedDialFormBox'
 import { SpeedDialDeleteDialog } from './SpeedDialDeleteDialog'
 import { useSpeedDialsModule } from '../hook/useSpeedDialsModule'

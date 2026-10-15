@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { debouncer } from '@shared/utils/utils'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { FilterTypes, SpeeddialTypes } from '@shared/constants'
-import { Log } from '@shared/utils/logger'
 export const useFavouriteModule = () => {
   const [speeddialsModule] = useNethlinkData('speeddialsModule')
   const [rawSpeedDials, setRawSpeedDials] = useNethlinkData('speeddials')

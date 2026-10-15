@@ -10,9 +10,6 @@ export class Log {
     if (isDev()) {
       const now = moment()
       const callerLine = ''
-      const error = new Error()
-      const stack = error.stack
-      const stackLines = stack?.split('\n')
 
       let formattedMessage = `${now.format('HH:mm:ss.SSSZ')} ##PAGE## ${callerLine}${
         typeof message === 'object' ? JSON.stringify(message) : message
@@ -61,20 +58,5 @@ export class Log {
 
   static error(message?: any, ...optionalParams: any[]) {
     Log.log(console.error, 'ERROR', message, ...optionalParams)
-  }
-
-  static startTime(id: string) {
-    const label = 'TIMER ' + id
-    console.time(label)
-  }
-
-  static logTime(id: string, message?: any, ...optionalParams: any[]) {
-    const label = 'TIMER ' + id
-    console.timeLog(label, message, ...optionalParams)
-  }
-
-  static endTime(id: string) {
-    const label = 'TIMER ' + id
-    console.timeEnd(label)
   }
 }

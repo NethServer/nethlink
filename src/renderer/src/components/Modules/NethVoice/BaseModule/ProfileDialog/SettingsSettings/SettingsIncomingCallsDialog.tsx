@@ -17,7 +17,7 @@ import { Dropdown } from '@renderer/components/Nethesis/dropdown'
 import { DropdownItem } from '@renderer/components/Nethesis/dropdown/DropdownItem'
 import { DropdownHeader } from '@renderer/components/Nethesis/dropdown/DropdownHeader'
 import { Log } from '@shared/utils/logger'
-import { IPC_EVENTS, PHONE_ISLAND_EVENTS } from '@shared/constants'
+import { IPC_EVENTS } from '@shared/constants'
 
 interface Ringtone {
   name: string

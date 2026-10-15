@@ -6,7 +6,7 @@ import {
 import os from 'os'
 import { electronAPI } from '@electron-toolkit/preload'
 import { IPC_EVENTS } from '@shared/constants'
-import { Account, ContactType, Size } from '@shared/types'
+import { Size } from '@shared/types'
 import { preloadBindings } from 'i18next-electron-fs-backend'
 
 export interface IElectronAPI {
@@ -23,15 +23,7 @@ export interface IElectronAPI {
   i18nextElectronBackend: any
 
   // SYNC EMITTERS - expect response
-  login: (
-    host: string,
-    username: string,
-    password: string,
-  ) => Promise<Account | undefined>
-  deleteSpeedDial(contact: ContactType): Promise<string>
   getLocale(): Promise<string>
-  onStartCall(callback: (number: string | number) => void): void
-  onUpdateAppNotification(showUpdateAppNotification: () => void): void
 
   // EMITTER - only emit, no response
   openDevTool(hash: string): unknown
@@ -41,16 +33,11 @@ export interface IElectronAPI {
     openUrl?: string,
   ): void
   logout: () => void
-  startCall(phoneNumber: string): void
-  hideLoginWindow(): void
   resizeLoginWindow(height: number): void
   resizePhoneIsland(size: Size): void
-  sendInitializationCompleted(id: string): void
   openHostPage(path: string): void
   openExternalPage(url: string): void
   exitNethLink(): void
-  hidePhoneIsland(): void
-  showPhoneIsland(size: Size): void
   copyToClipboard(text: string): void
 }
 
@@ -60,14 +47,6 @@ const customElectronAPI = {
   receive: (channel, func) =>
     ipcRenderer.on(channel, (event, ...args) => func(...args)),
   removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
-}
-
-function addListener(channel) {
-  return (callback) => {
-    ipcRenderer.on(channel, (e: Electron.IpcRendererEvent, ...args) => {
-      callback(...args)
-    })
-  }
 }
 
 function setEmitterSync<T>(event): () => Promise<T> {
@@ -101,26 +80,18 @@ const api: IElectronAPI = {
   arch: process.arch,
   i18nextElectronBackend: preloadBindings(ipcRenderer, process),
   // SYNC EMITTERS - expect response
-  login: setEmitterSync<Account | undefined>(IPC_EVENTS.LOGIN),
   getLocale: setEmitterSync<string>(IPC_EVENTS.GET_LOCALE),
 
   // EMITTER - only emit, no response
-  sendInitializationCompleted: setEmitter(IPC_EVENTS.INITIALIZATION_COMPELTED),
   openDevTool: setEmitter(IPC_EVENTS.OPEN_DEV_TOOLS),
-  hideLoginWindow: setEmitter(IPC_EVENTS.HIDE_LOGIN_WINDOW),
   logout: setEmitter(IPC_EVENTS.LOGOUT),
   resizePhoneIsland: setEmitter(IPC_EVENTS.PHONE_ISLAND_RESIZE),
   resizeLoginWindow: setEmitter(IPC_EVENTS.LOGIN_WINDOW_RESIZE),
   openHostPage: setEmitter(IPC_EVENTS.OPEN_HOST_PAGE),
   openExternalPage: setEmitter(IPC_EVENTS.OPEN_EXTERNAL_PAGE),
   exitNethLink: setEmitter(IPC_EVENTS.CLOSE_NETH_LINK),
-  hidePhoneIsland: setEmitter(IPC_EVENTS.HIDE_PHONE_ISLAND),
-  showPhoneIsland: setEmitter(IPC_EVENTS.SHOW_PHONE_ISLAND),
   copyToClipboard: setEmitter(IPC_EVENTS.COPY_TO_CLIPBOARD),
   sendNotification: setEmitter(IPC_EVENTS.SEND_NOTIFICATION),
-
-  // LISTENERS - receive data async
-  onUpdateAppNotification: addListener(IPC_EVENTS.UPDATE_APP_NOTIFICATION),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

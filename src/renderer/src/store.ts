@@ -66,7 +66,6 @@ export function createGlobalStateHook<T>(
   function useGlobalState<Key extends keyof T>(
     key: Key,
   ): [T[Key], (setter: ((previous: T[Key]) => T[Key]) | T[Key]) => void] {
-    // const global = useSharedStore((state: SharedState<T>) => state.data);
     const value = useSharedStore((state: SharedState<T>) => state.data[key])
     const setData = useSharedStore((state: SharedState<T>) => state.setData)
     const pageData = usePageCtx()
@@ -99,7 +98,6 @@ export function createGlobalStateHook<T>(
   const useRegisterStoreHook = () => {
     const pageData = usePageCtx()
     const setData = useSharedStore((state: SharedState<T>) => state.setData)
-    // const global = useSharedStore((state: SharedState<T>) => state.data);
     const isRegistered = useRef(false)
 
     useEffect(() => {

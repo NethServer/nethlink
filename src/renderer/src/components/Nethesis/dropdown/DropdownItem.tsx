@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 import { FC, ComponentProps } from 'react'
-import { Menu, MenuItem } from '@headlessui/react'
+import { MenuItem } from '@headlessui/react'
 import classNames from 'classnames'
 import { useTheme } from '@renderer/theme/Context'
 import { cleanClassName } from '@renderer/lib/utils'

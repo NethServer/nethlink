@@ -337,7 +337,6 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
 
     try {
       Log.info('LOGIN verifying 2FA code')
-      // const { NethVoiceAPI: TempAPI } = useNethVoiceAPI(tempAccount)
       const verifiedAccount = await NethVoiceAPI.Authentication.verify2FA(
         otpCode,
         tempAccount,
@@ -366,16 +365,6 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
         setError(() => new Error(t('Login.Generic error') as string))
       }
     }
-  }
-
-  function handleBack2FA() {
-    setShowTwoFactor(false)
-    setTempAccount(undefined)
-    setOnOTPError(false)
-    setIsLoading(false)
-    setOtpDisabled(false)
-    setOtpCode('')
-    setError(undefined)
   }
 
   const onSubmitForm: SubmitHandler<LoginData> = (data) => {

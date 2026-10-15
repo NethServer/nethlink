@@ -49,7 +49,6 @@ import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
-import { URL } from 'url'
 
 // get app parameter
 const params = process.argv
@@ -59,9 +58,6 @@ for (const arg of params) {
     if (['DEV', 'DEVTOOLS', 'DEBUG'].includes(kv[0])) {
       kv[1] = kv[1] === 'true'
     }
-    // } else {
-    //   kv[1] = undefined
-    // }
     if (kv[1]) process.env[kv[0]] = kv[1]
   }
 }
@@ -272,7 +268,6 @@ function attachOnReadyProcess() {
   let retryAppStart: NodeJS.Timeout | undefined = undefined
 
   app.whenReady().then(async () => {
-    const isGone = false
     Log.info('APP READY')
     await startLocalization()
 
@@ -796,7 +791,6 @@ async function onAppResume() {
     const data = store.getFromDisk()
     store.updateStore(data, 'onAppResume')
     Log.info('APP POWER RESUME')
-    const showNethlink = true
     if (store.store.account && NethLinkController.instance) {
       const autoLoginResult = await AccountController.instance.autoLogin()
       if (autoLoginResult) {

@@ -9,7 +9,6 @@ import {
 import { t } from 'i18next'
 import { useNethlinkData } from '@renderer/store'
 import { FilterTypes } from '@shared/constants'
-import { NethLinkPageData } from '@shared/types'
 
 export const FavouriteFilter = () => {
   const { theme: nethTheme } = useTheme()

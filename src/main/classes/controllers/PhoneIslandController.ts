@@ -2,7 +2,6 @@ import { PhoneIslandWindow } from '../windows'
 import { IPC_EVENTS } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
 import { AccountController } from './AccountController'
-import { debouncer } from '@shared/utils/utils'
 import { once } from '@/lib/ipcEvents'
 import { screen } from 'electron'
 import { Extension, PhoneIslandPosition, Size } from '@shared/types'
@@ -10,7 +9,6 @@ import { Extension, PhoneIslandPosition, Size } from '@shared/types'
 export class PhoneIslandController {
   static instance: PhoneIslandController
   window: PhoneIslandWindow
-  private isWarmingUp: boolean = false
   private lastVisibleBounds: Electron.Rectangle | undefined
 
   private isValidVisibleBounds(
@@ -280,8 +278,7 @@ export class PhoneIslandController {
             `PhoneIsland resize to 0x0 -> hidden from (${hiddenFrom.x}, ${hiddenFrom.y})`,
           )
         } else {
-          // Don't show window during warm-up
-          if (!window.isVisible() && !this.isWarmingUp) {
+          if (!window.isVisible()) {
             if (process.platform === 'win32') {
               const restoredBounds = this.resolveWindowsBounds(size)
               window.setBounds(restoredBounds, false)
@@ -299,91 +296,6 @@ export class PhoneIslandController {
       }
     } catch (e) {
       Log.warning('error during resizing PhoneIslandWindow:', e)
-    }
-  }
-
-  showPhoneIsland(size: Size) {
-    try {
-      const window = this.window.getWindow()
-      if (window) {
-        Log.info(
-          `PhoneIsland showPhoneIsland called with size ${size.w}x${size.h}`,
-        )
-        this.resize(size)
-        if (process.platform === 'win32') {
-          const restoredBounds = this.resolveWindowsBounds(size)
-          window.setBounds(restoredBounds, false)
-          this.rememberVisibleBounds(restoredBounds)
-          if (!window.isVisible() && !this.isWarmingUp) {
-            window.show()
-            window.setAlwaysOnTop(true, 'screen-saver')
-          }
-        } else if (process.platform !== 'linux') {
-          const phoneIslandPosition =
-            AccountController.instance.getAccountPhoneIslandPosition()
-          Log.info(
-            `PhoneIsland saved position: ${phoneIslandPosition ? `(${phoneIslandPosition.x}, ${phoneIslandPosition.y})` : 'none'}`,
-          )
-          if (phoneIslandPosition) {
-            const displays = screen.getAllDisplays()
-            const isPhoneIslandOnDisplay = displays.reduce(
-              (result, display) => {
-                const area = display.workArea
-                return (
-                  result ||
-                  (phoneIslandPosition.x >= area.x &&
-                    phoneIslandPosition.y >= area.y &&
-                    phoneIslandPosition.x + size.w < area.x + area.width &&
-                    phoneIslandPosition.y + size.h < area.y + area.height)
-                )
-              },
-              false,
-            )
-            if (isPhoneIslandOnDisplay) {
-              window?.setBounds(
-                { x: phoneIslandPosition.x, y: phoneIslandPosition.y },
-                false,
-              )
-              Log.info(
-                `PhoneIsland positioned at saved location (${phoneIslandPosition.x}, ${phoneIslandPosition.y})`,
-              )
-            } else {
-              window?.center()
-              Log.info(
-                `PhoneIsland saved position is off-screen, centered instead. Displays: ${JSON.stringify(displays.map((d) => d.workArea))}`,
-              )
-            }
-          } else {
-            window?.center()
-            Log.info('PhoneIsland no saved position, centered')
-          }
-        } else {
-          window?.center()
-        }
-        const finalBounds = window.getBounds()
-        Log.info(
-          `PhoneIsland final bounds after showPhoneIsland: (${finalBounds.x}, ${finalBounds.y}) ${finalBounds.width}x${finalBounds.height}`,
-        )
-      }
-    } catch (e) {
-      Log.warning('error during showing PhoneIslandWindow:', e)
-    }
-  }
-
-  hidePhoneIsland() {
-    try {
-      const window = this.window.getWindow()
-      const phoneIslandBounds = window?.getBounds()
-      const persistableBounds = this.getPersistableBounds(phoneIslandBounds)
-      if (persistableBounds) {
-        Log.info(
-          `PhoneIsland hiding, saving position (${persistableBounds.x}, ${persistableBounds.y}) size ${persistableBounds.width}x${persistableBounds.height}`,
-        )
-        this.savePhoneIslandPosition(persistableBounds)
-      }
-      debouncer('hide', () => window?.hide(), 250)
-    } catch (e) {
-      Log.warning('error during hiding PhoneIslandWindow:', e)
     }
   }
 
@@ -427,83 +339,12 @@ export class PhoneIslandController {
 
   updateDefaultDevice(ext: Extension, force: boolean) {
     try {
-      // const { NethVoiceAPI } = useNethVoiceAPI(store.store.account)
-      // NethVoiceAPI.User.me().then((me) => {
       this.window.emit(IPC_EVENTS.CHANGE_DEFAULT_DEVICE, ext, force)
-      // })
     } catch (e) {
       Log.warning(
         'error during emitting updateDefaultDevice event to the PhoneIslandWindow:',
         e,
       )
-    }
-  }
-
-  muteAudio() {
-    try {
-      const window = this.window.getWindow()
-      if (window && window.webContents) {
-        window.webContents.setAudioMuted(true)
-        Log.info('PhoneIsland audio muted')
-      }
-    } catch (e) {
-      Log.warning('error during muting PhoneIsland audio:', e)
-    }
-  }
-
-  unmuteAudio() {
-    try {
-      const window = this.window.getWindow()
-      if (window && window.webContents) {
-        window.webContents.setAudioMuted(false)
-        Log.info('PhoneIsland audio unmuted')
-      }
-    } catch (e) {
-      Log.warning('error during unmuting PhoneIsland audio:', e)
-    }
-  }
-
-  forceHide() {
-    try {
-      const window = this.window.getWindow()
-      if (window) {
-        this.isWarmingUp = true
-        const persistableBounds = this.getPersistableBounds(window.getBounds())
-        if (persistableBounds) {
-          this.savePhoneIslandPosition(persistableBounds)
-        }
-        window.hide()
-        Log.info('PhoneIsland window hidden')
-      }
-    } catch (e) {
-      Log.warning('error during force hiding PhoneIsland:', e)
-    }
-  }
-
-  forceShow() {
-    try {
-      const window = this.window.getWindow()
-      if (window) {
-        this.isWarmingUp = false
-        // Only show if there's actually content (size > 0)
-        const bounds = window.getBounds()
-        if (bounds.width > 0 && bounds.height > 0) {
-          if (process.platform === 'win32') {
-            const restoredBounds = this.resolveWindowsBounds({
-              w: bounds.width,
-              h: bounds.height,
-            })
-            window.setBounds(restoredBounds, false)
-            this.rememberVisibleBounds(restoredBounds)
-          }
-          window.show()
-          window.setAlwaysOnTop(true, 'screen-saver')
-          this.rememberVisibleBounds(window.getBounds())
-          Log.info('PhoneIsland window shown')
-        }
-      }
-    } catch (e) {
-      Log.warning('error during force showing PhoneIsland:', e)
     }
   }
 

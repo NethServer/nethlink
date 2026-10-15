@@ -57,32 +57,6 @@ function getBoolEnvParam(paramName: string) {
 export const isDev = getBoolEnvParam('DEV')
 export const isDevTools = getBoolEnvParam('DEVTOOLS')
 
-export const isDeepEqual = (obj1: object, obj2: object) => {
-  const objKeys1 = Object.keys(obj1)
-  const objKeys2 = Object.keys(obj2)
-
-  if (objKeys1.length !== objKeys2.length) return false
-
-  for (const key of objKeys1) {
-    const value1 = obj1[key]
-    const value2 = obj2[key]
-
-    const isObjects = isObject(value1) && isObject(value2)
-
-    if (
-      (isObjects && !isDeepEqual(value1, value2)) ||
-      (!isObjects && value1 !== value2)
-    ) {
-      return false
-    }
-  }
-  return true
-}
-
-const isObject = (object) => {
-  return object != null && typeof object === 'object'
-}
-
 export const getAccountUID = (a: Account) => {
   return `${a.host}@${a.username}`
 }
