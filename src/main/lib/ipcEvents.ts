@@ -237,7 +237,11 @@ export function registerIpcEvents() {
       const cursorPosition = screen.getCursorScreenPoint()
       const deltaX = cursorPosition.x - draggingWindow.startMousePosition.x
       const deltaY = cursorPosition.y - draggingWindow.startMousePosition.y
-      if (window.title === PAGES.CHATISLAND) {
+      // A click on a head is not a move: the window stays where it grew from.
+      if (
+        window.title === PAGES.CHATISLAND &&
+        (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3)
+      ) {
         ChatIslandController.instance?.keepPosition()
       }
       if (window.title === PAGES.PHONEISLAND) {
