@@ -8,6 +8,7 @@ import {
 import { IPC_EVENTS } from '@shared/constants'
 import { ScreenShareSource } from '@shared/types'
 import { Log } from '@shared/utils/logger'
+import { forceWindowFocus } from '@/lib/windowsFocus'
 import { SCREEN_SHARE_PICKER_SIZE, ScreenSharePickerWindow } from '../windows'
 import { PhoneIslandController } from './PhoneIslandController'
 
@@ -133,11 +134,16 @@ export class ScreenSharePickerController {
         s.appIcon && !s.appIcon.isEmpty() ? s.appIcon.toDataURL() : undefined,
     }))
 
-    const loadTimeout = setTimeout(() => {
-      Log.warning('SCREEN SHARE picker did not load')
-      settle()
-    }, PICKER_LOAD_TIMEOUT_MS)
+    let sourcesRequested = false
+    let loadTimeout: ReturnType<typeof setTimeout> | undefined
 
+    window.webContents.once('did-finish-load', () => {
+      if (sourcesRequested) return
+      loadTimeout = setTimeout(() => {
+        Log.warning('SCREEN SHARE picker did not load')
+        settle()
+      }, PICKER_LOAD_TIMEOUT_MS)
+    })
     window.on('closed', () => {
       clearTimeout(loadTimeout)
       settle()
@@ -146,6 +152,7 @@ export class ScreenSharePickerController {
     window.webContents.on('did-fail-load', () => settle())
 
     pickerWindow.addListener(IPC_EVENTS.SCREEN_SHARE_PICKER_SOURCES, () => {
+      sourcesRequested = true
       clearTimeout(loadTimeout)
       pickerWindow.emit(
         IPC_EVENTS.SCREEN_SHARE_PICKER_SOURCES,
@@ -184,8 +191,20 @@ export class ScreenSharePickerController {
     } catch (e) {
       Log.warning('SCREEN SHARE picker positioning error', e)
     }
+    if (process.platform === 'darwin') {
+      window.setVisibleOnAllWorkspaces(true, {
+        visibleOnFullScreen: true,
+        skipTransformProcessType: true,
+      })
+    }
     window.show()
-    window.focus()
+    window.setAlwaysOnTop(true, 'screen-saver')
+    setTimeout(() => {
+      if (window.isDestroyed()) return
+      forceWindowFocus(window)
+      window.focus()
+      window.webContents.focus()
+    }, 50)
   }
 
   private destroyWindow() {
