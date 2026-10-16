@@ -64,12 +64,14 @@ export function ChatIslandPage() {
     }
     let observer: ResizeObserver | undefined
     let watched: Element | null = null
+    let unhover = () => {}
     // The island may replace its root: watch whichever one is in the page.
     const timer = setInterval(() => {
       const root = document.querySelector('.chat-island-root')
       if (root === watched) return
       observer?.disconnect()
       observer = undefined
+      unhover()
       watched = root
       if (!root) {
         window.electron.send(IPC_EVENTS.CHAT_ISLAND_RESIZE, { w: 0, h: 0 })
@@ -77,8 +79,14 @@ export function ChatIslandPage() {
       }
       // The size, and where the dock is in the window (NethLink picks the corner from it).
       const send = () => {
-        const { width, height } = root.getBoundingClientRect()
+        const r = root.getBoundingClientRect()
         const d = root.lastElementChild?.getBoundingClientRect()
+        // A head's tooltip sticks out of the island toward the screen: the window widens to show it.
+        const t = [...root.querySelectorAll('[role=tooltip]')]
+          .find((e) => e.getClientRects().length)
+          ?.getBoundingClientRect()
+        const width = r.width + (t ? Math.max(0, r.left - t.left, t.right - r.right) : 0)
+        const { height } = r
         window.electron.send(
           IPC_EVENTS.CHAT_ISLAND_RESIZE,
           width < 8
@@ -92,12 +100,19 @@ export function ChatIslandPage() {
         )
       }
       observer = new ResizeObserver(send)
+      root.addEventListener('mouseover', send)
+      root.addEventListener('mouseout', send)
+      unhover = () => {
+        root.removeEventListener('mouseover', send)
+        root.removeEventListener('mouseout', send)
+      }
       observer.observe(root)
       if (root.lastElementChild) observer.observe(root.lastElementChild)
     }, 200)
     return () => {
       clearInterval(timer)
       observer?.disconnect()
+      unhover()
     }
     // A new corner moves the dock inside the window without resizing it: observe again, which reports at once.
   }, [on, corner])
@@ -211,7 +226,6 @@ export function ChatIslandPage() {
         newChatButton={false}
         maxHeads={5}
         notifications='auto'
-        nativeTooltips
         accent='blue'
         language={i18next.language}
       />
