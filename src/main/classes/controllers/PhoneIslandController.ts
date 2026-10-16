@@ -314,9 +314,9 @@ export class PhoneIslandController {
     })
   }
 
-  call(number: string) {
+  call(number: string, video: boolean = false) {
     try {
-      this.window.emit(IPC_EVENTS.START_CALL, number)
+      this.window.emit(IPC_EVENTS.START_CALL, number, video)
     } catch (e) {
       Log.error(`Unable to call ${number}`)
     }
