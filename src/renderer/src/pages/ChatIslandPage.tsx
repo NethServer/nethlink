@@ -7,6 +7,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 // Room around the island for its shadows.
 const PAD = 24
+// Room on both sides of the island for a head's tooltip, kept even when none shows: a window resized on hover jitters.
+// The same on both sides (and 2rem above and below), so a new corner leaves the dock where it is.
+const TIP = 240
+// Linux gets no mouse moves through an ignoring window, so there the window widens for the tooltip instead.
+const THROUGH = !navigator.userAgent.includes('Linux')
 // Island events NethLink listens to.
 const OUT = [
   'chat-island-status',
@@ -65,6 +70,7 @@ export function ChatIslandPage() {
     let observer: ResizeObserver | undefined
     let watched: Element | null = null
     let unhover = () => {}
+    let last = ''
     // The island may replace its root: watch whichever one is in the page.
     const timer = setInterval(() => {
       const root = document.querySelector('.chat-island-root')
@@ -81,30 +87,46 @@ export function ChatIslandPage() {
       const send = () => {
         const r = root.getBoundingClientRect()
         const d = root.lastElementChild?.getBoundingClientRect()
-        // A head's tooltip sticks out of the island toward the screen: the window widens to show it.
-        const t = [...root.querySelectorAll('[role=tooltip]')]
-          .find((e) => e.getClientRects().length)
-          ?.getBoundingClientRect()
-        const width = r.width + (t ? Math.max(0, r.left - t.left, t.right - r.right) : 0)
-        const { height } = r
-        window.electron.send(
-          IPC_EVENTS.CHAT_ISLAND_RESIZE,
-          width < 8
+        // A head's tooltip sticks out of the island toward the screen.
+        const t = THROUGH
+          ? undefined
+          : [...root.querySelectorAll('[role=tooltip]')]
+              .find((e) => e.getClientRects().length)
+              ?.getBoundingClientRect()
+        const width =
+          r.width + (t ? Math.max(0, r.left - t.left, t.right - r.right) : 0)
+        const dock = d && { x: d.x, y: d.y, w: d.width, h: d.height }
+        const size =
+          r.width < 8
             ? { w: 0, h: 0 }
-            : {
-                w: width + 16 + PAD,
-                h: height + 20 + PAD,
-                dock: d && { x: d.x, y: d.y, w: d.width, h: d.height },
-                corner,
-              },
-        )
+            : THROUGH
+              ? {
+                  w: Math.ceil(r.width + 2 * TIP),
+                  h: Math.ceil(r.height + 64),
+                  side: TIP,
+                  dock,
+                  corner,
+                }
+              : {
+                  w: Math.ceil(width + 16 + PAD),
+                  h: Math.ceil(r.height + 20 + PAD),
+                  dock,
+                  corner,
+                }
+        // Only real changes: every resize of a transparent window may flicker.
+        const key = JSON.stringify(size)
+        if (key === last) return
+        last = key
+        window.electron.send(IPC_EVENTS.CHAT_ISLAND_RESIZE, size)
       }
       observer = new ResizeObserver(send)
-      root.addEventListener('mouseover', send)
-      root.addEventListener('mouseout', send)
-      unhover = () => {
-        root.removeEventListener('mouseover', send)
-        root.removeEventListener('mouseout', send)
+      if (!THROUGH) {
+        root.addEventListener('mouseover', send)
+        root.addEventListener('mouseout', send)
+        unhover = () => {
+          root.removeEventListener('mouseover', send)
+          root.removeEventListener('mouseout', send)
+        }
       }
       observer.observe(root)
       if (root.lastElementChild) observer.observe(root.lastElementChild)
@@ -176,6 +198,33 @@ export function ChatIslandPage() {
     }
   }, [on])
 
+  // The mouse goes through the page where there is no island: the empty root, the body.
+  useEffect(() => {
+    if (!on || !THROUGH) return
+    let through: boolean | undefined
+    const set = (v: boolean) => {
+      if (v === through) return
+      through = v
+      window.electron.send(IPC_EVENTS.CHAT_ISLAND_MOUSE, v)
+    }
+    const move = (e: MouseEvent) => {
+      // A pressed button (a drag, a selection) keeps the window.
+      if (e.buttons) return
+      const el = e.target as Element
+      set(
+        el === document.documentElement ||
+          el === document.body ||
+          el.classList.contains('chat-island-root'),
+      )
+    }
+    document.addEventListener('mousemove', move)
+    set(true)
+    return () => {
+      document.removeEventListener('mousemove', move)
+      set(false)
+    }
+  }, [on])
+
   // The dock and the window header move the whole window; a drag is not a click.
   const moved = useRef(false)
   const onDragStart = (e: React.PointerEvent) => {
@@ -213,9 +262,7 @@ export function ChatIslandPage() {
     <>
       {/* Fixed widths: the island must not shrink to the window it sizes, nor its expanded chat stop at it; shadows short enough to end inside PAD. */}
       <style>
-        {
-          '.chat-island-root { --ci-max-w: 100rem; --ci-max-h: 100rem } .chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { --tw-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }'
-        }
+        {`html, body { overflow: hidden } ${THROUGH ? `.chat-island-root.ci-right-4 { right: ${TIP}px } .chat-island-root.ci-left-4 { left: ${TIP}px }` : ''} .chat-island-root { --ci-max-w: 100rem; --ci-max-h: 100rem } .chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { --tw-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }`}
       </style>
       <ChatIsland
         dataConfig={dataConfig}

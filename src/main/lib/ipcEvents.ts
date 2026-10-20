@@ -212,6 +212,8 @@ export function registerIpcEvents() {
         x,
         y,
       }
+      if (window.title === PAGES.CHATISLAND)
+        ChatIslandController.instance?.startDrag()
       if (!draggingWindows?.hasOwnProperty(window.title)) {
         const interval: number = setInterval(() => {
           updateWindowPosition(window)
@@ -238,12 +240,10 @@ export function registerIpcEvents() {
       const deltaX = cursorPosition.x - draggingWindow.startMousePosition.x
       const deltaY = cursorPosition.y - draggingWindow.startMousePosition.y
       // A click on a head is not a move: the window stays where it grew from.
-      if (
-        window.title === PAGES.CHATISLAND &&
-        (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3)
-      ) {
-        ChatIslandController.instance?.keepPosition()
-      }
+      if (window.title === PAGES.CHATISLAND)
+        ChatIslandController.instance?.stopDrag(
+          Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3,
+        )
       if (window.title === PAGES.PHONEISLAND) {
         const bounds = window.getBounds()
         Log.info(
@@ -284,18 +284,8 @@ export function registerIpcEvents() {
               false,
             )
           } else if (window.title === PAGES.CHATISLAND) {
-            // Kept inside the screen under the cursor, like the phone island.
-            const { width, height } = window.getBounds()
-            const wa = screen.getDisplayNearestPoint(cursorPosition).workArea
-            window.setBounds(
-              {
-                x: Math.min(Math.max(newX, wa.x), wa.x + wa.width - width),
-                y: Math.min(Math.max(newY, wa.y), wa.y + wa.height - height),
-                width,
-                height,
-              },
-              false,
-            )
+            // Follows the cursor across screens; the drop puts it back inside the dock's one.
+            ChatIslandController.instance?.dragTo(newX, newY)
           } else {
             const [w, h] = window.getContentSize()
             window.setBounds(
@@ -369,6 +359,10 @@ export function registerIpcEvents() {
   // Chat island window: size, and island events between it and NethLink.
   ipcMain.on(IPC_EVENTS.CHAT_ISLAND_RESIZE, (_, size) => {
     ChatIslandController.instance?.resize(size)
+  })
+  // Clicks go through the window's transparent parts, to whatever is under it.
+  ipcMain.on(IPC_EVENTS.CHAT_ISLAND_MOUSE, (_, through: boolean) => {
+    ChatIslandController.instance?.clickThrough(through)
   })
   ipcMain.on(IPC_EVENTS.CHAT_TO_ISLAND, (_, name, detail) => {
     try {
