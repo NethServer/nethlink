@@ -28,7 +28,7 @@ export interface LoginPageProps {
 enum LoginSizes {
   BASE = 550,
   HOST_STEP = 400,
-  SSO_STEP = 400,
+  SSO_STEP = HOST_STEP,
   ACCOUNT_FORM = 488,
   TWO_FACTOR_AUTH = 420,
   BACK_BUTTON = 60,

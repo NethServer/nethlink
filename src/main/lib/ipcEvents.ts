@@ -137,9 +137,12 @@ export function registerIpcEvents() {
     return app.getLocale()
   })
 
-  ipcMain.on(IPC_EVENTS.EMIT_START_CALL, async (_event, phoneNumber, video?: boolean) => {
-    PhoneIslandController.instance.call(phoneNumber, video)
-  })
+  ipcMain.on(
+    IPC_EVENTS.EMIT_START_CALL,
+    async (_event, phoneNumber, video?: boolean) => {
+      PhoneIslandController.instance.call(phoneNumber, video)
+    },
+  )
 
   ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url) => {
     function triggerError(e, request: ClientRequest | undefined = undefined) {

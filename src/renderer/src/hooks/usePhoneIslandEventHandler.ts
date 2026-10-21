@@ -37,7 +37,11 @@ export const usePhoneIslandEventHandler = () => {
       const cleanNumber = `${number}`.replace(numberCleanerRegex, '')
       const isNumberValid = validatePhoneNumber(cleanNumber)
       if (number && isNumberValid && isCallsEnabled)
-        window.electron.send(IPC_EVENTS.EMIT_START_CALL, cleanNumber, Boolean(options.video))
+        window.electron.send(
+          IPC_EVENTS.EMIT_START_CALL,
+          cleanNumber,
+          Boolean(options.video),
+        )
       else
         Log.warning('unable to call', { number, isCallsEnabled, isNumberValid })
     },

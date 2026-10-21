@@ -61,8 +61,12 @@ export const ContactNameAndActions = ({
   // Video calls start from the NethLink WebRTC device and need a video-capable device on the other side
   const canVideoCall =
     isOperator &&
-    ['nethlink', 'webrtc'].includes(account?.data?.default_device?.type || '') &&
-    (operators?.operators?.[username!]?.endpoints?.extension || []).some(isVideoCapableExtension)
+    ['nethlink', 'webrtc'].includes(
+      account?.data?.default_device?.type || '',
+    ) &&
+    (operators?.operators?.[username!]?.endpoints?.extension || []).some(
+      isVideoCapableExtension,
+    )
 
   const isDisplayedNumberEmpty =
     displayedNumber === null ||
