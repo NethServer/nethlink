@@ -60,3 +60,24 @@ export const isDevTools = getBoolEnvParam('DEVTOOLS')
 export const getAccountUID = (a: Account) => {
   return `${a.host}@${a.username}`
 }
+
+// Desk phones known to handle video calls, matched on the registered User-Agent
+const VIDEO_PHONE_USER_AGENTS =
+  /Yealink SIP-(T58|VP59)|Fanvil (V6|X7|i[0-9])|Nethesis NP-V|Akuvox|Grandstream GXV/i
+
+/**
+ * True when the extension can receive a video call: WebRTC, NethLink and the mobile app always,
+ * physical phones only for known video models
+ */
+export function isVideoCapableExtension(extension?: {
+  type?: string
+  description?: string
+}) {
+  if (!extension) return false
+  if (['webrtc', 'nethlink', 'mobile'].includes(extension.type || ''))
+    return true
+  return (
+    extension.type === 'physical' &&
+    VIDEO_PHONE_USER_AGENTS.test(extension.description || '')
+  )
+}

@@ -1,16 +1,17 @@
 import { NumberCaller } from '../../../NumberCaller'
 import { ContactType } from '@shared/types'
-import { debouncer, isDev } from '@shared/utils/utils'
+import { debouncer, isDev, isVideoCapableExtension } from '@shared/utils/utils'
 import { FavouriteStar } from './FavouritesStar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAccount } from '@renderer/hooks/useAccount'
-import { useNethlinkData } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useIsTruncated } from '@renderer/hooks/useIsTruncated'
 import { Avatar } from '../../../Nethesis'
 import { CustomThemedTooltip } from '../../../Nethesis/CustomThemedTooltip'
 import {
   faPhone as CallIcon,
+  faVideo as VideoCallIcon,
   faBriefcase as CompanyIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
@@ -56,6 +57,16 @@ export const ContactNameAndActions = ({
     operatorPresence === 'online' ||
     operatorPresence === 'available'
   const isCallDisabled = !isCallsEnabled || !isOperatorOnline
+  const [account] = useSharedState('account')
+  // Video calls start from the NethLink WebRTC device and need a video-capable device on the other side
+  const canVideoCall =
+    isOperator &&
+    ['nethlink', 'webrtc'].includes(
+      account?.data?.default_device?.type || '',
+    ) &&
+    (operators?.operators?.[username!]?.endpoints?.extension || []).some(
+      isVideoCapableExtension,
+    )
 
   const isDisplayedNumberEmpty =
     displayedNumber === null ||
@@ -212,6 +223,28 @@ export const ContactNameAndActions = ({
                     'onCallNumber',
                     () => {
                       callNumber(contact.speeddial_num!)
+                    },
+                    250,
+                  )
+                }}
+              />
+            )}
+            {!isHighlight && canVideoCall && (
+              <FontAwesomeIcon
+                className={classNames(
+                  'text-base',
+                  isCallDisabled
+                    ? 'dark:text-gray-400 text-gray-500 cursor-not-allowed'
+                    : 'dark:text-gray-400 text-gray-600 cursor-pointer hover:dark:text-textBlueDark hover:text-textBlueLight',
+                )}
+                icon={VideoCallIcon}
+                title={`${t('Operators.Video call')}`}
+                onClick={() => {
+                  if (isCallDisabled) return
+                  debouncer(
+                    'onVideoCallNumber',
+                    () => {
+                      callNumber(contact.speeddial_num!, { video: true })
                     },
                     250,
                   )

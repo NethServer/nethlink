@@ -70,11 +70,16 @@ export function PhoneIslandPage() {
       }
     })
 
-    window.electron.receive(IPC_EVENTS.START_CALL, (number: string) => {
-      eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
-        number,
-      })
-    })
+    window.electron.receive(
+      IPC_EVENTS.START_CALL,
+      (number: string, video?: boolean) => {
+        // video: true offers the camera in the first INVITE (desk video phones refuse a later upgrade)
+        eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-start'], {
+          number,
+          ...(video ? { video: true } : {}),
+        })
+      },
+    )
 
     window.electron.receive(IPC_EVENTS.END_CALL, () => {
       eventDispatch(PHONE_ISLAND_EVENTS['phone-island-call-end'])
