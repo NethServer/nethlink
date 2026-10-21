@@ -2,6 +2,7 @@ import { AccountController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { CommandBarController } from '@/classes/controllers/CommandBarController'
+import { ChatIslandController } from '@/classes/controllers/ChatIslandController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
 import {
@@ -211,6 +212,8 @@ export function registerIpcEvents() {
         x,
         y,
       }
+      if (window.title === PAGES.CHATISLAND)
+        ChatIslandController.instance?.startDrag()
       if (!draggingWindows?.hasOwnProperty(window.title)) {
         const interval: number = setInterval(() => {
           updateWindowPosition(window)
@@ -236,6 +239,11 @@ export function registerIpcEvents() {
       const cursorPosition = screen.getCursorScreenPoint()
       const deltaX = cursorPosition.x - draggingWindow.startMousePosition.x
       const deltaY = cursorPosition.y - draggingWindow.startMousePosition.y
+      // A click on a head is not a move: the window stays where it grew from.
+      if (window.title === PAGES.CHATISLAND)
+        ChatIslandController.instance?.stopDrag(
+          Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3,
+        )
       if (window.title === PAGES.PHONEISLAND) {
         const bounds = window.getBounds()
         Log.info(
@@ -275,6 +283,9 @@ export function registerIpcEvents() {
               },
               false,
             )
+          } else if (window.title === PAGES.CHATISLAND) {
+            // Follows the cursor across screens; the drop puts it back inside the dock's one.
+            ChatIslandController.instance?.dragTo(newX, newY)
           } else {
             const [w, h] = window.getContentSize()
             window.setBounds(
@@ -343,6 +354,52 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
     clipboard.writeText(text)
+  })
+
+  // Chat island window: size, and island events between it and NethLink.
+  ipcMain.on(IPC_EVENTS.CHAT_ISLAND_RESIZE, (_, size) => {
+    ChatIslandController.instance?.resize(size)
+  })
+  // Clicks go through the window's transparent parts, to whatever is under it.
+  ipcMain.on(IPC_EVENTS.CHAT_ISLAND_MOUSE, (_, through: boolean) => {
+    ChatIslandController.instance?.clickThrough(through)
+  })
+  ipcMain.on(IPC_EVENTS.CHAT_TO_ISLAND, (_, name, detail) => {
+    try {
+      ChatIslandController.instance?.window.emit(
+        IPC_EVENTS.CHAT_TO_ISLAND,
+        name,
+        detail,
+      )
+      if (name === 'chat-island-open' || name === 'chat-island-new') {
+        ChatIslandController.instance?.focus()
+      }
+    } catch (e) {
+      Log.warning('chat island unreachable:', e)
+    }
+  })
+  ipcMain.on(IPC_EVENTS.CHAT_FROM_ISLAND, (_, name, detail) => {
+    try {
+      NethLinkController.instance?.window.emit(
+        IPC_EVENTS.CHAT_FROM_ISLAND,
+        name,
+        detail,
+      )
+    } catch (e) {
+      Log.warning('nethlink unreachable:', e)
+    }
+    // The command bar only needs to know whether the chat is there.
+    if (name === 'chat-island-status') {
+      try {
+        CommandBarController.instance?.window.emit(
+          IPC_EVENTS.CHAT_FROM_ISLAND,
+          name,
+          detail,
+        )
+      } catch (e) {
+        Log.warning('command bar unreachable:', e)
+      }
+    }
   })
 
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_RESIZE, (_, size) => {
