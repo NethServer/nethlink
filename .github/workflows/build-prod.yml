@@ -152,34 +152,26 @@ jobs:
       - name: Generate Release Notes between Tags
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
-        id: generate_notes
         run: |
           # Get the tag being pushed (e.g., v1.0.0)
           TAG=${GITHUB_REF#refs/tags/}
 
-          # Find the previous tag, ensuring it exists (exclude the current tag)
+          # Previous tag = the line before $TAG in the version-sorted tag list.
+          # If $TAG is the first tag, grep -B 1 returns $TAG itself.
           PREV_TAG=$(git tag --sort=v:refname | grep -x -F -B 1 "$TAG" | head -n 1)
 
-          # If PREV_TAG is the same as the current tag, adjust
-          if [ "$PREV_TAG" == "$TAG" ]; then
-            PREV_TAG=$(git tag --sort=v:refname | grep -x -F -B 2 "$TAG" | head -n 1)
-          fi
-
-          if [ -z "$PREV_TAG" ]; then
+          if [ -z "$PREV_TAG" ] || [ "$PREV_TAG" == "$TAG" ]; then
             echo "Error: Previous tag not found."
             exit 1
           fi
 
-          # Generate the release notes using GitHub API
-          NOTES=$(gh api repos/NethServer/nethlink/releases/generate-notes \
+          # Generate the release notes using GitHub API. Keep them in a file:
+          # they span many lines, which $GITHUB_OUTPUT rejects without a
+          # heredoc delimiter, and interpolating them into a shell command
+          # would break on quotes and backticks.
+          gh api repos/NethServer/nethlink/releases/generate-notes \
             -f tag_name="$TAG" -f previous_tag_name="$PREV_TAG" -q .body \
-            )
-
-          # Escape newlines and special characters properly
-          NOTES_ESCAPED=$(printf '%s' "$NOTES" | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
-
-          # Save the release notes to the output file
-          echo "release_notes=$NOTES_ESCAPED" >> "$GITHUB_OUTPUT"
+            > release-notes.md
 
       - name: Update Release Notes in GitHub
         env:
@@ -189,7 +181,7 @@ jobs:
           TAG=${GITHUB_REF#refs/tags/}
 
           # Update the release with the generated notes
-          gh release edit $TAG --title $TAG --notes "${{ steps.generate_notes.outputs.release_notes }}"
+          gh release edit "$TAG" --title "$TAG" --notes-file release-notes.md
 
       - name: Generate SBOM (CycloneDX)
         uses: aquasecurity/trivy-action@v0.36.0
