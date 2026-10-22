@@ -756,6 +756,12 @@ async function attachProtocolListeners() {
           }
           break
         }
+        case 'pickup': {
+          if (to) {
+            Log.info('Pickup call of:', to)
+          }
+          break
+        }
         case 'chat': {
           // The chat opens in its own window, not in NethLink.
           ipcMain.emit(
