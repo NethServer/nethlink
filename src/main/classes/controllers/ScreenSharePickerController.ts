@@ -14,11 +14,19 @@ import { PhoneIslandController } from './PhoneIslandController'
 
 type SettleRequest = (source?: DesktopCapturerSource) => void
 
+type PreparedPicker = {
+  pickerWindow: ScreenSharePickerWindow
+  // resolves true once the renderer is mounted and listening for sources
+  ready: Promise<boolean>
+}
+
 const PICKER_LOAD_TIMEOUT_MS = 30000
 
 export class ScreenSharePickerController {
   static instance: ScreenSharePickerController
-  private window: ScreenSharePickerWindow | undefined
+  private picker: PreparedPicker | undefined
+  private shownSources: DesktopCapturerSource[] = []
+  private keepWarm = false
   private settlePending: SettleRequest | undefined
 
   constructor() {
@@ -28,8 +36,17 @@ export class ScreenSharePickerController {
     )
   }
 
+  // While a call is active keep a hidden picker loaded, so a screen share
+  // request only waits for the sources.
+  prewarm() {
+    this.keepWarm = true
+    if (!this.picker && !this.settlePending) this.picker = this.preparePicker()
+  }
+
   cancel() {
+    this.keepWarm = false
     this.settlePending?.()
+    this.destroyWindow()
   }
 
   private async handleRequest(callback: (streams: Electron.Streams) => void) {
@@ -45,7 +62,9 @@ export class ScreenSharePickerController {
       if (settled) return
       settled = true
       this.settlePending = undefined
+      this.shownSources = []
       this.destroyWindow()
+      if (this.keepWarm) this.picker = this.preparePicker()
       restorePhoneIsland()
       if (source) {
         Log.info('SCREEN SHARE source selected', source.id, source.name)
@@ -64,9 +83,9 @@ export class ScreenSharePickerController {
         settle(sources[0])
         return
       }
-      this.openPicker(sources, settle)
+      await this.showPicker(sources, settle, () => settled)
     } catch (e) {
-      Log.error('SCREEN SHARE getSources error', e)
+      Log.error('SCREEN SHARE picker error', e)
       settle()
     }
   }
@@ -116,15 +135,53 @@ export class ScreenSharePickerController {
     return sources.filter((s) => !ownMediaSourceIds.has(s.id))
   }
 
-  private openPicker(sources: DesktopCapturerSource[], settle: SettleRequest) {
+  private preparePicker(): PreparedPicker {
     const pickerWindow = new ScreenSharePickerWindow()
-    this.window = pickerWindow
-    const window = pickerWindow.getWindow()
-    if (!window) {
-      settle()
-      return
-    }
+    const window = pickerWindow.getWindow()!
+    const isCurrent = () => this.picker?.pickerWindow === pickerWindow
 
+    const ready = new Promise<boolean>((resolve) => {
+      const loadTimeout = setTimeout(() => {
+        Log.warning('SCREEN SHARE picker did not load')
+        resolve(false)
+      }, PICKER_LOAD_TIMEOUT_MS)
+      const done = (loaded: boolean) => {
+        clearTimeout(loadTimeout)
+        resolve(loaded)
+      }
+      pickerWindow.addListener(IPC_EVENTS.SCREEN_SHARE_PICKER_SOURCES, () =>
+        done(true),
+      )
+      window.on('closed', () => done(false))
+      window.webContents.on('render-process-gone', () => done(false))
+      window.webContents.on('did-fail-load', () => done(false))
+    })
+
+    const onGone = () => {
+      if (!isCurrent()) return
+      this.picker = undefined
+      this.settlePending?.()
+    }
+    window.on('closed', onGone)
+    window.webContents.on('render-process-gone', onGone)
+
+    pickerWindow.addListener(
+      IPC_EVENTS.SCREEN_SHARE_PICKER_SELECT,
+      (_event, sourceId: string | null) => {
+        if (!isCurrent()) return
+        this.settlePending?.(this.shownSources.find((s) => s.id === sourceId))
+      },
+    )
+
+    return { pickerWindow, ready }
+  }
+
+  private async showPicker(
+    sources: DesktopCapturerSource[],
+    settle: SettleRequest,
+    isSettled: () => boolean,
+  ) {
+    const picker = this.picker ?? (this.picker = this.preparePicker())
     const serializedSources: ScreenShareSource[] = sources.map((s) => ({
       id: s.id,
       name: s.name,
@@ -134,33 +191,20 @@ export class ScreenSharePickerController {
         s.appIcon && !s.appIcon.isEmpty() ? s.appIcon.toDataURL() : undefined,
     }))
 
-    const loadTimeout = setTimeout(() => {
-      Log.warning('SCREEN SHARE picker did not load')
+    const loaded = await picker.ready
+    if (isSettled()) return
+    const window = picker.pickerWindow.getWindow()
+    if (!loaded || this.picker !== picker || !window || window.isDestroyed()) {
       settle()
-    }, PICKER_LOAD_TIMEOUT_MS)
+      return
+    }
 
-    window.on('closed', () => {
-      clearTimeout(loadTimeout)
-      settle()
-    })
-    window.webContents.on('render-process-gone', () => settle())
-    window.webContents.on('did-fail-load', () => settle())
-
-    pickerWindow.addListener(IPC_EVENTS.SCREEN_SHARE_PICKER_SOURCES, () => {
-      clearTimeout(loadTimeout)
-      pickerWindow.emit(
-        IPC_EVENTS.SCREEN_SHARE_PICKER_SOURCES,
-        serializedSources,
-      )
-      this.showCentered(window)
-    })
-
-    pickerWindow.addListener(
-      IPC_EVENTS.SCREEN_SHARE_PICKER_SELECT,
-      (_event, sourceId: string | null) => {
-        settle(sources.find((s) => s.id === sourceId))
-      },
+    this.shownSources = sources
+    picker.pickerWindow.emit(
+      IPC_EVENTS.SCREEN_SHARE_PICKER_SOURCES,
+      serializedSources,
     )
+    this.showCentered(window)
   }
 
   private showCentered(window: BrowserWindow) {
@@ -202,8 +246,8 @@ export class ScreenSharePickerController {
   }
 
   private destroyWindow() {
-    const window = this.window?.getWindow()
-    this.window = undefined
+    const window = this.picker?.pickerWindow.getWindow()
+    this.picker = undefined
     if (window && !window.isDestroyed()) {
       window.destroy()
     }

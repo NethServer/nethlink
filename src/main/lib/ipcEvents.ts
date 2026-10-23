@@ -690,6 +690,7 @@ export function registerIpcEvents() {
       )
       hasActiveCall = true
     }
+    ScreenSharePickerController.instance?.prewarm()
   })
 
   ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
