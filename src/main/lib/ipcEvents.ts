@@ -2,6 +2,7 @@ import { AccountController } from '@/classes/controllers'
 import { LoginController } from '@/classes/controllers/LoginController'
 import { PhoneIslandController } from '@/classes/controllers/PhoneIslandController'
 import { CommandBarController } from '@/classes/controllers/CommandBarController'
+import { ScreenSharePickerController } from '@/classes/controllers/ScreenSharePickerController'
 import { ChatIslandController } from '@/classes/controllers/ChatIslandController'
 import { IPC_EVENTS } from '@shared/constants'
 import { Account, OnDraggingWindow, PAGES } from '@shared/types'
@@ -694,6 +695,7 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.EMIT_CALL_END, (_) => {
     Log.info('Call ended - setting hasActiveCall = false')
     hasActiveCall = false
+    ScreenSharePickerController.instance?.cancel()
     if (isPhoneIslandReloadPending) {
       // give the PhoneIsland the time to close the call UI before reloading it
       setTimeout(() => {
