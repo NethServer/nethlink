@@ -1,0 +1,244 @@
+name: Build and release testing apps
+
+# Every push to main (i.e. every merged PR) publishes a signed testing
+# pre-release, numbered from the highest version tag:
+#   v1.6.0           -> v1.6.1-testing.1
+#   v1.6.1-testing.1 -> v1.6.1-testing.2
+# To start the counter from another version (e.g. a new minor), push a bare
+# tag such as v1.7.0-testing.0 on main: the next build becomes v1.7.0-testing.1.
+#
+# Official releases are NOT made here: they still come only from
+# `npm run publish:major|minor|patch` (build-prod.yml).
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.github/**'
+      - 'README.md'
+      - 'renovate.json'
+      - '.gitignore'
+  workflow_dispatch:
+
+# Serialize runs so two close merges never compute the same testing number
+concurrency:
+  group: testing-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Compute testing version
+        id: version
+        run: |
+          # The version bump commit of `npm run publish:*` is pushed together
+          # with its stable tag: that commit is released by build-prod.yml.
+          # Also skip commits that already have a testing build.
+          HEAD_TAGS=$(git tag --points-at HEAD)
+          if echo "$HEAD_TAGS" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-testing\.[1-9][0-9]*)?$'; then
+            echo "HEAD is already tagged ($HEAD_TAGS), nothing to do"
+            exit 0
+          fi
+
+          # Highest version tag, with pre-releases sorted before their release
+          LATEST=$(git -c versionsort.suffix=- tag --list 'v*' --sort=-v:refname \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-testing\.[0-9]+)?$' | head -n 1)
+          if [ -z "$LATEST" ]; then
+            echo "Error: no version tag found"
+            exit 1
+          fi
+
+          if [[ "$LATEST" =~ ^(v[0-9]+\.[0-9]+\.[0-9]+)-testing\.([0-9]+)$ ]]; then
+            TAG="${BASH_REMATCH[1]}-testing.$((BASH_REMATCH[2] + 1))"
+          else
+            [[ "$LATEST" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]
+            TAG="v${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((BASH_REMATCH[3] + 1))-testing.1"
+          fi
+
+          echo "Latest tag: $LATEST -> testing release: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "previous_tag=$LATEST" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag and draft release
+        if: steps.version.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          PREV_TAG: ${{ steps.version.outputs.previous_tag }}
+        run: |
+          # Tag first, so the release points at this commit even if main moves
+          # on before the release is published. Tags pushed with GITHUB_TOKEN
+          # don't trigger build-prod.yml (which also ignores testing tags).
+          git tag "$TAG" "$GITHUB_SHA"
+          git push origin "$TAG"
+
+          gh api repos/${{ github.repository }}/releases/generate-notes \
+            -f tag_name="$TAG" -f previous_tag_name="$PREV_TAG" -q .body \
+            > release-notes.md
+
+          # Created as a draft: electron-builder uploads only to a draft
+          # release with this tag. It is published by the last job, once all
+          # the builds are attached.
+          gh release create "$TAG" --draft --prerelease --verify-tag \
+            --title "$TAG" --notes-file release-notes.md
+
+  build:
+    needs: prepare
+    if: needs.prepare.outputs.tag != ''
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            arch: x64
+          - os: macos-latest
+            arch: arm64
+          - os: ubuntu-latest
+            arch: x64
+          - os: windows-latest
+            arch: x64
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v7
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Set testing version
+        shell: bash
+        env:
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const pkg = require("./package.json");
+            pkg.version = process.env.VERSION;
+            fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2));
+            console.log("Updated version:", pkg.version);
+          '
+
+      - name: Prepare for app notarization
+        if: startsWith(matrix.os, 'macos')
+        # Import Apple API key for app notarization on macOS
+        run: |
+          mkdir -p ~/private_keys/
+          echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
+          xcrun --find notarytool
+
+      - name: Install Linux build dependencies (libuiohook/X11)
+        if: matrix.os == 'ubuntu-latest'
+        # uiohook-napi is rebuilt from source against Electron's ABI and needs
+        # the X11 dev headers to compile libuiohook. Packages match the
+        # libraries linked in uiohook-napi's binding.gyp: -lX11 -lXrandr -lXtst -lXt
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxrandr-dev libxtst-dev libxt-dev
+
+      - name: Build/release Electron app (macOS/Linux)
+        if: "!startsWith(matrix.os, 'windows')"
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+
+          # Upload to the draft release created by the prepare job
+          release: true
+
+          # macOS certificate files
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_psw }}
+
+          # Pass arch here
+          args: --${{ matrix.arch }}
+        env:
+          # macOS notarization API key
+          APPLE_ID: ${{ secrets.apple_id }}
+          APPLE_ID_PASSWORD: ${{ secrets.apple_id_password }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.apple_id_password }}
+          APPLE_TEAM_ID: 8D66VDADVH
+          DEBUG: electron-notarize*
+
+      - name: Archive notorization logs
+        if: always() && startsWith(matrix.os, 'macos')
+        uses: actions/upload-artifact@v7
+        with:
+          name: notarization-logs-${{ matrix.arch }}
+          path: notarization-error.log
+          if-no-files-found: ignore
+
+      # --- Windows: same signed build as build-prod.yml ---
+      - name: Render Windows signing config from secrets
+        if: startsWith(matrix.os, 'windows')
+        shell: bash
+        env:
+          AZURE_SIGNING_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          AZURE_CERT_PROFILE: ${{ secrets.AZURE_CERT_PROFILE }}
+        # electron-builder does NOT expand ${env.*} inside azureSignOptions, so
+        # the endpoint/account/profile must be written as literal values.
+        run: |
+          cat > electron-builder.release.yml <<EOF
+          extends: ./electron-builder.yml
+          win:
+            azureSignOptions:
+              publisherName: 'Nethesis Srl'
+              endpoint: '${AZURE_SIGNING_ENDPOINT}'
+              codeSigningAccountName: '${AZURE_SIGNING_ACCOUNT}'
+              certificateProfileName: '${AZURE_CERT_PROFILE}'
+              timestampRfc3161: http://timestamp.acs.microsoft.com
+              timestampDigest: SHA256
+          EOF
+
+      - name: Build Electron app (Windows)
+        if: startsWith(matrix.os, 'windows')
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          release: false
+          args: --${{ matrix.arch }} --config electron-builder.release.yml
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SIGNING_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          AZURE_CERT_PROFILE: ${{ secrets.AZURE_CERT_PROFILE }}
+
+      - name: Upload signed Windows installer to release
+        if: startsWith(matrix.os, 'windows')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          for file in dist/*.exe; do
+            gh release upload "$TAG" "$file" --clobber
+          done
+
+  publish:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish testing pre-release
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          gh release edit "$TAG" --repo ${{ github.repository }} \
+            --draft=false --prerelease --latest=false

@@ -15,7 +15,9 @@ jobs:
           # Extract tag
           TAG_NAME="${{ github.event.release.tag_name }}"
           if [ -z "$TAG_NAME" ]; then
-            TAG_NAME=$(git fetch --tags && git describe --tags $(git rev-list --tags --max-count=1))
+            # Latest stable tag, ignoring testing tags
+            git fetch --tags
+            TAG_NAME=$(git -c versionsort.suffix=- tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
           fi
 
           # Remove 'v' before tag

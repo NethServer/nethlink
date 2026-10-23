@@ -3,6 +3,7 @@ import i18next from 'i18next'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
+import { isDev } from '@shared/utils/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 // Room around the island for its shadows.
@@ -12,6 +13,8 @@ const PAD = 24
 const TIP = 240
 // Linux gets no mouse moves through an ignoring window, so there the window widens for the tooltip instead.
 const THROUGH = !navigator.userAgent.includes('Linux')
+// The chat windows can move to the CTI, and back from there: the person's choice, kept on the chat server.
+const MOVE_TO_CTI = { host: 'cti' as const, label: 'NethVoice CTI' }
 // Island events NethLink listens to.
 const OUT = [
   'chat-island-status',
@@ -27,6 +30,10 @@ export function ChatIslandPage() {
   const [corner, setCorner] = useState<
     'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'
   >('bottom-right')
+  // Where the chat windows live: here, or moved to the CTI (then the island here only listens).
+  const [host, setHost] = useState<'nethlink' | 'cti'>('nethlink')
+  const hostRef = useRef(host)
+  hostRef.current = host
 
   const allowed =
     !!account?.data?.profile?.macro_permissions?.nethvoice_cti?.permissions
@@ -145,6 +152,18 @@ export function ChatIslandPage() {
     // Last value of each event, sent again when NethLink (re)loads.
     const last: Record<string, unknown> = {}
     window.electron.receive(IPC_EVENTS.CHAT_TO_ISLAND, (name, detail) => {
+      // Opening a chat from NethLink (command bar, notification) brings the chat windows back here.
+      if (
+        hostRef.current === 'cti' &&
+        (name === 'chat-island-open' || name === 'chat-island-new')
+      ) {
+        window.dispatchEvent(
+          new CustomEvent('chat-island-move', {
+            detail: { host: 'nethlink', open: detail?.username },
+          }),
+        )
+        if (name === 'chat-island-open') return
+      }
       if (name !== 'chat-sync')
         return window.dispatchEvent(new CustomEvent(name, { detail }))
       Object.entries(last).forEach(([n, d]) =>
@@ -179,11 +198,16 @@ export function ChatIslandPage() {
     const error = (e: Event) =>
       Log.warning('chat island', (e as CustomEvent).detail)
     const moved = (e: Event) => setCorner((e as CustomEvent).detail)
+    const where = (e: Event) => {
+      const h = (e as CustomEvent).detail?.host
+      if (h === 'cti' || h === 'nethlink') setHost(h)
+    }
     OUT.forEach((n) => window.addEventListener(n, forward))
     window.addEventListener('chat-island-call', call)
     window.addEventListener('chat-island-notify', notify)
     window.addEventListener('chat-island-error', error)
     window.addEventListener('chat-island-corner', moved)
+    window.addEventListener('chat-island-host', where)
     return () => {
       // Chat off: NethLink and the command bar must not keep showing it online.
       window.electron.send(IPC_EVENTS.CHAT_FROM_ISLAND, 'chat-island-status', {
@@ -195,25 +219,23 @@ export function ChatIslandPage() {
       window.removeEventListener('chat-island-notify', notify)
       window.removeEventListener('chat-island-error', error)
       window.removeEventListener('chat-island-corner', moved)
+      window.removeEventListener('chat-island-host', where)
     }
   }, [on])
 
   // The mouse goes through the page where there is no island: the empty root, the body.
   useEffect(() => {
     if (!on || !THROUGH) return
-    let through: boolean | undefined
-    const set = (v: boolean) => {
-      if (v === through) return
-      through = v
+    // Every time: the main process also turns it back on by itself (a cursor out of the island), and drops repeats.
+    const set = (v: boolean) =>
       window.electron.send(IPC_EVENTS.CHAT_ISLAND_MOUSE, v)
-    }
     const move = (e: MouseEvent) => {
       // A pressed button (a drag, a selection) keeps the window.
       if (e.buttons) return
       const el = e.target as Element
+      // Outside the island (the page's own #root fills the window), or between its panels.
       set(
-        el === document.documentElement ||
-          el === document.body ||
+        !el.closest('.chat-island-root') ||
           el.classList.contains('chat-island-root'),
       )
     }
@@ -262,7 +284,7 @@ export function ChatIslandPage() {
     <>
       {/* Fixed widths: the island must not shrink to the window it sizes, nor its expanded chat stop at it; shadows short enough to end inside PAD. */}
       <style>
-        {`html, body { overflow: hidden } ${THROUGH ? `.chat-island-root.ci-right-4 { right: ${TIP}px } .chat-island-root.ci-left-4 { left: ${TIP}px }` : ''} .chat-island-root { --ci-max-w: 100rem; --ci-max-h: 100rem } .chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { --tw-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }`}
+        {`html, body { overflow: hidden } ${isDev() ? 'html { background: rgb(185 28 28 / 0.35) }' : ''} ${THROUGH ? `.chat-island-root.ci-right-4 { right: ${TIP}px } .chat-island-root.ci-left-4 { left: ${TIP}px }` : ''} .chat-island-root { --ci-max-w: 100rem; --ci-max-h: 100rem } .chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { --tw-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }`}
       </style>
       <ChatIsland
         dataConfig={dataConfig}
@@ -275,6 +297,8 @@ export function ChatIslandPage() {
         notifications='auto'
         accent='blue'
         language={i18next.language}
+        headless={host === 'cti'}
+        moveTo={MOVE_TO_CTI}
       />
     </>
   )
