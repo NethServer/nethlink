@@ -3,6 +3,7 @@ import i18next from 'i18next'
 import { useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
+import { isDev } from '@shared/utils/utils'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 // Room around the island for its shadows.
@@ -225,19 +226,16 @@ export function ChatIslandPage() {
   // The mouse goes through the page where there is no island: the empty root, the body.
   useEffect(() => {
     if (!on || !THROUGH) return
-    let through: boolean | undefined
-    const set = (v: boolean) => {
-      if (v === through) return
-      through = v
+    // Every time: the main process also turns it back on by itself (a cursor out of the island), and drops repeats.
+    const set = (v: boolean) =>
       window.electron.send(IPC_EVENTS.CHAT_ISLAND_MOUSE, v)
-    }
     const move = (e: MouseEvent) => {
       // A pressed button (a drag, a selection) keeps the window.
       if (e.buttons) return
       const el = e.target as Element
+      // Outside the island (the page's own #root fills the window), or between its panels.
       set(
-        el === document.documentElement ||
-          el === document.body ||
+        !el.closest('.chat-island-root') ||
           el.classList.contains('chat-island-root'),
       )
     }
@@ -286,7 +284,7 @@ export function ChatIslandPage() {
     <>
       {/* Fixed widths: the island must not shrink to the window it sizes, nor its expanded chat stop at it; shadows short enough to end inside PAD. */}
       <style>
-        {`html, body { overflow: hidden } ${THROUGH ? `.chat-island-root.ci-right-4 { right: ${TIP}px } .chat-island-root.ci-left-4 { left: ${TIP}px }` : ''} .chat-island-root { --ci-max-w: 100rem; --ci-max-h: 100rem } .chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { --tw-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }`}
+        {`html, body { overflow: hidden } ${isDev() ? 'html { background: rgb(185 28 28 / 0.35) }' : ''} ${THROUGH ? `.chat-island-root.ci-right-4 { right: ${TIP}px } .chat-island-root.ci-left-4 { left: ${TIP}px }` : ''} .chat-island-root { --ci-max-w: 100rem; --ci-max-h: 100rem } .chat-island-root > * { flex-shrink: 0 } .chat-island-root .ci-shadow-2xl { --tw-shadow: 0 8px 20px -6px rgb(0 0 0 / 0.25) }`}
       </style>
       <ChatIsland
         dataConfig={dataConfig}
