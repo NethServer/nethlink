@@ -1013,10 +1013,12 @@
     "Chat hint": "Chat (Ctrl/⌘+Enter)"
   },
   "ScreenShare": {
-    "Title": "Choose what to share",
-    "Entire screen": "Entire screen",
-    "Screen": "Screen {{number}}",
-    "Window": "Window",
+    "Title": "Share screen",
+    "Description": "Choose a screen or a window to share",
+    "Screens": "Screens",
+    "Windows": "Windows",
+    "Screen": "Screen",
+    "Screen number": "Screen {{number}}",
     "Share": "Share"
   },
   "Errors": {
