@@ -3,7 +3,9 @@ name: Build and release prod apps
 on:
   push:
     tags:
-      - '**'
+      - 'v*'
+      # Testing tags (vX.Y.Z-testing.N) are released by build-testing.yml
+      - '!v*-*'
 
 jobs:
   release:
@@ -156,9 +158,12 @@ jobs:
           # Get the tag being pushed (e.g., v1.0.0)
           TAG=${GITHUB_REF#refs/tags/}
 
-          # Previous tag = the line before $TAG in the version-sorted tag list.
+          # Previous tag = the line before $TAG in the version-sorted list of
+          # stable tags, so the notes cover everything since the last official
+          # release, not just since the last testing build.
           # If $TAG is the first tag, grep -B 1 returns $TAG itself.
-          PREV_TAG=$(git tag --sort=v:refname | grep -x -F -B 1 "$TAG" | head -n 1)
+          PREV_TAG=$(git tag --sort=v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | grep -x -F -B 1 "$TAG" | head -n 1)
 
           if [ -z "$PREV_TAG" ] || [ "$PREV_TAG" == "$TAG" ]; then
             echo "Error: Previous tag not found."
