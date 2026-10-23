@@ -1011,10 +1011,12 @@
     "Chat hint": "Chat (Ctrl/⌘+Invio)"
   },
   "ScreenShare": {
-    "Title": "Scegli cosa condividere",
-    "Entire screen": "Schermo intero",
-    "Screen": "Schermo {{number}}",
-    "Window": "Finestra",
+    "Title": "Condividi schermo",
+    "Description": "Scegli uno schermo o una finestra da condividere",
+    "Screens": "Schermi",
+    "Windows": "Finestre",
+    "Screen": "Schermo",
+    "Screen number": "Schermo {{number}}",
     "Share": "Condividi"
   },
   "Errors": {
