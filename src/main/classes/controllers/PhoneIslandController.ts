@@ -257,17 +257,18 @@ export class PhoneIslandController {
       if (window) {
         const bounds = window.getBounds()
         this.rememberVisibleBounds(bounds)
+        // A zero side means closed: hide instead of resizing. At call end the PhoneIsland
+        // can send 0x40 (0x0 plus the back call offset), which would otherwise leave an
+        // empty, click-blocking window until the next 0x0.
+        const isHidden = w <= 0 || h <= 0
         const nextBounds = this.getBoundsForSize(bounds, size)
 
-        if (!this.areBoundsEqual(bounds, nextBounds)) {
+        if (!isHidden && !this.areBoundsEqual(bounds, nextBounds)) {
           window.setBounds(nextBounds, false)
           PhoneIslandWindow.currentSize = { width: w, height: h }
-          if (w > 0 && h > 0) {
-            this.rememberVisibleBounds(window.getBounds())
-          }
+          this.rememberVisibleBounds(window.getBounds())
         }
-        // make sure the size is equal to [0,0] when you want to close the phone island, otherwise the size will not close and will generate slowness problems.
-        if (h === 0 && w === 0) {
+        if (isHidden) {
           const persistableBounds = this.getPersistableBounds(bounds)
           if (persistableBounds) {
             this.savePhoneIslandPosition(persistableBounds)
@@ -275,7 +276,7 @@ export class PhoneIslandController {
           window.hide()
           const hiddenFrom = persistableBounds || bounds
           Log.info(
-            `PhoneIsland resize to 0x0 -> hidden from (${hiddenFrom.x}, ${hiddenFrom.y})`,
+            `PhoneIsland resize to ${w}x${h} -> hidden from (${hiddenFrom.x}, ${hiddenFrom.y})`,
           )
         } else {
           if (!window.isVisible()) {
