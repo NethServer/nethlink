@@ -150,6 +150,7 @@ function startup() {
     })
 
     getPermissions()
+    app.on('browser-window-focus', refreshCameraPermission)
 
     attachOnReadyProcess()
 
@@ -953,6 +954,19 @@ async function getPermissions() {
       recordScreenPermission,
       recordScreenPermissionState,
     })
+  }
+  refreshCameraPermission()
+}
+
+// The renderer shows the video call icon disabled without the camera permission.
+// Checked again on window focus, as the user may grant it from the system settings.
+function refreshCameraPermission() {
+  const cameraPermission =
+    process.platform === 'darwin' || process.platform === 'win32'
+      ? systemPreferences.getMediaAccessStatus('camera') === 'granted'
+      : true
+  if (store.get('cameraPermission') !== cameraPermission) {
+    store.set('cameraPermission', cameraPermission, true)
   }
 }
 

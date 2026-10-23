@@ -60,6 +60,7 @@ export const ContactNameAndActions = ({
   // Search results hide the call icons, except for an operator
   const showCallIcons = !isHighlight || !!isOperator
   const [account] = useSharedState('account')
+  const [cameraPermission] = useSharedState('cameraPermission')
   // Video calls start from the NethLink WebRTC device and need a video-capable device on the other side
   const canVideoCall =
     isOperator &&
@@ -69,6 +70,10 @@ export const ContactNameAndActions = ({
     (operators?.operators?.[username!]?.endpoints?.extension || []).some(
       isVideoCapableExtension,
     )
+
+  // Without the camera permission the call would not start at all
+  const isCameraDenied = cameraPermission === false
+  const isVideoCallDisabled = isCallDisabled || isCameraDenied
 
   const isDisplayedNumberEmpty =
     displayedNumber === null ||
@@ -124,6 +129,7 @@ export const ContactNameAndActions = ({
       : undefined
   const companyTooltipId = `tooltip-company-${contact.id}`
   const numberTooltipId = `tooltip-number-${contact.id}`
+  const videoCallTooltipId = `tooltip-video-call-${contact.id}`
 
   return (
     <div
@@ -232,26 +238,34 @@ export const ContactNameAndActions = ({
               />
             )}
             {showCallIcons && canVideoCall && (
-              <FontAwesomeIcon
-                className={classNames(
-                  'text-base',
-                  isCallDisabled
-                    ? 'dark:text-gray-400 text-gray-500 cursor-not-allowed'
-                    : 'dark:text-gray-400 text-gray-600 cursor-pointer hover:dark:text-textBlueDark hover:text-textBlueLight',
-                )}
-                icon={VideoCallIcon}
-                title={`${t('Operators.Video call')}`}
-                onClick={() => {
-                  if (isCallDisabled) return
-                  debouncer(
-                    'onVideoCallNumber',
-                    () => {
-                      callNumber(number, { video: true })
-                    },
-                    250,
-                  )
-                }}
-              />
+              <>
+                <FontAwesomeIcon
+                  className={classNames(
+                    'text-base',
+                    isVideoCallDisabled
+                      ? 'dark:text-gray-400 text-gray-500 cursor-not-allowed'
+                      : 'dark:text-gray-400 text-gray-600 cursor-pointer hover:dark:text-textBlueDark hover:text-textBlueLight',
+                  )}
+                  icon={VideoCallIcon}
+                  data-tooltip-id={videoCallTooltipId}
+                  data-tooltip-content={
+                    isCameraDenied
+                      ? t('Operators.Enable camera permission')
+                      : t('Operators.Video call')
+                  }
+                  onClick={() => {
+                    if (isVideoCallDisabled) return
+                    debouncer(
+                      'onVideoCallNumber',
+                      () => {
+                        callNumber(number, { video: true })
+                      },
+                      250,
+                    )
+                  }}
+                />
+                <CustomThemedTooltip id={videoCallTooltipId} place='top' />
+              </>
             )}
             <div className='flex flex-row items-center min-w-0 flex-1'>
               <div

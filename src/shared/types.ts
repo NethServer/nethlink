@@ -460,6 +460,7 @@ export type LocalStorageData = {
   accountStatus: StatusTypes
   shortcut?: string
   availableRingtones?: RingtoneType[]
+  cameraPermission?: boolean
 }
 
 export type OnDraggingWindow = {
