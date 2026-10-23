@@ -43,7 +43,18 @@ export class ChatIslandController {
   resize(size: Size) {
     try {
       this.size = size
-      if (this.drag || (this.flip && size.corner !== this.corner)) return
+      if (this.drag || (this.flip && size.corner !== this.corner)) {
+        // Held until the drop or the new corner: logged to find a chat window left at the dock's size.
+        if (!this.drag)
+          Log.info(
+            'chat island: size held for the new corner',
+            size.w,
+            size.h,
+            size.corner,
+            this.corner,
+          )
+        return
+      }
       // A reloaded island starts from the default corner: tell it the current one.
       if (size.corner && size.corner !== this.corner)
         this.window.emit(
@@ -68,12 +79,13 @@ export class ChatIslandController {
         ? y + this.anchor.y
         : y + height - this.anchor.y - h
       const was = window.getBounds()
-      window.setBounds({
+      const bounds = {
         x: Math.min(Math.max(x - slack, left), x + width + slack - w),
         y: Math.min(Math.max(y, top), y + height - h),
         width: w,
         height: h,
-      })
+      }
+      window.setBounds(bounds)
       // Same size: the page is already drawn for the new corner, only the window moved.
       if (this.flip) this.reveal(was.width === w && was.height === h ? 0 : 32)
       if (this.wantFocus) {
@@ -81,6 +93,14 @@ export class ChatIslandController {
         window.show()
         window.focus()
       } else if (!window.isVisible()) window.showInactive()
+      const got = window.getBounds()
+      if (
+        got.x !== bounds.x ||
+        got.y !== bounds.y ||
+        got.width !== bounds.width ||
+        got.height !== bounds.height
+      )
+        Log.warning('chat island: window not where it was put', bounds, got)
     } catch (e) {
       Log.warning('error during resizing ChatIslandWindow:', e)
     }
