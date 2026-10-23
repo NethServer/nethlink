@@ -3,6 +3,7 @@ import {
   faEllipsisVertical as MenuIcon,
   faPenToSquare as ModifyIcon,
   faTrash as DeleteIcon,
+  faMessage,
 } from '@fortawesome/free-solid-svg-icons'
 import { Menu, MenuItem, MenuItems, MenuButton } from '@headlessui/react'
 import { ContactType } from '@shared/types'
@@ -12,6 +13,8 @@ import { truncate } from '@renderer/utils'
 import { useTheme } from '@renderer/theme/Context'
 import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/BaseModule/ContactNameAndAction'
 import classNames from 'classnames'
+import { Button } from '@renderer/components/Nethesis'
+import { openChat } from '@renderer/hooks/useChatBridge'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
@@ -32,6 +35,9 @@ export function ContactNumber({
 }: SpeedDialNumberProps): JSX.Element {
   const { theme: nethTheme } = useTheme()
   const [operators] = useNethlinkData('operators')
+  const [chatStatus] = useNethlinkData('chatStatus')
+  const username =
+    operators?.extensions[speedDial.speeddial_num || '']?.username
 
   return (
     <div
@@ -43,12 +49,22 @@ export function ContactNumber({
         displayedNumber={truncate(speedDial.speeddial_num || '', 19)}
         isHighlight={false}
         number={speedDial.speeddial_num!}
-        username={
-          operators?.extensions[speedDial.speeddial_num || '']?.username
-        }
+        username={username}
         isFavourite={isFavouritePage}
         isSearchData={false}
       />
+
+      {/* An operator: chat with them */}
+      {username && chatStatus === 'online' && (
+        <Button
+          variant='ghost'
+          className='self-center ml-2 shrink-0'
+          onClick={() => openChat(username)}
+        >
+          <FontAwesomeIcon icon={faMessage} className='text-base' />
+          <span className='sr-only'>{t('Chat.Chat')}</span>
+        </Button>
+      )}
 
       {!isFavouritePage && (
         <div className='flex justify-center min-w-4 min-h-4'>

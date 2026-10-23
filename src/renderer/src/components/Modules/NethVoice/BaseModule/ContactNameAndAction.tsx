@@ -57,6 +57,8 @@ export const ContactNameAndActions = ({
     operatorPresence === 'online' ||
     operatorPresence === 'available'
   const isCallDisabled = !isCallsEnabled || !isOperatorOnline
+  // Search results hide the call icons, except for an operator
+  const showCallIcons = !isHighlight || !!isOperator
   const [account] = useSharedState('account')
   // Video calls start from the NethLink WebRTC device and need a video-capable device on the other side
   const canVideoCall =
@@ -208,7 +210,7 @@ export const ContactNameAndActions = ({
             )}
           </div>
           <div className='flex flex-row gap-2 items-center w-full min-w-0'>
-            {!isHighlight && (
+            {showCallIcons && (
               <FontAwesomeIcon
                 className={classNames(
                   'text-base',
@@ -222,14 +224,14 @@ export const ContactNameAndActions = ({
                   debouncer(
                     'onCallNumber',
                     () => {
-                      callNumber(contact.speeddial_num!)
+                      callNumber(number)
                     },
                     250,
                   )
                 }}
               />
             )}
-            {!isHighlight && canVideoCall && (
+            {showCallIcons && canVideoCall && (
               <FontAwesomeIcon
                 className={classNames(
                   'text-base',
@@ -244,7 +246,7 @@ export const ContactNameAndActions = ({
                   debouncer(
                     'onVideoCallNumber',
                     () => {
-                      callNumber(contact.speeddial_num!, { video: true })
+                      callNumber(number, { video: true })
                     },
                     250,
                   )
