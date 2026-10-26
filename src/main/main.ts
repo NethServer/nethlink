@@ -762,6 +762,14 @@ async function attachProtocolListeners() {
           }
           break
         }
+        case 'video': {
+          // callto:// is audio only: the CTI asks for a video call here
+          if (to) {
+            Log.info('Video call to:', to)
+            PhoneIslandController.instance.call(to, true)
+          }
+          break
+        }
         case 'chat': {
           // The chat opens in its own window, not in NethLink.
           ipcMain.emit(
