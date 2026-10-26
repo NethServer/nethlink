@@ -11,7 +11,7 @@ import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   IconDefinition,
-  faDesktop,
+  faDisplay,
   faWindowMaximize,
 } from '@fortawesome/free-solid-svg-icons'
 import { IPC_EVENTS } from '@shared/constants'
@@ -47,13 +47,13 @@ const SourceCard = ({
       onClick={onSelect}
       onDoubleClick={onConfirm}
       className={classNames(
-        'flex flex-col gap-2 p-2 rounded-lg text-left focus:outline-none border-2 transition-colors',
+        'flex flex-col gap-2 p-2 rounded-lg text-left border-2 transition-colors focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark',
         isSelected
-          ? 'border-primary dark:border-primaryDark bg-gray-100 dark:bg-gray-800'
-          : 'border-transparent hover:bg-gray-100 dark:hover:bg-gray-800',
+          ? 'border-primary dark:border-primaryDark bg-primary/5 dark:bg-primaryDark/5'
+          : 'border-transparent hover:bg-hoverLight dark:hover:bg-hoverDark',
       )}
     >
-      <div className='w-full aspect-video rounded-md bg-gray-200 dark:bg-gray-700 overflow-hidden flex items-center justify-center'>
+      <div className='w-full aspect-video rounded-md bg-hoverLight dark:bg-hoverDark overflow-hidden flex items-center justify-center'>
         <img
           src={source.thumbnail}
           alt=''
@@ -72,7 +72,7 @@ const SourceCard = ({
         )}
         <span
           ref={labelRef}
-          className='text-sm font-normal leading-5 dark:text-titleDark text-titleLight truncate'
+          className='text-sm font-medium leading-5 dark:text-titleDark text-titleLight truncate'
           data-tooltip-id={isLabelTruncated ? tooltipId : undefined}
           data-tooltip-content={isLabelTruncated ? label : undefined}
         >
@@ -158,13 +158,13 @@ export function ScreenSharePickerPage() {
   const getLabel = (source: ScreenShareSource, index: number) => {
     if (source.type === 'window') return source.name
     return screens.length > 1
-      ? t('ScreenShare.Screen', { number: index + 1 })
-      : t('ScreenShare.Entire screen')
+      ? t('ScreenShare.Screen number', { number: index + 1 })
+      : t('ScreenShare.Screen')
   }
 
   const tabs: { id: SourceTab; label: string; icon: IconDefinition }[] = [
-    { id: 'screen', label: t('ScreenShare.Entire screen'), icon: faDesktop },
-    { id: 'window', label: t('ScreenShare.Window'), icon: faWindowMaximize },
+    { id: 'screen', label: t('ScreenShare.Screens'), icon: faDisplay },
+    { id: 'window', label: t('ScreenShare.Windows'), icon: faWindowMaximize },
   ]
 
   return (
@@ -177,26 +177,29 @@ export function ScreenSharePickerPage() {
       <div className='h-full rounded-xl p-[1px] bg-borderLight dark:bg-borderDark'>
         <div className='h-full rounded-[11px] bg-bgLight dark:bg-bgDark flex flex-col overflow-hidden'>
           <div
-            className='px-6 pt-5 pb-3'
+            className='flex flex-col gap-1 px-6 pt-6 pb-4'
             style={{ WebkitAppRegion: 'drag' } as CSSProperties}
           >
             <h1 className='font-medium text-lg leading-7 dark:text-titleDark text-titleLight'>
               {t('ScreenShare.Title')}
             </h1>
+            <p className='text-sm leading-5 text-textSecondaryNeutral dark:text-textSecondaryNeutralDark'>
+              {t('ScreenShare.Description')}
+            </p>
           </div>
 
           {screens.length > 0 && windows.length > 0 && (
-            <div className='flex gap-4 px-6 border-b dark:border-borderDark border-borderLight'>
+            <div className='flex gap-2 px-6 pb-2'>
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   type='button'
                   onClick={() => changeTab(tab.id)}
                   className={classNames(
-                    'flex items-center gap-2 py-2 -mb-px border-b-2 text-sm font-medium leading-5 focus:outline-none',
+                    'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium leading-5 transition-colors focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark',
                     activeTab === tab.id
-                      ? 'border-primary dark:border-primaryDark text-primary dark:text-primaryDark'
-                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200',
+                      ? 'bg-hoverLight dark:bg-hoverDark text-titleLight dark:text-titleDark'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-hoverLight dark:hover:bg-hoverDark',
                   )}
                 >
                   <FontAwesomeIcon icon={tab.icon} className='h-4 w-4' />
@@ -206,7 +209,7 @@ export function ScreenSharePickerPage() {
             </div>
           )}
 
-          <div className='flex-1 overflow-y-auto px-6 py-4'>
+          <div className='flex-1 overflow-y-auto px-6 py-2'>
             <div
               className={classNames(
                 'grid gap-4',
@@ -226,12 +229,21 @@ export function ScreenSharePickerPage() {
             </div>
           </div>
 
-          <div className='flex justify-end gap-3 px-6 py-4 border-t dark:border-borderDark border-borderLight'>
-            <Button variant='ghost' onClick={onCancel}>
-              {t('Common.Cancel')}
-            </Button>
-            <Button variant='primary' disabled={!selectedId} onClick={onShare}>
+          <div className='flex flex-row-reverse gap-3 px-6 pt-4 pb-6'>
+            <Button
+              variant='primary'
+              disabled={!selectedId}
+              onClick={onShare}
+              className='font-medium disabled:opacity-50'
+            >
               {t('ScreenShare.Share')}
+            </Button>
+            <Button
+              variant='ghost'
+              onClick={onCancel}
+              className='font-medium text-textBlueLight dark:text-textBlueDark'
+            >
+              {t('Common.Cancel')}
             </Button>
           </div>
         </div>
