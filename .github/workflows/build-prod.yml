@@ -49,8 +49,38 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libx11-dev libxrandr-dev libxtst-dev libxt-dev
 
+      # macOS notarization and Azure signing fail now and then on network
+      # errors (connect timeout, DNS): every build step is attempted twice.
       - name: Build/release Electron app (macOS/Linux)
+        id: build
         if: "!startsWith(matrix.os, 'windows')"
+        continue-on-error: true
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          # GitHub token, automatically provided to the action
+          # (No need to define this secret in the repo settings)
+          github_token: ${{ secrets.github_token }}
+
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+          # macOS certificate files
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_psw }}
+
+          # Pass arch here
+          args: --${{ matrix.arch }}
+        env:
+          # macOS notarization API key
+          APPLE_ID: ${{ secrets.apple_id }}
+          APPLE_ID_PASSWORD: ${{ secrets.apple_id_password }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.apple_id_password }}
+          APPLE_TEAM_ID: 8D66VDADVH
+          DEBUG: electron-notarize*
+
+      - name: Build/release Electron app (macOS/Linux, retry)
+        if: "!startsWith(matrix.os, 'windows') && steps.build.outcome == 'failure'"
         uses: samuelmeuli/action-electron-builder@v1
         with:
           # GitHub token, automatically provided to the action
@@ -109,7 +139,29 @@ jobs:
           EOF
 
       - name: Build Electron app (Windows)
+        id: build-win
         if: startsWith(matrix.os, 'windows')
+        continue-on-error: true
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          release: false
+          # Use the release config so azureSignOptions is applied (dev/local
+          # builds use electron-builder.yml and stay unsigned).
+          args: --${{ matrix.arch }} --config electron-builder.release.yml
+        env:
+          # Consumed by electron-builder.release.yml's azureSignOptions. Signing
+          # inside the build also covers the inner NethLink.exe and the
+          # uninstaller, not just the installer.
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SIGNING_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          AZURE_CERT_PROFILE: ${{ secrets.AZURE_CERT_PROFILE }}
+
+      - name: Build Electron app (Windows, retry)
+        if: startsWith(matrix.os, 'windows') && steps.build-win.outcome == 'failure'
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.github_token }}
