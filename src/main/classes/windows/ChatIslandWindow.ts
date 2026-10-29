@@ -1,3 +1,4 @@
+import { shell } from 'electron'
 import { PAGES } from '@shared/types'
 import { BaseWindow } from './BaseWindow'
 
@@ -29,14 +30,25 @@ export class ChatIslandWindow extends BaseWindow {
       frame: false,
       thickFrame: false,
       trafficLightPosition: { x: 0, y: 0 },
+      // It shows what colleagues and guests send: no Node in the page, only the preload's bridge.
       webPreferences: {
-        nodeIntegration: true,
+        nodeIntegration: false,
+        contextIsolation: true,
         backgroundThrottling: false,
       },
     })
 
     this.addOnBuildListener(() => {
-      this.getWindow()?.setAlwaysOnTop(true, 'screen-saver')
+      const win = this.getWindow()
+      win?.setAlwaysOnTop(true, 'screen-saver')
+      // Links open in the browser, never in a window of ours; the page never leaves the app.
+      win?.webContents.setWindowOpenHandler(({ url }) => {
+        if (/^https?:\/\//i.test(url)) shell.openExternal(url)
+        return { action: 'deny' }
+      })
+      win?.webContents.on('will-navigate', (e, url) => {
+        if (url !== win.webContents.getURL()) e.preventDefault()
+      })
     })
   }
 }

@@ -48,7 +48,12 @@ export class Log {
   }
 
   static debug(message?: any, ...optionalParams: any[]) {
-    if (process.env['DEBUG'])
+    // An isolated window (the chat) has no process: the preload's env instead.
+    const env =
+      typeof process !== 'undefined'
+        ? process.env
+        : ((globalThis as any).api?.env ?? {})
+    if (env['DEBUG'])
       Log.log(console.debug, 'DEBUG', message, ...optionalParams)
   }
 

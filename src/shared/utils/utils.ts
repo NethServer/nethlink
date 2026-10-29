@@ -46,9 +46,10 @@ function getBoolEnvParam(paramName: string) {
     try {
       param = window.api.env[paramName] === 'true'
     } catch (e) {
+      // An isolated window (the chat) has no process: the preload's env only.
+      const env = typeof process !== 'undefined' ? process.env : {}
       param =
-        (process.env[paramName] ?? import.meta.env[`VITE_${paramName}`]) ===
-        'true'
+        (env[paramName] ?? import.meta.env[`VITE_${paramName}`]) === 'true'
     }
     return param
   }
