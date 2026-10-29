@@ -130,12 +130,23 @@ export class AccountController {
                 // Make a simple API call to verify the token is still accepted by the server
                 // Use the API client so path selection (/api vs /webrest) follows account settings/fallback logic
                 const { NethVoiceAPI } = useNethVoiceAPI(lastLoggedAccount)
-                await NethVoiceAPI.User.me()
+                const me = await NethVoiceAPI.User.me()
 
                 // If we get here, the token is valid on the server
                 Log.info(
                   'auto login: token validated with server, using saved token',
                 )
+
+                const nethlinkExtension = me.endpoints.extension.find(
+                  (e) => e.type === 'nethlink',
+                )
+                if (nethlinkExtension) {
+                  NethVoiceAPI.User.heartbeat(nethlinkExtension.id, me.username)
+                    .then(() => Log.debug('auto login: sent HEARTBEAT'))
+                    .catch((error) =>
+                      Log.debug('auto login: HEARTBEAT skipped', error),
+                    )
+                }
               } catch (error: any) {
                 // Token was rejected by server (401/403) or network error
                 Log.info(
