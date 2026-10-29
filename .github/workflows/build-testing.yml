@@ -151,8 +151,35 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libx11-dev libxrandr-dev libxtst-dev libxt-dev
 
+      # macOS notarization and Azure signing fail now and then on network
+      # errors (connect timeout, DNS): every build step is attempted twice.
       - name: Build/release Electron app (macOS/Linux)
+        id: build
         if: "!startsWith(matrix.os, 'windows')"
+        continue-on-error: true
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+
+          # Upload to the draft release created by the prepare job
+          release: true
+
+          # macOS certificate files
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_psw }}
+
+          # Pass arch here
+          args: --${{ matrix.arch }}
+        env:
+          # macOS notarization API key
+          APPLE_ID: ${{ secrets.apple_id }}
+          APPLE_ID_PASSWORD: ${{ secrets.apple_id_password }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.apple_id_password }}
+          APPLE_TEAM_ID: 8D66VDADVH
+          DEBUG: electron-notarize*
+
+      - name: Build/release Electron app (macOS/Linux, retry)
+        if: "!startsWith(matrix.os, 'windows') && steps.build.outcome == 'failure'"
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.github_token }}
@@ -206,7 +233,24 @@ jobs:
           EOF
 
       - name: Build Electron app (Windows)
+        id: build-win
         if: startsWith(matrix.os, 'windows')
+        continue-on-error: true
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          release: false
+          args: --${{ matrix.arch }} --config electron-builder.release.yml
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SIGNING_ENDPOINT: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
+          AZURE_SIGNING_ACCOUNT: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
+          AZURE_CERT_PROFILE: ${{ secrets.AZURE_CERT_PROFILE }}
+
+      - name: Build Electron app (Windows, retry)
+        if: startsWith(matrix.os, 'windows') && steps.build-win.outcome == 'failure'
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.github_token }}
@@ -242,3 +286,20 @@ jobs:
         run: |
           gh release edit "$TAG" --repo ${{ github.repository }} \
             --draft=false --prerelease --latest=false
+
+  # A failed or cancelled run would leave a half-uploaded draft behind: drop
+  # it with its tag, so the next push reuses the number. Re-running the
+  # failed jobs then no longer works: run the workflow again instead.
+  cleanup:
+    needs: [prepare, build, publish]
+    if: (failure() || cancelled()) && needs.prepare.outputs.tag != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete draft release and tag
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          gh release delete "$TAG" --repo ${{ github.repository }} --cleanup-tag --yes \
+            || gh api -X DELETE "repos/${{ github.repository }}/git/refs/tags/$TAG" \
+            || true
