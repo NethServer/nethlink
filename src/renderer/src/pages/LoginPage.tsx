@@ -40,6 +40,8 @@ enum LoginSizes {
   CONNECTION_FAILURE_NO_ACCOUNTS = 100,
   CONNECTION_FAILURE_ON_ACCOUNT_FORM = 500,
   CONNECTION_FAILURE_BASE = 388,
+  // vertical padding of the page
+  PADDING = 64,
 }
 
 type ErrorsData = {
@@ -51,12 +53,15 @@ export function LoginPage({
   handleRefreshConnection,
 }: LoginPageProps) {
   const loginWindowRef = useRef() as MutableRefObject<HTMLDivElement>
+  const contentRef = useRef<HTMLDivElement>(null)
   const [auth] = useSharedState('auth')
   const [isLoading] = useLoginPageData('isLoading')
   const [selectedAccount, setSelectedAccount] =
     useLoginPageData('selectedAccount')
   const [windowHeight, setWindowHeight] = useLoginPageData('windowHeight')
   const [showTwoFactor, setShowTwoFactor] = useLoginPageData('showTwoFactor')
+  const [showPasswordChange, setShowPasswordChange] =
+    useLoginPageData('showPasswordChange')
   const [loginStep, setLoginStep] = useLoginPageData('loginStep')
   const [hostConfig, setHostConfig] = useLoginPageData('hostConfig')
   const [connection] = useSharedState('connection')
@@ -74,6 +79,7 @@ export function LoginPage({
     errorsData,
     connection,
     showTwoFactor,
+    showPasswordChange,
     loginStep,
     hostConfig,
   ])
@@ -83,6 +89,20 @@ export function LoginPage({
       window.api.resizeLoginWindow(windowHeight ?? LoginPageSize.h)
     }
   }, [windowHeight])
+
+  // the expired password form changes its height with the errors: the
+  // window follows its content
+  useEffect(() => {
+    const content = contentRef.current
+    if (!showPasswordChange || !content) {
+      return
+    }
+    const observer = new ResizeObserver(() =>
+      setWindowHeight(content.offsetHeight + LoginSizes.PADDING),
+    )
+    observer.observe(content)
+    return () => observer.disconnect()
+  }, [showPasswordChange])
 
   const goBack = () => {
     if (showTwoFactor) {
@@ -135,6 +155,10 @@ export function LoginPage({
       (v) => v.message,
     ).length
 
+    // the height of the expired password form follows its content
+    if (showPasswordChange) {
+      return
+    }
     // If Two Factor Authentication is shown, use specific height
     if (showTwoFactor) {
       loginWindowHeight = LoginSizes.TWO_FACTOR_AUTH
@@ -206,45 +230,50 @@ export function LoginPage({
       ref={loginWindowRef}
     >
       <div className={classNames('noDraggableAnchor', 'h-full w-full')}>
-        <div className='flex flex-row justify-between items-center'>
-          <img
-            src={themeMode === 'dark' ? darkHeader : lightHeader}
-            className='h-10'
-          ></img>
-        </div>
-        {auth && (
-          <>
-            {((Object.keys(auth.availableAccounts).length > 0 &&
-              selectedAccount) ||
-              (selectedAccount === NEW_ACCOUNT &&
-                loginStep === 'credentials')) && (
-              <Button
-                variant='ghost'
-                className='flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6'
-                onClick={goBack}
-              >
-                <FontAwesomeIcon
-                  icon={ArrowIcon}
-                  className='h-5 w-5 dark:text-textBlueDark text-textBlueLight'
+        <div ref={contentRef}>
+          <div className='flex flex-row justify-between items-center'>
+            <img
+              src={themeMode === 'dark' ? darkHeader : lightHeader}
+              className='h-10'
+            ></img>
+          </div>
+          {auth && (
+            <>
+              {!showPasswordChange &&
+                ((Object.keys(auth.availableAccounts).length > 0 &&
+                  selectedAccount) ||
+                  (selectedAccount === NEW_ACCOUNT &&
+                    loginStep === 'credentials')) && (
+                  <Button
+                    variant='ghost'
+                    className='flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6'
+                    onClick={goBack}
+                  >
+                    <FontAwesomeIcon
+                      icon={ArrowIcon}
+                      className='h-5 w-5 dark:text-textBlueDark text-textBlueLight'
+                    />
+                    <p className='dark:text-textBlueDark text-textBlueLight font-medium'>
+                      {t('Login.Back')}
+                    </p>
+                  </Button>
+                )}
+              {auth.isFirstStart ||
+              selectedAccount ||
+              showTwoFactor ||
+              Object.keys(auth.availableAccounts).length === 0 ? (
+                <LoginForm
+                  onError={onFormErrors}
+                  handleRefreshConnection={handleRefreshConnection}
                 />
-                <p className='dark:text-textBlueDark text-textBlueLight font-medium'>
-                  {t('Login.Back')}
-                </p>
-              </Button>
-            )}
-            {auth.isFirstStart ||
-            selectedAccount ||
-            showTwoFactor ||
-            Object.keys(auth.availableAccounts).length === 0 ? (
-              <LoginForm
-                onError={onFormErrors}
-                handleRefreshConnection={handleRefreshConnection}
-              />
-            ) : (
-              <AvailableAccountList handleDeleteAccount={handleDeleteAccount} />
-            )}
-          </>
-        )}
+              ) : (
+                <AvailableAccountList
+                  handleDeleteAccount={handleDeleteAccount}
+                />
+              )}
+            </>
+          )}
+        </div>
       </div>
       {isLoading && (
         <div className='absolute top-0 left-0 bg-spinnerBgLight dark:bg-spinnerBgDark bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center rounded-[10px] z-[1000]'>

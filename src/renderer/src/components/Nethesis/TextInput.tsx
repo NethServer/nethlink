@@ -38,6 +38,8 @@ export interface TextInputProps extends Omit<
   rounded?: 'base' | 'full'
   squared?: 'left' | 'right' | 'top' | 'bottom'
   onIconClick?: () => void
+  // replaces the default icon color
+  iconClassName?: string
 }
 
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
@@ -54,6 +56,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       rounded,
       squared,
       onIconClick,
+      iconClassName,
       id,
       className,
       value,
@@ -85,7 +88,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                   size === 'large'
                     ? theme.icon.size.large
                     : theme.icon.size.base,
-                  theme.icon.gray,
+                  iconClassName || theme.icon.gray,
                   onIconClick && 'cursor-pointer',
                 )}
                 onClick={() => onIconClick && onIconClick()}

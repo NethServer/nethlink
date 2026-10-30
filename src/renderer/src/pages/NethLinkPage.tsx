@@ -14,6 +14,7 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
 import { sendNotification } from '@renderer/utils'
 import { useChatBridge } from '@renderer/hooks/useChatBridge'
+import { usePasswordExpirationWarning } from '@renderer/hooks/usePasswordExpirationWarning'
 
 export interface NethLinkPageProps {
   handleRefreshConnection: () => void
@@ -21,6 +22,7 @@ export interface NethLinkPageProps {
 
 export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   const [account] = useSharedState('account')
+  usePasswordExpirationWarning(account)
   const [, setNotifications] = useSharedState('notifications')
   const [connection] = useSharedState('connection')
   const { hasPermission, updateAccountData } = useAccount()
@@ -137,6 +139,17 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     }))
   }
 
+  // a 403 may also be a missing permission: it is a revoked session only
+  // when the user info is rejected too
+  async function isSessionRevoked() {
+    try {
+      await NethVoiceAPI.User.me()
+      return false
+    } catch (e: any) {
+      return e?.status === 403
+    }
+  }
+
   async function loadData() {
     Log.info('update account', { isFetching: isFetching.current })
     if (!isFetching.current) {
@@ -171,7 +184,13 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
         if (e['status'] === 401) {
           Log.error(e)
           window.electron.send(IPC_EVENTS.RESUME)
+        } else if (e['status'] === 403 && (await isSessionRevoked())) {
+          // e.g. the password was changed: the user must sign in again
+          Log.info('session revoked by the server, logout')
+          window.api.logout()
+          return
         }
+        isFetching.current = false
       }
     }
   }

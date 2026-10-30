@@ -3,6 +3,7 @@ import {
   faAngleRight,
   faArrowRightFromBracket as LogoutIcon,
   faGear as SettingsIcon,
+  faArrowUpRightFromSquare as WebphoneIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { motion } from 'framer-motion'
 import { ProfileData } from './ProfileDialog/ProfileData'
@@ -95,6 +96,12 @@ export const ProfileDialog = ({
     window.api.logout()
   }
 
+  // the account settings of the Webphone, e.g. to change the password
+  function handleOpenWebphone() {
+    window.api.openHostPage('/settings?section=Account')
+    onClose()
+  }
+
   useEffect(() => {
     if (account) {
       setDeviceIcon(() => DeviceIcons[device?.type || 'nethlink'])
@@ -111,7 +118,7 @@ export const ProfileDialog = ({
     <div className={classNames('absolute')}>
       <div
         className={classNames(
-          'h-[333px]',
+          'h-[374px]',
           'bg-bgInput dark:bg-bgInputDark',
           'rounded-lg border dark:border-borderDark border-borderLight',
           'fixed z-[200] right-[58px] top-[54px]',
@@ -159,6 +166,13 @@ export const ProfileDialog = ({
                 chevronVisible
               />
             </div>
+            <Line />
+            <MenuAction.item
+              className={'py-2'}
+              onClick={handleOpenWebphone}
+              icon={WebphoneIcon}
+              label={t('TopBar.Open Webphone')}
+            />
             <Line />
             <MenuAction.item
               className={'py-2'}

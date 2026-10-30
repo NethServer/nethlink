@@ -408,6 +408,7 @@
     "Clear and remove shortcut": "Ripristina e rimuovi scorciatoia"
   },
   "TopBar": {
+    "Open Webphone": "Apri Webphone",
     "Signed in as": "Accesso effettuato come",
     "Switch to light theme": "Imposta tema chiaro",
     "Switch to dark theme": "Imposta tema scuro",
@@ -1037,5 +1038,32 @@
     "Unknown audio or camera permissions.": "Microfono o fotocamera non disponibili.",
     "No microphone or camera permissions.": "Devi accettare i permessi del browser.",
     "Call transferred successfully.": "La chiamata è stata trasferita con successo."
+  },
+  "Password": {
+    "New password": "Nuova password",
+    "Confirm new password": "Conferma nuova password",
+    "Minimum {{count}} characters": "Minimo {{count}} caratteri",
+    "Include at least {{count}} of the following": "Includi almeno {{count}} tra i seguenti:",
+    "At least one uppercase (A-Z)": "Almeno una maiuscola (A-Z)",
+    "At least one lowercase (a-z)": "Almeno una minuscola (a-z)",
+    "At least one number (0-9)": "Almeno un numero (0-9)",
+    "At least one special character (!@#^&_?-)": "Almeno un carattere speciale (!@#^&_?-)",
+    "Choose a password that meets all requirements": "Scegli una password che rispetti tutti i requisiti",
+    "Choose a password you haven't used before": "Scegli una password che non hai già usato",
+    "Passwords do not match": "Le password non coincidono",
+    "The password was changed too recently, try again later": "La password è stata cambiata troppo di recente, riprova più tardi.",
+    "Cannot update password": "Impossibile aggiornare la password",
+    "Something went wrong. Try again or contact your administrator.": "Qualcosa è andato storto. Riprova o contatta il tuo amministratore.",
+    "Update your password": "Aggiorna la tua password",
+    "Your password has expired, create a new one to continue": "La tua password è scaduta, creane una nuova per continuare",
+    "Update password": "Aggiorna password",
+    "Password updated": "Password aggiornata",
+    "Sign in with your new password to continue.": "Accedi con la nuova password per continuare.",
+    "Continue to sign in": "Continua con l'accesso",
+    "Your password is expired": "La tua password è scaduta",
+    "Click to change it from the Webphone": "Clicca per cambiarla dal Webphone.",
+    "Your password expires today": "La tua password scade oggi",
+    "Your password expires in {{count}} days_one": "La tua password scade tra {{count}} giorno",
+    "Your password expires in {{count}} days_other": "La tua password scade tra {{count}} giorni"
   }
 }

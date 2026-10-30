@@ -107,6 +107,8 @@ function isUserLoggedIn(): boolean {
   return !!store.store.account
 }
 
+const shownNotifications = new Set<Notification>()
+
 function buildHostUrl(host: string, path: string): string {
   return new URL(path, `https://${host}`).toString()
 }
@@ -344,7 +346,12 @@ export function registerIpcEvents() {
         ...options,
       })
 
+      // keep a reference until it is dismissed: a collected notification
+      // loses its click handler
+      shownNotifications.add(notification)
+      notification.on('close', () => shownNotifications.delete(notification))
       notification.on('click', () => {
+        shownNotifications.delete(notification)
         const account = store.store.account
         if (openPath && account?.host) {
           shell.openExternal(buildHostUrl(account.host, openPath))
