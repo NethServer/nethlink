@@ -45,7 +45,7 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^2.2.8",
     "@hookform/resolvers": "^3.3.4",
-    "@nethesis/chat-island": "^0.1.64",
+    "@nethesis/chat-island": "0.1.65",
     "@nethesis/nethesis-solid-svg-icons": "github:nethesis/Font-Awesome#ns-solid",
     "@nethesis/phone-island": "^1.1.5",
     "@tailwindcss/forms": "^0.5.7",
