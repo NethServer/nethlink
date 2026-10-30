@@ -478,6 +478,7 @@ export type LoginPageData = {
   isLoading: boolean
   windowHeight?: number
   showTwoFactor: boolean
+  showPasswordChange: boolean
   loginStep: 'host' | 'credentials'
   hostConfig?: HostConfig
 }
@@ -598,4 +599,29 @@ export enum PhoneIslandView {
   PLAYER = 'player',
   RECORDER = 'recorder',
   PHISICAL_PHONE_RECORDER = 'physicalPhoneRecorder',
+}
+
+export type PasswordPolicy = {
+  expiration: {
+    enforced: boolean
+    max_age: number
+    min_age: number
+  }
+  strength: {
+    enforced: boolean
+    history_length: number
+    password_min_length: number
+    complexity_check: boolean
+  }
+}
+
+export type PasswordInfo = {
+  // password management is available (user portal configured)
+  enabled: boolean
+  // null when the password never expires or the info is not known yet
+  expiration: string | null
+  expired: boolean
+  policy: PasswordPolicy | null
+  // null until the middleware reads the info after the login
+  updated_at: string | null
 }

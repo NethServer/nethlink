@@ -7,11 +7,18 @@ import {
   faEyeSlash as EyeSlashIcon,
   faWarning as AlertIcon,
   faCircleNotch,
+  faCircleCheck,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { useEffect, useRef, useState } from 'react'
 import { Button, TextInput } from '@renderer/components/Nethesis'
-import { Account, HostConfig, LoginData, isSsoMethod } from '@shared/types'
+import {
+  Account,
+  HostConfig,
+  LoginData,
+  PasswordPolicy,
+  isSsoMethod,
+} from '@shared/types'
 import { DisplayedAccountLogin } from './DisplayedAccountLogin'
 import { OTPInput, OTPInputRef } from './OTPInput'
 import { useLoginPageData, useSharedState } from '@renderer/store'
@@ -21,6 +28,7 @@ import { Log } from '@shared/utils/logger'
 import { getAccountUID } from '@shared/utils/utils'
 import { InlineNotification } from '@renderer/components/Nethesis/InlineNotification'
 import { requires2FA } from '@shared/utils/jwt'
+import { PasswordChangeForm } from '../password/PasswordChangeForm'
 
 export interface LoginFormProps {
   onError: (
@@ -41,6 +49,15 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
   const [otpCode, setOtpCode] = useState('')
   const [onOTPError, setOnOTPError] = useState(false)
   const [showTwoFactor, setShowTwoFactor] = useLoginPageData('showTwoFactor')
+  const [showPasswordChange, setShowPasswordChange] =
+    useLoginPageData('showPasswordChange')
+  // credentials of a login rejected because the password is expired
+  const [expiredLogin, setExpiredLogin] = useState<LoginData | undefined>(
+    undefined,
+  )
+  const [expiredPasswordPolicy, setExpiredPasswordPolicy] =
+    useState<PasswordPolicy | null>(null)
+  const [isPasswordUpdated, setIsPasswordUpdated] = useState(false)
   const [tempAccount, setTempAccount] = useState<Account | undefined>(undefined)
   const [otpDisabled, setOtpDisabled] = useState(false)
   const [loginStep, setLoginStep] = useLoginPageData('loginStep')
@@ -92,6 +109,9 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     setIsLoading(false)
     setTempAccount(undefined)
     setOnOTPError(false)
+    setShowPasswordChange(false)
+    setExpiredLogin(undefined)
+    setIsPasswordUpdated(false)
     if (auth?.availableAccounts) {
       if (selectedAccount) {
         if (selectedAccount === NEW_ACCOUNT) {
@@ -295,7 +315,16 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
         } catch (error: any) {
           console.error('LOGIN error during login', error)
           setIsLoading(false)
-          if (error.message === 'Wrong username or password') {
+          if (error.message === 'Password expired') {
+            Log.info('LOGIN password expired, showing the password change form')
+            setExpiredLogin({
+              host: res[2],
+              username: data.username,
+              password: data.password,
+            })
+            setExpiredPasswordPolicy(error.policy || null)
+            setShowPasswordChange(true)
+          } else if (error.message === 'Wrong username or password') {
             setError(() => new Error(t('Login.Wrong username or password')!))
           } else if (error.message === 'Network connection lost') {
             setError(() => new Error(t('Login.Network connection is lost')!))
@@ -442,9 +471,72 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     )
   }
 
+  // back to the login form, to sign in with the new password
+  const continueToSignIn = () => {
+    setShowPasswordChange(false)
+    setIsPasswordUpdated(false)
+    setExpiredLogin(undefined)
+    setValue('password', '')
+    focus('password')
+  }
+
   return (
     <div className='mt-7'>
-      {showTwoFactor ? (
+      {showPasswordChange && expiredLogin ? (
+        isPasswordUpdated ? (
+          <div className='flex flex-col items-center gap-8 text-center'>
+            <div className='flex flex-col items-center gap-3'>
+              <div className='flex h-12 w-12 items-center justify-center rounded-full bg-surfaceToastSuccess dark:bg-surfaceToastSuccessDark'>
+                <FontAwesomeIcon
+                  icon={faCircleCheck}
+                  className='h-6 w-6 text-green-700 dark:text-green-400'
+                />
+              </div>
+              <div className='flex flex-col gap-1'>
+                <h3 className='text-2xl font-medium text-gray-700 dark:text-gray-200'>
+                  {t('Password.Password updated')}
+                </h3>
+                <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  {t('Password.Sign in with your new password to continue.')}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant='primary'
+              className='w-full'
+              onClick={continueToSignIn}
+            >
+              {t('Password.Continue to sign in')}
+            </Button>
+          </div>
+        ) : (
+          <div className='flex flex-col gap-8'>
+            <div className='flex flex-col gap-1'>
+              <h3 className='text-xl font-medium text-gray-700 dark:text-gray-200'>
+                {t('Password.Update your password')}
+              </h3>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
+                {t(
+                  'Password.Your password has expired, create a new one to continue',
+                )}
+              </p>
+            </div>
+            <PasswordChangeForm
+              currentPassword={expiredLogin.password || ''}
+              policy={expiredPasswordPolicy}
+              onSubmit={(currentPassword, newPassword) =>
+                NethVoiceAPI.Authentication.changeExpiredPassword(
+                  expiredLogin.host,
+                  expiredLogin.username!,
+                  currentPassword,
+                  newPassword,
+                )
+              }
+              onSuccess={() => setIsPasswordUpdated(true)}
+            />
+          </div>
+        )
+      ) : showTwoFactor ? (
         <>
           {/* OTP input section */}
           <div>

@@ -408,6 +408,7 @@
     "Clear and remove shortcut": "Clear and remove shortcut"
   },
   "TopBar": {
+    "Open Webphone": "Open Webphone",
     "Signed in as": "Signed in as",
     "Switch to light theme": "Switch to light theme",
     "Switch to dark theme": "Switch to dark theme",
@@ -1037,5 +1038,32 @@
     "Unknown audio or camera permissions.": "Microphone or Webcam is unavailable",
     "No microphone or camera permissions.": "You must accept borwser permissions.",
     "Call transferred successfully.": "The call is transferred successfully."
+  },
+  "Password": {
+    "New password": "New password",
+    "Confirm new password": "Confirm new password",
+    "Minimum {{count}} characters": "Minimum {{count}} characters",
+    "Include at least {{count}} of the following": "Include at least {{count}} of the following:",
+    "At least one uppercase (A-Z)": "At least one uppercase (A-Z)",
+    "At least one lowercase (a-z)": "At least one lowercase (a-z)",
+    "At least one number (0-9)": "At least one number (0-9)",
+    "At least one special character (!@#^&_?-)": "At least one special character (!@#^&_?-)",
+    "Choose a password that meets all requirements": "Choose a password that meets all requirements",
+    "Choose a password you haven't used before": "Choose a password you haven't used before",
+    "Passwords do not match": "Passwords do not match",
+    "The password was changed too recently, try again later": "The password was changed too recently, try again later.",
+    "Cannot update password": "Cannot update password",
+    "Something went wrong. Try again or contact your administrator.": "Something went wrong. Try again or contact your administrator.",
+    "Update your password": "Update your password",
+    "Your password has expired, create a new one to continue": "Your password has expired, create a new one to continue",
+    "Update password": "Update password",
+    "Password updated": "Password updated",
+    "Sign in with your new password to continue.": "Sign in with your new password to continue.",
+    "Continue to sign in": "Continue to sign in",
+    "Your password is expired": "Your password is expired",
+    "Click to change it from the Webphone": "Click to change it from the Webphone.",
+    "Your password expires today": "Your password expires today",
+    "Your password expires in {{count}} days_one": "Your password expires in {{count}} day",
+    "Your password expires in {{count}} days_other": "Your password expires in {{count}} days"
   }
 }

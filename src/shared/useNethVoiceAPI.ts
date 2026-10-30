@@ -13,6 +13,7 @@ import {
   AccountData,
   BaseAccountData,
   ExtensionsType,
+  PasswordInfo,
 } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { normalizeSharedGroups, serializeSharedGroups } from './phonebook'
@@ -172,7 +173,12 @@ export const useNethVoiceAPI = (
         return await _POSTWithFallback(path, data, hasAuth)
       }
 
-      if (!path.includes('login') && !path.includes('2fa/verify-otp'))
+      // the error carries the request body, with the credentials
+      if (
+        !path.includes('login') &&
+        !path.includes('2fa/verify-otp') &&
+        !path.includes('/password')
+      )
         console.error(e)
       throw e
     }
@@ -183,7 +189,7 @@ export const useNethVoiceAPI = (
     if (currentApiBasePath !== PRIMARY_API_BASE_PATH) {
       return false
     }
-    if (path.includes('/user/nethlink')) {
+    if (path.includes('/user/nethlink') || path.includes('/password')) {
       return false
     }
 
@@ -323,7 +329,16 @@ export const useNethVoiceAPI = (
             // Continue to webrest authentication below
           } else {
             // Handle other specific error cases
-            if (reason.response?.status === 401) {
+            if (
+              reason.response?.status === 401 &&
+              reason.response?.data?.message === 'password_expired'
+            ) {
+              // right credentials, but the password must be changed first:
+              // the policy of the new password comes along
+              const expiredError: any = new Error('Password expired')
+              expiredError.policy = reason.response?.data?.data?.policy || null
+              throw expiredError
+            } else if (reason.response?.status === 401) {
               throw new Error('Wrong username or password')
             } else if (reason.response?.status === 404) {
               throw new Error('Network connection lost')
@@ -385,6 +400,31 @@ export const useNethVoiceAPI = (
 
       // This should never be reached
       throw new Error('No authentication method available')
+    },
+
+    // Change an expired password: there is no session yet, the current
+    // password authenticates the request. Rejects with the middleware
+    // error message, e.g. "error_password_length".
+    changeExpiredPassword: async (
+      host: string,
+      username: string,
+      currentPassword: string,
+      newPassword: string,
+    ): Promise<void> => {
+      account = { host, username, theme: 'system' } as Account
+      try {
+        await _POST(
+          `${PRIMARY_API_BASE_PATH}/password/change`,
+          {
+            username,
+            current_password: currentPassword,
+            new_password: newPassword,
+          },
+          false,
+        )
+      } catch (reason: any) {
+        throw new Error(reason.response?.data?.message || 'error_unknown')
+      }
     },
 
     // Complete a Single Sign-On login: the JWT was already minted through the
@@ -711,6 +751,8 @@ export const useNethVoiceAPI = (
       }),
     settings: async (settings: Partial<AccountData['settings']>) =>
       await _POST(buildApiPath('/user/settings'), settings),
+    passwordInfo: async (): Promise<PasswordInfo> =>
+      (await _GET(`${PRIMARY_API_BASE_PATH}/password/info`)).data,
     default_device: async (
       deviceIdInformation: Extension,
       force = false,
