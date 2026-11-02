@@ -199,6 +199,12 @@ export function ChatModule() {
                             {t('Chat.No longer active')}
                           </span>
                         )}
+                        {c.guests && (
+                          // As in the chat window: indigo, open to people outside.
+                          <span className='ml-2 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs leading-4 font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100'>
+                            {t('Chat.External chat')}
+                          </span>
+                        )}
                       </Name>
                       {/* As in the CTI: a group's size under its name, "No messages yet" until the first one. */}
                       {c.kind === 'group' && c.members && (
