@@ -144,11 +144,15 @@ export function registerIpcEvents() {
     },
   )
 
-  ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url) => {
+  ipcMain.on(IPC_EVENTS.START_CALL_BY_URL, async (_event, url, urlType) => {
     function triggerError(e, request: ClientRequest | undefined = undefined) {
-      Log.error(e)
+      Log.error(urlType, e)
       try {
-        PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
+        // only a failed call has to close the phone island: a failed mute,
+        // hold or dtmf on a call in progress must not hang it up
+        if (!urlType || urlType === 'call') {
+          PhoneIslandController.instance.window.emit(IPC_EVENTS.END_CALL)
+        }
         NethLinkController.instance.window.emit(
           IPC_EVENTS.RESPONSE_START_CALL_BY_URL,
           false,
@@ -178,7 +182,7 @@ export function registerIpcEvents() {
             true,
           )
           PhoneIslandController.instance.window.show()
-          Log.debug('START_CALL_BY_URL', url, statusCode)
+          Log.debug('START_CALL_BY_URL', urlType, url, statusCode)
         },
       )
 
