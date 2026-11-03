@@ -81,25 +81,38 @@ const Requirement = ({
 )
 
 export interface PasswordChangeFormProps {
-  // the current password, typed in the login form
-  currentPassword: string
+  // the current password typed in the login form; when missing the form asks
+  // for it (password change from the settings)
+  currentPassword?: string
   policy: PasswordPolicy | null
+  submitLabel?: string
   // rejects with an Error carrying the middleware error message
   onSubmit: (currentPassword: string, newPassword: string) => Promise<void>
-  onSuccess: () => void
+  onSuccess: (newPassword: string) => void
+  onCancel?: () => void
 }
 
+const NO_ERRORS = { current: '', new: '', confirm: '', form: '' }
+
 export const PasswordChangeForm = ({
-  currentPassword,
+  currentPassword: loginPassword,
   policy,
+  submitLabel,
   onSubmit,
   onSuccess,
+  onCancel,
 }: PasswordChangeFormProps) => {
+  const askCurrentPassword = loginPassword === undefined
+  const [typedCurrentPassword, setTypedCurrentPassword] = useState('')
+  const currentPassword = askCurrentPassword
+    ? typedCurrentPassword
+    : loginPassword
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  const [errors, setErrors] = useState({ new: '', confirm: '', form: '' })
+  const [errors, setErrors] = useState(NO_ERRORS)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const currentRef = useRef<HTMLInputElement>(null)
   const newRef = useRef<HTMLInputElement>(null)
   const confirmRef = useRef<HTMLInputElement>(null)
 
@@ -108,8 +121,14 @@ export const PasswordChangeForm = ({
   const metClasses = requirements.classes.filter((c) => c.met).length
   const classesMissing = submitted && metClasses < PASSWORD_REQUIRED_CLASSES
 
-  const showError = (field: 'new' | 'confirm' | 'form', text: string) => {
-    setErrors({ new: '', confirm: '', form: '', [field]: text })
+  const showError = (
+    field: 'current' | 'new' | 'confirm' | 'form',
+    text: string,
+  ) => {
+    // without the current password field its errors go on top of the form
+    if (field === 'current' && !askCurrentPassword) field = 'form'
+    setErrors({ ...NO_ERRORS, [field]: text })
+    if (field === 'current') currentRef.current?.focus()
     if (field === 'new') newRef.current?.focus()
     if (field === 'confirm') confirmRef.current?.focus()
   }
@@ -119,6 +138,10 @@ export const PasswordChangeForm = ({
     e.stopPropagation()
     setSubmitted(true)
 
+    if (askCurrentPassword && !currentPassword) {
+      showError('current', t('Password.Enter your current password'))
+      return
+    }
     if (!requirements.valid) {
       showError(
         'new',
@@ -135,12 +158,12 @@ export const PasswordChangeForm = ({
       return
     }
 
-    setErrors({ new: '', confirm: '', form: '' })
+    setErrors(NO_ERRORS)
     setIsSubmitting(true)
     try {
       await onSubmit(currentPassword, newPassword)
       setIsSubmitting(false)
-      onSuccess()
+      onSuccess(newPassword)
     } catch (reason: any) {
       setIsSubmitting(false)
       const error = getPasswordError(reason?.message || '')
@@ -157,6 +180,21 @@ export const PasswordChangeForm = ({
         >
           <p>{errors.form}</p>
         </InlineNotification>
+      )}
+      {askCurrentPassword && (
+        <PasswordField
+          ref={currentRef}
+          id='current-password'
+          label={t('Password.Current password')}
+          value={typedCurrentPassword}
+          autoComplete='current-password'
+          error={errors.current}
+          disabled={isSubmitting}
+          onChange={(value) => {
+            setTypedCurrentPassword(value)
+            if (errors.current) setErrors({ ...errors, current: '' })
+          }}
+        />
       )}
       <div className='flex flex-col gap-3'>
         <PasswordField
@@ -210,12 +248,25 @@ export const PasswordChangeForm = ({
           if (errors.confirm) setErrors({ ...errors, confirm: '' })
         }}
       />
-      <Button type='submit' variant='primary' disabled={isSubmitting}>
-        {t('Password.Update password')}
-        {isSubmitting && (
-          <FontAwesomeIcon icon={faCircleNotch} className='fa-spin ml-2' />
+      <div className='flex flex-col gap-3'>
+        <Button type='submit' variant='primary' disabled={isSubmitting}>
+          {submitLabel || t('Password.Update password')}
+          {isSubmitting && (
+            <FontAwesomeIcon icon={faCircleNotch} className='fa-spin ml-2' />
+          )}
+        </Button>
+        {onCancel && (
+          <Button
+            type='button'
+            variant='ghost'
+            disabled={isSubmitting}
+            onClick={onCancel}
+            className='w-full justify-center'
+          >
+            {t('Common.Cancel')}
+          </Button>
         )}
-      </Button>
+      </div>
     </form>
   )
 }

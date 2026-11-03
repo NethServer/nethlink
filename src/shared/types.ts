@@ -511,6 +511,7 @@ export type NethLinkPageData = {
   isDeviceDialogOpen?: boolean
   isIncomingCallsDialogOpen?: boolean
   isNotificationsDialogOpen?: boolean
+  isChangePasswordDialogOpen?: boolean
   showAddContactModule?: boolean
   speeddialsModule?: SpeedDialModuleData
   phonebookSearchModule?: PhonebookSearchModuleData
@@ -624,4 +625,6 @@ export type PasswordInfo = {
   policy: PasswordPolicy | null
   // null until the middleware reads the info after the login
   updated_at: string | null
+  // true while the middleware reads the info again after a login
+  refreshing?: boolean
 }

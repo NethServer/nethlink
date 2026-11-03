@@ -103,7 +103,7 @@ export const getPasswordRequirements = (
   }
 }
 
-export type PasswordErrorField = 'new' | 'form'
+export type PasswordErrorField = 'current' | 'new' | 'form'
 
 /**
  * Where to show an error message returned by the middleware, and its text
@@ -112,6 +112,11 @@ export const getPasswordError = (
   message: string,
 ): { field: PasswordErrorField; text: string } => {
   switch (message) {
+    case 'error_invalid_credentials':
+      return {
+        field: 'current',
+        text: t('Password.The current password is wrong'),
+      }
     case 'error_password_complexity':
     case 'error_password_length':
       return {

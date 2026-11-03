@@ -408,7 +408,6 @@
     "Clear and remove shortcut": "Clear and remove shortcut"
   },
   "TopBar": {
-    "Open Webphone": "Open Webphone",
     "Signed in as": "Signed in as",
     "Switch to light theme": "Switch to light theme",
     "Switch to dark theme": "Switch to dark theme",
@@ -1061,9 +1060,21 @@
     "Sign in with your new password to continue.": "Sign in with your new password to continue.",
     "Continue to sign in": "Continue to sign in",
     "Your password is expired": "Your password is expired",
-    "Click to change it from the Webphone": "Click to change it from the Webphone.",
+    "Click to change it": "Click to change it.",
     "Your password expires today": "Your password expires today",
     "Your password expires in {{count}} days_one": "Your password expires in {{count}} day",
-    "Your password expires in {{count}} days_other": "Your password expires in {{count}} days"
+    "Your password expires in {{count}} days_other": "Your password expires in {{count}} days",
+    "Change password": "Change password",
+    "Update the password used to sign in to Web phone and Desktop app.": "Update the password used to sign in to Web phone and Desktop app.",
+    "Current password": "Current password",
+    "Enter your current password": "Enter your current password",
+    "The current password is wrong": "The current password is wrong",
+    "Account password has been updated": "Account password has been updated",
+    "Password expired {{count}} days ago_one": "Password expired {{count}} day ago",
+    "Password expired {{count}} days ago_other": "Password expired {{count}} days ago",
+    "Password expired today": "Password expired today",
+    "You can continue until {{date}}, then you must change it": "You can continue until {{date}}, then you must change it.",
+    "Change it now to keep using the application": "Change it now to keep using the application.",
+    "Password expires on {{date}}": "Password expires on {{date}}"
   }
 }

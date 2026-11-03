@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { t } from 'i18next'
 import { Account, isSsoMethod } from '@shared/types'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
+import { IPC_EVENTS } from '@shared/constants'
 import { sendSystemNotification } from '@renderer/utils'
 import {
   getPasswordDaysLeft,
@@ -9,9 +10,10 @@ import {
   PASSWORD_EXPIRATION_WARNING_DAYS,
 } from '@renderer/lib/password'
 
-// the middleware reads the info in background after the login
+// the middleware reads the info in background after the login: on a slow
+// user portal it can take a while
 const RETRY_DELAY = 5000
-const MAX_ATTEMPTS = 4
+const MAX_ATTEMPTS = 24
 const CHECK_INTERVAL = 1000 * 60 * 60
 
 /**
@@ -45,7 +47,8 @@ export const usePasswordExpirationWarning = (account: Account | undefined) => {
       if (cancelled || !info?.enabled) {
         return
       }
-      if (!info.updated_at) {
+      // the cached info may be stale until the background read is done
+      if (!info.updated_at || info.refreshing) {
         if (attempts < MAX_ATTEMPTS) {
           timer = setTimeout(check, RETRY_DELAY)
         }
@@ -70,13 +73,14 @@ export const usePasswordExpirationWarning = (account: Account | undefined) => {
         // notify anyway
       }
 
-      // the click opens the account settings of the Webphone
+      // the click opens the password change of NethLink
       sendSystemNotification(
         info.expired
           ? t('Password.Your password is expired')
           : getPasswordExpiringTitle(daysLeft as number),
-        t('Password.Click to change it from the Webphone'),
-        '/settings?section=Account',
+        t('Password.Click to change it'),
+        undefined,
+        IPC_EVENTS.OPEN_CHANGE_PASSWORD,
       )
     }
 

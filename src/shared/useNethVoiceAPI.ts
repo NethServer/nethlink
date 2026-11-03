@@ -753,6 +753,20 @@ export const useNethVoiceAPI = (
       await _POST(buildApiPath('/user/settings'), settings),
     passwordInfo: async (): Promise<PasswordInfo> =>
       (await _GET(`${PRIMARY_API_BASE_PATH}/password/info`)).data,
+    // Rejects with the middleware error message, e.g. "error_password_length"
+    changePassword: async (
+      currentPassword: string,
+      newPassword: string,
+    ): Promise<void> => {
+      try {
+        await _POST(`${PRIMARY_API_BASE_PATH}/user/password`, {
+          current_password: currentPassword,
+          new_password: newPassword,
+        })
+      } catch (reason: any) {
+        throw new Error(reason.response?.data?.message || 'error_unknown')
+      }
+    },
     default_device: async (
       deviceIdInformation: Extension,
       force = false,

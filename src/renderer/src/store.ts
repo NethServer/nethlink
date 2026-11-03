@@ -165,6 +165,7 @@ export const useNethlinkData = createGlobalStateHook({
   isDeviceDialogOpen: false,
   isIncomingCallsDialogOpen: false,
   isNotificationsDialogOpen: false,
+  isChangePasswordDialogOpen: false,
   phonebookModule: {
     selectedContact: undefined,
   },

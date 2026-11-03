@@ -3,7 +3,7 @@ import { useInitialize } from '../hooks/useInitialize'
 import { MutableRefObject, useEffect, useRef } from 'react'
 import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
-import { useSharedState } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
@@ -25,6 +25,9 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   usePasswordExpirationWarning(account)
   const [, setNotifications] = useSharedState('notifications')
   const [connection] = useSharedState('connection')
+  const [, setIsChangePasswordDialogOpen] = useNethlinkData(
+    'isChangePasswordDialogOpen',
+  )
   const { hasPermission, updateAccountData } = useAccount()
   const isFetching = useRef<boolean>(false)
 
@@ -79,6 +82,10 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
         IPC_EVENTS.RECONNECT_SOCKET,
         handleSocketReconnect,
       )
+      // click on the password expiration notification
+      window.electron.receive(IPC_EVENTS.OPEN_CHANGE_PASSWORD, () =>
+        setIsChangePasswordDialogOpen(true),
+      )
 
       if (!accountMeInterval.current) {
         accountMeInterval.current = setInterval(loadData, 1000 * 60 * 5)
@@ -95,6 +102,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
           IPC_EVENTS.RESPONSE_START_CALL_BY_URL,
         )
         window.electron.removeAllListeners(IPC_EVENTS.RECONNECT_SOCKET)
+        window.electron.removeAllListeners(IPC_EVENTS.OPEN_CHANGE_PASSWORD)
         stopInterval(accountMeInterval)
       }
     } else {

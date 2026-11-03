@@ -31,6 +31,7 @@ export interface IElectronAPI {
     title: string,
     notificationoption: NotificationConstructorOptions,
     openUrl?: string,
+    clickEvent?: string,
   ): void
   logout: () => void
   resizeLoginWindow(height: number): void

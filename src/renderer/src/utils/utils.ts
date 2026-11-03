@@ -1,3 +1,4 @@
+import { IPC_EVENTS } from '@shared/constants'
 import { ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { PropsWithChildren } from 'react'
@@ -43,10 +44,13 @@ export async function sendNotification(
   }
 }
 
+// on click it opens openUrl on the Webphone or, with clickEvent, shows
+// NethLink and sends it that event
 export function sendSystemNotification(
   title: string,
   body: string,
   openUrl?: string,
+  clickEvent?: IPC_EVENTS,
 ) {
   window.api.sendNotification(
     title,
@@ -56,6 +60,7 @@ export function sendSystemNotification(
       silent: false,
     },
     openUrl,
+    clickEvent,
   )
 }
 
