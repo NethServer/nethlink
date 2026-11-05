@@ -532,6 +532,7 @@ export type ChatConversation = {
   owner?: boolean
   unread: number
   members?: string[]
+  guests?: Record<string, string> // set when the group is open to people outside the PBX
   last?: { body: string; ts: number; mine: boolean; nick?: string }
 }
 

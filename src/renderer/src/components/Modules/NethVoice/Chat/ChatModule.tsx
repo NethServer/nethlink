@@ -40,15 +40,18 @@ function Name({
   const id = `tooltip-chat-name-${peer}`
   return (
     <>
-      <p
-        ref={ref}
-        className='font-medium text-[14px] leading-5 truncate'
-        data-tooltip-id={truncated ? id : undefined}
-        data-tooltip-content={truncated ? name : undefined}
-      >
-        {name}
+      {/* Only the name truncates: badges after it stay whole. */}
+      <div className='flex items-center min-w-0'>
+        <p
+          ref={ref}
+          className='font-medium text-[14px] leading-5 truncate'
+          data-tooltip-id={truncated ? id : undefined}
+          data-tooltip-content={truncated ? name : undefined}
+        >
+          {name}
+        </p>
         {children}
-      </p>
+      </div>
       {truncated && (
         <CustomThemedTooltip id={id} place='bottom' className='z-10' />
       )}
@@ -195,8 +198,14 @@ export function ChatModule() {
                     <div className='flex flex-col gap-1 min-w-0 flex-1 dark:text-titleDark text-titleLight'>
                       <Name peer={c.peer} name={c.name}>
                         {c.inactive && (
-                          <span className='ml-2 font-normal text-xs text-gray-500 dark:text-gray-400'>
+                          <span className='ml-2 shrink-0 font-normal text-xs text-gray-500 dark:text-gray-400'>
                             {t('Chat.No longer active')}
+                          </span>
+                        )}
+                        {c.guests && (
+                          // As in the chat window: indigo, open to people outside.
+                          <span className='ml-2 shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs leading-4 font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100'>
+                            {t('Chat.External chat')}
                           </span>
                         )}
                       </Name>

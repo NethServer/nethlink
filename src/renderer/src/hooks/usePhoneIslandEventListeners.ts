@@ -122,8 +122,13 @@ export const usePhoneIslandEventListener = () => {
           window.electron.send(
             IPC_EVENTS.START_CALL_BY_URL,
             data.urlCallObject.url,
+            data.urlCallObject.urlType,
           )
-          Log.debug('phone-island-action-physical', data.urlCallObject.url)
+          Log.debug(
+            'phone-island-action-physical',
+            data.urlCallObject.urlType,
+            data.urlCallObject.url,
+          )
         },
       ),
       ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-call-ringing']),
