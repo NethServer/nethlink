@@ -87,20 +87,21 @@ export function SettingsChangePasswordDialog() {
     <>
       <div className='fixed inset-0 bg-gray-500/75 dark:bg-gray-700/75 z-[201]' />
       <Backdrop className='z-[202]' onBackdropClick={close} />
-      <div className='fixed inset-0 z-[205] overflow-y-auto pointer-events-none'>
-        <div className='flex min-h-full items-center justify-center p-4 pointer-events-none'>
-          <div className='pointer-events-auto w-full max-w-[384px] rounded-lg bg-elevationL1 px-4 pb-4 pt-5 text-textPrimaryNeutral shadow-lightXl dark:bg-bgDark dark:text-textPrimaryNeutralDark'>
-            <div className='flex flex-col gap-4'>
-              <div className='flex flex-col items-center gap-2 text-center'>
-                <h2 className='font-Poppins text-lg font-medium leading-7'>
-                  {t('Password.Change password')}
-                </h2>
-                <p className='text-xs leading-4 text-textSecondaryNeutral dark:text-textSecondaryNeutralDark'>
-                  {t(
-                    'Password.Update the password used to sign in to Web phone and Desktop app.',
-                  )}
-                </p>
-              </div>
+      <div className='fixed inset-0 z-[205] pointer-events-none'>
+        <div className='flex h-full items-center justify-center p-4 pointer-events-none'>
+          {/* taller than the default window: the title stays, the content scrolls */}
+          <div className='pointer-events-auto flex max-h-full w-full max-w-[384px] flex-col rounded-lg bg-elevationL1 pt-5 text-textPrimaryNeutral shadow-lightXl dark:bg-bgDark dark:text-textPrimaryNeutralDark'>
+            <div className='flex shrink-0 flex-col items-center gap-2 px-4 pb-4 text-center'>
+              <h2 className='font-Poppins text-lg font-medium leading-7'>
+                {t('Password.Change password')}
+              </h2>
+              <p className='text-xs leading-4 text-textSecondaryNeutral dark:text-textSecondaryNeutralDark'>
+                {t(
+                  'Password.Update the password used to sign in to Web phone and Desktop app.',
+                )}
+              </p>
+            </div>
+            <div className='flex min-h-0 flex-col gap-4 overflow-y-auto px-4 pb-4'>
               <div className='text-xs leading-4 text-textSecondaryNeutral dark:text-textSecondaryNeutralDark'>
                 {expirationStatus()}
               </div>
