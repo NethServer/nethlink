@@ -53,7 +53,10 @@ export function SettingsChangePasswordDialog() {
               ? t('Password.Password expired {{count}} days ago', {
                   count: -daysLeft,
                 })
-              : t('Password.Password expired today')
+              : daysLeft === 0
+                ? t('Password.Password expired today')
+                : // forced change by the administrator: the expiration is still ahead
+                  t('Password.Your password is expired')
           }
         >
           <p>

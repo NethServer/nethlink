@@ -87,6 +87,7 @@ export const usePasswordExpirationWarning = (account: Account | undefined) => {
     timer = setTimeout(check, RETRY_DELAY)
     const interval = setInterval(() => {
       attempts = 0
+      if (timer) clearTimeout(timer)
       check()
     }, CHECK_INTERVAL)
 
