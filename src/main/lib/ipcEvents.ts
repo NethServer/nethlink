@@ -16,6 +16,7 @@ import {
   globalShortcut,
   clipboard,
   Notification,
+  safeStorage,
 } from 'electron'
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
@@ -106,6 +107,8 @@ export function once(event: IPC_EVENTS, callback: () => void) {
 function isUserLoggedIn(): boolean {
   return !!store.store.account
 }
+
+const shownNotifications = new Set<Notification>()
 
 function buildHostUrl(host: string, path: string): string {
   return new URL(path, `https://${host}`).toString()
@@ -342,15 +345,23 @@ export function registerIpcEvents() {
 
   ipcMain.on(
     IPC_EVENTS.SEND_NOTIFICATION,
-    async (_, title, options, openPath) => {
+    async (_, title, options, openPath, clickEvent) => {
       const notification = new Notification({
         title,
         ...options,
       })
 
+      // keep a reference until it is dismissed: a collected notification
+      // loses its click handler
+      shownNotifications.add(notification)
+      notification.on('close', () => shownNotifications.delete(notification))
       notification.on('click', () => {
+        shownNotifications.delete(notification)
         const account = store.store.account
-        if (openPath && account?.host) {
+        if (clickEvent && account) {
+          NethLinkController.instance.show()
+          NethLinkController.instance.window.emit(clickEvent)
+        } else if (openPath && account?.host) {
           shell.openExternal(buildHostUrl(account.host, openPath))
         }
       })
@@ -732,6 +743,27 @@ export function registerIpcEvents() {
       NethLinkController.instance.window.emit(IPC_EVENTS.EMIT_PARKING_UPDATE)
     } catch (e) {
       Log.error(e)
+    }
+  })
+
+  // the password was changed: keep the stored one in sync for the auto login
+  ipcMain.on(IPC_EVENTS.UPDATE_PASSWORD, async (_, password: string) => {
+    try {
+      const account = store.store.account
+      if (!account || !password) {
+        return
+      }
+      // saveLoggedAccount logs out when it cannot encrypt: the session is
+      // still valid, keep it and let the user sign in again when needed
+      if (!safeStorage.isEncryptionAvailable()) {
+        Log.warning(
+          'password update: encryption not available, password not stored',
+        )
+        return
+      }
+      await AccountController.instance.saveLoggedAccount(account, password)
+    } catch (e) {
+      Log.error('during password update', e)
     }
   })
 

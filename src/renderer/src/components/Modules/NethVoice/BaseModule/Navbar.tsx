@@ -14,6 +14,7 @@ import { SettingsCommandBarShortcutDialog } from './ProfileDialog/SettingsSettin
 import { SettingsDeviceDialog } from './ProfileDialog/SettingsSettings/SettingsDevicesDialog'
 import { SettingsIncomingCallsDialog } from './ProfileDialog/SettingsSettings/SettingsIncomingCallsDialog'
 import { SettingsNotificationsDialog } from './ProfileDialog/SettingsSettings/SettingsNotificationsDialog'
+import { SettingsChangePasswordDialog } from './ProfileDialog/SettingsSettings/SettingsChangePasswordDialog'
 
 export interface NavbarProps {
   onClickAccount: () => void
@@ -34,6 +35,9 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
   )
   const [isNotificationsDialogOpen] = useNethlinkData(
     'isNotificationsDialogOpen',
+  )
+  const [isChangePasswordDialogOpen] = useNethlinkData(
+    'isChangePasswordDialogOpen',
   )
   const isCallSummaryEnabled = account?.data?.call_summary_enabled === true
 
@@ -74,6 +78,7 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
       {isCallSummaryEnabled && isNotificationsDialogOpen && (
         <SettingsNotificationsDialog />
       )}
+      {isChangePasswordDialogOpen && <SettingsChangePasswordDialog />}
       <ProfileDialog
         isOpen={isProfileDialogOpen}
         onClose={() => setIsProfileDialogOpen(false)}

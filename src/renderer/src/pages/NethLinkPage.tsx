@@ -3,7 +3,7 @@ import { useInitialize } from '../hooks/useInitialize'
 import { MutableRefObject, useEffect, useRef } from 'react'
 import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
-import { useSharedState } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
@@ -14,6 +14,7 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
 import { sendNotification } from '@renderer/utils'
 import { useChatBridge } from '@renderer/hooks/useChatBridge'
+import { usePasswordExpirationWarning } from '@renderer/hooks/usePasswordExpirationWarning'
 
 export interface NethLinkPageProps {
   handleRefreshConnection: () => void
@@ -21,8 +22,12 @@ export interface NethLinkPageProps {
 
 export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   const [account] = useSharedState('account')
+  usePasswordExpirationWarning(account)
   const [, setNotifications] = useSharedState('notifications')
   const [connection] = useSharedState('connection')
+  const [, setIsChangePasswordDialogOpen] = useNethlinkData(
+    'isChangePasswordDialogOpen',
+  )
   const { hasPermission, updateAccountData } = useAccount()
   const isFetching = useRef<boolean>(false)
 
@@ -77,6 +82,10 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
         IPC_EVENTS.RECONNECT_SOCKET,
         handleSocketReconnect,
       )
+      // click on the password expiration notification
+      window.electron.receive(IPC_EVENTS.OPEN_CHANGE_PASSWORD, () =>
+        setIsChangePasswordDialogOpen(true),
+      )
 
       if (!accountMeInterval.current) {
         accountMeInterval.current = setInterval(loadData, 1000 * 60 * 5)
@@ -93,6 +102,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
           IPC_EVENTS.RESPONSE_START_CALL_BY_URL,
         )
         window.electron.removeAllListeners(IPC_EVENTS.RECONNECT_SOCKET)
+        window.electron.removeAllListeners(IPC_EVENTS.OPEN_CHANGE_PASSWORD)
         stopInterval(accountMeInterval)
       }
     } else {
@@ -137,6 +147,17 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     }))
   }
 
+  // a 403 may also be a missing permission: it is a revoked session only
+  // when the user info is rejected too
+  async function isSessionRevoked() {
+    try {
+      await NethVoiceAPI.User.me()
+      return false
+    } catch (e: any) {
+      return e?.status === 403
+    }
+  }
+
   async function loadData() {
     Log.info('update account', { isFetching: isFetching.current })
     if (!isFetching.current) {
@@ -171,7 +192,13 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
         if (e['status'] === 401) {
           Log.error(e)
           window.electron.send(IPC_EVENTS.RESUME)
+        } else if (e['status'] === 403 && (await isSessionRevoked())) {
+          // e.g. the password was changed: the user must sign in again
+          Log.info('session revoked by the server, logout')
+          window.api.logout()
+          return
         }
+        isFetching.current = false
       }
     }
   }

@@ -165,6 +165,7 @@ export const useNethlinkData = createGlobalStateHook({
   isDeviceDialogOpen: false,
   isIncomingCallsDialogOpen: false,
   isNotificationsDialogOpen: false,
+  isChangePasswordDialogOpen: false,
   phonebookModule: {
     selectedContact: undefined,
   },
@@ -188,6 +189,7 @@ export const useLoginPageData = createGlobalStateHook({
   selectedAccount: undefined,
   windowHeight: LoginPageSize.h,
   showTwoFactor: false,
+  showPasswordChange: false,
   loginStep: 'host',
   hostConfig: undefined,
 } as LoginPageData).useGlobalState
