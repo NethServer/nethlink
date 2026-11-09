@@ -4,8 +4,7 @@ import {
   faRightFromBracket as LeaveIcon,
   faTrash as DeleteIcon,
   faTriangleExclamation as WarningIcon,
-  faUserGroup as GroupIcon,
-  faUsers as QueueIcon,
+  faLock as LockIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faNewChat as NewChatIcon } from './icons'
@@ -67,6 +66,21 @@ const when = (ts: number) => {
 
 // Leaving a group I do not own; deleting a chat, or a group I own for everyone.
 const leaves = (c: ChatConversation) => c.kind === 'group' && !c.owner
+// Two letters, as the chat heads: a one-word name's first two, else the first two words' initials.
+const groupInitials = (name: string) => {
+  const words = name
+    .replace(/^Queue - /, '')
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean)
+  return (
+    words.length === 1
+      ? words[0].slice(0, 2)
+      : words
+          .slice(0, 2)
+          .map((w) => w[0])
+          .join('') || 'G'
+  ).toUpperCase()
+}
 
 function DeleteDialog({
   conversation,
@@ -171,18 +185,11 @@ export function ChatModule() {
                   <div className='flex gap-3 min-h-[72px] py-6 px-3'>
                     <div className='flex flex-col min-w-6 pt-[6px]'>
                       {c.kind === 'group' && !c.avatar ? (
-                        // As in the CTI: operator groups (cti-…) blue, a queue's chat with the Queues icon, other groups purple.
+                        // As in the CTI and the chat window: the group's initials; operator groups (cti-…) blue, a queue's chat indigo, the others as a person's.
                         <span
-                          className={`flex h-8 w-8 items-center justify-center rounded-full ${c.peer.startsWith('cti-') ? 'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100' : 'bg-indigo-700 text-white'}`}
+                          className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-normal ${c.peer.startsWith('cti-') ? 'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100' : c.name.startsWith('Queue - ') ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100' : 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-950'}`}
                         >
-                          <FontAwesomeIcon
-                            icon={
-                              c.name.startsWith('Queue - ')
-                                ? QueueIcon
-                                : GroupIcon
-                            }
-                            className='text-xs'
-                          />
+                          {groupInitials(c.name)}
                         </span>
                       ) : (
                         <Avatar
@@ -203,8 +210,14 @@ export function ChatModule() {
                           </span>
                         )}
                         {c.guests && (
-                          // As in the chat window: indigo, open to people outside.
-                          <span className='ml-2 shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs leading-4 font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100'>
+                          // As in the chat window: indigo, open to people outside, a lock once its link is closed.
+                          <span className='ml-2 shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs leading-4 font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100'>
+                            {c.locked && (
+                              <FontAwesomeIcon
+                                icon={LockIcon}
+                                className='h-3 w-3'
+                              />
+                            )}
                             {t('Chat.External chat')}
                           </span>
                         )}
