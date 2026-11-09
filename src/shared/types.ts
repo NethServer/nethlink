@@ -533,6 +533,7 @@ export type ChatConversation = {
   unread: number
   members?: string[]
   guests?: Record<string, string> // set when the group is open to people outside the PBX
+  locked?: boolean // that group's link no longer lets anyone in (made private or expired)
   last?: { body: string; ts: number; mine: boolean; nick?: string }
 }
 

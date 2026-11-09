@@ -152,18 +152,11 @@ export function ChatIslandPage() {
     // Last value of each event, sent again when NethLink (re)loads.
     const last: Record<string, unknown> = {}
     window.electron.receive(IPC_EVENTS.CHAT_TO_ISLAND, (name, detail) => {
-      // Opening a chat from NethLink (command bar, notification) brings the chat windows back here.
-      if (
-        hostRef.current === 'cti' &&
-        (name === 'chat-island-open' || name === 'chat-island-new')
-      ) {
+      // A new chat from NethLink brings the chat windows back here; a chat opened from NethLink opens where they are (the island knows).
+      if (hostRef.current === 'cti' && name === 'chat-island-new')
         window.dispatchEvent(
-          new CustomEvent('chat-island-move', {
-            detail: { host: 'nethlink', open: detail?.username },
-          }),
+          new CustomEvent('chat-island-move', { detail: { host: 'nethlink' } }),
         )
-        if (name === 'chat-island-open') return
-      }
       if (name !== 'chat-sync')
         return window.dispatchEvent(new CustomEvent(name, { detail }))
       Object.entries(last).forEach(([n, d]) =>
