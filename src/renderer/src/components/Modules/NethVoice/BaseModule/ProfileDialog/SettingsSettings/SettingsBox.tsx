@@ -13,6 +13,10 @@ import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { isSsoMethod } from '@shared/types'
 import { OptionElement } from '../OptionElement'
 
+// whether the password can be changed, per account: it does not change while
+// the app runs, read it once
+const passwordAvailability = new Map<string, boolean>()
+
 export function SettingsBox({ onClose }: { onClose?: () => void }) {
   const [account] = useSharedState('account')
   const [, setIsShortcutDialogOpen] = useNethlinkData('isShortcutDialogOpen')
@@ -32,16 +36,25 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
   const isCallSummaryEnabled = account?.data?.call_summary_enabled === true
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   // the password can be changed only with an account provider of NS8
-  const [isPasswordAvailable, setIsPasswordAvailable] = useState(false)
+  const accountKey = `${account?.username}@${account?.host}`
+  const [isPasswordAvailable, setIsPasswordAvailable] = useState(
+    passwordAvailability.get(accountKey) ?? false,
+  )
 
   useEffect(() => {
-    if (isSsoMethod(account?.authenticationMethod)) {
+    if (
+      isSsoMethod(account?.authenticationMethod) ||
+      passwordAvailability.has(accountKey)
+    ) {
       return
     }
     NethVoiceAPI.User.passwordInfo()
-      .then((info) => setIsPasswordAvailable(!!info?.enabled))
+      .then((info) => {
+        passwordAvailability.set(accountKey, !!info?.enabled)
+        setIsPasswordAvailable(!!info?.enabled)
+      })
       .catch(() => setIsPasswordAvailable(false))
-  }, [account?.username, account?.host])
+  }, [accountKey])
 
   return (
     <div className='py-2'>

@@ -16,6 +16,10 @@ import { sendNotification } from '@renderer/utils'
 import { useChatBridge } from '@renderer/hooks/useChatBridge'
 import { usePasswordExpirationWarning } from '@renderer/hooks/usePasswordExpirationWarning'
 
+// message of the middleware for a rejected session token
+const SESSION_REJECTED_MESSAGE =
+  "you don't have permission to access this resource"
+
 export interface NethLinkPageProps {
   handleRefreshConnection: () => void
 }
@@ -154,7 +158,12 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
       await NethVoiceAPI.User.me()
       return false
     } catch (e: any) {
-      return e?.status === 403
+      // the middleware rejects a revoked token with this message, other 403
+      // come from the server behind it
+      return (
+        e?.status === 403 &&
+        e?.response?.data?.message === SESSION_REJECTED_MESSAGE
+      )
     }
   }
 

@@ -135,6 +135,16 @@ export const getPasswordError = (
           'Password.The password was changed too recently, try again later',
         ),
       }
+    case 'password_not_expired':
+      return {
+        field: 'form',
+        text: t('Password.Your password is no longer expired'),
+      }
+    case 'password_change_unavailable':
+      return {
+        field: 'form',
+        text: t('Password.Password change is not available right now'),
+      }
     default:
       return {
         field: 'form',

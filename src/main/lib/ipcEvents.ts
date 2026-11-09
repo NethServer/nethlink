@@ -109,6 +109,10 @@ function isUserLoggedIn(): boolean {
 }
 
 const shownNotifications = new Set<Notification>()
+// 'close' is not emitted on every platform: keep only the last ones
+const MAX_SHOWN_NOTIFICATIONS = 20
+// events a notification click can send to the NethLink window
+const NOTIFICATION_CLICK_EVENTS: string[] = [IPC_EVENTS.OPEN_CHANGE_PASSWORD]
 
 function buildHostUrl(host: string, path: string): string {
   return new URL(path, `https://${host}`).toString()
@@ -354,11 +358,18 @@ export function registerIpcEvents() {
       // keep a reference until it is dismissed: a collected notification
       // loses its click handler
       shownNotifications.add(notification)
+      if (shownNotifications.size > MAX_SHOWN_NOTIFICATIONS) {
+        shownNotifications.delete(shownNotifications.values().next().value!)
+      }
       notification.on('close', () => shownNotifications.delete(notification))
       notification.on('click', () => {
         shownNotifications.delete(notification)
         const account = store.store.account
-        if (clickEvent && account) {
+        if (
+          clickEvent &&
+          NOTIFICATION_CLICK_EVENTS.includes(clickEvent) &&
+          account
+        ) {
           NethLinkController.instance.show()
           NethLinkController.instance.window.emit(clickEvent)
         } else if (openPath && account?.host) {

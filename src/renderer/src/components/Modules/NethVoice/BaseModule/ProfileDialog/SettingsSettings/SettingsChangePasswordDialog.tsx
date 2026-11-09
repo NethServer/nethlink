@@ -34,7 +34,11 @@ export function SettingsChangePasswordDialog() {
       .catch(() => undefined)
   }, [])
 
-  const close = () => setIsChangePasswordDialogOpen(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  // not while submitting, or the result would not be shown
+  const close = () => {
+    if (!isSubmitting) setIsChangePasswordDialogOpen(false)
+  }
 
   const expirationStatus = () => {
     if (!info?.expiration) {
@@ -111,7 +115,14 @@ export function SettingsChangePasswordDialog() {
               <PasswordChangeForm
                 policy={info?.policy || null}
                 submitLabel={t('Password.Change password') || ''}
-                onSubmit={NethVoiceAPI.User.changePassword}
+                onSubmit={async (current, next) => {
+                  setIsSubmitting(true)
+                  try {
+                    await NethVoiceAPI.User.changePassword(current, next)
+                  } finally {
+                    setIsSubmitting(false)
+                  }
+                }}
                 onSuccess={(newPassword) => {
                   // keep the stored password in sync for the auto login
                   window.electron.send(IPC_EVENTS.UPDATE_PASSWORD, newPassword)
@@ -119,7 +130,7 @@ export function SettingsChangePasswordDialog() {
                     t('Password.Password updated'),
                     t('Password.Account password has been updated'),
                   )
-                  close()
+                  setIsChangePasswordDialogOpen(false)
                 }}
                 onCancel={close}
               />

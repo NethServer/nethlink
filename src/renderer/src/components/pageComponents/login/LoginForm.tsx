@@ -471,7 +471,8 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
     )
   }
 
-  // back to the login form, to sign in with the new password
+  // back to the login form: to sign in with the new password, or to change
+  // account or host
   const continueToSignIn = () => {
     setShowPasswordChange(false)
     setIsPasswordUpdated(false)
@@ -533,6 +534,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                 )
               }
               onSuccess={() => setIsPasswordUpdated(true)}
+              onCancel={continueToSignIn}
             />
           </div>
         )

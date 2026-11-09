@@ -1079,6 +1079,8 @@
     "Password expired today": "Password scaduta oggi",
     "You can continue until {{date}}, then you must change it": "Puoi continuare fino al {{date}}, poi dovrai cambiarla.",
     "Change it now to keep using the application": "Cambiala ora per continuare a usare l'applicazione.",
-    "Password expires on {{date}}": "La password scade il {{date}}"
+    "Password expires on {{date}}": "La password scade il {{date}}",
+    "Your password is no longer expired": "La password non è più scaduta: accedi con la password attuale.",
+    "Password change is not available right now": "Il cambio password non è disponibile al momento. Riprova più tardi."
   }
 }

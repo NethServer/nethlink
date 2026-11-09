@@ -1079,6 +1079,8 @@
     "Password expired today": "Password expired today",
     "You can continue until {{date}}, then you must change it": "You can continue until {{date}}, then you must change it.",
     "Change it now to keep using the application": "Change it now to keep using the application.",
-    "Password expires on {{date}}": "Password expires on {{date}}"
+    "Password expires on {{date}}": "Password expires on {{date}}",
+    "Your password is no longer expired": "Your password is no longer expired: sign in with your current password.",
+    "Password change is not available right now": "Password change is not available right now. Try again later."
   }
 }
