@@ -4,6 +4,7 @@ import {
   faRightFromBracket as LeaveIcon,
   faTrash as DeleteIcon,
   faTriangleExclamation as WarningIcon,
+  faLock as LockIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faNewChat as NewChatIcon } from './icons'
@@ -209,8 +210,14 @@ export function ChatModule() {
                           </span>
                         )}
                         {c.guests && (
-                          // As in the chat window: indigo, open to people outside.
-                          <span className='ml-2 shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs leading-4 font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100'>
+                          // As in the chat window: indigo, open to people outside, a lock once its link is closed.
+                          <span className='ml-2 shrink-0 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs leading-4 font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100'>
+                            {c.locked && (
+                              <FontAwesomeIcon
+                                icon={LockIcon}
+                                className='h-3 w-3'
+                              />
+                            )}
                             {t('Chat.External chat')}
                           </span>
                         )}
