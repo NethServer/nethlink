@@ -195,7 +195,7 @@ export function ChatModule() {
                         <Avatar
                           size='small'
                           src={c.avatar}
-                          placeholderType='person'
+                          placeholderType='operator'
                           status={
                             c.kind === 'chat' && c.online ? 'online' : undefined
                           }
