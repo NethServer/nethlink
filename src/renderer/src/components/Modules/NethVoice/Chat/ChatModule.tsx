@@ -187,7 +187,7 @@ export function ChatModule() {
                       {c.kind === 'group' && !c.avatar ? (
                         // As in the CTI and the chat window: the group's initials; operator groups (cti-…) blue, a queue's chat indigo, the others as a person's.
                         <span
-                          className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-normal ${c.peer.startsWith('cti-') ? 'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100' : c.name.startsWith('Queue - ') ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100' : 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-950'}`}
+                          className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${c.peer.startsWith('cti-') ? 'bg-blue-100 text-blue-800 dark:bg-blue-700 dark:text-blue-100' : c.name.startsWith('Queue - ') ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-700 dark:text-indigo-100' : 'bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-950'}`}
                         >
                           {groupInitials(c.name)}
                         </span>
