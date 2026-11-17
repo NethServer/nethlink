@@ -62,6 +62,10 @@ export const resetPhoneIslandReadyState = () => {
 export const usePhoneIslandEventListener = () => {
   const [account] = useSharedState('account')
   const [connected, setConnected] = useSharedState('connection')
+  const accountRef = useRef(account)
+  accountRef.current = account
+  const connectedRef = useRef(connected)
+  connectedRef.current = connected
   const [availableRingtones, setAvailableRingtones] =
     useSharedState('availableRingtones')
   const notifiedSummaryIdsRef = useRef<Set<string>>(new Set())
@@ -384,7 +388,7 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(
         PHONE_ISLAND_EVENTS['phone-island-internet-connected'],
         () => {
-          if (account && !connected) {
+          if (accountRef.current && !connectedRef.current) {
             setConnected(true)
           }
         },
@@ -392,7 +396,7 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(
         PHONE_ISLAND_EVENTS['phone-island-internet-disconnected'],
         () => {
-          if (account && connected) {
+          if (accountRef.current && connectedRef.current) {
             setConnected(false)
           }
         },

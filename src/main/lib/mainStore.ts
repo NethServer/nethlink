@@ -165,8 +165,7 @@ class Store<T> {
   set(selector: keyof T, value: any, force: boolean = false) {
     const o = Object.assign({}, this.store)
     o[selector] = value
-    const diff = difference(Object.values(o), Object.values(this.store as any))
-    if (diff.length > 0 || force) {
+    if ((this.store as any)?.[selector] !== value || force) {
       this.store = o
       ipcMain.emit(
         IPC_EVENTS.UPDATE_SHARED_STATE,
