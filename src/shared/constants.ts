@@ -19,7 +19,8 @@ export enum SpeeddialTypes {
   BASIC = 'speeddial-basic',
   FAVOURITES = 'speeddial-favorite',
 }
-export const GIT_RELEASES_URL = `https://api.github.com/repos/nethserver/nethlink/releases/latest`
+// every release, testing pre-releases included, newest first
+export const GIT_RELEASES_URL = `https://api.github.com/repos/nethserver/nethlink/releases?per_page=50`
 
 export enum PERMISSION {
   CALL_FORWARD = 'call_forward',
@@ -39,6 +40,7 @@ export enum MENU_ELEMENT {
   PARKED_CALLS,
   ABOUT,
   CHAT,
+  QUEUES,
 }
 export enum IPC_EVENTS {
   LOGIN = 'LOGIN',
@@ -82,6 +84,7 @@ export enum IPC_EVENTS {
   EMIT_CALL_END = 'EMIT_CALL_END',
   EMIT_MAIN_PRESENCE_UPDATE = 'EMIT_MAIN_PRESENCE_CHANGE',
   EMIT_QUEUE_UPDATE = 'EMIT_QUEUE_UPDATE',
+  EMIT_QUEUE_MEMBER_UPDATE = 'EMIT_QUEUE_MEMBER_UPDATE',
   EMIT_PARKING_UPDATE = 'EMIT_PARKING_UPDATE',
   TRANSFER_CALL = 'TRANSFER_CALL',
   CHANGE_DEFAULT_DEVICE = 'CHANGE_DEFAULT_DEVICE',

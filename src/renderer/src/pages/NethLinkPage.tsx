@@ -38,6 +38,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   const {
     saveOperators,
     onQueueUpdate,
+    onQueueMemberUpdate,
     onParkingsUpdate,
     saveLastCalls,
     saveSpeeddials,
@@ -77,6 +78,10 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
       )
       window.electron.receive(IPC_EVENTS.EMIT_PARKING_UPDATE, updateParkings)
       window.electron.receive(IPC_EVENTS.EMIT_QUEUE_UPDATE, onQueueUpdate)
+      window.electron.receive(
+        IPC_EVENTS.EMIT_QUEUE_MEMBER_UPDATE,
+        onQueueMemberUpdate,
+      )
       window.electron.receive(IPC_EVENTS.UPDATE_ACCOUNT, updateAccountData)
       window.electron.receive(
         IPC_EVENTS.RESPONSE_START_CALL_BY_URL,
@@ -101,6 +106,7 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
         window.electron.removeAllListeners(IPC_EVENTS.EMIT_MAIN_PRESENCE_UPDATE)
         window.electron.removeAllListeners(IPC_EVENTS.EMIT_PARKING_UPDATE)
         window.electron.removeAllListeners(IPC_EVENTS.EMIT_QUEUE_UPDATE)
+        window.electron.removeAllListeners(IPC_EVENTS.EMIT_QUEUE_MEMBER_UPDATE)
         window.electron.removeAllListeners(IPC_EVENTS.UPDATE_ACCOUNT)
         window.electron.removeAllListeners(
           IPC_EVENTS.RESPONSE_START_CALL_BY_URL,
@@ -139,13 +145,17 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     window.location.reload()
   }
 
-  const showUpdateAppNotification = () => {
-    const updateLink = 'https://nethserver.github.io/nethlink/'
+  // the newer release to download, found by the main process
+  const showUpdateAppNotification = (update?: {
+    version: string
+    url: string
+  }) => {
     setNotifications((p) => ({
       ...p,
       system: {
         update: {
-          message: updateLink,
+          message: update?.url || 'https://nethserver.github.io/nethlink/',
+          version: update?.version,
         },
       },
     }))
@@ -220,13 +230,11 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
   }, [connection])
 
   return (
-    <div className='h-[100vh] w-[100vw] '>
-      <div className='absolute w-full h-full  flex flex-col justify-end items-center text-sm'>
-        <div
-          className={`flex flex-col h-full w-full items-center justify-between`}
-        >
-          <div className='relative flex flex-row z-10 dark:bg-bgDark bg-bgLight w-full h-full'>
-            <div className='flex flex-col gap-3 w-full h-full'>
+    <div className='h-screen w-screen'>
+      <div className='absolute flex h-full w-full flex-col items-center justify-end text-sm'>
+        <div className='flex h-full w-full flex-col items-center justify-between'>
+          <div className='relative z-10 flex h-full w-full flex-row bg-bgLight dark:bg-bgDark'>
+            <div className='flex h-full w-full min-w-0 flex-col gap-3'>
               <Navbar onClickAccount={() => updateAccountData()} />
               <NethLinkModules />
             </div>
