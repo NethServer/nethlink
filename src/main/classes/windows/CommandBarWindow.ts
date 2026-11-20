@@ -17,7 +17,9 @@ export class CommandBarWindow extends BaseWindow {
       movable: false,
       resizable: false,
       skipTaskbar: true,
-      roundedCorners: true,
+      // the page draws its own rounded corners and border: the macOS mask has
+      // a larger radius and would cut the border at the corners
+      roundedCorners: false,
       parent: undefined,
       transparent: true,
       hiddenInMissionControl: true,

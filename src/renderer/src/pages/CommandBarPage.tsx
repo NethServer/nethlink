@@ -451,10 +451,10 @@ export function CommandBarPage() {
                 onKeyDown={handleKeyDown}
                 placeholder={t('CommandBar.Search placeholder') || ''}
                 className={classNames(
-                  'w-full rounded-lg border bg-transparent py-2 pl-10 pr-3 text-sm',
+                  'w-full rounded-lg border bg-bgInput py-2 pl-10 pr-3 text-sm dark:bg-bgInputDark',
                   'text-titleLight dark:text-titleDark',
                   'border-gray-300 dark:border-gray-500',
-                  'focus:border-primaryRing focus:outline-none focus:ring-2 focus:ring-primaryRing dark:focus:border-primaryRingDark dark:focus:ring-primaryRingDark',
+                  'focus:border-primaryRing focus:outline-none focus:ring-2 focus:ring-primaryRing dark:focus:border-primaryDark dark:focus:ring-primaryDark',
                   'placeholder:text-gray-400 dark:placeholder:text-gray-500',
                 )}
                 autoFocus
