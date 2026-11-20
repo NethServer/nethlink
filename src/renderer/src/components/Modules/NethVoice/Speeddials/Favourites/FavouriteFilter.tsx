@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Menu } from '@headlessui/react'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import classNames from 'classnames'
 import { useTheme } from '@renderer/theme/Context'
 import {
   faCheck as CheckedIcon,
-  faSortDown as ArrowMenuIcon,
+  faChevronDown as ArrowMenuIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { useNethlinkData } from '@renderer/store'
@@ -23,72 +23,55 @@ export const FavouriteFilter = () => {
   }
 
   const RenderMenuItem = ({ type }: { type: FilterTypes }) => {
+    const isSelected = speeddialsModule?.favouriteOrder === type
     return (
-      <Menu.Item as={'div'} className='cursor-pointer'>
-        <div
-          className='flex flex-row items-center py-[10px] px-6 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2'
-          onClick={() => {
-            setFilter(type)
-          }}
+      <MenuItem>
+        <button
+          type='button'
+          role='menuitemradio'
+          aria-checked={isSelected}
+          className='flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-titleLight data-[focus]:bg-hoverLight dark:text-titleDark dark:data-[focus]:bg-hoverDark'
+          onClick={() => setFilter(type)}
         >
-          <div className='flex gap-3 items-center'>
-            <FontAwesomeIcon
-              className={classNames(
-                speeddialsModule?.favouriteOrder === type ? '' : 'invisible',
-                'text-base dark:text-titleDark text-titleLight min-w-5',
-              )}
-              icon={CheckedIcon}
-            />
-            <p className='font-normal text-[14px] leading-5 dark:text-titleDark text-titleLight'>
-              {t(`SpeedDial.${type}`)}
-            </p>
-          </div>
-        </div>
-      </Menu.Item>
+          <FontAwesomeIcon
+            className={classNames('size-4', isSelected ? '' : 'invisible')}
+            icon={CheckedIcon}
+            aria-hidden='true'
+          />
+          {t(`SpeedDial.${type}`)}
+        </button>
+      </MenuItem>
     )
   }
 
   return (
-    <>
-      <div className='flex justify-center min-w-4 min-h-4'>
-        <div>
-          <Menu>
-            <div>
-              <Menu.Button
-                className={classNames(
-                  'flex gap-2 justify-center min-w-8 min-h-8  dark:hover:bg-transparent hover:bg-transparent px-1',
-                  nethTheme.button.ghost,
-                  nethTheme.button.base,
-                  nethTheme.button.rounded.base,
-                )}
-              >
-                <div>
-                  {t(`SpeedDial.${speeddialsModule?.favouriteOrder} label`)}
-                </div>
-                <FontAwesomeIcon
-                  className={classNames(
-                    'relative top-[-3px]  text-base',
-                    nethTheme.button.ghost,
-                    nethTheme.button.base,
-                    nethTheme.button.rounded.base,
-                  )}
-                  icon={ArrowMenuIcon}
-                />
-              </Menu.Button>
-            </div>
-            <Menu.Items
-              className={`absolute border dark:border-borderDark border-borderLight rounded-lg min-w-[180px] min-h-[84px] dark:bg-bgDark bg-bgLight translate-x-[calc(-100%+36px)] z-[110]`}
-            >
-              <div className='min-w-[200px] dark:text-titleDark text-titleLight pt-3 pl-7'>
-                {t('SpeedDial.Order by')}
-              </div>
-              <RenderMenuItem type={FilterTypes.AZ} />
-              <RenderMenuItem type={FilterTypes.ZA} />
-              <RenderMenuItem type={FilterTypes.EXT} />
-            </Menu.Items>
-          </Menu>
+    <Menu>
+      <MenuButton
+        className={classNames(
+          '-mr-2.5 gap-2 px-2.5 py-1.5',
+          nethTheme.button.base,
+          nethTheme.button.tertiary,
+          nethTheme.button.rounded.base,
+        )}
+      >
+        {t(`SpeedDial.${speeddialsModule?.favouriteOrder} label`)}
+        <FontAwesomeIcon
+          className='size-3'
+          icon={ArrowMenuIcon}
+          aria-hidden='true'
+        />
+      </MenuButton>
+      <MenuItems
+        anchor='bottom end'
+        className='z-[110] min-w-48 rounded-lg border border-borderLight bg-white py-1 shadow-lg focus:outline-none dark:border-borderDark dark:bg-gray-950'
+      >
+        <div className='px-4 pb-1 pt-2 text-xs font-medium text-gray-600 dark:text-gray-400'>
+          {t('SpeedDial.Order by')}
         </div>
-      </div>
-    </>
+        <RenderMenuItem type={FilterTypes.AZ} />
+        <RenderMenuItem type={FilterTypes.ZA} />
+        <RenderMenuItem type={FilterTypes.EXT} />
+      </MenuItems>
+    </Menu>
   )
 }

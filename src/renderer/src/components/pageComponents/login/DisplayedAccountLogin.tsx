@@ -1,14 +1,17 @@
 import { Account } from '@shared/types'
-import classNames from 'classnames'
 import { t } from 'i18next'
+import { useId } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faRemove as DeleteIcon } from '@fortawesome/free-solid-svg-icons'
+import { faCircleMinus as RemoveIcon } from '@fortawesome/free-solid-svg-icons'
 import { Avatar } from '../../Nethesis'
+import { CustomThemedTooltip } from '../../Nethesis/CustomThemedTooltip'
 
 type DisplayedAccountLoginProps = {
-  account?: Account
+  account: Account
   imageSrc?: string
+  // signs in with the account: the whole row is a button
   handleClick?: () => void
+  // removes the account from the list
   handleDeleteClick?: () => void
 }
 
@@ -18,46 +21,58 @@ export function DisplayedAccountLogin({
   handleClick,
   handleDeleteClick,
 }: DisplayedAccountLoginProps) {
+  const tooltipId = useId()
+  const content = (
+    <>
+      <Avatar src={imageSrc} placeholderType='operator' size='base' />
+      <div className='flex min-w-0 flex-1 flex-col text-left'>
+        <span className='truncate text-sm font-medium text-titleLight dark:text-titleDark'>
+          {account.data?.name}
+        </span>
+        <span className='truncate text-sm text-gray-600 dark:text-gray-400'>
+          {t('Login.Account details', {
+            extension: account.data?.endpoints.mainextension[0]?.id,
+            host: account.host,
+          })}
+        </span>
+      </div>
+    </>
+  )
+
   return (
-    <div
-      onClick={() => handleClick?.()}
-      className={classNames(
-        'w-full flex flex-row gap-7 items-center justify-start bg-transparent h-20 rounded-lg text-titleLight dark:text-titleDark cursor-pointer',
-        handleClick ? 'hover:bg-hoverLight dark:hover:bg-hoverDark' : '',
+    <div className='group flex items-center gap-1'>
+      {handleClick ? (
+        <button
+          type='button'
+          onClick={handleClick}
+          className='flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2 hover:bg-hoverLight focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:hover:bg-hoverDark dark:focus-visible:ring-primaryRingDark'
+        >
+          {content}
+        </button>
+      ) : (
+        <div className='flex min-w-0 flex-1 items-center gap-3 px-3 py-2'>
+          {content}
+        </div>
       )}
-    >
-      <div className='ml-5 w-12 h-12 overflow-hidden'>
-        <Avatar src={imageSrc} placeholderType='operator' size='large' />
-      </div>
-      <div className='flex flex-row justify-between  items-center w-[325px]'>
-        <p className='w-[300px] truncate'>
-          {account ? (
-            <span>
-              <span>{account.data?.name}</span>
-              {
-                <span className='text-xs block'>
-                  {account.data?.endpoints.mainextension[0].id} - {account.host}
-                </span>
-              }
-            </span>
-          ) : (
-            t('Login.Use Another Account')
-          )}
-        </p>
-        {handleDeleteClick && (
-          <FontAwesomeIcon
-            className={classNames(
-              'w-[25px] p-2 text-titleLight dark:text-titleDark  hover:text-textBlueLight dark:hover:text-textBlueDark',
-            )}
-            icon={DeleteIcon}
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              handleDeleteClick()
-            }}
-          />
-        )}
-      </div>
+      {handleDeleteClick && (
+        <>
+          <button
+            type='button'
+            aria-label={t('Login.Remove account') ?? undefined}
+            data-tooltip-id={tooltipId}
+            data-tooltip-content={t('Login.Remove account') ?? undefined}
+            onClick={handleDeleteClick}
+            className='shrink-0 rounded-md p-2 text-gray-600 hover:bg-hoverLight hover:text-textRedLight focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:text-gray-400 dark:hover:bg-hoverDark dark:hover:text-textRedDark dark:focus-visible:ring-primaryRingDark'
+          >
+            <FontAwesomeIcon
+              icon={RemoveIcon}
+              className='size-4'
+              aria-hidden='true'
+            />
+          </button>
+          <CustomThemedTooltip id={tooltipId} place='left' />
+        </>
+      )}
     </div>
   )
 }

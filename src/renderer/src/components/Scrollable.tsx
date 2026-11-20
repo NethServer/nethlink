@@ -1,5 +1,6 @@
 import classNames from 'classnames'
 
+// the scrolling area under a module title (h-10)
 export const Scrollable = ({
   children,
   className,
@@ -12,13 +13,11 @@ export const Scrollable = ({
   return (
     <div
       className={classNames(
-        'relative overflow-y-auto h-[calc(100%-28px)] mr-1.5',
+        'relative h-[calc(100%-2.5rem)] overflow-y-auto',
         className,
       )}
     >
-      <div className={classNames('relative pr-2', innerClassName)}>
-        {children}
-      </div>
+      <div className={classNames('relative', innerClassName)}>{children}</div>
     </div>
   )
 }

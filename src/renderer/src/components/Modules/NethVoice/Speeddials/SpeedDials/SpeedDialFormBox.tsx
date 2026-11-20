@@ -108,7 +108,7 @@ export function SpeedDialFormBox({ close }) {
       />
       <Scrollable>
         <form
-          className='flex flex-col gap-5 h-full px-5 pt-2'
+          className='flex flex-col gap-5 h-full px-4 pt-3'
           onSubmit={(e) => {
             e.preventDefault()
             handleSubmit(onSubmitForm)(e)
@@ -128,7 +128,7 @@ export function SpeedDialFormBox({ close }) {
                 handleSubmit(onSubmitForm)(e)
               }
             }}
-            className='font-medium text-[14px] leading-5'
+            className='text-sm font-medium'
           />
           <TextInput
             {...register('speeddial_num', { required: true })}
@@ -144,22 +144,21 @@ export function SpeedDialFormBox({ close }) {
                 handleSubmit(onSubmitForm)(e)
               }
             }}
-            className='font-medium text-[14px] leading-5'
+            className='text-sm font-medium'
           />
           <div className='relative w-full flex flex-row justify-end gap-4 pb-2'>
             <Button variant='ghost' onClick={handleClose} disabled={isLoading}>
-              <p className='dark:text-textBlueDark text-textBlueLight font-medium text-[14px] leading-5'>
-                {t('Common.Cancel')}
-              </p>
+              <p className='text-sm font-medium'>{t('Common.Cancel')}</p>
             </Button>
             <Button type='submit' ref={submitButtonRef} className='gap-3'>
-              <p className='dark:text-titleLight text-titleDark font-medium text-[14px] leading-5'>
-                {selectedSpeedDial ? t('Common.Edit') : t('SpeedDial.Create')}
+              <p className='text-sm font-medium'>
+                {selectedSpeedDial ? t('Common.Save') : t('SpeedDial.Create')}
               </p>
               {isLoading && (
                 <FontAwesomeIcon
                   icon={LoadingIcon}
-                  className='dark:text-titleLight text-titleDark animate-spin'
+                  className='size-4 animate-spin'
+                  aria-hidden='true'
                 />
               )}
             </Button>

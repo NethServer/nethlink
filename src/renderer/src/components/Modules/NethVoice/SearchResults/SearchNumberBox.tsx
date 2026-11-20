@@ -1,6 +1,6 @@
 import {
   faPhone as CallIcon,
-  faUserPlus as AddUserIcon,
+  faCirclePlus as AddUserIcon,
   faSearch as EmptySearchIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -169,13 +169,15 @@ export function SearchNumberBox({
         className,
       )}
     >
-      {(isPhoneNumberQuery || canAddToPhonebook) && (
-        <div className='mr-[6px] px-3 pt-1 pb-1 border-b dark:border-borderDark border-borderLight flex flex-col gap-0.5'>
-          {isPhoneNumberQuery && (
+      {/* as the title bar of the other modules: the call or the title on the left, the action on the right */}
+      <div className='px-4'>
+        <div className='flex h-10 items-center justify-between gap-3 border-b border-borderLight dark:border-borderDark'>
+          {isPhoneNumberQuery ? (
             <Button
               variant='tertiary'
+              size='small'
               disabled={!isCallButtonEnabled}
-              className='gap-3 self-start disabled:opacity-50'
+              className='-ml-2.5 min-w-0 gap-2'
               onClick={() => {
                 if (isCallButtonEnabled && searchText) {
                   debouncer(
@@ -188,34 +190,51 @@ export function SearchNumberBox({
                 }
               }}
             >
-              <FontAwesomeIcon className='h-4 w-4' icon={CallIcon} />
-              <span className='font-medium text-sm leading-5'>
-                {t('Operators.Call')} {searchText}
+              <FontAwesomeIcon
+                className='size-4 shrink-0'
+                icon={CallIcon}
+                aria-hidden='true'
+              />
+              <span className='truncate'>
+                {t('Operators.Call number', { number: searchText })}
               </span>
             </Button>
+          ) : (
+            <h1 className='truncate text-base font-medium leading-6 text-titleLight dark:text-titleDark'>
+              {t('Phonebook.Search results')}
+            </h1>
           )}
           {canAddToPhonebook && (
             <Button
               variant='tertiary'
-              className='gap-3 self-start'
+              size='small'
+              className='-mr-2.5 shrink-0 gap-2'
               onClick={showAddContactToPhonebook}
             >
-              <FontAwesomeIcon className='h-4 w-4' icon={AddUserIcon} />
-              <span className='font-medium text-sm leading-5'>
-                {t('Phonebook.Create contact')}
-              </span>
+              <FontAwesomeIcon
+                className='size-4'
+                icon={AddUserIcon}
+                aria-hidden='true'
+              />
+              {t('Phonebook.Create contact')}
             </Button>
           )}
         </div>
-      )}
+      </div>
       <Scrollable>
         {filteredPhoneNumbers.length > 0 ? (
           filteredPhoneNumbers.map((user, index) => (
-            <SearchNumber
-              key={'SearchNumber_' + index}
-              user={user}
-              onClick={user.displayName ? showContactDetail : undefined}
-            />
+            <div key={'SearchNumber_' + index} className='px-4'>
+              <SearchNumber
+                user={user}
+                className={
+                  index === filteredPhoneNumbers.length - 1
+                    ? ''
+                    : 'border-b border-borderLight dark:border-borderDark'
+                }
+                onClick={user.displayName ? showContactDetail : undefined}
+              />
+            </div>
           ))
         ) : (
           <EmptyList

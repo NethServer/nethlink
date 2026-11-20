@@ -57,9 +57,10 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
   }, [accountKey])
 
   return (
-    <div className='py-2'>
+    <div className='py-1'>
       <OptionElement
         isSelected={false}
+        selectable={false}
         icon={PhoneIcon}
         label={t('Settings.ShortcutToCall')}
         onClick={() => {
@@ -69,6 +70,7 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
       />
       <OptionElement
         isSelected={false}
+        selectable={false}
         icon={KeyboardIcon}
         label={t('Settings.CommandBarShortcut')}
         onClick={() => {
@@ -78,6 +80,7 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
       />
       <OptionElement
         isSelected={false}
+        selectable={false}
         icon={DevicesIcon}
         label={t('Settings.Devices')}
         onClick={() => {
@@ -87,6 +90,7 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
       />
       <OptionElement
         isSelected={false}
+        selectable={false}
         icon={IncomingCallsIcon}
         label={t('Settings.IncomingCalls')}
         onClick={() => {
@@ -97,6 +101,7 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
       {isCallSummaryEnabled && (
         <OptionElement
           isSelected={false}
+          selectable={false}
           icon={NotificationsIcon}
           label={t('Settings.Notifications')}
           onClick={() => {
@@ -108,6 +113,7 @@ export function SettingsBox({ onClose }: { onClose?: () => void }) {
       {isPasswordAvailable && (
         <OptionElement
           isSelected={false}
+          selectable={false}
           icon={PasswordIcon}
           label={t('Password.Change password')}
           onClick={() => {

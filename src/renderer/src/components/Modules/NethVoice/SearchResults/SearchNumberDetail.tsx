@@ -1,6 +1,6 @@
 import {
   faArrowLeft as BackIcon,
-  faClone as CopyIcon,
+  faCopy as CopyIcon,
   faEarth as PublicIcon,
   faUserGroup as GroupIcon,
   faUserLock as PrivateIcon,
@@ -51,10 +51,13 @@ export function SearchNumberDetail({
           {/* Title row: back arrow + name + visibility badge (mock 936-24158).
               px-4 matches the search box padding above (Navbar.tsx px-4 pt-2). */}
           <div className='px-4'>
-            <div className='flex items-center gap-2 pt-2 pb-2 border-b dark:border-borderDark border-borderLight min-h-[28px]'>
-              <FontAwesomeIcon
-                className='text-base dark:text-gray-50 text-gray-600 size-4 shrink-0 cursor-pointer'
-                icon={BackIcon}
+            <div className='flex h-10 items-center gap-2 border-b border-borderLight dark:border-borderDark'>
+              <button
+                type='button'
+                aria-label={t('Common.Back') as string}
+                data-tooltip-id='tooltip-contact-back'
+                data-tooltip-content={t('Common.Back') as string}
+                className='-ml-1.5 flex size-7 shrink-0 items-center justify-center rounded-md text-gray-700 hover:bg-hoverLight dark:text-gray-200 dark:hover:bg-hoverDark focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark'
                 onClick={() => {
                   debouncer(
                     'onDetailBack',
@@ -64,9 +67,16 @@ export function SearchNumberDetail({
                     250,
                   )
                 }}
-              />
+              >
+                <FontAwesomeIcon
+                  className='size-4'
+                  icon={BackIcon}
+                  aria-hidden='true'
+                />
+              </button>
+              <CustomThemedTooltip id='tooltip-contact-back' place='bottom' />
               <h1
-                className='flex-1 min-w-0 font-medium text-base leading-5 dark:text-titleDark text-titleLight truncate'
+                className='min-w-0 flex-1 truncate text-base font-medium leading-6 text-titleLight dark:text-titleDark'
                 data-tooltip-id='tooltip-contact-name'
                 data-tooltip-content={contact?.displayName}
               >
@@ -76,9 +86,9 @@ export function SearchNumberDetail({
               <VisibilityBadge contact={contact} />
             </div>
           </div>
-          <div className='px-4 pt-6 w-full h-full'>
+          <div className='h-full w-full px-4 pt-4'>
             <Scrollable>
-              <div className='flex flex-col gap-6 w-full pr-1'>
+              <div className='flex w-full flex-col gap-4 pb-4'>
                 {contact.company && (
                   <ContactDetail label={t('Phonebook.Company')} plain>
                     {contact.company}
@@ -262,21 +272,24 @@ const VisibilityBadge = ({ contact }: { contact: SearchData }) => {
         {visibleGroups.map((groupName) => (
           <div key={groupName} className={groupBadgeClassName}>
             <FontAwesomeIcon
-              className='text-base text-sky-800 dark:text-sky-100 w-4'
+              className='size-4 text-sky-800 dark:text-sky-100'
               icon={GroupIcon}
+              aria-hidden='true'
             />
             {groupName}
           </div>
         ))}
         {remainingGroups.length > 0 && (
           <>
-            <span
-              className='dark:text-textBlueDark text-textBlueLight hover:text-primaryHover dark:hover:text-primaryDarkHover font-medium text-[12px] leading-4 cursor-pointer hover:underline'
+            <button
+              type='button'
+              aria-label={remainingGroups.join(', ')}
+              className='rounded text-xs font-medium text-textBlueLight hover:text-primaryHover hover:underline dark:text-textBlueDark dark:hover:text-primaryDarkHover focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark'
               data-tooltip-id='tooltip-remaining-groups'
               data-tooltip-content={remainingGroups.join(', ')}
             >
               {t('Common.PlusOther', { count: remainingGroups.length })}
-            </span>
+            </button>
             <CustomThemedTooltip id='tooltip-remaining-groups' place='bottom' />
           </>
         )}
@@ -297,8 +310,9 @@ const VisibilityBadge = ({ contact }: { contact: SearchData }) => {
       )}
     >
       <FontAwesomeIcon
+        aria-hidden='true'
         className={classNames(
-          'text-base w-4',
+          'size-4',
           visibility === 'private'
             ? 'text-indigo-800 dark:text-indigo-100'
             : 'text-teal-800 dark:text-teal-100',
@@ -348,7 +362,7 @@ const ContactDetail = ({
   }
 
   const linkClassName =
-    'text-textBlueLight dark:text-textBlueDark hover:text-primaryHover dark:hover:text-primaryDarkHover cursor-pointer rounded-md font-normal dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark hover:underline'
+    'text-textBlueLight dark:text-textBlueDark hover:text-primaryHover dark:hover:text-primaryDarkHover cursor-pointer rounded-md font-normal hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark'
 
   const cleaned = ('' + children).replace(/ /g, '')
   const isCalltoDisabled = protocol === 'callto' && !isCallsEnabled
@@ -360,22 +374,23 @@ const ContactDetail = ({
   }
 
   return (
-    <div className='flex flex-row gap-6 items-start w-full justify-start'>
-      <div className='w-[100px] shrink-0 font-normal text-[14px] leading-5 text-gray-600 dark:text-gray-400'>
+    <div className='flex w-full flex-row items-start justify-start gap-4 text-sm'>
+      <div className='w-24 shrink-0 text-gray-600 dark:text-gray-400'>
         {label}
       </div>
       <div className='relative flex flex-row flex-1 min-w-0 gap-2'>
         {plain ? (
-          <div className='dark:text-titleDark text-titleLight font-normal text-[14px] leading-5 break-words'>
+          <div className='break-words text-titleLight dark:text-titleDark'>
             {children}
           </div>
         ) : href ? (
-          <span
-            className={classNames('truncate', linkClassName)}
+          <button
+            type='button'
+            className={classNames('truncate text-left', linkClassName)}
             onClick={openExternal}
           >
             {children}
-          </span>
+          </button>
         ) : (
           <a
             href={`${protocol}:${protocol === 'callto' ? '//' : ''}${cleaned}`}
@@ -391,16 +406,20 @@ const ContactDetail = ({
 
         {copy && (
           <div className='relative'>
-            <FontAwesomeIcon
-              className={classNames(
-                linkClassName,
-                'text-base !ring-0 !ring-offset-0 border-0 inset-0 mr-1',
-              )}
-              icon={CopyIcon}
+            <button
+              type='button'
+              aria-label={t('Common.Copy') as string}
+              className={classNames(linkClassName, 'flex items-center')}
               onClick={onCopy}
               data-tooltip-id={`tooltip-copy-${label}`}
-              data-tooltip-content={t('Common.Copy')}
-            />
+              data-tooltip-content={t('Common.Copy') as string}
+            >
+              <FontAwesomeIcon
+                className='size-4'
+                icon={CopyIcon}
+                aria-hidden='true'
+              />
+            </button>
             <div
               className='absolute left-1/2 top-0 z-0 w-0 h-full visible'
               data-tooltip-id={`tooltip-copied-${label}`}

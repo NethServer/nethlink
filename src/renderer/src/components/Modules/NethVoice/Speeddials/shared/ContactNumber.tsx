@@ -15,6 +15,7 @@ import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/Ba
 import classNames from 'classnames'
 import { Button } from '@renderer/components/Nethesis'
 import { openChat } from '@renderer/hooks/useChatBridge'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 
 export interface SpeedDialNumberProps {
   speedDial: ContactType
@@ -31,7 +32,6 @@ export function ContactNumber({
   isFavouritePage,
   handleEditSpeedDial,
   handleDeleteSpeedDial,
-  isLastItem,
 }: SpeedDialNumberProps): JSX.Element {
   const { theme: nethTheme } = useTheme()
   const [operators] = useNethlinkData('operators')
@@ -39,13 +39,19 @@ export function ContactNumber({
   const username =
     operators?.extensions[speedDial.speeddial_num || '']?.username
 
+  const chatTooltipId = `tooltip-chat-${speedDial.id}`
+  const menuTooltipId = `tooltip-speed-dial-menu-${speedDial.id}`
+
   return (
     <div
-      className={`relative flex flex-row justify-between items-center min-h-[44px] p-2 w-full ${className}`}
+      className={classNames(
+        'relative flex min-h-14 w-full flex-row items-center justify-between gap-3 py-3',
+        className,
+      )}
     >
       <ContactNameAndActions
         contact={speedDial}
-        avatarDim='base'
+        avatarDim='small'
         displayedNumber={truncate(speedDial.speeddial_num || '', 19)}
         isHighlight={false}
         number={speedDial.speeddial_num!}
@@ -56,77 +62,79 @@ export function ContactNumber({
 
       {/* An operator: chat with them */}
       {username && chatStatus === 'online' && (
-        <Button
-          variant='ghost'
-          className='self-center ml-2 shrink-0'
-          onClick={() => openChat(username)}
-        >
-          <FontAwesomeIcon icon={faMessage} className='text-base' />
-          <span className='sr-only'>{t('Chat.Chat')}</span>
-        </Button>
+        <>
+          <Button
+            variant='ghost'
+            className='shrink-0 p-2'
+            aria-label={t('Chat.Chat') as string}
+            data-tooltip-id={chatTooltipId}
+            data-tooltip-content={t('Chat.Chat') as string}
+            onClick={() => openChat(username)}
+          >
+            <FontAwesomeIcon
+              icon={faMessage}
+              className='size-4'
+              aria-hidden='true'
+            />
+          </Button>
+          <CustomThemedTooltip id={chatTooltipId} place='left' />
+        </>
       )}
 
       {!isFavouritePage && (
-        <div className='flex justify-center min-w-4 min-h-4'>
-          <div>
-            <Menu>
-              <div>
-                <MenuButton
-                  className={classNames(
-                    'flex items-center justify-center min-w-8 min-h-8',
-                    nethTheme.button.tertiary,
-                    nethTheme.button.base,
-                    nethTheme.button.rounded.base,
-                  )}
-                >
-                  <FontAwesomeIcon
-                    className='dark:text-titleDark text-titleLight text-base'
-                    icon={MenuIcon}
-                  />
-                </MenuButton>
-              </div>
-              <MenuItems
-                className={`absolute ${isLastItem ? 'top-[-48px]' : 'top-0'} border dark:border-borderDark border-borderLight rounded-lg min-w-[180px] min-h-[84px] dark:bg-bgDark bg-bgLight translate-x-[calc(-100%+36px)] z-[110]`}
+        <Menu>
+          <MenuButton
+            aria-label={t('SpeedDial.Open speed dial menu') as string}
+            data-tooltip-id={menuTooltipId}
+            data-tooltip-content={t('SpeedDial.Open speed dial menu') as string}
+            className={classNames(
+              'size-8 shrink-0',
+              nethTheme.button.base,
+              nethTheme.button.tertiary,
+              nethTheme.button.rounded.base,
+            )}
+          >
+            <FontAwesomeIcon
+              className='size-4 text-gray-700 dark:text-gray-200'
+              icon={MenuIcon}
+              aria-hidden='true'
+            />
+          </MenuButton>
+          <CustomThemedTooltip id={menuTooltipId} place='left' />
+          <MenuItems
+            anchor='bottom end'
+            className='z-[110] min-w-44 rounded-lg border border-borderLight bg-white py-1 shadow-lg focus:outline-none dark:border-borderDark dark:bg-gray-950'
+          >
+            <MenuItem>
+              <button
+                type='button'
+                className='flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-titleLight data-[focus]:bg-hoverLight dark:text-titleDark dark:data-[focus]:bg-hoverDark'
+                onClick={() => handleEditSpeedDial?.(speedDial)}
               >
-                <MenuItem as={'div'} className='cursor-pointer'>
-                  <div
-                    className='flex flex-row items-center py-[10px] px-6 dark:hover:bg-hoverDark hover:bg-hoverLight mt-2'
-                    onClick={() => {
-                      handleEditSpeedDial?.(speedDial)
-                    }}
-                  >
-                    <div className='flex gap-3 items-center'>
-                      <FontAwesomeIcon
-                        className='text-base dark:text-titleDark text-titleLight'
-                        icon={ModifyIcon}
-                      />
-                      <p className='font-normal text-[14px] leading-5 dark:text-titleDark text-titleLight'>
-                        {t('Common.Edit')}
-                      </p>
-                    </div>
-                  </div>
-                </MenuItem>
-
-                <MenuItem as={'div'} className='cursor-pointer'>
-                  <div
-                    className='flex flex-row items-center py-[10px] px-6 dark:text-rose-500 text-rose-700 dark:hover:bg-rose-800 dark:hover:text-gray-50 hover:bg-rose-700 hover:text-gray-50 mb-2'
-                    onClick={() => handleDeleteSpeedDial?.(speedDial)}
-                  >
-                    <div className='flex gap-3 items-center'>
-                      <FontAwesomeIcon
-                        className='text-base'
-                        icon={DeleteIcon}
-                      />
-                      <p className='font-normal text-[14px] leading-5'>
-                        {t('Common.Delete')}
-                      </p>
-                    </div>
-                  </div>
-                </MenuItem>
-              </MenuItems>
-            </Menu>
-          </div>
-        </div>
+                <FontAwesomeIcon
+                  className='size-4'
+                  icon={ModifyIcon}
+                  aria-hidden='true'
+                />
+                {t('Common.Edit')}
+              </button>
+            </MenuItem>
+            <MenuItem>
+              <button
+                type='button'
+                className='flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-rose-700 data-[focus]:bg-rose-700 data-[focus]:text-white dark:text-rose-500 dark:data-[focus]:bg-rose-600 dark:data-[focus]:text-white'
+                onClick={() => handleDeleteSpeedDial?.(speedDial)}
+              >
+                <FontAwesomeIcon
+                  className='size-4'
+                  icon={DeleteIcon}
+                  aria-hidden='true'
+                />
+                {t('Common.Delete')}
+              </button>
+            </MenuItem>
+          </MenuItems>
+        </Menu>
       )}
     </div>
   )

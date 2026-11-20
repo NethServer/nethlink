@@ -3,10 +3,12 @@ import { Button, TextInput } from '@renderer/components/Nethesis'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { IPC_EVENTS } from '@shared/constants'
 import { t } from 'i18next'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Backdrop } from '../../Backdrop'
+import { Modal } from '@renderer/components/Modal'
+import { DialogTitle } from '@headlessui/react'
+import { parseThemeToClassName } from '@renderer/utils'
 import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -17,6 +19,8 @@ export function SettingsCommandBarShortcutDialog() {
   const [, setIsCommandBarShortcutDialogOpen] = useNethlinkData(
     'isCommandBarShortcutDialogOpen',
   )
+  const [theme] = useSharedState('theme')
+  const comboInputRef = useRef<HTMLInputElement | null>(null)
   const [combo, setCombo] = useState('')
   const [keysPressed, setKeysPressed] = useState(new Set())
 
@@ -52,10 +56,6 @@ export function SettingsCommandBarShortcutDialog() {
   }
 
   useEffect(() => {
-    setFocus('combo')
-  }, [])
-
-  useEffect(() => {
     // Use ?? to handle both undefined and empty string correctly
     setCombo(account?.commandBarShortcut ?? '')
   }, [account?.commandBarShortcut])
@@ -67,7 +67,6 @@ export function SettingsCommandBarShortcutDialog() {
   const {
     register,
     handleSubmit,
-    setFocus,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -121,6 +120,8 @@ export function SettingsCommandBarShortcutDialog() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Escape closes the dialog and Tab moves the focus, as in any dialog
+    if (e.key === 'Escape' || e.key === 'Tab') return
     e.preventDefault()
 
     const rawKey = e.key
@@ -177,113 +178,106 @@ export function SettingsCommandBarShortcutDialog() {
     setKeysPressed(new Set())
   }
 
+  const { ref: comboRegisterRef, ...comboRegister } = register('combo')
+
   return (
-    <>
-      <div className='fixed inset-0 bg-gray-500/75 dark:bg-gray-700/75 z-[201]' />
-
-      <Backdrop
-        className='z-[202]'
-        onBackdropClick={() => setIsCommandBarShortcutDialogOpen(false)}
-      />
-
-      <div className='fixed inset-0 z-[205] overflow-y-auto pointer-events-none'>
-        <div className='flex min-h-full items-center justify-center p-4 pointer-events-none'>
-          <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-[90%] pointer-events-auto'>
-            <div className='p-6 flex flex-col gap-4'>
-              <h2 className='text-center font-semibold text-xl'>
-                {t('TopBar.Keyboard shortcut for command bar')}
-              </h2>
-
-              <p className='text-center text-gray-600 dark:text-gray-300'>
-                {t('TopBar.Command bar shortcut title description')}{' '}
-              </p>
-
-              {
-                <InlineNotification
-                  title={t('Common.Warning')}
-                  type='warning'
-                  className=''
-                >
-                  <p>{t('TopBar.Shortcut subtitle description')}</p>
-                </InlineNotification>
-              }
-
-              <form
-                onSubmit={handleSubmit(submit)}
-                className='flex flex-col gap-5'
-              >
-                <div className='flex items-start gap-2'>
-                  <TextInput
-                    {...register('combo')}
-                    placeholder={t('Common.Shortcut') as string}
-                    className='flex-grow font-normal text-base leading-5 rounded-lg'
-                    helper={errors.combo?.message || undefined}
-                    error={!!errors.combo?.message}
-                    value={combo}
-                    onKeyDown={handleKeyDown}
-                    onKeyUp={handleKeyUp}
-                    onChange={() => {}}
-                    readOnly
-                    autoFocus
-                  />
-                  {!!combo && (
-                    <Button
-                      variant='ghost'
-                      onClick={handleClearShortcut}
-                      className='mt-3'
-                      size='inputSize'
-                      data-tooltip-id='tooltip-clear-command-bar-shortcut'
-                      data-tooltip-content={t(
-                        'Settings.Clear and remove shortcut',
-                      )}
-                      data-tooltip-place='top'
-                    >
-                      <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
-                    </Button>
-                  )}
-                  <CustomThemedTooltip
-                    id='tooltip-clear-command-bar-shortcut'
-                    place='top'
-                  />
-                </div>
-
-                {!isValidCommandBarShortcut(combo) && (
-                  <p className='text-sm text-red-600 dark:text-red-400'>
-                    {t('Common.This field is required')}
-                  </p>
-                )}
-
-                <p className='text-sm text-gray-500 dark:text-gray-400'>
-                  {t('TopBar.Shortcut body description')}
-                </p>
-
-                <div className='flex flex-col gap-3 mt-2'>
-                  <Button
-                    variant='primary'
-                    type='button'
-                    className='w-full py-3 rounded-lg font-medium'
-                    onClick={(e) => {
-                      e.preventDefault()
-                      submit({ combo })
-                    }}
-                  >
-                    {t('Common.Save')}
-                  </Button>
-
-                  <Button
-                    variant='ghost'
-                    type='button'
-                    onClick={handleCancel}
-                    className='text-center text-blue-700 dark:text-blue-500 font-medium'
-                  >
-                    {t('Common.Cancel')}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
+    <Modal
+      show={true}
+      focus={comboInputRef}
+      onClose={() => setIsCommandBarShortcutDialogOpen(false)}
+      themeMode={parseThemeToClassName(theme)}
+    >
+      <form
+        onSubmit={handleSubmit(submit)}
+        className='flex max-h-[calc(100vh-2rem)] w-96 max-w-full flex-col gap-6 p-6 text-textPrimaryNeutral dark:text-textPrimaryNeutralDark'
+      >
+        <div className='flex flex-col gap-2'>
+          <DialogTitle className='text-lg font-medium leading-7'>
+            {t('TopBar.Command bar shortcut title')}
+          </DialogTitle>
+          <p className='text-sm leading-5 text-gray-600 dark:text-gray-400'>
+            {t('TopBar.Command bar shortcut title description')}
+          </p>
         </div>
-      </div>
-    </>
+
+        {/* the title and the buttons stay in view: only this part scrolls */}
+        <div className='-mx-6 -my-1 flex min-h-0 flex-col gap-6 overflow-y-auto px-6 py-1'>
+          <InlineNotification title={t('Common.Warning')} type='warning'>
+            <p>{t('TopBar.Shortcut subtitle description')}</p>
+          </InlineNotification>
+
+          <div className='flex flex-col gap-2'>
+            {/* Input field with clear button next to it */}
+            <div className='flex items-start gap-2'>
+              <TextInput
+                {...comboRegister}
+                ref={(el) => {
+                  comboRegisterRef(el)
+                  comboInputRef.current = el
+                }}
+                aria-label={t('TopBar.Command bar shortcut title') as string}
+                placeholder={t('Common.Shortcut') as string}
+                className='flex-grow'
+                helper={errors.combo?.message || undefined}
+                error={!!errors.combo?.message}
+                value={combo}
+                onKeyDown={handleKeyDown}
+                onKeyUp={handleKeyUp}
+                onChange={() => {}}
+                readOnly
+              />
+              {!!combo && (
+                <Button
+                  variant='ghost'
+                  onClick={handleClearShortcut}
+                  size='inputSize'
+                  aria-label={t('Settings.Clear and remove shortcut') as string}
+                  data-tooltip-id='tooltip-clear-command-bar-shortcut'
+                  data-tooltip-content={t('Settings.Clear and remove shortcut')}
+                  data-tooltip-place='top'
+                >
+                  <FontAwesomeIcon
+                    icon={faXmark}
+                    className='size-4'
+                    aria-hidden='true'
+                  />
+                </Button>
+              )}
+              <CustomThemedTooltip
+                id='tooltip-clear-command-bar-shortcut'
+                place='top'
+              />
+            </div>
+
+            {!isValidCommandBarShortcut(combo) && (
+              <p className='text-sm text-red-600 dark:text-red-400'>
+                {t('Common.This field is required')}
+              </p>
+            )}
+
+            {/* Keys not supported info */}
+            <p className='text-sm leading-5 text-gray-600 dark:text-gray-400'>
+              {t('TopBar.Shortcut body description')}
+            </p>
+          </div>
+
+          {/* as the modals of the design system: cancel, then the primary action, on the right */}
+        </div>
+        <div className='flex justify-end gap-3'>
+          <Button type='button' variant='white' onClick={handleCancel}>
+            {t('Common.Cancel')}
+          </Button>
+          <Button
+            type='button'
+            onClick={(e) => {
+              e.preventDefault()
+              submit({ combo })
+            }}
+          >
+            {t('Common.Save')}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

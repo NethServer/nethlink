@@ -81,7 +81,7 @@ export const PresenceBadge = ({ className }: PresenceBadgeProps) => {
                     ? faMobile
                     : faVoicemail
               }
-              className='h-4 w-4 text-topBarText dark:text-topBarTextDark'
+              className='h-4 w-4 text-gray-700 dark:text-gray-200'
               aria-hidden='true'
             />
 

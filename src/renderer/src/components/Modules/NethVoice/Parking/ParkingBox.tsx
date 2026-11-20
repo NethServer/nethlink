@@ -40,38 +40,45 @@ export const ParkingBox = () => {
       <ModuleTitle
         title={`${t('Parks.Parking')} ${parkedCalls && parkedCalls.length > 0 ? `(${parkedCalls.length})` : ''}`}
       />
-      <Scrollable innerClassName={'min-w-[344px]'}>
+      <Scrollable>
         {parkedCalls ? (
           parkedCalls.length > 0 ? (
             parkedCalls?.map((e, idx) => {
               return (
-                <div
-                  key={idx}
-                  className='dark:hover:bg-hoverDark hover:bg-hoverLight'
-                >
-                  <div className='px-5'>
-                    <div
-                      className={`${idx === parkedCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-                    >
-                      <ParkedCall parkingDetails={e} onPickup={pickParking} />
-                    </div>
+                <div key={idx} className='px-4'>
+                  <div
+                    className={
+                      idx === parkedCalls.length - 1
+                        ? ''
+                        : 'border-b border-borderLight dark:border-borderDark'
+                    }
+                  >
+                    <ParkedCall parkingDetails={e} onPickup={pickParking} />
                   </div>
                 </div>
               )
             })
           ) : (
-            <EmptyList icon={ParkedCallIcon} text={t('Parks.No parked call')} />
+            <EmptyList
+              icon={ParkedCallIcon}
+              text={t('Parks.No parked calls')}
+            />
           )
         ) : (
           Array(3)
             .fill('')
             .map((_, idx) => {
               return (
-                <div
-                  className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-                  key={idx}
-                >
-                  <ParkedCallSkeleton />
+                <div className='px-4' key={idx}>
+                  <div
+                    className={
+                      idx === 2
+                        ? ''
+                        : 'border-b border-borderLight dark:border-borderDark'
+                    }
+                  >
+                    <ParkedCallSkeleton />
+                  </div>
                 </div>
               )
             })

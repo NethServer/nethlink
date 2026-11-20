@@ -2,17 +2,13 @@ import { ParkingType } from '@shared/types'
 import {
   faSquareParking as ParkedCallIcon,
   faPhone as CallIcon,
+  faTriangleExclamation as UrgencyIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from '@renderer/components/Nethesis'
 import { t } from 'i18next'
 import { motion } from 'framer-motion'
-import {
-  useEffect,
-  useRef,
-  useState,
-  type MouseEvent as ReactMouseEvent,
-} from 'react'
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import classNames from 'classnames'
 import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 
@@ -49,8 +45,10 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
 
   const formattedTime = new Date(time * 1000).toISOString().slice(14, 19)
   const animationControls: any = useRef(null)
+  const hintTooltipId = useId()
 
-  const handleButtonDown = (_event: ReactMouseEvent<HTMLDivElement>) => {
+  // press and hold, with the pointer or with Space and Enter, to pick up
+  const startPress = () => {
     if (!cardPressStates) {
       setCardPressStates(true)
       animationControls.current = setTimeout(() => {
@@ -59,12 +57,26 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
     }
   }
 
-  const handleButtonUp = (_event: ReactMouseEvent<HTMLDivElement>) => {
+  const stopPress = () => {
     setCardPressStates(false)
     if (animationControls.current) {
       clearTimeout(animationControls.current)
     }
     resetAnimation()
+  }
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault()
+      if (!event.repeat) startPress()
+    }
+  }
+
+  const handleKeyUp = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault()
+      stopPress()
+    }
   }
 
   const longPressHandler = (parkingDetails: ParkingType) => {
@@ -77,17 +89,17 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
   }
 
   return (
-    <div className='flex flex-col pt-2 pb-3 gap-2'>
-      <div className='flex flex-row justify-between items-start gap-4'>
-        <div className='flex flex-col justify-start gap-1 min-w-0 flex-1'>
-          <div className='flex flex-row items-center text-sm font-medium text-gray-900 dark:text-gray-50 gap-2 min-w-0'>
+    <div className='flex flex-row items-start justify-between gap-4 py-3'>
+      <>
+        <div className='flex min-w-0 flex-1 flex-col justify-start gap-1'>
+          <div className='flex min-w-0 flex-row items-center gap-2 text-sm font-medium text-titleLight dark:text-titleDark'>
             <FontAwesomeIcon
-              size='1x'
               icon={ParkedCallIcon}
-              className='text-sm'
+              className='size-4 shrink-0'
+              aria-hidden='true'
             />
             <span
-              className='text-sm text-left truncate'
+              className='truncate text-left text-sm'
               data-tooltip-id={`tooltip-parked-title-${parkingDetails.name}`}
               data-tooltip-content={`${t('Parks.Parking')} ${parkingDetails.name}`}
             >
@@ -95,83 +107,108 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
               <CustomThemedTooltip
                 id={`tooltip-parked-title-${parkingDetails.name}`}
                 place='bottom'
-                className='z-[100000]'
-                zIndex={100000}
               />
             </span>
           </div>
           <span
             data-tooltip-id={`tooltip-parked-user-${parkingDetails.name}`}
             data-tooltip-content={parkingDetails?.parkedCaller?.name}
-            className={`text-sm text-left text-gray-900 dark:text-gray-100 truncate font-medium tooltip-parked-user-${parkingDetails.name} `}
+            className='truncate text-left text-sm font-medium text-titleLight dark:text-titleDark'
           >
             {parkingDetails?.parkedCaller?.name}
             <CustomThemedTooltip
               id={`tooltip-parked-user-${parkingDetails.name}`}
               place='bottom'
-              className='z-[100000]'
-              zIndex={100000}
             />
           </span>
-          <div className='flex flex-row gap-2 items-center min-w-0'>
-            <span className='text-gray-900 dark:text-gray-50 font-normal text-sm leading-5 truncate'>
-              {parkingDetails?.parkedCaller?.num || t('Common.Unknown')}
-            </span>
-          </div>
+          <span className='truncate text-sm leading-5 text-gray-600 dark:text-gray-400'>
+            {parkingDetails?.parkedCaller?.num || t('Common.Unknown')}
+          </span>
         </div>
-        <span
-          className={classNames(
-            status === 'begin'
-              ? 'text-titleLight dark:text-titleDark'
-              : status === 'middle'
-                ? 'text-amber-700 dark:text-amber-500'
-                : 'text-red-700 dark:text-red-500',
-            'text-sm font-mono',
-          )}
-        >
-          {formattedTime}
-        </span>
-      </div>
-      <div
-        className='relative w-28'
-        onMouseDown={handleButtonDown}
-        onMouseUp={handleButtonUp}
-        onMouseLeave={handleButtonUp}
-      >
-        <motion.div
-          initial={{ width: 0 }}
-          animate={
-            cardPressStates
-              ? { width: '100%', transition: { duration: 2 } }
-              : { width: 0 }
-          }
-          className='absolute top-[1px] left-0 w-full min-h-[44px] bg-emerald-500 rounded-md overflow-hidden'
-        ></motion.div>
-        <Button
-          variant='white'
-          className={classNames('tooltip-parking-button min-w-28 min-h-[44px]')}
-        >
-          <FontAwesomeIcon
-            icon={CallIcon}
-            className={classNames(
-              'h-4 w-4 mr-2',
-              cardPressStates
-                ? 'text-gray-500 dark:text-gray-200'
-                : 'textBlueLight dark:textBlueDark',
-            )}
-          />
+        <div className='flex shrink-0 flex-col items-end gap-2'>
           <span
             className={classNames(
-              'w-16 overflow-hidden whitespace-nowrap',
-              cardPressStates
-                ? 'text-gray-500 dark:text-gray-200'
-                : 'textBlueLight dark:textBlueDark',
+              status === 'begin'
+                ? 'text-titleLight dark:text-titleDark'
+                : status === 'middle'
+                  ? 'text-amber-700 dark:text-amber-500'
+                  : 'text-red-700 dark:text-red-500',
+              'flex shrink-0 items-center gap-1 text-sm tabular-nums',
             )}
           >
-            {t('Parks.Pick up')}
+            {status !== 'begin' && (
+              <>
+                <FontAwesomeIcon
+                  icon={UrgencyIcon}
+                  className='size-3'
+                  aria-hidden='true'
+                />
+                <span className='sr-only'>
+                  {t(
+                    status === 'middle'
+                      ? 'Parks.Parking timeout soon'
+                      : 'Parks.Parking timeout very soon',
+                  )}
+                </span>
+              </>
+            )}
+            {formattedTime}
           </span>
-        </Button>
-      </div>
+          <div className='relative'>
+            <motion.div
+              initial={{ width: 0 }}
+              animate={
+                cardPressStates
+                  ? { width: '100%', transition: { duration: 2 } }
+                  : { width: 0 }
+              }
+              className='absolute inset-y-0 left-0 overflow-hidden rounded-md bg-emerald-500'
+            ></motion.div>
+            <Button
+              variant='white'
+              className='relative min-w-28 gap-2'
+              aria-label={
+                t('Parks.Pick up call in parking', {
+                  name: parkingDetails.name,
+                }) ?? undefined
+              }
+              data-tooltip-id={hintTooltipId}
+              data-tooltip-content={
+                t('Parks.Press and hold to pick up') ?? undefined
+              }
+              onPointerDown={startPress}
+              onPointerUp={stopPress}
+              onPointerLeave={stopPress}
+              onPointerCancel={stopPress}
+              onKeyDown={handleKeyDown}
+              onKeyUp={handleKeyUp}
+              onBlur={stopPress}
+            >
+              <FontAwesomeIcon
+                icon={CallIcon}
+                aria-hidden='true'
+                className={classNames(
+                  'size-4',
+                  cardPressStates
+                    ? 'text-gray-600 dark:text-gray-200'
+                    : 'text-textBlueLight dark:text-textBlueDark',
+                )}
+              />
+              <span
+                className={classNames(
+                  'overflow-hidden whitespace-nowrap',
+                  cardPressStates
+                    ? 'text-gray-600 dark:text-gray-200'
+                    : 'text-textBlueLight dark:text-textBlueDark',
+                )}
+              >
+                {t('Parks.Pick up')}
+              </span>
+            </Button>
+            <CustomThemedTooltip id={hintTooltipId} place='bottom' />
+          </div>
+        </div>
+      </>
     </div>
   )
 }

@@ -1,40 +1,40 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowLeft as ArrowIcon } from '@fortawesome/free-solid-svg-icons'
-import { Button } from '@renderer/components/Nethesis'
 import { t } from 'i18next'
 import classNames from 'classnames'
-import { Scrollable } from '@renderer/components/Scrollable'
+import { menuRowClassName } from './MenuAction'
 
 export const MenuPage = ({ goBack, title, children }) => {
   return (
     <div
       className={classNames(
-        'w-[252px] h-[333px] overflow-hidden',
-        'bg-bgInput dark:bg-bgInputDark w-full h-full',
-        'rounded-lg border-0',
+        'flex h-full w-full flex-col overflow-hidden rounded-lg',
+        'bg-bgInput dark:bg-bgInputDark',
       )}
     >
-      <div className='py-2'>
-        <Button
-          variant='ghost'
-          className='flex gap-3 w-full rounded-none !justify-start'
+      <div className='py-1'>
+        <button
+          type='button'
+          className={classNames(
+            menuRowClassName,
+            'font-medium text-textBlueLight dark:text-textBlueDark',
+          )}
           onClick={goBack}
         >
           <FontAwesomeIcon
             icon={ArrowIcon}
-            className='h-5 w-5 dark:text-textBlueDark text-textBlueLight'
+            className='size-4 shrink-0 text-textBlueLight dark:text-textBlueDark'
+            aria-hidden='true'
           />
-          <p className='dark:text-textBlueDark text-textBlueLight font-medium'>
+          <span className='text-textBlueLight dark:text-textBlueDark'>
             {t('Login.Back')}
-          </p>
-        </Button>
+          </span>
+        </button>
       </div>
-      <div>
-        <p className='pt-2 px-4 dark:text-bgLight text-bgDark uppercase'>
-          {title}
-        </p>
-        <Scrollable className='max-h-[237px] mb-4'>{children}</Scrollable>
-      </div>
+      <h2 className='px-4 pb-1 pt-2 text-xs font-medium leading-4 text-gray-600 dark:text-gray-400'>
+        {title}
+      </h2>
+      <div className='min-h-0 flex-1 overflow-y-auto pb-2'>{children}</div>
     </div>
   )
 }

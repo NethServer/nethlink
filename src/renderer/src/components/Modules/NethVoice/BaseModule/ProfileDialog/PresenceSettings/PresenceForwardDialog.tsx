@@ -1,17 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, TextInput } from '@renderer/components/Nethesis'
 import { getIsPhoneNumber } from '@renderer/lib/utils'
-import { useNethlinkData } from '@renderer/store'
+import { useNethlinkData, useSharedState } from '@renderer/store'
 import { Log } from '@shared/utils/logger'
 import { t } from 'i18next'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { usePresenceService } from './usePresenceService'
-import { Backdrop } from '../../Backdrop'
+import { Modal } from '@renderer/components/Modal'
+import { DialogTitle } from '@headlessui/react'
+import { parseThemeToClassName } from '@renderer/utils'
 
 export function PresenceForwardDialog() {
   const [, setIsForwardDialogOpen] = useNethlinkData('isForwardDialogOpen')
+  const [theme] = useSharedState('theme')
   const { onSelectPresence } = usePresenceService()
   useEffect(() => {
     setFocus('to')
@@ -67,67 +70,52 @@ export function PresenceForwardDialog() {
   const to = watch('to')
 
   return (
-    <>
-      {/* Background color */}
-      <div className='fixed inset-0 bg-gray-500/75 dark:bg-gray-700/75 z-[201]' />
-
-      {/* On external click close dialog */}
-      <Backdrop
-        className='z-[202]'
-        onBackdropClick={() => setIsForwardDialogOpen(false)}
-      />
-
-      <div className='absolute top-0 left-0 w-screen h-screen flex justify-center items-center z-[205] pointer-events-none'>
-        <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-[90%] pointer-events-auto'>
-          {/* Dialog content */}
-          <div className='p-6 flex flex-col gap-6'>
-            {/* Title */}
-            <h3 className='text-center font-medium text-lg'>
-              {t('TopBar.Enter phone number for call forward')}
-            </h3>
-
-            {/* Form */}
-            <form
-              onSubmit={handleSubmit(submit)}
-              className='flex flex-col gap-6'
-            >
-              {/* Input field */}
-              <div>
-                <TextInput
-                  {...register('to')}
-                  placeholder={t('Common.Phone number') as string}
-                  className='w-full font-normal text-base leading-5 rounded-lg'
-                  helper={errors.to?.message || undefined}
-                  error={!!errors.to?.message}
-                  autoFocus
-                />
-              </div>
-
-              {/* Action buttons */}
-              <div className='flex flex-col gap-4'>
-                <Button
-                  variant='primary'
-                  type='button'
-                  className='w-full py-3 rounded-lg font-medium'
-                  onClick={(e) => {
-                    e.preventDefault()
-                    submit({ to })
-                  }}
-                >
-                  {t('Common.Save')}
-                </Button>
-                <Button
-                  variant='ghost'
-                  className='text-center font-medium text-blue-700 dark:text-blue-500'
-                  onClick={handleCancel}
-                >
-                  {t('Common.Cancel')}
-                </Button>
-              </div>
-            </form>
-          </div>
+    // no initial focus button: the focus goes to the phone number field
+    <Modal
+      show={true}
+      onClose={() => setIsForwardDialogOpen(false)}
+      themeMode={parseThemeToClassName(theme)}
+    >
+      <form
+        onSubmit={handleSubmit(submit)}
+        className='flex max-h-[calc(100vh-2rem)] w-96 max-w-full flex-col gap-6 p-6 text-textPrimaryNeutral dark:text-textPrimaryNeutralDark'
+      >
+        <div className='flex flex-col gap-2'>
+          <DialogTitle className='text-lg font-medium leading-7'>
+            {t('TopBar.Call forward')}
+          </DialogTitle>
+          <p className='text-sm leading-5 text-gray-600 dark:text-gray-400'>
+            {t('TopBar.Forward incoming calls to another phone number')}
+          </p>
         </div>
-      </div>
-    </>
+        {/* the title and the buttons stay in view: only this part scrolls */}
+        <div className='-mx-6 -my-1 flex min-h-0 flex-col gap-6 overflow-y-auto px-6 py-1'>
+          <TextInput
+            {...register('to')}
+            placeholder={t('Common.Phone number') as string}
+            aria-label={t('Common.Phone number') as string}
+            className='w-full'
+            helper={errors.to?.message || undefined}
+            error={!!errors.to?.message}
+            autoFocus
+          />
+        </div>
+        {/* as the modals of the design system: cancel, then the primary action, on the right */}
+        <div className='flex justify-end gap-3'>
+          <Button type='button' variant='white' onClick={handleCancel}>
+            {t('Common.Cancel')}
+          </Button>
+          <Button
+            type='submit'
+            onClick={(e) => {
+              e.preventDefault()
+              submit({ to })
+            }}
+          >
+            {t('Common.Save')}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

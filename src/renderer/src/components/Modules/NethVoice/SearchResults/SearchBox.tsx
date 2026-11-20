@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form'
 import { Button, TextInput } from '@renderer/components/Nethesis'
 import { Log } from '@shared/utils/logger'
 import { debouncer } from '@shared/utils/utils'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 type FormDataType = {
   searchText: string | undefined
 }
@@ -86,21 +87,30 @@ export function SearchBox(): JSX.Element {
         type='text'
         placeholder={t('Common.Call or compose') as string}
         onKeyDown={handleCallUser}
-        className='min-w-[180px] dark:text-titleDark text-titleLight'
+        aria-label={t('Common.Call or compose') ?? undefined}
+        className='min-w-0 dark:text-titleDark text-titleLight'
         {...register('searchText')}
       />
       {tempSearchText !== '' && (
         <Button
           variant='ghost'
+          size='small'
           type='reset'
-          className='absolute right-1 z-[101] cursor-pointer mr-2 pt-[2px] pr-[2px] pb-[2px] pl-[2px]'
+          aria-label={t('Common.Clear search') ?? undefined}
+          data-tooltip-id='tooltip-clear-search'
+          data-tooltip-content={t('Common.Clear search') ?? undefined}
+          className='absolute right-2 z-20 p-1'
           onClick={handleClearButton}
         >
           <FontAwesomeIcon
             icon={DeleteSearchIcon}
-            className='dark:text-titleDark text-titleLight h-4 w-4'
+            className='size-4 text-gray-600 dark:text-gray-400'
+            aria-hidden='true'
           />
         </Button>
+      )}
+      {tempSearchText !== '' && (
+        <CustomThemedTooltip id='tooltip-clear-search' place='bottom' />
       )}
     </form>
   )

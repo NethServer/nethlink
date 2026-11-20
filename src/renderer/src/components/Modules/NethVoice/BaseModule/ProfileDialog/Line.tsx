@@ -1,3 +1,8 @@
 export const Line = () => {
-  return <div className='border-b dark:border-borderDark border-borderLight' />
+  return (
+    <div
+      role='separator'
+      className='my-1 border-b border-borderLight dark:border-borderDark'
+    />
+  )
 }

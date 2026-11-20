@@ -1,8 +1,10 @@
 import { Button } from '@renderer/components/Nethesis'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { t } from 'i18next'
-import { useEffect, useState } from 'react'
-import { Backdrop } from '../../Backdrop'
+import { useEffect, useRef, useState } from 'react'
+import { Modal } from '@renderer/components/Modal'
+import { DialogTitle } from '@headlessui/react'
+import { parseThemeToClassName } from '@renderer/utils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faBell as RingtoneIcon,
@@ -100,6 +102,8 @@ export function SettingsIncomingCallsDialog() {
     'isIncomingCallsDialogOpen',
   )
   const [availableRingtones] = useSharedState('availableRingtones')
+  const [theme] = useSharedState('theme')
+  const cancelButtonRef = useRef<HTMLButtonElement>(null)
   const [audioOutputDevices, setAudioOutputDevices] = useState<
     MediaDeviceInfo[]
   >([])
@@ -218,218 +222,202 @@ export function SettingsIncomingCallsDialog() {
   }
 
   return (
-    <>
-      {/* Background color */}
-      <div className='fixed inset-0 bg-gray-500/75 dark:bg-gray-700/75 z-[201]' />
-
-      {/* On external click close dialog */}
-      <Backdrop
-        className='z-[202]'
-        onBackdropClick={() => setIsIncomingCallsDialogOpen(false)}
-      />
-
-      <div className='fixed inset-0 z-[205] overflow-y-auto pointer-events-none'>
-        <div className='flex min-h-full items-center justify-center p-4 pointer-events-none'>
-          <div className='bg-bgLight dark:bg-bgDark text-bgDark dark:text-bgLight rounded-xl shadow-lg max-w-sm w-full pointer-events-auto'>
-            {/* Dialog content */}
-            <div className='p-6 flex flex-col gap-4'>
-              {/* Title */}
-              <h2 className='text-center font-semibold text-xl'>
-                {t('Settings.IncomingCalls')}
-              </h2>
-
-              {/* Form */}
-              <form onSubmit={handleSubmit} className='flex flex-col gap-1'>
-                {/* Ringtone selection */}
-                <div className='flex flex-row gap-2 items-center w-full'>
-                  <div className='flex flex-row gap-2 items-center w-full min-w-[120px] max-w-[120px]'>
-                    <FontAwesomeIcon icon={RingtoneIcon} className='w-4' />
-                    <span className='truncate'>{t('Settings.Ringtone')}</span>
-                  </div>
-                  <div className='flex flex-row gap-2 items-center flex-1'>
-                    <div className='flex-1'>
-                      <Dropdown
-                        items={
-                          ringtones?.map((ringtone) => {
-                            return (
-                              <DropdownItem
-                                key={ringtone.name}
-                                onClick={() => {
-                                  handleRingtoneChange(ringtone.name)
-                                }}
+    <Modal
+      show={true}
+      focus={cancelButtonRef}
+      onClose={() => setIsIncomingCallsDialogOpen(false)}
+      themeMode={parseThemeToClassName(theme)}
+      // the ringtone and device menus open below their button: not clipped by the panel
+      className='[&_[id^=headlessui-dialog-panel]]:overflow-visible'
+    >
+      <form
+        onSubmit={handleSubmit}
+        className='flex max-h-[calc(100vh-2rem)] w-96 max-w-full flex-col gap-6 p-6 text-textPrimaryNeutral dark:text-textPrimaryNeutralDark'
+      >
+        <DialogTitle className='text-lg font-medium leading-7'>
+          {t('Settings.IncomingCalls')}
+        </DialogTitle>
+        {/* no scrolling here: it would clip the dropdowns, and the content fits the window */}
+        <div className='flex flex-col gap-6'>
+          <div className='flex flex-col gap-1 text-sm leading-5'>
+            {/* Ringtone selection */}
+            <div className='flex flex-row gap-2 items-center w-full'>
+              <div className='flex w-28 shrink-0 flex-row items-center gap-2'>
+                <FontAwesomeIcon icon={RingtoneIcon} className='w-4' />
+                <span className='truncate'>{t('Settings.Ringtone')}</span>
+              </div>
+              <div className='flex flex-row gap-2 items-center flex-1'>
+                <div className='flex-1'>
+                  <Dropdown
+                    items={
+                      ringtones?.map((ringtone) => {
+                        return (
+                          <DropdownItem
+                            key={ringtone.name}
+                            onClick={() => {
+                              handleRingtoneChange(ringtone.name)
+                            }}
+                          >
+                            <div className='flex flex-row items-center gap-2 w-36'>
+                              <span
+                                className='truncate'
+                                data-tooltip-id='ringtone'
+                                data-tooltip-content={capitalizeFirstLetter(
+                                  ringtone.name,
+                                )}
                               >
-                                <div className='flex flex-row items-center gap-2 w-[140px]'>
-                                  <span
-                                    className='truncate'
-                                    data-tooltip-id='ringtone'
-                                    data-tooltip-content={capitalizeFirstLetter(
-                                      ringtone.name,
-                                    )}
-                                  >
-                                    {capitalizeFirstLetter(ringtone.name)}
-                                  </span>
-                                  <FontAwesomeIcon
-                                    icon={SelectedIcon}
-                                    className={
-                                      formData.ringtone === ringtone.name
-                                        ? 'visible'
-                                        : 'hidden'
-                                    }
-                                  />
-                                </div>
-                              </DropdownItem>
-                            )
-                          }) || []
-                        }
-                        className='w-full'
-                      >
-                        <DropdownHeader>
-                          <div className='relative flex flex-row gap-1 w-[132px] items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
+                                {capitalizeFirstLetter(ringtone.name)}
+                              </span>
+                              <FontAwesomeIcon
+                                icon={SelectedIcon}
+                                className={
+                                  formData.ringtone === ringtone.name
+                                    ? 'visible'
+                                    : 'hidden'
+                                }
+                              />
+                            </div>
+                          </DropdownItem>
+                        )
+                      }) || []
+                    }
+                    className='w-full'
+                  >
+                    <DropdownHeader>
+                      <div className='relative flex flex-row gap-1 w-32 items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
+                        <span
+                          className='truncate'
+                          data-tooltip-id='ringtone'
+                          data-tooltip-content={capitalizeFirstLetter(
+                            getRingtoneByName(formData.ringtone)?.name || '',
+                          )}
+                        >
+                          {capitalizeFirstLetter(
+                            getRingtoneByName(formData.ringtone)?.name || '',
+                          ) || '-'}
+                        </span>
+                        <FontAwesomeIcon icon={DropdownIcon} />
+                      </div>
+                    </DropdownHeader>
+                    <div className='absolute'>
+                      <CustomThemedTooltip
+                        id='ringtone'
+                        place='left'
+                        className='z-[10000] text-xs font-medium leading-4'
+                        zIndex={10000}
+                      />
+                    </div>
+                  </Dropdown>
+                </div>
+
+                {/* Play/Stop button */}
+                <button
+                  type='button'
+                  onClick={() => {
+                    const selectedRingtone = getRingtoneByName(
+                      formData.ringtone,
+                    )
+                    if (playingRingtone === formData.ringtone) {
+                      stopRingtonePreview()
+                    } else if (selectedRingtone) {
+                      playRingtonePreview(selectedRingtone)
+                    }
+                  }}
+                  disabled={!formData.ringtone}
+                  className='px-2.5 py-1.5 flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-shrink-0'
+                >
+                  <FontAwesomeIcon
+                    icon={
+                      playingRingtone === formData.ringtone
+                        ? StopIcon
+                        : PlayIcon
+                    }
+                    className='w-3.5 h-3.5 text-white'
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Output device selection */}
+            <div className='flex flex-row gap-2 items-center w-full'>
+              <div className='flex w-28 shrink-0 flex-row items-center gap-2'>
+                <FontAwesomeIcon icon={AudioOutputsIcon} className='w-4' />
+                <span className='truncate'>{t('TopBar.Speaker')}</span>
+              </div>
+              <div className=''>
+                <Dropdown
+                  items={
+                    audioOutputDevices?.map((device) => {
+                      return (
+                        <DropdownItem
+                          key={device.deviceId}
+                          onClick={() => {
+                            handleOutputDeviceChange(device.deviceId)
+                          }}
+                        >
+                          <div className='flex flex-row items-center gap-2 w-48'>
                             <span
                               className='truncate'
-                              data-tooltip-id='ringtone'
-                              data-tooltip-content={capitalizeFirstLetter(
-                                getRingtoneByName(formData.ringtone)?.name ||
-                                  '',
-                              )}
+                              data-tooltip-id='output-device'
+                              data-tooltip-content={device.label}
                             >
-                              {capitalizeFirstLetter(
-                                getRingtoneByName(formData.ringtone)?.name ||
-                                  '',
-                              ) || '-'}
+                              {device.label}
                             </span>
-                            <FontAwesomeIcon icon={DropdownIcon} />
+                            <FontAwesomeIcon
+                              icon={SelectedIcon}
+                              className={
+                                formData.outputDevice === device.deviceId
+                                  ? 'visible'
+                                  : 'hidden'
+                              }
+                            />
                           </div>
-                        </DropdownHeader>
-                        <div className='absolute'>
-                          <CustomThemedTooltip
-                            id='ringtone'
-                            place='left'
-                            className='z-[10000] font-medium text-xs leading-[18px]'
-                            zIndex={10000}
-                          />
-                        </div>
-                      </Dropdown>
+                        </DropdownItem>
+                      )
+                    }) || []
+                  }
+                  className='w-full'
+                >
+                  <DropdownHeader>
+                    <div className='relative flex flex-row gap-1 w-48 items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
+                      <span
+                        className='truncate'
+                        data-tooltip-id='output-device'
+                        data-tooltip-content={
+                          getDeviceById(formData.outputDevice)?.label
+                        }
+                      >
+                        {getDeviceById(formData.outputDevice)?.label || '-'}
+                      </span>
+                      <FontAwesomeIcon icon={DropdownIcon} />
                     </div>
-
-                    {/* Play/Stop button */}
-                    <button
-                      type='button'
-                      onClick={() => {
-                        const selectedRingtone = getRingtoneByName(
-                          formData.ringtone,
-                        )
-                        if (playingRingtone === formData.ringtone) {
-                          stopRingtonePreview()
-                        } else if (selectedRingtone) {
-                          playRingtonePreview(selectedRingtone)
-                        }
-                      }}
-                      disabled={!formData.ringtone}
-                      className='px-2.5 py-1.5 flex items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex-shrink-0'
-                    >
-                      <FontAwesomeIcon
-                        icon={
-                          playingRingtone === formData.ringtone
-                            ? StopIcon
-                            : PlayIcon
-                        }
-                        className='w-3.5 h-3.5 text-white'
-                      />
-                    </button>
+                  </DropdownHeader>
+                  <div className='absolute'>
+                    <CustomThemedTooltip
+                      id='output-device'
+                      place='left'
+                      className='z-[10000] text-xs font-medium leading-4'
+                      zIndex={10000}
+                    />
                   </div>
-                </div>
-
-                {/* Output device selection */}
-                <div className='flex flex-row gap-2 items-center w-full'>
-                  <div className='flex flex-row gap-2 items-center w-full min-w-[120px] max-w-[120px]'>
-                    <FontAwesomeIcon icon={AudioOutputsIcon} className='w-4' />
-                    <span className='truncate'>{t('TopBar.Speaker')}</span>
-                  </div>
-                  <div className=''>
-                    <Dropdown
-                      items={
-                        audioOutputDevices?.map((device) => {
-                          return (
-                            <DropdownItem
-                              key={device.deviceId}
-                              onClick={() => {
-                                handleOutputDeviceChange(device.deviceId)
-                              }}
-                            >
-                              <div className='flex flex-row items-center gap-2 w-[200px]'>
-                                <span
-                                  className='truncate'
-                                  data-tooltip-id='output-device'
-                                  data-tooltip-content={device.label}
-                                >
-                                  {device.label}
-                                </span>
-                                <FontAwesomeIcon
-                                  icon={SelectedIcon}
-                                  className={
-                                    formData.outputDevice === device.deviceId
-                                      ? 'visible'
-                                      : 'hidden'
-                                  }
-                                />
-                              </div>
-                            </DropdownItem>
-                          )
-                        }) || []
-                      }
-                      className='w-full'
-                    >
-                      <DropdownHeader>
-                        <div className='relative flex flex-row gap-1 w-[192px] items-center justify-between rounded-md px-2 py-1 hover:bg-hoverLight dark:hover:bg-hoverDark'>
-                          <span
-                            className='truncate'
-                            data-tooltip-id='output-device'
-                            data-tooltip-content={
-                              getDeviceById(formData.outputDevice)?.label
-                            }
-                          >
-                            {getDeviceById(formData.outputDevice)?.label || '-'}
-                          </span>
-                          <FontAwesomeIcon icon={DropdownIcon} />
-                        </div>
-                      </DropdownHeader>
-                      <div className='absolute'>
-                        <CustomThemedTooltip
-                          id='output-device'
-                          place='left'
-                          className='z-[10000] font-medium text-xs leading-[18px]'
-                          zIndex={10000}
-                        />
-                      </div>
-                    </Dropdown>
-                  </div>
-                </div>
-
-                {/* Action buttons */}
-                <div className='flex flex-col gap-3 mt-2'>
-                  <Button
-                    variant='primary'
-                    type='submit'
-                    className='w-full py-3 rounded-lg font-medium'
-                  >
-                    {t('Common.Save')}
-                  </Button>
-
-                  <Button
-                    variant='ghost'
-                    type='button'
-                    onClick={handleCancel}
-                    className='text-center text-blue-700 dark:text-blue-500 font-medium'
-                  >
-                    {t('Common.Cancel')}
-                  </Button>
-                </div>
-              </form>
+                </Dropdown>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </>
+        {/* as the modals of the design system: cancel, then the primary action, on the right */}
+        <div className='flex justify-end gap-3'>
+          <Button
+            ref={cancelButtonRef}
+            type='button'
+            variant='white'
+            onClick={handleCancel}
+          >
+            {t('Common.Cancel')}
+          </Button>
+          <Button type='submit'>{t('Common.Save')}</Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

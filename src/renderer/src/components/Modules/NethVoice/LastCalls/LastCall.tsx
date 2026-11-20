@@ -1,5 +1,5 @@
 import {
-  faUserPlus as AddUserIcon,
+  faCirclePlus as AddUserIcon,
   faUsers as BadgeIcon,
   faCircleUser,
   faArrowLeft,
@@ -112,16 +112,12 @@ export function LastCall({
   return (
     <div className='group'>
       <div
-        className={`flex flex-grow gap-3 min-h-[72px] py-6 px-3 ${className}`}
-      >
-        {call.hasNotification && (
-          <div className={`relative w-0 h-0 z-0 overflow-visible mr-[-12px]`}>
-            <div
-              className={`relative w-4 h-4 left-[-16px] dark:bg-textBlueDark bg-textBlueLight rounded-full border-2 dark:border-bgDark border-bgLight`}
-            />
-          </div>
+        className={classNames(
+          'flex min-h-14 items-start gap-3 py-3',
+          className,
         )}
-        <div className='flex flex-col h-full min-w-6 pt-[6px] z-10'>
+      >
+        <div className='relative flex shrink-0 flex-col pt-0.5'>
           {avatarSrc ? (
             <Avatar
               size='small'
@@ -131,14 +127,20 @@ export function LastCall({
           ) : (
             <FontAwesomeIcon
               icon={faCircleUser}
-              className='h-8 w-8 dark:text-gray-200 text-gray-400'
+              className='size-8 text-gray-400 dark:text-gray-200'
+              aria-hidden='true'
             />
+          )}
+          {call.hasNotification && (
+            <span className='absolute -left-0.5 -top-0.5 size-3 rounded-full border-2 border-bgLight bg-textBlueLight dark:border-bgDark dark:bg-textBlueDark'>
+              <span className='sr-only'>{t('LastCalls.New call')}</span>
+            </span>
           )}
         </div>
         <div className='flex flex-col gap-1 min-w-0 flex-1 dark:text-titleDark text-titleLight'>
           <p
             ref={nameRef}
-            className={`font-medium text-[14px] leading-5 truncate`}
+            className='truncate text-sm font-medium leading-5'
             data-tooltip-id={
               isNameTruncated ? `tooltip-username-${tooltipId}` : undefined
             }
@@ -160,7 +162,7 @@ export function LastCall({
                 <Badge
                   variant='offline'
                   rounded='full'
-                  className={`animate-pulse overflow-hidden w-[108px] min-h-4`}
+                  className='min-h-4 w-28 animate-pulse overflow-hidden'
                 ></Badge>
               ) : (
                 <Badge
@@ -188,7 +190,7 @@ export function LastCall({
                   <CustomThemedTooltip
                     id={`tooltip-queue-${tooltipId}`}
                     place='bottom'
-                    className='z-[10]'
+                    className='z-10'
                   />
                 </Badge>
               )}
@@ -214,13 +216,13 @@ export function LastCall({
                   {call.disposition === 'ANSWERED' ? (
                     <FontAwesomeIcon
                       icon={faArrowLeft}
-                      className='-rotate-45 h-4 w-4 text-surfacePresenceOnline dark:text-surfacePresenceOnlineDark'
+                      className='size-4 -rotate-45 text-green-700 dark:text-green-500'
                       aria-hidden='true'
                     />
                   ) : (
                     <FontAwesomeIcon
                       icon={faMissed as IconDefinition}
-                      className='h-4 w-4 text-surfacePresenceBusy dark:text-surfacePresenceBusyDark'
+                      className='size-4 text-red-700 dark:text-red-500'
                       aria-hidden='true'
                     />
                   )}
@@ -231,13 +233,13 @@ export function LastCall({
                   {call.disposition === 'ANSWERED' ? (
                     <FontAwesomeIcon
                       icon={faArrowLeft}
-                      className='h-4 w-4 rotate-[135deg] text-surfacePresenceOnline dark:text-surfacePresenceOnlineDark'
+                      className='size-4 rotate-[135deg] text-green-700 dark:text-green-500'
                       aria-hidden='true'
                     />
                   ) : (
                     <FontAwesomeIcon
                       icon={faXmark}
-                      className='h-4 w-4 text-surfacePresenceBusy dark:text-surfacePresenceBusyDark'
+                      className='size-4 text-red-700 dark:text-red-500'
                       aria-hidden='true'
                     />
                   )}
@@ -261,11 +263,12 @@ export function LastCall({
             >
               <NumberCaller
                 number={
-                  (call.direction === 'in' ? call.src : call.dst) || 'no number'
+                  (call.direction === 'in' ? call.src : call.dst) ||
+                  (t('Common.Unknown') as string)
                 }
                 disabled={!isCallsEnabled}
                 className={
-                  'dark:text-textBlueDark text-textBlueLight hover:text-primaryHover dark:hover:text-primaryDarkHover font-normal text-[14px] leading-5 hover:underline inset-pink-600'
+                  'text-sm font-normal leading-5 text-textBlueLight hover:text-primaryHover hover:underline dark:text-textBlueDark dark:hover:text-primaryDarkHover'
                 }
               >
                 {(call.direction === 'in' ? call.src : call.dst) ||
@@ -284,25 +287,29 @@ export function LastCall({
           <CallsDate call={call} inline={true} />
         </div>
 
-        <div className='flex flex-col justify-between ml-auto items-center'>
-          {showCreateButton && (
-            <div className={classNames('flex relative right-[-8px] h-full')}>
-              <div className={classNames('absolute right-0')}>
-                <Button
-                  variant='ghost'
-                  className='group/add-contact flex gap-3 items-center py-2 px-2 border dark:border-borderDark border-borderLight ml-auto hover:bg-primaryHover/10 dark:hover:bg-primaryDarkHover/10'
-                  onClick={handleCreateContact}
-                  size='base_square'
-                >
-                  <FontAwesomeIcon
-                    className='text-base dark:text-textBlueDark text-textBlueLight group-hover/add-contact:text-primaryHover dark:group-hover/add-contact:text-primaryDarkHover'
-                    icon={AddUserIcon}
-                  />
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+        {showCreateButton && (
+          <div className='ml-auto shrink-0 self-center'>
+            {/* always visible, as the trailing action of the other rows */}
+            <Button
+              variant='ghost'
+              className='p-2'
+              aria-label={t('Phonebook.Create contact') ?? undefined}
+              data-tooltip-id={`tooltip-create-contact-${tooltipId}`}
+              data-tooltip-content={t('Phonebook.Create contact') ?? undefined}
+              onClick={handleCreateContact}
+            >
+              <FontAwesomeIcon
+                className='size-4'
+                icon={AddUserIcon}
+                aria-hidden='true'
+              />
+            </Button>
+            <CustomThemedTooltip
+              id={`tooltip-create-contact-${tooltipId}`}
+              place='left'
+            />
+          </div>
+        )}
       </div>
     </div>
   )
