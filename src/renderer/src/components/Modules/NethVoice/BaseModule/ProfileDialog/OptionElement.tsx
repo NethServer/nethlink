@@ -3,12 +3,15 @@ import { faCheck as ChooseThemeMenuIcon } from '@fortawesome/free-solid-svg-icon
 import { IconProp } from '@fortawesome/fontawesome-svg-core'
 import classNames from 'classnames'
 import { IconDefinition } from '@nethesis/nethesis-solid-svg-icons'
+import { menuRowClassName } from './MenuAction'
 
 type SettingsOptionElementProps = {
   icon?: IconProp | IconDefinition
   iconElem?: JSX.Element
   label: string
   isSelected: boolean
+  // false for a row that opens something instead of choosing an option
+  selectable?: boolean
   onClick: () => void
 }
 export const OptionElement = ({
@@ -16,37 +19,37 @@ export const OptionElement = ({
   iconElem,
   label,
   isSelected,
+  selectable = true,
   onClick,
 }: SettingsOptionElementProps) => {
   return (
-    <div
-      className={classNames(
-        'cursor-pointer',
-        'flex flex-row items-center',
-        'justify-between',
-        'gap-4 px-4 py-2',
-        'dark:text-gray-50 text-gray-700',
-        'dark:hover:bg-hoverDark hover:bg-hoverLight',
-      )}
+    <button
+      type='button'
+      aria-pressed={selectable ? isSelected : undefined}
+      className={classNames(menuRowClassName, 'justify-between')}
       onClick={() => onClick()}
     >
-      <div className={classNames('flex flex-row items-center gap-2 w-full')}>
+      <span className='flex w-full items-center gap-3'>
         {iconElem ? (
           iconElem
         ) : icon ? (
-          <FontAwesomeIcon className='text-base' icon={icon as IconProp} />
+          <FontAwesomeIcon
+            className='size-4 shrink-0'
+            icon={icon as IconProp}
+            aria-hidden='true'
+          />
         ) : (
           <></>
         )}
-        <p className='font-normal w-full'>{label}</p>
-      </div>
+        <span className='w-full'>{label}</span>
+      </span>
       {isSelected && (
         <FontAwesomeIcon
-          className='dark:text-gray-50 text-gray-700'
-          style={{ fontSize: '16px' }}
+          className='size-4 shrink-0'
           icon={ChooseThemeMenuIcon}
+          aria-hidden='true'
         />
       )}
-    </div>
+    </button>
   )
 }

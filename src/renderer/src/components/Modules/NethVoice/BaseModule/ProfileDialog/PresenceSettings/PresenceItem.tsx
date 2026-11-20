@@ -7,6 +7,8 @@ import { StatusDot } from '@renderer/components/Nethesis'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAccount } from '@renderer/hooks/useAccount'
 import classNames from 'classnames'
+import { Line } from '../Line'
+import { menuRowClassName } from '../MenuAction'
 export interface PresenceItemProps {
   presenceName: string
   presenceDescription: string
@@ -25,6 +27,7 @@ export function PresenceItem({
   onClick,
 }: PresenceItemProps) {
   const { status: currentStatus } = useAccount()
+  const isSelected = currentStatus === status
 
   const handleClick = (e) => {
     e.preventDefault()
@@ -34,34 +37,39 @@ export function PresenceItem({
 
   return (
     <>
-      {hasTopBar ? (
-        <div className='mt-3 border-t-[1px] dark:border-borderDark border-borderLight '></div>
-      ) : null}
-      <div
-        className={classNames(
-          'px-4 py-2 cursor-pointer w-full flex flex-row items-center gap-1 text-bgDark dark:text-bgLight hover:bg-hoverLight hover:dark:bg-hoverDark',
-          hasTopBar ? 'mt-3' : '',
-        )}
+      {hasTopBar ? <Line /> : null}
+      <button
+        type='button'
+        aria-pressed={isSelected}
+        className={classNames(menuRowClassName)}
         onClick={handleClick}
       >
-        <div className={`flex flex-col gap-1 w-full`}>
-          <div className='flex flex-row gap-2 items-center'>
+        <span className='flex w-full flex-col gap-0.5'>
+          <span className='flex items-center gap-3'>
             <StatusDot status={status} />
-            <div className='flex flex-row gap-2 items-center'>
+            <span className='flex items-center gap-2'>
               {presenceName}
-              {icon && <FontAwesomeIcon icon={icon} />}
-            </div>
-          </div>
-          <div className='text-sm'>{presenceDescription}</div>
-        </div>
-        {currentStatus === status && (
+              {icon && (
+                <FontAwesomeIcon
+                  icon={icon}
+                  className='size-4'
+                  aria-hidden='true'
+                />
+              )}
+            </span>
+          </span>
+          <span className='text-xs leading-4 text-gray-600 dark:text-gray-400'>
+            {presenceDescription}
+          </span>
+        </span>
+        {isSelected && (
           <FontAwesomeIcon
-            className='dark:text-gray-50 text-gray-700'
-            style={{ fontSize: '16px' }}
+            className='size-4 shrink-0'
             icon={ChooseThemeMenuIcon}
+            aria-hidden='true'
           />
         )}
-      </div>
+      </button>
     </>
   )
 }

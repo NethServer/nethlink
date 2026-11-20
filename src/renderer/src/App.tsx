@@ -178,6 +178,15 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes; page?: PAGES }) => {
     setIsCSSLoaded(true)
   }
 
+  // the theme also on <html>, for what Headless UI moves to a portal in <body>,
+  // such as the anchored menus; the islands keep their own theme handling
+  useEffect(() => {
+    if (page === PAGES.PHONEISLAND || page === PAGES.CHATISLAND) return
+    const root = document.documentElement
+    root.classList.remove('dark', 'light')
+    if (theme) root.classList.add(theme)
+  }, [theme, page])
+
   if (!isCSSLoaded) {
     return <div></div>
   }

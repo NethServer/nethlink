@@ -1,5 +1,5 @@
 import {
-  faPalette as SystemIcon,
+  faCircleHalfStroke as SystemIcon,
   faSun as LightIcon,
   faMoon as DarkIcon,
 } from '@fortawesome/free-solid-svg-icons'
@@ -54,7 +54,7 @@ export const ThemeBox = () => {
 
   if (!account) return <></>
   return (
-    <div className='py-2'>
+    <div className='py-1'>
       {themeOptions.map((availableTheme) => (
         <OptionElement
           key={availableTheme.id}

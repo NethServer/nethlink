@@ -58,6 +58,11 @@ export const useAccount = () => {
     ]?.value
   }
 
+  // a group of permissions of the profile, such as queue_agent
+  const hasMacroPermission = (macroPermission: string) => {
+    return !!account?.data?.profile?.macro_permissions?.[macroPermission]?.value
+  }
+
   const updateAccountData = async () => {
     try {
       const me = await NethVoiceAPI.User.me()
@@ -84,6 +89,7 @@ export const useAccount = () => {
     status,
     isCallsEnabled,
     hasPermission,
+    hasMacroPermission,
     updateAccountData,
   }
 }

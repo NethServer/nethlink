@@ -1,5 +1,6 @@
 import {
   app,
+  Notification,
   ipcMain,
   nativeTheme,
   powerMonitor,
@@ -37,6 +38,7 @@ import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
 import { delay, isDev } from '@shared/utils/utils'
 import { IPC_EVENTS, GIT_RELEASES_URL } from '@shared/constants'
+import { findUpdate, ReleaseInfo } from '@shared/utils/version'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
 import {
@@ -994,6 +996,9 @@ async function createNethLink(show: boolean = true) {
   await delay(1000)
   new PhoneIslandController()
   new ChatIslandController()
+  if (TrayController.instance) {
+    TrayController.instance.checkForUpdates = () => checkForUpdate(true)
+  }
   checkForUpdate()
   const account = store.get('account') as Account
   if (account) {
@@ -1024,14 +1029,28 @@ async function createNethLink(show: boolean = true) {
   }
 }
 
-async function checkForUpdate() {
+// manual: asked from the tray menu, it says when there is nothing to update
+async function checkForUpdate(manual = false) {
   try {
-    Log.info('Current app version:', app.getVersion(), 'check for updates...')
-    const latestVersionData =
+    const currentVersion = app.getVersion()
+    Log.info('Current app version:', currentVersion, 'check for updates...')
+    const releases: ReleaseInfo[] =
       await NetworkController.instance.get(GIT_RELEASES_URL)
-    Log.info('Head add version:', latestVersionData.name)
-    if (latestVersionData.name !== 'v' + app.getVersion() || isDev()) {
-      NethLinkController.instance.sendUpdateNotification()
+    const found = findUpdate(currentVersion, releases || [])
+    Log.info('Update found:', found?.tag_name || 'none')
+    const update = found
+      ? { version: found.tag_name.replace(/^v/, ''), url: found.html_url }
+      : undefined
+    TrayController.instance?.setUpdate(update)
+    if (update) {
+      NethLinkController.instance?.sendUpdateNotification(update)
+    } else if (manual) {
+      new Notification({
+        title: i18next.t('Tray.Up to date title') as string,
+        body: i18next.t('Tray.Up to date description', {
+          version: currentVersion,
+        }) as string,
+      }).show()
     }
   } catch (error: any) {
     Log.warning(

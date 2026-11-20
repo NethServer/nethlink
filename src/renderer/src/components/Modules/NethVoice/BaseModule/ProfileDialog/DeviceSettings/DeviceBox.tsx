@@ -91,7 +91,7 @@ export const DeviceBox = () => {
           p.push({
             ...themeOptions.physical,
             name: 'physical',
-            label: `${d.description || themeOptions.physical.label} ${isOffline ? '(offline)' : ''}`,
+            label: `${d.description || themeOptions.physical.label} ${isOffline ? `(${t('Operators.Offline')})` : ''}`,
             status,
             id: d.id,
             ext: d,
@@ -111,7 +111,7 @@ export const DeviceBox = () => {
     ) || []
 
   return (
-    <div className='py-2'>
+    <div className='py-1'>
       {accountDevices.map((availableDevices) => (
         <OptionElement
           key={availableDevices.id}

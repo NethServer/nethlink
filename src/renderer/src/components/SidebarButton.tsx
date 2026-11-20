@@ -1,12 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import classNames from 'classnames'
+import { useId } from 'react'
+import { CustomThemedTooltip } from './Nethesis/CustomThemedTooltip'
 
 export interface SidebarButtonProps {
   icon: IconDefinition
-  focus?: boolean
-  invert?: boolean
-  notificable?: boolean
+  // the name of the section: the accessible name and the tooltip of the button
+  label: string
   isSelected?: boolean
   className?: string
   hasNotification?: boolean
@@ -15,68 +16,47 @@ export interface SidebarButtonProps {
 }
 export function SidebarButton({
   icon,
-  focus,
+  label,
   className,
   isSelected,
-  notificable,
   hasNotification,
   hasPulseNotification,
   onClick,
 }: SidebarButtonProps): JSX.Element {
+  const tooltipId = useId()
+
   return (
-    <div className='group'>
-      <div
+    <>
+      <button
+        type='button'
+        aria-label={label}
+        aria-current={isSelected ? 'page' : undefined}
+        data-tooltip-id={tooltipId}
+        data-tooltip-content={label}
         className={classNames(
-          `
-      relative w-[32px] h-[32px]
-      rounded-lg flex flex-row
-      justify-center items-center
-      cursor-pointer`,
-          focus
-            ? 'dark:bg-hoverDark bg-hoverLight dark:text-titleDark text-titleLight'
-            : 'bg-transparent dark:text-gray-400 text-gray-600',
-          isSelected ? '' : 'dark:hover:bg-hoverDark hover:bg-hoverLight',
+          'relative flex size-8 items-center justify-center rounded transition-colors duration-200',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark',
+          isSelected
+            ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50'
+            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-50',
           className,
         )}
         onClick={onClick}
       >
-        {focus && (
-          <div
-            className={`${focus ? 'visible' : 'opacity-0'} absolute top-1/2 right-0 -translate-y-1/2 min-w-[3px] min-h-[20px] dark:bg-textBlueDark bg-textBlueLight rounded-l-[4px]`}
-          />
+        {isSelected && (
+          <span className='absolute right-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-l-md bg-textBlueLight dark:bg-textBlueDark' />
         )}
-        <div className='absolute inset-0 flex items-center justify-center'>
-          <FontAwesomeIcon size='1x' icon={icon} className='text-[20px]' />
-        </div>
+        <FontAwesomeIcon icon={icon} className='size-5' aria-hidden='true' />
         {hasNotification && (
-          <div className='absolute top-[1px] left-[1px] flex justify-center items-center'>
-            <div
-              className={classNames(
-                `
-              w-3 h-3
-              dark:bg-textRedDark bg-textRedLight
-
-              rounded-full
-              border-2 `,
-                focus
-                  ? 'dark:border-hoverDark border-hoverLight'
-                  : 'dark:border-bgDark border-bgLight dark:group-hover:border-hoverDark group-hover:border-hoverLight',
-              )}
-            ></div>
-            {!focus && hasPulseNotification && (
-              <div
-                className={classNames(`
-                  absolute
-                  w-2.5 h-2.5
-                  dark:bg-textRedDark bg-textRedLight
-                  rounded-full
-                  animate-ping
-                `)}
-              />
+          <span className='absolute -left-0.5 -top-0.5 flex items-center justify-center'>
+            <span className='size-3 rounded-full border-2 border-bgLight bg-textRedLight dark:border-bgDark dark:bg-textRedDark' />
+            {!isSelected && hasPulseNotification && (
+              <span className='absolute size-2.5 animate-ping rounded-full bg-textRedLight dark:bg-textRedDark' />
             )}
-          </div>
+          </span>
         )}
-      </div>
-    </div>
+      </button>
+      <CustomThemedTooltip id={tooltipId} place='left' />
+    </>
   )
 }

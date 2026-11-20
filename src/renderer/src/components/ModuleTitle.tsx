@@ -30,17 +30,17 @@ export const ModuleTitle = ({
   const showTitleTooltip = typeof title === 'string' && isTitleTruncated
 
   return (
-    <div className='px-5'>
+    <div className='px-4'>
       <div
         className={ClassNames(
-          'flex justify-between items-center pb-1 border border-t-0 border-r-0 border-l-0 dark:border-borderDark border-borderLight h-[28px]',
+          'flex h-10 items-center justify-between gap-3 border-b border-borderLight dark:border-borderDark',
           className,
         )}
       >
         {title && (
           <h1
             ref={titleRef}
-            className='font-medium text-base leading-5 dark:text-titleDark text-titleLight truncate'
+            className='truncate text-base font-medium leading-6 text-titleLight dark:text-titleDark'
             data-tooltip-id={showTitleTooltip ? tooltipId : undefined}
             data-tooltip-content={showTitleTooltip ? title : undefined}
           >
@@ -54,20 +54,17 @@ export const ModuleTitle = ({
           <Button
             variant='ghost'
             size='small'
-            className='flex gap-3 items-center px-[4px] py-3 mr-[2px] h-0'
+            className='-mr-2.5 shrink-0 gap-2'
             onClick={action}
           >
             {actionIcon && (
               <FontAwesomeIcon
-                className='text-base dark:text-textBlueDark text-textBlueLight'
+                className='size-4'
                 icon={actionIcon}
+                aria-hidden='true'
               />
             )}
-            {actionText && (
-              <p className='dark:text-textBlueDark text-textBlueLight font-medium text-[14px]] leading-5'>
-                {actionText}
-              </p>
-            )}
+            {actionText}
           </Button>
         )}
         {actionComponent}

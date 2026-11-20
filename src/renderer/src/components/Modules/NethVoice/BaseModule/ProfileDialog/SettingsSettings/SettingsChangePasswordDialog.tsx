@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { t } from 'i18next'
 import { format } from 'date-fns'
-import { Backdrop } from '../../Backdrop'
+import { Modal } from '@renderer/components/Modal'
+import { DialogTitle } from '@headlessui/react'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { InlineNotification } from '@renderer/components/Nethesis/InlineNotification'
@@ -12,7 +13,7 @@ import {
   getPasswordExpiringTitle,
   PASSWORD_EXPIRATION_WARNING_DAYS,
 } from '@renderer/lib/password'
-import { sendNotification } from '@renderer/utils'
+import { parseThemeToClassName, sendNotification } from '@renderer/utils'
 import { IPC_EVENTS } from '@shared/constants'
 import { PasswordInfo } from '@shared/types'
 import { decodeJWT } from '@shared/utils/jwt'
@@ -25,6 +26,7 @@ export function SettingsChangePasswordDialog() {
     'isChangePasswordDialogOpen',
   )
   const [account] = useSharedState('account')
+  const [theme] = useSharedState('theme')
   const { NethVoiceAPI } = useLoggedNethVoiceAPI()
   const [info, setInfo] = useState<PasswordInfo | undefined>(undefined)
 
@@ -87,57 +89,59 @@ export function SettingsChangePasswordDialog() {
         </InlineNotification>
       )
     }
-    return <p className='text-center'>{expiresOn}</p>
+    return <p>{expiresOn}</p>
   }
 
+  // the expiration of the password, when there is something to say
+  const status = expirationStatus()
+
   return (
-    <>
-      <div className='fixed inset-0 bg-gray-500/75 dark:bg-gray-700/75 z-[201]' />
-      <Backdrop className='z-[202]' onBackdropClick={close} />
-      <div className='fixed inset-0 z-[205] pointer-events-none'>
-        <div className='flex h-full items-center justify-center p-4 pointer-events-none'>
-          {/* taller than the default window: the title stays, the content scrolls */}
-          <div className='pointer-events-auto flex max-h-full w-full max-w-[384px] flex-col rounded-lg bg-elevationL1 pt-5 text-textPrimaryNeutral shadow-lightXl dark:bg-bgDark dark:text-textPrimaryNeutralDark'>
-            <div className='flex shrink-0 flex-col items-center gap-2 px-4 pb-4 text-center'>
-              <h2 className='font-Poppins text-lg font-medium leading-7'>
-                {t('Password.Change password')}
-              </h2>
-              <p className='text-xs leading-4 text-textSecondaryNeutral dark:text-textSecondaryNeutralDark'>
-                {t(
-                  'Password.Update the password used to sign in to Web phone and Desktop app.',
-                )}
-              </p>
-            </div>
-            <div className='flex min-h-0 flex-col gap-4 overflow-y-auto px-4 pb-4'>
-              <div className='text-xs leading-4 text-textSecondaryNeutral dark:text-textSecondaryNeutralDark'>
-                {expirationStatus()}
-              </div>
-              <PasswordChangeForm
-                policy={info?.policy || null}
-                submitLabel={t('Password.Change password') || ''}
-                onSubmit={async (current, next) => {
-                  setIsSubmitting(true)
-                  try {
-                    await NethVoiceAPI.User.changePassword(current, next)
-                  } finally {
-                    setIsSubmitting(false)
-                  }
-                }}
-                onSuccess={(newPassword) => {
-                  // keep the stored password in sync for the auto login
-                  window.electron.send(IPC_EVENTS.UPDATE_PASSWORD, newPassword)
-                  sendNotification(
-                    t('Password.Password updated'),
-                    t('Password.Account password has been updated'),
-                  )
-                  setIsChangePasswordDialogOpen(false)
-                }}
-                onCancel={close}
-              />
-            </div>
-          </div>
+    // the first password field gets the focus
+    <Modal show={true} onClose={close} themeMode={parseThemeToClassName(theme)}>
+      {/* taller than the default window: the title and the buttons stay, the fields scroll */}
+      <div className='flex max-h-[calc(100vh-2rem)] w-96 max-w-full flex-col text-textPrimaryNeutral dark:text-textPrimaryNeutralDark'>
+        <div className='flex shrink-0 flex-col gap-2 px-6 pb-6 pt-6'>
+          <DialogTitle className='text-lg font-medium leading-7'>
+            {t('Password.Change password')}
+          </DialogTitle>
+          <p className='text-sm leading-5 text-gray-600 dark:text-gray-400'>
+            {t(
+              'Password.Update the password used to sign in to Web phone and Desktop app.',
+            )}
+          </p>
         </div>
+        {/* the fields scroll, the title and the buttons stay in view */}
+        <PasswordChangeForm
+          layout='dialog'
+          intro={
+            status ? (
+              <div className='text-sm leading-5 text-gray-600 dark:text-gray-400'>
+                {status}
+              </div>
+            ) : undefined
+          }
+          policy={info?.policy || null}
+          submitLabel={t('Password.Change') || ''}
+          onSubmit={async (current, next) => {
+            setIsSubmitting(true)
+            try {
+              await NethVoiceAPI.User.changePassword(current, next)
+            } finally {
+              setIsSubmitting(false)
+            }
+          }}
+          onSuccess={(newPassword) => {
+            // keep the stored password in sync for the auto login
+            window.electron.send(IPC_EVENTS.UPDATE_PASSWORD, newPassword)
+            sendNotification(
+              t('Password.Password updated'),
+              t('Password.Account password has been updated'),
+            )
+            setIsChangePasswordDialogOpen(false)
+          }}
+          onCancel={close}
+        />
       </div>
-    </>
+    </Modal>
   )
 }

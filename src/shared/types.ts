@@ -395,31 +395,47 @@ export type ParkingsType = {
   [parkId: string]: ParkingType
 }
 
-export type QueuesType = {
-  [username: string]: {
-    name: string
-    queue: string
-    members: {
-      [user: string]: {
-        callsTakenCount: number
-        lastCallTimestamp: number
-        lastPausedInReason: string
-        lastPausedInTimestamp: number
-        lastPausedOutTimestamp: number
-        loggedIn: boolean
-        member: string
-        name: string
-        paused: boolean
-        queue: string
-        type: string
-      }
-    }
-    avgHoldTime: string
-    avgTalkTime: string
-    serviceLevelPercentage: string
-    serviceLevelTimePeriod: string
-    waitingCallers: object
+export type QueueMemberType = {
+  callsTakenCount: number
+  lastCallTimestamp: number
+  lastPausedInReason: string
+  lastPausedInTimestamp: number
+  lastPausedOutTimestamp: number
+  loggedIn: boolean
+  member: string
+  name: string
+  paused: boolean
+  queue: string
+  // a static member is always in the queue, only a dynamic one can sign in and out
+  type: 'static' | 'dynamic' | string
+}
+
+export type QueueWaitingCallerType = {
+  name: string
+  num: string
+  position: string | number
+  queue: string
+  // when the caller entered the queue, in milliseconds
+  waitingTime: number
+}
+
+export type QueueType = {
+  name: string
+  queue: string
+  members: {
+    [member: string]: QueueMemberType
   }
+  avgHoldTime: string
+  avgTalkTime: string
+  serviceLevelPercentage: string
+  serviceLevelTimePeriod: string
+  waitingCallers: {
+    [channel: string]: QueueWaitingCallerType
+  }
+}
+
+export type QueuesType = {
+  [queueId: string]: QueueType
 }
 
 export type PageType = {
@@ -564,6 +580,8 @@ export type NotificationData = {
 
 export type NotificationItem = {
   message: string
+  // the newer release found, such as 1.6.2 or 1.6.2-testing.1
+  version?: string
 }
 
 export type PhoneIslandData = {

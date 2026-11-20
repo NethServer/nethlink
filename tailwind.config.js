@@ -5,6 +5,12 @@ export default {
   theme: {
     extend: {
       colors: {
+        // design system elevation and skeleton
+        elevationL2: '#F3F4F6', // gray-100, Elevation/L2
+        elevationL2Dark: '#1F2937', // gray-800
+        surfaceSkeleton: '#E5E7EB', // gray-200, Surface/Skeleton
+        surfaceSkeletonDark: '#374151', // gray-700
+
         // borders
         borderDark: '#374151', // gray-700
         borderLight: '#E5E7EB', // gray-200
@@ -24,7 +30,7 @@ export default {
 
         // design system surfaces
         surfaceToggleBackgroundDisabled: '#9CA3AF', // gray-400
-        surfaceToggleBackgroundDisabledDark: '#4B5563', // gray-600
+        surfaceToggleBackgroundDisabledDark: '#9CA3AF', // gray-400
 
         // primary
         primary: '#1d4ed8', // blue-700
@@ -37,15 +43,15 @@ export default {
         primaryRingDark: '#bfdbfe', // blue-200
 
         // text
-        titleLight: '#374151', // gray-700
-        titleDark: '#E5E7EB', // gray-200
+        titleLight: '#111827', // gray-900, Text/Primary neutral
+        titleDark: '#F9FAFB', // gray-50, Text/Primary neutral
 
         // blue text
         textBlueLight: '#1d4ed8', // blue-700
         textBlueDark: '#3b82f6', // blue-500
 
         // indigo text
-        textIndigoLight: '#4c1d95', // indigo-700
+        textIndigoLight: '#4338CA', // indigo-700
         textIndigoDark: '#818cf8', // indigo-400
 
         // yellow text
@@ -58,7 +64,7 @@ export default {
         // amber icon
         iconAmberLight: '#b45309', // amber-700
         iconAmberDark: '#fef3c7', // amber-100
-        iconTooltip: '#6366F1', // indigo-500
+        iconTooltip: '#3730A3', // indigo-800, Icon/Tooltip
         iconTooltipDark: '#A5B4FC', // indigo-300
 
         // buttonPrimary
@@ -69,14 +75,14 @@ export default {
         bgInput: '#fff', // white
         inputText: '#111827', // gray-900
         inputLabelTitle: '#111827', // gray-900
-        placeHolderInputText: '#111827', // gray-900
+        placeHolderInputText: '#9CA3AF', // gray-400, Text/Placeholder
         inputIcon: '#374151', // gray-700
 
         // input dark
         bgInputDark: '#030712', // gray-950
         inputTextDark: '#F9FAFB', // gray-50
         inputLabelTitleDark: '#F9FAFB', // gray-50
-        placeHolderInputTextDark: '#F9FAFB', // gray-50
+        placeHolderInputTextDark: '#6B7280', // gray-500, Text/Placeholder
         inputIconDark: '#F9FAFB', // gray-50
 
         // loadingSpinnerBackground
@@ -86,15 +92,15 @@ export default {
         // background
         bgLight: '#f9fafb', // gray-50
         bgDark: '#111827', // gray-900
-        bgEmerald: '#15803D', // gray-900
+        bgEmerald: '#15803D', // green-700
 
         // modal
         bgAmberLight: '#fef3c7', // amber-100
         bgAmberDark: '#b45309', // amber-700
 
         // hover
-        hoverDark: '#374151', // gray-700
-        hoverLight: '#E5E7EB', // gray-200
+        hoverDark: 'rgb(75 85 99 / 0.3)', // gray-600/30, Surface/Button/Tertiary hover
+        hoverLight: 'rgb(229 231 235 / 0.7)', // gray-200/70, Surface/Button/Tertiary hover
 
         // ring
         ringBlueDark: '#bfdbfe', // blue-200
@@ -105,11 +111,11 @@ export default {
         ringOffsetLight: '#F9FAFB', // gray-50
 
         // iconEmpty
-        emptyIconLight: '#9CA3AF',
-        emptyIconDark: '#6B7280',
+        emptyIconLight: '#9CA3AF', // gray-400
+        emptyIconDark: '#6B7280', // gray-500
         // textEmpty
-        emptyTextLight: '#374151',
-        emptyTextDark: '#E5E7EB',
+        emptyTextLight: '#111827', // gray-900
+        emptyTextDark: '#F9FAFB', // gray-50
 
         surfaceToastInfo: '#E0E7FF',
         surfaceToastInfoDark: '#312E81',
@@ -123,7 +129,7 @@ export default {
         surfacePresenceBusyDark: '#EF4444',
         surfacePresenceOnline: '#22C55E',
         surfacePresenceOnlineDark: '#22C55E',
-        surfacePresenceDnd: '##030712',
+        surfacePresenceDnd: '#030712',
         surfacePresenceDndDark: '#030712',
         surfacePresenceOffline: '#6B7280',
         surfacePresenceOfflineDark: '#6B7280',

@@ -3,10 +3,10 @@ import { MENU_ELEMENT } from '@shared/constants'
 import { useCallback, useEffect } from 'react'
 import { PhonebookModule, SpeeddialsModule, LastCallsModule } from '.'
 import { AboutModule } from './NethVoice/About/AboutModule'
-import classNames from 'classnames'
 import { FavouritesModule } from './NethVoice/Speeddials/Favourites/FavouritesModule'
 import { ParkingModule } from './NethVoice/Parking/ParkingModule'
 import { ChatModule } from './NethVoice/Chat/ChatModule'
+import { QueuesModule } from './NethVoice/Queues/QueuesModule'
 import { PhoneBookSearchModule } from './NethVoice/SearchResults/PhoneBookSearchModule'
 import { usePhonebookSearchModule } from './NethVoice/SearchResults/hook/usePhoneBookSearchModule'
 
@@ -45,22 +45,16 @@ export const NethLinkModules = () => {
         return <AboutModule />
       case MENU_ELEMENT.CHAT:
         return <ChatModule />
+      case MENU_ELEMENT.QUEUES:
+        return <QueuesModule />
       default:
         ;<>modules</>
     }
   }, [showAddContactModule, showPhonebookSearchModule, selectedSidebarMenu])
 
   return (
-    <div
-      className={classNames(
-        'relative h-full w-full ',
-        'max-h-[calc(100vh-64px)]',
-        'max-w-[calc(100vw-64px)]',
-      )}
-    >
-      <div className={classNames('h-full  pt-0')}>
-        <VisibleModule />
-      </div>
+    <div className='relative h-full min-h-0 w-full min-w-0'>
+      <VisibleModule />
     </div>
   )
 }

@@ -110,7 +110,7 @@ export const ContactNameAndActions = ({
     contact.company !== displayName
 
   // Attach tooltips only when the text is actually truncated
-  const [nameRef, isNameTruncated] = useIsTruncated<HTMLDivElement>([
+  const [nameRef, isNameTruncated] = useIsTruncated<HTMLButtonElement>([
     displayName,
   ])
   const [companyRef, isCompanyTruncated] = useIsTruncated<HTMLSpanElement>([
@@ -130,14 +130,12 @@ export const ContactNameAndActions = ({
   const companyTooltipId = `tooltip-company-${contact.id}`
   const numberTooltipId = `tooltip-number-${contact.id}`
   const videoCallTooltipId = `tooltip-video-call-${contact.id}`
+  const callTooltipId = `tooltip-call-${contact.id}`
+  // the name opens the details, when the row has them
+  const NameTag = onOpenDetail ? 'button' : 'div'
 
   return (
-    <div
-      className={classNames(
-        avatarDim === 'small' ? 'gap-3' : 'gap-6',
-        'flex flex-row items-center w-full max-w-full',
-      )}
-    >
+    <div className='flex w-full max-w-full flex-row items-center gap-3'>
       <Avatar
         size={avatarDim}
         src={avatarSrc}
@@ -154,18 +152,13 @@ export const ContactNameAndActions = ({
               ? 'company'
               : 'person'
         }
-        className={classNames(
-          'border-[1px]',
-          onOpenDetail
-            ? 'cursor-pointer dark:hover:border-bgLight hover:border-bgDark'
-            : '',
-        )}
+        className={classNames('border', onOpenDetail ? 'cursor-pointer' : '')}
         onClick={onClick}
       />
       <div
         className={classNames(
           'relative min-w-0 flex-1',
-          hasCompanyLine ? '' : 'h-[44px]',
+          hasCompanyLine ? '' : 'h-11',
         )}
       >
         <div
@@ -175,13 +168,16 @@ export const ContactNameAndActions = ({
           )}
         >
           <div className='flex flex-row gap-2 w-full overflow-hidden'>
-            <div
-              ref={nameRef}
+            <NameTag
+              ref={nameRef as any}
+              type={onOpenDetail ? 'button' : undefined}
               className={classNames(
-                'min-w-0 dark:text-titleDark text-titleLight font-medium text-[14px] leading-5 truncate break-all whitespace-nowrap ',
-                onOpenDetail ? 'cursor-pointer hover:underline' : '',
+                'min-w-0 truncate whitespace-nowrap text-left text-sm font-medium text-titleLight dark:text-titleDark',
+                onOpenDetail
+                  ? 'rounded hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark'
+                  : '',
               )}
-              onClick={onClick}
+              onClick={onOpenDetail ? onClick : undefined}
               data-tooltip-id={nameTooltipContent ? nameTooltipId : undefined}
               data-tooltip-content={nameTooltipContent}
             >
@@ -210,49 +206,68 @@ export const ContactNameAndActions = ({
                   [{contact.id}]
                 </span>
               )}
-            </div>
+            </NameTag>
             {isOperator && (
               <FavouriteStar contact={contact} isSearchData={isSearchData} />
             )}
           </div>
           <div className='flex flex-row gap-2 items-center w-full min-w-0'>
             {showCallIcons && (
-              <FontAwesomeIcon
-                className={classNames(
-                  'text-base',
-                  isCallDisabled
-                    ? 'dark:text-gray-400 text-gray-500 cursor-not-allowed'
-                    : 'dark:text-gray-400 text-gray-600 cursor-pointer hover:dark:text-textBlueDark hover:text-textBlueLight',
-                )}
-                icon={CallIcon}
-                onClick={() => {
-                  if (isCallDisabled) return
-                  debouncer(
-                    'onCallNumber',
-                    () => {
-                      callNumber(number)
-                    },
-                    250,
-                  )
-                }}
-              />
+              <>
+                <button
+                  type='button'
+                  disabled={isCallDisabled}
+                  aria-label={t('Operators.Call') as string}
+                  data-tooltip-id={callTooltipId}
+                  data-tooltip-content={t('Operators.Call') as string}
+                  className={classNames(
+                    'flex shrink-0 items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark',
+                    isCallDisabled
+                      ? 'cursor-not-allowed text-gray-500 dark:text-gray-400'
+                      : 'text-gray-600 hover:text-textBlueLight dark:text-gray-400 dark:hover:text-textBlueDark',
+                  )}
+                  onClick={() => {
+                    if (isCallDisabled) return
+                    debouncer(
+                      'onCallNumber',
+                      () => {
+                        callNumber(number)
+                      },
+                      250,
+                    )
+                  }}
+                >
+                  <FontAwesomeIcon
+                    className='size-4'
+                    icon={CallIcon}
+                    aria-hidden='true'
+                  />
+                </button>
+                <CustomThemedTooltip id={callTooltipId} place='top' />
+              </>
             )}
             {showCallIcons && canVideoCall && (
               <>
-                <FontAwesomeIcon
-                  className={classNames(
-                    'text-base',
-                    isVideoCallDisabled
-                      ? 'dark:text-gray-400 text-gray-500 cursor-not-allowed'
-                      : 'dark:text-gray-400 text-gray-600 cursor-pointer hover:dark:text-textBlueDark hover:text-textBlueLight',
-                  )}
-                  icon={VideoCallIcon}
+                <button
+                  type='button'
+                  disabled={isVideoCallDisabled}
+                  aria-label={
+                    (isCameraDenied
+                      ? t('Operators.Enable camera permission')
+                      : t('Operators.Video call')) as string
+                  }
                   data-tooltip-id={videoCallTooltipId}
                   data-tooltip-content={
-                    isCameraDenied
+                    (isCameraDenied
                       ? t('Operators.Enable camera permission')
-                      : t('Operators.Video call')
+                      : t('Operators.Video call')) as string
                   }
+                  className={classNames(
+                    'flex shrink-0 items-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark',
+                    isVideoCallDisabled
+                      ? 'cursor-not-allowed text-gray-500 dark:text-gray-400'
+                      : 'text-gray-600 hover:text-textBlueLight dark:text-gray-400 dark:hover:text-textBlueDark',
+                  )}
                   onClick={() => {
                     if (isVideoCallDisabled) return
                     debouncer(
@@ -263,7 +278,13 @@ export const ContactNameAndActions = ({
                       250,
                     )
                   }}
-                />
+                >
+                  <FontAwesomeIcon
+                    className='size-4'
+                    icon={VideoCallIcon}
+                    aria-hidden='true'
+                  />
+                </button>
                 <CustomThemedTooltip id={videoCallTooltipId} place='top' />
               </>
             )}
@@ -281,7 +302,7 @@ export const ContactNameAndActions = ({
                   disabled={isDisplayedNumberEmpty || isCallDisabled}
                   className={classNames(
                     isDisplayedNumberEmpty
-                      ? ''
+                      ? 'text-gray-600 dark:text-gray-400'
                       : isCallDisabled
                         ? 'dark:text-gray-400 text-gray-500'
                         : 'dark:text-textBlueDark text-textBlueLight hover:text-primaryHover dark:hover:text-primaryDarkHover',
@@ -297,31 +318,33 @@ export const ContactNameAndActions = ({
                   (!Array.isArray(displayedNumber) ||
                     displayedNumber.length > 0)
                     ? displayedNumber
-                    : '-'}
+                    : t('Phonebook.No phone number')}
                 </NumberCaller>
               </div>
               {isNumberTruncated && (
                 <CustomThemedTooltip id={numberTooltipId} place='top' />
               )}
               {otherNumber && (
-                <span
+                <button
+                  type='button'
                   onClick={onClick}
-                  className='ml-2 shrink-0 cursor-pointer hover:underline dark:text-textBlueDark text-textBlueLight hover:text-primaryHover dark:hover:text-primaryDarkHover'
+                  className='ml-2 shrink-0 rounded text-sm text-textBlueLight hover:text-primaryHover hover:underline dark:text-textBlueDark dark:hover:text-primaryDarkHover focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark'
                 >
                   {otherNumber}
-                </span>
+                </button>
               )}
             </div>
           </div>
           {hasCompanyLine && (
             <div className='flex flex-row gap-2 items-center w-full overflow-hidden'>
               <FontAwesomeIcon
-                className='text-sm dark:text-gray-400 text-gray-600 shrink-0'
+                className='size-4 shrink-0 text-gray-600 dark:text-gray-400'
                 icon={CompanyIcon}
+                aria-hidden='true'
               />
               <span
                 ref={companyRef}
-                className='min-w-0 flex-1 dark:text-gray-400 text-gray-600 font-normal text-[14px] leading-5 truncate'
+                className='min-w-0 flex-1 truncate text-sm text-gray-600 dark:text-gray-400'
                 data-tooltip-id={
                   isCompanyTruncated ? companyTooltipId : undefined
                 }

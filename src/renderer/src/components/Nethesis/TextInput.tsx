@@ -17,12 +17,13 @@
  * @param clearable - Whether to show a clear button when input has value
  */
 
-import { ComponentProps, forwardRef } from 'react'
+import { ComponentProps, forwardRef, useId } from 'react'
 import { cleanClassName } from '../../lib/utils'
 import { useTheme } from '../../theme/Context'
 import classNames from 'classnames'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { CustomThemedTooltip } from './CustomThemedTooltip'
 
 export interface TextInputProps extends Omit<
   ComponentProps<'input'>,
@@ -38,6 +39,8 @@ export interface TextInputProps extends Omit<
   rounded?: 'base' | 'full'
   squared?: 'left' | 'right' | 'top' | 'bottom'
   onIconClick?: () => void
+  // accessible name and tooltip of the icon when it is a button (onIconClick)
+  iconLabel?: string
   // replaces the default icon color
   iconClassName?: string
 }
@@ -56,6 +59,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
       rounded,
       squared,
       onIconClick,
+      iconLabel,
       iconClassName,
       id,
       className,
@@ -65,6 +69,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     ref,
   ) => {
     const cleanProps = cleanClassName(props)
+    const iconTooltipId = useId()
     const { input: theme } = useTheme().theme
 
     return (
@@ -82,17 +87,43 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 trailingIcon ? theme.icon.right : theme.icon.left,
               )}
             >
-              <FontAwesomeIcon
-                icon={Icon}
-                className={classNames(
-                  size === 'large'
-                    ? theme.icon.size.large
-                    : theme.icon.size.base,
-                  iconClassName || theme.icon.gray,
-                  onIconClick && 'cursor-pointer',
-                )}
-                onClick={() => onIconClick && onIconClick()}
-              />
+              {onIconClick ? (
+                <>
+                  <button
+                    type='button'
+                    aria-label={iconLabel}
+                    data-tooltip-id={iconTooltipId}
+                    data-tooltip-content={iconLabel}
+                    className='rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark'
+                    onClick={() => onIconClick()}
+                  >
+                    <FontAwesomeIcon
+                      icon={Icon}
+                      aria-hidden='true'
+                      className={classNames(
+                        size === 'large'
+                          ? theme.icon.size.large
+                          : theme.icon.size.base,
+                        iconClassName || theme.icon.gray,
+                      )}
+                    />
+                  </button>
+                  {iconLabel && (
+                    <CustomThemedTooltip id={iconTooltipId} place='top' />
+                  )}
+                </>
+              ) : (
+                <FontAwesomeIcon
+                  icon={Icon}
+                  aria-hidden='true'
+                  className={classNames(
+                    size === 'large'
+                      ? theme.icon.size.large
+                      : theme.icon.size.base,
+                    iconClassName || theme.icon.gray,
+                  )}
+                />
+              )}
             </div>
           )}
           <input

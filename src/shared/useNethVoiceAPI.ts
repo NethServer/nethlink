@@ -265,6 +265,17 @@ export const useNethVoiceAPI = (
     extensions: async (): Promise<ExtensionsType> =>
       await _GET(buildApiPath('/astproxy/extensions')),
     getQueues: async () => await _GET(buildApiPath('/astproxy/queues')),
+    // sign the extension in to (or out of) a queue, as a dynamic member
+    queueMemberAdd: async (endpointId: string, queueId: string) =>
+      await _POST(buildApiPath('/astproxy/queuemember_add'), {
+        endpointId,
+        queueId,
+      }),
+    queueMemberRemove: async (endpointId: string, queueId: string) =>
+      await _POST(buildApiPath('/astproxy/queuemember_remove'), {
+        endpointId,
+        queueId,
+      }),
     getParkings: async () => await _GET(buildApiPath('/astproxy/parkings')),
     pickupParking: async (parkInformation: any) =>
       await _POST(buildApiPath('/astproxy/pickup_parking'), parkInformation),

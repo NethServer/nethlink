@@ -1,28 +1,25 @@
-import NethLinkLogoSimple from '../../../../assets/LogoBlueSimple.svg'
-import NethLinkLogoSimpleDark from '../../../../assets/LogoBlueSimpleDark.svg'
 import { t } from 'i18next'
+import { Trans } from 'react-i18next'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpRightFromSquare as DownloadIcon } from '@fortawesome/free-solid-svg-icons'
 import { Button } from '@renderer/components/Nethesis'
 import { useSharedState } from '@renderer/store'
-import { usePageCtx } from '@renderer/contexts/pageContext'
 import { Scrollable } from '@renderer/components/Scrollable'
 import { ModuleTitle } from '@renderer/components/ModuleTitle'
-import { parseThemeToClassName } from '@renderer/utils'
+import { NethLinkMark } from '@renderer/components/SplashLogo'
 
 export interface AboutBoxProps {}
 
 export function AboutModule() {
-  const page = usePageCtx()
-  const [theme] = useSharedState('theme')
   const [notifications] = useSharedState('notifications')
   const [account] = useSharedState('account')
 
-  // Donwload NethLink release page
-  const releasePage = 'https://nethserver.github.io/nethlink/'
-
+  // the page of the newer release, or the download page of NethLink
+  const update = notifications?.system?.update
   const onDownloadButtonClick = () => {
-    window.api.openExternalPage(releasePage)
+    window.api.openExternalPage(
+      update?.message || 'https://nethserver.github.io/nethlink/',
+    )
   }
 
   const openCompanyUrl = () => {
@@ -35,45 +32,46 @@ export function AboutModule() {
     <>
       <ModuleTitle title={t('About.title')} />
       <Scrollable>
-        <div className='flex flex-col w-full items-center px-4 text-bgDark dark:text-bgLight mb-1'>
-          <div className='mt-6 mb-4 flex flex-col items-center gap-2'>
-            <img
-              src={
-                parseThemeToClassName(theme) === 'dark'
-                  ? NethLinkLogoSimpleDark
-                  : NethLinkLogoSimple
-              }
-              className='h-10 overflow-hidden object-cover place-items-start'
-            ></img>
+        <div className='mb-1 flex w-full flex-col items-center px-4 text-sm text-titleLight dark:text-titleDark'>
+          <div className='mb-4 mt-6 flex flex-col items-center gap-2'>
+            <NethLinkMark className='h-10 w-12' />
             <div className='font-medium'>
-              NethLink by{' '}
-              <span
-                className='text-textBlueLight dark:text-textBlueDark cursor-pointer hover:underline'
-                onClick={openCompanyUrl}
-              >
-                {account?.companyName}
-              </span>
+              <Trans
+                i18nKey='About.NethLink by'
+                values={{ company: account?.companyName }}
+                components={{
+                  company: (
+                    <button
+                      type='button'
+                      className='rounded text-textBlueLight hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing dark:text-textBlueDark dark:focus-visible:ring-primaryRingDark'
+                      onClick={openCompanyUrl}
+                    />
+                  ),
+                }}
+              />
             </div>
           </div>
-          <div className='text-gray-400 mb-2'>
+          <div className='mb-2 text-gray-600 dark:text-gray-400'>
             {t('About.current_version', { version: window.api.appVersion })}
           </div>
           {!!notifications?.system?.update && (
-            <div className='mt-6 flex flex-col gap-2 items-center'>
-              <span className='font-medium text-[12px] leading-[18px]'>
-                {t('About.update_available')}
+            <div className='mt-6 flex flex-col items-center gap-2'>
+              <span className='text-xs font-medium'>
+                {update?.version
+                  ? t('About.Version available', { version: update.version })
+                  : t('About.update_available')}
               </span>
-              <Button variant='white' onClick={onDownloadButtonClick}>
-                <div className='flex flex-row items-center gap-4'>
-                  <FontAwesomeIcon
-                    size='1x'
-                    icon={DownloadIcon}
-                    className='text-[16px]'
-                  />
-                  <span className='font-medium text-sm'>
-                    {t('About.download')}
-                  </span>
-                </div>
+              <Button
+                variant='white'
+                className='gap-2'
+                onClick={onDownloadButtonClick}
+              >
+                <FontAwesomeIcon
+                  icon={DownloadIcon}
+                  className='size-4'
+                  aria-hidden='true'
+                />
+                {t('About.Open download page')}
               </Button>
             </div>
           )}
