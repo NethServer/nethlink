@@ -175,37 +175,35 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
               onKeyUp={handleKeyUp}
               onBlur={stopPress}
             >
-              {/* the press and hold fill: over the button background, under its content */}
-              <motion.div
-                aria-hidden='true'
-                initial={{ width: 0 }}
-                animate={
-                  cardPressStates
-                    ? { width: '100%', transition: { duration: 2 } }
-                    : { width: 0 }
-                }
-                className='pointer-events-none absolute inset-y-0 left-0 bg-emerald-500'
-              />
               <FontAwesomeIcon
                 icon={CallIcon}
                 aria-hidden='true'
-                className={classNames(
-                  'relative size-4',
-                  cardPressStates
-                    ? 'text-gray-600 dark:text-gray-200'
-                    : 'text-textBlueLight dark:text-textBlueDark',
-                )}
+                className='size-4 text-textBlueLight dark:text-textBlueDark'
               />
-              <span
-                className={classNames(
-                  'relative overflow-hidden whitespace-nowrap',
-                  cardPressStates
-                    ? 'text-gray-600 dark:text-gray-200'
-                    : 'text-textBlueLight dark:text-textBlueDark',
-                )}
-              >
+              <span className='whitespace-nowrap text-textBlueLight dark:text-textBlueDark'>
                 {t('Parks.Pick up')}
               </span>
+              {/* the press and hold fill: a primary copy of the content, uncovered
+                  from the left, so the text stays readable over both colors */}
+              <motion.span
+                aria-hidden='true'
+                initial={{ clipPath: 'inset(0 100% 0 0)' }}
+                animate={
+                  cardPressStates
+                    ? {
+                        clipPath: 'inset(0 0% 0 0)',
+                        transition: { duration: 2, ease: 'linear' },
+                      }
+                    : {
+                        clipPath: 'inset(0 100% 0 0)',
+                        transition: { duration: 0 },
+                      }
+                }
+                className='pointer-events-none absolute inset-0 flex items-center justify-center gap-2 bg-primary text-white dark:bg-primaryDark dark:text-primaryButtonTextDark'
+              >
+                <FontAwesomeIcon icon={CallIcon} className='size-4' />
+                <span className='whitespace-nowrap'>{t('Parks.Pick up')}</span>
+              </motion.span>
             </Button>
             <CustomThemedTooltip id={hintTooltipId} place='bottom' />
           </div>
