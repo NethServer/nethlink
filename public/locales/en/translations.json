@@ -10,7 +10,9 @@
     "Check for updates": "Check for updates",
     "Download version": "Download version {{version}}",
     "Up to date title": "NethLink is up to date",
-    "Up to date description": "Version {{version}} is the latest one."
+    "Up to date description": "Version {{version}} is the latest one.",
+    "Update check failed title": "Cannot check for updates",
+    "Update check failed description": "Check the internet connection and try again."
   },
   "Common": {
     "Showing": "Showing",

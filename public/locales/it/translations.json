@@ -10,7 +10,9 @@
     "Check for updates": "Controlla aggiornamenti",
     "Download version": "Scarica la versione {{version}}",
     "Up to date title": "NethLink è aggiornato",
-    "Up to date description": "La versione {{version}} è la più recente."
+    "Up to date description": "La versione {{version}} è la più recente.",
+    "Update check failed title": "Impossibile verificare gli aggiornamenti",
+    "Update check failed description": "Controlla la connessione a internet e riprova."
   },
   "Common": {
     "Showing": "Mostrando",

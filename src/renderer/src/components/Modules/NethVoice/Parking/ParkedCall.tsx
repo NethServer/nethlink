@@ -155,18 +155,9 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
             {formattedTime}
           </span>
           <div className='relative'>
-            <motion.div
-              initial={{ width: 0 }}
-              animate={
-                cardPressStates
-                  ? { width: '100%', transition: { duration: 2 } }
-                  : { width: 0 }
-              }
-              className='absolute inset-y-0 left-0 overflow-hidden rounded-md bg-emerald-500'
-            ></motion.div>
             <Button
               variant='white'
-              className='relative min-w-28 gap-2'
+              className='relative min-w-28 gap-2 overflow-hidden'
               aria-label={
                 t('Parks.Pick up call in parking', {
                   name: parkingDetails.name,
@@ -184,11 +175,22 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
               onKeyUp={handleKeyUp}
               onBlur={stopPress}
             >
+              {/* the press and hold fill: over the button background, under its content */}
+              <motion.div
+                aria-hidden='true'
+                initial={{ width: 0 }}
+                animate={
+                  cardPressStates
+                    ? { width: '100%', transition: { duration: 2 } }
+                    : { width: 0 }
+                }
+                className='pointer-events-none absolute inset-y-0 left-0 bg-emerald-500'
+              />
               <FontAwesomeIcon
                 icon={CallIcon}
                 aria-hidden='true'
                 className={classNames(
-                  'size-4',
+                  'relative size-4',
                   cardPressStates
                     ? 'text-gray-600 dark:text-gray-200'
                     : 'text-textBlueLight dark:text-textBlueDark',
@@ -196,7 +198,7 @@ export const ParkedCall = ({ parkingDetails, onPickup }: ParkingCallProps) => {
               />
               <span
                 className={classNames(
-                  'overflow-hidden whitespace-nowrap',
+                  'relative overflow-hidden whitespace-nowrap',
                   cardPressStates
                     ? 'text-gray-600 dark:text-gray-200'
                     : 'text-textBlueLight dark:text-textBlueDark',

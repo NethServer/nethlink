@@ -73,6 +73,11 @@
   outline: none;
 }
 
+/* the islands keep the old rule: their styles rely on it */
+.island-page * {
+  outline-color: transparent !important;
+}
+
 .custom-circle-dot-wrapper {
   position: relative;
   display: inline-block;

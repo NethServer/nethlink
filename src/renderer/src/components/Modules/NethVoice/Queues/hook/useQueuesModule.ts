@@ -13,9 +13,10 @@ export const getMemberStatus = (
   return member.paused ? 'paused' : 'signedIn'
 }
 
-// only a dynamic member can sign in and out, a static one is always in the queue
+// only a static member is always in the queue: any other member, such as a
+// dynamic one, can sign in and out, as in the CTI
 export const isDynamicMember = (member?: QueueMemberType) =>
-  member?.type === 'dynamic'
+  !!member && member.type !== 'static'
 
 export type QueueAction = 'signIn' | 'signOut'
 
@@ -104,8 +105,9 @@ export const useQueuesModule = () => {
         : getMyMember(q)?.loggedIn,
     )
     setError(undefined)
+    const targetIds = targets.map((q) => q.queue)
     setIsAllPending(true)
-    setPendingQueues(targets.map((q) => q.queue))
+    setPendingQueues((p) => [...p, ...targetIds])
     const results = await Promise.allSettled(
       targets.map((q) => changeMembership(q, action)),
     )
@@ -114,7 +116,8 @@ export const useQueuesModule = () => {
       setError({ action })
     }
     await refreshQueues()
-    setPendingQueues([])
+    // a single queue changed meanwhile keeps its own pending state
+    setPendingQueues((p) => p.filter((q) => !targetIds.includes(q)))
     setIsAllPending(false)
   }
 

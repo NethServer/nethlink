@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
 import {
@@ -193,7 +194,13 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes; page?: PAGES }) => {
 
   return (
     <>
-      <div className={`${theme} font-Poppins`} id='app-container'>
+      <div
+        className={classNames(theme, 'font-Poppins', {
+          'island-page':
+            page === PAGES.PHONEISLAND || page === PAGES.CHATISLAND,
+        })}
+        id='app-container'
+      >
         <Outlet />
       </div>
     </>

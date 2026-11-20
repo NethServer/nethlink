@@ -62,6 +62,21 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
     }
   }, [selectedSidebarMenu])
 
+  // back to the default section when the queues permission is removed while
+  // the queues are shown; only once the profile is loaded
+  const [account] = useSharedState('account')
+  const isProfileLoaded = !!account?.data?.profile?.macro_permissions
+  const canUseQueues = hasMacroPermission('queue_agent')
+  useEffect(() => {
+    if (
+      isProfileLoaded &&
+      !canUseQueues &&
+      selectedSidebarMenu === MENU_ELEMENT.QUEUES
+    ) {
+      handleSidebarMenuSelection(MENU_ELEMENT.FAVOURITES)
+    }
+  }, [isProfileLoaded, canUseQueues, selectedSidebarMenu])
+
   useEffect(() => {
     if (selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS) {
       viewedParkedCalls.current = [...(parkedCalls || [])]

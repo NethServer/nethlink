@@ -20,7 +20,12 @@ export enum SpeeddialTypes {
   FAVOURITES = 'speeddial-favorite',
 }
 // every release, testing pre-releases included, newest first
-export const GIT_RELEASES_URL = `https://api.github.com/repos/nethserver/nethlink/releases?per_page=50`
+const GIT_RELEASES_API =
+  'https://api.github.com/repos/nethserver/nethlink/releases'
+// the last releases, testing ones included, for a testing installation
+export const GIT_RELEASES_URL = `${GIT_RELEASES_API}?per_page=10`
+// the latest stable release: GitHub skips the drafts and the pre-releases
+export const GIT_LATEST_RELEASE_URL = `${GIT_RELEASES_API}/latest`
 
 export enum PERMISSION {
   CALL_FORWARD = 'call_forward',
