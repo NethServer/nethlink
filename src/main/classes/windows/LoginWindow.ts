@@ -4,6 +4,7 @@ import { BaseWindow } from './BaseWindow'
 import { LoginPageSize } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
 import { debouncer } from '@shared/utils/utils'
+import { syncDockWithWindows } from '@/lib/dock'
 
 export const LOGIN_WINDOW_WIDTH = 500
 export class LoginWindow extends BaseWindow {
@@ -74,6 +75,7 @@ export class LoginWindow extends BaseWindow {
   }
 
   async toggleVisibility() {
+    syncDockWithWindows()
     debouncer('loginToggleVisibility', async () => {
       TrayController.instance.updateTray({
         enableShowButton: true,
