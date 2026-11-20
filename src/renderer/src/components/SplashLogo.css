@@ -1,0 +1,76 @@
+/* the symbol is traced like a signature, then filled */
+.splash-logo-mark {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  fill-opacity: 0;
+  animation:
+    splash-logo-trace 700ms cubic-bezier(0.65, 0, 0.35, 1) forwards,
+    splash-logo-fill 400ms ease-out 500ms forwards;
+}
+
+/* then the letters rise into place, one after the other */
+.splash-logo-letter {
+  opacity: 0;
+  transform: translateY(4px);
+  animation: splash-logo-letter 300ms ease-out forwards;
+}
+
+.splash-fade-in {
+  opacity: 0;
+  animation: splash-fade-in 400ms ease-out forwards;
+}
+
+/* an indeterminate progress bar */
+.splash-progress-bar {
+  animation: splash-progress 1400ms ease-in-out infinite;
+}
+
+@keyframes splash-logo-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes splash-logo-fill {
+  to {
+    fill-opacity: 1;
+    stroke-opacity: 0;
+  }
+}
+
+@keyframes splash-logo-letter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splash-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes splash-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-logo-mark,
+  .splash-logo-letter,
+  .splash-fade-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    fill-opacity: 1;
+    stroke-opacity: 0;
+  }
+  .splash-progress-bar {
+    animation: none;
+  }
+}
