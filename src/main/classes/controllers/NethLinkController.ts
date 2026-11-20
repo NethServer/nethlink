@@ -35,9 +35,9 @@ export class NethLinkController {
     }
   }
 
-  sendUpdateNotification() {
+  sendUpdateNotification(update: { version: string; url: string }) {
     try {
-      this.window.emit(IPC_EVENTS.UPDATE_APP_NOTIFICATION)
+      this.window.emit(IPC_EVENTS.UPDATE_APP_NOTIFICATION, update)
     } catch (e) {
       Log.warning(
         'error during send update notification to the NethLinkWindow: ',
