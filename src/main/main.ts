@@ -1,3 +1,5 @@
+// must stay the first import: it moves the user data folder before anything reads it
+import './lib/localUserData'
 import {
   app,
   ipcMain,

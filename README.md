@@ -153,7 +153,7 @@ Use the following environment variables for testing purposes:
 
 The user data folders for different operating systems are as follows:
 
-- **Windows**: `%APPDATA%/nethlink/`
+- **Windows**: `%LOCALAPPDATA%/nethlink/` (`%APPDATA%/nethlink/` up to version 1.6.1: on the first start the app copies its data from there)
 - **Linux**: `~/.config/nethlink/`
 - **macOS**: `~/Library/Application Support/nethlink/`
 
