@@ -5,10 +5,17 @@ import { resolve } from 'path'
 if (
   process.platform === 'linux' &&
   (process.env['XDG_SESSION_TYPE'] === 'wayland' ||
-    !!process.env['WAYLAND_DISPLAY']) &&
-  !process.env['ELECTRON_CLI_ARGS']
+    !!process.env['WAYLAND_DISPLAY'])
 ) {
-  process.env['ELECTRON_CLI_ARGS'] = JSON.stringify(['--ozone-platform=x11'])
+  const electronArgs: string[] = process.env['ELECTRON_CLI_ARGS']
+    ? JSON.parse(process.env['ELECTRON_CLI_ARGS'])
+    : []
+  if (!electronArgs.some((arg) => arg.startsWith('--ozone-platform'))) {
+    process.env['ELECTRON_CLI_ARGS'] = JSON.stringify([
+      '--ozone-platform=x11',
+      ...electronArgs,
+    ])
+  }
 }
 
 export default defineConfig({
