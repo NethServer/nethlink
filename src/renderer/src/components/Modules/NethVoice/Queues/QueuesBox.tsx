@@ -1,9 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-  faArrowRightFromBracket,
-  faArrowRightToBracket,
   faArrowUpRightFromSquare,
-  faCircleNotch,
   faUsers as QueuesIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
@@ -13,66 +10,84 @@ import { EmptyList } from '@renderer/components/EmptyList'
 import { Button } from '@renderer/components/Nethesis'
 import { InlineNotification } from '@renderer/components/Nethesis/InlineNotification'
 import { QueueItem, QueueItemSkeleton } from './QueueItem'
-import { useQueuesModule } from './hook/useQueuesModule'
+import { QueuesAllMenu } from './QueuesAllMenu'
+import { QueueAction, useQueuesModule } from './hook/useQueuesModule'
+
+// the title of the error of an action, on one queue or on all of them
+const ERROR_TITLES: Record<QueueAction, { one: string; all: string }> = {
+  logIn: {
+    one: 'Queues.Cannot log in to queue',
+    all: 'Queues.Cannot log in to all queues',
+  },
+  logOut: {
+    one: 'Queues.Cannot log out of queue',
+    all: 'Queues.Cannot log out of all queues',
+  },
+  pause: {
+    one: 'Queues.Cannot pause queue',
+    all: 'Queues.Cannot pause all queues',
+  },
+  endPause: {
+    one: 'Queues.Cannot end pause on queue',
+    all: 'Queues.Cannot end pause on all queues',
+  },
+}
 
 export const QueuesBox = () => {
   const {
     myQueues,
     getMyMember,
+    getMyPauseReason,
     dynamicQueues,
-    isSignedInToAny,
-    pendingQueues,
-    isAllPending,
+    isLoggedInToAny,
+    pausableQueues,
+    pausedQueues,
+    pendingActions,
+    allPendingAction,
     error,
-    toggleQueue,
-    toggleAllQueues,
+    toggleLogin,
+    pauseQueue,
+    endPauseQueue,
+    toggleLoginAll,
+    pauseAll,
+    endPauseAll,
   } = useQueuesModule()
 
   const errorTitle = error
-    ? error.queue
-      ? t(
-          error.action === 'signIn'
-            ? 'Queues.Cannot sign in to queue'
-            : 'Queues.Cannot sign out of queue',
-        )
-      : t(
-          error.action === 'signIn'
-            ? 'Queues.Cannot sign in to all queues'
-            : 'Queues.Cannot sign out of all queues',
-        )
+    ? t(ERROR_TITLES[error.action][error.queue ? 'one' : 'all'])
     : ''
+  const hasAllActions =
+    dynamicQueues.length > 0 ||
+    pausableQueues.length > 0 ||
+    pausedQueues.length > 0
 
   return (
     <>
       <ModuleTitle
         title={t('Queues.Queues')}
         actionComponent={
-          dynamicQueues.length > 0 && (
-            <Button
-              variant='ghost'
-              size='small'
-              className='-mr-2 gap-2'
-              disabled={isAllPending}
-              onClick={toggleAllQueues}
-            >
-              <FontAwesomeIcon
-                icon={
-                  isAllPending
-                    ? faCircleNotch
-                    : isSignedInToAny
-                      ? faArrowRightFromBracket
-                      : faArrowRightToBracket
-                }
-                spin={isAllPending}
-                className='size-4'
-                aria-hidden='true'
-              />
-              {t(
-                isSignedInToAny
-                  ? 'Queues.Sign out of all queues'
-                  : 'Queues.Sign in to all queues',
-              )}
-            </Button>
+          hasAllActions && (
+            <QueuesAllMenu
+              login={
+                dynamicQueues.length === 0
+                  ? undefined
+                  : isLoggedInToAny
+                    ? 'logOut'
+                    : 'logIn'
+              }
+              // as in NethVoice CTI: end the pause first when any queue is paused
+              pause={
+                pausedQueues.length > 0
+                  ? 'endPause'
+                  : pausableQueues.length > 0
+                    ? 'pause'
+                    : undefined
+              }
+              isPending={!!allPendingAction}
+              onToggleLogin={toggleLoginAll}
+              onPause={pauseAll}
+              onEndPause={endPauseAll}
+            />
           )
         }
       />
@@ -100,8 +115,11 @@ export const QueuesBox = () => {
                     <QueueItem
                       queue={queue}
                       myMember={getMyMember(queue)}
-                      isPending={pendingQueues.includes(queue.queue)}
-                      onToggle={toggleQueue}
+                      myPauseReason={getMyPauseReason(queue)}
+                      pendingAction={pendingActions[queue.queue]}
+                      onToggleLogin={toggleLogin}
+                      onPause={pauseQueue}
+                      onEndPause={endPauseQueue}
                     />
                   </li>
                 ))}

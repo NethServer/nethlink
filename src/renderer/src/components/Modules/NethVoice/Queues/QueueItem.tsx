@@ -6,13 +6,22 @@ import {
   faChevronDown,
   faChevronUp,
   faCircleNotch,
+  faPlay,
 } from '@fortawesome/free-solid-svg-icons'
 import { t } from 'i18next'
 import { Avatar, Button } from '@renderer/components/Nethesis'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
+import classNames from 'classnames'
 import { useNethlinkData } from '@renderer/store'
 import { QueueMemberType, QueueType } from '@shared/types'
 import { QueueStatusBadge } from './QueueStatusBadge'
-import { getMemberStatus, isDynamicMember } from './hook/useQueuesModule'
+import { QueuePauseMenu } from './QueuePauseMenu'
+import {
+  PauseReason,
+  QueueAction,
+  getMemberStatus,
+  isDynamicMember,
+} from './hook/useQueuesModule'
 
 // mm:ss, or h:mm:ss from one hour on
 export const formatWait = (seconds: number) => {
@@ -36,7 +45,7 @@ const useNow = (enabled: boolean) => {
 }
 
 const sortMembers = (a: QueueMemberType, b: QueueMemberType) => {
-  const rank = { signedIn: 0, paused: 1, signedOut: 2 }
+  const rank = { loggedIn: 0, paused: 1, loggedOut: 2 }
   return (
     rank[getMemberStatus(a)] - rank[getMemberStatus(b)] ||
     (a.name || '').localeCompare(b.name || '')
@@ -46,29 +55,38 @@ const sortMembers = (a: QueueMemberType, b: QueueMemberType) => {
 export interface QueueItemProps {
   queue: QueueType
   myMember?: QueueMemberType
-  isPending: boolean
-  onToggle: (queue: QueueType) => void
+  // the reason of the pause of the user, also the one remembered by NethLink
+  myPauseReason?: string
+  // the action in progress on the queue, if any
+  pendingAction?: QueueAction
+  onToggleLogin: (queue: QueueType) => void
+  onPause: (queue: QueueType, reason: PauseReason) => void
+  onEndPause: (queue: QueueType) => void
 }
 
 export const QueueItem = ({
   queue,
   myMember,
-  isPending,
-  onToggle,
+  myPauseReason,
+  pendingAction,
+  onToggleLogin,
+  onPause,
+  onEndPause,
 }: QueueItemProps) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false)
   // for the avatar and the presence of the operators of the queue
   const [operators] = useNethlinkData('operators')
   const detailsId = useId()
+  const logOutTooltipId = useId()
 
   const waitingCallers = Object.values(queue.waitingCallers || {}).sort(
     (a, b) => Number(a.position) - Number(b.position),
   )
   const members = Object.values(queue.members || {}).sort(sortMembers)
-  // the operators that take calls or are on a break, the signed out ones are left out
-  const signedInMembers = members.filter((m) => m.loggedIn)
+  // the operators that take calls or are on a break, the logged out ones are left out
+  const loggedInMembers = members.filter((m) => m.loggedIn)
   const activeOperators = members.filter(
-    (m) => getMemberStatus(m) === 'signedIn',
+    (m) => getMemberStatus(m) === 'loggedIn',
   ).length
   const now = useNow(isExpanded && waitingCallers.length > 0)
   // the first caller in line is the one who waits the longest
@@ -76,8 +94,11 @@ export const QueueItem = ({
     ? (now - waitingCallers[0].waitingTime) / 1000
     : 0
 
-  const isSignedIn = !!myMember?.loggedIn
+  const myStatus = getMemberStatus(myMember)
+  const isLoggedIn = myStatus !== 'loggedOut'
   const canToggle = isDynamicMember(myMember)
+  const isPending = !!pendingAction
+  const isLoginPending = pendingAction === 'logIn' || pendingAction === 'logOut'
 
   return (
     <div>
@@ -102,7 +123,7 @@ export const QueueItem = ({
               </span>
             </span>
             <div className='flex flex-wrap items-center gap-x-2 gap-y-1'>
-              <QueueStatusBadge status={getMemberStatus(myMember)} />
+              <QueueStatusBadge status={myStatus} pauseReason={myPauseReason} />
               {waitingCallers.length > 0 && (
                 <span className='whitespace-nowrap text-xs leading-4 text-gray-600 dark:text-gray-400'>
                   {t('Queues.waiting_calls_count', {
@@ -113,37 +134,80 @@ export const QueueItem = ({
             </div>
           </div>
         </button>
-        {canToggle && (
-          <Button
-            variant='white'
-            size='small'
-            className='shrink-0 gap-2'
-            disabled={isPending}
-            aria-label={
-              t(
-                isSignedIn
-                  ? 'Queues.Sign out of queue'
-                  : 'Queues.Sign in to queue',
-                { name: queue.name },
-              ) ?? undefined
-            }
-            onClick={() => onToggle(queue)}
-          >
-            <FontAwesomeIcon
-              icon={
-                isPending
-                  ? faCircleNotch
-                  : isSignedIn
-                    ? faArrowRightFromBracket
-                    : faArrowRightToBracket
+        <div className='flex shrink-0 items-center gap-2'>
+          {myStatus === 'loggedIn' && (
+            <QueuePauseMenu
+              variant='white'
+              label={t('Queues.Pause')}
+              ariaLabel={
+                t('Queues.Pause queue', { name: queue.name }) ?? undefined
               }
-              spin={isPending}
-              className='size-4'
-              aria-hidden='true'
+              isPending={pendingAction === 'pause'}
+              disabled={isPending}
+              onSelect={(reason) => onPause(queue, reason)}
             />
-            {t(isSignedIn ? 'Queues.Sign out' : 'Queues.Sign in')}
-          </Button>
-        )}
+          )}
+          {myStatus === 'paused' && (
+            <Button
+              variant='white'
+              size='small'
+              className='gap-2'
+              disabled={isPending}
+              aria-label={
+                t('Queues.End pause on queue', { name: queue.name }) ??
+                undefined
+              }
+              onClick={() => onEndPause(queue)}
+            >
+              <FontAwesomeIcon
+                icon={pendingAction === 'endPause' ? faCircleNotch : faPlay}
+                spin={pendingAction === 'endPause'}
+                className='size-4'
+                aria-hidden='true'
+              />
+              {t('Queues.End pause')}
+            </Button>
+          )}
+          {canToggle && (
+            // logged in, the label is left to the pause: log out is an icon
+            <Button
+              variant='white'
+              size='small'
+              className={classNames('gap-2', isLoggedIn && 'self-stretch px-2')}
+              disabled={isPending}
+              aria-label={
+                t(
+                  isLoggedIn
+                    ? 'Queues.Log out of queue'
+                    : 'Queues.Log in to queue',
+                  { name: queue.name },
+                ) ?? undefined
+              }
+              data-tooltip-id={isLoggedIn ? logOutTooltipId : undefined}
+              data-tooltip-content={
+                isLoggedIn ? (t('Queues.Log out') ?? undefined) : undefined
+              }
+              onClick={() => onToggleLogin(queue)}
+            >
+              <FontAwesomeIcon
+                icon={
+                  isLoginPending
+                    ? faCircleNotch
+                    : isLoggedIn
+                      ? faArrowRightFromBracket
+                      : faArrowRightToBracket
+                }
+                spin={isLoginPending}
+                className='size-4'
+                aria-hidden='true'
+              />
+              {!isLoggedIn && t('Queues.Log in')}
+            </Button>
+          )}
+          {canToggle && isLoggedIn && (
+            <CustomThemedTooltip id={logOutTooltipId} place='left' />
+          )}
+        </div>
       </div>
 
       {isExpanded && (
@@ -220,15 +284,15 @@ export const QueueItem = ({
 
           <section className='flex flex-col gap-2'>
             <h3 className='text-xs font-medium leading-4 text-gray-700 dark:text-gray-200'>
-              {t('Queues.Signed-in operators')}
+              {t('Queues.Logged-in operators')}
             </h3>
-            {signedInMembers.length === 0 && (
+            {loggedInMembers.length === 0 && (
               <p className='text-gray-600 dark:text-gray-400'>
-                {t('Queues.No signed-in operators')}
+                {t('Queues.No logged-in operators')}
               </p>
             )}
             <ul className='flex flex-col'>
-              {signedInMembers.map((member) => {
+              {loggedInMembers.map((member) => {
                 const username =
                   operators?.extensions?.[member.member]?.username
                 return (
@@ -257,9 +321,16 @@ export const QueueItem = ({
                         {member.member}
                       </span>
                     </div>
-                    {/* all of them are signed in: only a break is worth a badge */}
+                    {/* all of them are logged in: only a pause is worth a badge */}
                     {getMemberStatus(member) === 'paused' && (
-                      <QueueStatusBadge status='paused' />
+                      <QueueStatusBadge
+                        status='paused'
+                        pauseReason={
+                          member.member === myMember?.member
+                            ? myPauseReason
+                            : member.lastPausedInReason
+                        }
+                      />
                     )}
                   </li>
                 )
