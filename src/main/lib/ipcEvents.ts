@@ -780,7 +780,7 @@ export function registerIpcEvents() {
       }
       // saveLoggedAccount logs out when it cannot encrypt: the session is
       // still valid, keep it and let the user sign in again when needed
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!(await safeStorage.isAsyncEncryptionAvailable())) {
         Log.warning(
           'password update: encryption not available, password not stored',
         )

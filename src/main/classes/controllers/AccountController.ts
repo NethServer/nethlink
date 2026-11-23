@@ -34,14 +34,17 @@ export class AccountController {
     delayMs: number = 500,
   ): Promise<boolean> {
     let retries = 0
-    while (!safeStorage.isEncryptionAvailable() && retries < maxRetries) {
+    while (
+      !(await safeStorage.isAsyncEncryptionAvailable()) &&
+      retries < maxRetries
+    ) {
       Log.info(
         `waiting for safeStorage to become available (attempt ${retries + 1}/${maxRetries})`,
       )
       await new Promise((resolve) => setTimeout(resolve, delayMs))
       retries++
     }
-    return safeStorage.isEncryptionAvailable()
+    return safeStorage.isAsyncEncryptionAvailable()
   }
 
   async logout() {
@@ -107,7 +110,8 @@ export class AccountController {
           const psw: Buffer = Buffer.from(
             authAppData.lastUserCryptPsw as Uint8Array,
           )
-          const decryptString = safeStorage.decryptString(psw)
+          const { result: decryptString } =
+            await safeStorage.decryptStringAsync(psw)
           const _accountData = JSON.parse(decryptString)
           const password = _accountData.password
 
@@ -308,7 +312,7 @@ export class AccountController {
         username: account.username,
         password: password,
       })
-      const cryptString = safeStorage.encryptString(clearString)
+      const cryptString = await safeStorage.encryptStringAsync(clearString)
       const accountUID = getAccountUID(account)
       const authAppData = store.store.auth
       if (authAppData) {
