@@ -383,7 +383,11 @@ export function registerIpcEvents() {
   )
 
   ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
-    await clipboard.writeText(text)
+    try {
+      await clipboard.writeText(text)
+    } catch (e) {
+      Log.warning('cannot copy to the clipboard', e)
+    }
   })
 
   // Chat island window: size, and island events between it and NethLink.
