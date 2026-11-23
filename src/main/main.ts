@@ -932,6 +932,8 @@ async function resetApp() {
   await delay(100)
 }
 
+let screenPermissionDialogShown = false
+
 async function getPermissions() {
   if (process.platform === 'darwin') {
     // if permission has already been granted I disabled another request to improve performance
@@ -955,6 +957,15 @@ async function getPermissions() {
       systemPreferences.getMediaAccessStatus('screen')
     if (recordScreenPermissionState !== 'granted') {
       recordScreenPermission = false
+    }
+    // The first call runs before the translations are loaded: the dialog
+    // waits for the next one, and it is shown once
+    if (
+      !recordScreenPermission &&
+      i18next.isInitialized &&
+      !screenPermissionDialogShown
+    ) {
+      screenPermissionDialogShown = true
       dialog
         .showMessageBox({
           type: 'warning',
