@@ -59,6 +59,11 @@ export const loadI18n = () => {
     react: {
       useSuspense: false,
     },
+    // React already escapes the text it renders: escaping it here too would show
+    // names such as "Smith & Co" as "Smith &amp; Co"
+    interpolation: {
+      escapeValue: false,
+    },
     fallbackLng,
     debug: true,
     saveMissing: true,

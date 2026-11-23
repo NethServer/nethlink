@@ -22,11 +22,8 @@ export const FavouritesBox = () => {
           favourites.length > 0 ? (
             favourites?.map((e, idx) => {
               return (
-                <div
-                  key={idx}
-                  className='dark:hover:bg-hoverDark hover:bg-hoverLight w-full hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]'
-                >
-                  <div className='px-5 w-full'>
+                <div key={idx} className='px-4'>
+                  <div className='w-full'>
                     <div
                       className={`w-full ${idx === favourites.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
                     >
@@ -54,14 +51,7 @@ export const FavouritesBox = () => {
           Array(3)
             .fill('')
             .map((_, idx) => {
-              return (
-                <div
-                  className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-                  key={idx}
-                >
-                  <SkeletonRow />
-                </div>
-              )
+              return <SkeletonRow key={idx} />
             })
         )}
       </Scrollable>

@@ -3,21 +3,21 @@
 
 const theme = {
   button: {
-    base: 'inline-flex content-center items-center justify-center font-medium tracking-wide transition-colors duration-200 transform focus:outline-none focus:z-20 disabled:cursor-not-allowed',
+    base: 'inline-flex content-center items-center justify-center font-medium tracking-wide transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primaryRing dark:focus-visible:ring-primaryRingDark ring-offset-bgLight dark:ring-offset-bgDark focus:z-20 disabled:cursor-not-allowed disabled:opacity-50',
     primary:
-      'border border-transparent bg-primary dark:bg-primaryDark text-white dark:text-primaryButtonTextDark hover:bg-primaryHover dark:hover:bg-primaryDarkHover focus:ring-2 focus:ring-primaryRing dark:focus:ring-primaryRingDark ring-offset-2 ring-offset-gray-50 dark:ring-offset-gray-900 font-medium leading-5 text-sm',
+      'border border-transparent bg-primary dark:bg-primaryDark text-white dark:text-primaryButtonTextDark hover:bg-primaryHover dark:hover:bg-primaryDarkHover disabled:hover:bg-primary dark:disabled:hover:bg-primaryDark leading-5 text-sm',
     secondary:
-      'border border-transparent focus:ring-primaryLight bg-primaryLighter text-primaryDark hover:bg-primaryLighter dark:focus:ring-primaryDark dark:bg-primaryDarker dark:text-primaryLight dark:hover:bg-primaryDarker focus:ring-2 focus:ring-offset-2',
+      'border shadow-sm border-gray-300 dark:border-gray-500 bg-transparent text-primary dark:text-primaryDark hover:bg-hoverLight dark:hover:bg-hoverDark leading-5 text-sm',
     white:
-      'border shadow-sm border-gray-300 dark:border-gray-500 bg-transparent dark:bg-transparent text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:focus:ring-primaryDark focus:ring-2 focus:ring-offset-2 leading-5 text-sm font-medium',
+      'border shadow-sm border-gray-300 dark:border-gray-500 bg-transparent text-primary dark:text-primaryDark hover:bg-hoverLight dark:hover:bg-hoverDark leading-5 text-sm',
     ghost:
-      'border-gray-300 text-primary dark:text-primaryDark  hover:bg-gray-200 hover:bg-opacity-30 dark:hover:bg-gray-600 dark:hover:bg-opacity-30 focus:ring-primaryLight dark:border-gray-600 dark:focus:ring-primaryDark leading-5 text-sm font-medium',
+      'border border-transparent text-primary dark:text-primaryDark hover:bg-hoverLight dark:hover:bg-hoverDark leading-5 text-sm',
     tertiary:
-      'border border-transparent text-primary dark:text-primaryDark hover:bg-gray-200 hover:bg-opacity-70 hover:text-primaryHover dark:hover:bg-gray-600 dark:hover:bg-opacity-30 dark:hover:text-primaryDarkHover focus:ring-primaryDark dark:focus:ring-primaryDark font-medium',
+      'border border-transparent text-primary dark:text-primaryDark hover:bg-hoverLight dark:hover:bg-hoverDark leading-5 text-sm',
     dashboard:
-      'border-gray-300 text-primary dark:text-primaryDark hover:bg-gray-200 dark:border-gray-600  dark:hover:bg-gray-700 dark:hover:disabled:bg-transparent hover:disabled:bg-transparent dark:focus:ring-primaryDark',
+      'border border-transparent text-primary dark:text-primaryDark hover:bg-hoverLight dark:hover:bg-hoverDark disabled:hover:bg-transparent',
     danger:
-      'border border-transparent focus:ring-rose-500 bg-rose-600 hover:bg-rose-700 text-white dark:focus:ring-rose-600 dark:bg-rose-700 dark:hover:bg-rose-800 dark:text-white focus:ring-2 focus:ring-offset-2',
+      'border border-transparent bg-rose-700 hover:bg-rose-800 text-white dark:bg-rose-600 dark:hover:bg-rose-500 dark:text-white leading-5 text-sm',
     rounded: {
       small: 'rounded',
       base: 'rounded-md',
@@ -33,7 +33,7 @@ const theme = {
   },
   switch: {
     background:
-      'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primaryLight dark:focus:ring-primaryDark',
+      'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primaryRing dark:focus:ring-primaryRingDark',
     circle:
       'pointer-events-none inline-block h-5 w-5 transform rounded-full shadow ring-0 transition duration-200 ease-in-out bg-white dark:bg-gray-200',
     on: {
@@ -44,11 +44,11 @@ const theme = {
     off: {
       translate: 'translate-x-0',
       gray: 'bg-gray-200 dark:bg-gray-600 cursor-not-allowed',
-      primary: 'bg-primaryLighter dark:bg-primaryDarker cursor-not-allowed',
+      primary: 'bg-blue-200 dark:bg-blue-900 cursor-not-allowed',
     },
   },
   iconSwitch: {
-    base: 'transition-colors duration-200 transform focus:outline-none focus:ring-2 focus:z-20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed inline-block cursor-pointer rounded-md text-gray-700 hover:bg-gray-200 focus:ring-primaryLight dark:text-gray-100 dark:hover:bg-gray-900 dark:focus:ring-primaryDark',
+    base: 'transition-colors duration-200 transform focus:outline-none focus:ring-2 focus:z-20 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed inline-block cursor-pointer rounded-md text-gray-700 hover:bg-gray-200 focus:ring-primaryRing dark:text-gray-100 dark:hover:bg-gray-900 dark:focus:ring-primaryRingDark',
     sizes: {
       small: 'px-1.5 py-1 text-xs',
       base: 'px-2 py-1 text-base',
@@ -58,7 +58,7 @@ const theme = {
       full_w: 'w-full',
     },
     iconEnabled: 'text-primary dark:text-primaryDark',
-    iconEnabledLighterOnDark: 'text-primary dark:text-primaryLight',
+    iconEnabledLighterOnDark: 'text-primary dark:text-primaryDark',
     iconDisabled: 'text-gray-500 dark:text-gray-400',
   },
   input: {
@@ -364,7 +364,7 @@ const theme = {
       light: 'text-gray-700 dark:text-gray-300',
       activeRed: 'bg-rose-700 text-white dark:bg-rose-500 dark:text-white',
       active: 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100',
-      icon: 'h-4 w-4 flex text-dropdownText dark:text-dropdownTextDark',
+      icon: 'h-4 w-4 flex text-gray-700 dark:text-gray-200',
       iconRed: 'text-rose-700 dark:text-rose-500',
       iconRedActive: 'text-white',
       centered: 'justify-center',
@@ -481,10 +481,10 @@ const theme = {
     },
   },
   timePicker: {
-    base: 'bg-white mt-1 w-full border-gray-300 dark:bg-gray-900 dark:border-gray-600 dark:disabled:bg-gray-900 dark:disabled:border-gray-700 dark:disabled:text-gray-400 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-500 dark:text-gray-100 disabled:bg-gray-50 disabled:border-gray-200 disabled:cursor-not-allowed disabled:text-gray-500 focus:border-primaryLight focus:ring-primaryLight placeholder:text-gray-500 rounded-md sm:text-sm text-gray-900',
+    base: 'bg-white mt-1 w-full border-gray-300 dark:bg-gray-900 dark:border-gray-600 dark:disabled:bg-gray-900 dark:disabled:border-gray-700 dark:disabled:text-gray-400 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-500 dark:text-gray-100 disabled:bg-gray-50 disabled:border-gray-200 disabled:cursor-not-allowed disabled:text-gray-500 focus:border-primaryRing focus:ring-primaryRing placeholder:text-gray-500 rounded-md sm:text-sm text-gray-900',
   },
   datePicker: {
-    base: 'bg-white border-gray-300 dark:bg-gray-900 dark:border-gray-600 dark:disabled:bg-gray-900 dark:disabled:border-gray-700 dark:disabled:text-gray-400 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-100 disabled:bg-gray-50 disabled:border-gray-200 disabled:cursor-not-allowed disabled:text-gray-500 focus:border-primaryLight focus:ring-primaryLight placeholder:text-gray-400 placeholder:text-gray-500 rounded-md sm:text-sm text-gray-900 w-full',
+    base: 'bg-white border-gray-300 dark:bg-gray-900 dark:border-gray-600 dark:disabled:bg-gray-900 dark:disabled:border-gray-700 dark:disabled:text-gray-400 dark:focus:border-primaryDark dark:focus:ring-primaryDark dark:placeholder:text-gray-400 dark:placeholder:text-gray-500 dark:text-gray-100 disabled:bg-gray-50 disabled:border-gray-200 disabled:cursor-not-allowed disabled:text-gray-500 focus:border-primaryRing focus:ring-primaryRing placeholder:text-gray-400 placeholder:text-gray-500 rounded-md sm:text-sm text-gray-900 w-full',
   },
   connectionErrorDialog: {
     backdrop: {

@@ -21,6 +21,7 @@ import {
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
+import { TrayController } from '@/classes/controllers/TrayController'
 import { store } from './mainStore'
 import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
@@ -454,6 +455,8 @@ export function registerIpcEvents() {
 
   ipcMain.on(IPC_EVENTS.CHANGE_THEME, (_, theme) => {
     AccountController.instance.updateTheme(theme)
+    // the theme items of the tray menu
+    TrayController.instance?.refresh()
   })
 
   ipcMain.on(IPC_EVENTS.PHONE_ISLAND_READY, () => {
@@ -703,6 +706,17 @@ export function registerIpcEvents() {
       NethLinkController.instance.window.emit(
         IPC_EVENTS.EMIT_QUEUE_UPDATE,
         queue,
+      )
+    } catch (e) {
+      Log.error(e)
+    }
+  })
+
+  ipcMain.on(IPC_EVENTS.EMIT_QUEUE_MEMBER_UPDATE, (_, member) => {
+    try {
+      NethLinkController.instance.window.emit(
+        IPC_EVENTS.EMIT_QUEUE_MEMBER_UPDATE,
+        member,
       )
     } catch (e) {
       Log.error(e)

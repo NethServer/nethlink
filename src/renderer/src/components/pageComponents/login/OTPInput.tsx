@@ -1,6 +1,7 @@
 // Copyright (C) 2025 Nethesis S.r.l.
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+import { t } from 'i18next'
 import {
   useRef,
   useEffect,
@@ -167,7 +168,7 @@ export const OTPInput = forwardRef<OTPInputRef, OTPInputProps>(
             onFocus={() => handleFocus(index)}
             disabled={disabled}
             className={`
-              w-12 h-12 text-center text-lg font-semibold
+              size-12 text-center text-lg font-medium
               border-2 rounded-lg
               focus:outline-none transition-colors duration-200
               ${
@@ -195,7 +196,7 @@ export const OTPInput = forwardRef<OTPInputRef, OTPInputProps>(
                   : 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 hover:border-gray-400 dark:hover:border-gray-500'
               }
             `}
-            aria-label={`Digit ${index + 1}`}
+            aria-label={t('Login.2FA.Digit', { number: index + 1 }) as string}
           />
         ))}
       </div>

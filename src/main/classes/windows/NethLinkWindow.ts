@@ -6,6 +6,7 @@ import { NethLinkPageSize } from '@shared/constants'
 import { Log } from '@shared/utils/logger'
 import { debouncer, delay } from '@shared/utils/utils'
 import { AccountController } from '../controllers'
+import { syncDockWithWindows } from '@/lib/dock'
 
 export class NethLinkWindow extends BaseWindow {
   static instance: NethLinkWindow
@@ -171,6 +172,8 @@ export class NethLinkWindow extends BaseWindow {
   }
 
   async toggleVisibility() {
+    // in the Dock and in Cmd+Tab while the window is open
+    syncDockWithWindows()
     debouncer('nethlinkToggleVisibility', async () => {
       await delay(250)
       TrayController.instance.updateTray({

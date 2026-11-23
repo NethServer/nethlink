@@ -6,10 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faPhone,
   faMessage,
-  faSearch,
+  faMagnifyingGlass,
   faXmark,
-  faUser,
-  faBuilding,
 } from '@fortawesome/free-solid-svg-icons'
 import classNames from 'classnames'
 import { parseThemeToClassName } from '@renderer/utils'
@@ -27,7 +25,7 @@ import {
   sortByProperty,
 } from '@renderer/lib/utils'
 import { debouncer } from '@shared/utils/utils'
-import { Avatar } from '@renderer/components/Nethesis'
+import { Avatar, Button } from '@renderer/components/Nethesis'
 import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 
 // Window = 500x80 initial. Border is faked via outer bg + p-[1px].
@@ -35,7 +33,6 @@ import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedT
 // Inner div: bg = content color, rounded-[11px] → 498x78 content area
 // The 1px gap between outer and inner IS the visible border.
 const INPUT_HEIGHT = 80
-const INPUT_ROW_HEIGHT = 78 // 80 - 2px for the fake border
 const RESULT_ROW_HEIGHT = 56
 const DROPDOWN_PADDING = 8
 const SEPARATOR_HEIGHT = 1
@@ -86,7 +83,7 @@ export function CommandBarPage() {
   const [selectedIndex, setSelectedIndex] = useState(-1)
   const [isLoading, setIsLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const resultsRef = useRef<HTMLDivElement>(null)
+  const resultsRef = useRef<HTMLUListElement>(null)
   const searchIdRef = useRef(0)
   const operatorsRef = useRef<OperatorsType | null>(null)
   const avatarsRef = useRef<AvatarType | null>(null)
@@ -391,7 +388,9 @@ export function CommandBarPage() {
 
   useEffect(() => {
     if (selectedIndex >= 0 && resultsRef.current) {
-      const el = resultsRef.current.children[selectedIndex] as HTMLElement
+      const el = resultsRef.current.querySelectorAll('[role=option]')[
+        selectedIndex
+      ] as HTMLElement
       if (el) {
         el.scrollIntoView({ block: 'nearest' })
       }
@@ -403,6 +402,14 @@ export function CommandBarPage() {
   // Call button enabled when there's any text (same as original behavior)
   const hasText = searchText.trim().length > 0
 
+  const listboxId = 'command-bar-results'
+  const optionId = (index: number) => `command-bar-option-${index}`
+  const optionClassName = (isSelected: boolean) =>
+    classNames(
+      'flex h-14 cursor-pointer items-center gap-3 px-4',
+      isSelected && 'bg-hoverLight dark:bg-hoverDark',
+    )
+
   return (
     <div
       className={classNames(
@@ -411,35 +418,43 @@ export function CommandBarPage() {
       )}
     >
       <CustomThemedTooltip id='tooltip-command-chat' place='left' />
+      <CustomThemedTooltip id='tooltip-command-clear' place='bottom' />
       {/* Outer = border color bg + 1px padding. Inner = content bg. The gap IS the border. */}
-      <div className='w-[500px] rounded-xl p-[1px] bg-borderLight dark:bg-borderDark'>
-        <div className='rounded-[11px] bg-bgLight dark:bg-bgDark overflow-hidden'>
-          {/* Input row — 78px so that 78 + 2*1px border = 80px total */}
-          <div
-            className={classNames('flex items-center px-4 gap-3')}
-            style={{ height: INPUT_ROW_HEIGHT }}
-          >
+      <div className='w-full rounded-xl bg-borderLight p-px dark:bg-borderDark'>
+        <div className='overflow-hidden rounded-[11px] bg-bgLight dark:bg-bgDark'>
+          {/* Input row: 78px so that 78 + 2 * 1px border = INPUT_HEIGHT (80px) */}
+          <div className='flex h-[78px] items-center gap-3 px-4'>
             <div className='relative flex-1'>
-              {/* Search icon */}
-              <div className='absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none'>
+              <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3'>
                 <FontAwesomeIcon
-                  icon={faSearch}
-                  className='h-4 w-4 text-gray-400 dark:text-gray-500'
+                  icon={faMagnifyingGlass}
+                  className='size-4 text-gray-600 dark:text-gray-400'
+                  aria-hidden='true'
                 />
               </div>
-              {/* Input */}
+              {/* a combobox: the arrows move in the results, Enter calls */}
               <input
                 ref={inputRef}
                 type='text'
+                role='combobox'
+                aria-expanded={showDropdown}
+                aria-controls={listboxId}
+                aria-autocomplete='list'
+                aria-activedescendant={
+                  showDropdown && selectedIndex >= 0
+                    ? optionId(selectedIndex)
+                    : undefined
+                }
+                aria-label={t('CommandBar.Search placeholder') ?? undefined}
                 value={searchText}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder={t('CommandBar.Placeholder') || ''}
+                placeholder={t('CommandBar.Search placeholder') || ''}
                 className={classNames(
-                  'w-full bg-transparent text-sm py-2 pl-10 pr-3',
-                  'dark:text-titleDark text-titleLight',
-                  'border border-gray-300 dark:border-gray-600 rounded-lg',
-                  'focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-gray-600',
+                  'w-full rounded-lg border bg-bgInput py-2 pl-10 pr-3 text-sm dark:bg-bgInputDark',
+                  'text-titleLight dark:text-titleDark',
+                  'border-gray-300 dark:border-gray-500',
+                  'focus:border-primaryRing focus:outline-none focus:ring-2 focus:ring-primaryRing dark:focus:border-primaryDark dark:focus:ring-primaryDark',
                   'placeholder:text-gray-400 dark:placeholder:text-gray-500',
                 )}
                 autoFocus
@@ -447,72 +462,74 @@ export function CommandBarPage() {
             </div>
 
             {searchText && (
-              <button
+              <Button
+                variant='ghost'
+                size='small'
+                className='p-2'
+                aria-label={t('Common.Clear search') ?? undefined}
+                data-tooltip-id='tooltip-command-clear'
+                data-tooltip-content={t('Common.Clear search') ?? undefined}
                 onClick={handleClear}
-                className={classNames(
-                  'p-2 rounded-full transition-colors',
-                  'text-gray-400 hover:text-gray-600',
-                  'dark:text-gray-500 dark:hover:text-gray-300',
-                )}
               >
-                <FontAwesomeIcon icon={faXmark} className='h-4 w-4' />
-              </button>
+                <FontAwesomeIcon
+                  icon={faXmark}
+                  className='size-4 text-gray-600 dark:text-gray-400'
+                  aria-hidden='true'
+                />
+              </Button>
             )}
 
-            <button
-              onClick={() => handleCallSelected()}
+            <Button
+              variant='primary'
+              className='gap-2'
               disabled={!hasText}
-              className={classNames(
-                'px-4 py-2 rounded-lg font-medium transition-colors',
-                'flex items-center gap-2',
-                hasText
-                  ? 'bg-primary text-white hover:bg-primaryDark'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed',
-              )}
+              onClick={() => handleCallSelected()}
             >
-              <FontAwesomeIcon icon={faPhone} className='h-4 w-4' />
-              <span>{t('CommandBar.Call')}</span>
-            </button>
+              <FontAwesomeIcon
+                icon={faPhone}
+                className='size-4'
+                aria-hidden='true'
+              />
+              {t('CommandBar.Call')}
+            </Button>
           </div>
 
           {/* Dropdown results */}
           {showDropdown && (
             <>
               <div className='mx-4 border-t border-borderLight dark:border-borderDark' />
-              <div
+              {/* max-h-72: MAX_VISIBLE_RESULTS * RESULT_ROW_HEIGHT + DROPDOWN_PADDING = 288px */}
+              <ul
                 ref={resultsRef}
-                className='overflow-y-auto'
-                style={{
-                  maxHeight:
-                    MAX_VISIBLE_RESULTS * RESULT_ROW_HEIGHT + DROPDOWN_PADDING,
-                }}
+                id={listboxId}
+                role='listbox'
+                aria-label={t('CommandBar.Search results') ?? undefined}
+                className='max-h-72 overflow-y-auto'
               >
                 {allItems.map((item, index) => {
                   const isSelected = index === selectedIndex
                   if (item.type === 'call') {
                     return (
-                      <div
+                      <li
                         key={`call-${item.number}`}
-                        className={classNames(
-                          'flex items-center gap-3 px-5 cursor-pointer',
-                          'h-[56px]',
-                          isSelected
-                            ? 'dark:bg-hoverDark bg-hoverLight'
-                            : 'dark:hover:bg-hoverDark hover:bg-hoverLight',
-                        )}
+                        id={optionId(index)}
+                        role='option'
+                        aria-selected={isSelected}
+                        className={optionClassName(isSelected)}
                         onClick={() => handleCall(item.number)}
                         onMouseEnter={() => setSelectedIndex(index)}
                       >
-                        <FontAwesomeIcon
-                          icon={faPhone}
-                          className='h-4 w-4 text-gray-500 dark:text-gray-400'
-                        />
-                        <div className='flex flex-col min-w-0'>
-                          <span className='text-sm font-medium dark:text-titleDark text-titleLight truncate'>
-                            {t('CommandBar.Call')} {item.number}
-                          </span>
-                        </div>
-                      </div>
+                        <span className='flex size-8 shrink-0 items-center justify-center'>
+                          <FontAwesomeIcon
+                            icon={faPhone}
+                            className='size-4 text-gray-600 dark:text-gray-400'
+                            aria-hidden='true'
+                          />
+                        </span>
+                        <span className='min-w-0 truncate text-sm font-medium text-titleLight dark:text-titleDark'>
+                          {t('Operators.Call number', { number: item.number })}
+                        </span>
+                      </li>
                     )
                   }
 
@@ -525,69 +542,73 @@ export function CommandBarPage() {
                       ? avatarsRef.current?.[item.username] || ''
                       : ''
                   return (
-                    <div
+                    <li
                       key={`contact-${contact.id}-${rowNumber}-${index}`}
-                      className={classNames(
-                        'flex items-center gap-3 px-5 cursor-pointer',
-                        'h-[56px]',
-                        isSelected
-                          ? 'dark:bg-hoverDark bg-hoverLight'
-                          : 'dark:hover:bg-hoverDark hover:bg-hoverLight',
-                      )}
+                      id={optionId(index)}
+                      role='option'
+                      aria-selected={isSelected}
+                      className={optionClassName(isSelected)}
                       onClick={() => {
                         if (rowNumber) handleCall(rowNumber)
                       }}
                       onMouseEnter={() => setSelectedIndex(index)}
                     >
-                      {isOperator ? (
-                        <Avatar
-                          size='small'
-                          src={avatarSrc}
-                          status={item.mainPresence}
-                          placeholderType='operator'
-                          bordered={true}
-                        />
-                      ) : (
-                        <FontAwesomeIcon
-                          icon={
-                            contact.kind === 'company' ? faBuilding : faUser
-                          }
-                          className='h-4 w-4 text-gray-500 dark:text-gray-400'
-                        />
-                      )}
-                      <div className='flex flex-col min-w-0 flex-1'>
-                        <span className='text-sm font-medium dark:text-titleDark text-titleLight truncate'>
+                      <Avatar
+                        size='small'
+                        src={avatarSrc || undefined}
+                        status={isOperator ? item.mainPresence : undefined}
+                        placeholderType={
+                          isOperator
+                            ? 'operator'
+                            : contact.kind === 'company'
+                              ? 'company'
+                              : 'person'
+                        }
+                      />
+                      <div className='flex min-w-0 flex-1 flex-col'>
+                        <span className='truncate text-sm font-medium text-titleLight dark:text-titleDark'>
                           {contact.displayName}
                         </span>
                         {rowNumber && (
-                          <span className='text-xs text-gray-500 dark:text-gray-400 truncate'>
+                          <span className='truncate text-sm text-gray-600 dark:text-gray-400'>
                             {rowNumber}
-                            {item.numberLabel
-                              ? ` · ${t(item.numberLabel)}`
-                              : ''}
+                            {item.numberLabel && (
+                              <>
+                                <span aria-hidden='true'> · </span>
+                                {t(item.numberLabel)}
+                              </>
+                            )}
                           </span>
                         )}
                       </div>
                       {isOperator && canChat && item.username && (
-                        <button
+                        // reachable with Ctrl/Cmd+Enter from the search field
+                        <Button
+                          variant='ghost'
+                          size='small'
+                          tabIndex={-1}
+                          className='p-2'
+                          aria-label={t('CommandBar.Chat hint') ?? undefined}
                           data-tooltip-id='tooltip-command-chat'
-                          data-tooltip-content={t('CommandBar.Chat hint') || ''}
+                          data-tooltip-content={
+                            t('CommandBar.Chat hint') ?? undefined
+                          }
                           onClick={(e) => {
                             e.stopPropagation()
                             handleChat(item.username)
                           }}
-                          className='p-2 rounded-lg text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primaryDark dark:hover:bg-bgDark hover:bg-bgLight'
                         >
                           <FontAwesomeIcon
                             icon={faMessage}
-                            className='h-4 w-4'
+                            className='size-4'
+                            aria-hidden='true'
                           />
-                        </button>
+                        </Button>
                       )}
-                    </div>
+                    </li>
                   )
                 })}
-              </div>
+              </ul>
             </>
           )}
         </div>

@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faEye as EyeIcon,
   faEyeSlash as EyeSlashIcon,
-  faWarning as AlertIcon,
   faCircleNotch,
   faCircleCheck,
 } from '@fortawesome/free-solid-svg-icons'
@@ -435,6 +434,21 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
   }
 
   const isSavedAccount = !!(selectedAccount && selectedAccount !== NEW_ACCOUNT)
+  const isHostStep = !isSavedAccount && loginStep === 'host'
+  // the host the user signs in to: the saved account's, or the one just entered
+  const currentHost = isSavedAccount
+    ? (selectedAccount as Account).host
+    : getValues('host')
+  const formTitle = isHostStep
+    ? selectedAccount === NEW_ACCOUNT
+      ? t('Login.Add account')
+      : t('Login.New Account title')
+    : t('Login.Sign in')
+  const formDescription = isHostStep
+    ? t('Login.Host step description')
+    : currentHost
+      ? t('Login.Credentials description', { host: currentHost })
+      : t('Login.New Account description')
   const authMethod = isSavedAccount
     ? (selectedAccount as Account).authenticationMethod || 'password'
     : hostConfig?.authenticationMethod || 'password'
@@ -446,20 +460,13 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
   const RenderConnectionError = ({ handleRefreshConnection }) => {
     return (
       <div>
-        <div className='relative flex flex-col p-4 border-l-[3px] border-amber-500 dark:border-amber-400 bg-amber-50 dark:bg-amber-900 rounded-md mb-8'>
-          <div className='flex flex-row items-center gap-2'>
-            <FontAwesomeIcon
-              icon={AlertIcon}
-              className='text-amber-700 dark:text-amber-50'
-            />
-            <p className='font-medium text-[14px] leading-5 text-amber-800 dark:text-amber-100'>
-              {t('Common.No internet connection title')}
-            </p>
-          </div>
-          <p className='pl-6 font-normal text-[14px] leading-5 text-amber-700 dark:text-amber-100'>
-            {t('Common.No internet connection description')}
-          </p>
-        </div>
+        <InlineNotification
+          type='warning'
+          title={t('Common.No internet connection title')}
+          className='mb-6'
+        >
+          {t('Common.No internet connection description')}
+        </InlineNotification>
         <Button
           variant='white'
           className='w-full'
@@ -494,7 +501,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                 />
               </div>
               <div className='flex flex-col gap-1'>
-                <h3 className='text-2xl font-medium text-gray-700 dark:text-gray-200'>
+                <h3 className='text-2xl font-medium text-titleLight dark:text-titleDark'>
                   {t('Password.Password updated')}
                 </h3>
                 <p className='text-sm text-gray-600 dark:text-gray-400'>
@@ -513,7 +520,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
         ) : (
           <div className='flex flex-col gap-8'>
             <div className='flex flex-col gap-1'>
-              <h3 className='text-xl font-medium text-gray-700 dark:text-gray-200'>
+              <h3 className='text-xl font-medium text-titleLight dark:text-titleDark'>
                 {t('Password.Update your password')}
               </h3>
               <p className='text-sm text-gray-600 dark:text-gray-400'>
@@ -543,7 +550,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
           {/* OTP input section */}
           <div>
             <div className='mb-6'>
-              <h3 className='text-lg font-medium text-gray-900 dark:text-gray-100 mb-2'>
+              <h3 className='mb-1 text-xl font-medium text-titleLight dark:text-titleDark'>
                 {t('Login.2FA.Two-Factor Authentication')}
               </h3>
               <p className='text-sm text-gray-600 dark:text-gray-400'>
@@ -593,13 +600,12 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                   type='submit'
                   disabled={isLoading || otpCode.length !== 6 || otpDisabled}
                 >
-                  <span className='font-medium leading-5 text-sm'>
-                    {t('Login.Sign in')}
-                  </span>
+                  {t('Login.Sign in')}
                   {isLoading && (
                     <FontAwesomeIcon
                       icon={faCircleNotch}
-                      className='fa-spin ml-2'
+                      className='ml-2 size-4 animate-spin'
+                      aria-hidden='true'
                     />
                   )}
                 </Button>
@@ -609,34 +615,34 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
         </>
       ) : (
         <>
-          <p className='text-titleLight  dark:text-titleDark text-[20px] leading-[30px] font-medium mb-2'>
-            {selectedAccount
-              ? t('Login.Account List title')
-              : t('Login.New Account title')}
-          </p>
-          <p className='text-titleLight dark:text-titleDark text-[14px] leading-5 mb-7'>
-            {selectedAccount
-              ? t('Login.Account List description')
-              : t('Login.New Account description')}
-          </p>
+          <div className='flex flex-col gap-1'>
+            <h1 className='text-xl font-medium text-titleLight dark:text-titleDark'>
+              {formTitle}
+            </h1>
+            <p className='text-sm text-gray-600 dark:text-gray-400'>
+              {formDescription}
+            </p>
+          </div>
           {error && (
             <InlineNotification
               type='error'
               title={t('Login.Login failed')}
-              className='mb-6'
+              className='mt-6'
             >
               {error.message}
             </InlineNotification>
           )}
           {selectedAccount && selectedAccount !== NEW_ACCOUNT && (
-            <DisplayedAccountLogin
-              account={selectedAccount}
-              imageSrc={selectedAccount.data?.settings.avatar}
-            />
+            <div className='mt-6'>
+              <DisplayedAccountLogin
+                account={selectedAccount}
+                imageSrc={selectedAccount.data?.settings.avatar}
+              />
+            </div>
           )}
           {connection ? (
-            <form onSubmit={handleSubmit(onSubmitForm)}>
-              <div className='flex flex-col gap-7'>
+            <form onSubmit={handleSubmit(onSubmitForm)} className='mt-6'>
+              <div className='flex flex-col gap-6'>
                 {!isSavedAccount && loginStep === 'host' && (
                   <TextInput
                     {...register('host')}
@@ -679,8 +685,15 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                       {...register('password')}
                       label={t('Login.Password') as string}
                       type={pwdVisible ? 'text' : 'password'}
-                      icon={pwdVisible ? EyeIcon : EyeSlashIcon}
+                      icon={pwdVisible ? EyeSlashIcon : EyeIcon}
                       onIconClick={() => setPwdVisible(!pwdVisible)}
+                      iconLabel={
+                        t(
+                          pwdVisible
+                            ? 'Common.Hide password'
+                            : 'Common.Show password',
+                        ) as string
+                      }
                       trailingIcon={true}
                       helper={errors.password?.message || undefined}
                       error={!!errors.password?.message}
@@ -713,7 +726,7 @@ export const LoginForm = ({ onError, handleRefreshConnection }) => {
                           />
                         )}
                         {hostConfig?.ssoIdpName && (
-                          <span className='text-sm text-gray-700 dark:text-gray-200'>
+                          <span className='text-sm text-gray-600 dark:text-gray-400'>
                             {hostConfig.ssoIdpName}
                           </span>
                         )}

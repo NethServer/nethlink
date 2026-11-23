@@ -8,8 +8,9 @@ import { ContactNameAndActions } from '@renderer/components/Modules/NethVoice/Ba
 import { useFavouriteModule } from '../Speeddials/hook/useFavouriteModule'
 import { ClassNames } from '@renderer/utils'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMessage } from '@fortawesome/free-solid-svg-icons'
+import { faMessage, faEye } from '@fortawesome/free-solid-svg-icons'
 import { openChat } from '@renderer/hooks/useChatBridge'
+import { CustomThemedTooltip } from '@renderer/components/Nethesis/CustomThemedTooltip'
 
 export interface SearchNumberProps {
   user: SearchData
@@ -45,7 +46,7 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
         parts.push(
           <span
             key={`highlight_${index}`}
-            className='dark:text-textBlueDark text-textBlueLight font-medium text-[1rem]'
+            className='font-medium text-textBlueLight dark:text-textBlueDark'
           >
             {number.substring(index, index + searchText.length)}
           </span>,
@@ -95,14 +96,11 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
   ).filter((n) => n !== phoneNumber).length
 
   const username = getUsernameFromPhoneNumber(phoneNumber)
+  const chatTooltipId = `tooltip-search-chat-${user.id}`
 
   return (
-    <div className='group'>
-      <div
-        className={ClassNames(
-          'flex justify-between w-full min-h-14 py-2 px-5 dark:text-titleDark text-titleDark dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]',
-        )}
-      >
+    <div className={ClassNames('group', className)}>
+      <div className='flex min-h-14 w-full items-center justify-between gap-3 py-3 text-titleLight dark:text-titleDark'>
         <div className='min-w-0 flex-1'>
           <ContactNameAndActions
             avatarDim='small'
@@ -132,24 +130,41 @@ export function SearchNumber({ user, className, onClick }: SearchNumberProps) {
         </div>
         {/* An operator: chat with them */}
         {username && chatStatus === 'online' && (
-          <Button
-            variant='ghost'
-            className='self-center ml-2 shrink-0'
-            onClick={() => openChat(username)}
-          >
-            <FontAwesomeIcon icon={faMessage} className='text-base' />
-            <span className='sr-only'>{t('Chat.Chat')}</span>
-          </Button>
+          <>
+            <Button
+              variant='ghost'
+              className='shrink-0 p-2'
+              aria-label={t('Chat.Chat') as string}
+              data-tooltip-id={chatTooltipId}
+              data-tooltip-content={t('Chat.Chat') as string}
+              onClick={() => openChat(username)}
+            >
+              <FontAwesomeIcon
+                icon={faMessage}
+                className='size-4'
+                aria-hidden='true'
+              />
+            </Button>
+            <CustomThemedTooltip id={chatTooltipId} place='left' />
+          </>
         )}
         {onClick && (
           <Button
             variant='tertiary'
-            className='self-center ml-2 shrink-0'
+            className='shrink-0 gap-2'
+            aria-label={
+              t('Phonebook.Details contact', {
+                name: user.displayName || user.name || user.company || '',
+              }) as string
+            }
             onClick={() => onClick(user, phoneNumber)}
           >
-            <p className='font-medium text-[14px] leading-5'>
-              {t('Phonebook.Details')}
-            </p>
+            <FontAwesomeIcon
+              icon={faEye}
+              className='size-4'
+              aria-hidden='true'
+            />
+            {t('Phonebook.Details')}
           </Button>
         )}
       </div>

@@ -19,40 +19,49 @@ type MenuActionProps = {
 type MenuActionWrapProps = {
   children: ReactElement | ReactElement[]
 } & BaseMenuActionProps
+
+// the row of the profile menu: hover and keyboard focus share the same background
+export const menuRowClassName =
+  'flex w-full items-center gap-3 px-4 py-2 text-left text-sm leading-5 text-titleLight dark:text-titleDark hover:bg-hoverLight dark:hover:bg-hoverDark focus:outline-none focus-visible:bg-hoverLight dark:focus-visible:bg-hoverDark'
+
 function MenuAction({ className, children, onClick }: MenuActionWrapProps) {
   return (
-    <div className={className} onClick={onClick}>
-      <div
-        className={classNames(
-          'cursor-pointer dark:text-titleDark text-titleLight dark:hover:bg-hoverDark hover:bg-hoverLight h-[36px] px-4 py-2',
-        )}
-      >
-        <div className='flex flex-row items-center gap-4'>{children}</div>
-      </div>
-    </div>
+    <button
+      type='button'
+      className={classNames(menuRowClassName, 'min-h-9', className)}
+      onClick={onClick}
+    >
+      {children}
+    </button>
   )
 }
+
+const MenuChevron = () => (
+  <FontAwesomeIcon
+    icon={faAngleRight}
+    className='ml-auto size-4 shrink-0'
+    aria-hidden='true'
+  />
+)
 
 MenuAction.item = (props: MenuActionProps) => (
   <MenuAction {...props}>
     {props.icon ? (
-      <FontAwesomeIcon className='text-base' icon={props.icon} />
+      <FontAwesomeIcon
+        className='size-4 shrink-0'
+        icon={props.icon}
+        aria-hidden='true'
+      />
     ) : (
       props.iconElem || <></>
     )}
-    <p className='font-normal'> {props.label}</p>
-    {props.chevronVisible ? (
-      <FontAwesomeIcon
-        icon={faAngleRight}
-        className='ml-auto h-4 w-4 flex justify-center'
-      />
-    ) : (
-      <></>
-    )}
+    <span>{props.label}</span>
+    {props.chevronVisible ? <MenuChevron /> : <></>}
   </MenuAction>
 )
 MenuAction.itemWrap = (props: MenuActionWrapProps) => (
   <MenuAction {...props}>{props.children}</MenuAction>
 )
+MenuAction.chevron = MenuChevron
 
 export { MenuAction }

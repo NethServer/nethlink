@@ -1,5 +1,6 @@
 import {
   app,
+  Notification,
   ipcMain,
   nativeTheme,
   powerMonitor,
@@ -36,7 +37,16 @@ import { Log } from '@shared/utils/logger'
 import { NethLinkController } from './classes/controllers/NethLinkController'
 import { SplashScreenController } from './classes/controllers/SplashScreenController'
 import { delay, isDev } from '@shared/utils/utils'
-import { IPC_EVENTS, GIT_RELEASES_URL } from '@shared/constants'
+import {
+  IPC_EVENTS,
+  GIT_LATEST_RELEASE_URL,
+  GIT_RELEASES_URL,
+} from '@shared/constants'
+import {
+  findUpdate,
+  isTestingVersion,
+  ReleaseInfo,
+} from '@shared/utils/version'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
 import {
@@ -180,6 +190,10 @@ async function startLocalization() {
       debug: isDev(),
       loadPath,
     },
+    // the texts go to native notifications and menus, never to HTML
+    interpolation: {
+      escapeValue: false,
+    },
     fallbackLng,
     debug: isDev(),
   }
@@ -305,8 +319,15 @@ function attachOnReadyProcess() {
 
     app.on('activate', (e, isWindowOpen) => {
       Log.info('ACTIVATE WINDOW', e, isWindowOpen)
-      if (!isWindowOpen && !NethLinkController.instance.window.isOpen()) {
-        NethLinkController.instance.show()
+      if (isWindowOpen) return
+      // the Dock icon opens the window of the current state: NethLink when an
+      // account is signed in, the login otherwise
+      if (store.store?.account) {
+        if (!NethLinkController.instance?.window?.isOpen()) {
+          NethLinkController.instance?.show()
+        }
+      } else if (!LoginController.instance?.window?.isOpen()) {
+        LoginController.instance?.show()
       }
     })
     SplashScreenController.instance.show()
@@ -874,6 +895,8 @@ function changeNethlinkTheme() {
   } else {
     TrayController.instance?.changeIconByTheme(updatedSystemTheme)
   }
+  // the menu icons follow the system theme too
+  TrayController.instance?.refresh()
 }
 
 function attachThemeChangeListener() {
@@ -994,6 +1017,9 @@ async function createNethLink(show: boolean = true) {
   await delay(1000)
   new PhoneIslandController()
   new ChatIslandController()
+  if (TrayController.instance) {
+    TrayController.instance.checkForUpdates = () => checkForUpdate(true)
+  }
   checkForUpdate()
   const account = store.get('account') as Account
   if (account) {
@@ -1024,20 +1050,44 @@ async function createNethLink(show: boolean = true) {
   }
 }
 
-async function checkForUpdate() {
+// manual: asked from the tray menu, it says when there is nothing to update
+async function checkForUpdate(manual = false) {
   try {
-    Log.info('Current app version:', app.getVersion(), 'check for updates...')
-    const latestVersionData =
-      await NetworkController.instance.get(GIT_RELEASES_URL)
-    Log.info('Head add version:', latestVersionData.name)
-    if (latestVersionData.name !== 'v' + app.getVersion() || isDev()) {
-      NethLinkController.instance.sendUpdateNotification()
+    const currentVersion = app.getVersion()
+    Log.info('Current app version:', currentVersion, 'check for updates...')
+    // a stable installation only needs the latest stable release, a testing
+    // one the last releases, testing ones included
+    const releases: ReleaseInfo[] = isTestingVersion(currentVersion)
+      ? await NetworkController.instance.get(GIT_RELEASES_URL)
+      : [await NetworkController.instance.get(GIT_LATEST_RELEASE_URL)]
+    const found = findUpdate(currentVersion, releases || [])
+    Log.info('Update found:', found?.tag_name || 'none')
+    const update = found
+      ? { version: found.tag_name.replace(/^v/, ''), url: found.html_url }
+      : undefined
+    TrayController.instance?.setUpdate(update)
+    if (update) {
+      NethLinkController.instance?.sendUpdateNotification(update)
+    } else if (manual) {
+      new Notification({
+        title: i18next.t('Tray.Up to date title') as string,
+        body: i18next.t('Tray.Up to date description', {
+          version: currentVersion,
+        }) as string,
+      }).show()
     }
   } catch (error: any) {
     Log.warning(
       'Skipping update check after network error',
       error?.message || error,
     )
+    // a check asked from the menu always gets an answer
+    if (manual) {
+      new Notification({
+        title: i18next.t('Tray.Update check failed title') as string,
+        body: i18next.t('Tray.Update check failed description') as string,
+      }).show()
+    }
   }
 }
 

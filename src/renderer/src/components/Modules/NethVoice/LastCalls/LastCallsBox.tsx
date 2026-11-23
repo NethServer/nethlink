@@ -1,6 +1,6 @@
 import {
   faArrowUpRightFromSquare as ShowMissedCallIcon,
-  faPhone as EmptyResultIcon,
+  faClockRotateLeft as EmptyResultIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { LastCall } from './LastCall'
 import { CallData, LastCallData } from '@shared/types'
@@ -20,9 +20,6 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
   const [missedCalls, setMissedCalls] = useNethlinkData('missedCalls')
   const [preparedCalls, setPreparedCalls] = useState<LastCallData[]>([])
   const [audioTestCode, setAudioTestCode] = useState<string>('*41')
-  const [createButtonCallKey, setCreateButtonCallKey] = useState<string | null>(
-    null,
-  )
 
   useEffect(() => {
     prepareCalls()
@@ -108,37 +105,34 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
         title={t('LastCalls.Last calls')}
         action={viewAllMissedCalls}
         actionIcon={ShowMissedCallIcon}
-        actionText={t('Common.View all')}
+        actionText={t('LastCalls.Open history')}
       />
-      <Scrollable className=''>
+      <Scrollable>
         {preparedCalls ? (
           preparedCalls.length > 0 ? (
             preparedCalls.map((preparedCall, idx) => {
               const callKey = `${preparedCall?.uniqueid}_${idx}`
               return (
                 <div
-                  className='dark:hover:bg-hoverDark hover:bg-hoverLight hover:shadow-[0px_-1px_0px_0px_#E5E7EB] dark:hover:shadow-[0px_-1px_0px_0px_#374151]'
                   key={callKey}
-                  onMouseEnter={() => {
-                    setCreateButtonCallKey(
-                      canShowCreateButton(preparedCall) ? callKey : null,
-                    )
-                  }}
-                  onMouseLeave={() => setCreateButtonCallKey(null)}
-                  onClick={() => {
-                    handleClearNotification(preparedCall)
-                  }}
+                  className='px-4'
+                  // the dot of a new call goes away on a click in the row, or
+                  // when the keyboard reaches one of its controls
+                  onClick={() => handleClearNotification(preparedCall)}
+                  onFocus={() => handleClearNotification(preparedCall)}
                 >
-                  <div className='px-5'>
-                    <div
-                      className={`${idx === preparedCalls.length - 1 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-                    >
-                      <LastCall
-                        call={preparedCall}
-                        showContactForm={showContactForm}
-                        showCreateButton={createButtonCallKey === callKey}
-                      />
-                    </div>
+                  <div
+                    className={
+                      idx === preparedCalls.length - 1
+                        ? ''
+                        : 'border-b border-borderLight dark:border-borderDark'
+                    }
+                  >
+                    <LastCall
+                      call={preparedCall}
+                      showContactForm={showContactForm}
+                      showCreateButton={canShowCreateButton(preparedCall)}
+                    />
                   </div>
                 </div>
               )
@@ -146,7 +140,7 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
           ) : (
             <EmptyList
               icon={EmptyResultIcon}
-              text={t('History.There are no calls in your history')}
+              text={t('LastCalls.No calls yet')}
             />
           )
         ) : (
@@ -154,11 +148,16 @@ export function LastCallsBox({ showContactForm }): JSX.Element {
             .fill('')
             .map((_, idx) => {
               return (
-                <div
-                  className={`${idx === 2 ? `` : `border-b dark:border-borderDark border-borderLight`}`}
-                  key={idx}
-                >
-                  <SkeletonRow />
+                <div className='px-4' key={idx}>
+                  <div
+                    className={
+                      idx === 2
+                        ? ''
+                        : 'border-b border-borderLight dark:border-borderDark'
+                    }
+                  >
+                    <SkeletonRow />
+                  </div>
                 </div>
               )
             })

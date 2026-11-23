@@ -6,6 +6,7 @@ import {
   OperatorData,
   ParkingType,
   ParkingsType,
+  QueueMemberType,
 } from '@shared/types'
 import { Log } from '@shared/utils/logger'
 import { useAccount } from './useAccount'
@@ -93,6 +94,25 @@ export const usePhoneIslandEventHandler = () => {
       ...p,
       ...queues,
     }))
+  }
+
+  // a member of a queue changed, such as an operator who signed in: the event
+  // is keyed by the extension of the member
+  function onQueueMemberUpdate(members: { [member: string]: QueueMemberType }) {
+    setQueues((p) => {
+      if (!p) return p
+      const updated = { ...p }
+      for (const member of Object.values(members)) {
+        const queue = updated[member.queue]
+        if (queue) {
+          updated[member.queue] = {
+            ...queue,
+            members: { ...queue.members, [member.member]: member },
+          }
+        }
+      }
+      return updated
+    })
   }
 
   function onParkingsUpdate(parkings: ParkingsType) {
@@ -191,6 +211,7 @@ export const usePhoneIslandEventHandler = () => {
     saveOperators,
     saveSpeeddials,
     onQueueUpdate,
+    onQueueMemberUpdate,
     onParkingsUpdate,
     onMainPresence,
     saveLastCalls,

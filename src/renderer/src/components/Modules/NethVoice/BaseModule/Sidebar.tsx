@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   faBolt as SpeedDialMenuIcon,
-  faPhone as MissedCallMenuIcon,
+  faClockRotateLeft as MissedCallMenuIcon,
   faInfoCircle as InfoMenuIcon,
   faStar as FavouriteMenuIcon,
   faSquareParking as ParkedCallMenuIcon,
   faMessage as ChatMenuIcon,
+  faUsers as QueuesMenuIcon,
 } from '@fortawesome/free-solid-svg-icons'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { ParkingType } from '@shared/types'
@@ -14,6 +15,7 @@ import { useAccount } from '@renderer/hooks/useAccount'
 import { difference } from 'lodash'
 import { useParkingModule } from '../Parking/hook/useParkingModule'
 import { SidebarButton } from '@renderer/components/SidebarButton'
+import { t } from 'i18next'
 
 export interface SidebarProps {
   onChangeMenu: (menuElement: MENU_ELEMENT) => void
@@ -39,7 +41,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   const viewedParkedCalls = useRef<ParkingType[]>([])
   const [parkedPulse, setParkedPulse] = useState<boolean>(false)
 
-  const { hasPermission } = useAccount()
+  const { hasPermission, hasMacroPermission } = useAccount()
   const { parkedCalls } = useParkingModule()
 
   function handleSidebarMenuSelection(menuElement: MENU_ELEMENT): void {
@@ -60,6 +62,21 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
     }
   }, [selectedSidebarMenu])
 
+  // back to the default section when the queues permission is removed while
+  // the queues are shown; only once the profile is loaded
+  const [account] = useSharedState('account')
+  const isProfileLoaded = !!account?.data?.profile?.macro_permissions
+  const canUseQueues = hasMacroPermission('queue_agent')
+  useEffect(() => {
+    if (
+      isProfileLoaded &&
+      !canUseQueues &&
+      selectedSidebarMenu === MENU_ELEMENT.QUEUES
+    ) {
+      handleSidebarMenuSelection(MENU_ELEMENT.FAVOURITES)
+    }
+  }, [isProfileLoaded, canUseQueues, selectedSidebarMenu])
+
   useEffect(() => {
     if (selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS) {
       viewedParkedCalls.current = [...(parkedCalls || [])]
@@ -76,12 +93,12 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
   }, [parkedCalls, selectedSidebarMenu])
 
   return (
-    <div className='flex flex-col h-full max-w-[50px] justify-between pt-3 pb-2 px-2 border-0 border-l-[1px] dark:border-borderDark border-borderLight bg-bgLight dark:bg-bgDark z-10'>
-      <div className='flex flex-col items-center gap-6'>
+    <nav className='z-10 flex h-full w-12 shrink-0 flex-col justify-between border-l border-borderLight bg-bgLight px-2 pb-2 pt-4 dark:border-borderDark dark:bg-bgDark'>
+      <div className='flex flex-col items-center gap-5'>
         {/* FAVOURITE */}
         <SidebarButton
           icon={FavouriteMenuIcon}
-          focus={selectedSidebarMenu === MENU_ELEMENT.FAVOURITES}
+          label={t('SpeedDial.Favourites')}
           hasNotification={false}
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.FAVOURITES)}
           isSelected={selectedSidebarMenu === MENU_ELEMENT.FAVOURITES}
@@ -89,7 +106,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
         {/* SPEEDDIALS */}
         <SidebarButton
           icon={SpeedDialMenuIcon}
-          focus={selectedSidebarMenu === MENU_ELEMENT.SPEEDDIALS}
+          label={t('SpeedDial.Speed dial')}
           hasNotification={false}
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.SPEEDDIALS)}
           isSelected={selectedSidebarMenu === MENU_ELEMENT.SPEEDDIALS}
@@ -97,7 +114,7 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
         {/* LAST CALLS */}
         <SidebarButton
           icon={MissedCallMenuIcon}
-          focus={selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS}
+          label={t('LastCalls.Last calls')}
           hasNotification={!!missedCalls && missedCalls.length > 0}
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.LAST_CALLS)}
           isSelected={selectedSidebarMenu === MENU_ELEMENT.LAST_CALLS}
@@ -106,17 +123,27 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
         {chatStatus && (
           <SidebarButton
             icon={ChatMenuIcon}
-            focus={selectedSidebarMenu === MENU_ELEMENT.CHAT}
+            label={t('Chat.Messages')}
             hasNotification={(chatUnread || 0) > 0}
             onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.CHAT)}
             isSelected={selectedSidebarMenu === MENU_ELEMENT.CHAT}
+          />
+        )}
+        {/* QUEUES */}
+        {hasMacroPermission('queue_agent') && (
+          <SidebarButton
+            icon={QueuesMenuIcon}
+            label={t('Queues.Queues')}
+            hasNotification={false}
+            onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.QUEUES)}
+            isSelected={selectedSidebarMenu === MENU_ELEMENT.QUEUES}
           />
         )}
         {/* PARKED CALLS */}
         {hasPermission(PERMISSION.PARKINGS) && (
           <SidebarButton
             icon={ParkedCallMenuIcon}
-            focus={selectedSidebarMenu === MENU_ELEMENT.PARKED_CALLS}
+            label={t('Parks.Parking')}
             hasNotification={(parkedCalls?.length || 0) > 0}
             hasPulseNotification={parkedPulse}
             onClick={() => {
@@ -129,13 +156,13 @@ export function Sidebar({ onChangeMenu }: SidebarProps): JSX.Element {
         {/* APP UPDATE */}
         <SidebarButton
           icon={InfoMenuIcon}
-          focus={selectedSidebarMenu === MENU_ELEMENT.ABOUT}
+          label={t('About.title')}
           hasNotification={!!notifications?.system?.update}
           hasPulseNotification={!isAboutVisited}
           onClick={() => handleSidebarMenuSelection(MENU_ELEMENT.ABOUT)}
           isSelected={selectedSidebarMenu === MENU_ELEMENT.ABOUT}
         />
       </div>
-    </div>
+    </nav>
   )
 }

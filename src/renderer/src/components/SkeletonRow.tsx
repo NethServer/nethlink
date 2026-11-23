@@ -1,19 +1,14 @@
-import classNames from 'classnames'
 import { TimedComponent } from './TimedComponent'
 
+// the same geometry as a list row: avatar, two lines of text
 export const SkeletonRow = () => {
   return (
     <TimedComponent>
-      <div
-        className={classNames(
-          `relative flex flex-row justify-between items-center min-h-[44px] p-2 px-5`,
-        )}
-      >
-        <div className='flex gap-6 items-center'>
-          <div className='animate-pulse rounded-full h-12 w-12 bg-gray-300 dark:bg-gray-600'></div>
-          <div className='flex flex-col gap-1'>
-            <div className='animate-pulse rounded-full h-4 w-[230px] bg-gray-300 dark:bg-gray-600'></div>
-          </div>
+      <div className='flex min-h-14 items-center gap-3 px-4 py-3'>
+        <div className='size-8 shrink-0 animate-pulse rounded-full bg-surfaceSkeleton dark:bg-surfaceSkeletonDark' />
+        <div className='flex flex-1 flex-col gap-2'>
+          <div className='h-3 w-2/3 animate-pulse rounded-full bg-surfaceSkeleton dark:bg-surfaceSkeletonDark' />
+          <div className='h-3 w-1/3 animate-pulse rounded-full bg-surfaceSkeleton dark:bg-surfaceSkeletonDark' />
         </div>
       </div>
     </TimedComponent>

@@ -226,7 +226,7 @@ export function LoginPage({
 
   return (
     <div
-      className='draggableAnchor h-[100vh] w-[100vw] bg-bgLight dark:bg-bgDark relative p-8 text-sm hide-scrollbar'
+      className='draggableAnchor hide-scrollbar relative h-screen w-screen bg-bgLight p-8 text-sm dark:bg-bgDark'
       ref={loginWindowRef}
     >
       <div className={classNames('noDraggableAnchor', 'h-full w-full')}>
@@ -234,8 +234,9 @@ export function LoginPage({
           <div className='flex flex-row justify-between items-center'>
             <img
               src={themeMode === 'dark' ? darkHeader : lightHeader}
+              alt='NethLink'
               className='h-10'
-            ></img>
+            />
           </div>
           {auth && (
             <>
@@ -245,17 +246,17 @@ export function LoginPage({
                   (selectedAccount === NEW_ACCOUNT &&
                     loginStep === 'credentials')) && (
                   <Button
-                    variant='ghost'
-                    className='flex gap-3 items-center pt-2 pr-1 pb-2 pl-1 mt-6'
+                    variant='tertiary'
+                    size='small'
+                    className='-ml-2.5 mt-6 gap-2'
                     onClick={goBack}
                   >
                     <FontAwesomeIcon
                       icon={ArrowIcon}
-                      className='h-5 w-5 dark:text-textBlueDark text-textBlueLight'
+                      className='size-4'
+                      aria-hidden='true'
                     />
-                    <p className='dark:text-textBlueDark text-textBlueLight font-medium'>
-                      {t('Login.Back')}
-                    </p>
+                    {t('Login.Back')}
                   </Button>
                 )}
               {auth.isFirstStart ||
@@ -277,7 +278,7 @@ export function LoginPage({
       </div>
       {isLoading && (
         <div className='absolute top-0 left-0 bg-spinnerBgLight dark:bg-spinnerBgDark bg-opacity-75 dark:bg-opacity-75 h-full w-full select-none flex items-center justify-center rounded-[10px] z-[1000]'>
-          <img src={spinner} className='animate-spin'></img>
+          <img src={spinner} alt='' className='animate-spin' />
         </div>
       )}
       <AvailableAccountDeleteDialog

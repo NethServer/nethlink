@@ -5,6 +5,7 @@ import { debouncer } from '@shared/utils/utils'
 import { useNethlinkData, useSharedState } from '@renderer/store'
 import { useState } from 'react'
 import classNames from 'classnames'
+import { t } from 'i18next'
 import { PresenceBadge } from './ProfileDialog/PresenceSettings/PresenceBadge'
 import { SearchBox } from '../SearchResults/SearchBox'
 import { ProfileDialog } from './ProfileDialog'
@@ -49,25 +50,26 @@ export function Navbar({ onClickAccount }: NavbarProps): JSX.Element {
     <>
       <div className='flex flex-row items-center justify-between gap-4 px-4 pt-2'>
         <SearchBox />
-        <div className='flex flex-row min-w-30 gap-2 items-center'>
+        <div className='flex shrink-0 flex-row items-center gap-2'>
           <PresenceBadge className={classNames()} />
 
-          <div className={'max-h-8'}>
-            <div
-              className='cursor-pointer dark:focus:outline-none dark:focus:ring-2 focus:outline-none focus:ring-2 dark:ring-offset-1 ring-offset-1 dark:ring-offset-slate-900 ring-offset-slate-50 focus:ring-primaryRing dark:focus:ring-primaryRingDark rounded-full  '
-              onClick={() => {
-                setIsProfileDialogOpen((p) => !p)
-                debouncer('reload_me', onClickAccount, 1000)
-              }}
-            >
-              <Avatar
-                size='small'
-                status={status}
-                src={operators?.avatars?.[account.username] || undefined}
-                placeholderType='operator'
-              />
-            </div>
-          </div>
+          <button
+            type='button'
+            aria-label={t('TopBar.Open user menu') ?? undefined}
+            aria-expanded={isProfileDialogOpen}
+            className='rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryRing focus-visible:ring-offset-2 focus-visible:ring-offset-bgLight dark:focus-visible:ring-primaryRingDark dark:focus-visible:ring-offset-bgDark'
+            onClick={() => {
+              setIsProfileDialogOpen((p) => !p)
+              debouncer('reload_me', onClickAccount, 1000)
+            }}
+          >
+            <Avatar
+              size='small'
+              status={status}
+              src={operators?.avatars?.[account.username] || undefined}
+              placeholderType='operator'
+            />
+          </button>
         </div>
       </div>
       {isForwardDialogOpen && <PresenceForwardDialog />}

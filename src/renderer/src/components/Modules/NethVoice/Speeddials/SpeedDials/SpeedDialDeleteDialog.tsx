@@ -55,7 +55,7 @@ export const SpeedDialDeleteDialog = ({ close }) => {
       onClose={() => close()}
       afterLeave={() => setSelectedSpeedDial(undefined)}
       themeMode={parseThemeToClassName(theme)}
-      className='font-Poppins w-[100px]'
+      className='font-Poppins'
     >
       <Modal.Content>
         <div className='mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 bg-bgAmberLight dark:bg-bgAmberDark '>
@@ -66,11 +66,11 @@ export const SpeedDialDeleteDialog = ({ close }) => {
           />
         </div>
         <div className='mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left'>
-          <h3 className='font-medium text-[18px] leading-7 text-titleLight dark:text-titleDark'>
+          <h3 className='text-lg font-medium text-titleLight dark:text-titleDark'>
             {t('SpeedDial.Delete speed dial')}
           </h3>
           <div className='mt-3'>
-            <p className='font-normal text-[14px] leading-5 text-gray-700 dark:text-gray-200'>
+            <p className='text-sm text-gray-700 dark:text-gray-200'>
               {t('SpeedDial.Speed dial delete message', {
                 deletingName: truncate(selectedSpeedDial?.name || '', 30),
               })}
@@ -79,22 +79,15 @@ export const SpeedDialDeleteDialog = ({ close }) => {
         </div>
       </Modal.Content>
       <Modal.Actions>
-        <Button
-          variant='danger'
-          className='font-medium text-[14px] leading-5'
-          onClick={handleDeleteSpeedDial}
-        >
+        <Button variant='danger' onClick={handleDeleteSpeedDial}>
           {t('Common.Delete')}
         </Button>
         <Button
           variant='ghost'
-          className='font-medium text-[14px] leading-5 gap-3'
           onClick={handleCancel}
           ref={cancelDeleteButtonRef}
         >
-          <p className='dark:text-textBlueDark text-textBlueLight'>
-            {t('Common.Cancel')}
-          </p>
+          {t('Common.Cancel')}
         </Button>
       </Modal.Actions>
     </Modal>

@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import { Outlet, RouterProvider, createHashRouter } from 'react-router-dom'
 import { useInitialize } from '@/hooks/useInitialize'
 import {
@@ -178,13 +179,28 @@ const Layout = ({ theme, page }: { theme?: AvailableThemes; page?: PAGES }) => {
     setIsCSSLoaded(true)
   }
 
+  // the theme also on <html>, for what Headless UI moves to a portal in <body>,
+  // such as the anchored menus; the islands keep their own theme handling
+  useEffect(() => {
+    if (page === PAGES.PHONEISLAND || page === PAGES.CHATISLAND) return
+    const root = document.documentElement
+    root.classList.remove('dark', 'light')
+    if (theme) root.classList.add(theme)
+  }, [theme, page])
+
   if (!isCSSLoaded) {
     return <div></div>
   }
 
   return (
     <>
-      <div className={`${theme} font-Poppins`} id='app-container'>
+      <div
+        className={classNames(theme, 'font-Poppins', {
+          'island-page':
+            page === PAGES.PHONEISLAND || page === PAGES.CHATISLAND,
+        })}
+        id='app-container'
+      >
         <Outlet />
       </div>
     </>

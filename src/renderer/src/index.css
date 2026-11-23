@@ -20,13 +20,11 @@
 
 #app-container {
   #phone-island-container {
-
     .draggableAnchor,
     .pi-absolute,
     .pi-pointer-events-auto {
       transform: none !important;
     }
-
 
     input::placeholder {
       font-size: 14px;
@@ -34,8 +32,7 @@
     }
   }
 
-
-  #phone-island-container [id^="headlessui-menu-items-"] {
+  #phone-island-container [id^='headlessui-menu-items-'] {
     position: relative;
     margin-inline: 0;
     margin-block: 0;
@@ -71,7 +68,13 @@
   border-radius: 9999px;
 }
 
-* {
+/* no outline on mouse focus, the keyboard focus keeps its ring */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* the islands keep the old rule: their styles rely on it */
+.island-page * {
   outline-color: transparent !important;
 }
 

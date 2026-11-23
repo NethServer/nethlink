@@ -1,6 +1,5 @@
 import {
-  faXmarkCircle as ExitIcon,
-  faAngleRight,
+  faPowerOff as ExitIcon,
   faArrowRightFromBracket as LogoutIcon,
   faGear as SettingsIcon,
 } from '@fortawesome/free-solid-svg-icons'
@@ -25,7 +24,6 @@ import {
 } from './ProfileDialog/DeviceSettings/DeviceBox'
 import { Backdrop } from './Backdrop'
 import { IconDefinition } from '@nethesis/nethesis-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 enum MenuItem {
   device = 1,
@@ -60,6 +58,21 @@ export const ProfileDialog = ({
   function handleExitNethLink() {
     window.api.exitNethLink()
   }
+
+  // Escape goes back from a submenu, then closes the menu
+  useEffect(() => {
+    if (!isOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      if (selectedMenu) {
+        setSelectedMenu(undefined)
+      } else {
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isOpen, selectedMenu, onClose])
 
   // Reset selectedMenu when the dialog closes
   useEffect(() => {
@@ -110,28 +123,28 @@ export const ProfileDialog = ({
   return (
     <div className={classNames('absolute')}>
       <div
+        role='dialog'
+        aria-label={t('TopBar.Open user menu') ?? undefined}
         className={classNames(
-          'h-[333px]',
+          'w-[300px] pb-1',
           'bg-bgInput dark:bg-bgInputDark',
-          'rounded-lg border dark:border-borderDark border-borderLight',
-          'fixed z-[200] right-[58px] top-[54px]',
+          'rounded-lg border border-borderLight shadow-lightXl dark:border-borderDark',
+          'fixed right-14 top-14 z-[200]',
         )}
-        style={{ width: `${MENU_WIDTH_PX}px` }}
       >
         <div className='relative w-full h-full overflow-hidden'>
           <div className='flex flex-col'>
             <ProfileData />
             <Line />
-            <div className='py-2'>
+            <div>
               <MenuAction.itemWrap
                 onClick={() => setSelectedMenu(() => MenuItem.presence)}
               >
-                <StatusDot status={status} className='ml-1' />
-                <p className='font-normal pl-1'>{t('TopBar.Presence')}</p>
-                <FontAwesomeIcon
-                  icon={faAngleRight}
-                  className='ml-auto h-4 w-4 flex justify-center'
-                />
+                <span className='flex size-4 shrink-0 items-center justify-center'>
+                  <StatusDot status={status} />
+                </span>
+                <span>{t('TopBar.Presence')}</span>
+                <MenuAction.chevron />
               </MenuAction.itemWrap>
               <MenuAction.item
                 onClick={() => setSelectedMenu(() => MenuItem.theme)}
@@ -161,14 +174,12 @@ export const ProfileDialog = ({
             </div>
             <Line />
             <MenuAction.item
-              className={'py-2'}
               onClick={handleLogout}
               icon={LogoutIcon}
-              label={t('TopBar.Logout')}
+              label={t('TopBar.Sign out')}
             />
             <Line />
             <MenuAction.item
-              className={'py-2'}
               onClick={handleExitNethLink}
               icon={ExitIcon}
               label={t('Common.Quit')}

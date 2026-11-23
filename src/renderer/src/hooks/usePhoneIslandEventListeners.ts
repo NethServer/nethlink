@@ -338,7 +338,12 @@ export const usePhoneIslandEventListener = () => {
         },
       ),
 
-      ...eventHandler(PHONE_ISLAND_EVENTS['phone-island-queue-member-update']),
+      ...eventHandler(
+        PHONE_ISLAND_EVENTS['phone-island-queue-member-update'],
+        (data) => {
+          window.electron.send(IPC_EVENTS.EMIT_QUEUE_MEMBER_UPDATE, data)
+        },
+      ),
       ...eventHandler(
         PHONE_ISLAND_EVENTS['phone-island-queue-update'],
         (data) => {
