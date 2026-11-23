@@ -2,6 +2,15 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import { resolve } from 'path'
 
+if (
+  process.platform === 'linux' &&
+  (process.env['XDG_SESSION_TYPE'] === 'wayland' ||
+    !!process.env['WAYLAND_DISPLAY']) &&
+  !process.env['ELECTRON_CLI_ARGS']
+) {
+  process.env['ELECTRON_CLI_ARGS'] = JSON.stringify(['--ozone-platform=x11'])
+}
+
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],

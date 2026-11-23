@@ -1137,5 +1137,21 @@ async function checkConnection() {
   return connected
 }
 
+function relaunchOnXWayland(): boolean {
+  if (
+    process.platform !== 'linux' ||
+    app.commandLine.getSwitchValue('ozone-platform') !== 'wayland' ||
+    process.argv.some((arg) => arg.startsWith('--ozone-platform'))
+  ) {
+    return false
+  }
+  app.relaunch({
+    execPath: process.env['APPIMAGE'] || process.execPath,
+    args: ['--ozone-platform=x11', ...process.argv.slice(1)],
+  })
+  app.exit(0)
+  return true
+}
+
 // BEGIN APP
-startup()
+if (!relaunchOnXWayland()) startup()
