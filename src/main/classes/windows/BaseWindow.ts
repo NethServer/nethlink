@@ -105,7 +105,7 @@ export class BaseWindow {
     window.setTitle(this._id)
     const instance = this
 
-    const onReady = (_e) => {
+    const onReady = () => {
       this._callbacks.forEach((c) => c())
       // once called I remove them
       this._callbacks = []

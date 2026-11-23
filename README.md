@@ -59,7 +59,7 @@ This will allow you to run NethLink on your Linux machine. You can also move the
 
 ## 📦 Requirements
 
-- **macOS**: Version 10.15 (Catalina) or later.
+- **macOS**: Version 13 (Ventura) or later.
 - **Windows**: Windows 10 or later.
 - **Rosetta**: Required on macOS for ARM architectures.
 

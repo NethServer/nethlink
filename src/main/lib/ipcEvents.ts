@@ -383,7 +383,7 @@ export function registerIpcEvents() {
   )
 
   ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
-    clipboard.writeText(text)
+    await clipboard.writeText(text)
   })
 
   // Chat island window: size, and island events between it and NethLink.
@@ -562,9 +562,9 @@ export function registerIpcEvents() {
         await new Promise((resolve) => setTimeout(resolve, 100))
 
         // trim spaces
-        let selectedText = await clipboard.readText(
-          isLinux ? 'selection' : 'clipboard',
-        )
+        let selectedText = await (isLinux
+          ? clipboard.selection.readText()
+          : clipboard.readText())
         if (typeof selectedText !== 'string') return
         selectedText = selectedText.trim()
 

@@ -67,9 +67,8 @@ export class PhoneIslandWindow extends BaseWindow {
         // Uses 'phone-island-log' channel which always writes to file (not gated by isDev)
         window.webContents.on(
           'console-message',
-          (_event, level, message, line, sourceId) => {
-            const levelMap = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
-            const levelStr = levelMap[level] || 'INFO'
+          ({ level, message, lineNumber: line, sourceId }) => {
+            const levelStr = level ? level.toUpperCase() : 'INFO'
             const source = sourceId ? sourceId.split('/').pop() : 'unknown'
             const timestamp = new Date()
               .toISOString()
