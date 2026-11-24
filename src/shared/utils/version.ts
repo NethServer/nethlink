@@ -46,13 +46,22 @@ export type ReleaseInfo = {
   prerelease?: boolean
 }
 
+// The first version built with Electron 45, which runs only on macOS 13 or later
+export const MACOS_13_REQUIRED_FROM = '1.7.0-testing.0'
+
+// macOS 13 Ventura is Darwin 22
+export const isMacOSBefore13 = (platform: string, osRelease: string) =>
+  platform === 'darwin' && Number(osRelease.split('.')[0]) < 22
+
 // The newest release the user should update to: a stable installation only
 // looks at the stable releases already promoted (an official release is
 // published as a pre-release and promoted by hand), a testing one at every
-// testing and stable release.
+// testing and stable release. Releases from `unsupportedFrom` on are not
+// offered, as they do not run on this system.
 export const findUpdate = (
   currentVersion: string,
   releases: ReleaseInfo[],
+  unsupportedFrom?: string,
 ): ReleaseInfo | undefined => {
   const onTesting = isTestingVersion(currentVersion)
   return releases
@@ -61,5 +70,9 @@ export const findUpdate = (
       (r) => onTesting || (!isTestingVersion(r.tag_name) && !r.prerelease),
     )
     .filter((r) => compareVersions(r.tag_name, currentVersion) > 0)
+    .filter(
+      (r) =>
+        !unsupportedFrom || compareVersions(r.tag_name, unsupportedFrom) < 0,
+    )
     .sort((a, b) => compareVersions(b.tag_name, a.tag_name))[0]
 }

@@ -44,9 +44,12 @@ import {
 } from '@shared/constants'
 import {
   findUpdate,
+  isMacOSBefore13,
   isTestingVersion,
+  MACOS_13_REQUIRED_FROM,
   ReleaseInfo,
 } from '@shared/utils/version'
+import { release as osRelease } from 'os'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
 import {
@@ -1060,7 +1063,16 @@ async function checkForUpdate(manual = false) {
     const releases: ReleaseInfo[] = isTestingVersion(currentVersion)
       ? await NetworkController.instance.get(GIT_RELEASES_URL)
       : [await NetworkController.instance.get(GIT_LATEST_RELEASE_URL)]
-    const found = findUpdate(currentVersion, releases || [])
+    // the releases built with Electron 45 do not start before macOS 13
+    const unsupportedFrom = isMacOSBefore13(process.platform, osRelease())
+      ? MACOS_13_REQUIRED_FROM
+      : undefined
+    const found = findUpdate(currentVersion, releases || [], unsupportedFrom)
+    if (unsupportedFrom) {
+      Log.info(
+        `macOS ${process.getSystemVersion()}: releases from ${unsupportedFrom} need macOS 13, not offered`,
+      )
+    }
     Log.info('Update found:', found?.tag_name || 'none')
     const update = found
       ? { version: found.tag_name.replace(/^v/, ''), url: found.html_url }
