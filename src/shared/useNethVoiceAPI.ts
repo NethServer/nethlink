@@ -55,16 +55,16 @@ export const useNethVoiceAPI = (
   const { GET, POST, DELETE } = useNetwork()
   let isFirstHeartbeat = true
   let account: Account | undefined = loggedAccount || undefined
-  // Use account's stored API path preference, or default to primary
-  let currentApiBasePath = account?.apiBasePath || PRIMARY_API_BASE_PATH
+  // The API path is decided at login and follows the token it produced:
+  // only a legacy hash token, given by a PBX without the middleware, uses
+  // /webrest. The stored apiBasePath is not trusted, older releases saved
+  // /webrest after any 404 and the account would stay stuck there.
+  let currentApiBasePath =
+    account?.accessToken && !account?.jwtToken
+      ? FALLBACK_API_BASE_PATH
+      : PRIMARY_API_BASE_PATH
 
-  if (account?.apiBasePath) {
-    Log.debug(
-      `Using stored API path for ${account.username}: ${account.apiBasePath}`,
-    )
-  } else {
-    Log.debug(`Using default API path: ${PRIMARY_API_BASE_PATH}`)
-  }
+  Log.debug(`Using API path: ${currentApiBasePath}`)
 
   function buildApiPath(endpoint: string): string {
     const result = (() => {
@@ -127,36 +127,8 @@ export const useNethVoiceAPI = (
     try {
       return await GET(_joinUrl(path), _getHeaders(hasAuth))
     } catch (e) {
-      // Check if we should try fallback path for critical endpoints
-      if (shouldTryFallback(path, e)) {
-        return await _GETWithFallback(path, hasAuth)
-      }
       console.error(e)
       throw e
-    }
-  }
-
-  async function _GETWithFallback(path: string, hasAuth = true): Promise<any> {
-    // Switch to fallback path and rebuild the correct path
-    currentApiBasePath = FALLBACK_API_BASE_PATH
-    if (account) {
-      account.apiBasePath = FALLBACK_API_BASE_PATH
-    }
-
-    // Extract the endpoint from the original path and rebuild with fallback
-    const endpoint = path.replace(PRIMARY_API_BASE_PATH, '')
-    const fallbackPath = buildApiPath(endpoint)
-
-    try {
-      Log.debug(`Trying fallback path: ${fallbackPath}`)
-      const result = await GET(_joinUrl(fallbackPath), _getHeaders(hasAuth))
-
-      Log.info('Switched to fallback API path: /webrest')
-      return result
-    } catch (fallbackError) {
-      Log.warning('Fallback also failed:', fallbackError)
-      console.error(fallbackError)
-      throw fallbackError
     }
   }
 
@@ -168,11 +140,6 @@ export const useNethVoiceAPI = (
     try {
       return await POST(_joinUrl(path), data, _getHeaders(hasAuth))
     } catch (e) {
-      // Check if we should try fallback path for critical endpoints
-      if (shouldTryFallback(path, e)) {
-        return await _POSTWithFallback(path, data, hasAuth)
-      }
-
       // the error carries the request body, with the credentials
       if (
         !path.includes('login') &&
@@ -181,82 +148,6 @@ export const useNethVoiceAPI = (
       )
         console.error(e)
       throw e
-    }
-  }
-
-  function shouldTryFallback(path: string, error: any): boolean {
-    // Only try fallback if we're using primary path
-    if (currentApiBasePath !== PRIMARY_API_BASE_PATH) {
-      return false
-    }
-    if (path.includes('/user/nethlink') || path.includes('/password')) {
-      return false
-    }
-
-    // Try fallback for connection errors (404, 503, or network failures)
-    const isConnectionError =
-      error?.response?.status === 404 ||
-      error?.response?.status === 503 ||
-      !error?.response
-
-    // For auth endpoints, always try fallback on connection errors
-    const isCriticalAuthEndpoint =
-      path.includes('login') || path.includes('2fa/verify-otp')
-    if (isCriticalAuthEndpoint && isConnectionError) {
-      return true
-    }
-
-    // For other endpoints, try fallback only on 404 (endpoint not found)
-    // This indicates the API structure is different (middleware vs webrest)
-    if (error?.response?.status === 404) {
-      return true
-    }
-
-    return false
-  }
-
-  async function _POSTWithFallback(
-    path: string,
-    data?: object,
-    hasAuth = true,
-  ): Promise<any> {
-    const originalPath = path
-
-    // Switch to fallback path
-    currentApiBasePath = FALLBACK_API_BASE_PATH
-    if (account) {
-      account.apiBasePath = FALLBACK_API_BASE_PATH
-    }
-    Log.info('Switched to fallback API path: /webrest')
-
-    // For login endpoint, we need special handling for webrest authentication
-    if (originalPath.includes('/login')) {
-      Log.debug('Login fallback: switching to hash-based authentication')
-      // The login function will now use webrest logic since currentApiBasePath is changed
-      // We need to throw the original error to let the login function handle the retry
-      throw new Error('FALLBACK_TO_WEBREST')
-    }
-
-    // For other endpoints, try the direct fallback
-    const endpoint = path.replace(PRIMARY_API_BASE_PATH, '')
-    const fallbackPath = buildApiPath(endpoint)
-
-    try {
-      Log.debug(`Trying fallback path: ${fallbackPath}`)
-      const result = await POST(
-        _joinUrl(fallbackPath),
-        data,
-        _getHeaders(hasAuth),
-      )
-      return result
-    } catch (fallbackError) {
-      Log.warning('Fallback also failed:', fallbackError)
-      if (
-        !originalPath.includes('login') &&
-        !originalPath.includes('2fa/verify-otp')
-      )
-        console.error(fallbackError)
-      throw fallbackError
     }
   }
 
@@ -314,6 +205,8 @@ export const useNethVoiceAPI = (
         username,
         theme: 'system',
       }
+      // Always probe the middleware first, whatever the previous session used
+      currentApiBasePath = PRIMARY_API_BASE_PATH
 
       // Try JWT authentication first (for /api)
       if (currentApiBasePath === PRIMARY_API_BASE_PATH) {
@@ -349,11 +242,12 @@ export const useNethVoiceAPI = (
             throw new Error('No token received')
           }
         } catch (reason: any) {
-          // Check if this is a fallback trigger
-          if (reason.message === 'FALLBACK_TO_WEBREST') {
-            Log.debug('Retrying login with webrest authentication')
-            // Fallback has set currentApiBasePath to FALLBACK_API_BASE_PATH
-            // Continue to webrest authentication below
+          // No middleware on this PBX (/api/login itself answered 404, no
+          // token yet): use the legacy /webrest login. Network errors and
+          // other statuses never switch the path.
+          if (reason.response?.status === 404 && !account?.jwtToken) {
+            Log.info('No /api/login on this PBX, using /webrest')
+            currentApiBasePath = FALLBACK_API_BASE_PATH
           } else {
             // Handle other specific error cases
             if (
@@ -468,6 +362,7 @@ export const useNethVoiceAPI = (
       if (!username) {
         throw new Error('Unauthorized')
       }
+      currentApiBasePath = PRIMARY_API_BASE_PATH
       account = {
         host,
         username,

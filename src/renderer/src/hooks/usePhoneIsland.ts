@@ -20,6 +20,17 @@ export const usePhoneIsland = () => {
       account.data!.endpoints.extension.find((e) => e.type === 'nethlink')
     if (deviceInformationObject) {
       const hostname = account!.host
+      // Phone Island saves the API mode it probed and never probes again:
+      // align it with the path decided at login, so a stale 'legacy' mode
+      // does not keep it on /webrest and /socket.io
+      try {
+        localStorage.setItem(
+          `phone_island_api_mode_${account.username}`,
+          account.jwtToken ? 'new' : 'legacy',
+        )
+      } catch (e) {
+        Log.warning('unable to set the Phone Island API mode', e)
+      }
       const config: PhoneIslandConfig = {
         hostname,
         username: account.username,
