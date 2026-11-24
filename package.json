@@ -5,6 +5,9 @@
   "main": "./out/main/main.js",
   "desktopName": "nethlink.desktop",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "author": {
     "name": "NethesisSRL",
     "email": "info@nethesis.it",

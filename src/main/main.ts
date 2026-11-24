@@ -65,7 +65,8 @@ import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
 // get app parameter
 const params = process.argv
 for (const arg of params) {
-  if (arg.includes('=')) {
+  // KEY=value parameters only: switches like --ozone-platform=x11 are not env
+  if (!arg.startsWith('-') && arg.includes('=')) {
     const kv: any[] = arg.split('=')
     if (['DEV', 'DEVTOOLS', 'DEBUG'].includes(kv[0])) {
       kv[1] = kv[1] === 'true'
