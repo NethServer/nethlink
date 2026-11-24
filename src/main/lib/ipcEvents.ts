@@ -16,7 +16,6 @@ import {
   globalShortcut,
   clipboard,
   Notification,
-  safeStorage,
 } from 'electron'
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
@@ -784,7 +783,7 @@ export function registerIpcEvents() {
       }
       // saveLoggedAccount logs out when it cannot encrypt: the session is
       // still valid, keep it and let the user sign in again when needed
-      if (!(await safeStorage.isAsyncEncryptionAvailable())) {
+      if (!(await AccountController.instance.waitForSafeStorage())) {
         Log.warning(
           'password update: encryption not available, password not stored',
         )

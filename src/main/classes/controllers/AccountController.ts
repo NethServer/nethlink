@@ -24,27 +24,52 @@ export class AccountController {
   }
 
   /**
-   * Wait for safeStorage encryption to become available
-   * @param maxRetries Maximum number of retries (default 20)
-   * @param delayMs Delay between retries in milliseconds (default 500)
+   * Wait for safeStorage encryption to become available.
+   * After app ready, isAsyncEncryptionAvailable() never resolves false: it stays
+   * pending until the OS key store answers (e.g. a locked keyring at login), so
+   * the wait is bounded by a timeout.
+   * @param timeoutMs Maximum wait in milliseconds (default 10 seconds)
    * @returns true if encryption became available, false if timed out
    */
-  private async waitForSafeStorage(
-    maxRetries: number = 20,
-    delayMs: number = 500,
-  ): Promise<boolean> {
-    let retries = 0
-    while (
-      !(await safeStorage.isAsyncEncryptionAvailable()) &&
-      retries < maxRetries
-    ) {
-      Log.info(
-        `waiting for safeStorage to become available (attempt ${retries + 1}/${maxRetries})`,
-      )
-      await new Promise((resolve) => setTimeout(resolve, delayMs))
-      retries++
+  async waitForSafeStorage(timeoutMs: number = 10000): Promise<boolean> {
+    let timer: NodeJS.Timeout | undefined
+    const timeout = new Promise<boolean>((resolve) => {
+      timer = setTimeout(() => {
+        Log.warning(`safeStorage not available after ${timeoutMs}ms`)
+        resolve(false)
+      }, timeoutMs)
+    })
+    try {
+      return await Promise.race([
+        safeStorage.isAsyncEncryptionAvailable(),
+        timeout,
+      ])
+    } finally {
+      clearTimeout(timer)
     }
-    return safeStorage.isAsyncEncryptionAvailable()
+  }
+
+  /**
+   * Decrypt a buffer, retrying when the key store is temporarily unavailable.
+   */
+  private async decryptString(
+    encrypted: Buffer,
+    maxRetries: number = 3,
+    delayMs: number = 500,
+  ): Promise<{ result: string; shouldReEncrypt: boolean }> {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return await safeStorage.decryptStringAsync(encrypted)
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e)
+        const temporary = /temporarily unavailable/i.test(message)
+        if (!temporary || attempt > maxRetries) throw e
+        Log.info(
+          `safeStorage temporarily unavailable, retrying decrypt (attempt ${attempt}/${maxRetries})`,
+        )
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+      }
+    }
   }
 
   async logout() {
@@ -90,7 +115,7 @@ export class AccountController {
         authAppData.availableAccounts[authAppData.lastUser]
       if (lastLoggedAccount && authAppData.lastUserCryptPsw) {
         try {
-          // Wait for encryption to become available (max 10 seconds with 500ms intervals)
+          // Wait for encryption to become available (max 10 seconds)
           if (!(await this.waitForSafeStorage())) {
             Log.warning(
               'auto login failed: safeStorage encryption not available after waiting',
@@ -110,8 +135,19 @@ export class AccountController {
           const psw: Buffer = Buffer.from(
             authAppData.lastUserCryptPsw as Uint8Array,
           )
-          const { result: decryptString } =
-            await safeStorage.decryptStringAsync(psw)
+          const { result: decryptString, shouldReEncrypt } =
+            await this.decryptString(psw)
+          if (shouldReEncrypt) {
+            // the key was rotated: store the password with the current key,
+            // it reaches the disk with the store update of a successful login
+            try {
+              authAppData.lastUserCryptPsw =
+                await safeStorage.encryptStringAsync(decryptString)
+              Log.info('auto login: stored password re-encrypted')
+            } catch (e) {
+              Log.warning('auto login: cannot re-encrypt the password', e)
+            }
+          }
           const _accountData = JSON.parse(decryptString)
           const password = _accountData.password
 
