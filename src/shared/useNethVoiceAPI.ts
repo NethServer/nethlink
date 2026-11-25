@@ -57,8 +57,8 @@ export const useNethVoiceAPI = (
   let account: Account | undefined = loggedAccount || undefined
   // The API path is decided at login and follows the token it produced:
   // only a legacy hash token, given by a PBX without the middleware, uses
-  // /webrest. The stored apiBasePath is not trusted, older releases saved
-  // /webrest after any 404 and the account would stay stuck there.
+  // /webrest. The apiBasePath saved by older releases is ignored: they
+  // stored /webrest after any 404 and the account stayed stuck there.
   let currentApiBasePath =
     account?.accessToken && !account?.jwtToken
       ? FALLBACK_API_BASE_PATH
@@ -219,7 +219,6 @@ export const useNethVoiceAPI = (
               ...account,
               jwtToken: response.token,
               lastAccess: moment().toISOString(),
-              apiBasePath: PRIMARY_API_BASE_PATH,
             } as Account
 
             // Check if 2FA is required
@@ -242,10 +241,13 @@ export const useNethVoiceAPI = (
             throw new Error('No token received')
           }
         } catch (reason: any) {
-          // No middleware on this PBX (/api/login itself answered 404, no
-          // token yet): use the legacy /webrest login. Network errors and
-          // other statuses never switch the path.
-          if (reason.response?.status === 404 && !account?.jwtToken) {
+          // No middleware on this PBX (/api/login itself answered 404 or
+          // 405, no token yet): use the legacy /webrest login. Network
+          // errors and other statuses never switch the path.
+          if (
+            [404, 405].includes(reason.response?.status) &&
+            !account?.jwtToken
+          ) {
             Log.info('No /api/login on this PBX, using /webrest')
             currentApiBasePath = FALLBACK_API_BASE_PATH
           } else {
@@ -261,7 +263,7 @@ export const useNethVoiceAPI = (
               throw expiredError
             } else if (reason.response?.status === 401) {
               throw new Error('Wrong username or password')
-            } else if (reason.response?.status === 404) {
+            } else if (!reason.response || reason.response?.status === 404) {
               throw new Error('Network connection lost')
             } else if (reason.message === 'User not authorized for NethLink') {
               throw reason
@@ -291,7 +293,6 @@ export const useNethVoiceAPI = (
                     ...account,
                     accessToken,
                     lastAccess: moment().toISOString(),
-                    apiBasePath: FALLBACK_API_BASE_PATH,
                   } as Account
                   const me = await User.me()
                   account.data = me
@@ -369,7 +370,6 @@ export const useNethVoiceAPI = (
         theme: 'system',
         jwtToken: token,
         lastAccess: moment().toISOString(),
-        apiBasePath: PRIMARY_API_BASE_PATH,
         authenticationMethod: method,
       } as Account
       const me = await User.me()
@@ -455,9 +455,6 @@ export const useNethVoiceAPI = (
       } finally {
         // Reset to primary API path for next login attempt
         currentApiBasePath = PRIMARY_API_BASE_PATH
-        if (account) {
-          account.apiBasePath = PRIMARY_API_BASE_PATH
-        }
       }
     },
 
