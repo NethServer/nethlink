@@ -23,6 +23,7 @@ import { NethLinkController } from '@/classes/controllers/NethLinkController'
 import { AppController } from '@/classes/controllers/AppController'
 import { TrayController } from '@/classes/controllers/TrayController'
 import { store } from './mainStore'
+import { t } from 'i18next'
 import { debouncer, getAccountUID, getPageFromQuery } from '@shared/utils/utils'
 import { NetworkController } from '@/classes/controllers/NetworkController'
 import { useLogin } from '@shared/useLogin'
@@ -55,6 +56,28 @@ let isPhoneIslandReloadPending = false
 // Minimum interval between two server config checks triggered by PhoneIsland connection errors
 const SERVER_CONFIG_CHECK_MIN_INTERVAL = 10_000
 let lastServerConfigCheck = 0
+
+let lastConnection: boolean | undefined = undefined
+
+function onConnectionStateChange(state: any) {
+  const connection: boolean | undefined = state?.account
+    ? state.connection
+    : undefined
+  if (connection === lastConnection) return
+  const previous = lastConnection
+  lastConnection = connection
+  TrayController.instance?.setOffline(connection === false)
+  if (connection === false && previous === true) {
+    const isNethLinkFocused =
+      NethLinkController.instance?.window?.getWindow()?.isFocused() ?? false
+    if (!isNethLinkFocused) {
+      new Notification({
+        title: `${t('Common.Connection lost notification title')}`,
+        body: `${t('Common.Connection lost notification body')}`,
+      }).show()
+    }
+  }
+}
 
 /**
  * Reload the PhoneIsland so that it registers again with the current SIP host/port.
@@ -205,6 +228,7 @@ export function registerIpcEvents() {
   ipcMain.on(IPC_EVENTS.UPDATE_SHARED_STATE, (_, newState, page, selector) => {
     const windows = BrowserWindow.getAllWindows()
     store.updateStore(newState, `${page}[${selector}]`)
+    onConnectionStateChange(store.store)
     windows.forEach((win) => {
       const targetPage = win.webContents.getTitle()
       try {
