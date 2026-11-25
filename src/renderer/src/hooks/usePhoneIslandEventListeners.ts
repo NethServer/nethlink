@@ -12,6 +12,8 @@ let isWebRTCRegistered = false
 let isSocketAuthorized = false
 let hasTriggeredPhoneIslandReady = false
 
+const OFFLINE_FAILURES_THRESHOLD = 3
+
 const defaultSize: PhoneIslandSizes = {
   sizes: {
     width: '0px',
@@ -66,6 +68,7 @@ export const usePhoneIslandEventListener = () => {
   accountRef.current = account
   const connectedRef = useRef(connected)
   connectedRef.current = connected
+  const internetFailuresRef = useRef(0)
   const [availableRingtones, setAvailableRingtones] =
     useSharedState('availableRingtones')
   const notifiedSummaryIdsRef = useRef<Set<string>>(new Set())
@@ -393,6 +396,7 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(
         PHONE_ISLAND_EVENTS['phone-island-internet-connected'],
         () => {
+          internetFailuresRef.current = 0
           if (accountRef.current && !connectedRef.current) {
             setConnected(true)
           }
@@ -401,7 +405,12 @@ export const usePhoneIslandEventListener = () => {
       ...eventHandler(
         PHONE_ISLAND_EVENTS['phone-island-internet-disconnected'],
         () => {
-          if (accountRef.current && connectedRef.current) {
+          internetFailuresRef.current += 1
+          if (
+            accountRef.current &&
+            connectedRef.current &&
+            internetFailuresRef.current >= OFFLINE_FAILURES_THRESHOLD
+          ) {
             setConnected(false)
           }
         },
