@@ -27,9 +27,12 @@ export type TrayUpdaterProps = {
 export class TrayController {
   tray: Tray
   static instance: TrayController
+  theme: 'light' | 'dark'
+  offline = false
   constructor() {
     TrayController.instance = this
     const theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
+    this.theme = theme
     const image = this.getImage(theme)
     this.tray = new Tray(image)
     this.updateTray()
@@ -43,18 +46,25 @@ export class TrayController {
   }
 
   getImage(theme: 'light' | 'dark') {
-    let pathImage = '../../public/TrayToolbarIconWhite.png'
-    if (process.platform === 'win32') {
-      pathImage =
-        theme === 'light'
-          ? '../../public/TrayToolbarIconBlack.png'
-          : '../../public/TrayToolbarIconWhite.png'
-    }
+    const name = this.offline ? 'TrayToolbarIconOffline' : 'TrayToolbarIcon'
+    const followsTheme =
+      process.platform === 'win32' ||
+      (process.platform === 'darwin' && this.offline)
+    const color = followsTheme && theme === 'light' ? 'Black' : 'White'
     const image = nativeImage
-      .createFromPath(path.join(__dirname, pathImage))
+      .createFromPath(path.join(__dirname, `../../public/${name}${color}.png`))
       .resize({ height: 18, width: 18 })
-    image.setTemplateImage(true)
+    image.setTemplateImage(!this.offline)
     return image
+  }
+
+  setOffline(offline: boolean) {
+    if (this.offline === offline) return
+    this.offline = offline
+    this.tray.setImage(this.getImage(this.theme))
+    this.tray.setToolTip(
+      offline ? `NethLink - ${t('Tray.Offline')}` : 'NethLink',
+    )
   }
 
   // a 16px icon of the menu, from public/tray (the @2x file is picked up on
@@ -86,6 +96,7 @@ export class TrayController {
   }
 
   changeIconByTheme(theme: 'light' | 'dark') {
+    this.theme = theme
     const image = this.getImage(theme)
     this.tray.setImage(image)
   }

@@ -8,7 +8,7 @@ import { NethLinkModules } from '@renderer/components/Modules'
 import { usePhoneIslandEventHandler } from '@renderer/hooks/usePhoneIslandEventHandler'
 import { useLoggedNethVoiceAPI } from '@renderer/hooks/useLoggedNethVoiceAPI'
 import { IPC_EVENTS, PERMISSION } from '@shared/constants'
-import { ConnectionErrorDialog } from '@renderer/components'
+import { ConnectionBanner } from '@renderer/components'
 import { debouncer } from '@shared/utils/utils'
 import { useAccount } from '@renderer/hooks/useAccount'
 import { Sidebar } from '@renderer/components/Modules/NethVoice/BaseModule/Sidebar'
@@ -233,7 +233,10 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
     <div className='h-screen w-screen'>
       <div className='absolute flex h-full w-full flex-col items-center justify-end text-sm'>
         <div className='flex h-full w-full flex-col items-center justify-between'>
-          <div className='relative z-10 flex h-full w-full flex-row bg-bgLight dark:bg-bgDark'>
+          {!connection && (
+            <ConnectionBanner onRetry={handleRefreshConnection} />
+          )}
+          <div className='relative z-10 flex h-full min-h-0 w-full flex-row bg-bgLight dark:bg-bgDark'>
             <div className='flex h-full w-full min-w-0 flex-col gap-3'>
               <Navbar onClickAccount={() => updateAccountData()} />
               <NethLinkModules />
@@ -242,13 +245,6 @@ export function NethLinkPage({ handleRefreshConnection }: NethLinkPageProps) {
           </div>
         </div>
       </div>
-      {!connection && (
-        <ConnectionErrorDialog
-          variant='nethlink'
-          onButtonClick={handleRefreshConnection}
-          buttonText={t('Common.Refresh')}
-        />
-      )}
     </div>
   )
 }
