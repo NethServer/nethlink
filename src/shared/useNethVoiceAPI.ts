@@ -263,10 +263,15 @@ export const useNethVoiceAPI = (
               throw expiredError
             } else if (reason.response?.status === 401) {
               throw new Error('Wrong username or password')
-            } else if (!reason.response || reason.response?.status === 404) {
-              throw new Error('Network connection lost')
             } else if (reason.message === 'User not authorized for NethLink') {
               throw reason
+            } else if (
+              (reason.isAxiosError && !reason.response) ||
+              reason.response?.status === 404
+            ) {
+              // no answer from the PBX: only failed requests count, not
+              // the plain errors thrown inside the try block
+              throw new Error('Network connection lost')
             } else {
               console.error('Login error:', reason)
               throw new Error('Unauthorized')
