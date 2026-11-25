@@ -85,6 +85,7 @@
     "No internet connection title": "No internet connection",
     "No internet connection description": "Please check your connection and try again",
     "Refresh": "Refresh",
+    "Connection lost banner": "No connection: you can't make or receive calls",
     "Answer phone to start recording": "Answer phone to start recording",
     "Close the call to stop recording": "Close the call to stop recording",
     "Search or type a contact": "Search or type a contact",
