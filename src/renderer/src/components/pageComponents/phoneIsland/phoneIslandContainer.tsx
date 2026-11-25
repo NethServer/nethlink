@@ -35,6 +35,7 @@ export const PhoneIslandContainer = ({
           dataConfig={dataConfig}
           uaType='mobile'
           preferredSummaryExtensionType='nethlink'
+          hideConnectionAlerts
         />
       )
     )
