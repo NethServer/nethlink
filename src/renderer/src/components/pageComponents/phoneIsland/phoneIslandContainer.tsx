@@ -35,7 +35,6 @@ export const PhoneIslandContainer = ({
           dataConfig={dataConfig}
           uaType='mobile'
           preferredSummaryExtensionType='nethlink'
-          screenShareRoomCreation='middleware'
         />
       )
     )

@@ -23,7 +23,6 @@ files:
   - '!{.env,.env.*,*.env,.npmrc,.yarnrc.yml,pnpm-lock.yaml}'
   - '!{tailwind.config.js}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
-  - '!vendor/nethesis-phone-island-1.1.11-screen-sharing.1.tgz'
 asarUnpack:
   - public/**
 win:
