@@ -69,7 +69,8 @@ import { attachVideoGatewayOrigin } from './lib/videoGatewayOrigin'
 // get app parameter
 const params = process.argv
 for (const arg of params) {
-  if (arg.includes('=')) {
+  // KEY=value parameters only: switches like --ozone-platform=x11 are not env
+  if (!arg.startsWith('-') && arg.includes('=')) {
     const kv: any[] = arg.split('=')
     if (['DEV', 'DEVTOOLS', 'DEBUG'].includes(kv[0])) {
       kv[1] = kv[1] === 'true'
@@ -937,6 +938,8 @@ async function resetApp() {
   await delay(100)
 }
 
+let screenPermissionDialogShown = false
+
 async function getPermissions() {
   if (process.platform === 'darwin') {
     // if permission has already been granted I disabled another request to improve performance
@@ -960,6 +963,15 @@ async function getPermissions() {
       systemPreferences.getMediaAccessStatus('screen')
     if (recordScreenPermissionState !== 'granted') {
       recordScreenPermission = false
+    }
+    // The first call runs before the translations are loaded: the dialog
+    // waits for the next one, and it is shown once
+    if (
+      !recordScreenPermission &&
+      i18next.isInitialized &&
+      !screenPermissionDialogShown
+    ) {
+      screenPermissionDialogShown = true
       dialog
         .showMessageBox({
           type: 'warning',
@@ -1151,5 +1163,21 @@ async function checkConnection() {
   return connected
 }
 
+function relaunchOnXWayland(): boolean {
+  if (
+    process.platform !== 'linux' ||
+    app.commandLine.getSwitchValue('ozone-platform') !== 'wayland' ||
+    process.argv.some((arg) => arg.startsWith('--ozone-platform'))
+  ) {
+    return false
+  }
+  app.relaunch({
+    execPath: process.env['APPIMAGE'] || process.execPath,
+    args: ['--ozone-platform=x11', ...process.argv.slice(1)],
+  })
+  app.exit(0)
+  return true
+}
+
 // BEGIN APP
-startup()
+if (!relaunchOnXWayland()) startup()

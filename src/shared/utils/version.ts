@@ -47,7 +47,7 @@ export type ReleaseInfo = {
 }
 
 // The first version built with Electron 45, which runs only on macOS 13 or later
-export const MACOS_13_REQUIRED_FROM = '1.7.0-testing.0'
+export const MACOS_13_REQUIRED_FROM = '1.8.0-testing.0'
 
 // macOS 13 Ventura is Darwin 22
 export const isMacOSBefore13 = (platform: string, osRelease: string) =>

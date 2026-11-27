@@ -16,7 +16,6 @@ import {
   globalShortcut,
   clipboard,
   Notification,
-  safeStorage,
 } from 'electron'
 import { Log } from '@shared/utils/logger'
 import { NethLinkController } from '@/classes/controllers/NethLinkController'
@@ -383,7 +382,11 @@ export function registerIpcEvents() {
   )
 
   ipcMain.on(IPC_EVENTS.COPY_TO_CLIPBOARD, async (_, text) => {
-    clipboard.writeText(text)
+    try {
+      await clipboard.writeText(text)
+    } catch (e) {
+      Log.warning('cannot copy to the clipboard', e)
+    }
   })
 
   // Chat island window: size, and island events between it and NethLink.
@@ -562,9 +565,9 @@ export function registerIpcEvents() {
         await new Promise((resolve) => setTimeout(resolve, 100))
 
         // trim spaces
-        let selectedText = await clipboard.readText(
-          isLinux ? 'selection' : 'clipboard',
-        )
+        let selectedText = await (isLinux
+          ? clipboard.selection.readText()
+          : clipboard.readText())
         if (typeof selectedText !== 'string') return
         selectedText = selectedText.trim()
 
@@ -780,7 +783,7 @@ export function registerIpcEvents() {
       }
       // saveLoggedAccount logs out when it cannot encrypt: the session is
       // still valid, keep it and let the user sign in again when needed
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!(await AccountController.instance.waitForSafeStorage())) {
         Log.warning(
           'password update: encryption not available, password not stored',
         )
