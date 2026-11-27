@@ -64,6 +64,7 @@ import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
+import { attachVideoGatewayOrigin } from './lib/videoGatewayOrigin'
 
 // get app parameter
 const params = process.argv
@@ -297,6 +298,7 @@ function attachOnReadyProcess() {
     new SplashScreenController()
     new TrayController()
     new ScreenSharePickerController()
+    attachVideoGatewayOrigin()
 
     // I display the splashscreen when the splashscreen component is correctly loaded.
     SplashScreenController.instance.window.addOnBuildListener(() => {
