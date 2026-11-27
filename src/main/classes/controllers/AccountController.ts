@@ -168,7 +168,7 @@ export class AccountController {
 
               try {
                 // Make a simple API call to verify the token is still accepted by the server
-                // Use the API client so path selection (/api vs /webrest) follows account settings/fallback logic
+                // The API client picks /api or /webrest from the type of the saved token
                 const { NethVoiceAPI } = useNethVoiceAPI(lastLoggedAccount)
                 const me = await NethVoiceAPI.User.me()
 

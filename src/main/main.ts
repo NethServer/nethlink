@@ -44,9 +44,12 @@ import {
 } from '@shared/constants'
 import {
   findUpdate,
+  isMacOSBefore13,
   isTestingVersion,
+  MACOS_13_REQUIRED_FROM,
   ReleaseInfo,
 } from '@shared/utils/version'
+import { release as osRelease } from 'os'
 import { NetworkController } from './classes/controllers/NetworkController'
 import { AppController } from './classes/controllers/AppController'
 import {
@@ -61,6 +64,7 @@ import Backend from 'i18next-fs-backend/cjs'
 import { uniq } from 'lodash'
 import { Registry } from 'rage-edit'
 import { useNethVoiceAPI } from '@shared/useNethVoiceAPI'
+import { attachVideoGatewayOrigin } from './lib/videoGatewayOrigin'
 
 // get app parameter
 const params = process.argv
@@ -295,6 +299,7 @@ function attachOnReadyProcess() {
     new SplashScreenController()
     new TrayController()
     new ScreenSharePickerController()
+    attachVideoGatewayOrigin()
 
     // I display the splashscreen when the splashscreen component is correctly loaded.
     SplashScreenController.instance.window.addOnBuildListener(() => {
@@ -1072,7 +1077,16 @@ async function checkForUpdate(manual = false) {
     const releases: ReleaseInfo[] = isTestingVersion(currentVersion)
       ? await NetworkController.instance.get(GIT_RELEASES_URL)
       : [await NetworkController.instance.get(GIT_LATEST_RELEASE_URL)]
-    const found = findUpdate(currentVersion, releases || [])
+    // the releases built with Electron 45 do not start before macOS 13
+    const unsupportedFrom = isMacOSBefore13(process.platform, osRelease())
+      ? MACOS_13_REQUIRED_FROM
+      : undefined
+    const found = findUpdate(currentVersion, releases || [], unsupportedFrom)
+    if (unsupportedFrom) {
+      Log.info(
+        `macOS ${process.getSystemVersion()}: releases from ${unsupportedFrom} need macOS 13, not offered`,
+      )
+    }
     Log.info('Update found:', found?.tag_name || 'none')
     const update = found
       ? { version: found.tag_name.replace(/^v/, ''), url: found.html_url }

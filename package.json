@@ -1,6 +1,6 @@
 {
   "name": "nethlink",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "NethLink is a tool designed to link NethServer systems and provide remote access tools. This project aims to offer a simple yet powerful user interface for managing NethServer systems more efficiently.",
   "main": "./out/main/main.js",
   "desktopName": "nethlink.desktop",
@@ -51,7 +51,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@nethesis/chat-island": "0.1.73",
     "@nethesis/nethesis-solid-svg-icons": "github:nethesis/Font-Awesome#ns-solid",
-    "@nethesis/phone-island": "^1.1.8",
+    "@nethesis/phone-island": "^1.1.13",
     "@tailwindcss/forms": "^0.5.7",
     "@types/lodash": "^4.14.202",
     "@types/node": "^24.19.2",

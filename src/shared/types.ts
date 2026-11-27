@@ -48,7 +48,6 @@ export type Account = {
   shortcut?: string
   commandBarShortcut?: string
   preferredDevices?: PreferredDevices
-  apiBasePath?: string // Store which API path works for this account
   authenticationMethod?: AuthenticationMethod
 }
 
