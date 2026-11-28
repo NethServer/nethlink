@@ -107,7 +107,18 @@ export class AccountController {
           const psw: Buffer = Buffer.from(
             authAppData.lastUserCryptPsw as Uint8Array,
           )
-          const decryptString = safeStorage.decryptString(psw)
+          let decryptString: string
+          try {
+            decryptString = safeStorage.decryptString(psw)
+          } catch (e) {
+            // e.g. the blob was written on another PC or by another Windows
+            // user (redirected or synced user data folder)
+            Log.warning(
+              'auto login failed: cannot decrypt the saved password with safeStorage',
+              e,
+            )
+            return false
+          }
           const _accountData = JSON.parse(decryptString)
           const password = _accountData.password
 

@@ -1,3 +1,5 @@
+// must stay the first import: it moves the user data folder before anything reads it
+import './lib/localUserData'
 import {
   app,
   Notification,
@@ -250,8 +252,9 @@ function startLogger() {
     })
     isDev() && console.log(message)
   }
-  ipcMain.on('log-message', (e, message) => {
-    if (message && isDev()) logOnFile(message)
+  // Log already filters by level: info and debug only in dev, warnings and errors always
+  ipcMain.on('log-message', (_e, message) => {
+    if (message) logOnFile(message)
   })
   // Always log PhoneIsland renderer messages (for audio diagnostics in production)
   ipcMain.on('phone-island-log', (_e, message) => {
